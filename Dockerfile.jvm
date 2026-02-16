@@ -16,4 +16,4 @@ ENV HOST=0.0.0.0
 EXPOSE 3000
 
 # Using npm start for dev; for production, we'd use a multi-stage build with Nginx
-CMD ["npm", "start"]
+CMD ["npm", "run", "dev", "--", "--host"]
