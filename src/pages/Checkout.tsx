@@ -24,8 +24,8 @@ const Checkout = () => {
         setIsProcessing(true);
         try {
             const apiBase = (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1')
-                        ? 'http://localhost:8080'
-                        : 'https://kwapi.sdebiehome.co.za';
+                        ? 'http://192.168.1.39:8080'
+                        : 'https://ecapi.sdebiehome.co.za';
 
             const response = await fetch(`${apiBase}/api/payments/request`, {
                 method: 'POST',
