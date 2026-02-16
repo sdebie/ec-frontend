@@ -14,43 +14,100 @@ const Checkout = () => {
     };
 
     const handlePayFastPayment = async () => {
-        // 1. Safety check: Is the script even loaded?
-        if (typeof window.payfast_do_onsite_payment !== 'function') {
-            console.error("PayFast engine not loaded yet. Retrying...");
-            // Optional: add a small alert or retry logic
-            return;
-        }
+        // Small helper to wait for the PayFast engine to attach its function to window
+        const waitForPayFastEngine = async (timeoutMs = 6000, intervalMs = 200) => {
+            const start = Date.now();
+            while (Date.now() - start < timeoutMs) {
+                const fn = (window as any).payfast_do_onsite_payment || (window as any).payfast_do_onsite;
+                if (typeof fn === 'function') return fn;
+                await new Promise(r => setTimeout(r, intervalMs));
+            }
+            return undefined;
+        };
+
+        const debug = new URLSearchParams(window.location.search).has('debug');
+        if (debug) console.log('[PayFast][DEBUG] Clicked Pay button');
 
         setIsProcessing(true);
+
         try {
-            const apiBase = (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1')
-                        ? 'http://192.168.1.39:8080'
-                        : 'https://ecapi.sdebiehome.co.za';
+            // Determine API base candidates for local and prod
+            const isLocalHost = (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1');
+            const apiBases = isLocalHost
+                ? ['http://localhost:8080', 'http://192.168.1.39:8080']
+                : ['https://ecapi.sdebiehome.co.za'];
 
-            const response = await fetch(`${apiBase}/api/payments/request`, {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({
-                    id: quote.id,
-                    totalAmount: quote.totalAmount
-                })
-            });
+            let lastErr: any = null;
+            let response: Response | null = null;
 
-            const { uuid } = await response.json();
+            // Try each base until one succeeds
+            for (const base of apiBases) {
+                try {
+                    if (debug) console.log('[PayFast][DEBUG] Requesting payment session from', base);
+                    response = await fetch(`${base}/api/payments/request`, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ id: quote.id, totalAmount: quote.totalAmount })
+                    });
+                    if (!response.ok) {
+                        const txt = await response.text().catch(() => '');
+                        throw new Error(`HTTP ${response.status} ${response.statusText} ${txt}`);
+                    }
+                    // If we reach here, we got a good response
+                    break;
+                } catch (e) {
+                    lastErr = e;
+                    response = null;
+                    if (debug) console.warn('[PayFast][DEBUG] Failed using base, trying next if available:', base, e);
+                }
+            }
 
-            // 2. Use the correct function name: payfast_do_onsite_payment
-            window.payfast_do_onsite_payment({
-                uuid: uuid,
-                callback: (result) => {
+            if (!response) throw lastErr || new Error('No response from any API base');
+
+            // Parse JSON safely
+            let uuid: string | undefined;
+            try {
+                const data = await response.json();
+                uuid = data?.uuid;
+            } catch (e) {
+                const txt = await response.text().catch(() => '');
+                throw new Error('Failed to parse JSON for /api/payments/request. Body: ' + txt);
+            }
+
+            if (!uuid) throw new Error('Missing uuid in API response');
+            if (debug) console.log('[PayFast][DEBUG] Received UUID:', uuid);
+
+            // Wait for engine to be available and pick the correct function
+            const payfastFn = await waitForPayFastEngine();
+            if (typeof payfastFn !== 'function') {
+                console.error('PayFast engine not loaded. Make sure engine.js is included and not blocked by extensions.');
+                setIsProcessing(false);
+                return;
+            }
+
+            if (debug) console.log('[PayFast][DEBUG] Launching PayFast modal using', (payfastFn === (window as any).payfast_do_onsite_payment) ? 'payfast_do_onsite_payment' : 'payfast_do_onsite');
+
+            payfastFn({
+                uuid,
+                callback: (result: boolean | string) => {
+                    if (debug) console.log('[PayFast][DEBUG] Callback result:', result);
                     if (result === true) {
                         window.location.href = `/payment-success?quoteId=${quote.id}`;
                     } else {
                         setIsProcessing(false);
+                        if (result !== false) console.warn('[PayFast] Payment not completed:', result);
                     }
+                },
+                before_on_continue: () => {
+                    if (debug) console.log('[PayFast][DEBUG] User clicked continue inside modal');
+                },
+                before_close: () => {
+                    if (debug) console.log('[PayFast][DEBUG] Modal is about to close');
                 }
             });
         } catch (error) {
-            console.error("Payment failed", error);
+            console.error('[PayFast] Payment initiation failed:', error);
+            alert('Could not initiate payment. Please try again.');
             setIsProcessing(false);
         }
     };
