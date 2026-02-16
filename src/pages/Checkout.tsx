@@ -25,7 +25,7 @@ const Checkout = () => {
             return undefined;
         };
 
-        const debug = new URLSearchParams(window.location.search).has('debug');
+        const debug = true;//new URLSearchParams(window.location.search).has('debug');
         if (debug) console.log('[PayFast][DEBUG] Clicked Pay button');
 
         setIsProcessing(true);
