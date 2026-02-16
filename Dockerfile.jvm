@@ -1,0 +1,19 @@
+FROM node:20-alpine
+
+WORKDIR /app
+
+# Install dependencies
+COPY package.json package-lock.json* ./
+RUN npm install
+
+# Copy source code
+COPY . .
+
+# Ensure the app binds to 0.0.0.0 so the Cloudflare Tunnel can reach it
+ENV HOST=0.0.0.0
+# If using Vite, you might need: ENV VITE_HOST=0.0.0.0
+
+EXPOSE 3000
+
+# Using npm start for dev; for production, we'd use a multi-stage build with Nginx
+CMD ["npm", "start"]
