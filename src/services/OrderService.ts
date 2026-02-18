@@ -9,7 +9,7 @@ export interface OrderData {
     status: string;
 }
 
-const graphQlEndpoint = getServiceEndpoint(8109) + '/api/ordering/graphql';
+const graphQlEndpoint = getServiceEndpoint(8109) + '/api/graphql';
 
 export async function apiCreateOrder<U>(order: any): Promise<U> {
     // Build a GraphQL query for the backend's createOrder query
