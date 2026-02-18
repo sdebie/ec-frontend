@@ -38,7 +38,7 @@ export async function apiAddToCart<U>(order: OrderData): Promise<U> {
 export async function apiOrderById(id: number): Promise<OrderData> {
     console.log("graphQL:: Get Order by id request", id);
     const query = gql`
-        query OrderById($id: Long!) {
+        query OrderById($id: BigInteger!) {
             orderById(id: $id) {
                 id
                 status
