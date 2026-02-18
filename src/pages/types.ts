@@ -1,7 +1,7 @@
 
 
 export type OrderItemsData = {
-    unit_rice: number
+    unit_price: number
     quantity: number
 }
 export type OrderData = {
