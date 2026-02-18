@@ -16,10 +16,8 @@ const CreateOrder: React.FC = () => {
       orderId: generatedId,
       items: [
         {
-          id: 'SKU-001',
-          name: 'Sample Item',
-          price: 100.0,
-          qty: 1,
+          unitPrice: 100.0,
+          quantity: 1,
         },
       ],
     };
