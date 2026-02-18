@@ -1,6 +1,7 @@
 import getServiceEndpoint from "../utils/HostnameResolver";
 import {GraphQLService} from "./GraphQLService";
 import {OrderData} from "../pages/types";
+import {gql} from "graphql-request";
 
 const graphQlEndpoint = getServiceEndpoint(8080) + '/api/graphql';
 
