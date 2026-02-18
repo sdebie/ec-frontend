@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { ShoppingCart } from 'lucide-react';
 import { CartStore } from '../state/CartStore';
+import { useNavigate } from 'react-router-dom';
 
 export type CartIconProps = {
   className?: string;
@@ -11,23 +12,40 @@ export type CartIconProps = {
 
 const CartIcon: React.FC<CartIconProps> = ({ className = '', onClick, size = 24, showZero = false }) => {
   const [count, setCount] = useState<number>(() => CartStore.getItemCount());
+  const [orderId, setOrderId] = useState<string | null>(() => CartStore.getLastOrderId());
+  const navigate = useNavigate();
 
   useEffect(() => {
     // Subscribe to global cart changes
-    const unsub = CartStore.subscribe(() => setCount(CartStore.getItemCount()));
-    // Ensure initial count is in sync if something changed before mount
+    const unsub = CartStore.subscribe(() => {
+      setCount(CartStore.getItemCount());
+      setOrderId(CartStore.getLastOrderId());
+    });
+    // Ensure initial state is in sync if something changed before mount
     setCount(CartStore.getItemCount());
+    setOrderId(CartStore.getLastOrderId());
     return () => unsub();
   }, []);
 
   const shouldShowBadge = showZero ? count >= 0 : count > 0;
+
+  const handleDefaultClick = () => {
+    if (typeof onClick === 'function') {
+      onClick();
+      return;
+    }
+    // Default behavior: if cart has items and we know the last order id, navigate to checkout
+    if (count > 0 && orderId) {
+      navigate(`/checkout?orderId=${encodeURIComponent(orderId)}`);
+    }
+  };
 
   return (
     <button
       type="button"
       aria-label={`Cart${count ? ` with ${count} items` : ''}`}
       className={`relative inline-flex items-center justify-center ${className}`}
-      onClick={onClick}
+      onClick={handleDefaultClick}
     >
       <ShoppingCart width={size} height={size} />
       {shouldShowBadge && (

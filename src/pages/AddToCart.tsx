@@ -1,12 +1,10 @@
 import React, { useMemo, useState } from 'react';
-import { useNavigate } from 'react-router-dom';
 import { useAddToCart } from './hook/useAddToCart';
 import { OrderData } from './types';
 
-// A simple page that creates a very basic order and then takes the user to checkout
-// This uses the existing useCreateOrder hook and minimal order payload
+// A simple page that creates a very basic order and adds it to the cart
+// Checkout is now initiated from the CartIcon click, not from here
 const AddToCart: React.FC = () => {
-  const navigate = useNavigate();
   const { createOrder, createLoading, createError } = useAddToCart();
   const [lastOrderId, setLastOrderId] = useState<string | null>(null);
 
@@ -22,18 +20,15 @@ const AddToCart: React.FC = () => {
     };
   }, []);
 
-  const handleCreateThenCheckout = async () => {
+  const handleAddToCart = async () => {
     try {
       const created: OrderData = await createOrder(basicOrder as unknown as OrderData);
       const id = created?.id;
       setLastOrderId(id ?? null);
-
-      // After successful creation, send user to the checkout page including the orderId
-      // Navigate to the dedicated checkout route with query parameter so Checkout can load details
-      navigate(`/checkout?orderId=${encodeURIComponent(id ?? '')}`, { replace: true });
+      // No navigation here; checkout happens when the CartIcon is clicked
     } catch (e) {
       // Error state is displayed below; nothing else to do here
-      console.error('Failed to create order', e);
+      console.error('Failed to add to cart', e);
     }
   };
 
@@ -43,12 +38,12 @@ const AddToCart: React.FC = () => {
         <div className="bg-white shadow-sm rounded-2xl overflow-hidden border border-gray-100 p-8 space-y-6">
           <h1 className="text-2xl font-bold text-gray-900">Create Order</h1>
           <p className="text-gray-600">
-            This page creates a very basic order and then redirects you to the checkout flow.
+            This page creates a very basic order and adds it to your cart. Proceed to checkout by clicking the cart icon.
           </p>
 
           {lastOrderId && (
             <div className="text-sm text-green-700 bg-green-50 border border-green-100 rounded-lg p-3">
-              Order created successfully. Temporary ID: <b>{lastOrderId}</b>
+              Added to cart. Temporary Order ID: <b>{lastOrderId}</b>
             </div>
           )}
 
@@ -59,13 +54,13 @@ const AddToCart: React.FC = () => {
           )}
 
           <button
-            onClick={handleCreateThenCheckout}
+            onClick={handleAddToCart}
             disabled={createLoading}
             className={`w-full py-3 rounded-xl font-semibold text-white shadow ${
               createLoading ? 'bg-gray-400 cursor-not-allowed' : 'bg-blue-600 hover:bg-blue-700'
             }`}
           >
-            {createLoading ? 'Creating Order...' : 'Add to basket and go to Checkout'}
+            {createLoading ? 'Adding...' : 'Add to basket'}
           </button>
         </div>
       </div>

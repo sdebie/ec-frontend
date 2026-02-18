@@ -6,6 +6,7 @@ import { OrderData, OrderItemsData } from "../pages/types";
 type Listener = () => void;
 
 const LS_KEY = "ec_cart_order_items";
+const LS_ID_KEY = "ec_cart_order_id";
 
 function calcCount(items?: OrderItemsData[]): number {
   if (!Array.isArray(items)) return 0;
@@ -15,6 +16,7 @@ function calcCount(items?: OrderItemsData[]): number {
 class CartStoreImpl {
   private listeners: Set<Listener> = new Set();
   private itemCount = 0;
+  private lastOrderId: string | null = null;
 
   constructor() {
     // Initialize from localStorage if present
@@ -24,9 +26,14 @@ class CartStoreImpl {
         const items: OrderItemsData[] = JSON.parse(raw);
         this.itemCount = calcCount(items);
       }
+      const rawId = localStorage.getItem(LS_ID_KEY);
+      if (rawId) {
+        this.lastOrderId = rawId;
+      }
     } catch (_) {
       // ignore parsing/storage errors
       this.itemCount = 0;
+      this.lastOrderId = null;
     }
 
     // React to storage updates done in other tabs
@@ -38,6 +45,10 @@ class CartStoreImpl {
             this.itemCount = calcCount(items);
             this.emit();
           } catch (_) {}
+        }
+        if (e.key === LS_ID_KEY) {
+          this.lastOrderId = e.newValue || null;
+          this.emit();
         }
       });
     }
@@ -62,11 +73,21 @@ class CartStoreImpl {
     return this.itemCount;
   }
 
+  getLastOrderId(): string | null {
+    return this.lastOrderId;
+  }
+
   setFromOrder(order: OrderData | null | undefined) {
     const items = order?.items ?? [];
     this.itemCount = calcCount(items);
+    this.lastOrderId = order?.id != null ? String(order.id) : null;
     try {
       localStorage.setItem(LS_KEY, JSON.stringify(items));
+      if (this.lastOrderId) {
+        localStorage.setItem(LS_ID_KEY, this.lastOrderId);
+      } else {
+        localStorage.removeItem(LS_ID_KEY);
+      }
     } catch (_) {
       // ignore storage errors
     }
@@ -75,8 +96,10 @@ class CartStoreImpl {
 
   clear() {
     this.itemCount = 0;
+    this.lastOrderId = null;
     try {
       localStorage.removeItem(LS_KEY);
+      localStorage.removeItem(LS_ID_KEY);
     } catch (_) {}
     this.emit();
   }
