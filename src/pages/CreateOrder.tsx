@@ -13,10 +13,10 @@ const CreateOrder: React.FC = () => {
   // Build a super-basic order payload; in a real flow this would come from cart/context
   const basicOrder = useMemo(() => {
     return {
-      total_amount: 100.0,
+      totalAmount: 100.0,
       items: [
         {
-          unit_price: 100.0,
+          unitPrice: 100.0,
           quantity: 1,
         },
       ],
