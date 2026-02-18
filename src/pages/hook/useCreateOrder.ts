@@ -7,6 +7,7 @@ export function useCreateOrder() {
     const [createError, setCreateError] = useState<Error | null>(null);
 
     async function createOrder(orderDetail: any) {
+        console.log("DEBUG:: Creating order: ", orderDetail);
         setCreateLoading(true);
         setCreateError(null);
 

@@ -25,7 +25,7 @@ const CreateOrder: React.FC = () => {
   const handleCreateThenCheckout = async () => {
     try {
       const created: any = await createOrder(basicOrder);
-      const id = created?.id ?? basicOrder.orderId;
+      const id = created?.id;
       setLastOrderId(id ?? null);
 
       // After successful creation, send user to the checkout page
