@@ -28,9 +28,9 @@ const AddToCart: React.FC = () => {
       const id = created?.id;
       setLastOrderId(id ?? null);
 
-      // After successful creation, send user to the checkout page
-      // Navigate to the dedicated checkout route
-      navigate('/checkout', { replace: true });
+      // After successful creation, send user to the checkout page including the orderId
+      // Navigate to the dedicated checkout route with query parameter so Checkout can load details
+      navigate(`/checkout?orderId=${encodeURIComponent(id ?? '')}`, { replace: true });
     } catch (e) {
       // Error state is displayed below; nothing else to do here
       console.error('Failed to create order', e);

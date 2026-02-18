@@ -16,6 +16,8 @@ export async function apiAddToCart<U>(order: OrderData): Promise<U> {
             addToCart(order: $order){
                 id
                 status
+                totalAmount
+                items { unitPrice quantity }
             }
         }
     `;
@@ -29,8 +31,8 @@ export async function apiAddToCart<U>(order: OrderData): Promise<U> {
             }
         });
 
-    // Return only the created order payload
-    return (result?.createOrder ?? result) as U;
+    // Return only the created/updated order payload from GraphQL response
+    return (result?.addToCart ?? result) as U;
 }
 
 export async function apiOrderById(id: string): Promise<OrderData> {
@@ -39,6 +41,9 @@ export async function apiOrderById(id: string): Promise<OrderData> {
         query OrderById($id: String!) {
             orderById(id: $id) {
                 id
+                status
+                totalAmount
+                items { unitPrice quantity }
             }
         }
     `;
@@ -47,6 +52,6 @@ export async function apiOrderById(id: string): Promise<OrderData> {
     const response = await client
         .request<OrderResponse>(query, { id });
 
-    console.log("graphQL:: Porting events by port id response: ", response.portingEventsByPortId);
+    console.log("graphQL:: Order by id response: ", response.orderById);
     return response.orderById;
 }
