@@ -25,11 +25,19 @@ export async function apiCreateOrder<U>(order: any): Promise<U> {
     const client = await GraphQLService.getGraphQLClient(graphQlEndpoint);
 
     // Map the incoming order to the expected DTO shape
+    // Ensure backend non-null BigInteger! requirement for orderId by generating one when missing
+    // Build the order input; do not force an orderId during creation
+    const orderInput: any = {
+        items: order.items ?? [],
+    };
+    // Include orderId only if caller provided one
+    const providedId = order.orderId ?? order.id;
+    if (providedId !== undefined && providedId !== null) {
+        orderInput.orderId = providedId;
+    }
+
     const variables = {
-        order: {
-            orderId: order.orderId ?? order.id ?? null,
-            items: order.items ?? [],
-        }
+        order: orderInput,
     };
 
     const result = await client.request<any>(query, variables);
