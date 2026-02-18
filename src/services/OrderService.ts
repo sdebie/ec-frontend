@@ -13,7 +13,10 @@ export async function apiCreateOrder<U>(order: OrderData): Promise<U> {
 
     const mutation = gql`
         mutation CreateOrder($order: OrderDtoInput!) {
-            createOrder(order: $order)
+            createOrder(order: $order){
+                id
+                status
+            }
         }
     `;
 
