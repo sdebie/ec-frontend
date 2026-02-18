@@ -126,7 +126,7 @@ const CheckoutPayFast: React.FC = () => {
           {/* Header */}
           <div className="p-6 border-b border-gray-100 flex items-center justify-between">
             <h1 className="text-2xl font-bold text-gray-900 flex items-center gap-2">
-              <ShoppingBag className="text-blue-600" /> Checkout (Gateway Submit)
+              <ShoppingBag className="text-blue-600" /> Checkout (FastPay)
             </h1>
             <span className="text-sm text-gray-500">Order #{quote.id}</span>
           </div>

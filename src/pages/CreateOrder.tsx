@@ -32,8 +32,8 @@ const CreateOrder: React.FC = () => {
       setLastOrderId(id ?? null);
 
       // After successful creation, send user to the checkout page
-      // Existing app mounts CheckoutPayFast at '/'
-      navigate('/', { replace: true });
+      // Navigate to the dedicated checkout route
+      navigate('/checkout', { replace: true });
     } catch (e) {
       // Error state is displayed below; nothing else to do here
       console.error('Failed to create order', e);
