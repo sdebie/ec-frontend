@@ -5,7 +5,7 @@ export type OrderItemsData = {
     quantity?: number
 }
 export type OrderData = {
-    id?: string
+    id?: number
     createdAt?: string
     updatedAt?: string
     totalAmount?: number
