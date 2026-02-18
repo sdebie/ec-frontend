@@ -16,7 +16,7 @@ const CreateOrder: React.FC = () => {
       total_amount: 100.0,
       items: [
         {
-          unit_rice: 100.0,
+          unit_pice: 100.0,
           quantity: 1,
         },
       ],
