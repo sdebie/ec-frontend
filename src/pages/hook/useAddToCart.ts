@@ -1,19 +1,19 @@
 import {useState} from "react";
-import {apiCreateOrder} from "../../services/OrderService";
+import {apiAddToCart} from "../../services/OrderService";
 import { OrderData } from "../types";
 
-export function useCreateOrder() {
+export function useAddToCart() {
 
     const [createLoading, setCreateLoading] = useState(false);
     const [createError, setCreateError] = useState<Error | null>(null);
 
-    async function createOrder(orderDetail: OrderData): Promise<OrderData> {
+    async function addToCart(orderDetail: OrderData): Promise<OrderData> {
         console.log("DEBUG:: Creating order: ", orderDetail);
         setCreateLoading(true);
         setCreateError(null);
 
         try {
-            return await apiCreateOrder<OrderData>(
+            return await apiAddToCart<OrderData>(
                 orderDetail
             );
         } catch (err) {
@@ -24,5 +24,5 @@ export function useCreateOrder() {
         }
     }
 
-    return {createOrder, createLoading, createError};
+    return {createOrder: addToCart, createLoading, createError};
 }

@@ -1,19 +1,18 @@
 import React, { useMemo, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { useCreateOrder } from './hook/useCreateOrder';
+import { useAddToCart } from './hook/useAddToCart';
 import { OrderData } from './types';
 
 // A simple page that creates a very basic order and then takes the user to checkout
 // This uses the existing useCreateOrder hook and minimal order payload
-const CreateOrder: React.FC = () => {
+const AddToCart: React.FC = () => {
   const navigate = useNavigate();
-  const { createOrder, createLoading, createError } = useCreateOrder();
+  const { createOrder, createLoading, createError } = useAddToCart();
   const [lastOrderId, setLastOrderId] = useState<string | null>(null);
 
   // Build a super-basic order payload; in a real flow this would come from cart/context
   const basicOrder = useMemo(() => {
     return {
-      totalAmount: 100.0,
       items: [
         {
           unitPrice: 100.0,
@@ -66,7 +65,7 @@ const CreateOrder: React.FC = () => {
               createLoading ? 'bg-gray-400 cursor-not-allowed' : 'bg-blue-600 hover:bg-blue-700'
             }`}
           >
-            {createLoading ? 'Creating Order...' : 'Create Order & Go to Checkout'}
+            {createLoading ? 'Creating Order...' : 'Add to basket and go to Checkout'}
           </button>
         </div>
       </div>
@@ -74,4 +73,4 @@ const CreateOrder: React.FC = () => {
   );
 };
 
-export default CreateOrder;
+export default AddToCart;
