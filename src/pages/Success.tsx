@@ -6,7 +6,7 @@ const Success = () => {
     useEffect(() => {
         // Poll your backend to see if the ITN updated the status
         const interval = setInterval(async () => {
-            const res = await fetch('https://kwapi.sdebiehome.co.za/api/quotations/1');
+            const res = await fetch('https://192.168.1.39/api/order/1');
             const data = await res.json();
             if (data.status === 'PAID') {
                 setVerified(true);
