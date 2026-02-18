@@ -35,10 +35,10 @@ export async function apiAddToCart<U>(order: OrderData): Promise<U> {
     return (result?.addToCart ?? result) as U;
 }
 
-export async function apiOrderById(id: string): Promise<OrderData> {
+export async function apiOrderById(id: number): Promise<OrderData> {
     console.log("graphQL:: Get Order by id request", id);
     const query = gql`
-        query OrderById($id: String!) {
+        query OrderById($id: Long!) {
             orderById(id: $id) {
                 id
                 status

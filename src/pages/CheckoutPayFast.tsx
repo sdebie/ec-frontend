@@ -30,10 +30,15 @@ const CheckoutPayFast: React.FC = () => {
         setError('Missing orderId in URL.');
         return;
       }
+      const numericId = Number(orderId);
+      if (!Number.isInteger(numericId)) {
+        setError('Invalid orderId in URL.');
+        return;
+      }
       setLoading(true);
       setError(null);
       try {
-        const data = await apiOrderById(orderId);
+        const data = await apiOrderById(numericId);
         setOrder(data ?? null);
       } catch (e: any) {
         console.error('Failed to fetch order by id', e);
