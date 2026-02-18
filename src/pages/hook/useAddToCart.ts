@@ -1,6 +1,7 @@
 import {useState} from "react";
 import {apiAddToCart} from "../../services/OrderService";
 import { OrderData } from "../types";
+import { CartStore } from "../../state/CartStore";
 
 export function useAddToCart() {
 
@@ -13,9 +14,12 @@ export function useAddToCart() {
         setCreateError(null);
 
         try {
-            return await apiAddToCart<OrderData>(
+            const result = await apiAddToCart<OrderData>(
                 orderDetail
             );
+            // Update cart badge count globally
+            CartStore.setFromOrder(result as OrderData);
+            return result as OrderData;
         } catch (err) {
             setCreateError(err as Error);
             throw err;

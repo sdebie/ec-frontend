@@ -2,6 +2,7 @@ import React, { useEffect, useMemo, useState } from 'react';
 import { ShoppingBag, ShieldCheck, CreditCard } from 'lucide-react';
 import { apiOrderById } from '../services/OrderService';
 import { OrderData } from './types';
+import { CartStore } from '../state/CartStore';
 
 // Interface shaped like backend HtmlFormField
 interface HtmlFormField {
@@ -40,6 +41,8 @@ const CheckoutPayFast: React.FC = () => {
       try {
         const data = await apiOrderById(numericId);
         setOrder(data ?? null);
+        // Ensure cart badge reflects items from the loaded order
+        CartStore.setFromOrder(data ?? null);
       } catch (e: any) {
         console.error('Failed to fetch order by id', e);
         setError(e?.message || 'Failed to fetch order');
