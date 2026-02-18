@@ -1,14 +1,14 @@
 
 
 export type OrderItemsData = {
-    unit_price: number
+    unitPrice: number
     quantity: number
 }
 export type OrderData = {
     id: string
     createdAt: string
     updatedAt: string
-    amount: number
+    totalAmount: number
     status: string
     items: OrderItemsData[]
 }
