@@ -45,12 +45,8 @@ export class GraphQLService {
      * @returns Promise resolving to a GraphQLClient or null if the endpoint is not available
      */
     public static async initializeGraphQLClient(endpoint: string): Promise<GraphQLClient | null> {
-        const isAvailable = await this.isEndpointAvailable(endpoint);
-        if (!isAvailable) {
-            console.debug(`GraphQL endpoint ${endpoint} is not available`);
-            return null;
-        }
-
+        // Avoid making a preflight network request that can cause noisy console errors
+        // Simply return a client; actual requests will surface connectivity issues naturally
         return new GraphQLClient(endpoint);
     }
 
