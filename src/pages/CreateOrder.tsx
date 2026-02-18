@@ -1,6 +1,7 @@
 import React, { useMemo, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useCreateOrder } from './hook/useCreateOrder';
+import { OrderData } from './types';
 
 // A simple page that creates a very basic order and then takes the user to checkout
 // This uses the existing useCreateOrder hook and minimal order payload
@@ -15,7 +16,7 @@ const CreateOrder: React.FC = () => {
       total_amount: 100.0,
       items: [
         {
-          unitPrice: 100.0,
+          unit_rice: 100.0,
           quantity: 1,
         },
       ],
@@ -24,7 +25,7 @@ const CreateOrder: React.FC = () => {
 
   const handleCreateThenCheckout = async () => {
     try {
-      const created: any = await createOrder(basicOrder);
+      const created: OrderData = await createOrder(basicOrder as unknown as OrderData);
       const id = created?.id;
       setLastOrderId(id ?? null);
 
