@@ -17,10 +17,10 @@ export type OrderResponse = {
     orderById: OrderData;
 }
 
-export async function apiAddToCart<U>(order: OrderData): Promise<U> {
+export async function createOrder<U>(order: OrderData): Promise<U> {
     const mutation = gql`
-        mutation AddToCart($order: OrderDtoInput!) {
-            addToCart(order: $order){
+        mutation CreateOrder($order: OrderDtoInput!) {
+            createOrder(order: $order){
                 id
                 status
                 totalAmount
@@ -39,17 +39,90 @@ export async function apiAddToCart<U>(order: OrderData): Promise<U> {
         }
     });
 
-    // Return only the created/updated order payload from GraphQL response
-    return (result?.addToCart ?? result) as U;
+    // Return only the created order payload from GraphQL response
+    return (result?.createOrder ?? result) as U;
 }
 
+//
+// export async function apiAddToCart<U>(order: OrderData): Promise<U> {
+//     const mutation = gql`
+//         mutation AddToCart($order: OrderDtoInput!) {
+//             addToCart(order: $order){
+//                 id
+//                 status
+//                 totalAmount
+//                 items { unitPrice quantity variant { id product { name }  } }
+//             }
+//         }
+//     `;
+//
+//     const client = await GraphQLService.getGraphQLClient(graphQlEndpoint);
+//
+//     const result = await client.request(mutation, {
+//         order: {
+//             orderId: order.id ?? undefined,
+//             sessionId: CartStore.getOrderSessionId() ?? undefined,
+//             items: order.items ?? []
+//         }
+//     });
+//
+//     // Return only the created/updated order payload from GraphQL response
+//     return (result?.addToCart ?? result) as U;
+// }
+
 // Common, framework-agnostic function to add/update an order in the cart
-// Accepts OrderData and updates the global CartStore, returning the created order
+// Refactored: only saves locally via CartStore/LocalStorage and DOES NOT persist to backend
 export async function addToCart(order: OrderData): Promise<OrderData> {
-    const created = await apiAddToCart<OrderData>(order);
-    // Update global cart state (badge count + last order id) in one place
-    CartStore.setFromOrder(created);
-    return created;
+    const LS_KEY = 'ec_cart_order_items';
+
+    // Normalize incoming items
+    const incoming = Array.isArray(order?.items) ? order.items! : [];
+
+    // Read existing items from localStorage
+    let existing: any[] = [];
+    try {
+        const raw = typeof window !== 'undefined' ? window.localStorage.getItem(LS_KEY) : null;
+        existing = raw ? JSON.parse(raw) : [];
+        if (!Array.isArray(existing)) existing = [];
+    } catch (_) {
+        existing = [];
+    }
+
+    // Merge by variant.id when available; otherwise append
+    const merged: any[] = [...existing];
+    for (const inc of incoming) {
+        const vid = (inc as any)?.variant?.id;
+        if (vid == null) {
+            merged.push({ ...inc });
+            continue;
+        }
+        const idx = merged.findIndex((m) => (m?.variant?.id) === vid);
+        if (idx >= 0) {
+            const prev = merged[idx] || {};
+            const newQty = Number(prev.quantity || 0) + Number(inc.quantity || 0) || 0;
+            merged[idx] = {
+                ...prev,
+                ...inc,
+                quantity: newQty,
+                // keep the latest unitPrice if provided, else previous
+                unitPrice: (typeof inc.unitPrice === 'number' ? inc.unitPrice : prev.unitPrice)
+            };
+        } else {
+            merged.push({ ...inc });
+        }
+    }
+
+    // Persist locally for cross-tab visibility and refresh
+    try {
+        if (typeof window !== 'undefined') {
+            window.localStorage.setItem(LS_KEY, JSON.stringify(merged));
+        }
+    } catch (_) {}
+
+    // Update global cart badge/state
+    const localOrder: OrderData = { ...(order || {}), items: merged };
+    CartStore.setFromOrder(localOrder);
+    return localOrder;
 }
 
 export async function apiOrderById(id: number): Promise<OrderData> {

@@ -1,7 +1,8 @@
 import React, { useEffect, useMemo, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { CartStore } from '../../state/CartStore';
-import { OrderItemsData } from './types';
+import { OrderItemsData, OrderData } from './types';
+import { createOrder } from '../../services/OrderService';
 
 // LocalStorage key used across the app
 const LS_KEY = 'ec_cart_order_items';
@@ -12,6 +13,7 @@ const currency = (val?: number | null) =>
 const Cart: React.FC = () => {
   const navigate = useNavigate();
   const [items, setItems] = useState<OrderItemsData[]>([]);
+  const [placingOrder, setPlacingOrder] = useState(false);
 
   // Read from localStorage and keep in sync with CartStore updates
   useEffect(() => {
@@ -49,6 +51,26 @@ const Cart: React.FC = () => {
 
   const hasItems = items.length > 0;
 
+  const handleCheckout = async () => {
+    if (!hasItems || placingOrder) return;
+    setPlacingOrder(true);
+    try {
+      const payload: OrderData = { items: items.map(i => ({
+        unitPrice: i.unitPrice,
+        quantity: i.quantity,
+        variant: i.variant,
+      })) };
+      await createOrder<OrderData>(payload);
+      navigate('/checkout');
+    } catch (err) {
+      console.error('Failed to create order before checkout', err);
+      // Fallback: still navigate to checkout so user isn't blocked
+      navigate('/checkout');
+    } finally {
+      setPlacingOrder(false);
+    }
+  };
+
   return (
     <div className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
       <h1 className="text-2xl font-bold mb-6">Your Cart</h1>
@@ -73,7 +95,7 @@ const Cart: React.FC = () => {
             {items.map((it, idx) => (
               <div key={idx} className="p-4 flex items-center justify-between">
                 <div className="text-sm text-gray-800">
-                  <div className="font-medium">Item {it.variant.product.name}</div>
+                  <div className="font-medium">{it?.variant?.product?.name ?? 'Item'}</div>
                   <div className="text-gray-500">Qty: {it.quantity}</div>
                 </div>
                 <div className="text-sm text-gray-700">{currency((it.unitPrice || 0) * (it.quantity || 0))}</div>
@@ -103,10 +125,10 @@ const Cart: React.FC = () => {
             </button>
             <button
               className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 disabled:opacity-60"
-              onClick={() => navigate('/checkout')}
-              disabled={!hasItems}
+              onClick={handleCheckout}
+              disabled={!hasItems || placingOrder}
             >
-              Checkout
+              {placingOrder ? 'Placing order…' : 'Checkout'}
             </button>
           </div>
         </div>
