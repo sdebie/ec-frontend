@@ -1,6 +1,7 @@
 import React, { useMemo, useState } from 'react';
 import { useAddToCart } from './hook/useAddToCart';
 import { OrderData } from './types';
+import { CartStore } from '../state/CartStore';
 
 // A simple page that creates a very basic order and adds it to the cart
 // Checkout is now initiated from the CartIcon click, not from here
@@ -8,9 +9,23 @@ const AddToCart: React.FC = () => {
   const { createOrder, createLoading, createError } = useAddToCart();
   const [lastOrderId, setLastOrderId] = useState<string | null>(null);
 
+  // Try to reuse an existing order id only if provided explicitly via URL (legacy fallback)
+  const existingOrderId = useMemo(() => {
+    try {
+      const params = new URLSearchParams(window.location.search);
+      const fromUrl = params.get('orderId');
+      if (!fromUrl) return null;
+      const n = Number(fromUrl);
+      return Number.isFinite(n) && n > 0 ? n : null;
+    } catch (_) {
+      return null;
+    }
+  }, []);
+
   // Build a super-basic order payload; in a real flow this would come from cart/context
   const basicOrder = useMemo(() => {
     return {
+      id: existingOrderId ?? undefined,
       items: [
         {
           unitPrice: 100.0,
@@ -18,13 +33,14 @@ const AddToCart: React.FC = () => {
         },
       ],
     };
-  }, []);
+  }, [existingOrderId]);
 
   const handleAddToCart = async () => {
     try {
       const created: OrderData = await createOrder(basicOrder as unknown as OrderData);
       const id = created?.id;
       setLastOrderId(id ?? null);
+      // CartStore is updated inside the shared service used by the hook
       // No navigation here; checkout happens when the CartIcon is clicked
     } catch (e) {
       // Error state is displayed below; nothing else to do here

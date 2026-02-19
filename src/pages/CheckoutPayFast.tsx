@@ -1,6 +1,6 @@
 import React, { useEffect, useMemo, useState } from 'react';
 import { ShoppingBag, ShieldCheck, CreditCard } from 'lucide-react';
-import { apiOrderById } from '../services/OrderService';
+import { apiOrderById, apiOrderBySessionId } from '../services/OrderService';
 import { OrderData } from './types';
 import { CartStore } from '../state/CartStore';
 
@@ -19,39 +19,47 @@ const CheckoutPayFast: React.FC = () => {
   const [loading, setLoading] = useState<boolean>(false);
   const [error, setError] = useState<string | null>(null);
 
-  // Read orderId from query string
-  const orderId = useMemo(() => {
+  // Read sessionId or orderId from query string (prefer sessionId)
+  const { sessionId, orderId } = useMemo(() => {
     const params = new URLSearchParams(window.location.search);
-    return params.get('orderId') ?? undefined;
+    return {
+      sessionId: params.get('sessionId') ?? undefined,
+      orderId: params.get('orderId') ?? undefined,
+    };
   }, []);
 
   useEffect(() => {
     const load = async () => {
-      if (!orderId) {
-        setError('Missing orderId in URL.');
-        return;
-      }
-      const numericId = Number(orderId);
-      if (!Number.isInteger(numericId)) {
-        setError('Invalid orderId in URL.');
-        return;
-      }
+      const sid = sessionId ?? CartStore.getOrderSessionId() ?? undefined;
       setLoading(true);
       setError(null);
       try {
-        const data = await apiOrderById(numericId);
-        setOrder(data ?? null);
-        // Ensure cart badge reflects items from the loaded order
+        let data: OrderData | null = null;
+        if (sid) {
+          // Preferred: fetch by session
+          const d = await apiOrderBySessionId(sid);
+          data = d ?? null;
+        } else if (orderId) {
+          // Fallback: numeric id
+          const numericId = Number(orderId);
+          if (!Number.isInteger(numericId)) {
+            throw new Error('Invalid orderId in URL.');
+          }
+          data = await apiOrderById(numericId);
+        } else {
+          throw new Error('Missing sessionId or orderId in URL.');
+        }
+        setOrder(data);
         CartStore.setFromOrder(data ?? null);
       } catch (e: any) {
-        console.error('Failed to fetch order by id', e);
+        console.error('Failed to fetch order', e);
         setError(e?.message || 'Failed to fetch order');
       } finally {
         setLoading(false);
       }
     };
     load();
-  }, [orderId]);
+  }, [sessionId, orderId]);
 
   const computedTotal = useMemo(() => {
     if (order?.totalAmount != null) return Number(order.totalAmount);

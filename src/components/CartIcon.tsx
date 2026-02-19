@@ -12,18 +12,18 @@ export type CartIconProps = {
 
 const CartIcon: React.FC<CartIconProps> = ({ className = '', onClick, size = 24, showZero = false }) => {
   const [count, setCount] = useState<number>(() => CartStore.getItemCount());
-  const [orderId, setOrderId] = useState<string | null>(() => CartStore.getLastOrderId());
+  const [sessionId, setOrderId] = useState<string | null>(() => CartStore.getOrderSessionId());
   const navigate = useNavigate();
 
   useEffect(() => {
     // Subscribe to global cart changes
     const unsub = CartStore.subscribe(() => {
       setCount(CartStore.getItemCount());
-      setOrderId(CartStore.getLastOrderId());
+      setOrderId(CartStore.getOrderSessionId());
     });
     // Ensure initial state is in sync if something changed before mount
     setCount(CartStore.getItemCount());
-    setOrderId(CartStore.getLastOrderId());
+    setOrderId(CartStore.getOrderSessionId());
     return () => unsub();
   }, []);
 
@@ -34,9 +34,9 @@ const CartIcon: React.FC<CartIconProps> = ({ className = '', onClick, size = 24,
       onClick();
       return;
     }
-    // Default behavior: if cart has items and we know the last order id, navigate to checkout
-    if (count > 0 && orderId) {
-      navigate(`/checkout?orderId=${encodeURIComponent(orderId)}`);
+    // Default behavior: if cart has items and we know the order session id, navigate to checkout
+    if (count > 0 && sessionId) {
+      navigate(`/checkout?sessionId=${encodeURIComponent(sessionId)}`);
     }
   };
 

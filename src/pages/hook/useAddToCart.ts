@@ -1,7 +1,6 @@
 import {useState} from "react";
-import {apiAddToCart} from "../../services/OrderService";
+import { addToCart as addToCartService } from "../../services/OrderService";
 import { OrderData } from "../types";
-import { CartStore } from "../../state/CartStore";
 
 export function useAddToCart() {
 
@@ -14,12 +13,9 @@ export function useAddToCart() {
         setCreateError(null);
 
         try {
-            const result = await apiAddToCart<OrderData>(
-                orderDetail
-            );
-            // Update cart badge count globally
-            CartStore.setFromOrder(result as OrderData);
-            return result as OrderData;
+            // Delegate to common service; it updates CartStore internally
+            const result = await addToCartService(orderDetail);
+            return result;
         } catch (err) {
             setCreateError(err as Error);
             throw err;

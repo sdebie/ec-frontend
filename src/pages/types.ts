@@ -6,6 +6,7 @@ export type OrderItemsData = {
 }
 export type OrderData = {
     id?: number
+    sessionId?: string
     createdAt?: string
     updatedAt?: string
     totalAmount?: number

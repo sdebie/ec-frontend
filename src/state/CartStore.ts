@@ -6,7 +6,8 @@ import { OrderData, OrderItemsData } from "../pages/types";
 type Listener = () => void;
 
 const LS_KEY = "ec_cart_order_items";
-const LS_ID_KEY = "ec_cart_order_id";
+// We no longer persist a last order id; instead reuse the persistent cart session id
+const CART_SESSION_KEY = "cart_session_id";
 
 function calcCount(items?: OrderItemsData[]): number {
   if (!Array.isArray(items)) return 0;
@@ -16,7 +17,8 @@ function calcCount(items?: OrderItemsData[]): number {
 class CartStoreImpl {
   private listeners: Set<Listener> = new Set();
   private itemCount = 0;
-  private lastOrderId: string | null = null;
+  // Historically named orderSessionId, now holds the persistent cart session id
+  private orderSessionId: string | null = null;
 
   constructor() {
     // Initialize from localStorage if present
@@ -26,14 +28,12 @@ class CartStoreImpl {
         const items: OrderItemsData[] = JSON.parse(raw);
         this.itemCount = calcCount(items);
       }
-      const rawId = localStorage.getItem(LS_ID_KEY);
-      if (rawId) {
-        this.lastOrderId = rawId;
-      }
+      const sessionId = localStorage.getItem(CART_SESSION_KEY);
+      this.orderSessionId = sessionId || null;
     } catch (_) {
       // ignore parsing/storage errors
       this.itemCount = 0;
-      this.lastOrderId = null;
+      this.orderSessionId = null;
     }
 
     // React to storage updates done in other tabs
@@ -46,8 +46,8 @@ class CartStoreImpl {
             this.emit();
           } catch (_) {}
         }
-        if (e.key === LS_ID_KEY) {
-          this.lastOrderId = e.newValue || null;
+        if (e.key === CART_SESSION_KEY) {
+          this.orderSessionId = e.newValue || null;
           this.emit();
         }
       });
@@ -73,21 +73,16 @@ class CartStoreImpl {
     return this.itemCount;
   }
 
-  getLastOrderId(): string | null {
-    return this.lastOrderId;
+  getOrderSessionId(): string | null {
+    return this.orderSessionId;
   }
 
   setFromOrder(order: OrderData | null | undefined) {
     const items = order?.items ?? [];
     this.itemCount = calcCount(items);
-    this.lastOrderId = order?.id != null ? String(order.id) : null;
+    // Do NOT update session id here; it is managed by ensureCartSessionId() at app start
     try {
       localStorage.setItem(LS_KEY, JSON.stringify(items));
-      if (this.lastOrderId) {
-        localStorage.setItem(LS_ID_KEY, this.lastOrderId);
-      } else {
-        localStorage.removeItem(LS_ID_KEY);
-      }
     } catch (_) {
       // ignore storage errors
     }
@@ -96,10 +91,10 @@ class CartStoreImpl {
 
   clear() {
     this.itemCount = 0;
-    this.lastOrderId = null;
+    this.orderSessionId = null;
     try {
       localStorage.removeItem(LS_KEY);
-      localStorage.removeItem(LS_ID_KEY);
+      // Do not clear the cart session id here; it persists for the browser session/lifecycle
     } catch (_) {}
     this.emit();
   }
