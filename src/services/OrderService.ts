@@ -93,10 +93,10 @@ export async function apiOrderBySessionId(sessionId: string): Promise<OrderData>
 }
 
 // --- New: client for updateCustomerInformation mutation ---
-export async function apiUpdateCustomerInformation<U>(
+export async function apiUpdateCustomerInformation(
     customer: CustomerInformation,
     sessionId?: string
-): Promise<U> {
+): Promise<CustomerInformation> {
     const sid = sessionId || CartStore.getOrderSessionId();
     if (!sid) {
         throw new Error('Missing sessionId to update customer information');
@@ -108,29 +108,25 @@ export async function apiUpdateCustomerInformation<U>(
     const mutation = gql`
         mutation UpdateCustomerInformation($sessionId: String!, $customer: CustomerDtoInput!) {
             updateCustomerInformation(sessionId: $sessionId, customer: $customer) {
-                id
-                status
-                totalAmount
-                items { unitPrice quantity }
+                email
             }
         }
     `;
 
     const client = await GraphQLService.getGraphQLClient(graphQlEndpoint);
-    const result = await client.request(mutation, {
+    const result = await client.request<{ updateCustomerInformation: CustomerInformation }>(mutation, {
         sessionId: sid,
         customer: { email: customer.email }
     });
 
-    return (result?.updateCustomerInformation ?? result) as U;
+    return result.updateCustomerInformation;
 }
 
-// Convenience wrapper returning OrderData and updating CartStore
+// Convenience wrapper returning only CustomerInformation; does not mutate CartStore
 export async function updateCustomerInformation(
     customer: CustomerInformation,
     sessionId?: string
-): Promise<OrderData> {
-    const updated = await apiUpdateCustomerInformation<OrderData>(customer, sessionId);
-    CartStore.setFromOrder(updated);
+): Promise<CustomerInformation> {
+    const updated = await apiUpdateCustomerInformation(customer, sessionId);
     return updated;
 }

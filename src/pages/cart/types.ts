@@ -3,6 +3,7 @@
 export type OrderItemsData = {
     unitPrice?: number
     quantity?: number
+    name?: string
 }
 export type OrderData = {
     id?: number
