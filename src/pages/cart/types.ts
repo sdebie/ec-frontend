@@ -18,7 +18,11 @@ export type OrderItemsData = {
 
 export type variantData = {
     id?: number
-    name?: string
+    product?: productData[]
+}
+
+export type productData = {
+    name: string
 }
 
 export type CustomerInformation = {
