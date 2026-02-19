@@ -69,6 +69,23 @@ const CheckoutPayFast: React.FC = () => {
     load();
   }, [sessionId, orderId]);
 
+  // // Clear cart session id and local cart data when the order is marked as PAID
+  // useEffect(() => {
+  //   try {
+  //     const status = order?.status?.toString().toUpperCase();
+  //     if (status === 'PAID') {
+  //       // Remove the persistent cart session id so a new cart is created next time
+  //       if (typeof window !== 'undefined' && 'localStorage' in window) {
+  //         window.localStorage.removeItem('cart_session_id');
+  //       }
+  //       // Also clear the cart items/count in the store
+  //       CartStore.clear();
+  //     }
+  //   } catch (_) {
+  //     // non-fatal
+  //   }
+  // }, [order?.status]);
+
   const computedTotal = useMemo(() => {
     if (order?.totalAmount != null) return Number(order.totalAmount);
     const items = order?.items ?? [];

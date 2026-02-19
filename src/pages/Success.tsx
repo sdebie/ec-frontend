@@ -1,16 +1,42 @@
 import React, { useEffect, useState } from 'react';
+import { apiOrderById, apiOrderBySessionId } from '../services/OrderService';
+import { CartStore } from '../state/CartStore';
 
 const Success = () => {
     const [verified, setVerified] = useState(false);
 
     useEffect(() => {
-        // Poll your backend to see if the ITN updated the status
+        // Poll your backend (via GraphQL) to see if the ITN updated the status
+        const params = new URLSearchParams(window.location.search);
+        const urlSessionId = params.get('sessionId') || undefined;
+        const urlOrderId = params.get('orderId') || undefined;
+        const sessionId = urlSessionId ?? CartStore.getOrderSessionId() ?? undefined;
+
         const interval = setInterval(async () => {
-            const res = await fetch('https://192.168.1.39/api/order/1');
-            const data = await res.json();
-            if (data.status === 'PAID') {
-                setVerified(true);
-                clearInterval(interval);
+            try {
+                let data: any = null;
+                if (sessionId) {
+                    // Prefer polling by session id if available
+                    data = await apiOrderBySessionId(sessionId);
+                } else if (urlOrderId) {
+                    const numericId = Number(urlOrderId);
+                    if (!Number.isInteger(numericId)) {
+                        console.warn('Invalid orderId in URL, skipping poll cycle');
+                        return;
+                    }
+                    data = await apiOrderById(numericId);
+                } else {
+                    console.warn('No sessionId or orderId provided, skipping poll cycle');
+                    return;
+                }
+
+                if (data?.status === 'PAID') {
+                    setVerified(true);
+                    clearInterval(interval);
+                    CartStore.clear();
+                }
+            } catch (e) {
+                console.error('Polling order status failed', e);
             }
         }, 3000);
         return () => clearInterval(interval);
