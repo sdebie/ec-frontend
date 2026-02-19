@@ -1,6 +1,6 @@
 import React, { useEffect, useMemo, useState } from 'react';
 import { ShoppingBag, ShieldCheck, CreditCard } from 'lucide-react';
-import { apiOrderById, apiOrderBySessionId } from '../services/OrderService';
+import { apiOrderById, apiOrderBySessionId, updateCustomerInformation } from '../services/OrderService';
 import { OrderData } from './types';
 import { CartStore } from '../state/CartStore';
 
@@ -18,6 +18,14 @@ const CheckoutPayFast: React.FC = () => {
   const [order, setOrder] = useState<OrderData | null>(null);
   const [loading, setLoading] = useState<boolean>(false);
   const [error, setError] = useState<string | null>(null);
+  // Email capture for receipt/communication
+  const [email, setEmail] = useState<string>('');
+  const [emailTouched, setEmailTouched] = useState<boolean>(false);
+  const emailValid = useMemo(() => {
+    if (!email) return false;
+    // Basic email validation pattern
+    return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
+  }, [email]);
 
   // Read sessionId or orderId from query string (prefer sessionId)
   const { sessionId, orderId } = useMemo(() => {
@@ -68,6 +76,11 @@ const CheckoutPayFast: React.FC = () => {
   }, [order]);
 
   const handlePayFastCheckout = async () => {
+    if (!emailValid) {
+      setEmailTouched(true);
+      alert('Please enter a valid email address before continuing.');
+      return;
+    }
     const debug = true; // new URLSearchParams(window.location.search).has('debug')
 
     const buildAndSubmitGatewayForm = (fields: HtmlFormField[]) => {
@@ -103,6 +116,17 @@ const CheckoutPayFast: React.FC = () => {
 
     try {
       setIsProcessing(true);
+
+      // First, update customer information if email is valid
+      try {
+        const sid = sessionId ?? CartStore.getOrderSessionId() ?? undefined;
+        await updateCustomerInformation({ email }, sid);
+      } catch (e) {
+        console.error('[PayFast] Failed to update customer information:', e);
+        alert('Could not save your email address to the order. Please try again.');
+        setIsProcessing(false);
+        return;
+      }
 
       // Determine API base candidates for local and prod
       const isLocalHost =
@@ -213,12 +237,43 @@ const CheckoutPayFast: React.FC = () => {
               </div>
             )}
 
+            {/* Email Address */}
+            <div className="mb-6">
+              <label htmlFor="checkout-email" className="block text-sm font-medium text-gray-700 mb-1">
+                Email address
+              </label>
+              <input
+                id="checkout-email"
+                name="email"
+                type="email"
+                inputMode="email"
+                autoComplete="email"
+                required
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                onBlur={() => setEmailTouched(true)}
+                aria-invalid={emailTouched && !emailValid}
+                aria-describedby="checkout-email-error"
+                placeholder="you@example.com"
+                className={`w-full px-4 py-3 rounded-lg border focus:outline-none focus:ring-2 transition-all ${
+                  emailTouched && !emailValid
+                    ? 'border-red-300 focus:ring-red-200'
+                    : 'border-gray-300 focus:ring-blue-200'
+                }`}
+              />
+              {emailTouched && !emailValid && (
+                <p id="checkout-email-error" className="mt-2 text-sm text-red-600">
+                  Please enter a valid email address.
+                </p>
+              )}
+            </div>
+
             {/* Payment Button */}
             <button
               onClick={handlePayFastCheckout}
-              disabled={isProcessing || loading || !order?.id}
+              disabled={isProcessing || loading || !order?.id || !emailValid}
               className={`w-full flex items-center justify-center gap-3 py-4 rounded-xl font-bold text-white shadow-lg transition-all ${
-                isProcessing || loading || !order?.id ? 'bg-gray-400 cursor-not-allowed' : 'bg-blue-600 hover:bg-blue-700 active:scale-95'
+                isProcessing || loading || !order?.id || !emailValid ? 'bg-gray-400 cursor-not-allowed' : 'bg-blue-600 hover:bg-blue-700 active:scale-95'
               }`}
             >
               <CreditCard size={20} />

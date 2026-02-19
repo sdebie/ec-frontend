@@ -14,3 +14,7 @@ export type OrderData = {
     items?: OrderItemsData[]
 }
 
+export type CustomerInformation = {
+    email?: string
+}
+
