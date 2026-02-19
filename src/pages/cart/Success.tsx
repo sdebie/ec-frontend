@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
-import { apiOrderById, apiOrderBySessionId } from '../services/OrderService';
-import { CartStore } from '../state/CartStore';
+import { apiOrderById, apiOrderBySessionId } from '../../services/OrderService';
+import { CartStore } from '../../state/CartStore';
 
 const Success = () => {
     const [verified, setVerified] = useState(false);

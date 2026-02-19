@@ -61,12 +61,13 @@ const PageHeader: React.FC = () => {
           <Link to="/" className="text-lg font-bold text-gray-900 hover:text-blue-600">
             E-Comm Demo
           </Link>
+          <Link to="/products" className="text-sm text-gray-700 hover:text-blue-600">Products</Link>
         </div>
-        <div className="flex items-center gap-4">
+        <div className="flex items-center gap-10">
           {/* Debug/visibility of localStorage keys as requested */}
           <div className="hidden sm:flex flex-col text-xs text-gray-500 max-w-[22rem]">
-            <div className="truncate"><span className="font-medium text-gray-700">{LS_KEY}:</span> <span className="font-mono">{truncate(lsItemsRaw)}</span></div>
-            <div className="truncate"><span className="font-medium text-gray-700">{CART_SESSION_KEY}:</span> <span className="font-mono">{truncate(cartSessionId)}</span></div>
+            <div><span className="font-medium text-gray-700">{LS_KEY}:</span> <span className="font-mono">{truncate(lsItemsRaw)}</span></div>
+            <div><span className="font-medium text-gray-700">{CART_SESSION_KEY}:</span> <span className="font-mono">{truncate(cartSessionId)}</span></div>
           </div>
           <CartIcon
             className="hover:text-blue-600"

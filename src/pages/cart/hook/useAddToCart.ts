@@ -1,5 +1,5 @@
 import {useState} from "react";
-import { addToCart as addToCartService } from "../../services/OrderService";
+import { addToCart as addToCartService } from "../../../services/OrderService";
 import { OrderData } from "../types";
 
 export function useAddToCart() {

@@ -1,7 +1,7 @@
 import React, { useMemo, useState } from 'react';
 import { useAddToCart } from './hook/useAddToCart';
 import { OrderData } from './types';
-import { CartStore } from '../state/CartStore';
+import { CartStore } from '../../state/CartStore';
 
 // A simple page that creates a very basic order and adds it to the cart
 // Checkout is now initiated from the CartIcon click, not from here

@@ -1,4 +1,4 @@
-import { OrderData, OrderItemsData } from "../pages/types";
+import { OrderData, OrderItemsData } from "../pages/cart/types";
 
 // A tiny event-based store to keep track of cart item count across the app
 // Minimal and framework-agnostic — no external dependencies

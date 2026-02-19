@@ -1,6 +1,6 @@
 import getServiceEndpoint from "../utils/HostnameResolver";
 import { GraphQLService } from "./GraphQLService";
-import { OrderData, CustomerInformation } from "../pages/types";
+import { OrderData, CustomerInformation } from "../pages/cart/types";
 import { gql } from "graphql-request";
 import { CartStore } from "../state/CartStore";
 

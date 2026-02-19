@@ -1,8 +1,8 @@
 import React, { useEffect, useMemo, useState } from 'react';
 import { ShoppingBag, ShieldCheck, CreditCard } from 'lucide-react';
-import { apiOrderById, apiOrderBySessionId, updateCustomerInformation } from '../services/OrderService';
+import { apiOrderById, apiOrderBySessionId, updateCustomerInformation } from '../../services/OrderService';
 import { OrderData } from './types';
-import { CartStore } from '../state/CartStore';
+import { CartStore } from '../../state/CartStore';
 
 // Interface shaped like backend HtmlFormField
 interface HtmlFormField {
