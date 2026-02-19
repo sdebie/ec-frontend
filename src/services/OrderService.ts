@@ -97,7 +97,7 @@ export async function apiUpdateCustomerInformation<U>(
     if (!customer || !customer.email) {
         throw new Error('Email is required to update customer information');
     }
-
+    console.log("DEBUG:: Updating customer information for sessionId: ", sid, " with email: ", customer.email);
     const mutation = gql`
         mutation UpdateCustomerInformation($sessionId: String!, $customer: CustomerDtoInput!) {
             updateCustomerInformation(sessionId: $sessionId, customer: $customer) {
