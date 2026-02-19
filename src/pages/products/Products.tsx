@@ -37,7 +37,6 @@ const Products: React.FC = () => {
         {items.map((p) => (
           <div key={p.id} className="border rounded-lg overflow-hidden bg-white shadow-sm">
             <img
-              //src={p.imageUrl || '/default-product.png'}
               src ={'/default-product.png'}
               alt={p.name}
               className="w-full h-40 object-cover"
