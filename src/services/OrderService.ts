@@ -34,7 +34,6 @@ export async function createOrder<U>(order: OrderData): Promise<U> {
     const result = await client.request(mutation, {
         order: {
             orderId: order.id ?? undefined,
-            sessionId: CartStore.getOrderSessionId() ?? undefined,
             items: order.items ?? []
         }
     });

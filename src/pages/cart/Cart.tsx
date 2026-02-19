@@ -56,6 +56,7 @@ const Cart: React.FC = () => {
     setPlacingOrder(true);
     try {
       const payload: OrderData = { items: items.map(i => ({
+        sessionId: CartStore.getOrderSessionId(),
         unitPrice: i.unitPrice,
         quantity: i.quantity,
         variant: i.variant,
