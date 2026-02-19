@@ -24,7 +24,7 @@ export async function apiAddToCart<U>(order: OrderData): Promise<U> {
                 id
                 status
                 totalAmount
-                items { unitPrice quantity variantId }
+                items { unitPrice quantity variant }
             }
         }
     `;
@@ -60,7 +60,7 @@ export async function apiOrderById(id: number): Promise<OrderData> {
                 id
                 status
                 totalAmount
-                items { unitPrice quantity variantId }
+                items { unitPrice quantity variant }
             }
         }
     `;

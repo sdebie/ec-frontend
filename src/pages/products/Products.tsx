@@ -61,7 +61,7 @@ const Products: React.FC = () => {
                         {
                           quantity: 1,
                           unitPrice: p.price || 0,
-                          variantId: (p.variantIds && p.variantIds.length > 0) ? p.variantIds[0] : undefined,
+                          variant: (p.variantIds && p.variantIds.length > 0) ? p.variantIds[0] : undefined,
                         },
                       ],
                     });

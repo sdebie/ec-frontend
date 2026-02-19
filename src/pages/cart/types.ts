@@ -3,7 +3,7 @@
 export type OrderItemsData = {
     unitPrice?: number
     quantity?: number
-    variantId?: number
+    variant?: number
 }
 export type OrderData = {
     id?: number
