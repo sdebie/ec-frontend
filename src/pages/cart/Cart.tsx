@@ -94,6 +94,14 @@ const Cart: React.FC = () => {
               Continue Shopping
             </button>
             <button
+              className="px-4 py-2 bg-red-50 text-red-700 border border-red-200 rounded hover:bg-red-100"
+              onClick={() => CartStore.resetAndNewSession()}
+              disabled={!hasItems}
+              title="Clears all items and starts a fresh cart session"
+            >
+              Clear Cart & New Session
+            </button>
+            <button
               className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 disabled:opacity-60"
               onClick={() => navigate('/checkout')}
               disabled={!hasItems}
