@@ -24,7 +24,7 @@ export async function apiAddToCart<U>(order: OrderData): Promise<U> {
                 id
                 status
                 totalAmount
-                items { unitPrice quantity variant }
+                items { unitPrice quantity variant { id name} }
             }
         }
     `;

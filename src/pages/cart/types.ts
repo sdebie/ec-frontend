@@ -1,10 +1,5 @@
 
 
-export type OrderItemsData = {
-    unitPrice?: number
-    quantity?: number
-    variant?: number
-}
 export type OrderData = {
     id?: number
     sessionId?: string
@@ -13,6 +8,17 @@ export type OrderData = {
     totalAmount?: number
     status?: string
     items?: OrderItemsData[]
+}
+
+export type OrderItemsData = {
+    unitPrice?: number
+    quantity?: number
+    variant?: variantData[]
+}
+
+export type variantData = {
+    id?: number
+    name?: string
 }
 
 export type CustomerInformation = {
