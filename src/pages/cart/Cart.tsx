@@ -73,7 +73,7 @@ const Cart: React.FC = () => {
             {items.map((it, idx) => (
               <div key={idx} className="p-4 flex items-center justify-between">
                 <div className="text-sm text-gray-800">
-                  <div className="font-medium">Item {idx + 1}</div>
+                  <div className="font-medium">Item {it.variant.product.name}</div>
                   <div className="text-gray-500">Qty: {it.quantity}</div>
                 </div>
                 <div className="text-sm text-gray-700">{currency((it.unitPrice || 0) * (it.quantity || 0))}</div>

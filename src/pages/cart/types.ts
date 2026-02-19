@@ -13,12 +13,12 @@ export type OrderData = {
 export type OrderItemsData = {
     unitPrice?: number
     quantity?: number
-    variant?: variantData[]
+    variant?: variantData
 }
 
 export type variantData = {
     id?: number
-    product?: productData[]
+    product?: productData
 }
 
 export type productData = {
