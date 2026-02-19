@@ -37,16 +37,10 @@ const Products: React.FC = () => {
         {items.map((p) => (
           <div key={p.id} className="border rounded-lg overflow-hidden bg-white shadow-sm">
             <img
-              src={p.imageUrl || '/default-product.png'}
+              //src={p.imageUrl || '/default-product.png'}
+              src ={'/default-product.png'}
               alt={p.name}
               className="w-full h-40 object-cover"
-              onError={(e) => {
-                const img = e.currentTarget as HTMLImageElement;
-                if (img.src.indexOf('/default-product.png') === -1) {
-                  img.onerror = null; // prevent infinite loop
-                  img.src = '/default-product.png';
-                }
-              }}
             />
             <div className="p-4">
               <div className="font-semibold text-gray-900 mb-1">{p.name}</div>
