@@ -36,11 +36,18 @@ const Products: React.FC = () => {
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
         {items.map((p) => (
           <div key={p.id} className="border rounded-lg overflow-hidden bg-white shadow-sm">
-            {p.imageUrl ? (
-              <img src={p.imageUrl} alt={p.name} className="w-full h-40 object-cover" />
-            ) : (
-              <div className="w-full h-40 bg-gray-100 flex items-center justify-center text-gray-400">No image</div>
-            )}
+            <img
+              src={p.imageUrl || '/default-product.png'}
+              alt={p.name}
+              className="w-full h-40 object-cover"
+              onError={(e) => {
+                const img = e.currentTarget as HTMLImageElement;
+                if (img.src.indexOf('/default-product.png') === -1) {
+                  img.onerror = null; // prevent infinite loop
+                  img.src = '/default-product.png';
+                }
+              }}
+            />
             <div className="p-4">
               <div className="font-semibold text-gray-900 mb-1">{p.name}</div>
               <div className="text-sm text-gray-600 mb-3 line-clamp-3">{p.description}</div>
