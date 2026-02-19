@@ -14,6 +14,7 @@ const Success = () => {
 
         const interval = setInterval(async () => {
             try {
+                console.log('Polling order status...');
                 let data: any = null;
                 if (sessionId) {
                     // Prefer polling by session id if available

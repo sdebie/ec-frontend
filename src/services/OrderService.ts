@@ -4,7 +4,14 @@ import { OrderData, CustomerInformation } from "../pages/types";
 import { gql } from "graphql-request";
 import { CartStore } from "../state/CartStore";
 
-const graphQlEndpoint = getServiceEndpoint(8080) + '/api/graphql';
+// Allow environment variable override for production deployments
+const envGraphQl = (typeof import.meta !== 'undefined' && (import.meta as any).env)
+    ? ((import.meta as any).env.VITE_API_URL || (import.meta as any).env.REACT_APP_API_URL)
+    : (process?.env?.VITE_API_URL || process?.env?.REACT_APP_API_URL);
+
+const graphQlEndpoint = (envGraphQl && envGraphQl.length > 0)
+    ? envGraphQl
+    : getServiceEndpoint(8080) + '/api/graphql';
 
 export type OrderResponse = {
     orderById: OrderData;

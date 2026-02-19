@@ -13,12 +13,26 @@ export function getHostname() {
 export function getServiceEndpoint(devPort: number) {
 	const isWeb = typeof window !== 'undefined' && window.location;
 
-	const port = AppConfig.devMode ? ':' + (window.location.protocol === 'https:' ? devPort + 1000 : devPort) : '';
-
 	if (isWeb) {
-		return window.location.protocol + '//' + window.location.hostname + port;
+		const { protocol, hostname } = window.location;
+		const isLocal = hostname === 'localhost' || hostname === '127.0.0.1' || /^192\.168\./.test(hostname);
+
+		// In local development, explicitly target the backend devPort on same host
+		if (AppConfig.devMode && isLocal) {
+			return `${protocol}//${hostname}:${devPort}`;
+		}
+
+		// In production or non-local hosts, assume same-origin without forcing a port
+		return `${protocol}//${hostname}`;
 	} else {
-		return AppConfig.nativeBaseUrl + port;
+		// Native or non-web: allow configurable base URL; don't mutate port for HTTPS
+		if (AppConfig.nativeBaseUrl) {
+			return AppConfig.nativeBaseUrl;
+		}
+		if (AppConfig.nativeBaseHostname) {
+			return `http://${AppConfig.nativeBaseHostname}:${devPort}`;
+		}
+		return '';
 	}
 }
 
