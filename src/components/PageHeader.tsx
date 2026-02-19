@@ -72,7 +72,7 @@ const PageHeader: React.FC = () => {
           <CartIcon
             className="hover:text-blue-600"
             size={22}
-            onClick={() => navigate('/checkout')}
+            onClick={() => navigate('/cart')}
           />
         </div>
       </div>
