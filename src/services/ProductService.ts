@@ -8,6 +8,7 @@ export type ProductListItem = {
   description?: string | null;
   price?: number | null;
   imageUrl?: string | null;
+  variantIds?: number[] | null;
 };
 
 const envGraphQl = (typeof import.meta !== 'undefined' && (import.meta as any).env)
@@ -28,6 +29,7 @@ export async function fetchProducts(): Promise<ProductListItem[]> {
         description
         price
         imageUrl
+        variantIds
       }
     }
   `;
