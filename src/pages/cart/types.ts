@@ -13,7 +13,8 @@ export type OrderData = {
 export type OrderItemsData = {
     unitPrice?: number
     quantity?: number
-    variant?: variantData
+    // May be a numeric variant ID (when initially added) or a populated object after enrichment
+    variant?: number | variantData
 }
 
 export type variantData = {

@@ -24,7 +24,7 @@ export async function createOrder<U>(order: OrderData): Promise<U> {
                 id
                 status
                 totalAmount
-                items { unitPrice quantity variant { id product { name }  } }
+                items { unitPrice quantity variant { id product { name } stockQuantity attributesJson weightKg } }
             }
         }
     `;
@@ -107,7 +107,7 @@ export async function apiOrderById(id: number): Promise<OrderData> {
                 id
                 status
                 totalAmount
-                items { unitPrice quantity variant { id product { name }  } }
+                items { unitPrice quantity variant { id product { name } stockQuantity attributesJson weightKg } }
             }
         }
     `;

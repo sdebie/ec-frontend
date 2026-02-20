@@ -11,6 +11,14 @@ export type ProductListItem = {
   variantIds?: number[] | null;
 };
 
+export type VariantItem = {
+  id: number;
+  stockQuantity?: number | null;
+  weightKg?: number | null;
+  attributesJson?: string | null;
+  product?: { name?: string | null } | null;
+};
+
 const envGraphQl = (typeof import.meta !== 'undefined' && (import.meta as any).env)
   ? (import.meta as any).env.VITE_GRAPHQL_ENDPOINT
   : undefined;
@@ -35,4 +43,22 @@ export async function fetchProducts(): Promise<ProductListItem[]> {
   `;
   const res = await client.request<{ products: ProductListItem[] }>(query);
   return res.products || [];
+}
+
+export async function fetchVariantsByIds(ids: number[]): Promise<VariantItem[]> {
+  if (!ids || ids.length === 0) return [];
+  const client = await GraphQLService.getGraphQLClient(graphQlEndpoint);
+  const query = gql`
+    query VariantsByIds($ids: [BigInteger!]!) {
+      variantsByIds(ids: $ids) {
+        id
+        stockQuantity
+        weightKg
+        attributesJson
+        product { name }
+      }
+    }
+  `;
+  const res = await client.request<{ variantsByIds: VariantItem[] }>(query, { ids });
+  return res.variantsByIds || [];
 }

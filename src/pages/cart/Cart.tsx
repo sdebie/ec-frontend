@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { CartStore } from '../../state/CartStore';
 import { OrderItemsData, OrderData } from './types';
 import { createOrder } from '../../services/OrderService';
+import { fetchVariantsByIds } from '../../services/ProductService';
 
 // LocalStorage key used across the app
 const LS_KEY = 'ec_cart_order_items';
@@ -17,11 +18,43 @@ const Cart: React.FC = () => {
 
   // Read from localStorage and keep in sync with CartStore updates
   useEffect(() => {
-    const read = () => {
+    const read = async () => {
       try {
         const raw = typeof window !== 'undefined' ? window.localStorage.getItem(LS_KEY) : null;
         const parsed: OrderItemsData[] = raw ? JSON.parse(raw) : [];
-        setItems(Array.isArray(parsed) ? parsed : []);
+        const safeItems = Array.isArray(parsed) ? parsed : [];
+
+        // Enrich items whose variant is only an ID by fetching details in one go
+        const variantIds = Array.from(new Set(
+          safeItems
+            .map(it => (typeof it.variant === 'number' ? it.variant : it.variant?.id))
+            .filter((v): v is number => typeof v === 'number')
+        ));
+
+        if (variantIds.length > 0) {
+          try {
+            const variants = await fetchVariantsByIds(variantIds);
+            const map = new Map<number, any>();
+            variants.forEach(v => map.set(Number(v.id), v));
+            const enriched = safeItems.map(it => {
+              const vid = typeof it.variant === 'number' ? it.variant : it.variant?.id;
+              const full = vid != null ? map.get(Number(vid)) : undefined;
+              return full ? { ...it, variant: full } : it;
+            });
+            setItems(enriched);
+            // Persist enriched items back to localStorage for consistency across tabs
+            try {
+              if (typeof window !== 'undefined') {
+                window.localStorage.setItem(LS_KEY, JSON.stringify(enriched));
+              }
+            } catch {}
+            return;
+          } catch (e) {
+            // If enrichment fails, fall back to raw items
+            console.warn('Failed to enrich variants by IDs', e);
+          }
+        }
+        setItems(safeItems);
       } catch (_) {
         setItems([]);
       }
@@ -58,7 +91,8 @@ const Cart: React.FC = () => {
       const payload: OrderData = { sessionId: CartStore.getOrderSessionId(), items: items.map(i => ({
         unitPrice: i.unitPrice,
         quantity: i.quantity,
-        variant: i.variant,
+        // Always send only the variant ID to backend
+        variant: typeof i.variant === 'number' ? i.variant : i.variant?.id,
 
       })) };
       await createOrder<OrderData>(payload);
@@ -97,6 +131,7 @@ const Cart: React.FC = () => {
               <div key={idx} className="p-4 flex items-center justify-between">
                 <div className="text-sm text-gray-800">
                   <div className="font-medium">{it?.variant?.product?.name ?? 'Item'}</div>
+                  <div className="font-medium">{it?.variant?.attributesJson ?? 'Item'}</div>
                   <div className="text-gray-500">Qty: {it.quantity}</div>
                 </div>
                 <div className="text-sm text-gray-700">{currency((it.unitPrice || 0) * (it.quantity || 0))}</div>
