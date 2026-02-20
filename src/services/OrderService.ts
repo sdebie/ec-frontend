@@ -107,7 +107,7 @@ export async function apiOrderById(id: number): Promise<OrderData> {
                 id
                 status
                 totalAmount
-                items { unitPrice quantity variant }
+                items { unitPrice quantity variant { id product { name }  } }
             }
         }
     `;
@@ -127,7 +127,7 @@ export async function apiOrderBySessionId(sessionId: string): Promise<OrderData>
                 id
                 status
                 totalAmount
-                items { unitPrice quantity }
+                items { unitPrice quantity variant { id product { name }  } }
             }
         }
     `;
