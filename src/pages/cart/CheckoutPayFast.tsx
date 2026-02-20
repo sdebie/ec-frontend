@@ -225,7 +225,7 @@ const CheckoutPayFast: React.FC = () => {
                   return (
                     <div key={idx} className="flex justify-between text-gray-700">
                       <span>
-                        {item.variant.product.name} - {item.variant.attributesJson}
+                        {item.variant?.product?.name} - {item.variant?.attributesJson}
                       </span>
                       <span className="font-medium">R {lineTotal.toFixed(2)}</span>
                     </div>

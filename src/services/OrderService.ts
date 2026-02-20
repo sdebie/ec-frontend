@@ -43,32 +43,6 @@ export async function createOrder<U>(order: OrderData): Promise<U> {
     return (result?.createOrder ?? result) as U;
 }
 
-//
-// export async function apiAddToCart<U>(order: OrderData): Promise<U> {
-//     const mutation = gql`
-//         mutation AddToCart($order: OrderDtoInput!) {
-//             addToCart(order: $order){
-//                 id
-//                 status
-//                 totalAmount
-//                 items { unitPrice quantity variant { id product { name }  } }
-//             }
-//         }
-//     `;
-//
-//     const client = await GraphQLService.getGraphQLClient(graphQlEndpoint);
-//
-//     const result = await client.request(mutation, {
-//         order: {
-//             orderId: order.id ?? undefined,
-//             sessionId: CartStore.getOrderSessionId() ?? undefined,
-//             items: order.items ?? []
-//         }
-//     });
-//
-//     // Return only the created/updated order payload from GraphQL response
-//     return (result?.addToCart ?? result) as U;
-// }
 
 // Common, framework-agnostic function to add/update an order in the cart
 // Refactored: only saves locally via CartStore/LocalStorage and DOES NOT persist to backend
