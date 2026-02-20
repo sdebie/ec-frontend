@@ -35,6 +35,7 @@ const Success = () => {
                     setVerified(true);
                     clearInterval(interval);
                     CartStore.clear();
+                    CartStore.resetAndNewSession();
                 }
             } catch (e) {
                 console.error('Polling order status failed', e);
