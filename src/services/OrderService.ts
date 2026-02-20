@@ -127,7 +127,7 @@ export async function apiOrderBySessionId(sessionId: string): Promise<OrderData>
                 id
                 status
                 totalAmount
-                items { unitPrice quantity variant { id product { name }  } }
+                items { unitPrice quantity variant { id product { name } stockQuantity attributesJson weightKg } }
             }
         }
     `;
