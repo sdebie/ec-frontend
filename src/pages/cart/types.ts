@@ -18,6 +18,7 @@ export type OrderItemsData = {
 
 export type variantData = {
     id?: number
+    attributesJson?: string
     product?: productData
 }
 

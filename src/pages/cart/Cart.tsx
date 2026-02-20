@@ -59,6 +59,7 @@ const Cart: React.FC = () => {
         unitPrice: i.unitPrice,
         quantity: i.quantity,
         variant: i.variant,
+
       })) };
       await createOrder<OrderData>(payload);
       navigate('/checkout');
