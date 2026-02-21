@@ -3,6 +3,7 @@ import { ShoppingBag, ShieldCheck, CreditCard } from 'lucide-react';
 import { apiOrderById, apiOrderBySessionId, updateCustomerInformation } from '../../services/OrderService';
 import { OrderData } from './types';
 import { CartStore } from '../../state/CartStore';
+import {fetchShippingMethods, ShippingMethod} from "../../services/StoreSettings";
 
 // Interface shaped like backend HtmlFormField
 interface HtmlFormField {
@@ -13,7 +14,30 @@ interface HtmlFormField {
 
 const gatewayPath = 'https://sandbox.payfast.co.za/eng/process';
 
-const CheckoutPayFast: React.FC = () => {
+const Checkout: React.FC = () => {
+  //Settings
+  const [shippingMethods, setShippingMethods] = useState<ShippingMethod[]>([]);
+  const [selectedMethodId, setSelectedMethodId] = useState<number | null>(null);
+  const [address, setAddress] = useState({
+    street: '',
+    city: '',
+    postalCode: '',
+    province: ''
+  });
+
+// Load shipping options on mount
+  useEffect(() => {
+    fetchShippingMethods().then(methods => {
+      setShippingMethods(methods.filter(m => m.isActive));
+    });
+  }, []);
+
+// Helper to check if we need an address
+  const needsShippingAddress = useMemo(() => {
+    const selected = shippingMethods.find(m => m.id === selectedMethodId);
+    return selected && selected.name?.toLowerCase() !== 'collect';
+  }, [selectedMethodId, shippingMethods]);
+
   const [isProcessing, setIsProcessing] = useState(false);
   const [order, setOrder] = useState<OrderData | null>(null);
   const [loading, setLoading] = useState<boolean>(false);
@@ -196,6 +220,105 @@ const CheckoutPayFast: React.FC = () => {
 
   return (
     <div className="min-h-screen bg-gray-50 py-12 px-4 sm:px-6 lg:px-8">
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+        {/* LEFT COLUMN: Input Details */}
+        <div className="space-y-8">
+
+          {/* Section 1: Email */}
+          <section className="bg-white p-6 rounded-2xl shadow-sm border">
+            <h3 className="text-lg font-bold mb-4 flex items-center gap-2">
+              <span className="bg-blue-600 text-white w-6 h-6 rounded-full text-xs flex items-center justify-center">1</span>
+              Contact Information
+            </h3>
+            <input
+                type="email"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                placeholder="your@email.com"
+                className="w-full p-3 border rounded-xl"
+            />
+          </section>
+
+          {/* Section 2: Shipping Method */}
+          <section className="bg-white p-6 rounded-2xl shadow-sm border">
+            <h3 className="text-lg font-bold mb-4 flex items-center gap-2">
+              <span className="bg-blue-600 text-white w-6 h-6 rounded-full text-xs flex items-center justify-center">2</span>
+              Shipping Method
+            </h3>
+            <div className="grid gap-3">
+              {shippingMethods.map(method => (
+                  <label
+                      key={method.id}
+                      className={`p-4 border-2 rounded-xl cursor-pointer transition-all ${selectedMethodId === method.id ? 'border-blue-600 bg-blue-50' : 'border-gray-100'}`}
+                  >
+                    <div className="flex justify-between items-center">
+                      <input
+                          type="radio"
+                          name="shipping"
+                          className="hidden"
+                          onChange={() => setSelectedMethodId(method.id!)}
+                      />
+                      <div>
+                        <p className="font-bold">{method.name}</p>
+                        <p className="text-sm text-gray-500">{method.estimatedDays} delivery</p>
+                      </div>
+                      <span className="font-bold">R{method.baseFee}</span>
+                    </div>
+                  </label>
+              ))}
+            </div>
+
+            {/* Conditional Address Fields */}
+            {needsShippingAddress && (
+                <div className="mt-6 space-y-3 animate-in slide-in-from-top-4 duration-300">
+                  <p className="text-sm font-semibold text-gray-600">Delivery Address</p>
+                  <input
+                      placeholder="Street Address"
+                      className="w-full p-3 border rounded-xl"
+                      onChange={(e) => setAddress({...address, street: e.target.value})}
+                  />
+                  <div className="grid grid-cols-2 gap-3">
+                    <input
+                        placeholder="City"
+                        className="p-3 border rounded-xl"
+                        onChange={(e) => setAddress({...address, city: e.target.value})}
+                    />
+                    <input
+                        placeholder="Postal Code"
+                        className="p-3 border rounded-xl"
+                        onChange={(e) => setAddress({...address, postalCode: e.target.value})}
+                    />
+                  </div>
+                </div>
+            )}
+          </section>
+
+          {/* Section 3: Payment */}
+          <section className="bg-white p-6 rounded-2xl shadow-sm border">
+            <h3 className="text-lg font-bold mb-4 flex items-center gap-2">
+              <span className="bg-blue-600 text-white w-6 h-6 rounded-full text-xs flex items-center justify-center">3</span>
+              Payment Method
+            </h3>
+            <div className="p-4 border-2 border-blue-600 bg-blue-50 rounded-xl flex items-center gap-3">
+              <CreditCard className="text-blue-600" />
+              <span className="font-bold">PayFast</span>
+            </div>
+          </section>
+        </div>
+
+        {/* RIGHT COLUMN: Order Summary (Sticky) */}
+        <div className="lg:sticky lg:top-8 h-fit">
+          {/* Use your existing order summary UI here */}
+          <button
+              onClick={handlePayFastCheckout}
+              disabled={!emailValid || !selectedMethodId || (needsShippingAddress && !address.street)}
+              className="w-full py-4 bg-blue-600 text-white rounded-xl font-bold mt-4"
+          >
+            Complete Purchase
+          </button>
+        </div>
+      </div>
+
       <div className="max-w-3xl mx-auto">
         <div className="bg-white shadow-sm rounded-2xl overflow-hidden border border-gray-100">
           {/* Header */}
@@ -298,4 +421,4 @@ const CheckoutPayFast: React.FC = () => {
   );
 };
 
-export default CheckoutPayFast;
+export default Checkout;
