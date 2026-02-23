@@ -4,6 +4,7 @@ import { apiOrderById, apiOrderBySessionId, updateCustomerInformation } from '..
 import { OrderData } from './types';
 import { CartStore } from '../../state/CartStore';
 import {fetchShippingMethods, ShippingMethod, PaymentMethodKey, fetchPaymentMethodsConfig, PaymentMethodsConfig, PaymentMethodInfo} from "../../services/StoreSettings";
+import { lookupCustomer, loginCustomer, registerOrUpdateCustomer, CustomerProfile } from "../../services/CustomerService";
 
 // Interface shaped like backend HtmlFormField
 interface HtmlFormField {
@@ -24,6 +25,20 @@ const Checkout: React.FC = () => {
     postalCode: '',
     province: ''
   });
+
+  // Customer lookup/auth state
+  const [customer, setCustomer] = useState<CustomerProfile | null>(null);
+  const [isAuthenticated, setIsAuthenticated] = useState<boolean>(false);
+  const [showLoginPrompt, setShowLoginPrompt] = useState<boolean>(false);
+  const [loginPassword, setLoginPassword] = useState<string>('');
+  const [saveDetails, setSaveDetails] = useState<boolean>(false);
+  const [registerPassword, setRegisterPassword] = useState<string>('');
+  const [registerPasswordConfirm, setRegisterPasswordConfirm] = useState<string>('');
+  const [lookupState, setLookupState] = useState<'idle' | 'loading' | 'found' | 'not_found' | 'error'>('idle');
+  // Returning user choice: login or continue as guest
+  const [returningChoice, setReturningChoice] = useState<'login' | 'guest' | null>(null);
+  // Confirmation modal before creating account on in-store checkout
+  const [showSaveConfirm, setShowSaveConfirm] = useState<boolean>(false);
 
 // Load shipping options on mount
   useEffect(() => {
@@ -68,6 +83,43 @@ const Checkout: React.FC = () => {
     // Basic email validation pattern
     return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
   }, [email]);
+
+  // Lookup customer when email becomes valid
+  useEffect(() => {
+    let cancelled = false;
+    const run = async () => {
+      if (!emailValid) {
+        setCustomer(null);
+        setIsAuthenticated(false);
+        setShowLoginPrompt(false);
+        setReturningChoice(null);
+        setLookupState('idle');
+        return;
+      }
+      setLookupState('loading');
+      try {
+        const profile = await lookupCustomer(email.trim());
+        if (cancelled) return;
+        setCustomer(profile);
+        setLookupState(profile ? 'found' : 'not_found');
+        // Reset returning choice on new lookup result
+        setReturningChoice(null);
+        // If delivery needed and customer is registered, prompt login/guest choice
+        if (profile && profile.hasPassword && needsShippingAddress) {
+          setShowLoginPrompt(true);
+        } else {
+          setShowLoginPrompt(false);
+        }
+      } catch (e) {
+        console.warn('Lookup failed', e);
+        setCustomer(null);
+        setShowLoginPrompt(false);
+        setLookupState('error');
+      }
+    };
+    run();
+    return () => { cancelled = true; };
+  }, [emailValid, email, needsShippingAddress]);
 
   // Payment methods from settings (new JSON format)
   const [paymentConfig, setPaymentConfig] = useState<PaymentMethodsConfig>({});
@@ -139,12 +191,67 @@ const Checkout: React.FC = () => {
 
   const grandTotal = useMemo(() => itemsTotal + shippingFee, [itemsTotal, shippingFee]);
 
+  const prefillAddressFromProfile = (p: CustomerProfile | null) => {
+    if (!p) return;
+    setAddress(a => ({
+      street: p.addressLine1 || a.street || '',
+      city: p.city || a.city || '',
+      postalCode: p.postalCode || a.postalCode || '',
+      province: p.province || a.province || ''
+    }));
+  };
+
+  const handleLogin = async () => {
+    if (!emailValid || !loginPassword) return;
+    try {
+      const prof = await loginCustomer(email.trim(), loginPassword);
+      setCustomer(prof);
+      setIsAuthenticated(true);
+      setShowLoginPrompt(false);
+      prefillAddressFromProfile(prof);
+    } catch (e: any) {
+      alert(typeof e?.message === 'string' ? e.message : 'Login failed. Please check your password.');
+    }
+  };
+
+  const registerIfChosen = async () => {
+    if (!(needsShippingAddress && saveDetails)) return;
+    if (!registerPassword || registerPassword.length < 6) {
+      throw new Error('Please provide a password of at least 6 characters to save your details.');
+    }
+    if (registerPassword !== registerPasswordConfirm) {
+      throw new Error('Passwords do not match. Please confirm your password.');
+    }
+    await registerOrUpdateCustomer({
+      email: email.trim(),
+      password: registerPassword,
+      addressLine1: address.street,
+      city: address.city,
+      postalCode: address.postalCode,
+      province: address.province
+    });
+  };
+
   const handlePayFastCheckout = async () => {
     if (!emailValid) {
       setEmailTouched(true);
       alert('Please enter a valid email address before continuing.');
       return;
     }
+    // If delivery and an existing account exists with password and user chose to login, require authentication first
+    if (needsShippingAddress && customer && customer.hasPassword && returningChoice === 'login' && !isAuthenticated) {
+      alert('Please sign in to use your saved address or choose "Continue as guest".');
+      return;
+    }
+
+    // If user opted to save details, register/update before payment
+    try {
+      await registerIfChosen();
+    } catch (e: any) {
+      alert(typeof e?.message === 'string' ? e.message : 'Please check your details.');
+      return;
+    }
+
     const debug = true; // new URLSearchParams(window.location.search).has('debug')
 
     const buildAndSubmitGatewayForm = (fields: HtmlFormField[]) => {
@@ -257,15 +364,17 @@ const Checkout: React.FC = () => {
     }
   };
 
-  // Simple handler for In-Store payment selection
-  const handleInStoreCheckout = async () => {
-    if (!emailValid) {
-      setEmailTouched(true);
-      alert('Please enter a valid email address before continuing.');
-      return;
-    }
+  // Extracted: actual in-store processing after optional confirmation
+  const proceedInStoreCheckout = async () => {
     try {
       setIsProcessing(true);
+      try {
+        await registerIfChosen();
+      } catch (e: any) {
+        alert(typeof e?.message === 'string' ? e.message : 'Please check your details.');
+        setIsProcessing(false);
+        return;
+      }
       const sid = sessionId ?? CartStore.getOrderSessionId() ?? undefined;
       await updateCustomerInformation({ email }, sid);
       alert('Your order will be reserved for in-store payment. You can complete payment when you collect your items.');
@@ -275,6 +384,22 @@ const Checkout: React.FC = () => {
     } finally {
       setIsProcessing(false);
     }
+  };
+
+  // Simple handler for In-Store payment selection
+  const handleInStoreCheckout = async () => {
+    if (!emailValid) {
+      setEmailTouched(true);
+      alert('Please enter a valid email address before continuing.');
+      return;
+    }
+    // If shopper chose to create an account and delivery address is present, show a confirmation modal first
+    if (needsShippingAddress && saveDetails) {
+      setShowSaveConfirm(true);
+      return;
+    }
+    // Otherwise proceed immediately
+    await proceedInStoreCheckout();
   };
 
   return (
@@ -296,6 +421,38 @@ const Checkout: React.FC = () => {
                 placeholder="your@email.com"
                 className="w-full p-3 border rounded-xl"
             />
+            {email && (
+              <div className="mt-2 text-xs">
+                {(!emailValid && emailTouched) && (
+                  <span className="text-red-600">Please enter a valid email address.</span>
+                )}
+                {emailValid && (
+                  <div>
+                    {lookupState === 'loading' && (
+                      <span className="text-gray-500">Checking account…</span>
+                    )}
+                    {lookupState === 'found' && customer && customer.shopperType?.toUpperCase() === 'RETURNING' && (
+                      <span className="inline-flex items-center gap-1 px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">
+                        Account found for {customer.email}
+                      </span>
+                    )}
+                    {lookupState === 'found' && customer && customer.shopperType?.toUpperCase() === 'GUEST' && (
+                        <span className="inline-flex items-center gap-1 px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">
+                        Continuing as guest
+                      </span>
+                    )}
+                    {lookupState === 'not_found' && (
+                      <span className="inline-flex items-center gap-1 px-2 py-1 rounded-md bg-green-50 text-green-700 border border-green-100">
+                        No account found — continuing as guest
+                      </span>
+                    )}
+                    {lookupState === 'error' && (
+                      <span className="text-yellow-700 bg-yellow-50 border border-yellow-200 px-2 py-1 rounded-md">Could not check account right now.</span>
+                    )}
+                  </div>
+                )}
+              </div>
+            )}
           </section>
 
           {/* Section 2: Shipping Method */}
@@ -331,23 +488,106 @@ const Checkout: React.FC = () => {
             {needsShippingAddress && (
                 <div className="mt-6 space-y-3 animate-in slide-in-from-top-4 duration-300">
                   <p className="text-sm font-semibold text-gray-600">Delivery Address</p>
+                  {customer && isAuthenticated && (
+                    <div className="text-xs text-green-700 bg-green-50 border border-green-100 rounded-lg p-2">
+                      Address loaded from your account. You can edit below.
+                    </div>
+                  )}
                   <input
                       placeholder="Street Address"
+                      value={address.street}
                       className="w-full p-3 border rounded-xl"
                       onChange={(e) => setAddress({...address, street: e.target.value})}
                   />
                   <div className="grid grid-cols-2 gap-3">
                     <input
                         placeholder="City"
+                        value={address.city}
                         className="p-3 border rounded-xl"
                         onChange={(e) => setAddress({...address, city: e.target.value})}
                     />
                     <input
                         placeholder="Postal Code"
+                        value={address.postalCode}
                         className="p-3 border rounded-xl"
                         onChange={(e) => setAddress({...address, postalCode: e.target.value})}
                     />
                   </div>
+
+                  {/* Returning user: choose to login or continue as guest */}
+                  {customer && customer.shopperType.toUpperCase() !== "GUEST" && !isAuthenticated && (
+                    <div className="mt-4 p-4 border rounded-xl bg-blue-50 border-blue-100">
+                      <p className="text-sm font-medium text-blue-900">Welcome back! We found an account for {email}. Would you like to:</p>
+                      <div className="mt-3 flex flex-wrap gap-2">
+                        <button
+                          type="button"
+                          onClick={() => setReturningChoice('login')}
+                          className={`px-3 py-2 rounded-lg text-sm font-semibold border ${returningChoice === 'login' ? 'bg-blue-600 text-white border-blue-700' : 'bg-white text-blue-700 border-blue-300'}`}
+                        >
+                          Sign in
+                        </button>
+                        <button
+                          type="button"
+                          onClick={() => { setReturningChoice('guest'); setLoginPassword(''); }}
+                          className={`px-3 py-2 rounded-lg text-sm font-semibold border ${returningChoice === 'guest' ? 'bg-blue-600 text-white border-blue-700' : 'bg-white text-blue-700 border-blue-300'}`}
+                        >
+                          Continue as guest
+                        </button>
+                      </div>
+
+                      {returningChoice === 'login' && (
+                        <div className="mt-3 grid grid-cols-1 sm:grid-cols-[1fr_auto] gap-2">
+                          <input
+                            type="password"
+                            placeholder="Enter your password"
+                            value={loginPassword}
+                            onChange={(e) => setLoginPassword(e.target.value)}
+                            className="p-3 border rounded-xl"
+                          />
+                          <button onClick={handleLogin} className="px-4 py-3 bg-blue-600 text-white rounded-xl font-semibold">Sign in</button>
+                        </div>
+                      )}
+
+                      {returningChoice === 'guest' && (
+                        <p className="text-xs text-blue-800 mt-2">You can proceed without signing in. Your saved address won’t be auto-filled.</p>
+                      )}
+
+                      {!returningChoice && (
+                        <p className="text-xs text-blue-800 mt-2">Choose an option above to continue.</p>
+                      )}
+                    </div>
+                  )}
+
+                  {/* New/guest save details toggle */}
+                  {(!customer || !customer.hasPassword) && (
+                    <div className="mt-2 p-3 border rounded-xl bg-gray-50">
+                      <label className="flex items-center gap-2 text-sm">
+                        <input type="checkbox" checked={saveDetails} onChange={(e) => { const checked = e.target.checked; setSaveDetails(checked); if (!checked) { setRegisterPassword(''); setRegisterPasswordConfirm(''); } }} />
+                        Save my details for next time (create an account)
+                      </label>
+                      {saveDetails && (
+                        <div className="mt-2 space-y-2">
+                          <input
+                            type="password"
+                            placeholder="Create a password (min 6 characters)"
+                            value={registerPassword}
+                            onChange={(e) => setRegisterPassword(e.target.value)}
+                            className="w-full p-3 border rounded-xl"
+                          />
+                          <input
+                            type="password"
+                            placeholder="Confirm your password"
+                            value={registerPasswordConfirm}
+                            onChange={(e) => setRegisterPasswordConfirm(e.target.value)}
+                            className="w-full p-3 border rounded-xl"
+                          />
+                          {(registerPassword && registerPasswordConfirm && registerPassword !== registerPasswordConfirm) && (
+                            <p className="text-xs text-red-600">Passwords do not match.</p>
+                          )}
+                        </div>
+                      )}
+                    </div>
+                  )}
                 </div>
             )}
           </section>
@@ -448,7 +688,14 @@ const Checkout: React.FC = () => {
 
           <button
               onClick={selectedPayment === 'IN_STORE' ? handleInStoreCheckout : handlePayFastCheckout}
-              disabled={!emailValid || !selectedMethodId || (needsShippingAddress && !address.street) || !selectedPayment}
+              disabled={
+                !emailValid ||
+                !selectedMethodId ||
+                (needsShippingAddress && !address.street) ||
+                !selectedPayment ||
+                (needsShippingAddress && customer && customer.hasPassword && returningChoice === 'login' && !isAuthenticated) ||
+                (needsShippingAddress && saveDetails && (!registerPassword || registerPassword.length < 6 || registerPassword !== registerPasswordConfirm))
+              }
               className="w-full py-4 bg-blue-600 text-white rounded-xl font-bold"
           >
             {selectedPayment === 'IN_STORE' ? 'Reserve & Pay In-Store' : 'Complete Purchase'}
@@ -556,6 +803,61 @@ const Checkout: React.FC = () => {
       {/*    </div>*/}
       {/*  </div>*/}
       {/*</div>*/}
+      {showSaveConfirm && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center">
+          <div className="absolute inset-0 bg-black/40" onClick={() => !isProcessing && setShowSaveConfirm(false)} />
+          <div className="relative z-10 w-full max-w-md mx-auto bg-white rounded-2xl shadow-xl border p-6">
+            <h4 className="text-lg font-bold text-gray-900">Confirm your details</h4>
+            <p className="text-sm text-gray-600 mt-1">We will create an account using the info below for quicker checkout next time.</p>
+
+            <div className="mt-4 space-y-2 text-sm">
+              <div className="flex items-start gap-3">
+                <span className="w-20 text-gray-500">Email</span>
+                <span className="font-medium break-all">{email || '—'}</span>
+              </div>
+              {needsShippingAddress && (
+                <>
+                  <div className="flex items-start gap-3">
+                    <span className="w-20 text-gray-500">Street</span>
+                    <span className="font-medium">{address.street || '—'}</span>
+                  </div>
+                  <div className="flex items-start gap-3">
+                    <span className="w-20 text-gray-500">City</span>
+                    <span className="font-medium">{address.city || '—'}</span>
+                  </div>
+                  <div className="flex items-start gap-3">
+                    <span className="w-20 text-gray-500">Postal</span>
+                    <span className="font-medium">{address.postalCode || '—'}</span>
+                  </div>
+                  <div className="flex items-start gap-3">
+                    <span className="w-20 text-gray-500">Province</span>
+                    <span className="font-medium">{address.province || '—'}</span>
+                  </div>
+                </>
+              )}
+            </div>
+
+            <div className="mt-6 flex justify-end gap-2">
+              <button
+                type="button"
+                className="px-4 py-2 rounded-lg border border-gray-300 text-gray-700 bg-white"
+                onClick={() => !isProcessing && setShowSaveConfirm(false)}
+                disabled={isProcessing}
+              >
+                Edit details
+              </button>
+              <button
+                type="button"
+                className="px-4 py-2 rounded-lg bg-blue-600 text-white font-semibold disabled:opacity-60"
+                onClick={async () => { if (isProcessing) return; setShowSaveConfirm(false); await proceedInStoreCheckout(); }}
+                disabled={isProcessing}
+              >
+                Confirm & Create Account
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };
