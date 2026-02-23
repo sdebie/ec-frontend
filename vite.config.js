@@ -16,6 +16,8 @@ export default defineConfig({
     port: 3000,
     strictPort: true,
     allowedHosts: [
+      'localhost',
+      '127.0.0.1',
       'ec.sdebiehome.co.za' // Add your domain here
     ],
     proxy: {
