@@ -177,3 +177,28 @@ export async function updateCustomerInformation(
     const updated = await apiUpdateCustomerInformation(customer, sessionId);
     return updated;
 }
+
+// --- New: client for updateOrderStatus mutation ---
+export async function apiUpdateOrderStatus(
+    status: string,
+    sessionId?: string
+): Promise<{ id: number; status: string } | null> {
+    const sid = sessionId || CartStore.getOrderSessionId();
+    if (!sid) {
+        throw new Error('Missing sessionId to update order status');
+    }
+    const mutation = gql`
+        mutation UpdateOrderStatus($sessionId: String!, $status: String!) {
+            updateOrderStatus(sessionId: $sessionId, status: $status) {
+                id
+                status
+            }
+        }
+    `;
+    const client = await GraphQLService.getGraphQLClient(graphQlEndpoint);
+    const result = await client.request<{ updateOrderStatus: { id: number; status: string } }>(mutation, {
+        sessionId: sid,
+        status
+    });
+    return result?.updateOrderStatus ?? null;
+}

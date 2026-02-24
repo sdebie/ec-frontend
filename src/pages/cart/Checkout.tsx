@@ -1,5 +1,6 @@
 import React, { useEffect, useMemo, useState } from 'react';
-import { apiOrderById, apiOrderBySessionId, updateCustomerInformation } from '../../services/OrderService';
+import { useNavigate } from 'react-router-dom';
+import { apiOrderById, apiOrderBySessionId, updateCustomerInformation, apiUpdateOrderStatus } from '../../services/OrderService';
 import { OrderData } from './types';
 import { CartStore } from '../../state/CartStore';
 import { fetchShippingMethods, ShippingMethod, PaymentMethodKey, fetchPaymentMethodsConfig, PaymentMethodsConfig, PaymentMethodInfo } from "../../services/StoreSettings";
@@ -29,6 +30,15 @@ const Checkout: React.FC = () => {
     postalCode: '',
     province: ''
   });
+  // Track the initially loaded account address to detect edits
+  const [initialAccountAddress, setInitialAccountAddress] = useState<{
+    street: string;
+    city: string;
+    postalCode: string;
+    province: string;
+  } | null>(null);
+  // When edited, allow user to decide whether to update their account address
+  const [updateAccountAddress, setUpdateAccountAddress] = useState<boolean>(false);
 
   // Customer lookup/auth state
   const [customer, setCustomer] = useState<CustomerProfile | null>(null);
@@ -88,13 +98,22 @@ const Checkout: React.FC = () => {
     return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
   }, [email]);
 
+  // Hydrate from localStorage on mount (if previously logged in)
+  useEffect(() => {
+    try {
+      const savedEmail = window.localStorage.getItem('checkoutEmail') || '';
+      const savedAuth = window.localStorage.getItem('checkoutIsAuthenticated') === 'true';
+      if (savedEmail) setEmail(savedEmail);
+      if (savedAuth) setIsAuthenticated(true);
+    } catch {}
+  }, []);
+
   // Lookup customer when email becomes valid
   useEffect(() => {
     let cancelled = false;
     const run = async () => {
       if (!emailValid) {
         setCustomer(null);
-        setIsAuthenticated(false);
         setShowLoginPrompt(false);
         setReturningChoice(null);
         setLookupState('idle');
@@ -114,6 +133,10 @@ const Checkout: React.FC = () => {
         } else {
           setShowLoginPrompt(false);
         }
+        // If already authenticated (e.g., restored), prefill address
+        if (profile && isAuthenticated) {
+          prefillAddressFromProfile(profile);
+        }
       } catch (e) {
         console.warn('Lookup failed', e);
         setCustomer(null);
@@ -123,7 +146,7 @@ const Checkout: React.FC = () => {
     };
     run();
     return () => { cancelled = true; };
-  }, [emailValid, email, needsShippingAddress]);
+  }, [emailValid, email, needsShippingAddress, isAuthenticated]);
 
   // Payment methods from settings (new JSON format)
   const [paymentConfig, setPaymentConfig] = useState<PaymentMethodsConfig>({});
@@ -195,14 +218,40 @@ const Checkout: React.FC = () => {
 
   const grandTotal = useMemo(() => itemsTotal + shippingFee, [itemsTotal, shippingFee]);
 
+  // Detect if the authenticated user's loaded address has been edited
+  const isAccountAddressEdited = useMemo(() => {
+    if (!isAuthenticated || !initialAccountAddress) return false;
+    const norm = (v: string | undefined | null) => (v ?? '').trim();
+    return (
+      norm(address.street) !== norm(initialAccountAddress.street) ||
+      norm(address.city) !== norm(initialAccountAddress.city) ||
+      norm(address.postalCode) !== norm(initialAccountAddress.postalCode) ||
+      norm(address.province) !== norm(initialAccountAddress.province)
+    );
+  }, [isAuthenticated, initialAccountAddress, address]);
+
+  // Auto-uncheck when no longer edited or user not authenticated
+  useEffect(() => {
+    if (!isAccountAddressEdited || !isAuthenticated) {
+      setUpdateAccountAddress(false);
+    }
+  }, [isAccountAddressEdited, isAuthenticated]);
+
   const prefillAddressFromProfile = (p: CustomerProfile | null) => {
     if (!p) return;
+    const next = {
+      street: p.addressLine1 || '',
+      city: p.city || '',
+      postalCode: p.postalCode || '',
+      province: p.province || ''
+    };
     setAddress(a => ({
-      street: p.addressLine1 || a.street || '',
-      city: p.city || a.city || '',
-      postalCode: p.postalCode || a.postalCode || '',
-      province: p.province || a.province || ''
+      street: next.street || a.street || '',
+      city: next.city || a.city || '',
+      postalCode: next.postalCode || a.postalCode || '',
+      province: next.province || a.province || ''
     }));
+    setInitialAccountAddress(next);
   };
 
   const handleLogin = async () => {
@@ -213,6 +262,13 @@ const Checkout: React.FC = () => {
       setIsAuthenticated(true);
       setShowLoginPrompt(false);
       prefillAddressFromProfile(prof);
+      // Persist successful login state and email for subsequent visits
+      try {
+        window.localStorage.setItem('checkoutEmail', email.trim());
+        window.localStorage.setItem('checkoutIsAuthenticated', 'true');
+        // Notify other components like header
+        CartStore.emit();
+      } catch {}
     } catch (e: any) {
       alert(typeof e?.message === 'string' ? e.message : 'Login failed. Please check your password.');
     }
@@ -254,6 +310,30 @@ const Checkout: React.FC = () => {
     } catch (e: any) {
       alert(typeof e?.message === 'string' ? e.message : 'Please check your details.');
       return;
+    }
+
+    // If authenticated user edited address and opted in, update their account profile address
+    if (needsShippingAddress && isAuthenticated && updateAccountAddress) {
+      try {
+        await registerOrUpdateCustomer({
+          email: email.trim(),
+          addressLine1: address.street,
+          city: address.city,
+          postalCode: address.postalCode,
+          province: address.province,
+        });
+        // snapshot becomes new initial to avoid repeated prompts
+        setInitialAccountAddress({
+          street: address.street,
+          city: address.city,
+          postalCode: address.postalCode,
+          province: address.province,
+        });
+        setUpdateAccountAddress(false);
+      } catch (e: any) {
+        alert(typeof e?.message === 'string' ? e.message : 'Could not update your account address.');
+        return;
+      }
     }
 
     const debug = true; // new URLSearchParams(window.location.search).has('debug')
@@ -369,6 +449,8 @@ const Checkout: React.FC = () => {
   };
 
   // Extracted: actual in-store processing after optional confirmation
+  const navigate = useNavigate();
+
   const proceedInStoreCheckout = async () => {
     try {
       setIsProcessing(true);
@@ -379,9 +461,51 @@ const Checkout: React.FC = () => {
         setIsProcessing(false);
         return;
       }
+
+      // Update account address if opted in
+      if (needsShippingAddress && isAuthenticated && updateAccountAddress) {
+        try {
+          await registerOrUpdateCustomer({
+            email: email.trim(),
+            addressLine1: address.street,
+            city: address.city,
+            postalCode: address.postalCode,
+            province: address.province,
+          });
+          setInitialAccountAddress({
+            street: address.street,
+            city: address.city,
+            postalCode: address.postalCode,
+            province: address.province,
+          });
+          setUpdateAccountAddress(false);
+        } catch (e: any) {
+          alert(typeof e?.message === 'string' ? e.message : 'Could not update your account address.');
+          setIsProcessing(false);
+          return;
+        }
+      }
+
       const sid = sessionId ?? CartStore.getOrderSessionId() ?? undefined;
       await updateCustomerInformation({ email }, sid);
+      // Set order status to IN_STORE_PAYMENT
+      try {
+        await apiUpdateOrderStatus('IN_STORE_PAYMENT', sid);
+      } catch (e) {
+        console.warn('[In-Store] Failed to set order status to IN_STORE_PAYMENT:', e);
+      }
+      // Clear cart items from localStorage and update UI
+      try {
+        window.localStorage.removeItem('ec_cart_order_items');
+      } catch (_) {}
+      try {
+        // CartStore.setFromOrder({ items: [] } as any);
+        CartStore.clear();
+        CartStore.resetAndNewSession();
+      } catch (_) {}
       alert('Your order will be reserved for in-store payment. You can complete payment when you collect your items.');
+      // Return to home screen
+      navigate('/');
     } catch (e) {
       console.error('[In-Store] Failed to update customer information:', e);
       alert('Could not save your email address to the order. Please try again.');
@@ -421,6 +545,13 @@ const Checkout: React.FC = () => {
             setEmailTouched={setEmailTouched}
             lookupState={lookupState}
             customer={customer}
+            isAuthenticated={isAuthenticated}
+            needsShippingAddress={needsShippingAddress}
+            returningChoice={returningChoice}
+            setReturningChoice={setReturningChoice}
+            loginPassword={loginPassword}
+            setLoginPassword={setLoginPassword}
+            handleLogin={handleLogin}
           />
 
           {/* Section 2: Shipping Method */}
@@ -433,17 +564,15 @@ const Checkout: React.FC = () => {
             isAuthenticated={isAuthenticated}
             address={address}
             setAddress={setAddress}
-            returningChoice={returningChoice}
-            setReturningChoice={setReturningChoice}
-            loginPassword={loginPassword}
-            setLoginPassword={setLoginPassword}
-            handleLogin={handleLogin}
             saveDetails={saveDetails}
             setSaveDetails={setSaveDetails}
             registerPassword={registerPassword}
             setRegisterPassword={setRegisterPassword}
             registerPasswordConfirm={registerPasswordConfirm}
             setRegisterPasswordConfirm={setRegisterPasswordConfirm}
+            isAccountAddressEdited={isAccountAddressEdited}
+            updateAccountAddress={updateAccountAddress}
+            setUpdateAccountAddress={setUpdateAccountAddress}
           />
 
           {/* Section 3: Payment */}
@@ -477,113 +606,13 @@ const Checkout: React.FC = () => {
                 (needsShippingAddress && customer && customer.hasPassword && returningChoice === 'login' && !isAuthenticated) ||
                 (needsShippingAddress && saveDetails && (!registerPassword || registerPassword.length < 6 || registerPassword !== registerPasswordConfirm))
               }
-              className="w-full py-4 bg-blue-600 text-white rounded-xl font-bold"
+              className="w-full py-4 bg-blue-600 text-white rounded-xl font-bold disabled:opacity-50 disabled:cursor-not-allowed"
           >
             {selectedPayment === 'IN_STORE' ? 'Reserve & Pay In-Store' : 'Complete Purchase'}
           </button>
         </div>
       </div>
 
-      {/*<div className="max-w-3xl mx-auto">*/}
-      {/*  <div className="bg-white shadow-sm rounded-2xl overflow-hidden border border-gray-100">*/}
-      {/*    /!* Header *!/*/}
-      {/*    <div className="p-6 border-b border-gray-100 flex items-center justify-between">*/}
-      {/*      <h1 className="text-2xl font-bold text-gray-900 flex items-center gap-2">*/}
-      {/*        <ShoppingBag className="text-blue-600" /> Checkout ({selectedPayment === 'IN_STORE' ? 'In-Store' : 'FastPay'})*/}
-      {/*      </h1>*/}
-      {/*      <span className="text-sm text-gray-500">Order #{order?.id ?? '—'}</span>*/}
-      {/*    </div>*/}
-
-      {/*    <div className="p-8">*/}
-      {/*      /!* Loading / Error *!/*/}
-      {/*      {loading && (*/}
-      {/*        <div className="mb-6 text-sm text-gray-600">Loading order details...</div>*/}
-      {/*      )}*/}
-      {/*      {error && (*/}
-      {/*        <div className="mb-6 text-sm text-red-700 bg-red-50 border border-red-100 rounded-lg p-3">{error}</div>*/}
-      {/*      )}*/}
-
-      {/*      /!* Order Summary *!/*/}
-      {/*      {order && (*/}
-      {/*        <div className="space-y-4 mb-8">*/}
-      {/*          {(order.items ?? []).map((item, idx) => {*/}
-      {/*            const qty = Number(item.quantity || 0);*/}
-      {/*            const price = Number(item.unitPrice || 0);*/}
-      {/*            const lineTotal = qty * price;*/}
-      {/*            return (*/}
-      {/*              <div key={idx} className="flex justify-between text-gray-700">*/}
-      {/*                <span>*/}
-      {/*                  {item.variant?.product?.name} - {item.variant?.attributesJson}*/}
-      {/*                </span>*/}
-      {/*                <span className="font-medium">R {lineTotal.toFixed(2)}</span>*/}
-      {/*              </div>*/}
-      {/*            );*/}
-      {/*          })}*/}
-      {/*          <div className="border-t pt-4 flex justify-between text-xl font-bold text-gray-900">*/}
-      {/*            <span>Total Amount</span>*/}
-      {/*            <span className="text-blue-600">R {computedTotal.toFixed(2)}</span>*/}
-      {/*          </div>*/}
-      {/*        </div>*/}
-      {/*      )}*/}
-
-      {/*      /!* Email Address *!/*/}
-      {/*      <div className="mb-6">*/}
-      {/*        <label htmlFor="checkout-email" className="block text-sm font-medium text-gray-700 mb-1">*/}
-      {/*          Email address*/}
-      {/*        </label>*/}
-      {/*        <input*/}
-      {/*          id="checkout-email"*/}
-      {/*          name="email"*/}
-      {/*          type="email"*/}
-      {/*          inputMode="email"*/}
-      {/*          autoComplete="email"*/}
-      {/*          required*/}
-      {/*          value={email}*/}
-      {/*          onChange={(e) => setEmail(e.target.value)}*/}
-      {/*          onBlur={() => setEmailTouched(true)}*/}
-      {/*          aria-invalid={emailTouched && !emailValid}*/}
-      {/*          aria-describedby="checkout-email-error"*/}
-      {/*          placeholder="you@example.com"*/}
-      {/*          className={`w-full px-4 py-3 rounded-lg border focus:outline-none focus:ring-2 transition-all ${*/}
-      {/*            emailTouched && !emailValid*/}
-      {/*              ? 'border-red-300 focus:ring-red-200'*/}
-      {/*              : 'border-gray-300 focus:ring-blue-200'*/}
-      {/*          }`}*/}
-      {/*        />*/}
-      {/*        {emailTouched && !emailValid && (*/}
-      {/*          <p id="checkout-email-error" className="mt-2 text-sm text-red-600">*/}
-      {/*            Please enter a valid email address.*/}
-      {/*          </p>*/}
-      {/*        )}*/}
-      {/*      </div>*/}
-
-      {/*      /!* Payment Button *!/*/}
-      {/*      <button*/}
-      {/*        onClick={selectedPayment === 'IN_STORE' ? handleInStoreCheckout : handlePayFastCheckout}*/}
-      {/*        disabled={isProcessing || loading || !order?.id || !emailValid || !selectedPayment}*/}
-      {/*        className={`w-full flex items-center justify-center gap-3 py-4 rounded-xl font-bold text-white shadow-lg transition-all ${*/}
-      {/*          isProcessing || loading || !order?.id || !emailValid || !selectedPayment ? 'bg-gray-400 cursor-not-allowed' : 'bg-blue-600 hover:bg-blue-700 active:scale-95'*/}
-      {/*        }`}*/}
-      {/*      >*/}
-      {/*        <CreditCard size={20} />*/}
-      {/*        {isProcessing*/}
-      {/*          ? (selectedPayment === 'IN_STORE' ? 'Saving...' : 'Preparing Secure Gateway...')*/}
-      {/*          : (selectedPayment === 'IN_STORE' ? 'Reserve & Pay In-Store' : 'Pay via PayFast (Gateway)')}*/}
-      {/*      </button>*/}
-
-      {/*      /!* Trust Badges *!/*/}
-      {/*      <div className="mt-8 grid grid-cols-2 gap-4 border-t pt-6">*/}
-      {/*        <div className="flex items-center gap-2 text-xs text-gray-500">*/}
-      {/*          <ShieldCheck className="text-green-500" size={16} />*/}
-      {/*          Secure 256-bit SSL Encryption*/}
-      {/*        </div>*/}
-      {/*        <div className="flex items-center justify-end">*/}
-      {/*          <span className="text-[10px] uppercase tracking-widest text-gray-400 font-bold">Sandbox Mode</span>*/}
-      {/*        </div>*/}
-      {/*      </div>*/}
-      {/*    </div>*/}
-      {/*  </div>*/}
-      {/*</div>*/}
       <SaveConfirmModal
         show={showSaveConfirm}
         onClose={() => setShowSaveConfirm(false)}

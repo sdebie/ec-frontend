@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { ShippingMethod } from '../../../services/StoreSettings';
 import { CustomerProfile } from '../../../services/CustomerService';
 
@@ -18,17 +18,16 @@ interface Props {
   isAuthenticated: boolean;
   address: Address;
   setAddress: (a: Address) => void;
-  returningChoice: 'login' | 'guest' | null;
-  setReturningChoice: (v: 'login' | 'guest' | null) => void;
-  loginPassword: string;
-  setLoginPassword: (v: string) => void;
-  handleLogin: () => void;
   saveDetails: boolean;
   setSaveDetails: (v: boolean) => void;
   registerPassword: string;
   setRegisterPassword: (v: string) => void;
   registerPasswordConfirm: string;
   setRegisterPasswordConfirm: (v: string) => void;
+  // New: show and control account address update when edited
+  isAccountAddressEdited?: boolean;
+  updateAccountAddress?: boolean;
+  setUpdateAccountAddress?: (v: boolean) => void;
 }
 
 const ShippingMethodSection: React.FC<Props> = ({
@@ -40,18 +39,26 @@ const ShippingMethodSection: React.FC<Props> = ({
   isAuthenticated,
   address,
   setAddress,
-  returningChoice,
-  setReturningChoice,
-  loginPassword,
-  setLoginPassword,
-  handleLogin,
   saveDetails,
   setSaveDetails,
   registerPassword,
   setRegisterPassword,
   registerPasswordConfirm,
   setRegisterPasswordConfirm,
+  isAccountAddressEdited,
+  updateAccountAddress,
+  setUpdateAccountAddress,
 }) => {
+  // Select the first available shipping method by default when none is selected
+  useEffect(() => {
+    if ((selectedMethodId === null || selectedMethodId === undefined) && shippingMethods && shippingMethods.length > 0) {
+      const firstWithId = shippingMethods.find(m => m.id !== null && m.id !== undefined);
+      if (firstWithId && typeof firstWithId.id === 'number') {
+        setSelectedMethodId(firstWithId.id);
+      }
+    }
+  }, [selectedMethodId, shippingMethods, setSelectedMethodId]);
+
   return (
     <section className="bg-white p-6 rounded-2xl shadow-sm border">
       <h3 className="text-lg font-bold mb-4 flex items-center gap-2">
@@ -71,6 +78,7 @@ const ShippingMethodSection: React.FC<Props> = ({
                 type="radio"
                 name="shipping"
                 className="hidden"
+                checked={selectedMethodId === method.id}
                 onChange={() => setSelectedMethodId(method.id!)}
               />
               <div>
@@ -86,11 +94,11 @@ const ShippingMethodSection: React.FC<Props> = ({
       {needsShippingAddress && (
         <div className="mt-6 space-y-3 animate-in slide-in-from-top-4 duration-300">
           <p className="text-sm font-semibold text-gray-600">Delivery Address</p>
-          {customer && isAuthenticated && (
-            <div className="text-xs text-green-700 bg-green-50 border border-green-100 rounded-lg p-2">
-              Address loaded from your account. You can edit below.
-            </div>
-          )}
+          {/*{customer && isAuthenticated && (*/}
+          {/*  <div className="text-xs text-green-700 bg-green-50 border border-green-100 rounded-lg p-2">*/}
+          {/*    Address loaded from your account. You can edit below.*/}
+          {/*  </div>*/}
+          {/*)}*/}
           <input
             placeholder="Street Address"
             value={address.street}
@@ -111,66 +119,21 @@ const ShippingMethodSection: React.FC<Props> = ({
               onChange={(e) => setAddress({ ...address, postalCode: e.target.value })}
             />
           </div>
-
-          {customer && customer.shopperType.toUpperCase() !== 'GUEST' && !isAuthenticated && (
-            <div className="mt-4 p-4 border rounded-xl bg-blue-50 border-blue-100">
-              <p className="text-sm font-medium text-blue-900">
-                Welcome back! We found an account for {customer.email}. Would you like to:
-              </p>
-              <div className="mt-3 flex flex-wrap gap-2">
-                <button
-                  type="button"
-                  onClick={() => setReturningChoice('login')}
-                  className={`px-3 py-2 rounded-lg text-sm font-semibold border ${
-                    returningChoice === 'login'
-                      ? 'bg-blue-600 text-white border-blue-700'
-                      : 'bg-white text-blue-700 border-blue-300'
-                  }`}
-                >
-                  Sign in
-                </button>
-                <button
-                  type="button"
-                  onClick={() => {
-                    setReturningChoice('guest');
-                    setLoginPassword('');
-                  }}
-                  className={`px-3 py-2 rounded-lg text-sm font-semibold border ${
-                    returningChoice === 'guest'
-                      ? 'bg-blue-600 text-white border-blue-700'
-                      : 'bg-white text-blue-700 border-blue-300'
-                  }`}
-                >
-                  Continue as guest
-                </button>
-              </div>
-
-              {returningChoice === 'login' && (
-                <div className="mt-3 grid grid-cols-1 sm:grid-cols-[1fr_auto] gap-2">
+          {customer && isAuthenticated && isAccountAddressEdited && (
+              <div className="mt-2 p-3 border rounded-xl bg-gray-50">
+                <label className="flex items-center gap-2 text-sm">
                   <input
-                    type="password"
-                    placeholder="Enter your password"
-                    value={loginPassword}
-                    onChange={(e) => setLoginPassword(e.target.value)}
-                    className="p-3 border rounded-xl"
+                      type="checkbox"
+                      checked={!!updateAccountAddress}
+                      onChange={(e) => setUpdateAccountAddress && setUpdateAccountAddress(e.target.checked)}
                   />
-                  <button onClick={handleLogin} className="px-4 py-3 bg-blue-600 text-white rounded-xl font-semibold">
-                    Sign in
-                  </button>
-                </div>
-              )}
-
-              {returningChoice === 'guest' && (
-                <p className="text-xs text-blue-800 mt-2">
-                  You can proceed without signing in. Your saved address won’t be auto-filled.
-                </p>
-              )}
-
-              {!returningChoice && (
-                <p className="text-xs text-blue-800 mt-2">Choose an option above to continue.</p>
-              )}
-            </div>
+                  Update my account with these address changes
+                </label>
+                <p className="text-xs text-gray-600 mt-1">If checked, your saved address will be updated in your profile.</p>
+              </div>
           )}
+
+          {/* Returning customer sign-in/guest choice moved to Contact Information section */}
 
           {(!customer || !customer.hasPassword) && (
             <div className="mt-2 p-3 border rounded-xl bg-gray-50">
