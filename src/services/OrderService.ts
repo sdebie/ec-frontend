@@ -3,6 +3,7 @@ import { GraphQLService } from "./GraphQLService";
 import { OrderData, CustomerInformation } from "../pages/cart/types";
 import { gql } from "graphql-request";
 import { CartStore } from "../state/CartStore";
+import { OrderStatus } from "../utils/enums/OrderStatus";
 
 // Allow environment variable override for production deployments
 const envGraphQl = (typeof import.meta !== 'undefined' && (import.meta as any).env)
@@ -180,7 +181,7 @@ export async function updateCustomerInformation(
 
 // --- New: client for updateOrderStatus mutation ---
 export async function apiUpdateOrderStatus(
-    status: string,
+    status: OrderStatus,
     sessionId?: string
 ): Promise<{ id: number; status: string } | null> {
     const sid = sessionId || CartStore.getOrderSessionId();

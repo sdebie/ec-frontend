@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { apiOrderById, apiOrderBySessionId } from '../../services/OrderService';
 import { CartStore } from '../../state/CartStore';
+import { OrderStatus } from '../../utils/enums/OrderStatus';
 
 const Success = () => {
     const [verified, setVerified] = useState(false);
@@ -31,7 +32,7 @@ const Success = () => {
                     return;
                 }
 
-                if (data?.status === 'PAID') {
+                if (data?.status === OrderStatus.PAID) {
                     setVerified(true);
                     clearInterval(interval);
                     CartStore.clear();

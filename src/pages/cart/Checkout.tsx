@@ -10,6 +10,7 @@ import ShippingMethodSection from './components/ShippingMethodSection';
 import PaymentMethodSection from './components/PaymentMethodSection';
 import OrderSummary from './components/OrderSummary';
 import SaveConfirmModal from './components/SaveConfirmModal';
+import { OrderStatus } from '../../utils/enums/OrderStatus';
 
 // Interface shaped like backend HtmlFormField
 interface HtmlFormField {
@@ -490,7 +491,7 @@ const Checkout: React.FC = () => {
       await updateCustomerInformation({ email }, sid);
       // Set order status to IN_STORE_PAYMENT
       try {
-        await apiUpdateOrderStatus('IN_STORE_PAYMENT', sid);
+        await apiUpdateOrderStatus(OrderStatus.IN_STORE_PAYMENT, sid);
       } catch (e) {
         console.warn('[In-Store] Failed to set order status to IN_STORE_PAYMENT:', e);
       }
