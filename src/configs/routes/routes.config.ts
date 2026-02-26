@@ -23,6 +23,16 @@ export const appRoutes: Routes = [
         },
     },
     {
+        key: 'productDetail',
+        path: `/product/:productId`,
+        component: lazy(() => import('../../pages/products/ProductDetailsPage')),
+        authority: [],
+        meta: {
+            pageBackgroundType: 'plain',
+            pageContainerType: 'contained',
+        },
+    },
+    {
         key: 'cart',
         path: `/cart`,
         component: lazy(() => import('../../pages/cart/Cart')),

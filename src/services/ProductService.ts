@@ -62,3 +62,38 @@ export async function fetchVariantsByIds(ids: number[]): Promise<VariantItem[]> 
   const res = await client.request<{ variantsByIds: VariantItem[] }>(query, { ids });
   return res.variantsByIds || [];
 }
+
+
+
+export type ProductVariantWithProduct = {
+  id: number;
+  sku?: string | null;
+  price?: number | null;
+  stockQuantity?: number | null;
+  attributesJson?: string | null;
+  product?: {
+    id?: number | null;
+    name?: string | null;
+    description?: string | null;
+    productType?: string | null;
+  } | null;
+};
+
+export async function fetchProductWithVariants(productId: number): Promise<ProductVariantWithProduct[]> {
+  if (!productId) return [];
+  const client = await GraphQLService.getGraphQLClient(graphQlEndpoint);
+  const query = gql`
+    query GetProductWithVariants($productId: BigInteger!) {
+      getProductWithVariants(productId: $productId) {
+        id
+        sku
+        price
+        stockQuantity
+        attributesJson
+        product { id name description productType }
+      }
+    }
+  `;
+  const res = await client.request<{ getProductWithVariants: ProductVariantWithProduct[] }>(query, { productId });
+  return res.getProductWithVariants || [];
+}

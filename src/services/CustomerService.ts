@@ -10,7 +10,7 @@ export type CustomerProfile = {
   city?: string;
   province?: string;
   postalCode?: string;
-  shopperType?: string; // REGISTERED | GUEST | undefined
+  shopperType?: string; // RETURNING | GUEST | undefined
   hasPassword?: boolean;
 };
 
