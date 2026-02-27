@@ -2,7 +2,7 @@ import React, { useState, useMemo } from 'react';
 import { ShoppingCart, ChevronDown, ChevronUp } from 'lucide-react';
 
 interface Variant {
-    id: number;
+    id: string;
     sku: string;
     price: number;
     stock_quantity: number;
@@ -10,14 +10,14 @@ interface Variant {
 }
 
 interface Product {
-    id: number;
+    id: string;
     name: string;
     short_description: string;
     description: string;
     variants: Variant[];
 }
 
-const ProductCard: React.FC<{ product: Product; onAddToCart: (vId: number) => void }> = ({ product, onAddToCart }) => {
+const ProductCard: React.FC<{ product: Product; onAddToCart: (vId: string) => void }> = ({ product, onAddToCart }) => {
     const [selections, setSelections] = useState<Record<string, string>>({});
     const [openSection, setOpenSection] = useState<string | null>('Description');
 

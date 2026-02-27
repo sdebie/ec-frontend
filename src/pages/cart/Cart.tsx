@@ -27,18 +27,18 @@ const Cart: React.FC = () => {
         // Enrich items whose variant is only an ID by fetching details in one go
         const variantIds = Array.from(new Set(
           safeItems
-            .map(it => (typeof it.variant === 'number' ? it.variant : it.variant?.id))
-            .filter((v): v is number => typeof v === 'number')
+            .map(it => (typeof it.variant === 'string' ? it.variant : it.variant?.id))
+            .filter((v): v is string => typeof v === 'string')
         ));
 
         if (variantIds.length > 0) {
           try {
             const variants = await fetchVariantsByIds(variantIds);
-            const map = new Map<number, any>();
-            variants.forEach(v => map.set(Number(v.id), v));
+            const map = new Map<string, any>();
+            variants.forEach(v => map.set(v.id, v));
             const enriched = safeItems.map(it => {
-              const vid = typeof it.variant === 'number' ? it.variant : it.variant?.id;
-              const full = vid != null ? map.get(Number(vid)) : undefined;
+              const vid = typeof it.variant === 'string' ? it.variant : it.variant?.id;
+              const full = vid != null ? map.get(vid) : undefined;
               return full ? { ...it, variant: full } : it;
             });
             setItems(enriched);
@@ -92,7 +92,7 @@ const Cart: React.FC = () => {
         unitPrice: i.unitPrice,
         quantity: i.quantity,
         // Always send only the variant ID to backend
-        variant: typeof i.variant === 'number' ? i.variant : i.variant?.id,
+        variant: typeof i.variant === 'string' ? i.variant : i.variant?.id,
 
       })) };
       await createOrder<OrderData>(payload);

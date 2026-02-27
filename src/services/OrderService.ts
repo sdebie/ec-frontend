@@ -1,6 +1,6 @@
 import getServiceEndpoint from "../utils/HostnameResolver";
 import { GraphQLService } from "./GraphQLService";
-import { OrderData, CustomerInformation } from "../pages/cart/types";
+import { OrderData } from "../pages/cart/types";
 import { gql } from "graphql-request";
 import { CartStore } from "../state/CartStore";
 import { OrderStatus } from "../utils/enums/OrderStatus";
@@ -66,12 +66,24 @@ export async function addToCart(order: OrderData): Promise<OrderData> {
     // Merge by variant.id when available; otherwise append
     const merged: any[] = [...existing];
     for (const inc of incoming) {
-        const vid = (inc as any)?.variant?.id;
+        // Handle both object variant (with .id) and string variant (ID itself)
+        const vid = (typeof inc.variant === 'string') 
+            ? inc.variant 
+            : (inc.variant as any)?.id;
+
         if (vid == null) {
             merged.push({ ...inc });
             continue;
         }
-        const idx = merged.findIndex((m) => (m?.variant?.id) === vid);
+        
+        // Find existing item with same variant ID
+        const idx = merged.findIndex((m) => {
+            const mVid = (typeof m.variant === 'string') 
+                ? m.variant 
+                : (m.variant as any)?.id;
+            return mVid === vid;
+        });
+
         if (idx >= 0) {
             const prev = merged[idx] || {};
             const newQty = Number(prev.quantity || 0) + Number(inc.quantity || 0) || 0;
@@ -80,7 +92,9 @@ export async function addToCart(order: OrderData): Promise<OrderData> {
                 ...inc,
                 quantity: newQty,
                 // keep the latest unitPrice if provided, else previous
-                unitPrice: (typeof inc.unitPrice === 'number' ? inc.unitPrice : prev.unitPrice)
+                unitPrice: (typeof inc.unitPrice === 'number' ? inc.unitPrice : prev.unitPrice),
+                // Ensure we preserve the variant structure if we have a better one (object vs string)
+                variant: (typeof inc.variant === 'object' && inc.variant !== null) ? inc.variant : prev.variant
             };
         } else {
             merged.push({ ...inc });
@@ -100,10 +114,10 @@ export async function addToCart(order: OrderData): Promise<OrderData> {
     return localOrder;
 }
 
-export async function apiOrderById(id: number): Promise<OrderData> {
+export async function apiOrderById(id: string): Promise<OrderData> {
     console.log("graphQL:: Get Order by id request", id);
     const query = gql`
-        query OrderById($id: BigInteger!) {
+        query OrderById($id: String!) {
             orderById(id: $id) {
                 id
                 status
@@ -140,50 +154,12 @@ export async function apiOrderBySessionId(sessionId: string): Promise<OrderData>
     return response.orderBySessionId;
 }
 
-// --- New: client for updateCustomerInformation mutation ---
-export async function apiUpdateCustomerInformation(
-    customer: CustomerInformation,
-    sessionId?: string
-): Promise<CustomerInformation> {
-    const sid = sessionId || CartStore.getOrderSessionId();
-    if (!sid) {
-        throw new Error('Missing sessionId to update customer information');
-    }
-    if (!customer || !customer.email) {
-        throw new Error('Email is required to update customer information');
-    }
-    console.log("DEBUG:: Updating customer information for sessionId: ", sid, " with email: ", customer.email);
-    const mutation = gql`
-        mutation UpdateCustomerInformation($sessionId: String!, $customer: CustomerDtoInput!) {
-            updateCustomerInformation(sessionId: $sessionId, customer: $customer) {
-                email
-            }
-        }
-    `;
-
-    const client = await GraphQLService.getGraphQLClient(graphQlEndpoint);
-    const result = await client.request<{ updateCustomerInformation: CustomerInformation }>(mutation, {
-        sessionId: sid,
-        customer: { email: customer.email }
-    });
-
-    return result.updateCustomerInformation;
-}
-
-// Convenience wrapper returning only CustomerInformation; does not mutate CartStore
-export async function updateCustomerInformation(
-    customer: CustomerInformation,
-    sessionId?: string
-): Promise<CustomerInformation> {
-    const updated = await apiUpdateCustomerInformation(customer, sessionId);
-    return updated;
-}
 
 // --- New: client for updateOrderStatus mutation ---
 export async function apiUpdateOrderStatus(
     status: OrderStatus,
     sessionId?: string
-): Promise<{ id: number; status: string } | null> {
+): Promise<{ id: string; status: string } | null> {
     const sid = sessionId || CartStore.getOrderSessionId();
     if (!sid) {
         throw new Error('Missing sessionId to update order status');
@@ -197,7 +173,7 @@ export async function apiUpdateOrderStatus(
         }
     `;
     const client = await GraphQLService.getGraphQLClient(graphQlEndpoint);
-    const result = await client.request<{ updateOrderStatus: { id: number; status: string } }>(mutation, {
+    const result = await client.request<{ updateOrderStatus: { id: string; status: string } }>(mutation, {
         sessionId: sid,
         status
     });

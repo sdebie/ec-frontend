@@ -2,11 +2,11 @@ import ProductCard from "./components/ProductCard";
 import { useParams } from "react-router-dom";
 import { useEffect, useState } from "react";
 import { fetchProductWithVariants, ProductVariantWithProduct } from "../../services/ProductService";
-import Products from "./Products";
+import { useAddToCart } from "../cart/hook/useAddToCart";
 
 // Define the UI Product type expected by ProductCard to keep this page self-contained
 interface UiVariant {
-  id: number;
+  id: string;
   sku: string;
   price: number;
   stock_quantity: number;
@@ -14,7 +14,7 @@ interface UiVariant {
 }
 
 interface UiProduct {
-  id: number;
+  id: string; // UUID string
   name: string;
   short_description: string;
   description: string;
@@ -26,6 +26,7 @@ const ProductDetailsPage = () => {
   const [product, setProduct] = useState<UiProduct | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const { createOrder } = useAddToCart();
 
   useEffect(() => {
     let isCancelled = false;
@@ -33,11 +34,11 @@ const ProductDetailsPage = () => {
       setLoading(true);
       setError(null);
       try {
-        const idNum = productId ? Number(productId) : NaN;
-        if (!idNum || Number.isNaN(idNum)) {
+        const idParam = productId ? String(productId) : '';
+        if (!idParam || idParam.length < 8) {
           throw new Error("Invalid product id");
         }
-        const variants: ProductVariantWithProduct[] = await fetchProductWithVariants(idNum);
+        const variants: ProductVariantWithProduct[] = await fetchProductWithVariants(idParam);
         if (isCancelled) return;
 
         if (!variants || variants.length === 0) {
@@ -48,7 +49,7 @@ const ProductDetailsPage = () => {
 
         const base = variants[0]?.product;
         const uiProduct: UiProduct = {
-          id: base?.id ?? idNum,
+          id: base?.id ?? idParam,
           name: base?.name ?? "Product",
           short_description: "",
           description: base?.description ?? "",
@@ -73,10 +74,25 @@ const ProductDetailsPage = () => {
     };
   }, [productId]);
 
-  const handleAddToCart = (variantId: number) => {
-    // This is where you call your shopping cart state/store
-    console.log(`Adding variant ${variantId} to the global cart state`);
-    // You could also trigger a "Added to Cart!" toast notification here
+  const handleAddToCart = async (variantId: string) => {
+    if (!product) return;
+    const variant = product.variants.find(v => v.id === variantId);
+    if (!variant) return;
+
+    try {
+      await createOrder({
+        items: [
+          {
+            quantity: 1,
+            unitPrice: variant.price,
+            variant: variantId,
+          },
+        ],
+      });
+      // Optional: Show success message
+    } catch (e) {
+      console.error("Failed to add to cart", e);
+    }
   };
 
   if (loading) {

@@ -3,16 +3,16 @@ import { gql } from "graphql-request";
 import { getServiceEndpoint } from "../utils/HostnameResolver";
 
 export type ProductListItem = {
-  id: number;
+  id: string; // UUID as string
   name: string;
   description?: string | null;
   price?: number | null;
   imageUrl?: string | null;
-  variantIds?: number[] | null;
+  variantIds?: string[] | null;
 };
 
 export type VariantItem = {
-  id: number;
+  id: string;
   stockQuantity?: number | null;
   weightKg?: number | null;
   attributesJson?: string | null;
@@ -45,11 +45,11 @@ export async function fetchProducts(): Promise<ProductListItem[]> {
   return res.products || [];
 }
 
-export async function fetchVariantsByIds(ids: number[]): Promise<VariantItem[]> {
+export async function fetchVariantsByIds(ids: string[]): Promise<VariantItem[]> {
   if (!ids || ids.length === 0) return [];
   const client = await GraphQLService.getGraphQLClient(graphQlEndpoint);
   const query = gql`
-    query VariantsByIds($ids: [BigInteger!]!) {
+    query VariantsByIds($ids: [String!]!) {
       variantsByIds(ids: $ids) {
         id
         stockQuantity
@@ -66,24 +66,24 @@ export async function fetchVariantsByIds(ids: number[]): Promise<VariantItem[]> 
 
 
 export type ProductVariantWithProduct = {
-  id: number;
+  id: string;
   sku?: string | null;
   price?: number | null;
   stockQuantity?: number | null;
   attributesJson?: string | null;
   product?: {
-    id?: number | null;
+    id?: string | null; // product id is UUID string now
     name?: string | null;
     description?: string | null;
     productType?: string | null;
   } | null;
 };
 
-export async function fetchProductWithVariants(productId: number): Promise<ProductVariantWithProduct[]> {
+export async function fetchProductWithVariants(productId: string): Promise<ProductVariantWithProduct[]> {
   if (!productId) return [];
   const client = await GraphQLService.getGraphQLClient(graphQlEndpoint);
   const query = gql`
-    query GetProductWithVariants($productId: BigInteger!) {
+    query GetProductWithVariants($productId: String!) {
       getProductWithVariants(productId: $productId) {
         id
         sku

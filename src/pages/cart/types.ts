@@ -1,7 +1,7 @@
 
 
 export type OrderData = {
-    id?: number
+    id?: string
     sessionId?: string
     createdAt?: string
     updatedAt?: string
@@ -14,11 +14,11 @@ export type OrderItemsData = {
     unitPrice?: number
     quantity?: number
     // May be a numeric variant ID (when initially added) or a populated object after enrichment
-    variant?: number | variantData
+    variant?: string | variantData
 }
 
 export type variantData = {
-    id?: number
+    id?: string
     stockQuantity?: number
     weightKg?: number
     attributesJson?: string
