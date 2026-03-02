@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { fetchProducts, ProductListItem } from '../../services/ProductService';
 import {useAddToCart} from '../cart/hook/useAddToCart';
+import {Link} from "react-router-dom";
 
 const currency = (val?: number | null) =>
   typeof val === 'number' ? `R ${val.toFixed(2)}` : '—';
@@ -70,6 +71,9 @@ const Products: React.FC = () => {
                 >
                   Add to Cart
                 </button>
+                <Link to={`/product/${p.id}`}>
+                  <h3>{p.name}</h3>
+                </Link>
               </div>
             </div>
           </div>

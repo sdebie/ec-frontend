@@ -21,7 +21,7 @@ export type StoreSetting = {
 };
 
 export type ShippingMethod = {
-    id?: number | null;
+    id?: string | null;
     name?: string | null;
     isActive?: boolean | null;
     baseFee?: number | null;

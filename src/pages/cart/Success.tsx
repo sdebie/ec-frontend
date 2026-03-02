@@ -21,12 +21,12 @@ const Success = () => {
                     // Prefer polling by session id if available
                     data = await apiOrderBySessionId(sessionId);
                 } else if (urlOrderId) {
-                    const numericId = Number(urlOrderId);
-                    if (!Number.isInteger(numericId)) {
+                    const idParam = String(urlOrderId);
+                    if (!idParam || idParam.length < 8) {
                         console.warn('Invalid orderId in URL, skipping poll cycle');
                         return;
                     }
-                    data = await apiOrderById(numericId);
+                    data = await apiOrderById(idParam);
                 } else {
                     console.warn('No sessionId or orderId provided, skipping poll cycle');
                     return;

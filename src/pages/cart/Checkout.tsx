@@ -1,10 +1,16 @@
 import React, { useEffect, useMemo, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { apiOrderById, apiOrderBySessionId, updateCustomerInformation, apiUpdateOrderStatus } from '../../services/OrderService';
+import { apiOrderById, apiOrderBySessionId, apiUpdateOrderStatus } from '../../services/OrderService';
 import { OrderData } from './types';
 import { CartStore } from '../../state/CartStore';
 import { fetchShippingMethods, ShippingMethod, PaymentMethodKey, fetchPaymentMethodsConfig, PaymentMethodsConfig, PaymentMethodInfo } from "../../services/StoreSettings";
-import { lookupCustomer, loginCustomer, registerOrUpdateCustomer, CustomerProfile } from "../../services/CustomerService";
+import {
+  lookupCustomer,
+  loginCustomer,
+  registerOrUpdateCustomer,
+  CustomerProfile,
+  updateCustomerInformation
+} from "../../services/CustomerService";
 import ContactInfoSection from './components/ContactInfoSection';
 import ShippingMethodSection from './components/ShippingMethodSection';
 import PaymentMethodSection from './components/PaymentMethodSection';
@@ -175,12 +181,12 @@ const Checkout: React.FC = () => {
           const d = await apiOrderBySessionId(sid);
           data = d ?? null;
         } else if (orderId) {
-          // Fallback: numeric id
-          const numericId = Number(orderId);
-          if (!Number.isInteger(numericId)) {
+          // Fallback: use UUID string id
+          const idParam = String(orderId);
+          if (!idParam || idParam.length < 8) {
             throw new Error('Invalid orderId in URL.');
           }
-          data = await apiOrderById(numericId);
+          data = await apiOrderById(idParam);
         } else {
           throw new Error('Missing sessionId or orderId in URL.');
         }
