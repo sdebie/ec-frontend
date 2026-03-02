@@ -15,7 +15,7 @@ const SidebarItem: React.FC<{ route: Route }> = ({ route }) => {
             ) : (
                 route.meta?.icon
             )}
-            <span className="flex-grow text-left">{route.meta?.label || route.key}</span>
+            <span className="grow text-left">{route.meta?.label || route.key}</span>
             {hasSubMenu && (
                 <Icon
                     name="chevron-down"
