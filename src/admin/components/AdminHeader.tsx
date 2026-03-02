@@ -1,13 +1,25 @@
 import React from 'react';
 import {Link, useNavigate} from 'react-router-dom';
+import Icon from '@/components/shared/Icon';
 
-const AdminHeader: React.FC = () => {
+interface AdminHeaderProps {
+    onMenuClick?: () => void;
+}
+
+const AdminHeader: React.FC<AdminHeaderProps> = ({ onMenuClick }) => {
     const navigate = useNavigate();
 
     return (
         <header className="w-full bg-slate-800 text-white border-b border-slate-700 relative z-50">
             <div className="px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
-                <div className="flex items-center gap-6">
+                <div className="flex items-center gap-4 md:gap-6">
+                    <button
+                        className="md:hidden p-2 -ml-2 text-slate-300 hover:text-white"
+                        onClick={onMenuClick}
+                        aria-label="Toggle menu"
+                    >
+                        <Icon name="menu" className="w-6 h-6" />
+                    </button>
                     <Link to="/admin" className="text-lg font-bold hover:text-blue-400">
                         E-Comm Admin
                     </Link>
