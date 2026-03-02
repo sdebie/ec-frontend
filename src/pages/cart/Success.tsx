@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { apiOrderById, apiOrderBySessionId } from '../../services/OrderService';
 import { CartStore } from '../../state/CartStore';
+import { OrderStatus } from '../../utils/enums/OrderStatus';
 
 const Success = () => {
     const [verified, setVerified] = useState(false);
@@ -20,18 +21,18 @@ const Success = () => {
                     // Prefer polling by session id if available
                     data = await apiOrderBySessionId(sessionId);
                 } else if (urlOrderId) {
-                    const numericId = Number(urlOrderId);
-                    if (!Number.isInteger(numericId)) {
+                    const idParam = String(urlOrderId);
+                    if (!idParam || idParam.length < 8) {
                         console.warn('Invalid orderId in URL, skipping poll cycle');
                         return;
                     }
-                    data = await apiOrderById(numericId);
+                    data = await apiOrderById(idParam);
                 } else {
                     console.warn('No sessionId or orderId provided, skipping poll cycle');
                     return;
                 }
 
-                if (data?.status === 'PAID') {
+                if (data?.status === OrderStatus.PAID) {
                     setVerified(true);
                     clearInterval(interval);
                     CartStore.clear();

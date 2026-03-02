@@ -30,8 +30,11 @@ function ensureCartSessionId() {
 
 ensureCartSessionId();
 
-createRoot(document.getElementById('root')).render(
-  <StrictMode>
-    <App />
-  </StrictMode>,
-)
+const rootElement = document.getElementById('root');
+if (rootElement) {
+  createRoot(rootElement).render(
+    <StrictMode>
+      <App />
+    </StrictMode>,
+  )
+}

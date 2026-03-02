@@ -73,7 +73,7 @@ class CartStoreImpl {
     return () => this.listeners.delete(fn);
   }
 
-  private emit() {
+  emit() {
     this.listeners.forEach((l) => {
       try {
         l();

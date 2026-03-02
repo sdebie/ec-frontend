@@ -1,10 +1,22 @@
 import React, { useEffect, useMemo, useState } from 'react';
-import { ShoppingBag, ShieldCheck, CreditCard } from 'lucide-react';
-import { apiOrderById, apiOrderBySessionId, updateCustomerInformation } from '../../services/OrderService';
+import { useNavigate } from 'react-router-dom';
+import { apiOrderById, apiOrderBySessionId, apiUpdateOrderStatus } from '../../services/OrderService';
 import { OrderData } from './types';
 import { CartStore } from '../../state/CartStore';
-import {fetchShippingMethods, ShippingMethod, PaymentMethodKey, fetchPaymentMethodsConfig, PaymentMethodsConfig, PaymentMethodInfo} from "../../services/StoreSettings";
-import { lookupCustomer, loginCustomer, registerOrUpdateCustomer, CustomerProfile } from "../../services/CustomerService";
+import { fetchShippingMethods, ShippingMethod, PaymentMethodKey, fetchPaymentMethodsConfig, PaymentMethodsConfig, PaymentMethodInfo } from "../../services/StoreSettings";
+import {
+  lookupCustomer,
+  loginCustomer,
+  registerOrUpdateCustomer,
+  CustomerProfile,
+  updateCustomerInformation
+} from "../../services/CustomerService";
+import ContactInfoSection from './components/ContactInfoSection';
+import ShippingMethodSection from './components/ShippingMethodSection';
+import PaymentMethodSection from './components/PaymentMethodSection';
+import OrderSummary from './components/OrderSummary';
+import SaveConfirmModal from './components/SaveConfirmModal';
+import { OrderStatus } from '../../utils/enums/OrderStatus';
 
 // Interface shaped like backend HtmlFormField
 interface HtmlFormField {
@@ -25,6 +37,15 @@ const Checkout: React.FC = () => {
     postalCode: '',
     province: ''
   });
+  // Track the initially loaded account address to detect edits
+  const [initialAccountAddress, setInitialAccountAddress] = useState<{
+    street: string;
+    city: string;
+    postalCode: string;
+    province: string;
+  } | null>(null);
+  // When edited, allow user to decide whether to update their account address
+  const [updateAccountAddress, setUpdateAccountAddress] = useState<boolean>(false);
 
   // Customer lookup/auth state
   const [customer, setCustomer] = useState<CustomerProfile | null>(null);
@@ -84,13 +105,22 @@ const Checkout: React.FC = () => {
     return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
   }, [email]);
 
+  // Hydrate from localStorage on mount (if previously logged in)
+  useEffect(() => {
+    try {
+      const savedEmail = window.localStorage.getItem('checkoutEmail') || '';
+      const savedAuth = window.localStorage.getItem('checkoutIsAuthenticated') === 'true';
+      if (savedEmail) setEmail(savedEmail);
+      if (savedAuth) setIsAuthenticated(true);
+    } catch {}
+  }, []);
+
   // Lookup customer when email becomes valid
   useEffect(() => {
     let cancelled = false;
     const run = async () => {
       if (!emailValid) {
         setCustomer(null);
-        setIsAuthenticated(false);
         setShowLoginPrompt(false);
         setReturningChoice(null);
         setLookupState('idle');
@@ -110,6 +140,10 @@ const Checkout: React.FC = () => {
         } else {
           setShowLoginPrompt(false);
         }
+        // If already authenticated (e.g., restored), prefill address
+        if (profile && isAuthenticated) {
+          prefillAddressFromProfile(profile);
+        }
       } catch (e) {
         console.warn('Lookup failed', e);
         setCustomer(null);
@@ -119,7 +153,7 @@ const Checkout: React.FC = () => {
     };
     run();
     return () => { cancelled = true; };
-  }, [emailValid, email, needsShippingAddress]);
+  }, [emailValid, email, needsShippingAddress, isAuthenticated]);
 
   // Payment methods from settings (new JSON format)
   const [paymentConfig, setPaymentConfig] = useState<PaymentMethodsConfig>({});
@@ -147,12 +181,12 @@ const Checkout: React.FC = () => {
           const d = await apiOrderBySessionId(sid);
           data = d ?? null;
         } else if (orderId) {
-          // Fallback: numeric id
-          const numericId = Number(orderId);
-          if (!Number.isInteger(numericId)) {
+          // Fallback: use UUID string id
+          const idParam = String(orderId);
+          if (!idParam || idParam.length < 8) {
             throw new Error('Invalid orderId in URL.');
           }
-          data = await apiOrderById(numericId);
+          data = await apiOrderById(idParam);
         } else {
           throw new Error('Missing sessionId or orderId in URL.');
         }
@@ -191,14 +225,40 @@ const Checkout: React.FC = () => {
 
   const grandTotal = useMemo(() => itemsTotal + shippingFee, [itemsTotal, shippingFee]);
 
+  // Detect if the authenticated user's loaded address has been edited
+  const isAccountAddressEdited = useMemo(() => {
+    if (!isAuthenticated || !initialAccountAddress) return false;
+    const norm = (v: string | undefined | null) => (v ?? '').trim();
+    return (
+      norm(address.street) !== norm(initialAccountAddress.street) ||
+      norm(address.city) !== norm(initialAccountAddress.city) ||
+      norm(address.postalCode) !== norm(initialAccountAddress.postalCode) ||
+      norm(address.province) !== norm(initialAccountAddress.province)
+    );
+  }, [isAuthenticated, initialAccountAddress, address]);
+
+  // Auto-uncheck when no longer edited or user not authenticated
+  useEffect(() => {
+    if (!isAccountAddressEdited || !isAuthenticated) {
+      setUpdateAccountAddress(false);
+    }
+  }, [isAccountAddressEdited, isAuthenticated]);
+
   const prefillAddressFromProfile = (p: CustomerProfile | null) => {
     if (!p) return;
+    const next = {
+      street: p.addressLine1 || '',
+      city: p.city || '',
+      postalCode: p.postalCode || '',
+      province: p.province || ''
+    };
     setAddress(a => ({
-      street: p.addressLine1 || a.street || '',
-      city: p.city || a.city || '',
-      postalCode: p.postalCode || a.postalCode || '',
-      province: p.province || a.province || ''
+      street: next.street || a.street || '',
+      city: next.city || a.city || '',
+      postalCode: next.postalCode || a.postalCode || '',
+      province: next.province || a.province || ''
     }));
+    setInitialAccountAddress(next);
   };
 
   const handleLogin = async () => {
@@ -209,6 +269,13 @@ const Checkout: React.FC = () => {
       setIsAuthenticated(true);
       setShowLoginPrompt(false);
       prefillAddressFromProfile(prof);
+      // Persist successful login state and email for subsequent visits
+      try {
+        window.localStorage.setItem('checkoutEmail', email.trim());
+        window.localStorage.setItem('checkoutIsAuthenticated', 'true');
+        // Notify other components like header
+        CartStore.emit();
+      } catch {}
     } catch (e: any) {
       alert(typeof e?.message === 'string' ? e.message : 'Login failed. Please check your password.');
     }
@@ -250,6 +317,30 @@ const Checkout: React.FC = () => {
     } catch (e: any) {
       alert(typeof e?.message === 'string' ? e.message : 'Please check your details.');
       return;
+    }
+
+    // If authenticated user edited address and opted in, update their account profile address
+    if (needsShippingAddress && isAuthenticated && updateAccountAddress) {
+      try {
+        await registerOrUpdateCustomer({
+          email: email.trim(),
+          addressLine1: address.street,
+          city: address.city,
+          postalCode: address.postalCode,
+          province: address.province,
+        });
+        // snapshot becomes new initial to avoid repeated prompts
+        setInitialAccountAddress({
+          street: address.street,
+          city: address.city,
+          postalCode: address.postalCode,
+          province: address.province,
+        });
+        setUpdateAccountAddress(false);
+      } catch (e: any) {
+        alert(typeof e?.message === 'string' ? e.message : 'Could not update your account address.');
+        return;
+      }
     }
 
     const debug = true; // new URLSearchParams(window.location.search).has('debug')
@@ -365,6 +456,8 @@ const Checkout: React.FC = () => {
   };
 
   // Extracted: actual in-store processing after optional confirmation
+  const navigate = useNavigate();
+
   const proceedInStoreCheckout = async () => {
     try {
       setIsProcessing(true);
@@ -375,9 +468,51 @@ const Checkout: React.FC = () => {
         setIsProcessing(false);
         return;
       }
+
+      // Update account address if opted in
+      if (needsShippingAddress && isAuthenticated && updateAccountAddress) {
+        try {
+          await registerOrUpdateCustomer({
+            email: email.trim(),
+            addressLine1: address.street,
+            city: address.city,
+            postalCode: address.postalCode,
+            province: address.province,
+          });
+          setInitialAccountAddress({
+            street: address.street,
+            city: address.city,
+            postalCode: address.postalCode,
+            province: address.province,
+          });
+          setUpdateAccountAddress(false);
+        } catch (e: any) {
+          alert(typeof e?.message === 'string' ? e.message : 'Could not update your account address.');
+          setIsProcessing(false);
+          return;
+        }
+      }
+
       const sid = sessionId ?? CartStore.getOrderSessionId() ?? undefined;
       await updateCustomerInformation({ email }, sid);
+      // Set order status to IN_STORE_PAYMENT
+      try {
+        await apiUpdateOrderStatus(OrderStatus.IN_STORE_PAYMENT, sid);
+      } catch (e) {
+        console.warn('[In-Store] Failed to set order status to IN_STORE_PAYMENT:', e);
+      }
+      // Clear cart items from localStorage and update UI
+      try {
+        window.localStorage.removeItem('ec_cart_order_items');
+      } catch (_) {}
+      try {
+        // CartStore.setFromOrder({ items: [] } as any);
+        CartStore.clear();
+        CartStore.resetAndNewSession();
+      } catch (_) {}
       alert('Your order will be reserved for in-store payment. You can complete payment when you collect your items.');
+      // Return to home screen
+      navigate('/');
     } catch (e) {
       console.error('[In-Store] Failed to update customer information:', e);
       alert('Could not save your email address to the order. Please try again.');
@@ -409,282 +544,64 @@ const Checkout: React.FC = () => {
         <div className="space-y-8">
 
           {/* Section 1: Email */}
-          <section className="bg-white p-6 rounded-2xl shadow-sm border">
-            <h3 className="text-lg font-bold mb-4 flex items-center gap-2">
-              <span className="bg-blue-600 text-white w-6 h-6 rounded-full text-xs flex items-center justify-center">1</span>
-              Contact Information
-            </h3>
-            <input
-                type="email"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                placeholder="your@email.com"
-                className="w-full p-3 border rounded-xl"
-            />
-            {email && (
-              <div className="mt-2 text-xs">
-                {(!emailValid && emailTouched) && (
-                  <span className="text-red-600">Please enter a valid email address.</span>
-                )}
-                {emailValid && (
-                  <div>
-                    {lookupState === 'loading' && (
-                      <span className="text-gray-500">Checking account…</span>
-                    )}
-                    {lookupState === 'found' && customer && customer.shopperType?.toUpperCase() === 'RETURNING' && (
-                      <span className="inline-flex items-center gap-1 px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">
-                        Account found for {customer.email}
-                      </span>
-                    )}
-                    {lookupState === 'found' && customer && customer.shopperType?.toUpperCase() === 'GUEST' && (
-                        <span className="inline-flex items-center gap-1 px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">
-                        Continuing as guest
-                      </span>
-                    )}
-                    {lookupState === 'not_found' && (
-                      <span className="inline-flex items-center gap-1 px-2 py-1 rounded-md bg-green-50 text-green-700 border border-green-100">
-                        No account found — continuing as guest
-                      </span>
-                    )}
-                    {lookupState === 'error' && (
-                      <span className="text-yellow-700 bg-yellow-50 border border-yellow-200 px-2 py-1 rounded-md">Could not check account right now.</span>
-                    )}
-                  </div>
-                )}
-              </div>
-            )}
-          </section>
+          <ContactInfoSection
+            email={email}
+            setEmail={setEmail}
+            emailValid={emailValid}
+            emailTouched={emailTouched}
+            setEmailTouched={setEmailTouched}
+            lookupState={lookupState}
+            customer={customer}
+            isAuthenticated={isAuthenticated}
+            needsShippingAddress={needsShippingAddress}
+            returningChoice={returningChoice}
+            setReturningChoice={setReturningChoice}
+            loginPassword={loginPassword}
+            setLoginPassword={setLoginPassword}
+            handleLogin={handleLogin}
+          />
 
           {/* Section 2: Shipping Method */}
-          <section className="bg-white p-6 rounded-2xl shadow-sm border">
-            <h3 className="text-lg font-bold mb-4 flex items-center gap-2">
-              <span className="bg-blue-600 text-white w-6 h-6 rounded-full text-xs flex items-center justify-center">2</span>
-              Shipping Method
-            </h3>
-            <div className="grid gap-3">
-              {shippingMethods.map(method => (
-                  <label
-                      key={method.id}
-                      className={`p-4 border-2 rounded-xl cursor-pointer transition-all ${selectedMethodId === method.id ? 'border-blue-600 bg-blue-50' : 'border-gray-100'}`}
-                  >
-                    <div className="flex justify-between items-center">
-                      <input
-                          type="radio"
-                          name="shipping"
-                          className="hidden"
-                          onChange={() => setSelectedMethodId(method.id!)}
-                      />
-                      <div>
-                        <p className="font-bold">{method.name}</p>
-                        <p className="text-sm text-gray-500">{method.estimatedDays} delivery</p>
-                      </div>
-                      <span className="font-bold">R{method.baseFee}</span>
-                    </div>
-                  </label>
-              ))}
-            </div>
-
-            {/* Conditional Address Fields */}
-            {needsShippingAddress && (
-                <div className="mt-6 space-y-3 animate-in slide-in-from-top-4 duration-300">
-                  <p className="text-sm font-semibold text-gray-600">Delivery Address</p>
-                  {customer && isAuthenticated && (
-                    <div className="text-xs text-green-700 bg-green-50 border border-green-100 rounded-lg p-2">
-                      Address loaded from your account. You can edit below.
-                    </div>
-                  )}
-                  <input
-                      placeholder="Street Address"
-                      value={address.street}
-                      className="w-full p-3 border rounded-xl"
-                      onChange={(e) => setAddress({...address, street: e.target.value})}
-                  />
-                  <div className="grid grid-cols-2 gap-3">
-                    <input
-                        placeholder="City"
-                        value={address.city}
-                        className="p-3 border rounded-xl"
-                        onChange={(e) => setAddress({...address, city: e.target.value})}
-                    />
-                    <input
-                        placeholder="Postal Code"
-                        value={address.postalCode}
-                        className="p-3 border rounded-xl"
-                        onChange={(e) => setAddress({...address, postalCode: e.target.value})}
-                    />
-                  </div>
-
-                  {/* Returning user: choose to login or continue as guest */}
-                  {customer && customer.shopperType.toUpperCase() !== "GUEST" && !isAuthenticated && (
-                    <div className="mt-4 p-4 border rounded-xl bg-blue-50 border-blue-100">
-                      <p className="text-sm font-medium text-blue-900">Welcome back! We found an account for {email}. Would you like to:</p>
-                      <div className="mt-3 flex flex-wrap gap-2">
-                        <button
-                          type="button"
-                          onClick={() => setReturningChoice('login')}
-                          className={`px-3 py-2 rounded-lg text-sm font-semibold border ${returningChoice === 'login' ? 'bg-blue-600 text-white border-blue-700' : 'bg-white text-blue-700 border-blue-300'}`}
-                        >
-                          Sign in
-                        </button>
-                        <button
-                          type="button"
-                          onClick={() => { setReturningChoice('guest'); setLoginPassword(''); }}
-                          className={`px-3 py-2 rounded-lg text-sm font-semibold border ${returningChoice === 'guest' ? 'bg-blue-600 text-white border-blue-700' : 'bg-white text-blue-700 border-blue-300'}`}
-                        >
-                          Continue as guest
-                        </button>
-                      </div>
-
-                      {returningChoice === 'login' && (
-                        <div className="mt-3 grid grid-cols-1 sm:grid-cols-[1fr_auto] gap-2">
-                          <input
-                            type="password"
-                            placeholder="Enter your password"
-                            value={loginPassword}
-                            onChange={(e) => setLoginPassword(e.target.value)}
-                            className="p-3 border rounded-xl"
-                          />
-                          <button onClick={handleLogin} className="px-4 py-3 bg-blue-600 text-white rounded-xl font-semibold">Sign in</button>
-                        </div>
-                      )}
-
-                      {returningChoice === 'guest' && (
-                        <p className="text-xs text-blue-800 mt-2">You can proceed without signing in. Your saved address won’t be auto-filled.</p>
-                      )}
-
-                      {!returningChoice && (
-                        <p className="text-xs text-blue-800 mt-2">Choose an option above to continue.</p>
-                      )}
-                    </div>
-                  )}
-
-                  {/* New/guest save details toggle */}
-                  {(!customer || !customer.hasPassword) && (
-                    <div className="mt-2 p-3 border rounded-xl bg-gray-50">
-                      <label className="flex items-center gap-2 text-sm">
-                        <input type="checkbox" checked={saveDetails} onChange={(e) => { const checked = e.target.checked; setSaveDetails(checked); if (!checked) { setRegisterPassword(''); setRegisterPasswordConfirm(''); } }} />
-                        Save my details for next time (create an account)
-                      </label>
-                      {saveDetails && (
-                        <div className="mt-2 space-y-2">
-                          <input
-                            type="password"
-                            placeholder="Create a password (min 6 characters)"
-                            value={registerPassword}
-                            onChange={(e) => setRegisterPassword(e.target.value)}
-                            className="w-full p-3 border rounded-xl"
-                          />
-                          <input
-                            type="password"
-                            placeholder="Confirm your password"
-                            value={registerPasswordConfirm}
-                            onChange={(e) => setRegisterPasswordConfirm(e.target.value)}
-                            className="w-full p-3 border rounded-xl"
-                          />
-                          {(registerPassword && registerPasswordConfirm && registerPassword !== registerPasswordConfirm) && (
-                            <p className="text-xs text-red-600">Passwords do not match.</p>
-                          )}
-                        </div>
-                      )}
-                    </div>
-                  )}
-                </div>
-            )}
-          </section>
+          <ShippingMethodSection
+            shippingMethods={shippingMethods}
+            selectedMethodId={selectedMethodId}
+            setSelectedMethodId={(id) => setSelectedMethodId(id)}
+            needsShippingAddress={needsShippingAddress}
+            customer={customer}
+            isAuthenticated={isAuthenticated}
+            address={address}
+            setAddress={setAddress}
+            saveDetails={saveDetails}
+            setSaveDetails={setSaveDetails}
+            registerPassword={registerPassword}
+            setRegisterPassword={setRegisterPassword}
+            registerPasswordConfirm={registerPasswordConfirm}
+            setRegisterPasswordConfirm={setRegisterPasswordConfirm}
+            isAccountAddressEdited={isAccountAddressEdited}
+            updateAccountAddress={updateAccountAddress}
+            setUpdateAccountAddress={setUpdateAccountAddress}
+          />
 
           {/* Section 3: Payment */}
-          <section className="bg-white p-6 rounded-2xl shadow-sm border">
-            <h3 className="text-lg font-bold mb-4 flex items-center gap-2">
-              <span className="bg-blue-600 text-white w-6 h-6 rounded-full text-xs flex items-center justify-center">3</span>
-              Payment Method
-            </h3>
-            {enabledPayments.length === 0 ? (
-              <div className="p-4 border-2 border-yellow-400 bg-yellow-50 rounded-xl text-sm text-yellow-800">
-                No payment methods are currently available. Please contact the store.
-              </div>
-            ) : (
-              <div className="grid gap-3">
-                {enabledPayments.map((pm) => {
-                  const info = paymentConfig[pm as PaymentMethodKey] as PaymentMethodInfo | undefined;
-                  const title = info?.displayName || (pm === 'IN_STORE' ? 'Pay in store' : 'FastPay');
-                  const desc = info?.description || (pm === 'IN_STORE' ? 'Cash/Card at Pickup' : 'Card / Instant EFT / Scan to Pay');
-                  return (
-                    <label key={pm} className={`p-4 border-2 rounded-xl cursor-pointer transition-all ${selectedPayment === pm ? 'border-blue-600 bg-blue-50' : 'border-gray-100'}`}>
-                      <div className="flex justify-between items-center w-full">
-                        <input
-                          type="radio"
-                          name="payment"
-                          className="hidden"
-                          checked={selectedPayment === pm}
-                          onChange={() => setSelectedPayment(pm)}
-                        />
-                        <div className="flex items-center gap-3">
-                          <CreditCard className="text-blue-600" />
-                          <div>
-                            <p className="font-bold">{title}</p>
-                            {desc ? <p className="text-xs text-gray-500">{desc}</p> : null}
-                          </div>
-                        </div>
-                      </div>
-                    </label>
-                  );
-                })}
-              </div>
-            )}
-          </section>
+          <PaymentMethodSection
+            enabledPayments={enabledPayments}
+            paymentConfig={paymentConfig}
+            selectedPayment={selectedPayment}
+            setSelectedPayment={(pm) => setSelectedPayment(pm)}
+          />
         </div>
 
         {/* RIGHT COLUMN: Order Summary (Sticky) */}
         <div className="lg:sticky lg:top-8 h-fit space-y-4">
-          <section className="bg-white p-6 rounded-2xl shadow-sm border">
-            <h3 className="text-lg font-bold mb-4 flex items-center gap-2">
-              <ShoppingBag className="text-blue-600" /> Order Summary
-              <span className="ml-auto text-sm text-gray-500">#{order?.id ?? '—'}</span>
-            </h3>
-
-            {loading ? (
-              <div className="text-sm text-gray-600">Loading order details...</div>
-            ) : error ? (
-              <div className="text-sm text-red-700 bg-red-50 border border-red-100 rounded-lg p-3">{error}</div>
-            ) : (
-              <>
-                <div className="space-y-3">
-                  {(order?.items ?? []).map((item, idx) => {
-                    const qty = Number(item.quantity || 0);
-                    const price = Number(item.unitPrice || 0);
-                    const lineTotal = qty * price;
-                    return (
-                      <div key={idx} className="flex items-start justify-between text-sm">
-                        <div className="max-w-[65%]">
-                          <p className="font-medium text-gray-800 truncate">{item?.variant?.product?.name ?? 'Product'}</p>
-                          {item?.variant?.attributesJson ? (
-                            <p className="text-xs text-gray-500 truncate">{item.variant.attributesJson}</p>
-                          ) : null}
-                          <p className="text-xs text-gray-500">Qty: {qty} × R{price.toFixed(2)}</p>
-                        </div>
-                        <div className="text-right font-semibold">R{lineTotal.toFixed(2)}</div>
-                      </div>
-                    );
-                  })}
-                </div>
-
-                <div className="border-t mt-4 pt-4 space-y-2 text-sm">
-                  <div className="flex justify-between">
-                    <span className="text-gray-600">Subtotal</span>
-                    <span className="font-medium">R{itemsTotal.toFixed(2)}</span>
-                  </div>
-                  <div className="flex justify-between">
-                    <span className="text-gray-600">Shipping{selectedShipping?.name ? ` (${selectedShipping.name})` : ''}</span>
-                    <span className="font-medium">R{shippingFee.toFixed(2)}</span>
-                  </div>
-                  <div className="flex justify-between text-base font-bold text-gray-900 border-t pt-3">
-                    <span>Total</span>
-                    <span className="text-blue-600">R{grandTotal.toFixed(2)}</span>
-                  </div>
-                </div>
-              </>
-            )}
-          </section>
+          <OrderSummary
+            order={order}
+            loading={loading}
+            error={error}
+            itemsTotal={itemsTotal}
+            selectedShipping={selectedShipping}
+            shippingFee={shippingFee}
+            grandTotal={grandTotal}
+          />
 
           <button
               onClick={selectedPayment === 'IN_STORE' ? handleInStoreCheckout : handlePayFastCheckout}
@@ -696,168 +613,22 @@ const Checkout: React.FC = () => {
                 (needsShippingAddress && customer && customer.hasPassword && returningChoice === 'login' && !isAuthenticated) ||
                 (needsShippingAddress && saveDetails && (!registerPassword || registerPassword.length < 6 || registerPassword !== registerPasswordConfirm))
               }
-              className="w-full py-4 bg-blue-600 text-white rounded-xl font-bold"
+              className="w-full py-4 bg-blue-600 text-white rounded-xl font-bold disabled:opacity-50 disabled:cursor-not-allowed"
           >
             {selectedPayment === 'IN_STORE' ? 'Reserve & Pay In-Store' : 'Complete Purchase'}
           </button>
         </div>
       </div>
 
-      {/*<div className="max-w-3xl mx-auto">*/}
-      {/*  <div className="bg-white shadow-sm rounded-2xl overflow-hidden border border-gray-100">*/}
-      {/*    /!* Header *!/*/}
-      {/*    <div className="p-6 border-b border-gray-100 flex items-center justify-between">*/}
-      {/*      <h1 className="text-2xl font-bold text-gray-900 flex items-center gap-2">*/}
-      {/*        <ShoppingBag className="text-blue-600" /> Checkout ({selectedPayment === 'IN_STORE' ? 'In-Store' : 'FastPay'})*/}
-      {/*      </h1>*/}
-      {/*      <span className="text-sm text-gray-500">Order #{order?.id ?? '—'}</span>*/}
-      {/*    </div>*/}
-
-      {/*    <div className="p-8">*/}
-      {/*      /!* Loading / Error *!/*/}
-      {/*      {loading && (*/}
-      {/*        <div className="mb-6 text-sm text-gray-600">Loading order details...</div>*/}
-      {/*      )}*/}
-      {/*      {error && (*/}
-      {/*        <div className="mb-6 text-sm text-red-700 bg-red-50 border border-red-100 rounded-lg p-3">{error}</div>*/}
-      {/*      )}*/}
-
-      {/*      /!* Order Summary *!/*/}
-      {/*      {order && (*/}
-      {/*        <div className="space-y-4 mb-8">*/}
-      {/*          {(order.items ?? []).map((item, idx) => {*/}
-      {/*            const qty = Number(item.quantity || 0);*/}
-      {/*            const price = Number(item.unitPrice || 0);*/}
-      {/*            const lineTotal = qty * price;*/}
-      {/*            return (*/}
-      {/*              <div key={idx} className="flex justify-between text-gray-700">*/}
-      {/*                <span>*/}
-      {/*                  {item.variant?.product?.name} - {item.variant?.attributesJson}*/}
-      {/*                </span>*/}
-      {/*                <span className="font-medium">R {lineTotal.toFixed(2)}</span>*/}
-      {/*              </div>*/}
-      {/*            );*/}
-      {/*          })}*/}
-      {/*          <div className="border-t pt-4 flex justify-between text-xl font-bold text-gray-900">*/}
-      {/*            <span>Total Amount</span>*/}
-      {/*            <span className="text-blue-600">R {computedTotal.toFixed(2)}</span>*/}
-      {/*          </div>*/}
-      {/*        </div>*/}
-      {/*      )}*/}
-
-      {/*      /!* Email Address *!/*/}
-      {/*      <div className="mb-6">*/}
-      {/*        <label htmlFor="checkout-email" className="block text-sm font-medium text-gray-700 mb-1">*/}
-      {/*          Email address*/}
-      {/*        </label>*/}
-      {/*        <input*/}
-      {/*          id="checkout-email"*/}
-      {/*          name="email"*/}
-      {/*          type="email"*/}
-      {/*          inputMode="email"*/}
-      {/*          autoComplete="email"*/}
-      {/*          required*/}
-      {/*          value={email}*/}
-      {/*          onChange={(e) => setEmail(e.target.value)}*/}
-      {/*          onBlur={() => setEmailTouched(true)}*/}
-      {/*          aria-invalid={emailTouched && !emailValid}*/}
-      {/*          aria-describedby="checkout-email-error"*/}
-      {/*          placeholder="you@example.com"*/}
-      {/*          className={`w-full px-4 py-3 rounded-lg border focus:outline-none focus:ring-2 transition-all ${*/}
-      {/*            emailTouched && !emailValid*/}
-      {/*              ? 'border-red-300 focus:ring-red-200'*/}
-      {/*              : 'border-gray-300 focus:ring-blue-200'*/}
-      {/*          }`}*/}
-      {/*        />*/}
-      {/*        {emailTouched && !emailValid && (*/}
-      {/*          <p id="checkout-email-error" className="mt-2 text-sm text-red-600">*/}
-      {/*            Please enter a valid email address.*/}
-      {/*          </p>*/}
-      {/*        )}*/}
-      {/*      </div>*/}
-
-      {/*      /!* Payment Button *!/*/}
-      {/*      <button*/}
-      {/*        onClick={selectedPayment === 'IN_STORE' ? handleInStoreCheckout : handlePayFastCheckout}*/}
-      {/*        disabled={isProcessing || loading || !order?.id || !emailValid || !selectedPayment}*/}
-      {/*        className={`w-full flex items-center justify-center gap-3 py-4 rounded-xl font-bold text-white shadow-lg transition-all ${*/}
-      {/*          isProcessing || loading || !order?.id || !emailValid || !selectedPayment ? 'bg-gray-400 cursor-not-allowed' : 'bg-blue-600 hover:bg-blue-700 active:scale-95'*/}
-      {/*        }`}*/}
-      {/*      >*/}
-      {/*        <CreditCard size={20} />*/}
-      {/*        {isProcessing*/}
-      {/*          ? (selectedPayment === 'IN_STORE' ? 'Saving...' : 'Preparing Secure Gateway...')*/}
-      {/*          : (selectedPayment === 'IN_STORE' ? 'Reserve & Pay In-Store' : 'Pay via PayFast (Gateway)')}*/}
-      {/*      </button>*/}
-
-      {/*      /!* Trust Badges *!/*/}
-      {/*      <div className="mt-8 grid grid-cols-2 gap-4 border-t pt-6">*/}
-      {/*        <div className="flex items-center gap-2 text-xs text-gray-500">*/}
-      {/*          <ShieldCheck className="text-green-500" size={16} />*/}
-      {/*          Secure 256-bit SSL Encryption*/}
-      {/*        </div>*/}
-      {/*        <div className="flex items-center justify-end">*/}
-      {/*          <span className="text-[10px] uppercase tracking-widest text-gray-400 font-bold">Sandbox Mode</span>*/}
-      {/*        </div>*/}
-      {/*      </div>*/}
-      {/*    </div>*/}
-      {/*  </div>*/}
-      {/*</div>*/}
-      {showSaveConfirm && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center">
-          <div className="absolute inset-0 bg-black/40" onClick={() => !isProcessing && setShowSaveConfirm(false)} />
-          <div className="relative z-10 w-full max-w-md mx-auto bg-white rounded-2xl shadow-xl border p-6">
-            <h4 className="text-lg font-bold text-gray-900">Confirm your details</h4>
-            <p className="text-sm text-gray-600 mt-1">We will create an account using the info below for quicker checkout next time.</p>
-
-            <div className="mt-4 space-y-2 text-sm">
-              <div className="flex items-start gap-3">
-                <span className="w-20 text-gray-500">Email</span>
-                <span className="font-medium break-all">{email || '—'}</span>
-              </div>
-              {needsShippingAddress && (
-                <>
-                  <div className="flex items-start gap-3">
-                    <span className="w-20 text-gray-500">Street</span>
-                    <span className="font-medium">{address.street || '—'}</span>
-                  </div>
-                  <div className="flex items-start gap-3">
-                    <span className="w-20 text-gray-500">City</span>
-                    <span className="font-medium">{address.city || '—'}</span>
-                  </div>
-                  <div className="flex items-start gap-3">
-                    <span className="w-20 text-gray-500">Postal</span>
-                    <span className="font-medium">{address.postalCode || '—'}</span>
-                  </div>
-                  <div className="flex items-start gap-3">
-                    <span className="w-20 text-gray-500">Province</span>
-                    <span className="font-medium">{address.province || '—'}</span>
-                  </div>
-                </>
-              )}
-            </div>
-
-            <div className="mt-6 flex justify-end gap-2">
-              <button
-                type="button"
-                className="px-4 py-2 rounded-lg border border-gray-300 text-gray-700 bg-white"
-                onClick={() => !isProcessing && setShowSaveConfirm(false)}
-                disabled={isProcessing}
-              >
-                Edit details
-              </button>
-              <button
-                type="button"
-                className="px-4 py-2 rounded-lg bg-blue-600 text-white font-semibold disabled:opacity-60"
-                onClick={async () => { if (isProcessing) return; setShowSaveConfirm(false); await proceedInStoreCheckout(); }}
-                disabled={isProcessing}
-              >
-                Confirm & Create Account
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
+      <SaveConfirmModal
+        show={showSaveConfirm}
+        onClose={() => setShowSaveConfirm(false)}
+        onConfirm={async () => { await proceedInStoreCheckout(); }}
+        email={email}
+        address={address}
+        needsShippingAddress={needsShippingAddress}
+        isProcessing={isProcessing}
+      />
     </div>
   );
 };
