@@ -6,6 +6,37 @@ import {storeRoutes} from './configs/routes/storeRoutes.config.ts';
 import {adminRoutes} from './configs/routes/adminRoutes.config';
 import {getHostname} from './utils/HostnameResolver';
 
+const renderRoutes = (routes: any[], isAdminDomain: boolean) => {
+    return routes.flatMap((route) => {
+        const Component = route.component;
+        const isAppAdmin = route.path.startsWith('/admin') || isAdminDomain;
+        const element = <Component {...(route.meta || {})} />;
+        
+        const currentRoute = (
+            <Route
+                key={route.key}
+                path={route.path}
+                element={
+                    isAppAdmin ? (
+                        <AdminLayout>{element}</AdminLayout>
+                    ) : (
+                        <>
+                            <PageHeader/>
+                            {element}
+                        </>
+                    )
+                }
+            />
+        );
+
+        if (route.subMenu) {
+            return [currentRoute, ...renderRoutes(route.subMenu, isAdminDomain)];
+        }
+
+        return [currentRoute];
+    });
+};
+
 function App() {
     const hostname = getHostname();
     const isAdminDomain = hostname.startsWith('admin.');
@@ -25,29 +56,7 @@ function App() {
         <BrowserRouter>
             <Suspense fallback={null}>
                 <Routes>
-                    {routesToShow.map((route) => {
-                        const Component = route.component;
-                        const isAppAdmin = route.path.startsWith('/admin') || isAdminDomain;
-
-                        const element = <Component {...(route.meta || {})} />;
-
-                        return (
-                            <Route
-                                key={route.key}
-                                path={route.path}
-                                element={
-                                    isAppAdmin ? (
-                                        <AdminLayout>{element}</AdminLayout>
-                                    ) : (
-                                        <>
-                                            <PageHeader/>
-                                            {element}
-                                        </>
-                                    )
-                                }
-                            />
-                        );
-                    })}
+                    {renderRoutes(routesToShow, isAdminDomain)}
                 </Routes>
             </Suspense>
         </BrowserRouter>

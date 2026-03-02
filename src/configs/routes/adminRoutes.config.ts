@@ -25,6 +25,30 @@ export const adminRoutes: Routes = [
             pageContainerType: 'contained',
             icon: 'package',
         },
+        subMenu: [
+            {
+                key: 'admin.products.list',
+                path: `/admin/products/list`,
+                component: lazy(() => import('../../admin/components/ToDoView.tsx')),
+                authority: ['admin'],
+                meta: {
+                    label: 'Product List',
+                    pageBackgroundType: 'plain',
+                    pageContainerType: 'contained',
+                },
+            },
+            {
+                key: 'admin.products.create',
+                path: `/admin/products/create`,
+                component: lazy(() => import('../../admin/components/ToDoView.tsx')),
+                authority: ['admin'],
+                meta: {
+                    label: 'Create Product',
+                    pageBackgroundType: 'plain',
+                    pageContainerType: 'contained',
+                },
+            }
+        ]
     },
     {
         key: 'admin.orders',
