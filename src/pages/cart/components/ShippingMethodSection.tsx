@@ -11,8 +11,8 @@ interface Address {
 
 interface Props {
   shippingMethods: ShippingMethod[];
-  selectedMethodId: number | null;
-  setSelectedMethodId: (id: number) => void;
+  selectedMethodId: string | null;
+  setSelectedMethodId: (id: string) => void;
   needsShippingAddress: boolean;
   customer: CustomerProfile | null;
   isAuthenticated: boolean;
@@ -53,7 +53,7 @@ const ShippingMethodSection: React.FC<Props> = ({
   useEffect(() => {
     if ((selectedMethodId === null || selectedMethodId === undefined) && shippingMethods && shippingMethods.length > 0) {
       const firstWithId = shippingMethods.find(m => m.id !== null && m.id !== undefined);
-      if (firstWithId && typeof firstWithId.id === 'number') {
+      if (firstWithId && typeof firstWithId.id === 'string') {
         setSelectedMethodId(firstWithId.id);
       }
     }

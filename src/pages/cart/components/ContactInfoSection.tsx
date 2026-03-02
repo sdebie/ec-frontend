@@ -1,5 +1,6 @@
 import React from 'react';
 import { CustomerProfile } from '../../../services/CustomerService';
+import {CustomerType} from "../../../utils/enums/CustomerType";
 
 export type LookupState = 'idle' | 'loading' | 'found' | 'not_found' | 'error';
 
@@ -73,12 +74,12 @@ const ContactInfoSection: React.FC<Props> = ({
                   {lookupState === 'loading' && (
                     <span className="text-gray-500">Checking account…</span>
                   )}
-                  {lookupState === 'found' && customer && customer.shopperType?.toUpperCase() === 'RETURNING' && (
+                  {lookupState === 'found' && customer && customer.shopperType?.toUpperCase() === CustomerType.REGISTERED.toUpperCase() && (
                     <span className="inline-flex items-center gap-1 px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">
                       Account found for {customer.email}
                     </span>
                   )}
-                  {lookupState === 'found' && customer && customer.shopperType?.toUpperCase() === 'GUEST' && (
+                  {lookupState === 'found' && customer && customer.shopperType?.toUpperCase() === CustomerType.GUEST.toUpperCase() && (
                     <span className="inline-flex items-center gap-1 px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">
                       Continuing as guest
                     </span>
