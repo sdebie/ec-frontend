@@ -1,7 +1,7 @@
 import {Routes} from "../../@types/routes";
 import {lazy} from "react";
 
-export const appRoutes: Routes = [
+export const storeRoutes: Routes = [
     {
         key: 'home',
         path: `/`,

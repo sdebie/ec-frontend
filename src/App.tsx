@@ -1,22 +1,50 @@
-import React, { Suspense } from 'react';
-import { BrowserRouter, Routes, Route } from 'react-router-dom';
+import {Suspense} from 'react';
+import {BrowserRouter, Routes, Route} from 'react-router-dom';
 import PageHeader from './components/PageHeader';
-import { appRoutes } from './configs/routes/routes.config';
-import { Meta } from './@types/routes';
+import AdminLayout from './admin/components/AdminLayout.tsx';
+import {storeRoutes} from './configs/routes/storeRoutes.config.ts';
+import {adminRoutes} from './configs/routes/adminRoutes.config';
+import {getHostname} from './utils/HostnameResolver';
 
 function App() {
+    const hostname = getHostname();
+    const isAdminDomain = hostname.startsWith('admin.');
+    const isStoreDomain = hostname.startsWith('store.');
+
+    // Determine which routes to show based on domain or path
+    let routesToShow = [...storeRoutes, ...adminRoutes];
+
+    // If we have specific subdomains, we can restrict routes
+    if (isAdminDomain) {
+        routesToShow = adminRoutes;
+    } else if (isStoreDomain) {
+        routesToShow = storeRoutes;
+    }
+
     return (
         <BrowserRouter>
-            <PageHeader />
             <Suspense fallback={null}>
                 <Routes>
-                    {appRoutes.map((route) => {
-                        const Component = route.component as React.ComponentType<Meta>;
+                    {routesToShow.map((route) => {
+                        const Component = route.component;
+                        const isAppAdmin = route.path.startsWith('/admin') || isAdminDomain;
+
+                        const element = <Component {...(route.meta || {})} />;
+
                         return (
                             <Route
                                 key={route.key}
                                 path={route.path}
-                                element={<Component {...(route.meta || {})} />}
+                                element={
+                                    isAppAdmin ? (
+                                        <AdminLayout>{element}</AdminLayout>
+                                    ) : (
+                                        <>
+                                            <PageHeader/>
+                                            {element}
+                                        </>
+                                    )
+                                }
                             />
                         );
                     })}
