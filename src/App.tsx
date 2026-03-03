@@ -1,24 +1,63 @@
-import {Suspense} from 'react';
-import {BrowserRouter, Routes, Route} from 'react-router-dom';
+import {Suspense, useState, useEffect, JSX} from 'react';
+import {BrowserRouter, Routes, Route, Navigate} from 'react-router-dom';
 import PageHeader from './components/PageHeader';
 import AdminLayout from './admin/components/AdminLayout.tsx';
 import {storeRoutes} from './configs/routes/storeRoutes.config.ts';
 import {adminRoutes} from './configs/routes/adminRoutes.config';
 import {getHostname} from './utils/HostnameResolver';
+import AdminLogin from "./admin/components/AdminLogin.tsx";
+import AccessDenied from './pages/AccessDenied.tsx';
+import { hasRequiredAuthority } from './utils/authorizationHelper.ts';
 
-const renderRoutes = (routes: any[], isAdminDomain: boolean) => {
-    return routes.flatMap((route) => {
+const renderRoutes = (routes: any[], isAdminDomain: boolean, isAuthenticated: boolean, handleLogin: () => void) => {
+    const results: JSX.Element[] = [];
+
+    for (const route of routes) {
         const Component = route.component;
+
+        if (route.key === 'admin.login') {
+            results.push(
+                <Route
+                    key={route.key}
+                    path={route.path}
+                    element={isAuthenticated ? <Navigate to="/admin" /> : <Component onLoginSuccess={handleLogin} />}
+                />
+            );
+            continue;
+        }
+
         const isAppAdmin = route.path.startsWith('/admin') || isAdminDomain;
         const element = <Component {...(route.meta || {})} />;
-        
+
+        if (route.path === '/login') {
+            results.push(
+                <Route
+                    key={route.key}
+                    path={route.path}
+                    element={isAuthenticated ? <Navigate to="/admin" /> : <AdminLogin onLoginSuccess={handleLogin} />}
+                />
+            );
+            continue;
+        }
+
+        // Check if user has required authority for this route
+        const userHasAuthorityForRoute = hasRequiredAuthority(route.authority);
+
         const currentRoute = (
             <Route
                 key={route.key}
                 path={route.path}
                 element={
                     isAppAdmin ? (
-                        <AdminLayout>{element}</AdminLayout>
+                        isAuthenticated ? (
+                            userHasAuthorityForRoute ? (
+                                <AdminLayout>{element}</AdminLayout>
+                            ) : (
+                                <AccessDenied />
+                            )
+                        ) : (
+                            <Navigate to="/admin/login" />
+                        )
                     ) : (
                         <>
                             <PageHeader/>
@@ -29,23 +68,41 @@ const renderRoutes = (routes: any[], isAdminDomain: boolean) => {
             />
         );
 
-        if (route.subMenu) {
-            return [currentRoute, ...renderRoutes(route.subMenu, isAdminDomain)];
-        }
+        results.push(currentRoute);
 
-        return [currentRoute];
-    });
+        if (route.subMenu) {
+            results.push(...renderRoutes(route.subMenu, isAdminDomain, isAuthenticated, handleLogin));
+        }
+    }
+
+    return results;
 };
 
 function App() {
+    const [isAuthenticated, setIsAuthenticated] = useState(!!localStorage.getItem('admin_token'));
+
+    const handleLogin = () => {
+        setIsAuthenticated(true);
+    };
+
+    useEffect(() => {
+        const handleStorageChange = () => {
+            setIsAuthenticated(!!localStorage.getItem('admin_token'));
+        };
+
+        window.addEventListener('storage', handleStorageChange);
+
+        return () => {
+            window.removeEventListener('storage', handleStorageChange);
+        };
+    }, []);
+
     const hostname = getHostname();
     const isAdminDomain = hostname.startsWith('admin.');
     const isStoreDomain = hostname.startsWith('store.');
 
-    // Determine which routes to show based on domain or path
     let routesToShow = [...storeRoutes, ...adminRoutes];
 
-    // If we have specific subdomains, we can restrict routes
     if (isAdminDomain) {
         routesToShow = adminRoutes;
     } else if (isStoreDomain) {
@@ -56,7 +113,7 @@ function App() {
         <BrowserRouter>
             <Suspense fallback={null}>
                 <Routes>
-                    {renderRoutes(routesToShow, isAdminDomain)}
+                    {renderRoutes(routesToShow, isAdminDomain, isAuthenticated, handleLogin)}
                 </Routes>
             </Suspense>
         </BrowserRouter>

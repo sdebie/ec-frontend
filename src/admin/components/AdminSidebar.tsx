@@ -3,10 +3,17 @@ import { NavLink } from 'react-router-dom';
 import { adminRoutes } from '@/configs/routes/adminRoutes.config.ts';
 import Icon from '@/components/shared/Icon';
 import { Route } from '@/@types/routes';
+import { getUserAuthority, userHasAuthority } from '@/utils/authorizationHelper.ts';
 
-const SidebarItem: React.FC<{ route: Route; onItemClick?: () => void }> = ({ route, onItemClick }) => {
+const SidebarItem: React.FC<{ route: Route; userAuthority: string[]; onItemClick?: () => void }> = ({ route, userAuthority, onItemClick }) => {
     const [isOpen, setIsOpen] = useState(false);
     const hasSubMenu = route.subMenu && route.subMenu.length > 0;
+    const hasAccess = userHasAuthority({ authority: userAuthority }, route.authority);
+
+    // Don't render items user doesn't have access to
+    if (!hasAccess) {
+        return null;
+    }
 
     const content = (
         <div className="flex items-center gap-4 w-full">
@@ -43,7 +50,7 @@ const SidebarItem: React.FC<{ route: Route; onItemClick?: () => void }> = ({ rou
                 {isOpen && (
                     <div className="mt-1 ml-4 pl-4 border-l border-slate-200 space-y-1">
                         {route.subMenu?.filter(sub => !sub.meta?.hideInMenu).map((sub) => (
-                            <SidebarItem key={sub.key} route={sub} onItemClick={onItemClick} />
+                            <SidebarItem key={sub.key} route={sub} userAuthority={userAuthority} onItemClick={onItemClick} />
                         ))}
                     </div>
                 )}
@@ -70,9 +77,11 @@ const SidebarItem: React.FC<{ route: Route; onItemClick?: () => void }> = ({ rou
 };
 
 const AdminSidebar: React.FC<{ isOpen?: boolean; onClose?: () => void }> = ({ isOpen, onClose }) => {
+    const userAuthority = getUserAuthority();
+
     return (
         <>
-            {/* Overlay for mobile */}
+            {/* ...existing code... */}
             {isOpen && (
                 <div
                     className="fixed inset-0 bg-slate-900/50 z-40 md:hidden"
@@ -95,7 +104,7 @@ const AdminSidebar: React.FC<{ isOpen?: boolean; onClose?: () => void }> = ({ is
                     {adminRoutes
                         .filter(route => !route.meta?.hideInMenu)
                         .map((route) => (
-                            <SidebarItem key={route.key} route={route} onItemClick={onClose} />
+                            <SidebarItem key={route.key} route={route} userAuthority={userAuthority} onItemClick={onClose} />
                         ))}
                 </nav>
             </aside>
