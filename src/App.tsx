@@ -8,8 +8,9 @@ import {getHostname} from './utils/HostnameResolver';
 import AdminLogin from "./pages/admin/AdminLogin.tsx";
 import AccessDenied from './pages/shared/AccessDenied.tsx';
 import { hasRequiredAuthority } from './utils/authorizationHelper.ts';
+import ProductList from './pages/shop/products/ProductList.tsx'; // Import ProductList
 
-const renderRoutes = (routes: any[], isAdminDomain: boolean, isAuthenticated: boolean, handleLogin: () => void) => {
+const renderRoutes = (routes: any[], isAdminDomain: boolean, isAuthenticated: boolean, handleLogin: () => void, activeCategory: string, setActiveCategory: (category: string) => void) => {
     const results: JSX.Element[] = [];
 
     for (const route of routes) {
@@ -27,7 +28,15 @@ const renderRoutes = (routes: any[], isAdminDomain: boolean, isAuthenticated: bo
         }
 
         const isAppAdmin = route.path.startsWith('/admin') || isAdminDomain;
-        const element = <Component {...(route.meta || {})} />;
+        let element;
+
+        // Special handling for ProductList to pass activeCategory
+        if (route.path === '/products' && !isAppAdmin) {
+            element = <ProductList activeCategory={activeCategory} />;
+        } else {
+            element = <Component {...(route.meta || {})} />;
+        }
+
 
         if (route.path === '/login') {
             results.push(
@@ -60,7 +69,7 @@ const renderRoutes = (routes: any[], isAdminDomain: boolean, isAuthenticated: bo
                         )
                     ) : (
                         <>
-                            <PageHeader/>
+                            <PageHeader activeCategory={activeCategory} onSelectCategory={setActiveCategory} />
                             {element}
                         </>
                     )
@@ -71,7 +80,7 @@ const renderRoutes = (routes: any[], isAdminDomain: boolean, isAuthenticated: bo
         results.push(currentRoute);
 
         if (route.subMenu) {
-            results.push(...renderRoutes(route.subMenu, isAdminDomain, isAuthenticated, handleLogin));
+            results.push(...renderRoutes(route.subMenu, isAdminDomain, isAuthenticated, handleLogin, activeCategory, setActiveCategory));
         }
     }
 
@@ -80,6 +89,7 @@ const renderRoutes = (routes: any[], isAdminDomain: boolean, isAuthenticated: bo
 
 function App() {
     const [isAuthenticated, setIsAuthenticated] = useState(!!localStorage.getItem('admin_token'));
+    const [activeCategory, setActiveCategory] = useState<string>('All'); // New state for active category
 
     const handleLogin = () => {
         setIsAuthenticated(true);
@@ -113,7 +123,7 @@ function App() {
         <BrowserRouter>
             <Suspense fallback={null}>
                 <Routes>
-                    {renderRoutes(routesToShow, isAdminDomain, isAuthenticated, handleLogin)}
+                    {renderRoutes(routesToShow, isAdminDomain, isAuthenticated, handleLogin, activeCategory, setActiveCategory)}
                 </Routes>
             </Suspense>
         </BrowserRouter>

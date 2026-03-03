@@ -103,6 +103,16 @@ class CartStoreImpl {
     this.emit();
   }
 
+  setItems(items: OrderItemsData[]) {
+    this.itemCount = calcCount(items);
+    try {
+      localStorage.setItem(LS_KEY, JSON.stringify(items));
+    } catch (_) {
+      // ignore storage errors
+    }
+    this.emit();
+  }
+
   clear() {
     this.itemCount = 0;
     this.orderSessionId = null;

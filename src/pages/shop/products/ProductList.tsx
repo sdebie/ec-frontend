@@ -1,12 +1,16 @@
 import React, { useEffect, useState } from 'react';
 import { fetchProducts, ProductListItem } from '../../../services/ProductService.ts';
-import {useAddToCart} from '@/pages/shop/cart/hook/useAddToCart.ts';
-import {Link} from "react-router-dom";
+import { useAddToCart } from '@/pages/shop/cart/hook/useAddToCart.ts';
+import { Link } from "react-router-dom";
 
 const currency = (val?: number | null) =>
   typeof val === 'number' ? `R ${val.toFixed(2)}` : '—';
 
-const Products: React.FC = () => {
+interface ProductListProps {
+  activeCategory: string;
+}
+
+const ProductList: React.FC<ProductListProps> = ({ activeCategory }) => {
   const [items, setItems] = useState<ProductListItem[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -16,7 +20,7 @@ const Products: React.FC = () => {
     (async () => {
       try {
         setLoading(true);
-        const list = await fetchProducts();
+        const list = await fetchProducts(activeCategory);
         setItems(list);
       } catch (e: any) {
         console.error('Failed to load products', e);
@@ -25,7 +29,7 @@ const Products: React.FC = () => {
         setLoading(false);
       }
     })();
-  }, []);
+  }, [activeCategory]);
 
   return (
     <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
@@ -56,7 +60,6 @@ const Products: React.FC = () => {
                 <div className="text-lg font-bold">{currency(p.price)}</div>
                 <button
                   onClick={() => {
-                    // Add a simple line item with quantity=1 and unitPrice set to min price
                     createOrder({
                       items: [
                         {
@@ -83,4 +86,4 @@ const Products: React.FC = () => {
   );
 };
 
-export default Products;
+export default ProductList;

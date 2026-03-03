@@ -9,6 +9,7 @@ export type ProductListItem = {
   price?: number | null;
   imageUrl?: string | null;
   variantIds?: string[] | null;
+  categoryName?: string | null; // Added categoryName
 };
 
 export type VariantItem = {
@@ -27,21 +28,22 @@ const graphQlEndpoint = (envGraphQl && envGraphQl.length > 0)
   ? envGraphQl
   : getServiceEndpoint(8080) + '/api/graphql';
 
-export async function fetchProducts(): Promise<ProductListItem[]> {
+export async function fetchProducts(categoryName?: string | null): Promise<ProductListItem[]> {
   const client = await GraphQLService.getGraphQLClient(graphQlEndpoint);
   const query = gql`
-    query Products {
-      products {
+    query Products($categoryName: String) {
+      products(categoryName: $categoryName) {
         id
         name
         description
         price
         imageUrl
         variantIds
+        categoryName # Fetch category name
       }
     }
   `;
-  const res = await client.request<{ products: ProductListItem[] }>(query);
+  const res = await client.request<{ products: ProductListItem[] }>(query, { categoryName: categoryName === 'All' ? null : categoryName });
   return res.products || [];
 }
 

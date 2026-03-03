@@ -1,7 +1,8 @@
 import React, { useEffect, useState, useRef } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import { Link, useNavigate, useLocation } from 'react-router-dom';
 import CartIcon from '../../components/shared/icon/CartIcon.tsx';
 import { CartStore } from '../../state/CartStore.ts';
+import ComponentHeader from './components/Category/ComponentHeader';
 
 // Keys duplicated here intentionally to avoid coupling to non-exported constants
 const LS_KEY = 'ec_cart_order_items';
@@ -9,8 +10,14 @@ const CART_SESSION_KEY = 'cart_session_id';
 const AUTH_KEY = 'checkoutIsAuthenticated';
 const EMAIL_KEY = 'checkoutEmail';
 
-const PageHeader: React.FC = () => {
+interface PageHeaderProps {
+  activeCategory: string;
+  onSelectCategory: (category: string) => void;
+}
+
+const PageHeader: React.FC<PageHeaderProps> = ({ activeCategory, onSelectCategory }) => {
   const navigate = useNavigate();
+  const location = useLocation();
 
   const [lsItemsRaw, setLsItemsRaw] = useState<string | null>(null);
   const [cartSessionId, setCartSessionId] = useState<string | null>(null);
@@ -86,6 +93,8 @@ const PageHeader: React.FC = () => {
     return val.length > max ? `${val.slice(0, max)}…` : val;
   };
 
+  const isProductsPage = location.pathname === '/products';
+
   return (
     <header className="w-full bg-white border-b border-gray-200 relative z-50">
       <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
@@ -95,6 +104,7 @@ const PageHeader: React.FC = () => {
           </Link>
           <Link to="/products" className="text-sm text-gray-700 hover:text-blue-600">Products</Link>
         </div>
+        {isProductsPage && <ComponentHeader activeCategory={activeCategory} onSelectCategory={onSelectCategory} />}
         <div className="flex items-center gap-4">
           {/* Debug/visibility of localStorage keys as requested */}
           <div className="hidden sm:flex flex-col text-xs text-gray-500 max-w-[22rem]">

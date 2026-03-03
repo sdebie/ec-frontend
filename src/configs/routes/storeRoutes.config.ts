@@ -5,7 +5,7 @@ export const storeRoutes: Routes = [
     {
         key: 'home',
         path: `/`,
-        component: lazy(() => import('@/pages/shop/products/Products')),
+        component: lazy(() => import('@/pages/shop/products/ProductList')),
         authority: [],
         meta: {
             pageBackgroundType: 'plain',
@@ -15,7 +15,7 @@ export const storeRoutes: Routes = [
     {
         key: 'products',
         path: `/products`,
-        component: lazy(() => import('@/pages/shop/products/Products')),
+        component: lazy(() => import('@/pages/shop/products/ProductList')),
         authority: [],
         meta: {
             pageBackgroundType: 'plain',

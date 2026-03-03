@@ -1,9 +1,9 @@
 import React, { useEffect, useMemo, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { CartStore } from '../../../state/CartStore.ts';
+import { CartStore } from '@/state/CartStore.ts';
 import { OrderItemsData, OrderData } from './types.ts';
-import { createOrder } from '../../../services/OrderService.ts';
-import { fetchVariantsByIds } from '../../../services/ProductService.ts';
+import { createOrder } from '@/services/OrderService.ts';
+import { fetchVariantsByIds } from '@/services/ProductService.ts';
 
 // LocalStorage key used across the app
 const LS_KEY = 'ec_cart_order_items';
@@ -84,6 +84,25 @@ const Cart: React.FC = () => {
 
   const hasItems = items.length > 0;
 
+  const handleQuantityChange = (index: number, newQuantity: number) => {
+    const updatedItems = [...items];
+    if (newQuantity > 0) {
+      updatedItems[index].quantity = newQuantity;
+    } else {
+      // Remove the item if quantity is 0 or less
+      updatedItems.splice(index, 1);
+    }
+    setItems(updatedItems);
+    CartStore.setItems(updatedItems); // This will also update localStorage
+  };
+
+  const handleRemoveItem = (index: number) => {
+    const updatedItems = [...items];
+    updatedItems.splice(index, 1);
+    setItems(updatedItems);
+    CartStore.setItems(updatedItems);
+  };
+
   const handleCheckout = async () => {
     if (!hasItems || placingOrder) return;
     setPlacingOrder(true);
@@ -132,7 +151,27 @@ const Cart: React.FC = () => {
                 <div className="text-sm text-gray-800">
                   <div className="font-medium">{it?.variant?.product?.name ?? 'Item'}</div>
                   <div className="font-medium">{it?.variant?.attributesJson ?? 'Item'}</div>
-                  <div className="text-gray-500">Qty: {it.quantity}</div>
+                  <div className="flex items-center gap-2 text-gray-500 mt-2">
+                    <button
+                      onClick={() => handleQuantityChange(idx, it.quantity - 1)}
+                      className="px-2 py-1 border rounded"
+                    >
+                      -
+                    </button>
+                    <span>{it.quantity}</span>
+                    <button
+                      onClick={() => handleQuantityChange(idx, it.quantity + 1)}
+                      className="px-2 py-1 border rounded"
+                    >
+                      +
+                    </button>
+                    <button
+                      onClick={() => handleRemoveItem(idx)}
+                      className="ml-4 text-red-500 hover:text-red-700"
+                    >
+                      Remove
+                    </button>
+                  </div>
                 </div>
                 <div className="text-sm text-gray-700">{currency((it.unitPrice || 0) * (it.quantity || 0))}</div>
               </div>

@@ -32,7 +32,7 @@ export const adminRoutes: Routes = [
         component: lazy(() => import('../../pages/admin/ToDoView.tsx')),
         authority: ['SUPER_ADMIN', 'VIEWER'],
         meta: {
-            label: 'Products',
+            label: 'ProductList',
             pageBackgroundType: 'plain',
             pageContainerType: 'contained',
             icon: 'package',
