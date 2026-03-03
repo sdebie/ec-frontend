@@ -1,7 +1,7 @@
 import React, { useEffect, useState, useRef } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import CartIcon from './CartIcon';
-import { CartStore } from '../state/CartStore';
+import CartIcon from '../../components/shared/icon/CartIcon.tsx';
+import { CartStore } from '../../state/CartStore.ts';
 
 // Keys duplicated here intentionally to avoid coupling to non-exported constants
 const LS_KEY = 'ec_cart_order_items';

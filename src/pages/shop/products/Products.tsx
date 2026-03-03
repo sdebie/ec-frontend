@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
-import { fetchProducts, ProductListItem } from '../../services/ProductService';
-import {useAddToCart} from '../cart/hook/useAddToCart';
+import { fetchProducts, ProductListItem } from '../../../services/ProductService.ts';
+import {useAddToCart} from '@/pages/shop/cart/hook/useAddToCart.ts';
 import {Link} from "react-router-dom";
 
 const currency = (val?: number | null) =>

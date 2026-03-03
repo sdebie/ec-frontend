@@ -1,6 +1,6 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import Icon from '@/components/shared/Icon';
+import Icon from '@/components/shared/icon/Icon.tsx';
 
 interface AdminHeaderProps {
     onMenuClick?: () => void;

@@ -1,12 +1,12 @@
 import {Suspense, useState, useEffect, JSX} from 'react';
 import {BrowserRouter, Routes, Route, Navigate} from 'react-router-dom';
-import PageHeader from './components/PageHeader';
-import AdminLayout from './admin/components/AdminLayout.tsx';
+import PageHeader from './pages/shop/PageHeader.tsx';
+import AdminLayout from './pages/admin/AdminLayout.tsx';
 import {storeRoutes} from './configs/routes/storeRoutes.config.ts';
 import {adminRoutes} from './configs/routes/adminRoutes.config';
 import {getHostname} from './utils/HostnameResolver';
-import AdminLogin from "./admin/components/AdminLogin.tsx";
-import AccessDenied from './pages/AccessDenied.tsx';
+import AdminLogin from "./pages/admin/AdminLogin.tsx";
+import AccessDenied from './pages/shared/AccessDenied.tsx';
 import { hasRequiredAuthority } from './utils/authorizationHelper.ts';
 
 const renderRoutes = (routes: any[], isAdminDomain: boolean, isAuthenticated: boolean, handleLogin: () => void) => {

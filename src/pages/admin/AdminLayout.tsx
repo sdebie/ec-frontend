@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
-import AdminHeader from './AdminHeader';
-import AdminSidebar from './AdminSidebar';
+import AdminHeader from './AdminHeader.tsx';
+import AdminSidebar from './AdminSidebar.tsx';
 
 const AdminLayout: React.FC<{ children: React.ReactNode }> = ({ children }) => {
     const [isSidebarOpen, setIsSidebarOpen] = useState(false);

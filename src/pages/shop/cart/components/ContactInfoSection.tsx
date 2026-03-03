@@ -1,6 +1,6 @@
 import React from 'react';
-import { CustomerProfile } from '../../../services/CustomerService';
-import {CustomerType} from "../../../utils/enums/CustomerType";
+import { CustomerProfile } from '../../../../services/CustomerService.ts';
+import {CustomerType} from "../../../../utils/enums/CustomerType.ts";
 
 export type LookupState = 'idle' | 'loading' | 'found' | 'not_found' | 'error';
 

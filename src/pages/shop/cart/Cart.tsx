@@ -1,9 +1,9 @@
 import React, { useEffect, useMemo, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { CartStore } from '../../state/CartStore';
-import { OrderItemsData, OrderData } from './types';
-import { createOrder } from '../../services/OrderService';
-import { fetchVariantsByIds } from '../../services/ProductService';
+import { CartStore } from '../../../state/CartStore.ts';
+import { OrderItemsData, OrderData } from './types.ts';
+import { createOrder } from '../../../services/OrderService.ts';
+import { fetchVariantsByIds } from '../../../services/ProductService.ts';
 
 // LocalStorage key used across the app
 const LS_KEY = 'ec_cart_order_items';

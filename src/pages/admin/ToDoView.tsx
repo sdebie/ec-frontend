@@ -1,4 +1,5 @@
 import { DotLottiePlayer } from '@dotlottie/react-player';
+import {Button} from "@/components/shared/button/Button.tsx";
 
 const ToDoView = () => {
 
@@ -14,6 +15,9 @@ const ToDoView = () => {
             <div className="text-2xl font-semibold mt-4">
                 To Do View - Coming Soon
             </div>
+            <Button variant="primary" className="mt-4" onClick={() => alert('Button clicked!')}>
+                Click me
+            </Button>
         </div>
     </>
 

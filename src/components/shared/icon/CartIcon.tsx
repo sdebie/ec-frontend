@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { ShoppingCart } from 'lucide-react';
-import { CartStore } from '../state/CartStore';
+import { CartStore } from '../../../state/CartStore.ts';
 import { useNavigate } from 'react-router-dom';
 
 export type CartIconProps = {

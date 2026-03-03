@@ -5,7 +5,7 @@ export const adminRoutes: Routes = [
     {
         key: 'admin.login',
         path: `/admin/login`,
-        component: lazy(() => import('../../admin/components/AdminLogin.tsx')),
+        component: lazy(() => import('../../pages/admin/AdminLogin.tsx')),
         authority: [],
         meta: {
             label: 'Logon',
@@ -17,7 +17,7 @@ export const adminRoutes: Routes = [
     {
         key: 'admin.dashboard',
         path: `/admin`,
-        component: lazy(() => import('../../admin/Dashboard.tsx')),
+        component: lazy(() => import('../../pages/admin/Dashboard.tsx')),
         authority: ['SUPER_ADMIN', 'VIEWER'],
         meta: {
             label: 'Dashboard',
@@ -29,7 +29,7 @@ export const adminRoutes: Routes = [
     {
         key: 'admin.products',
         path: `/admin/products`,
-        component: lazy(() => import('../../admin/components/ToDoView.tsx')),
+        component: lazy(() => import('../../pages/admin/ToDoView.tsx')),
         authority: ['SUPER_ADMIN', 'VIEWER'],
         meta: {
             label: 'Products',
@@ -41,7 +41,7 @@ export const adminRoutes: Routes = [
             {
                 key: 'admin.products.list',
                 path: `/admin/products/list`,
-                component: lazy(() => import('../../admin/components/ToDoView.tsx')),
+                component: lazy(() => import('../../pages/admin/ToDoView.tsx')),
                 authority: ['SUPER_ADMIN'],
                 meta: {
                     label: 'Product List',
@@ -52,7 +52,7 @@ export const adminRoutes: Routes = [
             {
                 key: 'admin.products.create',
                 path: `/admin/products/create`,
-                component: lazy(() => import('../../admin/components/ToDoView.tsx')),
+                component: lazy(() => import('../../pages/admin/ToDoView.tsx')),
                 authority: ['SUPER_ADMIN'],
                 meta: {
                     label: 'Create Product',
@@ -65,7 +65,7 @@ export const adminRoutes: Routes = [
     {
         key: 'admin.orders',
         path: `/admin/orders`,
-        component: lazy(() => import('../../admin/components/ToDoView.tsx')), // Placeholder
+        component: lazy(() => import('../../pages/admin/ToDoView.tsx')), // Placeholder
         authority: ['SUPER_ADMIN'],
         meta: {
             label: 'Orders',
@@ -77,7 +77,7 @@ export const adminRoutes: Routes = [
     {
         key: 'admin.customers',
         path: `/admin/customers`,
-        component: lazy(() => import('../../admin/components/ToDoView.tsx')), // Placeholder
+        component: lazy(() => import('../../pages/admin/ToDoView.tsx')), // Placeholder
         authority: ['SUPER_ADMIN'],
         meta: {
             label: 'Customers',

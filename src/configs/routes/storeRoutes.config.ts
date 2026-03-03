@@ -5,7 +5,7 @@ export const storeRoutes: Routes = [
     {
         key: 'home',
         path: `/`,
-        component: lazy(() => import('../../pages/products/Products')),
+        component: lazy(() => import('@/pages/shop/products/Products')),
         authority: [],
         meta: {
             pageBackgroundType: 'plain',
@@ -15,7 +15,7 @@ export const storeRoutes: Routes = [
     {
         key: 'products',
         path: `/products`,
-        component: lazy(() => import('../../pages/products/Products')),
+        component: lazy(() => import('@/pages/shop/products/Products')),
         authority: [],
         meta: {
             pageBackgroundType: 'plain',
@@ -25,7 +25,7 @@ export const storeRoutes: Routes = [
     {
         key: 'productDetail',
         path: `/product/:productId`,
-        component: lazy(() => import('../../pages/products/ProductDetailsPage')),
+        component: lazy(() => import('@/pages/shop/products/ProductDetailsPage')),
         authority: [],
         meta: {
             pageBackgroundType: 'plain',
@@ -35,7 +35,7 @@ export const storeRoutes: Routes = [
     {
         key: 'cart',
         path: `/cart`,
-        component: lazy(() => import('../../pages/cart/Cart')),
+        component: lazy(() => import('@/pages/shop/cart/Cart')),
         authority: [],
         meta: {
             pageBackgroundType: 'plain',
@@ -45,7 +45,7 @@ export const storeRoutes: Routes = [
     {
         key: 'checkout',
         path: `/checkout`,
-        component: lazy(() => import('../../pages/cart/Checkout')),
+        component: lazy(() => import('@/pages/shop/cart/Checkout')),
         authority: [],
         meta: {
             pageBackgroundType: 'plain',
@@ -55,7 +55,7 @@ export const storeRoutes: Routes = [
     {
         key: 'paymentSuccess',
         path: `/payment-success`,
-        component: lazy(() => import('../../pages/cart/Success')),
+        component: lazy(() => import('@/pages/shop/cart/Success')),
         authority: [],
         meta: {
             pageBackgroundType: 'plain',
@@ -65,7 +65,7 @@ export const storeRoutes: Routes = [
     {
         key: 'accessDenied',
         path: `/access-denied`,
-        component: lazy(() => import('../../pages/other/AccessDenied')),
+        component: lazy(() => import('@/pages/shared/other/AccessDenied')),
         authority: [],
         meta: {
             pageBackgroundType: 'plain',

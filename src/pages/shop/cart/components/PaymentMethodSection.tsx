@@ -1,6 +1,6 @@
 import React from 'react';
 import { CreditCard } from 'lucide-react';
-import { PaymentMethodKey, PaymentMethodsConfig, PaymentMethodInfo } from '../../../services/StoreSettings';
+import { PaymentMethodKey, PaymentMethodsConfig, PaymentMethodInfo } from '../../../../services/StoreSettings.ts';
 
 interface Props {
   enabledPayments: PaymentMethodKey[];

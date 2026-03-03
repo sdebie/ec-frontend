@@ -1,6 +1,6 @@
 import React, { useEffect } from 'react';
-import { ShippingMethod } from '../../../services/StoreSettings';
-import { CustomerProfile } from '../../../services/CustomerService';
+import { ShippingMethod } from '../../../../services/StoreSettings.ts';
+import { CustomerProfile } from '../../../../services/CustomerService.ts';
 
 interface Address {
   street: string;

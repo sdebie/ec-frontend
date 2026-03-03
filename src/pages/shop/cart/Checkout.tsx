@@ -1,22 +1,22 @@
 import React, { useEffect, useMemo, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { apiOrderById, apiOrderBySessionId, apiUpdateOrderStatus } from '../../services/OrderService';
-import { OrderData } from './types';
-import { CartStore } from '../../state/CartStore';
-import { fetchShippingMethods, ShippingMethod, PaymentMethodKey, fetchPaymentMethodsConfig, PaymentMethodsConfig, PaymentMethodInfo } from "../../services/StoreSettings";
+import { apiOrderById, apiOrderBySessionId, apiUpdateOrderStatus } from '../../../services/OrderService.ts';
+import { OrderData } from './types.ts';
+import { CartStore } from '../../../state/CartStore.ts';
+import { fetchShippingMethods, ShippingMethod, PaymentMethodKey, fetchPaymentMethodsConfig, PaymentMethodsConfig, PaymentMethodInfo } from "../../../services/StoreSettings.ts";
 import {
   lookupCustomer,
   loginCustomer,
   registerOrUpdateCustomer,
   CustomerProfile,
   updateCustomerInformation
-} from "../../services/CustomerService";
-import ContactInfoSection from './components/ContactInfoSection';
-import ShippingMethodSection from './components/ShippingMethodSection';
-import PaymentMethodSection from './components/PaymentMethodSection';
-import OrderSummary from './components/OrderSummary';
-import SaveConfirmModal from './components/SaveConfirmModal';
-import { OrderStatus } from '../../utils/enums/OrderStatus';
+} from "../../../services/CustomerService.ts";
+import ContactInfoSection from './components/ContactInfoSection.tsx';
+import ShippingMethodSection from './components/ShippingMethodSection.tsx';
+import PaymentMethodSection from './components/PaymentMethodSection.tsx';
+import OrderSummary from './components/OrderSummary.tsx';
+import SaveConfirmModal from './components/SaveConfirmModal.tsx';
+import { OrderStatus } from '../../../utils/enums/OrderStatus.ts';
 
 // Interface shaped like backend HtmlFormField
 interface HtmlFormField {

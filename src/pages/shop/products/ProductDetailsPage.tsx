@@ -1,8 +1,8 @@
-import ProductCard from "./components/ProductCard";
+import ProductCard from "./components/ProductCard.tsx";
 import { useParams } from "react-router-dom";
 import { useEffect, useState } from "react";
-import { fetchProductWithVariants, ProductVariantWithProduct } from "../../services/ProductService";
-import { useAddToCart } from "../cart/hook/useAddToCart";
+import { fetchProductWithVariants, ProductVariantWithProduct } from "../../../services/ProductService.ts";
+import { useAddToCart } from "@/pages/shop/cart/hook/useAddToCart.ts";
 
 // Define the UI Product type expected by ProductCard to keep this page self-contained
 interface UiVariant {

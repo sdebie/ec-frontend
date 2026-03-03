@@ -1,8 +1,8 @@
 import React, { useState } from 'react';
 import { NavLink } from 'react-router-dom';
 import { adminRoutes } from '@/configs/routes/adminRoutes.config.ts';
-import Icon from '@/components/shared/Icon';
-import { Route } from '@/@types/routes';
+import Icon from '@/components/shared/icon/Icon.tsx';
+import { Route } from '@/@types/routes.tsx';
 import { getUserAuthority, userHasAuthority } from '@/utils/authorizationHelper.ts';
 
 const SidebarItem: React.FC<{ route: Route; userAuthority: string[]; onItemClick?: () => void }> = ({ route, userAuthority, onItemClick }) => {
