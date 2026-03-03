@@ -1,7 +1,8 @@
 import React, { useEffect, useState } from 'react';
-import { fetchProducts, ProductListItem } from '../../../services/ProductService.ts';
+import { fetchProducts, ProductListItem } from '@/services/ProductService.ts';
 import { useAddToCart } from '@/pages/shop/cart/hook/useAddToCart.ts';
 import { Link } from "react-router-dom";
+import ProductImage from "@/components/shared/imageupload/ProductImage.tsx";
 
 const currency = (val?: number | null) =>
   typeof val === 'number' ? `R ${val.toFixed(2)}` : '—';
@@ -39,48 +40,56 @@ const ProductList: React.FC<ProductListProps> = ({ activeCategory }) => {
       {error && <div className="text-red-600">{error}</div>}
 
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-        {items.map((p) => (
-          <div key={p.id} className="border rounded-lg overflow-hidden bg-white shadow-sm">
-            <img
-              src={p.imageUrl || '/img/default-product.png'}
-              alt={p.name}
-              className="w-full h-40 object-cover"
-              onError={(e) => {
-                const img = e.currentTarget as HTMLImageElement;
-                if (img.src.indexOf('/img/default-product.png') === -1) {
-                  img.onerror = null; // prevent infinite loop
-                  img.src = '/img/default-product.png';
-                }
-              }}
-            />
-            <div className="p-4">
-              <div className="font-semibold text-gray-900 mb-1">{p.name}</div>
-              <div className="text-sm text-gray-600 mb-3 line-clamp-3">{p.description}</div>
-              <div className="flex items-center justify-between">
-                <div className="text-lg font-bold">{currency(p.price)}</div>
-                <button
-                  onClick={() => {
-                    createOrder({
-                      items: [
-                        {
-                          quantity: 1,
-                          unitPrice: p.price || 0,
-                          variant: (p.variantIds && p.variantIds.length > 0) ? p.variantIds[0] : undefined,
-                        },
-                      ],
-                    });
-                  }}
-                  className="px-3 py-1.5 bg-blue-600 text-white rounded hover:bg-blue-700 text-sm"
-                >
-                  Add to Cart
-                </button>
-                <Link to={`/product/${p.id}`}>
-                  <h3>{p.name}</h3>
-                </Link>
+        {items.map((p) => {
+          // Get the first image for the list view
+          const mainImage = p.productImages && p.productImages.length > 0 ? p.productImages[0] : null;
+
+          return (
+            <div key={p.id} className="border rounded-lg overflow-hidden bg-white shadow-sm">
+              <div className="w-full h-40 bg-gray-100 overflow-hidden">
+                {mainImage ? (
+                  <ProductImage
+                    fileName={mainImage.imageUrl}
+                    alt={p.name}
+                    className="w-full h-40 object-cover"
+                  />
+                ) : (
+                  <img
+                    src="/img/default-product.png"
+                    alt={p.name}
+                    className="w-full h-40 object-cover"
+                  />
+                )}
+              </div>
+              <div className="p-4">
+                <div className="font-semibold text-gray-900 mb-1">{p.name}</div>
+                <div className="text-sm text-gray-600 mb-3 line-clamp-3">{p.description}</div>
+                <div className="flex items-center justify-between gap-2">
+                  <div className="text-lg font-bold">{currency(p.price)}</div>
+                  <button
+                    onClick={() => {
+                      createOrder({
+                        items: [
+                          {
+                            quantity: 1,
+                            unitPrice: p.price || 0,
+                            variant: (p.variantIds && p.variantIds.length > 0) ? p.variantIds[0] : undefined,
+                          },
+                        ],
+                      });
+                    }}
+                    className="px-3 py-1.5 bg-blue-600 text-white rounded hover:bg-blue-700 text-sm whitespace-nowrap"
+                  >
+                    Add to Cart
+                  </button>
+                  <Link to={`/product/${p.id}`} className="px-3 py-1.5 bg-gray-300 text-gray-900 rounded hover:bg-gray-400 text-sm whitespace-nowrap">
+                    View
+                  </Link>
+                </div>
               </div>
             </div>
-          </div>
-        ))}
+          );
+        })}
       </div>
     </div>
   );

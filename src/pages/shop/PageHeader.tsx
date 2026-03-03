@@ -3,6 +3,7 @@ import { Link, useNavigate, useLocation } from 'react-router-dom';
 import CartIcon from '../../components/shared/icon/CartIcon.tsx';
 import { CartStore } from '../../state/CartStore.ts';
 import ComponentHeader from './components/Category/ComponentHeader';
+import ImageUpload from '../../components/shared/imageupload/ImageUpload';
 
 // Keys duplicated here intentionally to avoid coupling to non-exported constants
 const LS_KEY = 'ec_cart_order_items';
@@ -23,6 +24,9 @@ const PageHeader: React.FC<PageHeaderProps> = ({ activeCategory, onSelectCategor
   const [cartSessionId, setCartSessionId] = useState<string | null>(null);
   const [isAuthenticated, setIsAuthenticated] = useState<boolean>(false);
   const [showUserMenu, setShowUserMenu] = useState<boolean>(false);
+  const [isAdminAuthenticated, setIsAdminAuthenticated] = useState<boolean>(false);
+  const [showImageUploadModal, setShowImageUploadModal] = useState<boolean>(false);
+  const [selectedImageType, setSelectedImageType] = useState<'product' | 'category' | 'brand'>('product');
   const userMenuRef = useRef<HTMLDivElement>(null);
 
   function readValues() {
@@ -31,13 +35,16 @@ const PageHeader: React.FC<PageHeaderProps> = ({ activeCategory, onSelectCategor
       const items = ls ? ls.getItem(LS_KEY) : null;
       const sid = ls ? ls.getItem(CART_SESSION_KEY) : null;
       const auth = ls ? ls.getItem(AUTH_KEY) === 'true' : false;
+      const adminToken = ls ? ls.getItem('admin_token') : null;
       setLsItemsRaw(items);
       setCartSessionId(sid);
       setIsAuthenticated(auth);
+      setIsAdminAuthenticated(!!adminToken);
     } catch (_) {
       setLsItemsRaw(null);
       setCartSessionId(null);
       setIsAuthenticated(false);
+      setIsAdminAuthenticated(false);
     }
   }
 
@@ -88,6 +95,12 @@ const PageHeader: React.FC<PageHeaderProps> = ({ activeCategory, onSelectCategor
     }
   };
 
+  const handleImageUpload = (fileName: string) => {
+    console.log(`Image uploaded for ${selectedImageType}:`, fileName);
+    // Close modal after successful upload
+    setShowImageUploadModal(false);
+  };
+
   const truncate = (val: string | null | undefined, max = 48) => {
     if (!val) return '';
     return val.length > max ? `${val.slice(0, max)}…` : val;
@@ -112,6 +125,19 @@ const PageHeader: React.FC<PageHeaderProps> = ({ activeCategory, onSelectCategor
             <div><span className="font-medium text-gray-700">{CART_SESSION_KEY}:</span> <span className="font-mono">{truncate(cartSessionId)}</span></div>
           </div>
           
+          {/* Image Upload Button - Admin Only */}
+          {isAdminAuthenticated && (
+            <button
+              onClick={() => setShowImageUploadModal(true)}
+              className="p-2 text-gray-600 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-colors"
+              title="Upload Image (Admin)"
+            >
+              <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-6 h-6">
+                <path strokeLinecap="round" strokeLinejoin="round" d="M12 16.5V9.75m0 0l3 3m-3-3l-3 3M6.75 19.5a4.5 4.5 0 01-1.41-8.775 5.25 5.25 0 0110.233-2.33A3 3 0 0116.5 19.5H6.75z" />
+              </svg>
+            </button>
+          )}
+
           <CartIcon
             className="hover:text-blue-600"
             size={22}
@@ -144,6 +170,54 @@ const PageHeader: React.FC<PageHeaderProps> = ({ activeCategory, onSelectCategor
           )}
         </div>
       </div>
+
+      {/* Image Upload Modal */}
+      {showImageUploadModal && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+          <div className="bg-white rounded-lg shadow-xl max-w-xl w-full mx-4 max-h-[90vh] overflow-y-auto">
+            <div className="sticky top-0 bg-white border-b border-gray-200 px-6 py-4 flex items-center justify-between">
+              <h2 className="text-lg font-semibold text-gray-900">Upload Image</h2>
+              <button
+                onClick={() => setShowImageUploadModal(false)}
+                className="text-gray-500 hover:text-gray-700 text-2xl leading-none"
+              >
+                ×
+              </button>
+            </div>
+
+            <div className="px-6 py-4">
+              {/* Image Type Selector */}
+              <div className="mb-6">
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  Image Type
+                </label>
+                <div className="flex gap-3">
+                  {(['product', 'category', 'brand'] as const).map((type) => (
+                    <button
+                      key={type}
+                      onClick={() => setSelectedImageType(type)}
+                      className={`px-4 py-2 rounded-lg font-medium transition-colors ${
+                        selectedImageType === type
+                          ? 'bg-blue-600 text-white'
+                          : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                      }`}
+                    >
+                      {type.charAt(0).toUpperCase() + type.slice(1)}
+                    </button>
+                  ))}
+                </div>
+              </div>
+
+              {/* ImageUpload Component */}
+              <ImageUpload
+                type={selectedImageType}
+                onImageUpload={handleImageUpload}
+                label={`${selectedImageType.charAt(0).toUpperCase() + selectedImageType.slice(1)} Image`}
+              />
+            </div>
+          </div>
+        </div>
+      )}
     </header>
   );
 };

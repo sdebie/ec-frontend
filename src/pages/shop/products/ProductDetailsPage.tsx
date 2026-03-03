@@ -1,7 +1,7 @@
 import ProductCard from "./components/ProductCard.tsx";
 import { useParams } from "react-router-dom";
 import { useEffect, useState } from "react";
-import { fetchProductWithVariants, ProductVariantWithProduct } from "../../../services/ProductService.ts";
+import { fetchProductWithVariants, ProductWithVariants } from "../../../services/ProductService.ts";
 import { useAddToCart } from "@/pages/shop/cart/hook/useAddToCart.ts";
 
 // Define the UI Product type expected by ProductCard to keep this page self-contained
@@ -19,6 +19,7 @@ interface UiProduct {
   short_description: string;
   description: string;
   variants: UiVariant[];
+  productImages?: { id: string; imageUrl: string }[] | null;
 }
 
 const ProductDetailsPage = () => {
@@ -38,28 +39,28 @@ const ProductDetailsPage = () => {
         if (!idParam || idParam.length < 8) {
           throw new Error("Invalid product id");
         }
-        const variants: ProductVariantWithProduct[] = await fetchProductWithVariants(idParam);
+        const result: ProductWithVariants | null = await fetchProductWithVariants(idParam);
         if (isCancelled) return;
 
-        if (!variants || variants.length === 0) {
+        if (!result) {
           setProduct(null);
           setLoading(false);
           return;
         }
 
-        const base = variants[0]?.product;
         const uiProduct: UiProduct = {
-          id: base?.id ?? idParam,
-          name: base?.name ?? "Product",
-          short_description: "",
-          description: base?.description ?? "",
-          variants: variants.map((v) => ({
+          id: result.productId ?? idParam,
+          name: result.productName ?? 'Product',
+          short_description: '',
+          description: result.productDescription ?? '',
+          variants: (result.variants || []).map((v) => ({
             id: v.id,
-            sku: v.sku ?? "",
-            price: v.price ?? 0,
+            sku: v.sku ?? '',
+            price: Number(v.price ?? 0),
             stock_quantity: v.stockQuantity ?? 0,
             attributes: safeParseAttributes(v.attributesJson),
           })),
+          productImages: (result.productImages || []).map(img => ({ id: img.id, imageUrl: img.imageUrl })),
         };
         setProduct(uiProduct);
       } catch (e: any) {

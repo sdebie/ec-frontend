@@ -1,5 +1,6 @@
 import React, { useState, useMemo } from 'react';
 import { ShoppingCart, ChevronDown, ChevronUp } from 'lucide-react';
+import ProductImage from "@/components/shared/imageupload/ProductImage.tsx";
 
 interface Variant {
     id: string;
@@ -9,12 +10,20 @@ interface Variant {
     attributes: Record<string, string>; // Matches your JSONB: {"color": "Black", "size": "L"}
 }
 
+interface ProductImageObject {
+    id: string;
+    imageUrl: string; // file name stored on server
+    sortOrder?: number | null;
+    isFeatured?: boolean | null;
+}
+
 interface Product {
     id: string;
     name: string;
     short_description: string;
     description: string;
     variants: Variant[];
+    productImages?: ProductImageObject[] | null; // new: list of image objects
 }
 
 const ProductCard: React.FC<{ product: Product; onAddToCart: (vId: string) => void }> = ({ product, onAddToCart }) => {
@@ -44,20 +53,42 @@ const ProductCard: React.FC<{ product: Product; onAddToCart: (vId: string) => vo
         setSelections((prev) => ({ ...prev, [key]: value }));
     };
 
+    // Helpers to read image file names from productImages
+    const mainImageFile = product.productImages && product.productImages.length > 0
+        ? product.productImages[0].imageUrl
+        : undefined;
+    const thumbImages = product.productImages && product.productImages.length > 1
+        ? product.productImages.slice(1, 3).map(img => img.imageUrl)
+        : [];
+
     return (
         <div className="max-w-6xl mx-auto p-6 grid grid-cols-1 md:grid-cols-2 gap-12 bg-white">
             {/* Left: Image Gallery */}
             <div className="space-y-4">
                 <div className="aspect-square bg-gray-50 rounded-2xl overflow-hidden border border-gray-100">
-                    <img src="https://via.placeholder.com/600" alt={product.name} className="w-full h-full object-center object-cover" />
+                    {mainImageFile ? (
+                        <ProductImage fileName={mainImageFile} alt={product.name} />
+                    ) : (
+                        <img src="https://via.placeholder.com/600" alt={product.name} className="w-full h-full object-center object-cover" />
+                    )}
                 </div>
                 <div className="flex gap-4">
-                    <div className="w-20 h-20 border-2 border-blue-600 rounded-lg overflow-hidden cursor-pointer">
-                        <img src="https://via.placeholder.com/100" className="object-cover h-full w-full" />
-                    </div>
-                    <div className="w-20 h-20 border border-gray-200 rounded-lg overflow-hidden cursor-pointer">
-                        <img src="https://via.placeholder.com/100" className="object-cover h-full w-full" />
-                    </div>
+                    {thumbImages.length > 0 ? (
+                        thumbImages.map((t, i) => (
+                            <div key={i} className={`w-20 h-20 ${i === 0 ? 'border-2 border-blue-600' : 'border border-gray-200'} rounded-lg overflow-hidden cursor-pointer`}>
+                                <ProductImage fileName={t} alt={`${product.name} thumb ${i}`} />
+                            </div>
+                        ))
+                    ) : (
+                        <>
+                            <div className="w-20 h-20 border-2 border-blue-600 rounded-lg overflow-hidden cursor-pointer">
+                                <img src="https://via.placeholder.com/100" className="object-cover h-full w-full" />
+                            </div>
+                            <div className="w-20 h-20 border border-gray-200 rounded-lg overflow-hidden cursor-pointer">
+                                <img src="https://via.placeholder.com/100" className="object-cover h-full w-full" />
+                            </div>
+                        </>
+                    )}
                 </div>
             </div>
 
@@ -103,6 +134,34 @@ const ProductCard: React.FC<{ product: Product; onAddToCart: (vId: string) => vo
                     <ShoppingCart size={20} />
                     {activeVariant ? 'Add to cart' : 'Select Options'}
                 </button>
+
+                <div className="border p-4 rounded-lg bg-slate-800 text-white">
+                    {/* Primary Image: Usually the first one in the sort_order */}
+                    {mainImageFile ? (
+                        <ProductImage
+                            fileName={mainImageFile}
+                            alt={product.name}
+                        />
+                    ) : (
+                        <div className="h-48 bg-slate-700 flex items-center justify-center">
+                            <span>No Image Available</span>
+                        </div>
+                    )}
+
+                    <h3 className="mt-2 font-bold">{product.name}</h3>
+
+                    {/* Small Thumbnails for the rest of the gallery */}
+                    <div className="flex gap-2 mt-2">
+                        {(product.productImages || []).slice(1).map((img, index) => (
+                            <ProductImage
+                                key={img.id || index}
+                                fileName={img.imageUrl}
+                                alt={`${product.name} gallery ${index}`}
+                                className="w-10 h-10 object-cover rounded border border-slate-600"
+                            />
+                        ))}
+                    </div>
+                </div>
 
                 {/* Expandable Sections */}
                 <div className="mt-10 border-t border-gray-100">

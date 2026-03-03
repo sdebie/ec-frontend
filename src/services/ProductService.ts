@@ -2,20 +2,27 @@ import { GraphQLService } from "./GraphQLService";
 import { gql } from "graphql-request";
 import { getServiceEndpoint } from "../utils/HostnameResolver";
 
+export type ProductImage = {
+  id: string;
+  imageUrl: string;
+  sortOrder?: number | null;
+  isFeatured?: boolean | null;
+};
+
 export type ProductListItem = {
   id: string; // UUID as string
   name: string;
   description?: string | null;
   price?: number | null;
-  imageUrl?: string | null;
+  productImages?: ProductImage[] | null;
   variantIds?: string[] | null;
-  categoryName?: string | null; // Added categoryName
+  categoryName?: string | null;
 };
 
 export type VariantItem = {
   id: string;
   stockQuantity?: number | null;
-  weightKg?: number | null;
+  weightKg?: string | null; // changed from number to string to map BigDecimal
   attributesJson?: string | null;
   product?: { name?: string | null } | null;
 };
@@ -37,9 +44,13 @@ export async function fetchProducts(categoryName?: string | null): Promise<Produ
         name
         description
         price
-        imageUrl
+        productImages {
+          id
+          imageUrl
+          sortOrder
+        }
         variantIds
-        categoryName # Fetch category name
+        categoryName
       }
     }
   `;
@@ -65,37 +76,48 @@ export async function fetchVariantsByIds(ids: string[]): Promise<VariantItem[]> 
   return res.variantsByIds || [];
 }
 
-
-
-export type ProductVariantWithProduct = {
+export type ProductVariant = {
   id: string;
   sku?: string | null;
-  price?: number | null;
+  price?: string | null; // BigDecimal mapped to string
   stockQuantity?: number | null;
   attributesJson?: string | null;
-  product?: {
-    id?: string | null; // product id is UUID string now
-    name?: string | null;
-    description?: string | null;
-    productType?: string | null;
-  } | null;
+  weightKg?: string | null;
 };
 
-export async function fetchProductWithVariants(productId: string): Promise<ProductVariantWithProduct[]> {
-  if (!productId) return [];
+export type ProductWithVariants = {
+  productId: string;
+  productName?: string | null;
+  productDescription?: string | null;
+  productImages?: ProductImage[] | null;
+  variants?: ProductVariant[] | null;
+};
+
+export async function fetchProductWithVariants(productId: string): Promise<ProductWithVariants | null> {
+  if (!productId) return null;
   const client = await GraphQLService.getGraphQLClient(graphQlEndpoint);
   const query = gql`
     query GetProductWithVariants($productId: String!) {
       getProductWithVariants(productId: $productId) {
-        id
-        sku
-        price
-        stockQuantity
-        attributesJson
-        product { id name description productType }
+        productId
+        productName
+        productDescription
+        productImages {
+          id
+          imageUrl
+          sortOrder
+        }
+        variants {
+          id
+          sku
+          price
+          stockQuantity
+          attributesJson
+          weightKg
+        }
       }
     }
   `;
-  const res = await client.request<{ getProductWithVariants: ProductVariantWithProduct[] }>(query, { productId });
-  return res.getProductWithVariants || [];
+  const res = await client.request<{ getProductWithVariants: ProductWithVariants }>(query, { productId });
+  return res.getProductWithVariants || null;
 }
