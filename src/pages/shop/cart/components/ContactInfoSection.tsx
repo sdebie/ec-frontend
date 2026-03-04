@@ -1,5 +1,5 @@
 import React from 'react';
-import { CustomerProfile } from '../../../../services/CustomerService.ts';
+import { CustomerProfile } from '@/services/CustomerService.ts';
 import {CustomerType} from "@/constants/enums/CustomerType.ts";
 import InlineLogin from '@/pages/shop/auth/InlineLogin.tsx';
 

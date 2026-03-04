@@ -1,11 +1,11 @@
 import React, { useEffect, useState, useRef } from 'react';
 import { Link, useNavigate, useLocation } from 'react-router-dom';
 import CartIcon from '../../components/shared/icon/CartIcon.tsx';
-import { CartStore } from '../../store/CartStore.ts';
+import { CartStore } from '@/store/cartStore.ts';
 import ComponentHeader from './components/Category/ComponentHeader';
 import ImageUploadModal from './components/ImageUploadModal';
 import LoginModal from '@/pages/shop/auth/LoginModal.tsx';
-import { CustomerProfile } from '../../services/CustomerService.ts';
+import { CustomerProfile } from '@/services/CustomerService.ts';
 
 // Keys duplicated here intentionally to avoid coupling to non-exported constants
 const LS_KEY = 'ec_cart_order_items';

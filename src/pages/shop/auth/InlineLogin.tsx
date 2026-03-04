@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { loginCustomer, CustomerProfile } from '../../../services/CustomerService.ts';
+import { loginCustomer, CustomerProfile } from '@/services/CustomerService.ts';
 
 interface InlineLoginProps {
   email: string;

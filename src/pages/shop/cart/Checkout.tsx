@@ -1,15 +1,15 @@
 import React, { useEffect, useMemo, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { apiOrderById, apiOrderBySessionId, apiUpdateOrderStatus } from '../../../services/OrderService.ts';
+import { apiOrderById, apiOrderBySessionId, apiUpdateOrderStatus } from '@/services/OrderService.ts';
 import { OrderData } from './types.ts';
-import { CartStore } from '../../../store/CartStore.ts';
+import { CartStore } from '@/store/cartStore.ts';
 import { fetchShippingMethods, ShippingMethod, PaymentMethodKey, fetchPaymentMethodsConfig, PaymentMethodsConfig, PaymentMethodInfo } from "../../../services/StoreSettings.ts";
 import {
   lookupCustomer,
   registerOrUpdateCustomer,
   CustomerProfile,
   updateCustomerInformation
-} from "../../../services/CustomerService.ts";
+} from "@/services/CustomerService.ts";
 import ContactInfoSection from './components/ContactInfoSection.tsx';
 import ShippingMethodSection from './components/ShippingMethodSection.tsx';
 import PaymentMethodSection from './components/PaymentMethodSection.tsx';
