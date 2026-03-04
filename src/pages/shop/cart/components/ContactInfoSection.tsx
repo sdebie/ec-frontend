@@ -1,6 +1,7 @@
 import React from 'react';
 import { CustomerProfile } from '../../../../services/CustomerService.ts';
 import {CustomerType} from "../../../../utils/enums/CustomerType.ts";
+import InlineLogin from '../../../../components/shared/auth/InlineLogin.tsx';
 
 export type LookupState = 'idle' | 'loading' | 'found' | 'not_found' | 'error';
 
@@ -14,12 +15,9 @@ interface Props {
   customer: CustomerProfile | null;
   // New props to move returning-customer actions into this section
   isAuthenticated: boolean;
-  needsShippingAddress: boolean;
   returningChoice: 'login' | 'guest' | null;
   setReturningChoice: (v: 'login' | 'guest' | null) => void;
-  loginPassword: string;
-  setLoginPassword: (v: string) => void;
-  handleLogin: () => void;
+  handleLogin: (profile: CustomerProfile) => void;
 }
 
 const ContactInfoSection: React.FC<Props> = ({
@@ -31,18 +29,13 @@ const ContactInfoSection: React.FC<Props> = ({
   lookupState,
   customer,
   isAuthenticated,
-  needsShippingAddress,
   returningChoice,
   setReturningChoice,
-  loginPassword,
-  setLoginPassword,
   handleLogin,
 }) => {
   const showReturningBlock =
     !!customer && !!customer.hasPassword && customer.shopperType?.toUpperCase() !== 'GUEST' &&
     !isAuthenticated && emailValid && lookupState === 'found';
-
-  console.log("DEBUG:: Valid Email:"+emailValid);
   return (
     <section className="bg-white p-6 rounded-2xl shadow-sm border">
       <h3 className="text-lg font-bold mb-4 flex items-center gap-2">
@@ -120,7 +113,6 @@ const ContactInfoSection: React.FC<Props> = ({
               type="button"
               onClick={() => {
                 setReturningChoice('guest');
-                setLoginPassword('');
               }}
               className={`px-3 py-2 rounded-lg text-sm font-semibold border ${
                 returningChoice === 'guest'
@@ -133,17 +125,13 @@ const ContactInfoSection: React.FC<Props> = ({
           </div>
 
           {returningChoice === 'login' && (
-            <div className="mt-3 grid grid-cols-1 sm:grid-cols-[1fr_auto] gap-2">
-              <input
-                type="password"
-                placeholder="Enter your password"
-                value={loginPassword}
-                onChange={(e) => setLoginPassword(e.target.value)}
-                className="p-3 border rounded-xl"
+            <div className="mt-3">
+              <InlineLogin
+                email={email}
+                onLoginSuccess={handleLogin}
+                compact={true}
+                showLabel={true}
               />
-              <button onClick={handleLogin} className="px-4 py-3 bg-blue-600 text-white rounded-xl font-semibold">
-                Sign in
-              </button>
             </div>
           )}
 

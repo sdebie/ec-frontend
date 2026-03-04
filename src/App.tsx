@@ -8,7 +8,8 @@ import {getHostname} from './utils/HostnameResolver';
 import AdminLogin from "./pages/admin/AdminLogin.tsx";
 import AccessDenied from './pages/shared/AccessDenied.tsx';
 import { hasRequiredAuthority } from './utils/authorizationHelper.ts';
-import ProductList from './pages/shop/products/ProductList.tsx'; // Import ProductList
+import ProductList from './pages/shop/products/ProductList.tsx';
+import FloatingSection from "@/pages/shop/FloatingSection.tsx"; // Import ProductList
 
 const renderRoutes = (routes: any[], isAdminDomain: boolean, isAuthenticated: boolean, handleLogin: () => void, activeCategory: string, setActiveCategory: (category: string) => void) => {
     const results: JSX.Element[] = [];
@@ -70,6 +71,7 @@ const renderRoutes = (routes: any[], isAdminDomain: boolean, isAuthenticated: bo
                     ) : (
                         <>
                             <PageHeader activeCategory={activeCategory} onSelectCategory={setActiveCategory} />
+                            <FloatingSection />
                             {element}
                         </>
                     )

@@ -3,7 +3,9 @@ import { Link, useNavigate, useLocation } from 'react-router-dom';
 import CartIcon from '../../components/shared/icon/CartIcon.tsx';
 import { CartStore } from '../../state/CartStore.ts';
 import ComponentHeader from './components/Category/ComponentHeader';
-import ImageUpload from '../../components/shared/imageupload/ImageUpload';
+import ImageUploadModal from './components/ImageUploadModal';
+import LoginModal from '../../components/shared/auth/LoginModal.tsx';
+import { CustomerProfile } from '../../services/CustomerService.ts';
 
 // Keys duplicated here intentionally to avoid coupling to non-exported constants
 const LS_KEY = 'ec_cart_order_items';
@@ -26,7 +28,7 @@ const PageHeader: React.FC<PageHeaderProps> = ({ activeCategory, onSelectCategor
   const [showUserMenu, setShowUserMenu] = useState<boolean>(false);
   const [isAdminAuthenticated, setIsAdminAuthenticated] = useState<boolean>(false);
   const [showImageUploadModal, setShowImageUploadModal] = useState<boolean>(false);
-  const [selectedImageType, setSelectedImageType] = useState<'product' | 'category' | 'brand'>('product');
+  const [showLoginModal, setShowLoginModal] = useState<boolean>(false);
   const userMenuRef = useRef<HTMLDivElement>(null);
 
   function readValues() {
@@ -86,6 +88,7 @@ const PageHeader: React.FC<PageHeaderProps> = ({ activeCategory, onSelectCategor
       window.localStorage.removeItem(EMAIL_KEY);
       setIsAuthenticated(false);
       setShowUserMenu(false);
+      setShowLoginModal(false);
       // Force a re-read to update UI immediately
       readValues();
       // Optionally navigate to home or refresh
@@ -95,11 +98,20 @@ const PageHeader: React.FC<PageHeaderProps> = ({ activeCategory, onSelectCategor
     }
   };
 
-  const handleImageUpload = (fileName: string) => {
-    console.log(`Image uploaded for ${selectedImageType}:`, fileName);
-    // Close modal after successful upload
-    setShowImageUploadModal(false);
+  const handleLoginSuccess = (profile: CustomerProfile) => {
+    // Store the authentication state and email for checkout screen
+    try {
+      window.localStorage.setItem(AUTH_KEY, 'true');
+      window.localStorage.setItem(EMAIL_KEY, profile.email);
+      // Notify other components
+      CartStore.emit();
+    } catch (e) {
+      console.error('Failed to save login state', e);
+    }
+    setIsAuthenticated(true);
+    setShowLoginModal(false);
   };
+
 
   const truncate = (val: string | null | undefined, max = 48) => {
     if (!val) return '';
@@ -144,6 +156,18 @@ const PageHeader: React.FC<PageHeaderProps> = ({ activeCategory, onSelectCategor
             onClick={() => navigate('/cart')}
           />
 
+          {!isAuthenticated && (
+            <button
+              onClick={() => setShowLoginModal(true)}
+              className="p-2 text-gray-600 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-colors"
+              title="Sign In"
+            >
+              <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-6 h-6">
+                <path strokeLinecap="round" strokeLinejoin="round" d="M15.75 6a3.75 3.75 0 11-7.5 0 3.75 3.75 0 017.5 0zM4.501 20.118a7.5 7.5 0 0114.998 0A17.933 17.933 0 0112 21.75c-2.676 0-5.216-.584-7.499-1.632z" />
+              </svg>
+            </button>
+          )}
+
           {isAuthenticated && (
             <div className="relative" ref={userMenuRef}>
               <div 
@@ -172,52 +196,19 @@ const PageHeader: React.FC<PageHeaderProps> = ({ activeCategory, onSelectCategor
       </div>
 
       {/* Image Upload Modal */}
-      {showImageUploadModal && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-          <div className="bg-white rounded-lg shadow-xl max-w-xl w-full mx-4 max-h-[90vh] overflow-y-auto">
-            <div className="sticky top-0 bg-white border-b border-gray-200 px-6 py-4 flex items-center justify-between">
-              <h2 className="text-lg font-semibold text-gray-900">Upload Image</h2>
-              <button
-                onClick={() => setShowImageUploadModal(false)}
-                className="text-gray-500 hover:text-gray-700 text-2xl leading-none"
-              >
-                ×
-              </button>
-            </div>
+      <ImageUploadModal
+        isOpen={showImageUploadModal}
+        onClose={() => setShowImageUploadModal(false)}
+        onImageUpload={() => setShowImageUploadModal(false)}
+      />
 
-            <div className="px-6 py-4">
-              {/* Image Type Selector */}
-              <div className="mb-6">
-                <label className="block text-sm font-medium text-gray-700 mb-2">
-                  Image Type
-                </label>
-                <div className="flex gap-3">
-                  {(['product', 'category', 'brand'] as const).map((type) => (
-                    <button
-                      key={type}
-                      onClick={() => setSelectedImageType(type)}
-                      className={`px-4 py-2 rounded-lg font-medium transition-colors ${
-                        selectedImageType === type
-                          ? 'bg-blue-600 text-white'
-                          : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
-                      }`}
-                    >
-                      {type.charAt(0).toUpperCase() + type.slice(1)}
-                    </button>
-                  ))}
-                </div>
-              </div>
-
-              {/* ImageUpload Component */}
-              <ImageUpload
-                type={selectedImageType}
-                onImageUpload={handleImageUpload}
-                label={`${selectedImageType.charAt(0).toUpperCase() + selectedImageType.slice(1)} Image`}
-              />
-            </div>
-          </div>
-        </div>
-      )}
+      {/* Login Modal */}
+      <LoginModal
+        isOpen={showLoginModal}
+        onClose={() => setShowLoginModal(false)}
+        onLoginSuccess={handleLoginSuccess}
+        showEmailField={true}
+      />
     </header>
   );
 };

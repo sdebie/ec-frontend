@@ -6,7 +6,6 @@ import { CartStore } from '../../../state/CartStore.ts';
 import { fetchShippingMethods, ShippingMethod, PaymentMethodKey, fetchPaymentMethodsConfig, PaymentMethodsConfig, PaymentMethodInfo } from "../../../services/StoreSettings.ts";
 import {
   lookupCustomer,
-  loginCustomer,
   registerOrUpdateCustomer,
   CustomerProfile,
   updateCustomerInformation
@@ -50,8 +49,6 @@ const Checkout: React.FC = () => {
   // Customer lookup/auth state
   const [customer, setCustomer] = useState<CustomerProfile | null>(null);
   const [isAuthenticated, setIsAuthenticated] = useState<boolean>(false);
-  const [showLoginPrompt, setShowLoginPrompt] = useState<boolean>(false);
-  const [loginPassword, setLoginPassword] = useState<string>('');
   const [saveDetails, setSaveDetails] = useState<boolean>(false);
   const [registerPassword, setRegisterPassword] = useState<string>('');
   const [registerPasswordConfirm, setRegisterPasswordConfirm] = useState<string>('');
@@ -121,7 +118,6 @@ const Checkout: React.FC = () => {
     const run = async () => {
       if (!emailValid) {
         setCustomer(null);
-        setShowLoginPrompt(false);
         setReturningChoice(null);
         setLookupState('idle');
         return;
@@ -134,12 +130,6 @@ const Checkout: React.FC = () => {
         setLookupState(profile ? 'found' : 'not_found');
         // Reset returning choice on new lookup result
         setReturningChoice(null);
-        // If delivery needed and customer is registered, prompt login/guest choice
-        if (profile && profile.hasPassword && needsShippingAddress) {
-          setShowLoginPrompt(true);
-        } else {
-          setShowLoginPrompt(false);
-        }
         // If already authenticated (e.g., restored), prefill address
         if (profile && isAuthenticated) {
           prefillAddressFromProfile(profile);
@@ -147,7 +137,6 @@ const Checkout: React.FC = () => {
       } catch (e) {
         console.warn('Lookup failed', e);
         setCustomer(null);
-        setShowLoginPrompt(false);
         setLookupState('error');
       }
     };
@@ -203,12 +192,6 @@ const Checkout: React.FC = () => {
   }, [sessionId, orderId]);
 
 
-  const computedTotal = useMemo(() => {
-    if (order?.totalAmount != null) return Number(order.totalAmount);
-    const items = order?.items ?? [];
-    return items.reduce((sum, it) => sum + Number(it.unitPrice || 0) * Number(it.quantity || 0), 0);
-  }, [order]);
-
   // Order summary calculations for the right column
   const itemsTotal = useMemo(() => {
     const items = order?.items ?? [];
@@ -261,24 +244,17 @@ const Checkout: React.FC = () => {
     setInitialAccountAddress(next);
   };
 
-  const handleLogin = async () => {
-    if (!emailValid || !loginPassword) return;
+  const handleLogin = async (profile: CustomerProfile) => {
+    setCustomer(profile);
+    setIsAuthenticated(true);
+    prefillAddressFromProfile(profile);
+    // Persist successful login state and email for subsequent visits
     try {
-      const prof = await loginCustomer(email.trim(), loginPassword);
-      setCustomer(prof);
-      setIsAuthenticated(true);
-      setShowLoginPrompt(false);
-      prefillAddressFromProfile(prof);
-      // Persist successful login state and email for subsequent visits
-      try {
-        window.localStorage.setItem('checkoutEmail', email.trim());
-        window.localStorage.setItem('checkoutIsAuthenticated', 'true');
-        // Notify other components like header
-        CartStore.emit();
-      } catch {}
-    } catch (e: any) {
-      alert(typeof e?.message === 'string' ? e.message : 'Login failed. Please check your password.');
-    }
+      window.localStorage.setItem('checkoutEmail', email.trim());
+      window.localStorage.setItem('checkoutIsAuthenticated', 'true');
+      // Notify other components like header
+      CartStore.emit();
+    } catch {}
   };
 
   const registerIfChosen = async () => {
@@ -553,11 +529,8 @@ const Checkout: React.FC = () => {
             lookupState={lookupState}
             customer={customer}
             isAuthenticated={isAuthenticated}
-            needsShippingAddress={needsShippingAddress}
             returningChoice={returningChoice}
             setReturningChoice={setReturningChoice}
-            loginPassword={loginPassword}
-            setLoginPassword={setLoginPassword}
             handleLogin={handleLogin}
           />
 

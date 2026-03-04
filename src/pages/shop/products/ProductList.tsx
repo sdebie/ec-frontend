@@ -46,12 +46,12 @@ const ProductList: React.FC<ProductListProps> = ({ activeCategory }) => {
 
           return (
             <div key={p.id} className="border rounded-lg overflow-hidden bg-white shadow-sm">
-              <div className="w-full h-40 bg-gray-100 overflow-hidden">
+              <div className="w-full h-40 bg-gray-100 overflow-hidden flex items-center justify-center">
                 {mainImage ? (
                   <ProductImage
                     fileName={mainImage.imageUrl}
                     alt={p.name}
-                    className="w-full h-40 object-cover"
+                    className="w-45 h-full object-cover rounded-md"
                   />
                 ) : (
                   <img

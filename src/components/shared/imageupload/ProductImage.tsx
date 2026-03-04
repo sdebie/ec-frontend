@@ -1,5 +1,4 @@
 import {IMAGE_BASE_URL} from "@/constants/api.constant.ts";
-import ImageUpload from "@/components/shared/imageupload/ImageUpload.tsx";
 
 interface ProductImageProps {
     fileName: string;
