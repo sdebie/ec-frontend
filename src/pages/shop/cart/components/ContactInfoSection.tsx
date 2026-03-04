@@ -1,7 +1,7 @@
 import React from 'react';
 import { CustomerProfile } from '../../../../services/CustomerService.ts';
-import {CustomerType} from "../../../../utils/enums/CustomerType.ts";
-import InlineLogin from '../../../../components/shared/auth/InlineLogin.tsx';
+import {CustomerType} from "@/constants/enums/CustomerType.ts";
+import InlineLogin from '@/pages/shop/auth/InlineLogin.tsx';
 
 export type LookupState = 'idle' | 'loading' | 'found' | 'not_found' | 'error';
 

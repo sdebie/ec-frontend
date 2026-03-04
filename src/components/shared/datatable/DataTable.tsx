@@ -18,7 +18,6 @@ type DataTableProps<T> = {
     data: T[];
     columns: ColumnDef<T, any>[];
     isLoading?: boolean;
-    title?: string;
     globalSearchPlaceholder?: string;
 };
 
@@ -26,7 +25,6 @@ export function DataTable<T>({
                                  data,
                                  columns,
                                  isLoading,
-                                 title,
                                  globalSearchPlaceholder = "Search...",
                              }: DataTableProps<T>) {
     const [sorting, setSorting] = React.useState<SortingState>([]);
@@ -49,14 +47,7 @@ export function DataTable<T>({
     return (
         <div className="rounded-xl border border-slate-200 bg-white shadow-sm">
             <div className="p-4 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-                <div>
-                    {title && <h2 className="text-base font-semibold text-slate-900">{title}</h2>}
-                    <p className="text-sm text-slate-500">
-                        {table.getFilteredRowModel().rows.length} result(s)
-                    </p>
-                </div>
-
-                <div className="w-full sm:w-72">
+                <div className="w-full">
                     <Input
                         value={globalFilter ?? ""}
                         onChange={(e) => setGlobalFilter(e.target.value)}

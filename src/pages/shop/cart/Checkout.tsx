@@ -2,7 +2,7 @@ import React, { useEffect, useMemo, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { apiOrderById, apiOrderBySessionId, apiUpdateOrderStatus } from '../../../services/OrderService.ts';
 import { OrderData } from './types.ts';
-import { CartStore } from '../../../state/CartStore.ts';
+import { CartStore } from '../../../store/CartStore.ts';
 import { fetchShippingMethods, ShippingMethod, PaymentMethodKey, fetchPaymentMethodsConfig, PaymentMethodsConfig, PaymentMethodInfo } from "../../../services/StoreSettings.ts";
 import {
   lookupCustomer,
@@ -15,7 +15,7 @@ import ShippingMethodSection from './components/ShippingMethodSection.tsx';
 import PaymentMethodSection from './components/PaymentMethodSection.tsx';
 import OrderSummary from './components/OrderSummary.tsx';
 import SaveConfirmModal from './components/SaveConfirmModal.tsx';
-import { OrderStatus } from '../../../utils/enums/OrderStatus.ts';
+import { OrderStatus } from '@/constants/enums/OrderStatus.ts';
 
 // Interface shaped like backend HtmlFormField
 interface HtmlFormField {

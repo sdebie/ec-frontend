@@ -1,0 +1,70 @@
+import {useEffect, useState} from "react";
+import {ColumnDef, createColumnHelper} from "@tanstack/react-table";
+import {DataTable} from "@/components/shared/datatable/DataTable";
+import {fetchProducts, ProductListItem} from "@/services/ProductService";
+
+const ProductList = () => {
+    const [products, setProducts] = useState<ProductListItem[]>([]);
+    const [isLoading, setIsLoading] = useState(true);
+
+    useEffect(() => {
+        const fetchProductsData = async () => {
+            try {
+                setIsLoading(true);
+                const data = await fetchProducts();
+                setProducts(data);
+            } catch (error) {
+                console.error("Failed to fetch products:", error);
+            } finally {
+                setIsLoading(false);
+            }
+        };
+
+        fetchProductsData();
+    }, []);
+
+    const columnHelper = createColumnHelper<ProductListItem>();
+
+    const columns: ColumnDef<ProductListItem, any>[] = [
+        columnHelper.accessor("name",
+            {
+                header: "Product Name",
+                cell: (info) => {
+                    const row = info.row.original;
+                    return (
+                        <div className={"flex flex-col"}>
+                            <span>{row.name}</span>
+                            <span className={"text-xs"}>{row.description}</span>
+                        </div>
+                    );
+                },
+            }),
+        columnHelper.accessor("categoryName",
+            {
+                header: "Category",
+                cell: (info) => info.getValue() || "-",
+            }),
+        columnHelper.accessor("price",
+            {
+                header: "Price",
+                cell: (info) => {
+                    const price = info.getValue();
+                    return price ? `$${price.toFixed(2)}` : "-";
+                },
+            }),
+    ];
+
+    return (
+        <div>
+            <h1 className="text-2xl font-bold mb-4">Products</h1>
+            <DataTable
+                data={products}
+                columns={columns}
+                isLoading={isLoading}
+                globalSearchPlaceholder="Search products..."
+            />
+        </div>
+    );
+}
+
+export default ProductList;

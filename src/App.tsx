@@ -61,6 +61,7 @@ const renderRoutes = (routes: any[], isAdminDomain: boolean, isAuthenticated: bo
                     isAppAdmin ? (
                         isAuthenticated ? (
                             userHasAuthorityForRoute ? (
+                                // TODO: CurrencyProvider
                                 <AdminLayout>{element}</AdminLayout>
                             ) : (
                                 <AccessDenied />

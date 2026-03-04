@@ -65,7 +65,7 @@ export const storeRoutes: Routes = [
     {
         key: 'accessDenied',
         path: `/access-denied`,
-        component: lazy(() => import('@/pages/shared/other/AccessDenied')),
+        component: lazy(() => import('@/pages/shared/AccessDenied')),
         authority: [],
         meta: {
             pageBackgroundType: 'plain',

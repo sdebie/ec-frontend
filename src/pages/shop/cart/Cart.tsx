@@ -1,6 +1,6 @@
 import React, { useEffect, useMemo, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { CartStore } from '@/state/CartStore.ts';
+import { CartStore } from '@/store/CartStore.ts';
 import { OrderItemsData, OrderData } from './types.ts';
 import { createOrder } from '@/services/OrderService.ts';
 import { fetchVariantsByIds } from '@/services/ProductService.ts';
