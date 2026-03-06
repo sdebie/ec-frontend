@@ -4,6 +4,7 @@ import {storeRoutes} from './configs/routes/storeRoutes.config';
 import {adminRoutes} from './configs/routes/adminRoutes.config';
 import {getHostname} from './utils/HostnameResolver';
 import RouteGuard from "@/configs/RouteGaurd.tsx";
+import {RouteObject} from "@/types/routes.ts";
 
 function App() {
 
@@ -24,7 +25,7 @@ function App() {
     if (isAdminDomain) routesToShow = adminRoutes;
     else if (isStoreDomain) routesToShow = storeRoutes;
 
-    const flattenRoutes = (routes: any[]): any[] => {
+    const flattenRoutes = (routes: RouteObject[]): RouteObject[] => {
         return routes.flatMap((route) => [
             route,
             ...(route.subMenu ? flattenRoutes(route.subMenu) : [])

@@ -15,11 +15,3 @@ export interface RouteObject {
     meta?: RouteMeta;
     subMenu?: RouteObject[];
 }
-
-// 2. Explicitly tell TypeScript this returns an array of RouteObject: RouteObject[]
-const flattenRoutes = (routes: RouteObject[]): RouteObject[] => {
-    return routes.flatMap((route) => [
-        route,
-        ...(route.subMenu ? flattenRoutes(route.subMenu) : [])
-    ]);
-};
