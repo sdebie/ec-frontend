@@ -3,10 +3,11 @@ import AdminHeader from './AdminHeader.tsx';
 import AdminSidebar from './AdminSidebar.tsx';
 
 const AdminLayout: React.FC<{ children: React.ReactNode }> = ({ children }) => {
+
     const [isSidebarOpen, setIsSidebarOpen] = useState(false);
 
     return (
-        <div className="flex flex-col h-screen overflow-hidden">
+        <div className="admin-theme flex flex-col h-screen overflow-hidden">
             <AdminHeader onMenuClick={() => setIsSidebarOpen(!isSidebarOpen)} />
             <div className="flex flex-1 overflow-hidden relative">
                 <AdminSidebar

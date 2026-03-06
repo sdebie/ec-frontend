@@ -1,6 +1,7 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import Icon from '@/components/shared/icon/Icon.tsx';
+import AdminThemeModeToggle from "@/theme/admin/AdminThemeModeToggle.tsx";
 
 interface AdminHeaderProps {
     onMenuClick?: () => void;
@@ -38,7 +39,7 @@ const AdminHeader: React.FC<AdminHeaderProps> = ({ onMenuClick }) => {
     const isAuthenticated = true;
 
     return (
-        <header className="w-full bg-slate-800 text-white border-b border-slate-700 relative z-50">
+        <header className="w-full bg-white text-slate-900 border-b border-slate-200 dark:bg-slate-800 dark:text-white dark:border-slate-700 relative z-50">
             <div className="px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
                 <div className="flex items-center gap-4 md:gap-6">
                     <button
@@ -59,6 +60,7 @@ const AdminHeader: React.FC<AdminHeaderProps> = ({ onMenuClick }) => {
                     >
                         View Store
                     </button>
+                    <AdminThemeModeToggle />
 
                     {isAuthenticated ? (
                         <div className="relative" ref={staffMenuRef}>

@@ -1,30 +1,31 @@
-@import "tailwindcss";
-@tailwind utilities;
+@import 'tailwindcss';
+@custom-variant dark (&:where(.dark, .dark *));
 
-@layer base {
-    :root {
-        /* These HSL values can be changed dynamically per installation */
-        --primary: 222.2 47.4% 11.2%;
-        --primary-foreground: 210 40% 98%;
-        --secondary: 210 40% 96.1%;
-        --background: 0 0% 100%;
-        --foreground: 222.2 84% 4.9%;
-        --border: 214.3 31.8% 91.4%;
-    }
+@theme {
+    --color-primary: #2a85ff;
+    --color-primary-deep: #0069f6;
+    --color-primary-mild: #4996ff;
+    --color-primary-subtle: #2a85ff1a;
+    --color-error: #ff6a55;
+    --color-success: #10b981;
+    --color-warning: #f59e0b;
+    --color-neutral: #ffffff;
 
-    .dark {
-        --background: 222.2 84% 4.9%;
-        --foreground: 210 40% 98%;
-        --primary: 210 40% 98%;
-        --primary-foreground: 222.2 47.4% 11.2%;
-        --secondary: 217.2 32.6% 17.5%;
-        --border: 217.2 32.6% 17.5%;
-    }
+    --color-slate-50: #f8fafc;
+    --color-slate-100: #f1f5f9;
+    --color-slate-200: #e2e8f0;
+    --color-slate-300: #cbd5e1;
+    --color-slate-400: #94a3b8;
+    --color-slate-500: #64748b;
+    --color-slate-600: #475569;
+    --color-slate-700: #334155;
+    --color-slate-800: #1e293b;
+    --color-slate-900: #0f172a;
+    --color-slate-950: #020617;
 }
 
-@layer components {
-    /* Standard for Admin Containers */
-    .admin-container {
-        @apply max-w-400 mx-auto p-4 md:p-8 w-full;
+@layer base {
+    body {
+        -webkit-font-smoothing: antialiased;
     }
 }
