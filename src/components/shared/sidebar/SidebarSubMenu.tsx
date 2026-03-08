@@ -1,7 +1,7 @@
 import {useMemo, useState} from 'react';
 import {matchPath, useLocation} from 'react-router-dom';
 import type {Route} from '@/@types/routes.tsx';
-import {SidebarItem} from './SidebarItem';
+import {SidebarItem} from '@/components';
 import {SidebarItemContent} from './SidebarItemContent';
 import {cn} from '@/utils/cn.ts';
 import {hasRequiredAuthority} from '@/utils/authorizationHelper.ts';
