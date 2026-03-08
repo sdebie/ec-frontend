@@ -1,36 +1,21 @@
-import React, { useState, useRef, useEffect } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
-import Icon from '@/components/shared/icon/Icon.tsx';
-import AdminThemeModeToggle from "@/theme/admin/AdminThemeModeToggle.tsx";
+import {Link, useNavigate} from 'react-router-dom';
+import AdminThemeToggle from "@/components/layout/admin/AdminThemeToggle.tsx";
+import {Menu, MenuItem, MenuLabel, MenuList, MenuSection, MenuSeparator, MenuTrigger} from "@/components";
+import React from "react";
+import {Menu as MenuIcon} from "lucide-react";
 
 interface AdminHeaderProps {
     onMenuClick?: () => void;
 }
 
-const AdminHeader: React.FC<AdminHeaderProps> = ({ onMenuClick }) => {
+const AdminHeader: React.FC<AdminHeaderProps> = ({onMenuClick}) => {
+
     const navigate = useNavigate();
-    const [showStaffMenu, setShowStaffMenu] = useState(false);
-    const staffMenuRef = useRef<HTMLDivElement>(null);
-
-    // Close the staff menu if a click occurs outside of it
-    useEffect(() => {
-        const handleClickOutside = (event: MouseEvent) => {
-            if (staffMenuRef.current && !staffMenuRef.current.contains(event.target as Node)) {
-                setShowStaffMenu(false);
-            }
-        };
-
-        document.addEventListener('mousedown', handleClickOutside);
-        return () => {
-            document.removeEventListener('mousedown', handleClickOutside);
-        };
-    }, []);
 
     const handleLogout = () => {
         // Basic logout logic, can be expanded
         localStorage.removeItem('admin_token');
         localStorage.removeItem('admin_user');
-        setShowStaffMenu(false);
         window.location.href = '/admin/login';
         console.log('User logged out...');
     };
@@ -39,52 +24,67 @@ const AdminHeader: React.FC<AdminHeaderProps> = ({ onMenuClick }) => {
     const isAuthenticated = true;
 
     return (
-        <header className="w-full bg-white text-slate-900 border-b border-slate-200 dark:bg-slate-800 dark:text-white dark:border-slate-700 relative z-50">
-            <div className="px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
-                <div className="flex items-center gap-4 md:gap-6">
+        <header
+            className="fixed top-0 z-50 w-full bg-admin-header-bg border-b border-admin-border backdrop-blur-sm bg-opacity-90">
+            <div className="flex z-50 px-4 py-3 justify-between items-center w-full">
+                <div className="flex items-center justify-start gap-4">
                     <button
-                        className="md:hidden p-2 -ml-2 text-slate-300 hover:text-white"
+                        type="button"
                         onClick={onMenuClick}
-                        aria-label="Toggle menu"
+                        className="md:hidden p-2 text-admin-text-muted hover:text-admin-text hover:bg-admin-sidebar-hover rounded-lg transition-colors"
                     >
-                        <Icon name="menu" className="w-6 h-6" />
+                        <span className="sr-only">Open sidebar</span>
+                        <MenuIcon className="w-6 h-6"/>
                     </button>
-                    <Link to="/admin" className="text-lg font-bold hover:text-blue-400">
-                        E-Comm Admin
+
+                    <Link to="/admin" className="flex items-center ms-2 md:me-24 gap-2 text-primary group">
+                        <span
+                            className="self-center text-xl font-bold sm:text-2xl whitespace-nowrap text-admin-text tracking-tight">
+                            E-Comm Admin
+                        </span>
                     </Link>
                 </div>
+
                 <div className="flex items-center gap-4">
-                    <button
-                        onClick={() => navigate('/')}
-                        className="text-xs bg-slate-700 hover:bg-slate-600 px-3 py-1 rounded"
+                    <AdminThemeToggle/>
+                    <div className="h-8 w-px bg-admin-border hidden md:block"></div>
+                    <a href='/'
+                       className="hidden md:flex items-center gap-2 text-sm font-medium text-admin-text hover:text-primary transition-colors"
                     >
-                        View Store
-                    </button>
-                    <AdminThemeModeToggle />
+                        <span
+                            className="bg-admin-sidebar-hover text-admin-text-muted px-2.5 py-1.5 rounded-md border border-admin-border hover:border-primary/30 transition-colors"
+                        >
+                            View Store
+                        </span>
+                    </a>
 
                     {isAuthenticated ? (
-                        <div className="relative" ref={staffMenuRef}>
-                            <div
-                                className="cursor-pointer"
-                                title="Staff Profile"
-                                onClick={() => setShowStaffMenu(!showStaffMenu)}
-                            >
-                                <div className="w-8 h-8 rounded-full bg-blue-500 flex items-center justify-center font-bold">
-                                    A
-                                </div>
-                            </div>
-
-                            {showStaffMenu && (
-                                <div className="absolute right-0 mt-2 w-48 bg-white rounded-md shadow-lg py-1 ring-1 ring-black ring-opacity-5 focus:outline-none z-50">
-                                    <button
-                                        onClick={handleLogout}
-                                        className="block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
-                                    >
-                                        Log Out
-                                    </button>
-                                </div>
-                            )}
-                        </div>
+                        <Menu>
+                            <MenuTrigger asChild>
+                                <button
+                                    type="button"
+                                    className="cursor-pointer"
+                                    title="Staff Profile"
+                                >
+                                    <div
+                                        className="flex items-center justify-center w-9 h-9 rounded-full bg-linear-to-tr from-primary to-primary-subtle text-white font-bold text-sm shadow-md ring-2 ring-admin-panel cursor-pointer">
+                                        A
+                                    </div>
+                                </button>
+                            </MenuTrigger>
+                            <MenuList position="bottom-right">
+                                <MenuSection>
+                                    <MenuLabel>Account</MenuLabel>
+                                    <MenuItem onClick={() => navigate('/admin/profile')}>
+                                        View Profile
+                                    </MenuItem>
+                                </MenuSection>
+                                <MenuSeparator/>
+                                <MenuItem onClick={handleLogout}>
+                                    Log Out
+                                </MenuItem>
+                            </MenuList>
+                        </Menu>
                     ) : (
                         <Link to="/admin/login" className="text-sm hover:text-blue-400">
                             Log In

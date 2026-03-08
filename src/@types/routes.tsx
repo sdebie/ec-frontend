@@ -12,9 +12,10 @@ export interface Meta {
     pageBackgroundType?: 'default' | 'plain'
     header?: PageHeaderProps
     footer?: boolean
-    label?: string
+    label: string
     icon?: string | ReactNode
     hideInMenu?: boolean
+    section?: string;
 }
 
 export type Route = {
@@ -22,7 +23,7 @@ export type Route = {
     path: string
     component: LazyExoticComponent<<T extends Meta>(props: T) => JSX.Element>
     authority: string[]
-    meta?: Meta
+    meta: Meta
     subMenu?: Route[]
 }
 

@@ -3,7 +3,7 @@ import {hasRequiredAuthority} from '@/utils/authorizationHelper';
 import AdminLayout from '@/pages/admin/layout/AdminLayout.tsx';
 import PageHeader from '@/pages/shop/PageHeader';
 import FloatingSection from '@/pages/shop/FloatingSection';
-import {AdminThemeProvider} from "@/theme/admin/AdminThemeProvider.tsx";
+import {AdminThemeProvider} from "@/context/AdminThemeContext";
 
 interface RouteGuardProps {
     route: any;
