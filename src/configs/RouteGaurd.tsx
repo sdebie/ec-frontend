@@ -1,6 +1,6 @@
 import {Navigate} from 'react-router-dom';
 import {hasRequiredAuthority} from '@/utils/authorizationHelper';
-import AdminLayout from '@/pages/admin/layout/AdminLayout.tsx';
+import AdminLayout from '@/components/layout/admin/AdminLayout.tsx';
 import PageHeader from '@/pages/shop/PageHeader';
 import FloatingSection from '@/pages/shop/FloatingSection';
 import {AdminThemeProvider} from "@/context/AdminThemeContext";

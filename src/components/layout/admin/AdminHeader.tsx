@@ -25,8 +25,8 @@ const AdminHeader: React.FC<AdminHeaderProps> = ({onMenuClick}) => {
 
     return (
         <header
-            className="fixed top-0 z-50 w-full bg-admin-header-bg border-b border-admin-border backdrop-blur-sm bg-opacity-90">
-            <div className="flex z-50 px-4 py-3 justify-between items-center w-full">
+            className="fixed top-0 z-60 w-full bg-admin-header-bg border-b border-admin-border backdrop-blur-sm bg-opacity-90">
+            <div className="flex px-4 py-3 justify-between items-center w-full">
                 <div className="flex items-center justify-start gap-4">
                     <button
                         type="button"
@@ -48,7 +48,7 @@ const AdminHeader: React.FC<AdminHeaderProps> = ({onMenuClick}) => {
                 <div className="flex items-center gap-4">
                     <AdminThemeToggle/>
                     <div className="h-8 w-px bg-admin-border hidden md:block"></div>
-                    <a href='/'
+                    <a href='/ec-frontend/public'
                        className="hidden md:flex items-center gap-2 text-sm font-medium text-admin-text hover:text-primary transition-colors"
                     >
                         <span

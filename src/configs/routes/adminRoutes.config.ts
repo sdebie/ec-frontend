@@ -1,38 +1,41 @@
-import {Routes} from "../../@types/routes";
-import {lazy} from "react";
+import { lazy } from 'react'
+import type { Routes } from '../../@types/routes'
 
 export const adminRoutes: Routes = [
     {
         key: 'admin.login',
-        path: `/admin/login`,
+        path: '/admin/login',
         component: lazy(() => import('../../pages/admin/AdminLogin.tsx')),
         authority: [],
         meta: {
             label: 'Logon',
             pageBackgroundType: 'plain',
             pageContainerType: 'contained',
-            icon: 'layout-dashboard',
+            hideInMenu: true,
         },
     },
     {
         key: 'admin.dashboard',
-        path: `/admin`,
+        path: '/admin',
         component: lazy(() => import('../../pages/admin/Dashboard.tsx')),
         authority: ['SUPER_ADMIN', 'VIEWER'],
         meta: {
             label: 'Dashboard',
+            section: 'MAIN',
             pageBackgroundType: 'plain',
             pageContainerType: 'contained',
             icon: 'layout-dashboard',
+            menuMatch: 'exact',
         },
     },
     {
         key: 'admin.products',
-        path: `/admin/products`,
+        path: '/admin/products',
         component: lazy(() => import('../../pages/shared/ToDoView.tsx')),
         authority: ['SUPER_ADMIN', 'VIEWER'],
         meta: {
             label: 'Products',
+            section: 'PRODUCT MANAGEMENT',
             pageBackgroundType: 'plain',
             pageContainerType: 'contained',
             icon: 'package',
@@ -40,7 +43,7 @@ export const adminRoutes: Routes = [
         subMenu: [
             {
                 key: 'admin.products.brands',
-                path: `/admin/products/brands`,
+                path: '/admin/products/brands',
                 component: lazy(() => import('../../pages/admin/brands/BrandList.tsx')),
                 authority: ['SUPER_ADMIN'],
                 meta: {
@@ -51,7 +54,7 @@ export const adminRoutes: Routes = [
             },
             {
                 key: 'admin.products.categories',
-                path: `/admin/products/categories`,
+                path: '/admin/products/categories',
                 component: lazy(() => import('../../pages/admin/categories/CategoryList.tsx')),
                 authority: ['SUPER_ADMIN'],
                 meta: {
@@ -62,7 +65,7 @@ export const adminRoutes: Routes = [
             },
             {
                 key: 'admin.products.list',
-                path: `/admin/products/list`,
+                path: '/admin/products/list',
                 component: lazy(() => import('../../pages/admin/products/ProductList.tsx')),
                 authority: ['SUPER_ADMIN'],
                 meta: {
@@ -71,30 +74,19 @@ export const adminRoutes: Routes = [
                     pageContainerType: 'contained',
                 },
             },
-        ]
+        ],
     },
     {
-        key: 'admin.orders',
-        path: `/admin/orders`,
-        component: lazy(() => import('../../pages/shared/ToDoView.tsx')), // Placeholder
+        key: 'admin.settings',
+        path: '/admin/settings',
+        component: lazy(() => import('../../pages/shared/ToDoView.tsx')),
         authority: ['SUPER_ADMIN'],
         meta: {
-            label: 'Orders',
+            label: 'Settings',
+            section: 'PRODUCT MANAGEMENT',
             pageBackgroundType: 'plain',
             pageContainerType: 'contained',
-            icon: 'shopping-bag',
+            icon: 'settings',
         },
     },
-    {
-        key: 'admin.customers',
-        path: `/admin/customers`,
-        component: lazy(() => import('../../pages/shared/ToDoView.tsx')), // Placeholder
-        authority: ['SUPER_ADMIN'],
-        meta: {
-            label: 'Customers',
-            pageBackgroundType: 'plain',
-            pageContainerType: 'contained',
-            icon: 'users',
-        },
-    }
 ]
