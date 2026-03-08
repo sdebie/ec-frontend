@@ -1,6 +1,13 @@
 export {Button} from './shared/button';
+export {DataTable} from './shared/datatable';
+export {Dialog, DialogHeader, DialogContent, DialogFooter} from './shared/dialog';
+export {Drawer, DrawerHeader, DrawerContent, DrawerFooter} from './shared/drawer';
+export {DropdownMenu, DropdownItem} from './shared/dropdownmenu';
+export {Icon, CartIcon} from './shared/icon';
+export {ImageUpload, ProductImage} from './shared/imageupload';
 export {Input} from './shared/input';
 export {Label} from './shared/label';
 export {Menu, MenuTrigger, MenuList, MenuItem, MenuSeparator, MenuLabel, MenuSection} from './shared/menu';
 export {Select} from './shared/select';
 export {SidebarSection, SidebarItem} from './shared/sidebar';
+export {Textarea} from './shared/textarea';
