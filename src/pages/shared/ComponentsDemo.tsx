@@ -139,13 +139,13 @@ const ComponentsDemo = () => {
 
                 {/* Data Table */}
                 <section className="space-y-4">
-                    <h2 className="text-xl font-semibold text-admin-text border-b border-admin-border pb-2">Data
-                        Table</h2>
+                    <h2 className="text-xl font-semibold text-admin-text border-b border-admin-border pb-2">
+                        Data Table
+                    </h2>
                     <DataTable
                         columns={columns}
                         data={data}
-                        pageSize={5}
-                        sortable
+                        initialPageSize={3}
                     />
                 </section>
 

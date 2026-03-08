@@ -156,7 +156,7 @@ export function DataTable<T>({
                                                         <span
                                                             className="inline-flex text-admin-text-muted/50 group-hover:text-admin-text-muted transition-colors">
                                                                 {renderSortIcon(sorted)}
-                                                            </span>
+                                                        </span>
                                                     )}
                                                 </div>
                                             )}
