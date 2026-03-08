@@ -6,6 +6,14 @@ import dynamicImport from 'vite-plugin-dynamic-import'
 export default defineConfig({
   plugins: [react(), dynamicImport()],
   assetsInclude: ['**/*.md'],
+  optimizeDeps: {
+    include: [
+      'react-hook-form',
+      'zod',
+      '@hookform/resolvers',
+      '@hookform/resolvers/zod'
+    ]
+  },
   resolve: {
     alias: {
       '@': path.join(__dirname, 'src'),

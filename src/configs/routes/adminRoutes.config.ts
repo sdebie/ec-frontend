@@ -92,7 +92,7 @@ export const adminRoutes: Routes = [
     {
         key: 'admin.component-demo',
         path: '/admin/component-demo',
-        component: lazy(() => import('../../pages/shared/ComponentsDemo.tsx')),
+        component: lazy(() => import('../../pages/shared/demo/ComponentsDemo.tsx')),
         authority: ['SUPER_ADMIN'],
         meta: {
             label: 'Component Demo',

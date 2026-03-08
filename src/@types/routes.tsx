@@ -12,7 +12,7 @@ export interface Meta {
     pageBackgroundType?: 'default' | 'plain'
     header?: PageHeaderProps
     footer?: boolean
-    label: string
+    label?: string
     icon?: string | ReactNode
     hideInMenu?: boolean
     section?: string

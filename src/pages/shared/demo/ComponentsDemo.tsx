@@ -1,10 +1,22 @@
 import * as React from 'react';
 import {Search, Mail, User, MoreVertical, Plus} from 'lucide-react';
-import {Button, Input, Menu, MenuItem, MenuList, MenuSection, MenuSeparator, MenuTrigger, Select} from "@/components";
+import {
+    AdaptiveCard,
+    Button,
+    Input,
+    Menu,
+    MenuItem,
+    MenuList,
+    MenuSection,
+    MenuSeparator,
+    MenuTrigger,
+    Select
+} from "@/components";
 import {PageContainer} from "@/components/layout/shared/PageContainer.tsx";
 import {Dialog, DialogContent, DialogFooter, DialogHeader} from "@/components/shared/dialog/Dialog.tsx";
-import {Drawer, DrawerContent, DrawerFooter, DrawerHeader} from "@/components/shared/drawer/Drawer";
+import {Drawer, DrawerContent, DrawerFooter, DrawerHeader} from "@/components/shared/drawer/Drawer.tsx";
 import {DataTable} from "@/components/shared/datatable/DataTable.tsx";
+import MixedFormControls from "@/pages/shared/demo/MixedFormControls.tsx";
 
 const ComponentsDemo = () => {
     const [isDialogOpen, setIsDialogOpen] = React.useState(false);
@@ -91,51 +103,53 @@ const ComponentsDemo = () => {
                 </section>
 
                 {/* Form Inputs & Select */}
-                <section className="space-y-4">
-                    <h2 className="text-xl font-semibold text-admin-text border-b border-admin-border pb-2">Form
-                        Elements</h2>
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-                        <div className="space-y-4">
-                            <Input
-                                label="Email Address"
-                                placeholder="Enter your email"
-                                leftIcon={<Mail className="w-4 h-4"/>}
-                                required
-                            />
-                            <Input
-                                label="Username"
-                                placeholder="Choose a username"
-                                leftIcon={<User className="w-4 h-4"/>}
-                                helperText="Must be unique across the system."
-                            />
-                            <Input
-                                label="Password"
-                                type="password"
-                                error="Password must be at least 8 characters."
-                            />
+                <AdaptiveCard>
+                    <section className="space-y-4">
+                        <h2 className="text-xl font-semibold text-admin-text border-b border-admin-border pb-2">Form
+                            Elements</h2>
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+                            <div className="space-y-4">
+                                <Input
+                                    label="Email Address"
+                                    placeholder="Enter your email"
+                                    leftIcon={<Mail className="w-4 h-4"/>}
+                                    required
+                                />
+                                <Input
+                                    label="Username"
+                                    placeholder="Choose a username"
+                                    leftIcon={<User className="w-4 h-4"/>}
+                                    helperText="Must be unique across the system."
+                                />
+                                <Input
+                                    label="Password"
+                                    type="password"
+                                    error="Password must be at least 8 characters."
+                                />
+                            </div>
+                            <div className="space-y-4">
+                                <Select
+                                    label="User Role"
+                                    required
+                                    options={[
+                                        {value: 'admin', label: 'Administrator'},
+                                        {value: 'editor', label: 'Editor'},
+                                        {value: 'viewer', label: 'Viewer'},
+                                        {value: 'banned', label: 'Banned User', disabled: true},
+                                    ]}
+                                />
+                                <Select
+                                    label="Status"
+                                    helperText="Select the initial state of the dataset."
+                                    options={[
+                                        {value: 'active', label: 'Active'},
+                                        {value: 'inactive', label: 'Inactive'},
+                                    ]}
+                                />
+                            </div>
                         </div>
-                        <div className="space-y-4">
-                            <Select
-                                label="User Role"
-                                required
-                                options={[
-                                    {value: 'admin', label: 'Administrator'},
-                                    {value: 'editor', label: 'Editor'},
-                                    {value: 'viewer', label: 'Viewer'},
-                                    {value: 'banned', label: 'Banned User', disabled: true},
-                                ]}
-                            />
-                            <Select
-                                label="Status"
-                                helperText="Select the initial state of the dataset."
-                                options={[
-                                    {value: 'active', label: 'Active'},
-                                    {value: 'inactive', label: 'Inactive'},
-                                ]}
-                            />
-                        </div>
-                    </div>
-                </section>
+                    </section>
+                </AdaptiveCard>
 
                 {/* Data Table */}
                 <section className="space-y-4">
@@ -147,6 +161,11 @@ const ComponentsDemo = () => {
                         data={data}
                         initialPageSize={3}
                     />
+                </section>
+
+                {/* Mixed Form Controls */}
+                <section className="space-y-4">
+                    <MixedFormControls/>
                 </section>
 
                 {/* Menu, Dialog, Drawer Triggers */}
