@@ -79,14 +79,27 @@ export const adminRoutes: Routes = [
     {
         key: 'admin.settings',
         path: '/admin/settings',
-        component: lazy(() => import('../../pages/shared/ToDoView.tsx')),
+        component: lazy(() => import('../../pages/admin/Settings.tsx')),
         authority: ['SUPER_ADMIN'],
         meta: {
             label: 'Settings',
-            section: 'PRODUCT MANAGEMENT',
+            section: 'CONFIGURATION',
             pageBackgroundType: 'plain',
             pageContainerType: 'contained',
             icon: 'settings',
+        },
+    },
+    {
+        key: 'admin.component-demo',
+        path: '/admin/component-demo',
+        component: lazy(() => import('../../pages/shared/ComponentsDemo.tsx')),
+        authority: ['SUPER_ADMIN'],
+        meta: {
+            label: 'Component Demo',
+            section: 'CONFIGURATION',
+            pageBackgroundType: 'plain',
+            pageContainerType: 'contained',
+            icon: 'component',
         },
     },
 ]

@@ -1,51 +1,67 @@
-import * as React from "react";
-import {clsx} from 'clsx';
+import * as React from 'react';
+import {cn} from '@/utils/cn.ts';
+import {Loader2} from 'lucide-react';
 
-type Variant = "primary" | "secondary" | "danger" | "ghost";
-type Size = "sm" | "md" | "lg";
-
-const variants: Record<Variant, string> = {
-    primary: "bg-slate-900 text-white hover:bg-slate-800 focus-visible:ring-slate-900",
-    secondary: "bg-white text-slate-900 border border-slate-200 hover:bg-slate-50 focus-visible:ring-slate-900",
-    danger: "bg-red-600 text-white hover:bg-red-700 focus-visible:ring-red-600",
-    ghost: "bg-transparent text-slate-900 hover:bg-slate-100 focus-visible:ring-slate-900",
-};
-
-const sizes: Record<Size, string> = {
-    sm: "h-8 px-3 text-sm",
-    md: "h-10 px-4 text-sm",
-    lg: "h-11 px-5 text-base",
-};
-
-export type ButtonProps = React.ButtonHTMLAttributes<HTMLButtonElement> & {
-    variant?: Variant;
-    size?: Size;
-    isLoading?: boolean;
-};
+export interface ButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
+    variant?: 'solid' | 'ghost' | 'plain';
+    size?: 'sm' | 'md' | 'lg';
+    loading?: boolean;
+    leftIcon?: React.ReactNode;
+    rightIcon?: React.ReactNode;
+    fullWidth?: boolean;
+}
 
 export const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
-    ({className, variant = "primary", size = "md", isLoading, disabled, children, ...props}, ref) => {
+    (
+        {
+            className,
+            variant = 'solid',
+            size = 'md',
+            loading = false,
+            disabled,
+            leftIcon,
+            rightIcon,
+            fullWidth,
+            children,
+            ...props
+        },
+        ref
+    ) => {
+        const baseStyles =
+            'inline-flex items-center justify-center rounded-md font-medium transition-colors focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-1 focus:ring-offset-admin-bg disabled:opacity-50 disabled:pointer-events-none';
+
+        const variants = {
+            solid: 'bg-primary text-white hover:bg-primary-hover shadow-sm',
+            ghost: 'text-admin-text hover:bg-admin-bg hover:text-primary',
+            plain: 'text-admin-text-muted hover:text-admin-text bg-transparent underline-offset-4 hover:underline',
+        };
+
+        const sizes = {
+            sm: 'h-8 px-3 text-xs',
+            md: 'h-10 px-4 py-2 text-sm',
+            lg: 'h-12 px-6 py-3 text-base',
+        };
+
         return (
             <button
                 ref={ref}
-                disabled={disabled || isLoading}
-                className={clsx(
-                    "inline-flex items-center justify-center gap-2 rounded-lg font-medium transition focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 disabled:opacity-50 disabled:pointer-events-none",
+                disabled={disabled || loading}
+                className={cn(
+                    baseStyles,
                     variants[variant],
                     sizes[size],
+                    fullWidth ? 'w-full' : '',
                     className
                 )}
                 {...props}
             >
-                {isLoading && (
-                    <span
-                        className="inline-block h-4 w-4 animate-spin rounded-full border-2 border-white/30 border-t-white"
-                        aria-hidden="true"
-                    />
-                )}
+                {loading && <Loader2 className="mr-2 h-4 w-4 animate-spin"/>}
+                {!loading && leftIcon && <span className="mr-2 inline-flex">{leftIcon}</span>}
                 {children}
+                {!loading && rightIcon && <span className="ml-2 inline-flex">{rightIcon}</span>}
             </button>
         );
     }
 );
-Button.displayName = "Button";
+
+Button.displayName = 'Button';

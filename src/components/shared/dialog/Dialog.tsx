@@ -1,80 +1,127 @@
-import * as React from "react";
-import {createPortal} from "react-dom";
-import {clsx} from 'clsx';
-import {Button} from "@/components/shared/button/Button.tsx";
+import * as React from 'react';
+import { cn } from '../../../utils/cn';
+import { X } from 'lucide-react';
 
-type DialogProps = {
-    open: boolean;
-    onOpenChange: (open: boolean) => void;
-    title?: string;
-    description?: string;
-    children: React.ReactNode;
-    footer?: React.ReactNode;
-    size?: "sm" | "md" | "lg";
-};
+interface DialogContextValue {
+  onClose: () => void;
+}
 
-const sizes = {
-    sm: "max-w-md",
-    md: "max-w-xl",
-    lg: "max-w-3xl",
-};
+const DialogContext = React.createContext<DialogContextValue | null>(null);
 
-export function Dialog({
-                           open,
-                           onOpenChange,
-                           title,
-                           description,
-                           children,
-                           footer,
-                           size = "md",
-                       }: DialogProps) {
-    React.useEffect(() => {
-        function onKeyDown(e: KeyboardEvent) {
-            if (e.key === "Escape") onOpenChange(false);
-        }
+function useDialog() {
+  const context = React.useContext(DialogContext);
+  if (!context) throw new Error('Dialog components must be used within a Dialog');
+  return context;
+}
 
-        if (open) document.addEventListener("keydown", onKeyDown);
-        return () => document.removeEventListener("keydown", onKeyDown);
-    }, [open, onOpenChange]);
+export interface DialogProps {
+  open: boolean;
+  onClose: () => void;
+  children: React.ReactNode;
+  size?: 'sm' | 'md' | 'lg' | 'xl' | 'full';
+  className?: string;
+}
 
-    if (!open) return null;
+export function Dialog({ open, onClose, children, size = 'md', className }: DialogProps) {
+  React.useEffect(() => {
+    function handleKeyDown(e: KeyboardEvent) {
+      if (e.key === 'Escape') onClose();
+    }
+    if (open) {
+      document.addEventListener('keydown', handleKeyDown);
+      document.body.style.overflow = 'hidden';
+    } else {
+      document.body.style.overflow = '';
+    }
+    return () => {
+      document.removeEventListener('keydown', handleKeyDown);
+      document.body.style.overflow = '';
+    };
+  }, [open, onClose]);
 
-    return createPortal(
-        <div className="fixed inset-0 z-50">
-            <div
-                className="absolute inset-0 bg-black/40"
-                onMouseDown={() => onOpenChange(false)}
-                aria-hidden="true"
-            />
-            <div className="absolute inset-0 flex items-center justify-center p-4">
-                <div
-                    role="dialog"
-                    aria-modal="true"
-                    className={clsx(
-                        "w-full rounded-xl bg-white shadow-lg border border-slate-200",
-                        sizes[size]
-                    )}
-                    onMouseDown={(e) => e.stopPropagation()}
-                >
-                    {(title || description) && (
-                        <div className="px-5 pt-5">
-                            {title && <h2 className="text-base font-semibold text-slate-900">{title}</h2>}
-                            {description && <p className="mt-1 text-sm text-slate-600">{description}</p>}
-                        </div>
-                    )}
-                    <div className="px-5 py-4">{children}</div>
-                    <div className="px-5 pb-5 flex items-center justify-end gap-2">
-                        {footer ?? (
-                            <>
-                                <Button variant="secondary" onClick={() => onOpenChange(false)}>
-                                    Cancel
-                                </Button>
-                            </>
-                        )}
-                    </div>
-                </div>
-            </div>
-        </div>,
-        document.body
-    );
+  if (!open) return null;
+
+  const sizes = {
+    sm: 'max-w-md',
+    md: 'max-w-lg',
+    lg: 'max-w-2xl',
+    xl: 'max-w-4xl',
+    full: 'max-w-[calc(100vw-2rem)] h-[calc(100vh-2rem)]',
+  };
+
+  return (
+    <DialogContext.Provider value={{ onClose }}>
+      {/* Overlay */}
+      <div 
+        className="fixed inset-0 z-50 bg-[#00000080] backdrop-blur-sm transition-opacity" 
+        aria-hidden="true" 
+        onClick={onClose} 
+      />
+
+      {/* Container */}
+      <div className="fixed inset-0 z-50 flex items-center justify-center p-4 pointer-events-none">
+        <div 
+          role="dialog" 
+          aria-modal="true" 
+          className={cn(
+            'flex flex-col w-full bg-admin-panel border border-admin-border rounded-xl shadow-2xl pointer-events-auto overflow-hidden animate-in fade-in zoom-in-95 duration-200',
+            sizes[size],
+            className
+          )}
+          onClick={(e) => e.stopPropagation()}
+        >
+          {children}
+        </div>
+      </div>
+    </DialogContext.Provider>
+  );
+}
+
+export function DialogHeader({
+  title,
+  description,
+  className,
+}: {
+  title: React.ReactNode;
+  description?: React.ReactNode;
+  className?: string;
+}) {
+  const { onClose } = useDialog();
+
+  return (
+    <div className={cn('flex flex-col space-y-1.5 p-6 border-b border-admin-border relative', className)}>
+      <div className="text-lg font-semibold leading-none tracking-tight text-admin-text pr-8">
+        {title}
+      </div>
+      {description && (
+        <div className="text-sm text-admin-text-muted">
+          {description}
+        </div>
+      )}
+      <button
+        type="button"
+        onClick={onClose}
+        className="absolute right-4 top-4 rounded-md p-2 opacity-70 transition-opacity hover:opacity-100 hover:bg-admin-sidebar-hover text-admin-text focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-1 focus:ring-offset-admin-panel"
+      >
+        <span className="sr-only">Close</span>
+        <X className="h-4 w-4" />
+      </button>
+    </div>
+  );
+}
+
+export function DialogContent({ className, children }: { className?: string; children: React.ReactNode }) {
+  return (
+    <div className={cn('p-6 overflow-y-auto flex-1', className)}>
+      {children}
+    </div>
+  );
+}
+
+export function DialogFooter({ className, children }: { className?: string; children: React.ReactNode }) {
+  return (
+    <div className={cn('flex items-center justify-end space-x-2 p-6 border-t border-admin-border bg-admin-sidebar-bg', className)}>
+      {children}
+    </div>
+  );
 }

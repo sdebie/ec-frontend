@@ -31,8 +31,10 @@ export function SidebarItem({route, isChild, isCollapsed, setCollapsed, onItemCl
                 isChild && !isCollapsed && 'pl-4 relative z-10',
                 isActive
                     ? isChild
-                        ? 'bg-admin-sidebar-hover text-primary font-bold'
-                        : 'bg-admin-sidebar-active text-primary font-bold'
+                        ? 'border-primary bg-primary-subtle ring-1 ring-primary text-primary font-bold'
+                        // ? 'bg-primary-subtle text-primary font-bold'
+                        : 'border-primary bg-primary-subtle ring-1 ring-primary text-primary font-bold'
+                    // : 'bg-primary-subtle text-primary font-bold'
                     : 'text-admin-text-muted hover:bg-admin-sidebar-hover hover:text-admin-text'
             )}
         >

@@ -1,51 +1,158 @@
-import * as React from "react";
-import {clsx} from 'clsx';
+import * as React from 'react';
+import {cn} from '@/utils/cn.ts';
+import {ChevronDown} from 'lucide-react';
+import {Label} from "@/components";
 
-export type SelectOption = { label: string; value: string };
+export interface SelectOption {
+    value: string;
+    label: string;
+    disabled?: boolean;
+}
 
-export type SelectProps = React.SelectHTMLAttributes<HTMLSelectElement> & {
-    label?: string;
-    hint?: string;
-    error?: string;
+export interface SelectProps {
     options: SelectOption[];
+    value?: string;
+    onChange?: (value: string) => void;
+    label?: string;
     placeholder?: string;
-};
+    helperText?: React.ReactNode;
+    error?: React.ReactNode;
+    disabled?: boolean;
+    required?: boolean;
+    className?: string;
+    fullWidth?: boolean;
+}
 
-export const Select = React.forwardRef<HTMLSelectElement, SelectProps>(
-    ({className, label, hint, error, options, placeholder, id, ...props}, ref) => {
-        const selectId = id ?? React.useId();
+export const Select = React.forwardRef<HTMLDivElement, SelectProps>(
+    (
+        {
+            options,
+            value,
+            onChange,
+            label,
+            placeholder = 'Select an option',
+            helperText,
+            error,
+            disabled,
+            required,
+            className,
+            fullWidth = true,
+            ...props
+        },
+        ref
+    ) => {
+        const [isOpen, setIsOpen] = React.useState(false);
+        const containerRef = React.useRef<HTMLDivElement>(null);
+        const generatedId = React.useId();
+        const hasError = !!error;
+
+        const selectedOption = React.useMemo(
+            () => options.find((opt) => opt.value === value),
+            [options, value]
+        );
+
+        // Click outside to close
+        React.useEffect(() => {
+            const handleOutsideClick = (event: MouseEvent) => {
+                if (containerRef.current && !containerRef.current.contains(event.target as Node)) {
+                    setIsOpen(false);
+                }
+            };
+
+            if (isOpen) {
+                document.addEventListener('mousedown', handleOutsideClick);
+            }
+            return () => document.removeEventListener('mousedown', handleOutsideClick);
+        }, [isOpen]);
+
+        // Keyboard support for escape
+        React.useEffect(() => {
+            const handleKeyDown = (event: KeyboardEvent) => {
+                if (event.key === 'Escape' && isOpen) {
+                    setIsOpen(false);
+                }
+            };
+            if (isOpen) {
+                document.addEventListener('keydown', handleKeyDown);
+            }
+            return () => document.removeEventListener('keydown', handleKeyDown);
+        }, [isOpen]);
+
+        const handleSelect = (option: SelectOption) => {
+            if (option.disabled) return;
+            onChange?.(option.value);
+            setIsOpen(false);
+        };
+
         return (
-            <div className="space-y-1.5">
+            <>
                 {label && (
-                    <label htmlFor={selectId} className="text-sm font-medium text-slate-700">
+                    <Label htmlFor={generatedId} required={required}>
                         {label}
-                    </label>
+                    </Label>
                 )}
-                <select
-                    ref={ref}
-                    id={selectId}
-                    className={clsx(
-                        "h-10 w-full rounded-lg border bg-white px-3 text-sm outline-none transition",
-                        "border-slate-200 focus:border-slate-400 focus:ring-2 focus:ring-slate-900/10",
-                        error && "border-red-300 focus:border-red-400 focus:ring-red-500/10",
-                        className
-                    )}
+                <div
+                    className={cn('relative', className)}
+                    ref={(node) => {
+                        containerRef.current = node;
+                        if (typeof ref === 'function') ref(node);
+                        else if (ref) ref.current = node;
+                    }}
                     {...props}
                 >
-                    {placeholder && <option value="">{placeholder}</option>}
-                    {options.map((o) => (
-                        <option key={o.value} value={o.value}>
-                            {o.label}
-                        </option>
-                    ))}
-                </select>
-                {error ? (
-                    <p className="text-xs text-red-600">{error}</p>
-                ) : hint ? (
-                    <p className="text-xs text-slate-500">{hint}</p>
-                ) : null}
-            </div>
+                    <button
+                        id={generatedId}
+                        type="button"
+                        disabled={disabled}
+                        onClick={() => !disabled && setIsOpen((prev) => !prev)}
+                        className={cn(
+                            'flex h-10 w-full items-center justify-between rounded-md border border-admin-border bg-admin-panel px-3 py-2 text-sm text-admin-text transition-colors',
+                            'focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent focus:ring-offset-1 focus:ring-offset-admin-bg',
+                            'disabled:cursor-not-allowed disabled:opacity-50 disabled:bg-admin-bg',
+                            hasError && 'border-red-500 focus:ring-red-500',
+                            !selectedOption && 'text-admin-text-muted'
+                        )}
+                        aria-haspopup="listbox"
+                        aria-expanded={isOpen}
+                    >
+            <span className="truncate">
+              {selectedOption ? selectedOption.label : placeholder}
+            </span>
+                        <ChevronDown className={cn("h-4 w-4 opacity-50 transition-transform", isOpen && "rotate-180")}/>
+                    </button>
+
+                    {isOpen && (
+                        <div
+                            className="absolute z-100 mt-1 max-h-60 w-full overflow-auto rounded-md border border-admin-border bg-admin-panel py-1 shadow-md text-sm">
+                            <ul role="listbox" className="outline-none">
+                                {options.map((option) => (
+                                    <li
+                                        key={option.value}
+                                        role="option"
+                                        aria-selected={value === option.value}
+                                        onClick={() => handleSelect(option)}
+                                        className={cn(
+                                            'relative flex w-full cursor-pointer select-none items-center py-2 px-3 outline-none',
+                                            option.disabled
+                                                ? 'opacity-50 cursor-not-allowed text-admin-text-muted'
+                                                : 'text-admin-text hover:bg-admin-sidebar-hover focus:bg-admin-sidebar-hover',
+                                            value === option.value && 'bg-primary-subtle text-primary font-medium'
+                                        )}
+                                    >
+                                        <span className="truncate block">{option.label}</span>
+                                    </li>
+                                ))}
+                                {options.length === 0 && (
+                                    <li className="py-2 px-3 text-admin-text-muted text-center cursor-default">
+                                        No options available
+                                    </li>
+                                )}
+                            </ul>
+                        </div>
+                    )}
+                </div>
+            </>
         );
     }
 );
-Select.displayName = "Select";
+Select.displayName = 'Select';

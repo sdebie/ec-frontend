@@ -49,7 +49,7 @@ export function SidebarSubMenu({route, isCollapsed, setCollapsed, onItemClick}: 
                     'w-full flex items-center rounded-md transition-colors duration-200 group text-left cursor-pointer text-sm',
                     'px-3 py-2.5',
                     isParentActive
-                        ? 'bg-admin-sidebar-active text-primary'
+                        ? 'text-primary bg-primary-subtle font-semibold'
                         : 'text-admin-text-muted hover:bg-admin-sidebar-hover hover:text-admin-text'
                 )}
                 title={isCollapsed ? route.meta.label : undefined}
