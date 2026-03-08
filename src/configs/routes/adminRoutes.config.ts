@@ -17,7 +17,7 @@ export const adminRoutes: Routes = [
     {
         key: 'admin.dashboard',
         path: '/admin',
-        component: lazy(() => import('../../pages/admin/Dashboard.tsx')),
+        component: lazy(() => import('../../pages/admin/dashboard/Dashboard.tsx')),
         authority: ['SUPER_ADMIN', 'VIEWER'],
         meta: {
             label: 'Dashboard',
@@ -79,7 +79,7 @@ export const adminRoutes: Routes = [
     {
         key: 'admin.settings',
         path: '/admin/settings',
-        component: lazy(() => import('../../pages/admin/Settings.tsx')),
+        component: lazy(() => import('../../pages/admin/settings/Settings.tsx')),
         authority: ['SUPER_ADMIN'],
         meta: {
             label: 'Settings',

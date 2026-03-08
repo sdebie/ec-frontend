@@ -5,7 +5,7 @@ interface AdminLoginProps {
     onLoginSuccess: () => void;
 }
 
-export const AdminLogin: React.FC<AdminLoginProps> = ({ onLoginSuccess }) => {
+const AdminLogin: React.FC<AdminLoginProps> = ({ onLoginSuccess }) => {
     const [credentials, setCredentials] = useState({ username: '', password: '' });
     const [error, setError] = useState('');
 
@@ -61,6 +61,6 @@ export const AdminLogin: React.FC<AdminLoginProps> = ({ onLoginSuccess }) => {
             </form>
         </div>
     );
-}
+};
 
 export default AdminLogin;
