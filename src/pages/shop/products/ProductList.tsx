@@ -66,29 +66,43 @@ const ProductList: React.FC<ProductListProps> = ({ activeCategory }) => {
                 <div className="text-sm text-gray-600 mb-3 line-clamp-3">{p.description}</div>
                 <div className="flex items-center justify-between gap-2">
                   <div>
-                    {p.salesPrice && p.salesPrice < (p.price || 0) ? (
+                    {p.retailSalesPrice && p.retailSalesPrice < (p.retailPrice || 0) ? (
                       <>
-                        <div className="text-lg font-bold text-green-600">{currency(p.salesPrice)}</div>
+                        <div className="text-lg font-bold text-green-600">{currency(p.retailSalesPrice)}</div>
                         <div className="text-sm text-gray-500 line-through">
-                          {currency(p.price)}
+                          {currency(p.retailPrice)}
                         </div>
                       </>
                     ) : (
-                      <div className="text-lg font-bold">{currency(p.price)}</div>
+                      <div className="text-lg font-bold">{currency(p.retailPrice)}</div>
                     )}
                   </div>
+                  <div>
+                    {p.wholesaleSalesPrice && p.wholesaleSalesPrice < (p.wholesalePrice || 0) ? (
+                        <>
+                          <div className="text-lg font-bold text-green-600">{currency(p.wholesaleSalesPrice)}</div>
+                          <div className="text-sm text-gray-500 line-through">
+                            {currency(p.wholesalePrice)}
+                          </div>
+                        </>
+                    ) : (
+                        <div className="text-lg font-bold">{currency(p.wholesalePrice)}</div>
+                    )}
+                  </div>
+                </div>
+                <div className="flex items-center justify-between gap-2">
                   <button
-                    onClick={() => {
-                      createOrder({
-                        items: [
-                          {
-                            quantity: 1,
-                            unitPrice: (p.salesPrice && p.salesPrice < (p.price || 0)) ? p.salesPrice : p.price || 0,
-                          },
-                        ],
-                      });
-                    }}
-                    className="px-3 py-1.5 bg-blue-600 text-white rounded hover:bg-blue-700 text-sm whitespace-nowrap"
+                      onClick={() => {
+                        createOrder({
+                          items: [
+                            {
+                              quantity: 1,
+                              unitPrice: (p.retailSalesPrice && p.retailPrice < (p.retailPrice || 0)) ? p.retailSalesPrice : p.retailPrice || 0,
+                            },
+                          ],
+                        });
+                      }}
+                      className="px-3 py-1.5 bg-blue-600 text-white rounded hover:bg-blue-700 text-sm whitespace-nowrap"
                   >
                     Add to Cart
                   </button>

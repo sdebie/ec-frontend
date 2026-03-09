@@ -34,7 +34,11 @@ export type VariantPrice = {
 export type VariantItem = {
   id: string;
   sku?: string | null;
-  prices?: VariantPrice[] | null;   // NEW: Multiple prices per variant
+  retailPrice?: number | null;
+  retailSalesPrice?: number | null;
+  wholesalePrice?: number | null;
+  wholesaleSalesPrice?: number | null;
+  variantPrices?: VariantPrice[] | null;   // NEW: Multiple prices per variant
   stockQuantity?: number | null;
   weightKg?: string | null;         // BigDecimal
   attributesJson?: string | null;
@@ -76,22 +80,26 @@ export async function fetchProducts(categoryName?: string | null): Promise<Produ
   return res.productList || [];
 }
 
-export async function fetchVariantsByIds(ids: string[], priceCategory: 'RETAIL' | 'WHOLESALE' = 'RETAIL'): Promise<VariantItem[]> {
+export async function fetchVariantsByIds(ids: string[]): Promise<VariantItem[]> {
   if (!ids || ids.length === 0) return [];
   const client = await GraphQLService.getGraphQLClient(graphQlEndpoint);
   const query = gql`
-    query VariantsByIds($ids: [String!]!, $priceCategory: String!) {
-      variantsByIds(ids: $ids, priceCategory: $priceCategory) {
+    query VariantsByIds($ids: [String!]!) {
+      variantsByIds(ids: $ids) {
         id
         sku
-        prices {
-          id
-          priceType
-          price
-          priceStartDate
-          priceEndDate
-          isActive
-        }
+        retailPrice
+        retailSalesPrice
+        wholesalePrice
+        wholesaleSalesPrice
+#        variantPrices {
+#          id
+#          priceType
+#          price
+#          priceStartDate
+#          priceEndDate
+#          isActive
+#        }
         stockQuantity
         weightKg
         attributesJson
@@ -99,14 +107,18 @@ export async function fetchVariantsByIds(ids: string[], priceCategory: 'RETAIL' 
       }
     }
   `;
-  const res = await client.request<{ variantsByIds: VariantItem[] }>(query, { ids, priceCategory });
+  const res = await client.request<{ variantsByIds: VariantItem[] }>(query, { ids });
   return res.variantsByIds || [];
 }
 
 export type ProductVariant = {
   id: string;
   sku?: string | null;
-  prices?: VariantPrice[] | null;   // NEW: Multiple prices with types
+  retailPrice?: number | null;
+  retailSalesPrice?: number | null;
+  wholesalePrice?: number | null;
+  wholesaleSalesPrice?: number | null;
+//  variantPrices?: VariantPrice[] | null;
   stockQuantity?: number | null;
   attributesJson?: string | null;
   weightKg?: string | null;
@@ -120,12 +132,12 @@ export type ProductWithVariants = {
   variants?: ProductVariant[] | null;
 };
 
-export async function fetchProductWithVariants(productId: string, priceCategory: 'RETAIL' | 'WHOLESALE' = 'RETAIL'): Promise<ProductWithVariants | null> {
+export async function fetchProductWithVariants(productId: string): Promise<ProductWithVariants | null> {
   if (!productId) return null;
   const client = await GraphQLService.getGraphQLClient(graphQlEndpoint);
   const query = gql`
-    query GetProductWithVariants($productId: String!, $priceCategory: String!) {
-      getProductWithVariants(productId: $productId, priceCategory: $priceCategory) {
+    query GetProductWithVariants($productId: String!) {
+      getProductWithVariants(productId: $productId) {
         productId
         productName
         productDescription
@@ -140,18 +152,22 @@ export async function fetchProductWithVariants(productId: string, priceCategory:
           stockQuantity
           attributesJson
           weightKg
-          prices {
-            id
-            priceType
-            price
-            priceStartDate
-            priceEndDate
-            isActive
-          }
+          retailPrice
+          retailSalesPrice
+          wholesalePrice
+          wholesaleSalesPrice
+#          variantPrices {
+#            id
+#            priceType
+#            price
+#            priceStartDate
+#            priceEndDate
+#            isActive
+#          }
         }
       }
     }
   `;
-  const res = await client.request<{ getProductWithVariants: ProductWithVariants }>(query, { productId, priceCategory });
+  const res = await client.request<{ getProductWithVariants: ProductWithVariants }>(query, { productId });
   return res.getProductWithVariants || null;
 }
