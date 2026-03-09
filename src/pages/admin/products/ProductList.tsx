@@ -12,6 +12,7 @@ const ProductList = () => {
             try {
                 setIsLoading(true);
                 const data = await fetchProducts();
+                console.log("DEBUG:: ProductList" + data);
                 setProducts(data);
             } catch (error) {
                 console.error("Failed to fetch products:", error);
@@ -39,22 +40,39 @@ const ProductList = () => {
                     );
                 },
             }),
+
         columnHelper.accessor("categoryName",
             {
                 header: "Category",
                 cell: (info) => info.getValue() || "-",
             }),
-        columnHelper.accessor("guestPrice",
+        columnHelper.accessor("retailPrice",
             {
-                header: "Guest Price",
+                header: "Retail Price",
                 cell: (info) => {
                     const price = info.getValue();
                     return price ? `R ${price.toFixed(2)}` : "-";
                 },
             }),
-        columnHelper.accessor("memberPrice",
+        columnHelper.accessor("retailSalesPrice",
             {
-                header: "Member Price",
+                header: "Retail Sale Price",
+                cell: (info) => {
+                    const price = info.getValue();
+                    return price ? `R ${price.toFixed(2)}` : "-";
+                },
+            }),
+        columnHelper.accessor("wholesalePrice",
+            {
+                header: "Wholesale Price",
+                cell: (info) => {
+                    const price = info.getValue();
+                    return price ? `R ${price.toFixed(2)}` : "-";
+                },
+            }),
+        columnHelper.accessor("wholesaleSalesPrice",
+            {
+                header: "Wholesale Sale Price",
                 cell: (info) => {
                     const price = info.getValue();
                     return price ? `R ${price.toFixed(2)}` : "-";

@@ -13,8 +13,10 @@ export type ProductListItem = {
   id: string; // UUID as string
   name: string;
   description?: string | null;
-  price?: number | null;            // Price for the selected category
-  salesPrice?: number | null;       // Sale price for the selected category
+  retailPrice?: number | null;            // Price for the selected category
+  retailSalesPrice?: number | null;
+  wholesalePrice?: number | null;            // Price for the selected category
+  wholesaleSalesPrice?: number | null;// Sale price for the selected category
   productImages?: ProductImage[] | null;
   variantIds?: string[] | null;
   categoryName?: string | null;
@@ -47,16 +49,19 @@ const graphQlEndpoint = (envGraphQl && envGraphQl.length > 0)
   ? envGraphQl
   : getServiceEndpoint(8080) + '/api/graphql';
 
-export async function fetchProducts(categoryName?: string | null, priceCategory: 'RETAIL' | 'WHOLESALE' = 'RETAIL'): Promise<ProductListItem[]> {
+export async function fetchProducts(categoryName?: string | null): Promise<ProductListItem[]> {
+  console.log("DEBUG:: Get Product List")
   const client = await GraphQLService.getGraphQLClient(graphQlEndpoint);
   const query = gql`
-    query Products($categoryName: String, $priceCategory: String!) {
-      products(categoryName: $categoryName, priceCategory: $priceCategory) {
+    query getProductsList($categoryName: String) {
+      productList(categoryName: $categoryName) {
         id
         name
         description
-        price
-        salesPrice
+        retailPrice
+        retailSalesPrice
+        wholesalePrice
+        wholesaleSalesPrice
         productImages {
           id
           imageUrl
@@ -67,8 +72,8 @@ export async function fetchProducts(categoryName?: string | null, priceCategory:
       }
     }
   `;
-  const res = await client.request<{ products: ProductListItem[] }>(query, { categoryName, priceCategory });
-  return res.products || [];
+  const res = await client.request<{ productList: ProductListItem[] }>(query, { categoryName });
+  return res.productList || [];
 }
 
 export async function fetchVariantsByIds(ids: string[], priceCategory: 'RETAIL' | 'WHOLESALE' = 'RETAIL'): Promise<VariantItem[]> {
