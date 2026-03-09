@@ -44,12 +44,20 @@ const ProductList = () => {
                 header: "Category",
                 cell: (info) => info.getValue() || "-",
             }),
-        columnHelper.accessor("price",
+        columnHelper.accessor("guestPrice",
             {
-                header: "Price",
+                header: "Guest Price",
                 cell: (info) => {
                     const price = info.getValue();
-                    return price ? `$${price.toFixed(2)}` : "-";
+                    return price ? `R ${price.toFixed(2)}` : "-";
+                },
+            }),
+        columnHelper.accessor("memberPrice",
+            {
+                header: "Member Price",
+                cell: (info) => {
+                    const price = info.getValue();
+                    return price ? `R ${price.toFixed(2)}` : "-";
                 },
             }),
     ];

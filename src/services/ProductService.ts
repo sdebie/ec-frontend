@@ -13,16 +13,28 @@ export type ProductListItem = {
   id: string; // UUID as string
   name: string;
   description?: string | null;
-  price?: number | null;
+  price?: number | null;            // Price for the selected category
+  salesPrice?: number | null;       // Sale price for the selected category
   productImages?: ProductImage[] | null;
   variantIds?: string[] | null;
   categoryName?: string | null;
 };
 
+export type VariantPrice = {
+  id: string;
+  priceType: string;                // RETAIL_PRICE, RETAIL_SALE_PRICE, WHOLESALE_PRICE, WHOLESALE_SALE_PRICE
+  price: string | number;           // BigDecimal as string or number
+  priceStartDate?: string | null;   // ISO datetime
+  priceEndDate?: string | null;     // ISO datetime
+  isActive?: boolean | null;        // Currently valid?
+};
+
 export type VariantItem = {
   id: string;
+  sku?: string | null;
+  prices?: VariantPrice[] | null;   // NEW: Multiple prices per variant
   stockQuantity?: number | null;
-  weightKg?: string | null; // changed from number to string to map BigDecimal
+  weightKg?: string | null;         // BigDecimal
   attributesJson?: string | null;
   product?: { name?: string | null } | null;
 };
@@ -35,15 +47,16 @@ const graphQlEndpoint = (envGraphQl && envGraphQl.length > 0)
   ? envGraphQl
   : getServiceEndpoint(8080) + '/api/graphql';
 
-export async function fetchProducts(categoryName?: string | null): Promise<ProductListItem[]> {
+export async function fetchProducts(categoryName?: string | null, priceCategory: 'RETAIL' | 'WHOLESALE' = 'RETAIL'): Promise<ProductListItem[]> {
   const client = await GraphQLService.getGraphQLClient(graphQlEndpoint);
   const query = gql`
-    query Products($categoryName: String) {
-      products(categoryName: $categoryName) {
+    query Products($categoryName: String, $priceCategory: String!) {
+      products(categoryName: $categoryName, priceCategory: $priceCategory) {
         id
         name
         description
         price
+        salesPrice
         productImages {
           id
           imageUrl
@@ -54,17 +67,26 @@ export async function fetchProducts(categoryName?: string | null): Promise<Produ
       }
     }
   `;
-  const res = await client.request<{ products: ProductListItem[] }>(query, { categoryName: categoryName === 'All' ? null : categoryName });
+  const res = await client.request<{ products: ProductListItem[] }>(query, { categoryName, priceCategory });
   return res.products || [];
 }
 
-export async function fetchVariantsByIds(ids: string[]): Promise<VariantItem[]> {
+export async function fetchVariantsByIds(ids: string[], priceCategory: 'RETAIL' | 'WHOLESALE' = 'RETAIL'): Promise<VariantItem[]> {
   if (!ids || ids.length === 0) return [];
   const client = await GraphQLService.getGraphQLClient(graphQlEndpoint);
   const query = gql`
-    query VariantsByIds($ids: [String!]!) {
-      variantsByIds(ids: $ids) {
+    query VariantsByIds($ids: [String!]!, $priceCategory: String!) {
+      variantsByIds(ids: $ids, priceCategory: $priceCategory) {
         id
+        sku
+        prices {
+          id
+          priceType
+          price
+          priceStartDate
+          priceEndDate
+          isActive
+        }
         stockQuantity
         weightKg
         attributesJson
@@ -72,14 +94,14 @@ export async function fetchVariantsByIds(ids: string[]): Promise<VariantItem[]> 
       }
     }
   `;
-  const res = await client.request<{ variantsByIds: VariantItem[] }>(query, { ids });
+  const res = await client.request<{ variantsByIds: VariantItem[] }>(query, { ids, priceCategory });
   return res.variantsByIds || [];
 }
 
 export type ProductVariant = {
   id: string;
   sku?: string | null;
-  price?: string | null; // BigDecimal mapped to string
+  prices?: VariantPrice[] | null;   // NEW: Multiple prices with types
   stockQuantity?: number | null;
   attributesJson?: string | null;
   weightKg?: string | null;
@@ -93,12 +115,12 @@ export type ProductWithVariants = {
   variants?: ProductVariant[] | null;
 };
 
-export async function fetchProductWithVariants(productId: string): Promise<ProductWithVariants | null> {
+export async function fetchProductWithVariants(productId: string, priceCategory: 'RETAIL' | 'WHOLESALE' = 'RETAIL'): Promise<ProductWithVariants | null> {
   if (!productId) return null;
   const client = await GraphQLService.getGraphQLClient(graphQlEndpoint);
   const query = gql`
-    query GetProductWithVariants($productId: String!) {
-      getProductWithVariants(productId: $productId) {
+    query GetProductWithVariants($productId: String!, $priceCategory: String!) {
+      getProductWithVariants(productId: $productId, priceCategory: $priceCategory) {
         productId
         productName
         productDescription
@@ -110,14 +132,21 @@ export async function fetchProductWithVariants(productId: string): Promise<Produ
         variants {
           id
           sku
-          price
           stockQuantity
           attributesJson
           weightKg
+          prices {
+            id
+            priceType
+            price
+            priceStartDate
+            priceEndDate
+            isActive
+          }
         }
       }
     }
   `;
-  const res = await client.request<{ getProductWithVariants: ProductWithVariants }>(query, { productId });
+  const res = await client.request<{ getProductWithVariants: ProductWithVariants }>(query, { productId, priceCategory });
   return res.getProductWithVariants || null;
 }

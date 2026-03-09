@@ -65,15 +65,25 @@ const ProductList: React.FC<ProductListProps> = ({ activeCategory }) => {
                 <div className="font-semibold text-gray-900 mb-1">{p.name}</div>
                 <div className="text-sm text-gray-600 mb-3 line-clamp-3">{p.description}</div>
                 <div className="flex items-center justify-between gap-2">
-                  <div className="text-lg font-bold">{currency(p.price)}</div>
+                  <div>
+                    {p.salesPrice && p.salesPrice < (p.price || 0) ? (
+                      <>
+                        <div className="text-lg font-bold text-green-600">{currency(p.salesPrice)}</div>
+                        <div className="text-sm text-gray-500 line-through">
+                          {currency(p.price)}
+                        </div>
+                      </>
+                    ) : (
+                      <div className="text-lg font-bold">{currency(p.price)}</div>
+                    )}
+                  </div>
                   <button
                     onClick={() => {
                       createOrder({
                         items: [
                           {
                             quantity: 1,
-                            unitPrice: p.price || 0,
-                            variant: (p.variantIds && p.variantIds.length > 0) ? p.variantIds[0] : undefined,
+                            unitPrice: (p.salesPrice && p.salesPrice < (p.price || 0)) ? p.salesPrice : p.price || 0,
                           },
                         ],
                       });

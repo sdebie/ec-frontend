@@ -1,14 +1,15 @@
 import ProductCard from "./components/ProductCard.tsx";
 import { useParams } from "react-router-dom";
 import { useEffect, useState } from "react";
-import { fetchProductWithVariants, ProductWithVariants } from "../../../services/ProductService.ts";
+import { fetchProductWithVariants, ProductWithVariants, VariantPrice } from "../../../services/ProductService.ts";
 import { useAddToCart } from "@/pages/shop/cart/hook/useAddToCart.ts";
 
 // Define the UI Product type expected by ProductCard to keep this page self-contained
 interface UiVariant {
   id: string;
   sku: string;
-  price: number;
+  price: number;           // Calculated from first active price
+  prices?: VariantPrice[]; // All prices with types
   stock_quantity: number;
   attributes: Record<string, string>;
 }
@@ -28,6 +29,28 @@ const ProductDetailsPage = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const { createOrder } = useAddToCart();
+
+  /**
+   * Get the first active retail price from a list of prices
+   * Fallback to first price if no retail price found
+   */
+  const getDisplayPrice = (prices?: VariantPrice[] | null): number => {
+    if (!prices || prices.length === 0) return 0;
+
+    // Try to find a standard price (non-sale)
+    const standardPrice = prices.find(p =>
+      p.priceType === 'PRICE' &&
+      p.isActive
+    );
+    if (standardPrice) return Number(standardPrice.price);
+
+    // Fallback to any active price
+    const activePrice = prices.find(p => p.isActive);
+    if (activePrice) return Number(activePrice.price);
+
+    // Fallback to first price
+    return Number(prices[0]?.price ?? 0);
+  };
 
   useEffect(() => {
     let isCancelled = false;
@@ -56,7 +79,8 @@ const ProductDetailsPage = () => {
           variants: (result.variants || []).map((v) => ({
             id: v.id,
             sku: v.sku ?? '',
-            price: Number(v.price ?? 0),
+            price: getDisplayPrice(v.prices),
+            prices: v.prices,
             stock_quantity: v.stockQuantity ?? 0,
             attributes: safeParseAttributes(v.attributesJson),
           })),
