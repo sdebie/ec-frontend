@@ -15,6 +15,42 @@ export const adminRoutes: Routes = [
         },
     },
     {
+        key: 'admin.imports.bulk.images',
+        path: '/admin/imports/images/bulk-upload/',
+        component: lazy(() => import('@/pages/admin/images/BulkImageUploader.tsx')),
+        authority: ['SUPER_ADMIN'],
+        meta: {
+            label: 'Bulk Image Upload',
+            pageBackgroundType: 'plain',
+            pageContainerType: 'contained',
+            hideInMenu: true,
+        },
+    },
+    {
+        key: 'admin.imports.bulk.products',
+        path: '/admin/imports/products/bulk-upload',
+        component: lazy(() => import('@/pages/admin/products/ProductBulkUpload.tsx')),
+        authority: ['SUPER_ADMIN'],
+        meta: {
+            label: 'Bulk Product Upload',
+            pageBackgroundType: 'plain',
+            pageContainerType: 'contained',
+            hideInMenu: true,
+        },
+    },
+    {
+        key: 'admin.imports.bulk.products.review',
+        path: '/admin/imports/products/bulk-upload/review/:batchId',
+        component: lazy(() => import('@/pages/admin/products/ProductImportReview.tsx')),
+        authority: ['SUPER_ADMIN'],
+        meta: {
+            label: 'Bulk Product Review',
+            pageBackgroundType: 'plain',
+            pageContainerType: 'contained',
+            hideInMenu: true,
+        },
+    },
+    {
         key: 'admin.dashboard',
         path: '/admin',
         component: lazy(() => import('../../pages/admin/dashboard/Dashboard.tsx')),
@@ -92,10 +128,47 @@ export const adminRoutes: Routes = [
             {
                 key: 'admin.products.list',
                 path: '/admin/products/list',
-                component: lazy(() => import('../../pages/admin/products/ProductList.tsx')),
+                component: lazy(() => import('@/pages/admin/products/ProductList.tsx')),
                 authority: ['SUPER_ADMIN'],
                 meta: {
                     label: 'Product List',
+                    pageBackgroundType: 'plain',
+                    pageContainerType: 'contained',
+                },
+            },
+        ],
+    },
+    {
+        key: 'admin.imports',
+        path: '/admin/imports',
+        component: lazy(() => import('../../pages/shared/ToDoView.tsx')),
+        authority: [],
+        meta: {
+            label: 'Imports',
+            section: 'PRODUCT MANAGEMENT',
+            pageBackgroundType: 'plain',
+            pageContainerType: 'contained',
+            icon: 'package',
+        },
+        subMenu: [
+            {
+                key: 'admin.imports.images',
+                path: '/admin/imports/images/',
+                component: lazy(() => import('@/pages/admin/images/ProductGallery.tsx')),
+                authority: ['SUPER_ADMIN'],
+                meta: {
+                    label: 'Image Gallery',
+                    pageBackgroundType: 'plain',
+                    pageContainerType: 'contained',
+                },
+            },
+            {
+                key: 'admin.imports.products.list',
+                path: '/admin/imports/products/list',
+                component: lazy(() => import('@/pages/admin/products/BulkProductUploadList.tsx')),
+                authority: ['SUPER_ADMIN'],
+                meta: {
+                    label: 'Bulk Product Upload',
                     pageBackgroundType: 'plain',
                     pageContainerType: 'contained',
                 },

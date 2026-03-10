@@ -4,6 +4,11 @@ interface ImageUploadResponse {
   fileName: string;
 }
 
+interface BulkImageUploadResponse {
+  uploaded: string[];
+  skipped: string[];
+}
+
 const ImageService = {
   uploadImage: (file: File) => {
     const formData = new FormData();
@@ -58,6 +63,27 @@ const ImageService = {
       headers: {
         'Content-Type': 'multipart/form-data',
       },
+    });
+  },
+
+  bulkUploadImages: (files: File[]) => {
+    const formData = new FormData();
+    files.forEach(file => formData.append('images', file));
+
+    return ApiService.fetchDataWithAxios<BulkImageUploadResponse, FormData>({
+      url: '/admin/images/bulk-upload',
+      method: 'POST',
+      data: formData,
+      headers: {
+        'Content-Type': 'multipart/form-data',
+      },
+    });
+  },
+
+  fetchImageFilenames: () => { // Corrected syntax for object method
+    return ApiService.fetchDataWithAxios<string[]>({
+      url: '/admin/images/image-list', // ApiService will prepend API_BASE_URL
+      method: 'GET',
     });
   },
 };

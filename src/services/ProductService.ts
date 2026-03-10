@@ -45,6 +45,28 @@ export type VariantItem = {
   product?: { name?: string | null } | null;
 };
 
+export type ProductUploadStaged = {
+  stagedId: string;
+  sku: string;
+  currentName: string;
+  proposedName: string;
+  currentRetailPrice?: number | null;
+  proposedRetailPrice?: number | null;
+  currentWholesalePrice?: number | null;
+  proposedWholesalePrice?: number | null;
+  isNewProduct?: boolean | null;
+  hasChanges?: boolean | null;
+}
+
+export type ProductUploadBatch = {
+  id: string;
+  filename: string;
+  status: string;
+  totalRows: number;
+  createdAt: string;
+  uploadedByUsername: string | null;
+}
+
 const envGraphQl = (typeof import.meta !== 'undefined' && (import.meta as any).env)
   ? (import.meta as any).env.VITE_GRAPHQL_ENDPOINT
   : undefined;
@@ -92,14 +114,6 @@ export async function fetchVariantsByIds(ids: string[]): Promise<VariantItem[]> 
         retailSalesPrice
         wholesalePrice
         wholesaleSalesPrice
-#        variantPrices {
-#          id
-#          priceType
-#          price
-#          priceStartDate
-#          priceEndDate
-#          isActive
-#        }
         stockQuantity
         weightKg
         attributesJson
@@ -156,14 +170,6 @@ export async function fetchProductWithVariants(productId: string): Promise<Produ
           retailSalesPrice
           wholesalePrice
           wholesaleSalesPrice
-#          variantPrices {
-#            id
-#            priceType
-#            price
-#            priceStartDate
-#            priceEndDate
-#            isActive
-#          }
         }
       }
     }
@@ -171,3 +177,61 @@ export async function fetchProductWithVariants(productId: string): Promise<Produ
   const res = await client.request<{ getProductWithVariants: ProductWithVariants }>(query, { productId });
   return res.getProductWithVariants || null;
 }
+
+export async function uploadProductCsv(file: File): Promise<Response> {
+    const formData = new FormData();
+    formData.append('file', file);
+
+    const serviceEndpoint = getServiceEndpoint(8080);
+    const response = await fetch(`${serviceEndpoint}/api/admin/products/upload-csv`, {
+        method: 'POST',
+        body: formData,
+    });
+
+    if (!response.ok) {
+        throw new Error(`Error uploading file: ${response.statusText}`);
+    }
+
+    return response;
+}
+
+export async function getProductImportRows(batchId: string): Promise<ProductUploadStaged[]> {
+  const client = await GraphQLService.getGraphQLClient(graphQlEndpoint);
+  const query = gql`
+    query GetImportRows($batchId: String!) {
+      importRows(batchId: $batchId) {
+        stagedId
+        sku
+        currentName
+        proposedName
+        currentRetailPrice
+        proposedRetailPrice
+        currentWholesalePrice
+        proposedWholesalePrice
+        isNewProduct
+        hasChanges
+      }
+    }
+  `;
+  const res = await client.request<{ importRows: ProductUploadStaged[] }>(query, { batchId });
+  return res.importRows || [];
+}
+
+export async function getProductUploadBatches(): Promise<ProductUploadBatch[]> {
+  const client = await GraphQLService.getGraphQLClient(graphQlEndpoint);
+  const query = gql`
+    query GetProductUploadBatches {
+      productUploadBatches {
+        id
+        filename
+        status
+        totalRows
+        createdAt
+        uploadedByUsername
+      }
+    }
+  `;
+  const res = await client.request<{ productUploadBatches: ProductUploadBatch[] }>(query);
+  return res.productUploadBatches || [];
+}
+

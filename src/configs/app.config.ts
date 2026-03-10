@@ -16,7 +16,7 @@ export type AppConfig = {
 }
 
 const appConfig: AppConfig = {
-	apiPrefix: '/api',
+	apiPrefix: 'http://localhost:8080/api', // Updated to include full base URL
 	platformRealm: 'ToSet',
 	authenticatedEntryPath: '/dashboard',
 	unAuthenticatedEntryPath: '',
