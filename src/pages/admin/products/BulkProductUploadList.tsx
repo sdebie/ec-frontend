@@ -5,7 +5,7 @@ import {ColumnDef} from "@tanstack/react-table";
 import {getProductUploadBatches, ProductUploadBatch} from "@/services/ProductService.ts";
 import {PenLine, Plus} from "lucide-react";
 
-const BulProductUploadList = () => {
+const BulkProductUploadList = () => {
 
     const [productUploadList, setProductUploadList] = useState<ProductUploadBatch[]>([]);
     const [isLoading, setIsLoading] = useState(true);
@@ -103,4 +103,4 @@ const BulProductUploadList = () => {
     );
 }
 
-export default BulProductUploadList;
+export default BulkProductUploadList;
