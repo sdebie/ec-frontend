@@ -1,41 +1,17 @@
-import {Routes} from "../../@types/routes";
-import {lazy} from "react";
+import { lazy } from 'react'
+import type { PageRoutes } from '../../../@types/routes'
+import { toPageRoutes } from '../routeHelpers'
+import { storeMenuRoutes } from './storeMenuRoutes.config'
 
-export const storeRoutes: Routes = [
-    {
-        key: 'home',
-        path: `/`,
-        component: lazy(() => import('@/pages/shop/products/ProductList')),
-        authority: [],
-        meta: {
-            pageBackgroundType: 'plain',
-            pageContainerType: 'contained',
-        },
-    },
-    {
-        key: 'products',
-        path: `/products`,
-        component: lazy(() => import('@/pages/shop/products/ProductList')),
-        authority: [],
-        meta: {
-            pageBackgroundType: 'plain',
-            pageContainerType: 'contained',
-        },
-    },
+/**
+ * Store page routes only contain routing metadata.
+ * Menu-specific fields such as hideInMenu stay out of page routing.
+ */
+const storePageOnlyRoutes: PageRoutes = [
     {
         key: 'productDetail',
         path: `/product/:productId`,
         component: lazy(() => import('@/pages/shop/products/ProductDetailsPage')),
-        authority: [],
-        meta: {
-            pageBackgroundType: 'plain',
-            pageContainerType: 'contained',
-        },
-    },
-    {
-        key: 'cart',
-        path: `/cart`,
-        component: lazy(() => import('@/pages/shop/cart/Cart')),
         authority: [],
         meta: {
             pageBackgroundType: 'plain',
@@ -72,4 +48,9 @@ export const storeRoutes: Routes = [
             pageContainerType: 'contained',
         },
     },
+]
+
+export const storeRoutingRoutes: PageRoutes = [
+    ...toPageRoutes(storeMenuRoutes),
+    ...storePageOnlyRoutes,
 ]

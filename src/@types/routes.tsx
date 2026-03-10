@@ -7,17 +7,29 @@ export type PageHeaderProps = {
     extraHeader?: ReactNode
 }
 
-export interface Meta {
+export interface PageMeta {
     pageContainerType?: 'default' | 'gutterless' | 'contained'
     pageBackgroundType?: 'default' | 'plain'
     header?: PageHeaderProps
     footer?: boolean
+}
+
+export interface Meta extends PageMeta {
     label?: string
     icon?: string | ReactNode
     hideInMenu?: boolean
     showInSidebar?: boolean
     section?: string
     menuMatch?: 'exact' | 'prefix'
+}
+
+export type PageRoute = {
+    key: string
+    path: string
+    component: LazyExoticComponent<ComponentType<any>>
+    authority: string[]
+    meta: PageMeta
+    subMenu?: PageRoute[]
 }
 
 export type Route = {
@@ -29,4 +41,5 @@ export type Route = {
     subMenu?: Route[]
 }
 
+export type PageRoutes = PageRoute[]
 export type Routes = Route[]

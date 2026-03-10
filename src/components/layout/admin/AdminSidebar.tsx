@@ -1,5 +1,5 @@
 import {useMemo, useState, useEffect} from 'react';
-import {adminRoutes} from '@/configs/routes/adminRoutes.config.ts';
+import {adminMenuRoutes} from '@/configs/routes/admin/adminMenuRoutes.config.ts';
 import {SidebarSection} from '@/components';
 import {SidebarItem} from '@/components';
 import {hasRequiredAuthority} from '@/utils/authorizationHelper.ts';
@@ -16,7 +16,7 @@ export function AdminSidebar({isOpen, onClose}: AdminSidebarXProps) {
     const [isCollapsed, setIsCollapsed] = useState(false);
 
     const authorizedRoutes = useMemo(() => {
-        return adminRoutes.filter(route =>
+        return adminMenuRoutes.filter(route =>
             isRouteVisibleInSidebar(route) && hasRequiredAuthority(route.authority)
         );
     }, []);

@@ -1,7 +1,7 @@
 import {Suspense, useState, useEffect} from 'react';
 import {BrowserRouter, Routes, Route} from 'react-router-dom';
-import {storeRoutes} from './configs/routes/storeRoutes.config';
-import {adminRoutes} from './configs/routes/adminRoutes.config';
+import {storeRoutingRoutes} from './configs/routes/store/storePageRoutes.config.ts';
+import {adminRoutingRoutes} from './configs/routes/admin/adminPageRoutes.config.ts';
 import {getHostname} from './utils/HostnameResolver';
 import RouteGuard from "@/configs/RouteGaurd.tsx";
 import {RouteObject} from "@/types/routes.ts";
@@ -21,9 +21,9 @@ function App() {
     const isAdminDomain = hostname.startsWith('admin.');
     const isStoreDomain = hostname.startsWith('store.');
 
-    let routesToShow = [...storeRoutes, ...adminRoutes];
-    if (isAdminDomain) routesToShow = adminRoutes;
-    else if (isStoreDomain) routesToShow = storeRoutes;
+    let routesToShow = [...storeRoutingRoutes, ...adminRoutingRoutes];
+    if (isAdminDomain) routesToShow = adminRoutingRoutes;
+    else if (isStoreDomain) routesToShow = storeRoutingRoutes;
 
     const flattenRoutes = (routes: RouteObject[]): RouteObject[] => {
         return routes.flatMap((route) => [
