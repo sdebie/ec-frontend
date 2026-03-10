@@ -13,6 +13,7 @@ export {Input} from './shared/input';
 export {Label} from './shared/label';
 export {Menu, MenuTrigger, MenuList, MenuItem, MenuSeparator, MenuLabel, MenuSection} from './shared/menu';
 export {MultiSelect} from './shared/multiselect';
+export {PageBackButton} from './shared/navigation';
 export {PageContainer} from './shared/container';
 export {PresetSegmentItemOption} from './shared/presetsegment';
 export {Radio} from './shared/radio';

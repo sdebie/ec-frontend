@@ -5,6 +5,7 @@ import {SidebarItem} from '@/components';
 import {SidebarItemContent} from './SidebarItemContent';
 import {cn} from '@/utils/cn.ts';
 import {hasRequiredAuthority} from '@/utils/authorizationHelper.ts';
+import {isRouteVisibleInSidebar} from '@/utils/sidebarVisibility.ts';
 
 interface SidebarSubMenuProps {
     route: Route;
@@ -16,8 +17,8 @@ interface SidebarSubMenuProps {
 export function SidebarSubMenu({route, isCollapsed, setCollapsed, onItemClick}: SidebarSubMenuProps) {
     const location = useLocation();
 
-    const authorizedChildren = useMemo(
-        () => route.subMenu?.filter(child => hasRequiredAuthority(child.authority)) ?? [],
+    const authorizedChildren = useMemo(() =>
+            route.subMenu?.filter(child => isRouteVisibleInSidebar(child) && hasRequiredAuthority(child.authority)) ?? [],
         [route.subMenu]
     );
 
@@ -55,7 +56,7 @@ export function SidebarSubMenu({route, isCollapsed, setCollapsed, onItemClick}: 
                 title={isCollapsed ? route.meta.label : undefined}
             >
                 <SidebarItemContent
-                    label={route.meta.label}
+                    label={route.meta.label ?? ''}
                     icon={route.meta.icon}
                     hasSubMenu={true}
                     isExpanded={isExpanded}

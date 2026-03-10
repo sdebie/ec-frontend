@@ -41,17 +41,43 @@ export const adminRoutes: Routes = [
             icon: 'package',
         },
         subMenu: [
-            {
-                key: 'admin.products.brands',
-                path: '/admin/products/brands',
-                component: lazy(() => import('../../pages/admin/brands/BrandList.tsx')),
-                authority: ['SUPER_ADMIN'],
-                meta: {
-                    label: 'Brands',
-                    pageBackgroundType: 'plain',
-                    pageContainerType: 'contained',
-                },
-            },
+            // {
+            //     key: 'admin.products.brands',
+            //     path: '/admin/products/brands',
+            //     component: lazy(() => import('../../pages/admin/brands/screens/BrandList.tsx')),
+            //     authority: ['SUPER_ADMIN'],
+            //     meta: {
+            //         label: 'Brands',
+            //         pageBackgroundType: 'plain',
+            //         pageContainerType: 'contained',
+            //     },
+            // },
+            // {
+            //     key: 'admin.products.brands.create',
+            //     path: '/admin/brands/create',
+            //     component: lazy(() => import('../../pages/admin/brands/screens/BrandCreate.tsx')),
+            //     authority: ['SUPER_ADMIN'],
+            //     meta: {
+            //         label: 'Create Brand',
+            //         pageBackgroundType: 'plain',
+            //         pageContainerType: 'contained',
+            //         hideInMenu: true,
+            //         showInSidebar: false,
+            //     },
+            // },
+            // {
+            //     key: 'admin.products.brands.edit',
+            //     path: '/admin/brands/:id/edit',
+            //     component: lazy(() => import('../../pages/admin/brands/screens/BrandEdit.tsx')),
+            //     authority: ['SUPER_ADMIN'],
+            //     meta: {
+            //         label: 'Edit Brand',
+            //         pageBackgroundType: 'plain',
+            //         pageContainerType: 'contained',
+            //         hideInMenu: true,
+            //         showInSidebar: false,
+            //     },
+            // },
             {
                 key: 'admin.products.categories',
                 path: '/admin/products/categories',

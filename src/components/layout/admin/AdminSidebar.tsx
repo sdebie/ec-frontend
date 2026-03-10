@@ -4,6 +4,7 @@ import {SidebarSection} from '@/components';
 import {SidebarItem} from '@/components';
 import {hasRequiredAuthority} from '@/utils/authorizationHelper.ts';
 import {cn} from '@/utils/cn.ts';
+import {isRouteVisibleInSidebar} from '@/utils/sidebarVisibility.ts';
 import type {Route} from '@/@types/routes.tsx';
 
 interface AdminSidebarXProps {
@@ -16,7 +17,7 @@ export function AdminSidebar({isOpen, onClose}: AdminSidebarXProps) {
 
     const authorizedRoutes = useMemo(() => {
         return adminRoutes.filter(route =>
-            !route.meta.hideInMenu && hasRequiredAuthority(route.authority)
+            isRouteVisibleInSidebar(route) && hasRequiredAuthority(route.authority)
         );
     }, []);
 

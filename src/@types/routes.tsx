@@ -15,6 +15,7 @@ export interface Meta {
     label?: string
     icon?: string | ReactNode
     hideInMenu?: boolean
+    showInSidebar?: boolean
     section?: string
     menuMatch?: 'exact' | 'prefix'
 }

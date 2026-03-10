@@ -2,7 +2,7 @@ import type {ReactNode} from 'react';
 import {AdaptiveCard} from "@/components";
 
 interface PageContainerProps {
-    title: string
+    title?: string
     description?: string
     children: ReactNode
     action?: ReactNode

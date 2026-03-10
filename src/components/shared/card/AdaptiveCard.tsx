@@ -7,6 +7,7 @@ interface AdaptiveCardProps {
 }
 
 export function AdaptiveCard({children, className}: AdaptiveCardProps) {
+
     return (
         <div
             className={cn(

@@ -105,8 +105,9 @@ const ComponentsDemo = () => {
                 {/* Form Inputs & Select */}
                 <AdaptiveCard>
                     <section className="space-y-4">
-                        <h2 className="text-xl font-semibold text-admin-text border-b border-admin-border pb-2">Form
-                            Elements</h2>
+                        <h2 className="text-xl font-semibold text-admin-text border-b border-admin-border pb-2">
+                            Form Elements
+                        </h2>
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
                             <div className="space-y-4">
                                 <Input
