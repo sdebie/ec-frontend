@@ -1,6 +1,7 @@
 import { GraphQLService } from "./GraphQLService";
 import { gql } from "graphql-request";
 import { getServiceEndpoint } from "../utils/HostnameResolver";
+import {ProductImportValidationStatus} from "@/constants/enums/ProductImportValidationStatus.ts";
 
 export type ProductImage = {
   id: string;
@@ -48,6 +49,17 @@ export type VariantItem = {
 export type ProductUploadStaged = {
   stagedId: string;
   sku: string;
+  categorySlug?: string | null;
+  brandSlug?: string | null;
+  proposedStock?: number | null;
+  currentStock?: number | null;
+  proposedImages?: string | null;
+  currentImages?: string | null;
+  proposedAttributes?: string | null;
+  currentAttributes?: string | null;
+  validationErrors?: string | null;
+  validationStatus?: ProductImportValidationStatus | null;
+  imageErrors?: string | null;
   currentName: string;
   proposedName: string;
   currentRetailPrice?: number | null;
@@ -58,7 +70,10 @@ export type ProductUploadStaged = {
   proposedRetailSalePrice?: number | null;
   currentWholesaleSalePrice?: number | null;
   proposedWholesaleSalePrice?: number | null;
+  isValidCategory?: boolean | null;
+  isValidBrand?: boolean | null;
   isNewProduct?: boolean | null;
+  isNewVariant?: boolean | null;
   hasChanges?: boolean | null;
 }
 
@@ -206,6 +221,17 @@ export async function getProductImportRows(batchId: string): Promise<ProductUplo
       importRows(batchId: $batchId) {
         stagedId
         sku
+        categorySlug
+        brandSlug
+        proposedStock
+        currentStock
+        proposedImages
+        currentImages
+        proposedAttributes
+        currentAttributes
+        validationErrors
+        validationStatus
+        imageErrors
         currentName
         proposedName
         currentRetailPrice
@@ -216,7 +242,10 @@ export async function getProductImportRows(batchId: string): Promise<ProductUplo
         proposedWholesalePrice
         currentWholesaleSalePrice
         proposedWholesaleSalePrice
+        isValidCategory
+        isValidBrand
         isNewProduct
+        isNewVariant
         hasChanges
       }
     }
@@ -242,4 +271,3 @@ export async function getProductUploadBatches(): Promise<ProductUploadBatch[]> {
   const res = await client.request<{ productUploadBatches: ProductUploadBatch[] }>(query);
   return res.productUploadBatches || [];
 }
-
