@@ -24,12 +24,12 @@ const ImageService = {
     });
   },
 
-  uploadProductImage: (file: File, productId: string) => {
+  uploadProductVariantImage: (file: File, productVariantId: string) => {
     const formData = new FormData();
     formData.append('file', file);
 
     return ApiService.fetchDataWithAxios<ImageUploadResponse, FormData>({
-      url: `/admin/images/upload/product/${productId}`,
+      url: `/admin/images/upload/product-variant/${productVariantId}`,
       method: 'POST',
       data: formData,
       headers: {

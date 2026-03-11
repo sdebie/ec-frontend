@@ -1,12 +1,9 @@
 import {ColumnDef, createColumnHelper} from "@tanstack/react-table";
 import {DataTable} from "@/components/shared/datatable/DataTable.tsx";
 import {fetchProducts, ProductListItem} from "@/services/ProductService.ts";
-import {Button} from "@/components";
-import {useNavigate} from "react-router-dom";
 import {useEffect, useState} from "react";
 
 const ProductList = () => {
-    const navigate = useNavigate();
     const [products, setProducts] = useState<ProductListItem[]>([]);
     const [isLoading, setIsLoading] = useState(true);
 
@@ -26,10 +23,6 @@ const ProductList = () => {
 
         fetchProductsData();
     }, []);
-
-    const uploadFiles = async () => {
-        navigate('/admin/image/bulk-upload');
-    };
 
     const columnHelper = createColumnHelper<ProductListItem>();
 
@@ -90,11 +83,6 @@ const ProductList = () => {
     return (
         <div>
             <h1 className="text-2xl font-bold mb-4">Products</h1>
-            <Button
-                onClick={uploadFiles}
-            >
-                Bulk-Upload Images
-            </Button>
             <DataTable
                 data={products}
                 columns={columns}

@@ -54,6 +54,10 @@ export type ProductUploadStaged = {
   proposedRetailPrice?: number | null;
   currentWholesalePrice?: number | null;
   proposedWholesalePrice?: number | null;
+  currentRetailSalePrice?: number | null;
+  proposedRetailSalePrice?: number | null;
+  currentWholesaleSalePrice?: number | null;
+  proposedWholesaleSalePrice?: number | null;
   isNewProduct?: boolean | null;
   hasChanges?: boolean | null;
 }
@@ -206,8 +210,12 @@ export async function getProductImportRows(batchId: string): Promise<ProductUplo
         proposedName
         currentRetailPrice
         proposedRetailPrice
+        currentRetailSalePrice
+        proposedRetailSalePrice
         currentWholesalePrice
         proposedWholesalePrice
+        currentWholesaleSalePrice
+        proposedWholesaleSalePrice
         isNewProduct
         hasChanges
       }

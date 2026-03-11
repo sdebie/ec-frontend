@@ -89,6 +89,26 @@ const ProductImportReview = () => {
             },
         },
         {
+            id: "retailSalesPrice",
+            header: "Retail Sale Price",
+            enableSorting: false,
+            cell: (props) => {
+                const row = props.row.original;
+                const showCurrent = !row.isNewProduct && row.currentRetailSalePrice !== row.proposedRetailSalePrice;
+
+                return (
+                    <div className="flex flex-col">
+                        <span>{formatCurrency(row.proposedRetailSalePrice)}</span>
+                        {showCurrent && (
+                            <span className="text-xs text-yellow-500 line-through">
+                                {formatCurrency(row.currentRetailSalePrice)}
+                            </span>
+                        )}
+                    </div>
+                );
+            },
+        },
+        {
             id: "wholesalePrice",
             header: "Wholesale Price",
             enableSorting: false,
@@ -102,6 +122,26 @@ const ProductImportReview = () => {
                         {showCurrent && (
                             <span className="text-xs text-yellow-500 line-through">
                                 {formatCurrency(row.currentWholesalePrice)}
+                            </span>
+                        )}
+                    </div>
+                );
+            },
+        },
+        {
+            id: "wholesaleSalesPrice",
+            header: "Wholesale Sale Price",
+            enableSorting: false,
+            cell: (props) => {
+                const row = props.row.original;
+                const showCurrent = !row.isNewProduct && row.currentWholesaleSalePrice !== row.proposedWholesaleSalePrice;
+
+                return (
+                    <div className="flex flex-col">
+                        <span>{formatCurrency(row.proposedWholesaleSalePrice)}</span>
+                        {showCurrent && (
+                            <span className="text-xs text-yellow-500 line-through">
+                                {formatCurrency(row.currentWholesaleSalePrice)}
                             </span>
                         )}
                     </div>

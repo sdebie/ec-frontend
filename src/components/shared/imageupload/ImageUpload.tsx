@@ -30,6 +30,10 @@ export interface ImageUploadProps {
    * Custom CSS class
    */
   className?: string;
+  /**
+   * Required for type='product' when image should be linked to a specific variant.
+   */
+  productVariantId?: string;
 }
 
 export const ImageUpload: React.FC<ImageUploadProps> = ({
@@ -39,11 +43,26 @@ export const ImageUpload: React.FC<ImageUploadProps> = ({
   label = 'Upload Image',
   disabled = false,
   className,
+  productVariantId,
 }) => {
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [previewUrl, setPreviewUrl] = useState<string | undefined>(currentImageUrl);
   const fileInputRef = useRef<HTMLInputElement>(null);
+
+  const uploadByType = async (file: File) => {
+    if (type === 'product') {
+      if (productVariantId) {
+        return ImageService.uploadProductVariantImage(file, productVariantId);
+      }
+      // Fallback keeps generic product uploads working in screens that do not have a variant context yet.
+      return ImageService.uploadImage(file);
+    }
+    if (type === 'category') {
+      return ImageService.uploadCategoryImage(file);
+    }
+    return ImageService.uploadBrandImage(file);
+  };
 
   const handleFileChange = async (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
@@ -74,7 +93,7 @@ export const ImageUpload: React.FC<ImageUploadProps> = ({
       reader.readAsDataURL(file);
 
       // Upload file
-      const response = await ImageService.uploadProductImage(file, "56862af0-3943-4055-9164-95f88e5155e4");
+      const response = await uploadByType(file);
       onImageUpload(response.fileName);
     } catch (err) {
       setError('Failed to upload image. Please try again.');
@@ -126,7 +145,7 @@ export const ImageUpload: React.FC<ImageUploadProps> = ({
       reader.readAsDataURL(file);
 
       // Upload file
-      const response = await ImageService.uploadProductImage(file, "56862af0-3943-4055-9164-95f88e5155e4");
+      const response = await uploadByType(file);
       onImageUpload(response.fileName);
     } catch (err) {
       setError('Failed to upload image. Please try again.');
