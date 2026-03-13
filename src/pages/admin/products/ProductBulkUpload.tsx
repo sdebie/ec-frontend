@@ -29,7 +29,7 @@ const ProductBulkUpload = () => {
             const result = await response.json();
 
             setIsDialogOpen(false);
-            navigate(`/admin/imports/products/bulk-upload/review/${result.id}`);
+            navigate("/admin/imports/products/list");
         } catch (error) {
             console.error('Upload failed', error);
             alert('Error uploading CSV. Check console for details.');

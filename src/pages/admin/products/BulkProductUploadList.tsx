@@ -7,7 +7,7 @@ import {
     getProductUploadBatches,
     ProductUploadBatch,
 } from "@/services/ProductService.ts";
-import {LoaderCircle, PenLine, Plus, RefreshCw} from "lucide-react";
+import {Eye, LoaderCircle, PenLine, Plus, RefreshCw} from "lucide-react";
 
 const BulkProductUploadList = () => {
 
@@ -147,7 +147,7 @@ const BulkProductUploadList = () => {
                 return (
                     <div className={"flex items-start justify-center gap-2"}>
                         <Button variant="solid" size={"sm"} onClick={() => handleDetail(row)}>
-                            <PenLine size={12}/>
+                            <Eye size={12}/>
                         </Button>
                         <Button variant="solid" size={"sm"} onClick={() => handleRefreshStatus(row)} disabled={isRefreshing}>
                             {isRefreshing ? <LoaderCircle size={12} className="animate-spin"/> : <RefreshCw size={12}/>}

@@ -1,11 +1,13 @@
 import {ColumnDef, createColumnHelper} from "@tanstack/react-table";
 import {DataTable} from "@/components/shared/datatable/DataTable.tsx";
-import {fetchProducts, ProductListItem} from "@/services/ProductService.ts";
+import {exportAllProducts, fetchProducts, ProductListItem} from "@/services/ProductService.ts";
 import {useEffect, useState} from "react";
+import {Button} from "@/components";
 
 const ProductList = () => {
     const [products, setProducts] = useState<ProductListItem[]>([]);
     const [isLoading, setIsLoading] = useState(true);
+    const [isExporting, setIsExporting] = useState(false);
 
     useEffect(() => {
         const fetchProductsData = async () => {
@@ -23,6 +25,18 @@ const ProductList = () => {
 
         fetchProductsData();
     }, []);
+
+    const handleExportProducts = async () => {
+        try {
+            setIsExporting(true);
+            await exportAllProducts();
+        } catch (error) {
+            console.error("Failed to export products:", error);
+            window.alert("Failed to export products. Please try again.");
+        } finally {
+            setIsExporting(false);
+        }
+    };
 
     const columnHelper = createColumnHelper<ProductListItem>();
 
@@ -82,12 +96,24 @@ const ProductList = () => {
 
     return (
         <div>
-            <h1 className="text-2xl font-bold mb-4">Products</h1>
+            <div className="mb-4 flex items-center justify-between">
+                <h1 className="text-2xl font-bold">Products</h1>
+            </div>
             <DataTable
                 data={products}
                 columns={columns}
                 isLoading={isLoading}
                 globalSearchPlaceholder="Search products..."
+                toolbarAction={
+                    <Button
+                        type="button"
+                        onClick={handleExportProducts}
+                        disabled={isExporting}
+                        className="rounded-md bg-blue-600 px-4 py-2 text-sm font-medium text-white hover:bg-blue-700 disabled:cursor-not-allowed disabled:opacity-60"
+                        >
+                        {isExporting ? "Exporting..." : "Export Products"}
+                    </Button>
+                }
             />
         </div>
     );
