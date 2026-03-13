@@ -84,6 +84,22 @@ export type ProductUploadBatch = {
   totalRows: number;
   createdAt: string;
   uploadedByUsername: string | null;
+  stagedRows?: number | null;
+  processedRows?: number | null;
+  skippedRows?: number | null;
+  validationErrorCount?: number | null;
+  completed?: boolean | null;
+}
+
+export type ProductUploadBatchProcessStatus = {
+  batchId: string;
+  status: string;
+  totalRows: number;
+  stagedRows: number;
+  processedRows: number;
+  skippedRows: number;
+  validationErrorCount?: number | null;
+  completed: boolean;
 }
 
 const envGraphQl = (typeof import.meta !== 'undefined' && (import.meta as any).env)
@@ -263,6 +279,9 @@ export async function getProductUploadBatches(): Promise<ProductUploadBatch[]> {
         filename
         status
         totalRows
+        processedRows
+        skippedRows
+        validationErrorCount
         createdAt
         uploadedByUsername
       }
@@ -270,4 +289,33 @@ export async function getProductUploadBatches(): Promise<ProductUploadBatch[]> {
   `;
   const res = await client.request<{ productUploadBatches: ProductUploadBatch[] }>(query);
   return res.productUploadBatches || [];
+}
+
+export async function processProductUploadBatch(batchId: string): Promise<ProductUploadBatchProcessStatus> {
+  const serviceEndpoint = getServiceEndpoint(8080);
+  const response = await fetch(`${serviceEndpoint}/api/admin/products/batches/${batchId}/staged/async`, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+  });
+
+  if (!response.ok) {
+    const errorText = await response.text();
+    throw new Error(errorText || `Error processing batch: ${response.statusText}`);
+  }
+
+  return response.json();
+}
+
+export async function getProductUploadBatchProcessStatus(batchId: string): Promise<ProductUploadBatchProcessStatus> {
+  const serviceEndpoint = getServiceEndpoint(8080);
+  const response = await fetch(`${serviceEndpoint}/api/admin/products/batches/${batchId}/staged/status`);
+
+  if (!response.ok) {
+    const errorText = await response.text();
+    throw new Error(errorText || `Error getting batch status: ${response.statusText}`);
+  }
+
+  return response.json();
 }

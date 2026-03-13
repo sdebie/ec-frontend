@@ -15,7 +15,7 @@ const ToDoView = () => {
             <div className="text-2xl font-semibold mt-4">
                 To Do View - Coming Soon
             </div>
-            <Button variant="primary" className="mt-4" onClick={() => alert('Button clicked!')}>
+            <Button variant="plain" className="mt-4" onClick={() => alert('Button clicked!')}>
                 Click me
             </Button>
             <div className="bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl p-6">

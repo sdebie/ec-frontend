@@ -143,7 +143,7 @@ export function DataTable<T>({
                     <div className="overflow-x-auto">
                         <table className="w-full text-sm text-left text-admin-text">
                             <thead
-                                className="text-xs uppercase font-semibold text-admin-text-muted bg-admin-sidebar-hover border-b border-admin-border shadow-sm">
+                                className="text-xs font-semibold text-admin-text-muted bg-admin-sidebar-hover border-b border-admin-border shadow-sm">
                             {table.getHeaderGroups().map((headerGroup) => (
                                 <tr key={headerGroup.id}>
                                     {headerGroup.headers.map((header) => {
