@@ -1,16 +1,12 @@
-import { useSessionUser, useToken } from '@/store/authStore'
 import type { AxiosError } from 'axios'
-
-const unauthorizedCode = [401, 419, 440]
+import { clearAuthSession } from '@/services/graphql/auth'
+import { isUnauthorizedStatus } from '@/services/graphql/errors'
 
 const AxiosResponseIntrceptorErrorCallback = (error: AxiosError) => {
     const { response } = error
-    const { setToken } = useToken()
 
-    if (response && unauthorizedCode.includes(response.status)) {
-        setToken('')
-        useSessionUser.getState().setUser({})
-        useSessionUser.getState().setSessionSignedIn(false)
+    if (response && isUnauthorizedStatus(response.status)) {
+        clearAuthSession()
     }
 }
 
