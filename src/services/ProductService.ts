@@ -1,4 +1,4 @@
-import { GraphQLService } from "./GraphQLService";
+import { GraphQLService } from "./graphql/GraphQLService.ts";
 import { gql } from "graphql-request";
 import { getServiceEndpoint } from "../utils/HostnameResolver";
 import {ProductImportValidationStatus} from "@/constants/enums/ProductImportValidationStatus.ts";

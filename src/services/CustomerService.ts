@@ -2,7 +2,7 @@ import getServiceEndpoint from "../utils/HostnameResolver";
 import {CustomerInformation} from "@/pages/shop/cart/types";
 import {CartStore} from "../store/CartStore.ts";
 import {gql} from "graphql-request";
-import {GraphQLService} from "./GraphQLService";
+import {GraphQLService} from "./graphql/GraphQLService.ts";
 
 // Allow environment variable override for production deployments
 const envGraphQl = (typeof import.meta !== 'undefined' && (import.meta as any).env)

@@ -1,5 +1,5 @@
 import getServiceEndpoint from "../utils/HostnameResolver";
-import { GraphQLService } from "./GraphQLService";
+import { GraphQLService } from "./graphql/GraphQLService.ts";
 import { gql } from "graphql-request";
 
 // Allow environment variable override for production deployments (fallback compatible with existing services)

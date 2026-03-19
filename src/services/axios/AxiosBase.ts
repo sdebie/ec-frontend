@@ -1,5 +1,5 @@
 import axios from 'axios'
-import AxiosResponseIntrceptorErrorCallback from './AxiosResponseIntrceptorErrorCallback'
+import AxiosResponseInterceptorErrorCallback from './AxiosResponseInterceptorErrorCallback.ts'
 import AxiosRequestIntrceptorConfigCallback from './AxiosRequestIntrceptorConfigCallback'
 import appConfig from '@/configs/app.config'
 import type { AxiosError } from 'axios'
@@ -21,7 +21,7 @@ AxiosBase.interceptors.request.use(
 AxiosBase.interceptors.response.use(
     (response) => response,
     (error: AxiosError) => {
-        AxiosResponseIntrceptorErrorCallback(error)
+        AxiosResponseInterceptorErrorCallback(error)
         return Promise.reject(error)
     },
 )

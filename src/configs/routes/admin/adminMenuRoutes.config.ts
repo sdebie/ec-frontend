@@ -34,6 +34,17 @@ export const adminMenuRoutes: Routes = [
         },
         subMenu: [
             {
+                key: 'admin.products.brands',
+                path: '/admin/products/brands',
+                component: lazy(() => import('../../../pages/admin/brands/BrandList.tsx')),
+                authority: ['SUPER_ADMIN'],
+                meta: {
+                    label: 'Brands',
+                    pageBackgroundType: 'plain',
+                    pageContainerType: 'contained',
+                },
+            },
+            {
                 key: 'admin.products.categories',
                 path: '/admin/products/categories',
                 component: lazy(() => import('../../../pages/admin/categories/CategoryList.tsx')),

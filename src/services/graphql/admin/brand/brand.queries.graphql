@@ -1,0 +1,9 @@
+query AllBrands {
+    allBrands {
+        description
+        id
+        logoUrl
+        name
+        slug
+    }
+}

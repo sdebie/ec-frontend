@@ -1,5 +1,5 @@
 import getServiceEndpoint from "../utils/HostnameResolver";
-import { GraphQLService } from "./GraphQLService";
+import { GraphQLService } from "./graphql/GraphQLService.ts";
 import { OrderData } from "@/pages/shop/cart/types";
 import { gql } from "graphql-request";
 import { CartStore } from "../store/CartStore.ts";
