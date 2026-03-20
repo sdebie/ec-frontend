@@ -18,3 +18,14 @@ export async function apiGetAllBrands(pageRequest: PageRequest, filterRequest: F
 
     return result.allBrands ?? [];
 }
+
+// export async function apiGetBrandCount(filterRequest: FilterRequest): Promise<number> {
+//
+//     const client = await GraphQLService.getGraphQLClient(graphQLEndpoint);
+//
+//     const result = await client.request<{ count: number }>(BRAND_COUNT, {
+//         filterRequest,
+//     });
+//
+//     return result.count ?? 0;
+// }

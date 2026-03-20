@@ -11,3 +11,9 @@ export const ALL_BRANDS = gql`
         }
     }
 `;
+
+// export const BRAND_COUNT = gql`
+//     query BrandCount($filterRequest: FilterRequestInput) {
+//         countBrand(filterRequest: $filterRequest)
+//     }
+// `;

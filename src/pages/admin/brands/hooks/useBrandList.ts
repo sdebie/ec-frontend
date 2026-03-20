@@ -12,7 +12,7 @@ export default function useBrandList() {
     const pageRequest = useMemo<PageRequest>(
         () => ({
             pageIndex: 0,
-            pageSize: 10,
+            pageSize: 200,
         }),
         []
     );

@@ -7,3 +7,7 @@ query AllBrands {
         slug
     }
 }
+
+query BrandCount {
+    brandCount
+}
