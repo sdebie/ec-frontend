@@ -1,5 +1,5 @@
-import { lazy } from 'react'
-import type { Routes } from '@/@types/routes.tsx'
+import {lazy} from 'react'
+import type {Routes} from '@/@types/routes.tsx'
 
 /**
  * Menu routes for admin panel
@@ -36,7 +36,7 @@ export const adminMenuRoutes: Routes = [
             {
                 key: 'admin.products.brands',
                 path: '/admin/products/brands',
-                component: lazy(() => import('../../../pages/admin/brands/BrandList.tsx')),
+                component: lazy(() => import('@/pages/admin/brands/screens/list')),
                 authority: ['SUPER_ADMIN'],
                 meta: {
                     label: 'Brands',

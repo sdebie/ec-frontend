@@ -1,7 +1,7 @@
 import getServiceEndpoint from "@/utils/HostnameResolver.ts";
-import {Brand} from "@/services/graphql/admin/brand/brand.types.ts";
+import {Brand} from "@/types/admin/brand.types.ts";
 import {GraphQLService} from "@/services/graphql/GraphQLService.ts";
-import {ALL_BRANDS, BRAND_COUNT} from "@/services/graphql/admin/brand/brand.queries.ts";
+import {ALL_BRANDS, BRAND_COUNT, UPDATE_BRAND} from "@/services/graphql/admin/brand/brand.queries.ts";
 import {FilterRequest, PageRequest} from "@/types/graphql/query.types.ts";
 
 const graphQLEndpoint = getServiceEndpoint(8080) + '/api/graphql';
@@ -29,3 +29,9 @@ export async function apiGetBrandCount(filterRequest: FilterRequest): Promise<nu
 
     return result.brandCount ?? 0;
 }
+
+export async function apiUpdateBrand(id: string, brandDto: Omit<Brand, 'id'>): Promise<void> {
+    const client = await GraphQLService.getGraphQLClient(graphQLEndpoint);
+    await client.request(UPDATE_BRAND, {id, brandDto});
+}
+

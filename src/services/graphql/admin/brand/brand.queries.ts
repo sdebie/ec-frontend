@@ -17,3 +17,10 @@ export const BRAND_COUNT = gql`
         brandCount(filterRequest: $filterRequest)
     }
 `;
+
+export const UPDATE_BRAND = gql`
+    mutation UpdateBrand($id: String!, $brandDto: BrandDtoInput!) {
+        updateBrand(id: $id, brandDto: $brandDto)
+    }
+`;
+

@@ -1,15 +1,15 @@
 import {ColumnDef} from "@tanstack/react-table";
-import {DataTable} from "@/components/shared/datatable/DataTable";
-import useBrandList from "@/pages/admin/brands/hooks/useBrandList";
-import {Brand} from "@/services/graphql/admin/brand/brand.types.ts";
-import {useMemo} from "react";
-import {useNavigate} from "react-router-dom";
+import {DataTable} from "@/components/shared/datatable/DataTable.tsx";
+import useBrandList from "@/pages/admin/brands/hooks/useBrandList.ts";
+import {Brand} from "@/types/admin/brand.types.ts";
+import {useMemo, useState} from "react";
 import {Button} from "@/components";
 import {PenLine, Plus} from "lucide-react";
+import BrandEditor from "@/pages/admin/brands/screens/edit";
 
 const BrandList = () => {
 
-    const navigate = useNavigate();
+
     const {
         brands,
         isLoading,
@@ -20,7 +20,11 @@ const BrandList = () => {
         pageCount,
         onPageChange,
         onPageSizeChange,
+        mutate,
     } = useBrandList();
+
+    const [brand, setBrand] = useState<Brand>();
+    const [isDialogOpen, setIsDialogOpen] = useState(false);
 
     const columns: ColumnDef<Brand>[] = useMemo(() => [
         {
@@ -51,11 +55,14 @@ const BrandList = () => {
 
 
     function handleEdit(brand: Brand) {
-        navigate(`/admin/brands/${brand.id}/edit`);
+        // navigate(`/admin/brands/${brand.id}/edit`);
+        setBrand(brand);
+        setIsDialogOpen(true);
     }
 
     function handleCreate() {
-        navigate('/admin/brands/create');
+        setBrand(undefined);
+        setIsDialogOpen(true);
     }
 
     return (
@@ -80,6 +87,7 @@ const BrandList = () => {
                     </Button>
                 }
             />
+            <BrandEditor brand={brand} isDialogOpen={isDialogOpen} setIsDialogOpen={setIsDialogOpen} onSuccess={mutate}/>
         </>
     );
 };

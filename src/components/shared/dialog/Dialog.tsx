@@ -64,7 +64,7 @@ export function Dialog({ open, onClose, children, size = 'md', className }: Dial
           role="dialog" 
           aria-modal="true" 
           className={cn(
-            'flex flex-col w-full bg-admin-panel border border-admin-border rounded-xl shadow-2xl pointer-events-auto overflow-hidden animate-in fade-in zoom-in-95 duration-200',
+            'flex flex-col w-full bg-admin-panel border border-admin-border rounded-xl shadow-2xl pointer-events-auto overflow-hidden animate-in fade-in zoom-in-95 duration-200 max-h-[90vh]',
             sizes[size],
             className
           )}

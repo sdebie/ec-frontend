@@ -1,6 +1,6 @@
 import {useCallback, useEffect, useMemo, useState} from "react";
 import {apiGetAllBrands, apiGetBrandCount} from "@/services/graphql/admin/brand/brand.service.ts";
-import {Brand} from "@/services/graphql/admin/brand/brand.types.ts";
+import {Brand} from "@/types/admin/brand.types.ts";
 import {FilterRequest} from "@/types/graphql/query.types.ts";
 
 const DEFAULT_PAGE_SIZE = 10;
@@ -13,6 +13,7 @@ export default function useBrandList() {
     const [pageSize, setPageSize] = useState(DEFAULT_PAGE_SIZE);
     const [isLoading, setIsLoading] = useState(true);
     const [errorMsg, setErrorMsg] = useState("");
+    const [refreshKey, setRefreshKey] = useState(0);
 
     const filterRequest = useMemo<FilterRequest>(
         () => ({
@@ -57,7 +58,7 @@ export default function useBrandList() {
         return () => {
             isActive = false;
         };
-    }, [pageIndex, pageSize, filterRequest]);
+    }, [pageIndex, pageSize, filterRequest, refreshKey]);
 
     const handlePageChange = useCallback((newPageIndex: number) => {
         setPageIndex(newPageIndex);
@@ -66,6 +67,10 @@ export default function useBrandList() {
     const handlePageSizeChange = useCallback((newPageSize: number) => {
         setPageSize(newPageSize);
         setPageIndex(0);
+    }, []);
+
+    const mutate = useCallback(() => {
+        setRefreshKey(k => k + 1);
     }, []);
 
     const pageCount = Math.max(1, Math.ceil(totalRows / pageSize));
@@ -80,5 +85,6 @@ export default function useBrandList() {
         pageCount,
         onPageChange: handlePageChange,
         onPageSizeChange: handlePageSizeChange,
+        mutate,
     };
 }
