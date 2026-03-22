@@ -8,6 +8,7 @@ import {
     getSortedRowModel,
     SortingState,
     ColumnFiltersState,
+    PaginationState,
     useReactTable,
 } from "@tanstack/react-table";
 import {
@@ -33,6 +34,14 @@ type DataTableProps<T> = {
     errorMsg?: string;
     highlightRows?: boolean;
     toolbarAction?: React.ReactNode;
+    // Server-side pagination (opt-in)
+    manualPagination?: boolean;
+    serverPageCount?: number;
+    serverTotalRows?: number;
+    serverPageIndex?: number;
+    serverPageSize?: number;
+    onServerPageChange?: (pageIndex: number) => void;
+    onServerPageSizeChange?: (pageSize: number) => void;
 };
 
 export function DataTable<T>({
@@ -46,10 +55,51 @@ export function DataTable<T>({
                                  errorMsg = "",
                                  highlightRows = false,
                                  toolbarAction,
+                                 manualPagination = false,
+                                 serverPageCount,
+                                 serverTotalRows,
+                                 serverPageIndex,
+                                 serverPageSize,
+                                 onServerPageChange,
+                                 onServerPageSizeChange,
                              }: DataTableProps<T>) {
     const [sorting, setSorting] = React.useState<SortingState>([]);
     const [columnFilters, setColumnFilters] = React.useState<ColumnFiltersState>([]);
     const [globalFilter, setGlobalFilter] = React.useState("");
+
+    // Controlled pagination state used when manualPagination is true
+    const [pagination, setPagination] = React.useState<PaginationState>({
+        pageIndex: serverPageIndex ?? 0,
+        pageSize: serverPageSize ?? initialPageSize,
+    });
+
+    // Sync controlled pagination with server-driven props
+    React.useEffect(() => {
+        if (manualPagination) {
+            setPagination({
+                pageIndex: serverPageIndex ?? 0,
+                pageSize: serverPageSize ?? initialPageSize,
+            });
+        }
+    }, [manualPagination, serverPageIndex, serverPageSize, initialPageSize]);
+
+    const handleServerPaginationChange = React.useCallback(
+        (updater: PaginationState | ((prev: PaginationState) => PaginationState)) => {
+            setPagination((prev) => {
+                const next = typeof updater === "function" ? updater(prev) : updater;
+                if (next.pageSize !== prev.pageSize) {
+                    onServerPageSizeChange?.(next.pageSize);
+                    onServerPageChange?.(0);
+                    return {...next, pageIndex: 0};
+                }
+                if (next.pageIndex !== prev.pageIndex) {
+                    onServerPageChange?.(next.pageIndex);
+                }
+                return next;
+            });
+        },
+        [onServerPageChange, onServerPageSizeChange]
+    );
 
     const table = useReactTable({
         data,
@@ -58,6 +108,7 @@ export function DataTable<T>({
             sorting,
             columnFilters,
             globalFilter,
+            ...(manualPagination && {pagination}),
         },
         onSortingChange: setSorting,
         onColumnFiltersChange: setColumnFilters,
@@ -66,21 +117,33 @@ export function DataTable<T>({
         getSortedRowModel: getSortedRowModel(),
         getFilteredRowModel: getFilteredRowModel(),
         getPaginationRowModel: getPaginationRowModel(),
-        initialState: {
-            pagination: {
-                pageSize: initialPageSize,
-            },
-        },
+        ...(manualPagination
+            ? {
+                manualPagination: true,
+                pageCount: serverPageCount ?? -1,
+                onPaginationChange: handleServerPaginationChange,
+            }
+            : {
+                initialState: {pagination: {pageSize: initialPageSize}},
+            }),
     });
 
     React.useEffect(() => {
         table.setPageIndex(0);
     }, [globalFilter, data.length, table]);
 
-    const currentPage = table.getState().pagination.pageIndex + 1;
-    const pageSize = table.getState().pagination.pageSize;
-    const totalPages = table.getPageCount();
-    const totalRows = table.getFilteredRowModel().rows.length;
+    const currentPage = manualPagination
+        ? pagination.pageIndex + 1
+        : table.getState().pagination.pageIndex + 1;
+    const pageSize = manualPagination
+        ? pagination.pageSize
+        : table.getState().pagination.pageSize;
+    const totalPages = manualPagination
+        ? (serverPageCount ?? 1)
+        : table.getPageCount();
+    const totalRows = manualPagination
+        ? (serverTotalRows ?? 0)
+        : table.getFilteredRowModel().rows.length;
 
     const startItem = totalRows === 0 ? 0 : (currentPage - 1) * pageSize + 1;
     const endItem = Math.min(currentPage * pageSize, totalRows);

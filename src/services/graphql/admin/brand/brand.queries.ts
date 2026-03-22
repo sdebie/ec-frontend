@@ -12,8 +12,8 @@ export const ALL_BRANDS = gql`
     }
 `;
 
-// export const BRAND_COUNT = gql`
-//     query BrandCount($filterRequest: FilterRequestInput) {
-//         countBrand(filterRequest: $filterRequest)
-//     }
-// `;
+export const BRAND_COUNT = gql`
+    query BrandCount($filterRequest: FilterRequestInput) {
+        brandCount(filterRequest: $filterRequest)
+    }
+`;

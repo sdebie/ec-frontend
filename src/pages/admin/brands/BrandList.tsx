@@ -10,7 +10,17 @@ import {PenLine, Plus} from "lucide-react";
 const BrandList = () => {
 
     const navigate = useNavigate();
-    const {brands, isLoading, errorMsg} = useBrandList();
+    const {
+        brands,
+        isLoading,
+        errorMsg,
+        pageIndex,
+        pageSize,
+        totalRows,
+        pageCount,
+        onPageChange,
+        onPageSizeChange,
+    } = useBrandList();
 
     const columns: ColumnDef<Brand>[] = useMemo(() => [
         {
@@ -57,6 +67,13 @@ const BrandList = () => {
                 isLoading={isLoading}
                 errorMsg={errorMsg}
                 globalSearchPlaceholder="Search brands..."
+                manualPagination
+                serverPageIndex={pageIndex}
+                serverPageSize={pageSize}
+                serverTotalRows={totalRows}
+                serverPageCount={pageCount}
+                onServerPageChange={onPageChange}
+                onServerPageSizeChange={onPageSizeChange}
                 toolbarAction={
                     <Button onClick={handleCreate} leftIcon={<Plus size={16}/>}>
                         Create Brand
