@@ -1,9 +1,9 @@
 import getServiceEndpoint from "../utils/HostnameResolver";
-import { GraphQLService } from "./GraphQLService";
-import { OrderData } from "../pages/cart/types";
+import { GraphQLService } from "./graphql/GraphQLService.ts";
+import { OrderData } from "@/pages/shop/cart/types";
 import { gql } from "graphql-request";
-import { CartStore } from "../state/CartStore";
-import { OrderStatus } from "../utils/enums/OrderStatus";
+import { CartStore } from "../store/CartStore.ts";
+import { OrderStatus } from "@/constants/enums/OrderStatus";
 
 // Allow environment variable override for production deployments
 const envGraphQl = (typeof import.meta !== 'undefined' && (import.meta as any).env)

@@ -1,55 +1,65 @@
-import {Suspense} from 'react';
+import {Suspense, useState, useEffect} from 'react';
 import {BrowserRouter, Routes, Route} from 'react-router-dom';
-import PageHeader from './components/PageHeader';
-import AdminLayout from './admin/components/AdminLayout.tsx';
-import {storeRoutes} from './configs/routes/storeRoutes.config.ts';
-import {adminRoutes} from './configs/routes/adminRoutes.config';
+import {Toaster} from 'sonner';
+import {storeRoutingRoutes} from './configs/routes/store/storePageRoutes.config.ts';
+import {adminRoutingRoutes} from './configs/routes/admin/adminPageRoutes.config.ts';
 import {getHostname} from './utils/HostnameResolver';
+import RouteGuard from "@/configs/RouteGaurd.tsx";
+import {RouteObject} from "@/types/routes.ts";
 
 function App() {
+
+    const [isAuthenticated, setIsAuthenticated] = useState(!!localStorage.getItem('admin_token'));
+    const [activeCategory, setActiveCategory] = useState<string>('All');
+
+    useEffect(() => {
+        const syncAuth = () => setIsAuthenticated(!!localStorage.getItem('admin_token'));
+        window.addEventListener('storage', syncAuth);
+        return () => window.removeEventListener('storage', syncAuth);
+    }, []);
+
     const hostname = getHostname();
     const isAdminDomain = hostname.startsWith('admin.');
     const isStoreDomain = hostname.startsWith('store.');
 
-    // Determine which routes to show based on domain or path
-    let routesToShow = [...storeRoutes, ...adminRoutes];
+    let routesToShow = [...storeRoutingRoutes, ...adminRoutingRoutes];
+    if (isAdminDomain) routesToShow = adminRoutingRoutes;
+    else if (isStoreDomain) routesToShow = storeRoutingRoutes;
 
-    // If we have specific subdomains, we can restrict routes
-    if (isAdminDomain) {
-        routesToShow = adminRoutes;
-    } else if (isStoreDomain) {
-        routesToShow = storeRoutes;
-    }
+    const flattenRoutes = (routes: RouteObject[]): RouteObject[] => {
+        return routes.flatMap((route) => [
+            route,
+            ...(route.subMenu ? flattenRoutes(route.subMenu) : [])
+        ]);
+    };
+
+    const handleLogin = () => {
+        setIsAuthenticated(true);
+    };
 
     return (
         <BrowserRouter>
-            <Suspense fallback={null}>
+            <Suspense fallback={<div className="flex items-center justify-center h-screen">Loading...</div>}>
                 <Routes>
-                    {routesToShow.map((route) => {
-                        const Component = route.component;
-                        const isAppAdmin = route.path.startsWith('/admin') || isAdminDomain;
-
-                        const element = <Component {...(route.meta || {})} />;
-
-                        return (
-                            <Route
-                                key={route.key}
-                                path={route.path}
-                                element={
-                                    isAppAdmin ? (
-                                        <AdminLayout>{element}</AdminLayout>
-                                    ) : (
-                                        <>
-                                            <PageHeader/>
-                                            {element}
-                                        </>
-                                    )
-                                }
-                            />
-                        );
-                    })}
+                    {flattenRoutes(routesToShow).map((route) => (
+                        <Route
+                            key={route.key}
+                            path={route.path}
+                            element={
+                                <RouteGuard
+                                    route={route}
+                                    isAuthenticated={isAuthenticated}
+                                    isAdminDomain={isAdminDomain}
+                                    activeCategory={activeCategory}
+                                    setActiveCategory={setActiveCategory}
+                                    onLoginSuccess={handleLogin}
+                                />
+                            }
+                        />
+                    ))}
                 </Routes>
             </Suspense>
+            <Toaster richColors position="top-center" />
         </BrowserRouter>
     );
 }

@@ -1,0 +1,56 @@
+import { lazy } from 'react'
+import type { PageRoutes } from '@/@types/routes.tsx'
+import { toPageRoutes } from '../routeHelpers'
+import { adminMenuRoutes } from './adminMenuRoutes.config'
+
+/**
+ * Admin page routes only contain routing metadata.
+ * Menu-specific fields such as label, icon, section and hideInMenu stay in adminMenuRoutes.
+ */
+const adminPageOnlyRoutes: PageRoutes = [
+    {
+        key: 'admin.login',
+        path: '/admin/login',
+        component: lazy(() => import('../../../pages/admin/AdminLogin.tsx')),
+        authority: [],
+        meta: {
+            pageBackgroundType: 'plain',
+            pageContainerType: 'contained',
+        },
+    },
+    {
+        key: 'admin.imports.bulk.images',
+        path: '/admin/imports/images/bulk-upload/',
+        component: lazy(() => import('@/pages/admin/images/BulkImageUploader.tsx')),
+        authority: ['SUPER_ADMIN'],
+        meta: {
+            pageBackgroundType: 'plain',
+            pageContainerType: 'contained',
+        },
+    },
+    {
+        key: 'admin.imports.bulk.products',
+        path: '/admin/imports/products/bulk-upload',
+        component: lazy(() => import('@/pages/admin/products/ProductBulkUpload.tsx')),
+        authority: ['SUPER_ADMIN'],
+        meta: {
+            pageBackgroundType: 'plain',
+            pageContainerType: 'contained',
+        },
+    },
+    {
+        key: 'admin.imports.bulk.products.review',
+        path: '/admin/imports/products/bulk-upload/review/:batchId',
+        component: lazy(() => import('@/pages/admin/products/ProductImportReview.tsx')),
+        authority: ['SUPER_ADMIN'],
+        meta: {
+            pageBackgroundType: 'plain',
+            pageContainerType: 'contained',
+        },
+    },
+]
+
+export const adminRoutingRoutes: PageRoutes = [
+    ...adminPageOnlyRoutes,
+    ...toPageRoutes(adminMenuRoutes),
+]

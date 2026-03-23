@@ -1,28 +1,45 @@
-import type { LazyExoticComponent, ReactNode, JSX } from 'react'
+import type { LazyExoticComponent, ComponentType, ReactNode } from 'react'
 
 export type PageHeaderProps = {
-    title?: string | ReactNode | LazyExoticComponent<() => JSX.Element>
-    description?: string | ReactNode
+    title?: ReactNode
+    description?: ReactNode
     contained?: boolean
-    extraHeader?: string | ReactNode | LazyExoticComponent<() => JSX.Element>
+    extraHeader?: ReactNode
 }
 
-export interface Meta {
+export interface PageMeta {
     pageContainerType?: 'default' | 'gutterless' | 'contained'
     pageBackgroundType?: 'default' | 'plain'
     header?: PageHeaderProps
     footer?: boolean
+}
+
+export interface Meta extends PageMeta {
     label?: string
     icon?: string | ReactNode
     hideInMenu?: boolean
+    showInSidebar?: boolean
+    section?: string
+    menuMatch?: 'exact' | 'prefix'
+}
+
+export type PageRoute = {
+    key: string
+    path: string
+    component: LazyExoticComponent<ComponentType<any>>
+    authority: string[]
+    meta: PageMeta
+    subMenu?: PageRoute[]
 }
 
 export type Route = {
     key: string
     path: string
-    component: LazyExoticComponent<<T extends Meta>(props: T) => JSX.Element>
+    component: LazyExoticComponent<ComponentType<any>>
     authority: string[]
-    meta?: Meta
+    meta: Meta
+    subMenu?: Route[]
 }
 
+export type PageRoutes = PageRoute[]
 export type Routes = Route[]

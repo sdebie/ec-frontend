@@ -1,1 +1,117 @@
 @import "tailwindcss";
+
+@theme {
+    --color-admin-bg: var(--admin-bg);
+    --color-admin-panel: var(--admin-panel);
+    --color-admin-border: var(--admin-border);
+    --color-admin-text: var(--admin-text);
+    --color-admin-text-muted: var(--admin-text-muted);
+
+    --color-admin-sidebar-bg: var(--admin-sidebar-bg);
+    --color-admin-sidebar-hover: var(--admin-sidebar-hover);
+    --color-admin-sidebar-active: var(--admin-sidebar-active);
+    --color-admin-sidebar-border: var(--admin-sidebar-border);
+
+    --color-admin-header-bg: var(--admin-header-bg);
+
+    --color-primary: var(--primary);
+    --color-primary-hover: var(--primary-hover);
+    --color-primary-subtle: var(--primary-subtle);
+}
+
+@layer base {
+    :root {
+        /* Light Mode Basics */
+        --admin-bg: #f3f4f6; /* gray-100 */
+        --admin-panel: #ffffff;
+        --admin-border: #e5e7eb; /* gray-200 */
+        --admin-text: #111827; /* gray-900 */
+        --admin-text-muted: #6b7280; /* gray-500 */
+
+        --admin-sidebar-bg: #ffffff;
+        --admin-sidebar-hover: #f3f4f6; /* gray-100 */
+        --admin-sidebar-active: #e5e7eb; /* gray-200 */
+        --admin-sidebar-border: #e5e7eb;
+
+        --admin-header-bg: #ffffff;
+    }
+
+    .dark {
+        /* Dark Mode Basics */
+        --admin-bg: #030712; /* gray-950 */
+        --admin-panel: #111827; /* gray-900 */
+        --admin-border: #1f2937; /* gray-800 */
+        --admin-text: #f9fafb; /* gray-50 */
+        --admin-text-muted: #9ca3af; /* gray-400 */
+
+        --admin-sidebar-bg: #111827; /* gray-900 */
+        --admin-sidebar-hover: #1f2937; /* gray-800 */
+        --admin-sidebar-active: #374151; /* gray-700 */
+        --admin-sidebar-border: #1f2937;
+
+        --admin-header-bg: #111827; /* gray-900 */
+    }
+
+    /* Preset Colors */
+    [data-preset="blue"] {
+        --primary: #3b82f6; /* blue-500 */
+        --primary-hover: #2563eb; /* blue-600 */
+        --primary-subtle: #eff6ff; /* blue-50 */
+    }
+
+    .dark[data-preset="blue"], [data-preset="blue"] .dark {
+        --primary-subtle: #1e3a8a; /* blue-900 */
+    }
+
+    [data-preset="purple"] {
+        --primary: #8b5cf6;
+        --primary-hover: #7c3aed;
+        --primary-subtle: #f3e8ff;
+    }
+
+    .dark[data-preset="purple"], [data-preset="purple"] .dark {
+        --primary-subtle: #581c87;
+    }
+
+    [data-preset="green"] {
+        --primary: #10b981;
+        --primary-hover: #059669;
+        --primary-subtle: #ecfdf5;
+    }
+
+    .dark[data-preset="green"], [data-preset="green"] .dark {
+        --primary-subtle: #064e3b;
+    }
+
+    [data-preset="orange"] {
+        --primary: #f97316;
+        --primary-hover: #ea580c;
+        --primary-subtle: #fff7ed;
+    }
+
+    .dark[data-preset="orange"], [data-preset="orange"] .dark {
+        --primary-subtle: #7c2d12;
+    }
+
+    [data-preset="red"] {
+        --primary: #ef4444;
+        --primary-hover: #dc2626;
+        --primary-subtle: #fef2f2;
+    }
+
+    .dark[data-preset="red"], [data-preset="red"] .dark {
+        --primary-subtle: #7f1d1d;
+    }
+}
+
+html, body, #root {
+    height: 100%;
+}
+
+body {
+    background-color: var(--color-admin-bg);
+    color: var(--color-admin-text);
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+    margin: 0;
+    -webkit-font-smoothing: antialiased;
+}
