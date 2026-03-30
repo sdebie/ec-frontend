@@ -1,5 +1,5 @@
 import * as React from 'react';
-import {Search, Mail, User, MoreVertical, Plus, CheckCircle2, XCircle, AlertTriangle, Info} from 'lucide-react';
+import {Search, Mail, User, MoreVertical, Plus, CheckCircle2, XCircle, AlertTriangle, Info, Download, Upload} from 'lucide-react';
 import {toast} from '@/components/shared/toast';
 import {
     AdaptiveCard,
@@ -86,21 +86,107 @@ const ComponentsDemo = () => {
             <div className="grid gap-12 max-w-5xl pb-20">
 
                 {/* Buttons */}
-                <section className="space-y-4">
+                <section className="space-y-6">
                     <h2 className="text-xl font-semibold text-admin-text border-b border-admin-border pb-2">Buttons</h2>
-                    <div className="flex flex-wrap items-center gap-4">
-                        <Button variant="solid">Solid Button</Button>
-                        <Button variant="ghost">Ghost Button</Button>
-                        <Button variant="plain">Plain Button</Button>
-                        <Button variant="solid" loading>Loading</Button>
-                        <Button variant="solid" leftIcon={<Plus className="w-4 h-4"/>}>With Icon</Button>
-                        <Button variant="solid" disabled>Disabled</Button>
-                    </div>
-                    <div className="flex items-center gap-4">
-                        <Button size="sm">Small</Button>
-                        <Button size="md">Medium</Button>
-                        <Button size="lg">Large</Button>
-                    </div>
+
+                    {/* All variants */}
+                    <AdaptiveCard>
+                        <div className="space-y-3">
+                            <p className="text-sm font-medium text-admin-text">Variants — visual hierarchy</p>
+                            <p className="text-xs text-admin-text-muted">
+                                Six variants ordered from highest to lowest visual weight. Use the hierarchy to
+                                communicate action priority — one <strong>solid</strong> per toolbar, supporting
+                                actions as <strong>secondary</strong> or <strong>outline</strong>, low-priority
+                                utilities as <strong>ghost</strong> or <strong>neutral</strong>, and inline
+                                text links as <strong>plain</strong>.
+                            </p>
+                            <div className="flex flex-wrap items-center gap-3 pt-1">
+                                <Button variant="solid">Solid</Button>
+                                <Button variant="secondary">Secondary</Button>
+                                <Button variant="outline">Outline</Button>
+                                <Button variant="ghost">Ghost</Button>
+                                <Button variant="neutral">Neutral</Button>
+                                <Button variant="plain">Plain</Button>
+                            </div>
+                        </div>
+                    </AdaptiveCard>
+
+                    {/* States per variant */}
+                    <AdaptiveCard>
+                        <div className="space-y-3">
+                            <p className="text-sm font-medium text-admin-text">States — disabled & loading</p>
+                            <p className="text-xs text-admin-text-muted">
+                                All variants share the same disabled (50 % opacity, pointer-events off) and loading
+                                (spinner) behaviour.
+                            </p>
+                            <div className="flex flex-wrap items-center gap-3 pt-1">
+                                <Button variant="solid" disabled>Solid disabled</Button>
+                                <Button variant="secondary" disabled>Secondary disabled</Button>
+                                <Button variant="outline" disabled>Outline disabled</Button>
+                                <Button variant="ghost" disabled>Ghost disabled</Button>
+                                <Button variant="neutral" disabled>Neutral disabled</Button>
+                            </div>
+                            <div className="flex flex-wrap items-center gap-3">
+                                <Button variant="solid" loading>Saving…</Button>
+                                <Button variant="secondary" loading>Importing…</Button>
+                                <Button variant="outline" loading>Exporting…</Button>
+                            </div>
+                        </div>
+                    </AdaptiveCard>
+
+                    {/* Sizes */}
+                    <AdaptiveCard>
+                        <div className="space-y-3">
+                            <p className="text-sm font-medium text-admin-text">Sizes</p>
+                            <p className="text-xs text-admin-text-muted">
+                                Three sizes apply equally across all variants.
+                            </p>
+                            <div className="flex flex-wrap items-end gap-3 pt-1">
+                                <Button variant="solid" size="sm">Small</Button>
+                                <Button variant="solid" size="md">Medium</Button>
+                                <Button variant="solid" size="lg">Large</Button>
+                                <Button variant="secondary" size="sm">Small</Button>
+                                <Button variant="secondary" size="md">Medium</Button>
+                                <Button variant="secondary" size="lg">Large</Button>
+                            </div>
+                        </div>
+                    </AdaptiveCard>
+
+                    {/* With icons */}
+                    <AdaptiveCard>
+                        <div className="space-y-3">
+                            <p className="text-sm font-medium text-admin-text">With icons</p>
+                            <p className="text-xs text-admin-text-muted">
+                                Use <code className="text-primary font-mono">leftIcon</code> or <code className="text-primary font-mono">rightIcon</code> on any variant.
+                            </p>
+                            <div className="flex flex-wrap items-center gap-3 pt-1">
+                                <Button variant="solid" leftIcon={<Plus className="w-4 h-4"/>}>Create Brand</Button>
+                                <Button variant="secondary" leftIcon={<Download className="w-4 h-4"/>}>Import</Button>
+                                <Button variant="outline" leftIcon={<Upload className="w-4 h-4"/>}>Export</Button>
+                                <Button variant="ghost" leftIcon={<Search className="w-4 h-4"/>}>Search</Button>
+                            </div>
+                        </div>
+                    </AdaptiveCard>
+
+                    {/* Real-world example: Brands toolbar */}
+                    <AdaptiveCard>
+                        <div className="space-y-3">
+                            <p className="text-sm font-medium text-admin-text">Real-world example — Brands toolbar</p>
+                            <p className="text-xs text-admin-text-muted">
+                                One primary action at the far right, a medium-emphasis secondary for Import, and a
+                                low-emphasis outline for Export. The eye moves naturally left-to-right toward the
+                                strongest signal.
+                            </p>
+                            <div className="flex items-center justify-between rounded-md border border-admin-border bg-admin-bg px-4 py-3 pt-4">
+                                <p className="text-sm font-medium text-admin-text">Brands</p>
+                                <div className="flex items-center gap-2">
+                                    <Button variant="secondary" size="sm" leftIcon={<Download className="w-4 h-4"/>}>Import</Button>
+                                    <Button variant="outline" size="sm" leftIcon={<Upload className="w-4 h-4"/>}>Export</Button>
+                                    <Button variant="solid" size="sm" leftIcon={<Plus className="w-4 h-4"/>}>Create Brand</Button>
+                                </div>
+                            </div>
+                        </div>
+                    </AdaptiveCard>
                 </section>
 
                 {/* Form Inputs & Select */}

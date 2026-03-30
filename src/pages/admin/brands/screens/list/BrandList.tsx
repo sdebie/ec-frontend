@@ -4,7 +4,7 @@ import useBrandList from "@/pages/admin/brands/hooks/useBrandList.ts";
 import {Brand} from "@/types/admin/brand.types.ts";
 import {useMemo, useState} from "react";
 import {Button, ConfirmationDialog, Thumbnail, toast} from "@/components";
-import {PenLine, Plus, TrashIcon} from "lucide-react";
+import {Download, PenLine, Plus, TrashIcon, Upload} from "lucide-react";
 import BrandEditor from "@/pages/admin/brands/screens/edit";
 import BrandCreate from "@/pages/admin/brands/screens/create";
 import useDeleteBrand from "@/pages/admin/brands/hooks/useDeleteBrand.ts";
@@ -99,6 +99,14 @@ const BrandList = () => {
         setIsEditDialogOpen(true);
     }
 
+    function handleImport() {
+        //TODO:: Import file
+    }
+
+    function handleExport() {
+        //TODO:: Export file
+    }
+
     function handleCreate() {
         setBrand(undefined);
         setIsCreateDialogOpen(true);
@@ -122,9 +130,17 @@ const BrandList = () => {
                 onServerPageSizeChange={onPageSizeChange}
                 onServerSearchChange={onSearchChange}
                 toolbarAction={
-                    <Button onClick={handleCreate} leftIcon={<Plus size={16}/>}>
-                        Create Brand
-                    </Button>
+                    <div className={"flex items-center gap-2"}>
+                        <Button variant={"secondary"} onClick={handleImport} leftIcon={<Download size={16}/>}>
+                            Import
+                        </Button>
+                        <Button variant={"outline"} onClick={handleExport} leftIcon={<Upload size={16}/>}>
+                            Export
+                        </Button>
+                        <Button onClick={handleCreate} leftIcon={<Plus size={16}/>}>
+                            Create Brand
+                        </Button>
+                    </div>
                 }
             />
             <BrandEditor brand={brand}
@@ -139,7 +155,8 @@ const BrandList = () => {
                 onClose={() => setIsDeleteDialogOpen(false)}
                 onConfirm={confirmDelete}
                 title="Delete Brand"
-                message={<>Are you sure you want to delete <strong className="text-admin-text">{brandToDelete?.name}</strong>? This action cannot be undone.</>}
+                message={<>Are you sure you want to delete <strong
+                    className="text-admin-text">{brandToDelete?.name}</strong>? This action cannot be undone.</>}
                 confirmText="Delete"
                 variant="error"
                 loading={isDeleting}
