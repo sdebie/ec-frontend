@@ -1,4 +1,6 @@
 export {AdaptiveCard} from './shared/card';
+export {ConfirmationDialog} from './shared/confirmationdialog';
+export type {ConfirmationDialogProps, ConfirmationDialogVariant} from './shared/confirmationdialog';
 export {Button} from './shared/button';
 export {Checkbox} from './shared/checkbox';
 export {DataTable} from './shared/datatable';

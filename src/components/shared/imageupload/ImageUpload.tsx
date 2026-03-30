@@ -278,7 +278,7 @@ export const ImageUpload: React.FC<ImageUploadProps> = ({
                         </div>
 
                         {/* Image body */}
-                        <div className="relative flex items-center justify-center bg-admin-bg/40 p-4 min-h-[8rem]">
+                        <div className="relative flex items-center justify-center bg-admin-bg/40 p-4 min-h-32">
                             <img
                                 src={previewUrl}
                                 alt="Preview"

@@ -3,7 +3,7 @@ import {DataTable} from "@/components/shared/datatable/DataTable.tsx";
 import useBrandList from "@/pages/admin/brands/hooks/useBrandList.ts";
 import {Brand} from "@/types/admin/brand.types.ts";
 import {useMemo, useState} from "react";
-import {Button, Dialog, DialogContent, DialogFooter, DialogHeader, Thumbnail, toast} from "@/components";
+import {Button, ConfirmationDialog, Thumbnail, toast} from "@/components";
 import {PenLine, Plus, TrashIcon} from "lucide-react";
 import BrandEditor from "@/pages/admin/brands/screens/edit";
 import BrandCreate from "@/pages/admin/brands/screens/create";
@@ -134,20 +134,16 @@ const BrandList = () => {
             <BrandCreate isDialogOpen={isCreateDialogOpen}
                          setIsDialogOpen={setIsCreateDialogOpen}
                          onSuccess={mutate}/>
-            <Dialog open={isDeleteDialogOpen} onClose={() => setIsDeleteDialogOpen(false)}>
-                <DialogHeader title="Delete Brand" />
-                <DialogContent>
-                    <p>Are you sure you want to delete <strong>{brandToDelete?.name}</strong>? This action cannot be undone.</p>
-                </DialogContent>
-                <DialogFooter>
-                    <Button variant="plain" onClick={() => setIsDeleteDialogOpen(false)} disabled={isDeleting}>
-                        Cancel
-                    </Button>
-                    <Button variant="solid" onClick={confirmDelete} loading={isDeleting}>
-                        Delete
-                    </Button>
-                </DialogFooter>
-            </Dialog>
+            <ConfirmationDialog
+                open={isDeleteDialogOpen}
+                onClose={() => setIsDeleteDialogOpen(false)}
+                onConfirm={confirmDelete}
+                title="Delete Brand"
+                message={<>Are you sure you want to delete <strong className="text-admin-text">{brandToDelete?.name}</strong>? This action cannot be undone.</>}
+                confirmText="Delete"
+                variant="error"
+                loading={isDeleting}
+            />
         </>
     );
 };
