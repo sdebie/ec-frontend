@@ -1,4 +1,4 @@
-import React, {useState, useRef} from 'react';
+import React, {useState, useRef, useEffect} from 'react';
 import {clsx} from 'clsx';
 import {UploadCloud, ImageIcon, CheckCircle2, X} from 'lucide-react';
 import ImageService from '@/services/ImageService';
@@ -50,6 +50,18 @@ export const ImageUpload: React.FC<ImageUploadProps> = ({
     const [previewUrl, setPreviewUrl] = useState<string | undefined>(currentImageUrl);
     const [isDragging, setIsDragging] = useState(false);
     const fileInputRef = useRef<HTMLInputElement>(null);
+
+    // Sync the preview whenever the parent updates currentImageUrl (e.g. when
+    // BrandEditor calls reset() after the dialog opens, or when the user switches
+    // to a different brand). useState() only captures the *initial* value on
+    // mount, so without this effect any later prop change is silently ignored.
+    useEffect(() => {
+        if (!isLoading) {
+            // Only sync when we are not mid-upload; during an upload the local
+            // blob URL is the optimistic preview and must not be overwritten.
+            setPreviewUrl(currentImageUrl);
+        }
+    }, [currentImageUrl]); // eslint-disable-line react-hooks/exhaustive-deps
 
     const uploadByType = async (file: File) => {
         if (type === 'product') {

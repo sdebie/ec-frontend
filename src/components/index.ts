@@ -24,5 +24,6 @@ export {Switcher} from './shared/switcher';
 export {Textarea} from './shared/textarea';
 export {TimeInput} from './shared/timeinput';
 export {Toast, ToastContainer, toast, useToastStore} from './shared/toast';
+export {Thumbnail} from './shared/thumbnail';
 export type {ToastItem, ToastVariant, ToastOptions} from './shared/toast';
 export {Upload} from './shared/upload';

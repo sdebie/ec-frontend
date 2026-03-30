@@ -5,6 +5,7 @@ import {useEffect} from "react";
 import useCreateBrand from "@/pages/admin/brands/hooks/useCreateBrand.ts";
 import {toast} from "@/components/shared/toast";
 import {Button, Dialog, DialogContent, DialogFooter, DialogHeader, Form, FormItem, ImageUpload, Input} from "@/components";
+import {IMAGE_BASE_URL} from "@/constants/api.constant.ts";
 
 const formSchema = z.object({
     name: z.string().min(2, 'Name must be at least 2 characters'),
@@ -141,13 +142,12 @@ const BrandCreate = ({isDialogOpen, setIsDialogOpen, onSuccess}: BrandCreateProp
                             control={control}
                             render={({field}) => (
                                 <FormItem
-                                    label="Logo"
                                     errorMessage={errors.logoUrl?.message}
                                     invalid={!!errors.logoUrl}
                                 >
                                     <ImageUpload
                                         type="brand"
-                                        onImageUpload={field.onChange}
+                                        onImageUpload={(fileName) => field.onChange(`${IMAGE_BASE_URL}${fileName}`)}
                                         currentImageUrl={field.value || undefined}
                                     />
                                 </FormItem>

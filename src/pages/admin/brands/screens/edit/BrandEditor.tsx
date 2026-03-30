@@ -1,4 +1,4 @@
-import {Button, Dialog, DialogContent, DialogFooter, DialogHeader, Form, FormItem, Input} from "@/components";
+import {Button, Dialog, DialogContent, DialogFooter, DialogHeader, Form, FormItem, ImageUpload, Input} from "@/components";
 import {Brand} from "@/types/admin/brand.types.ts";
 import {z} from "zod";
 import {Controller, useForm} from "react-hook-form";
@@ -7,6 +7,7 @@ import useEditBrand from "@/pages/admin/brands/hooks/useEditBrand.ts";
 import {useEffect, useState} from "react";
 import {AlertCircle, ChevronDown, ChevronUp} from "lucide-react";
 import {toast} from "@/components/shared/toast";
+import {IMAGE_BASE_URL} from "@/constants/api.constant.ts";
 
 type BrandEditorProps = {
     brand?: Brand;
@@ -20,7 +21,7 @@ const formSchema = z.object({
     name: z.string().min(2, 'Name must be at least 2 characters'),
     description: z.string().min(1, 'Description is required'),
     slug: z.string().min(1, 'Slug is required'),
-    logoUrl: z.string().url('Must be a valid URL').optional().or(z.literal('')),
+    logoUrl: z.string().optional().or(z.literal('')),
 });
 
 type FormValues = z.infer<typeof formSchema>;
@@ -54,6 +55,8 @@ const BrandEditor = ({brand, isDialogOpen, setIsDialogOpen, onSuccess}: BrandEdi
     });
 
     useEffect(() => {
+        if (!isDialogOpen) return; // only rehydrate when the dialog is actually opening
+
         if (brand) {
             reset({
                 id: brand.id,
@@ -71,7 +74,7 @@ const BrandEditor = ({brand, isDialogOpen, setIsDialogOpen, onSuccess}: BrandEdi
                 logoUrl: '',
             });
         }
-    }, [brand, reset]);
+    }, [brand, isDialogOpen, reset]);
 
     const handleClose = () => {
         reset();
@@ -156,14 +159,14 @@ const BrandEditor = ({brand, isDialogOpen, setIsDialogOpen, onSuccess}: BrandEdi
                             control={control}
                             render={({field}) => (
                                 <FormItem
-                                    label="Logo URL"
+                                    label="Logo"
                                     errorMessage={errors.logoUrl?.message}
                                     invalid={!!errors.logoUrl}
                                 >
-                                    <Input
-                                        {...field}
-                                        placeholder="https://example.com/logo.png"
-                                        className="w-full"
+                                    <ImageUpload
+                                        type="brand"
+                                        onImageUpload={(fileName) => field.onChange(`${IMAGE_BASE_URL}${fileName}`)}
+                                        currentImageUrl={field.value || undefined}
                                     />
                                 </FormItem>
                             )}

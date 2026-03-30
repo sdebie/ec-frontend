@@ -30,3 +30,7 @@ export const UPDATE_BRAND = gql`
     }
 `;
 
+export const DELETE_BRAND = gql`
+    mutation DeleteBrand($id: String!) {
+        deleteBrand(id: $id)
+    }`;
