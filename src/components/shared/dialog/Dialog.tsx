@@ -30,13 +30,32 @@ export function Dialog({open, onClose, children, size = 'md', className}: Dialog
 
         if (open) {
             document.addEventListener('keydown', handleKeyDown);
+
+            // Measure the scrollbar width *before* hiding it so we can compensate.
+            // window.innerWidth includes the scrollbar; clientWidth excludes it.
+            const scrollbarWidth = window.innerWidth - document.documentElement.clientWidth;
+
+            // Lock the viewport scroll. `html { height: 100% }` (index.css) means
+            // the true scroll container is <html>, not <body> — so we must target
+            // documentElement, not just body, for the lock to take effect.
+            document.documentElement.style.overflow = 'hidden';
             document.body.style.overflow = 'hidden';
+
+            // Compensate for the now-hidden scrollbar so the layout doesn't shift.
+            if (scrollbarWidth > 0) {
+                document.body.style.paddingRight = `${scrollbarWidth}px`;
+            }
         } else {
+            document.documentElement.style.overflow = '';
             document.body.style.overflow = '';
+            document.body.style.paddingRight = '';
         }
+
         return () => {
             document.removeEventListener('keydown', handleKeyDown);
+            document.documentElement.style.overflow = '';
             document.body.style.overflow = '';
+            document.body.style.paddingRight = '';
         };
     }, [open, onClose]);
 
@@ -114,7 +133,9 @@ export function DialogHeader({
 
 export function DialogContent({className, children}: { className?: string; children: React.ReactNode }) {
     return (
-        <div className={cn('p-6 overflow-y-auto flex-1 min-h-0', className)}>
+        // overscroll-contain stops scroll events from propagating to the page
+        // when the user reaches the top or bottom of the dialog content.
+        <div className={cn('p-6 overflow-y-auto flex-1 min-h-0 overscroll-contain', className)}>
             {children}
         </div>
     );

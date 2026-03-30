@@ -6,6 +6,7 @@ import {useMemo, useState} from "react";
 import {Button} from "@/components";
 import {PenLine, Plus} from "lucide-react";
 import BrandEditor from "@/pages/admin/brands/screens/edit";
+import BrandCreate from "@/pages/admin/brands/screens/create/BrandCreate.tsx";
 
 const BrandList = () => {
 
@@ -24,7 +25,8 @@ const BrandList = () => {
     } = useBrandList();
 
     const [brand, setBrand] = useState<Brand>();
-    const [isDialogOpen, setIsDialogOpen] = useState(false);
+    const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
+    const [isCreateDialogOpen, setIsCreateDialogOpen] = useState(false);
 
     const columns: ColumnDef<Brand>[] = useMemo(() => [
         {
@@ -57,12 +59,12 @@ const BrandList = () => {
     function handleEdit(brand: Brand) {
         // navigate(`/admin/brands/${brand.id}/edit`);
         setBrand(brand);
-        setIsDialogOpen(true);
+        setIsEditDialogOpen(true);
     }
 
     function handleCreate() {
         setBrand(undefined);
-        setIsDialogOpen(true);
+        setIsCreateDialogOpen(true);
     }
 
     return (
@@ -87,7 +89,8 @@ const BrandList = () => {
                     </Button>
                 }
             />
-            <BrandEditor brand={brand} isDialogOpen={isDialogOpen} setIsDialogOpen={setIsDialogOpen} onSuccess={mutate}/>
+            <BrandEditor brand={brand} isDialogOpen={isEditDialogOpen} setIsDialogOpen={setIsEditDialogOpen} onSuccess={mutate}/>
+            <BrandCreate isDialogOpen={isCreateDialogOpen} setIsDialogOpen={setIsCreateDialogOpen} onSuccess={mutate}/>
         </>
     );
 };

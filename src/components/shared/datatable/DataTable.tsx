@@ -128,9 +128,14 @@ export function DataTable<T>({
             }),
     });
 
+    // Reset to page 0 only when the global search filter changes.
+    // data.length must NOT be a dependency: for server-side pagination every new
+    // page may have a different number of rows, which would incorrectly reset the
+    // page index back to 0 immediately after loading page 2+.
     React.useEffect(() => {
         table.setPageIndex(0);
-    }, [globalFilter, data.length, table]);
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [globalFilter]);
 
     const currentPage = manualPagination
         ? pagination.pageIndex + 1

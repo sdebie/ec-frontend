@@ -6,7 +6,7 @@ import {zodResolver} from "@hookform/resolvers/zod";
 import useEditBrand from "@/pages/admin/brands/hooks/useEditBrand.ts";
 import {useEffect, useState} from "react";
 import {AlertCircle, ChevronDown, ChevronUp} from "lucide-react";
-import {toast} from "sonner";
+import {toast} from "@/components/shared/toast";
 
 type BrandEditorProps = {
     brand?: Brand;
@@ -92,7 +92,7 @@ const BrandEditor = ({brand, isDialogOpen, setIsDialogOpen, onSuccess}: BrandEdi
     }
 
     return (
-        <Dialog open={isDialogOpen} onClose={handleClose} size="md">
+        <Dialog open={isDialogOpen} onClose={handleClose} size="xl">
             <DialogHeader title={isEditing ? 'Edit Brand' : 'Create Brand'}/>
             <DialogContent>
                 <Form onSubmit={handleSubmit(onSubmit)}>
@@ -192,7 +192,7 @@ const BrandEditor = ({brand, isDialogOpen, setIsDialogOpen, onSuccess}: BrandEdi
                                                 </button>
                                                 {showDetails && (
                                                     <pre
-                                                        className="mt-2 max-h-32 overflow-y-auto rounded bg-red-100 dark:bg-red-950/50 p-2 text-xs text-red-800 dark:text-red-300 break-words whitespace-pre-wrap [overflow-wrap:anywhere]">
+                                                        className="mt-2 max-h-32 overflow-y-auto rounded bg-red-100 dark:bg-red-950/50 p-2 text-xs text-red-800 dark:text-red-300 wrap-break-word whitespace-pre-wrap">
                                                         {technicalDetails}
                                                     </pre>
                                                 )}

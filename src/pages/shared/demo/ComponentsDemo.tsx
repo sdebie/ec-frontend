@@ -1,5 +1,6 @@
 import * as React from 'react';
-import {Search, Mail, User, MoreVertical, Plus} from 'lucide-react';
+import {Search, Mail, User, MoreVertical, Plus, CheckCircle2, XCircle, AlertTriangle, Info} from 'lucide-react';
+import {toast} from '@/components/shared/toast';
 import {
     AdaptiveCard,
     Button,
@@ -167,6 +168,238 @@ const ComponentsDemo = () => {
                 {/* Mixed Form Controls */}
                 <section className="space-y-4">
                     <MixedFormControls/>
+                </section>
+
+                {/* Toast Notifications */}
+                <section className="space-y-6">
+                    <h2 className="text-xl font-semibold text-admin-text border-b border-admin-border pb-2">
+                        Toast Notifications
+                    </h2>
+
+                    {/* Variants */}
+                    <AdaptiveCard>
+                        <div className="space-y-3">
+                            <p className="text-sm font-medium text-admin-text">Variants</p>
+                            <p className="text-xs text-admin-text-muted">
+                                Each variant uses a distinct colour accent and icon. Success, info, and warning
+                                auto-dismiss; error toasts are persistent until manually closed.
+                            </p>
+                            <div className="flex flex-wrap gap-3 pt-1">
+                                <Button
+                                    variant="solid"
+                                    size="sm"
+                                    className="bg-emerald-600 hover:bg-emerald-700"
+                                    leftIcon={<CheckCircle2 className="w-4 h-4"/>}
+                                    onClick={() => toast.success('Brand updated successfully!')}
+                                >
+                                    Success
+                                </Button>
+                                <Button
+                                    variant="solid"
+                                    size="sm"
+                                    className="bg-red-600 hover:bg-red-700"
+                                    leftIcon={<XCircle className="w-4 h-4"/>}
+                                    onClick={() => toast.error("We couldn't complete that request. Please try again.")}
+                                >
+                                    Error
+                                </Button>
+                                <Button
+                                    variant="solid"
+                                    size="sm"
+                                    className="bg-amber-500 hover:bg-amber-600"
+                                    leftIcon={<AlertTriangle className="w-4 h-4"/>}
+                                    onClick={() => toast.warning('Your session will expire in 5 minutes.')}
+                                >
+                                    Warning
+                                </Button>
+                                <Button
+                                    variant="solid"
+                                    size="sm"
+                                    className="bg-blue-600 hover:bg-blue-700"
+                                    leftIcon={<Info className="w-4 h-4"/>}
+                                    onClick={() => toast.info('A new version of the app is available.')}
+                                >
+                                    Info
+                                </Button>
+                            </div>
+                        </div>
+                    </AdaptiveCard>
+
+                    {/* With title */}
+                    <AdaptiveCard>
+                        <div className="space-y-3">
+                            <p className="text-sm font-medium text-admin-text">With title</p>
+                            <p className="text-xs text-admin-text-muted">
+                                Pass a <code className="text-primary font-mono">title</code> option to add a bold
+                                heading above the message body.
+                            </p>
+                            <div className="flex flex-wrap gap-3 pt-1">
+                                <Button
+                                    variant="ghost"
+                                    size="sm"
+                                    className="border border-admin-border"
+                                    leftIcon={<CheckCircle2 className="w-4 h-4 text-emerald-500"/>}
+                                    onClick={() =>
+                                        toast.success('The product catalogue has been refreshed.', {
+                                            title: 'Sync complete',
+                                        })
+                                    }
+                                >
+                                    Success + title
+                                </Button>
+                                <Button
+                                    variant="ghost"
+                                    size="sm"
+                                    className="border border-admin-border"
+                                    leftIcon={<XCircle className="w-4 h-4 text-red-500"/>}
+                                    onClick={() =>
+                                        toast.error('The server returned a 500 error. Check the logs for details.', {
+                                            title: 'API request failed',
+                                        })
+                                    }
+                                >
+                                    Error + title
+                                </Button>
+                                <Button
+                                    variant="ghost"
+                                    size="sm"
+                                    className="border border-admin-border"
+                                    leftIcon={<AlertTriangle className="w-4 h-4 text-amber-500"/>}
+                                    onClick={() =>
+                                        toast.warning('Bulk deleting products cannot be undone.', {
+                                            title: 'Destructive action',
+                                        })
+                                    }
+                                >
+                                    Warning + title
+                                </Button>
+                                <Button
+                                    variant="ghost"
+                                    size="sm"
+                                    className="border border-admin-border"
+                                    leftIcon={<Info className="w-4 h-4 text-blue-500"/>}
+                                    onClick={() =>
+                                        toast.info('Scheduled maintenance window: Sunday 02:00–04:00 UTC.', {
+                                            title: 'System notice',
+                                        })
+                                    }
+                                >
+                                    Info + title
+                                </Button>
+                            </div>
+                        </div>
+                    </AdaptiveCard>
+
+                    {/* Duration & stacking */}
+                    <AdaptiveCard>
+                        <div className="space-y-3">
+                            <p className="text-sm font-medium text-admin-text">Custom duration & stacking</p>
+                            <p className="text-xs text-admin-text-muted">
+                                Pass <code className="text-primary font-mono">duration</code> (ms) to override the
+                                default. Set <code className="text-primary font-mono">duration: 0</code> to keep the
+                                toast until the user dismisses it. Firing several at once demonstrates stacking — the
+                                queue is capped at&nbsp;5.
+                            </p>
+                            <div className="flex flex-wrap gap-3 pt-1">
+                                <Button
+                                    variant="ghost"
+                                    size="sm"
+                                    className="border border-admin-border"
+                                    onClick={() =>
+                                        toast.success('This will disappear in 1.5 s.', {duration: 1500})
+                                    }
+                                >
+                                    Short (1.5 s)
+                                </Button>
+                                <Button
+                                    variant="ghost"
+                                    size="sm"
+                                    className="border border-admin-border"
+                                    onClick={() =>
+                                        toast.info('This stays until you close it.', {
+                                            title: 'Persistent',
+                                            duration: 0,
+                                        })
+                                    }
+                                >
+                                    Persistent
+                                </Button>
+                                <Button
+                                    variant="ghost"
+                                    size="sm"
+                                    className="border border-admin-border"
+                                    onClick={() => {
+                                        toast.success('Record saved.');
+                                        toast.warning('Low disk space detected.', {title: 'Storage warning'});
+                                        toast.error('Background sync failed.', {title: 'Sync error'});
+                                        toast.info('3 tasks queued for processing.');
+                                    }}
+                                >
+                                    Stack 4 at once
+                                </Button>
+                            </div>
+                        </div>
+                    </AdaptiveCard>
+
+                    {/* Real-world patterns */}
+                    <AdaptiveCard>
+                        <div className="space-y-3">
+                            <p className="text-sm font-medium text-admin-text">Real-world patterns</p>
+                            <p className="text-xs text-admin-text-muted">
+                                Typical admin actions — create, update, delete, and failed API request.
+                            </p>
+                            <div className="flex flex-wrap gap-3 pt-1">
+                                <Button
+                                    variant="solid"
+                                    size="sm"
+                                    leftIcon={<Plus className="w-4 h-4"/>}
+                                    onClick={() =>
+                                        toast.success('Product "Wireless Headphones" was created.', {
+                                            title: 'Product created',
+                                        })
+                                    }
+                                >
+                                    Create
+                                </Button>
+                                <Button
+                                    variant="ghost"
+                                    size="sm"
+                                    className="border border-admin-border"
+                                    onClick={() =>
+                                        toast.success('Changes to "Nike Air Max" have been saved.', {
+                                            title: 'Product updated',
+                                        })
+                                    }
+                                >
+                                    Update
+                                </Button>
+                                <Button
+                                    variant="ghost"
+                                    size="sm"
+                                    className="border border-admin-border text-red-500 hover:text-red-500"
+                                    onClick={() =>
+                                        toast.warning('"Summer Sale" category has been deleted.', {
+                                            title: 'Category deleted',
+                                        })
+                                    }
+                                >
+                                    Delete
+                                </Button>
+                                <Button
+                                    variant="ghost"
+                                    size="sm"
+                                    className="border border-admin-border"
+                                    onClick={() =>
+                                        toast.error("We couldn't save your changes. Please try again.", {
+                                            title: 'Save failed',
+                                        })
+                                    }
+                                >
+                                    Failed request
+                                </Button>
+                            </div>
+                        </div>
+                    </AdaptiveCard>
                 </section>
 
                 {/* Menu, Dialog, Drawer Triggers */}
