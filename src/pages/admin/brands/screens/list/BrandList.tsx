@@ -6,7 +6,7 @@ import {useMemo, useState} from "react";
 import {Button} from "@/components";
 import {PenLine, Plus} from "lucide-react";
 import BrandEditor from "@/pages/admin/brands/screens/edit";
-import BrandCreate from "@/pages/admin/brands/screens/create/BrandCreate.tsx";
+import BrandCreate from "@/pages/admin/brands/screens/create";
 
 const BrandList = () => {
 
