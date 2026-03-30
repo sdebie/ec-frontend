@@ -47,7 +47,7 @@ export function Dialog({open, onClose, children, size = 'md', className}: Dialog
         md: 'max-w-lg',
         lg: 'max-w-2xl',
         xl: 'max-w-4xl',
-        full: 'max-w-[calc(100vw-2rem)] h-[calc(100vh-2rem)]',
+        full: 'max-w-[calc(100vw-10rem)] h-[calc(100vh-10rem)]',
     };
 
     return (
@@ -66,7 +66,7 @@ export function Dialog({open, onClose, children, size = 'md', className}: Dialog
                     role="dialog"
                     aria-modal="true"
                     className={cn(
-                        'flex flex-col w-full bg-admin-panel border border-admin-border rounded-xl shadow-2xl pointer-events-auto overflow-hidden animate-in fade-in zoom-in-95 duration-200 max-h-[calc(100%-2rem)]',
+                        'flex flex-col w-full bg-admin-panel border border-admin-border rounded-xl shadow-2xl pointer-events-auto overflow-hidden animate-in fade-in zoom-in-95 duration-200 max-h-[calc(100vh-6rem)]',
                         sizes[size],
                         className
                     )}
