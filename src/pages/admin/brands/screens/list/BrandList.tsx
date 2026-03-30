@@ -21,6 +21,7 @@ const BrandList = () => {
         pageCount,
         onPageChange,
         onPageSizeChange,
+        onSearchChange,
         mutate,
     } = useBrandList();
 
@@ -83,6 +84,7 @@ const BrandList = () => {
                 serverPageCount={pageCount}
                 onServerPageChange={onPageChange}
                 onServerPageSizeChange={onPageSizeChange}
+                onServerSearchChange={onSearchChange}
                 toolbarAction={
                     <Button onClick={handleCreate} leftIcon={<Plus size={16}/>}>
                         Create Brand

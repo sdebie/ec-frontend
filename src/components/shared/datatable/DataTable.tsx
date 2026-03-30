@@ -42,6 +42,9 @@ type DataTableProps<T> = {
     serverPageSize?: number;
     onServerPageChange?: (pageIndex: number) => void;
     onServerPageSizeChange?: (pageSize: number) => void;
+    /** When provided (together with manualPagination), search is delegated to the
+     *  server instead of being applied client-side by TanStack Table. */
+    onServerSearchChange?: (search: string) => void;
 };
 
 export function DataTable<T>({
@@ -62,6 +65,7 @@ export function DataTable<T>({
                                  serverPageSize,
                                  onServerPageChange,
                                  onServerPageSizeChange,
+                                 onServerSearchChange,
                              }: DataTableProps<T>) {
     const [sorting, setSorting] = React.useState<SortingState>([]);
     const [columnFilters, setColumnFilters] = React.useState<ColumnFiltersState>([]);
@@ -117,6 +121,9 @@ export function DataTable<T>({
         getSortedRowModel: getSortedRowModel(),
         getFilteredRowModel: getFilteredRowModel(),
         getPaginationRowModel: getPaginationRowModel(),
+        // When the server handles search, disable client-side filtering so
+        // TanStack Table does not filter the already-paginated page rows.
+        ...(manualPagination && onServerSearchChange ? {manualFiltering: true} : {}),
         ...(manualPagination
             ? {
                 manualPagination: true,
@@ -200,7 +207,13 @@ export function DataTable<T>({
                             <div className="order-2 sm:order-1 flex-1 min-w-0">
                                 <Input
                                     value={globalFilter ?? ""}
-                                    onChange={(e) => setGlobalFilter(e.target.value)}
+                                    onChange={(e) => {
+                                        const value = e.target.value;
+                                        setGlobalFilter(value);
+                                        if (manualPagination && onServerSearchChange) {
+                                            onServerSearchChange(value);
+                                        }
+                                    }}
                                     placeholder={globalSearchPlaceholder}
                                 />
                             </div>
