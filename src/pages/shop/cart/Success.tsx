@@ -1,7 +1,7 @@
-import React, { useEffect, useState } from 'react';
-import { apiOrderById, apiOrderBySessionId } from '@/services/OrderService.ts';
-import { CartStore } from '@/store/cartStore.ts';
-import { OrderStatus } from '@/constants/enums/OrderStatus.ts';
+import {useEffect, useState} from 'react';
+import {apiOrderById, apiOrderBySessionId} from '@/services/OrderService.ts';
+import {CartStore} from '@/store/CartStore.ts';
+import {OrderStatus} from '@/constants/enums/OrderStatus.ts';
 
 const Success = () => {
     const [verified, setVerified] = useState(false);

@@ -4,5 +4,5 @@ export type Category = {
     slug: string,
     description: string,
     parent: Category | null,
-        imageUrl: string | null
+    imageUrl: string | null
 }

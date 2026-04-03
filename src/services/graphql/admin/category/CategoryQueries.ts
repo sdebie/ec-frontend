@@ -9,6 +9,7 @@ export const ALL_CATEGORY = gql`
             slug
             parent {
                 id
+                name
             }
             imageUrl
         }

@@ -1,7 +1,7 @@
 import React, { useEffect, useState, useRef } from 'react';
 import { Link, useNavigate, useLocation } from 'react-router-dom';
 import CartIcon from '../../components/shared/icon/CartIcon.tsx';
-import { CartStore } from '@/store/cartStore.ts';
+import { CartStore } from '@/store/CartStore.ts';
 import ComponentHeader from './components/Category/ComponentHeader';
 import ImageUploadModal from './components/ImageUploadModal';
 import LoginModal from '@/pages/shop/auth/LoginModal.tsx';

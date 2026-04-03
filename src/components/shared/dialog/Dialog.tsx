@@ -73,14 +73,14 @@ export function Dialog({open, onClose, children, size = 'md', className}: Dialog
         <DialogContext.Provider value={{onClose}}>
             {/* Overlay */}
             <div
-                className="fixed inset-0 z-[100] bg-[#00000080] backdrop-blur-sm transition-opacity"
+                className="fixed inset-0 z-100 bg-[#00000080] backdrop-blur-sm transition-opacity"
                 aria-hidden="true"
                 onClick={onClose}
             />
 
             {/* Container */}
             <div
-                className="fixed inset-0 z-[100] flex items-center justify-center p-4 pointer-events-none">
+                className="fixed inset-0 z-100 flex items-center justify-center p-4 pointer-events-none">
                 <div
                     role="dialog"
                     aria-modal="true"

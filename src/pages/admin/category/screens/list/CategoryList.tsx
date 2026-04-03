@@ -7,6 +7,7 @@ import {Button, ConfirmationDialog, Thumbnail, toast} from "@/components";
 import {PenLine, Plus, TrashIcon} from "lucide-react";
 import CategoryCreate from "@/pages/admin/category/screens/create/CategoryCreate.tsx";
 import useDeleteCategory from "@/pages/admin/category/hooks/useDeleteCategory.ts";
+import CategoryEditor from "@/pages/admin/category/screens/edit";
 
 
 const CategoryList = () => {
@@ -64,6 +65,14 @@ const CategoryList = () => {
             enableSorting: true,
         },
         {
+            id: 'parent',
+            header: 'Parent Category',
+            enableSorting: false,
+            cell: ({row}) => (
+                <div>{row.original.parent?.name || '-'}</div>
+            ),
+        },
+        {
             id: 'actions',
             header: 'Actions',
             enableSorting: false,
@@ -99,7 +108,9 @@ const CategoryList = () => {
 
     function confirmDelete() {
         if (categoryToDelete) {
-            deleteCategory(categoryToDelete.id);
+            deleteCategory(categoryToDelete.id).catch(() => {
+                toast.error('Failed to delete category. Please try again.');
+            });
         }
     }
 
@@ -128,13 +139,18 @@ const CategoryList = () => {
                     </div>
                 }
             />
-            {/*<BrandEditor brand={brand}*/}
-            {/*             isDialogOpen={isEditDialogOpen}*/}
-            {/*             setIsDialogOpen={setIsEditDialogOpen}*/}
-            {/*             onSuccess={mutate}/>*/}
+
+            <CategoryEditor category={category}
+                            isDialogOpen={isEditDialogOpen}
+                            setIsDialogOpen={setIsEditDialogOpen}
+                            onSuccess={mutate}
+            />
+
             <CategoryCreate isDialogOpen={isCreateDialogOpen}
                             setIsDialogOpen={setIsCreateDialogOpen}
-                            onSuccess={mutate}/>
+                            onSuccess={mutate}
+            />
+
             <ConfirmationDialog
                 open={isDeleteDialogOpen}
                 onClose={() => setIsDeleteDialogOpen(false)}

@@ -50,7 +50,9 @@ const BrandList = () => {
 
     function confirmDelete() {
         if (brandToDelete) {
-            deleteBrand(brandToDelete.id);
+            deleteBrand(brandToDelete.id).catch(() => {
+                toast.error('Failed to delete brand. Please try again.');
+            });
         }
     }
 
@@ -143,13 +145,18 @@ const BrandList = () => {
                     </div>
                 }
             />
+
             <BrandEditor brand={brand}
                          isDialogOpen={isEditDialogOpen}
                          setIsDialogOpen={setIsEditDialogOpen}
-                         onSuccess={mutate}/>
+                         onSuccess={mutate}
+            />
+
             <BrandCreate isDialogOpen={isCreateDialogOpen}
                          setIsDialogOpen={setIsCreateDialogOpen}
-                         onSuccess={mutate}/>
+                         onSuccess={mutate}
+            />
+
             <ConfirmationDialog
                 open={isDeleteDialogOpen}
                 onClose={() => setIsDeleteDialogOpen(false)}
