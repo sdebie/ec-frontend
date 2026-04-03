@@ -10,7 +10,7 @@ import {
     fetchPaymentMethodsConfig,
     PaymentMethodsConfig,
     PaymentMethodInfo
-} from "../../../services/StoreSettings.ts";
+} from "@/services/StoreSettings.ts";
 import {
     lookupCustomer,
     registerOrUpdateCustomer,
