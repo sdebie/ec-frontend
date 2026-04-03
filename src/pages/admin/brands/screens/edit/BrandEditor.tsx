@@ -13,7 +13,7 @@ import {Brand} from "@/types/admin/BrandTypes.ts";
 import {z} from "zod";
 import {Controller, useForm} from "react-hook-form";
 import {zodResolver} from "@hookform/resolvers/zod";
-import useEditBrand from "@/pages/admin/brands/hooks/useEditBrand.ts";
+import useUpdateBrand from "@/pages/admin/brands/hooks/useUpdateBrand.ts";
 import {useEffect, useState} from "react";
 import {AlertCircle, ChevronDown, ChevronUp} from "lucide-react";
 import {toast} from "@/components/shared/toast";
@@ -47,7 +47,7 @@ const BrandEditor = ({brand, isDialogOpen, setIsDialogOpen, onSuccess}: BrandEdi
     const isEditing = !!brand;
     const [showDetails, setShowDetails] = useState(false);
 
-    const {updateBrand, isLoading, errorMsg, technicalDetails} = useEditBrand({
+    const {updateBrand, isLoading, errorMsg, technicalDetails} = useUpdateBrand({
         onSuccess: () => {
             toast.success('Brand updated successfully!');
             handleClose();
@@ -107,7 +107,7 @@ const BrandEditor = ({brand, isDialogOpen, setIsDialogOpen, onSuccess}: BrandEdi
 
     return (
         <Dialog open={isDialogOpen} onClose={handleClose} size="xl">
-            <DialogHeader title={isEditing ? 'Edit Brand' : 'Create Brand'}/>
+            <DialogHeader title={'Edit Brand'}/>
             <DialogContent>
                 <Form onSubmit={handleSubmit(onSubmit)}>
                     <div className="grid grid-cols-1 gap-4">
@@ -170,7 +170,6 @@ const BrandEditor = ({brand, isDialogOpen, setIsDialogOpen, onSuccess}: BrandEdi
                             control={control}
                             render={({field}) => (
                                 <FormItem
-                                    label="Logo"
                                     errorMessage={errors.logoUrl?.message}
                                     invalid={!!errors.logoUrl}
                                 >
