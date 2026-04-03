@@ -1,5 +1,5 @@
 import getServiceEndpoint from "@/utils/HostnameResolver.ts";
-import {Brand} from "@/types/admin/brand.types.ts";
+import {Brand} from "@/types/admin/BrandTypes.ts";
 import {GraphQLService} from "@/services/graphql/GraphQLService.ts";
 import {
     ALL_BRANDS,

@@ -1,5 +1,5 @@
 import {useState} from "react";
-import {Brand} from "@/types/admin/brand.types.ts";
+import {Brand} from "@/types/admin/BrandTypes.ts";
 import {apiUpdateBrand} from "@/services/graphql/admin/brand/BrandService.ts";
 import {extractTechnicalDetails} from "@/utils/graphqlErrorUtils.ts";
 

@@ -1,7 +1,7 @@
 import {ColumnDef} from "@tanstack/react-table";
 import {DataTable} from "@/components/shared/datatable/DataTable.tsx";
 import useBrandList from "@/pages/admin/brands/hooks/useBrandList.ts";
-import {Brand} from "@/types/admin/brand.types.ts";
+import {Brand} from "@/types/admin/BrandTypes.ts";
 import {useMemo, useState} from "react";
 import {Button, ConfirmationDialog, Thumbnail, toast} from "@/components";
 import {Download, PenLine, Plus, TrashIcon, Upload} from "lucide-react";
