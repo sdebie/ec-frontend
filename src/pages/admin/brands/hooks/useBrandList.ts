@@ -1,5 +1,5 @@
 import {useCallback, useEffect, useMemo, useState} from "react";
-import {apiGetAllBrands, apiGetBrandCount} from "@/services/graphql/admin/brand/brand.service.ts";
+import {apiGetAllBrands, apiGetBrandCount} from "@/services/graphql/admin/brand/BrandService.ts";
 import {Brand} from "@/types/admin/brand.types.ts";
 import {FilterRequest} from "@/types/graphql/query.types.ts";
 

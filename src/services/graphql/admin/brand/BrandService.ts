@@ -7,7 +7,7 @@ import {
     CREATE_BRAND,
     DELETE_BRAND,
     UPDATE_BRAND
-} from "@/services/graphql/admin/brand/brand.queries.ts";
+} from "@/services/graphql/admin/brand/BrandQueries.ts";
 import {FilterRequest, PageRequest} from "@/types/graphql/query.types.ts";
 
 const graphQLEndpoint = getServiceEndpoint(8080) + '/api/graphql';

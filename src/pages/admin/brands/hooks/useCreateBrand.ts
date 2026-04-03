@@ -1,6 +1,6 @@
 import {useState} from "react";
 import {Brand} from "@/types/admin/brand.types.ts";
-import {apiCreateBrand} from "@/services/graphql/admin/brand/brand.service.ts";
+import {apiCreateBrand} from "@/services/graphql/admin/brand/BrandService.ts";
 import {extractTechnicalDetails} from "@/utils/graphqlErrorUtils.ts";
 
 const FRIENDLY_ERROR_MSG = "We couldn't create the brand right now. Please try again.";
