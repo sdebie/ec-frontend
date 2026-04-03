@@ -18,6 +18,18 @@ export const BRAND_COUNT = gql`
     }
 `;
 
+export const GET_BRAND = gql`
+    query Brand($id: String!) {
+        brand(id: $id) {
+            id
+            name
+            description
+            slug
+            logoUrl
+        }
+    }
+`;
+
 export const CREATE_BRAND = gql`
     mutation CreateBrand($brandDto: BrandDtoInput!) {
         createBrand(brandDto: $brandDto)

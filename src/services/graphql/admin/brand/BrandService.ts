@@ -5,7 +5,7 @@ import {
     ALL_BRANDS,
     BRAND_COUNT,
     CREATE_BRAND,
-    DELETE_BRAND,
+    DELETE_BRAND, GET_BRAND,
     UPDATE_BRAND
 } from "@/services/graphql/admin/brand/BrandQueries.ts";
 import {FilterRequest, PageRequest} from "@/types/graphql/query.types.ts";
@@ -34,6 +34,15 @@ export async function apiGetBrandCount(filterRequest: FilterRequest): Promise<nu
     });
 
     return result.brandCount ?? 0;
+}
+
+export async function apiGetBrand(id: string): Promise<Brand> {
+
+    const client = await GraphQLService.getGraphQLClient(graphQLEndpoint);
+
+    const result = await client.request<{ brand: Brand }>(GET_BRAND, {id});
+
+    return result.brand;
 }
 
 export async function apiCreateBrand(brandDto: Omit<Brand, 'id'>): Promise<void> {
