@@ -1,43 +1,44 @@
 import {useState} from "react";
-import {Brand} from "@/types/admin/BrandTypes.ts";
-import {apiCreateBrand} from "@/services/graphql/admin/brand/BrandService.ts";
 import {extractTechnicalDetails} from "@/utils/graphqlErrorUtils.ts";
+import {apiDeleteCategory} from "@/services/graphql/admin/category/CategoryService.ts";
 
-const FRIENDLY_ERROR_MSG = "We couldn't create the brand right now. Please try again.";
+const FRIENDLY_ERROR_MSG = "We couldn't delete the category right now. Please try again.";
 
-type UseCreateBrandOptions = {
+type UseDeleteCategoryOptions = {
     onSuccess?: () => void;
     onError?: (error: unknown) => void;
 };
 
-export default function useCreateBrand(options?: UseCreateBrandOptions) {
+export default function useDeleteCategory(options?: UseDeleteCategoryOptions) {
 
     const [isLoading, setIsLoading] = useState(false);
     const [errorMsg, setErrorMsg] = useState("");
     const [technicalDetails, setTechnicalDetails] = useState("");
 
-    const createBrand = async (brandDto: Omit<Brand, "id">) => {
+    const deleteCategory = async (categoryId: string) => {
         try {
             setIsLoading(true);
             setErrorMsg("");
             setTechnicalDetails("");
-            await apiCreateBrand(brandDto);
+
+            await apiDeleteCategory(categoryId);
             options?.onSuccess?.();
+
         } catch (error) {
-            console.error("Failed to create brand:", error);
+            console.error("Failed to create category:", error);
             setErrorMsg(FRIENDLY_ERROR_MSG);
             setTechnicalDetails(extractTechnicalDetails(error));
             options?.onError?.(error);
+
         } finally {
             setIsLoading(false);
         }
     };
 
     return {
-        createBrand,
+        deleteCategory,
         isLoading,
         errorMsg,
         technicalDetails,
     };
 }
-

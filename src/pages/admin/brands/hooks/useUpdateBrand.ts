@@ -1,30 +1,35 @@
 import {useState} from "react";
 import {Brand} from "@/types/admin/BrandTypes.ts";
-import {apiCreateBrand} from "@/services/graphql/admin/brand/BrandService.ts";
+import {apiUpdateBrand} from "@/services/graphql/admin/brand/BrandService.ts";
 import {extractTechnicalDetails} from "@/utils/graphqlErrorUtils.ts";
 
-const FRIENDLY_ERROR_MSG = "We couldn't create the brand right now. Please try again.";
+const FRIENDLY_ERROR_MSG = "We couldn't save your changes right now. Please try again.";
 
-type UseCreateBrandOptions = {
+type UseEditBrandOptions = {
     onSuccess?: () => void;
     onError?: (error: unknown) => void;
 };
 
-export default function useCreateBrand(options?: UseCreateBrandOptions) {
-
+export default function useUpdateBrand(options?: UseEditBrandOptions) {
     const [isLoading, setIsLoading] = useState(false);
     const [errorMsg, setErrorMsg] = useState("");
     const [technicalDetails, setTechnicalDetails] = useState("");
 
-    const createBrand = async (brandDto: Omit<Brand, "id">) => {
+    const updateBrand = async (brand: Brand) => {
+        const {id, ...brandDto} = brand;
+        if (!id) {
+            setErrorMsg("Brand id is required to update.");
+            setTechnicalDetails("");
+            return;
+        }
         try {
             setIsLoading(true);
             setErrorMsg("");
             setTechnicalDetails("");
-            await apiCreateBrand(brandDto);
+            await apiUpdateBrand(id, brandDto);
             options?.onSuccess?.();
         } catch (error) {
-            console.error("Failed to create brand:", error);
+            console.error("Failed to update brand:", error);
             setErrorMsg(FRIENDLY_ERROR_MSG);
             setTechnicalDetails(extractTechnicalDetails(error));
             options?.onError?.(error);
@@ -34,7 +39,7 @@ export default function useCreateBrand(options?: UseCreateBrandOptions) {
     };
 
     return {
-        createBrand,
+        updateBrand,
         isLoading,
         errorMsg,
         technicalDetails,

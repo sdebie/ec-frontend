@@ -73,14 +73,14 @@ export function Dialog({open, onClose, children, size = 'md', className}: Dialog
         <DialogContext.Provider value={{onClose}}>
             {/* Overlay */}
             <div
-                className="fixed inset-0 z-50 bg-[#00000080] backdrop-blur-sm transition-opacity"
+                className="fixed inset-0 z-100 bg-[#00000080] backdrop-blur-sm transition-opacity"
                 aria-hidden="true"
                 onClick={onClose}
             />
 
             {/* Container */}
             <div
-                className="fixed inset-x-0  bottom-0 top-15 z-50 flex items-center justify-center p-4 pointer-events-none">
+                className="fixed inset-0 z-100 flex items-center justify-center p-4 pointer-events-none">
                 <div
                     role="dialog"
                     aria-modal="true"
@@ -135,7 +135,7 @@ export function DialogContent({className, children}: { className?: string; child
     return (
         // overscroll-contain stops scroll events from propagating to the page
         // when the user reaches the top or bottom of the dialog content.
-        <div className={cn('p-6 overflow-y-auto flex-1 min-h-0 overscroll-contain', className)}>
+        <div className={cn('pt-6 -mt-6 p-6 overflow-y-auto flex-1 min-h-0 overscroll-contain', className)}>
             {children}
         </div>
     );

@@ -47,7 +47,7 @@ export const adminMenuRoutes: Routes = [
             {
                 key: 'admin.products.categories',
                 path: '/admin/products/categories',
-                component: lazy(() => import('../../../pages/admin/categories/CategoryList.tsx')),
+                component: lazy(() => import('@/pages/admin/category/screens/list')),
                 authority: ['SUPER_ADMIN'],
                 meta: {
                     label: 'Categories',

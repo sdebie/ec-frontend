@@ -1,13 +1,24 @@
-import {Button, Dialog, DialogContent, DialogFooter, DialogHeader, Form, FormItem, ImageUpload, Input} from "@/components";
-import {Brand} from "@/types/admin/brand.types.ts";
+import {
+    Button,
+    Dialog,
+    DialogContent,
+    DialogFooter,
+    DialogHeader,
+    Form,
+    FormItem,
+    ImageUpload,
+    Input
+} from "@/components";
+import {Brand} from "@/types/admin/BrandTypes.ts";
 import {z} from "zod";
 import {Controller, useForm} from "react-hook-form";
 import {zodResolver} from "@hookform/resolvers/zod";
-import useEditBrand from "@/pages/admin/brands/hooks/useEditBrand.ts";
+import useUpdateBrand from "@/pages/admin/brands/hooks/useUpdateBrand.ts";
 import {useEffect, useState} from "react";
 import {AlertCircle, ChevronDown, ChevronUp} from "lucide-react";
 import {toast} from "@/components/shared/toast";
 import {IMAGE_BASE_URL} from "@/constants/api.constant.ts";
+import useGetBrand from "@/pages/admin/brands/hooks/useGetBrand.ts";
 
 type BrandEditorProps = {
     brand?: Brand;
@@ -27,10 +38,16 @@ const formSchema = z.object({
 type FormValues = z.infer<typeof formSchema>;
 
 const BrandEditor = ({brand, isDialogOpen, setIsDialogOpen, onSuccess}: BrandEditorProps) => {
+
+    const {
+        brand: freshBrand,
+        isLoading: isFetchingBrand,
+    } = useGetBrand(brand?.id, isDialogOpen && !!brand);
+
     const isEditing = !!brand;
     const [showDetails, setShowDetails] = useState(false);
 
-    const {updateBrand, isLoading, errorMsg, technicalDetails} = useEditBrand({
+    const {updateBrand, isLoading, errorMsg, technicalDetails} = useUpdateBrand({
         onSuccess: () => {
             toast.success('Brand updated successfully!');
             handleClose();
@@ -42,7 +59,7 @@ const BrandEditor = ({brand, isDialogOpen, setIsDialogOpen, onSuccess}: BrandEdi
         control,
         handleSubmit,
         reset,
-        formState: {errors, isSubmitting},
+        formState: {errors, isSubmitting, isDirty},
     } = useForm<FormValues>({
         resolver: zodResolver(formSchema),
         defaultValues: {
@@ -55,26 +72,20 @@ const BrandEditor = ({brand, isDialogOpen, setIsDialogOpen, onSuccess}: BrandEdi
     });
 
     useEffect(() => {
-        if (!isDialogOpen) return; // only rehydrate when the dialog is actually opening
+        if (!isDialogOpen) return;
 
-        if (brand) {
+        if (freshBrand) {
             reset({
-                id: brand.id,
-                name: brand.name,
-                description: brand.description ?? '',
-                slug: brand.slug ?? '',
-                logoUrl: brand.logoUrl ?? '',
+                id: freshBrand.id,
+                name: freshBrand.name,
+                description: freshBrand.description ?? '',
+                slug: freshBrand.slug ?? '',
+                logoUrl: freshBrand.logoUrl ?? '',
             });
-        } else {
-            reset({
-                id: '',
-                name: '',
-                description: '',
-                slug: '',
-                logoUrl: '',
-            });
+        } else if (!brand) {
+            reset({id: '', name: '', description: '', slug: '', logoUrl: ''});
         }
-    }, [brand, isDialogOpen, reset]);
+    }, [freshBrand, isDialogOpen, brand, reset]);
 
     const handleClose = () => {
         reset();
@@ -96,7 +107,7 @@ const BrandEditor = ({brand, isDialogOpen, setIsDialogOpen, onSuccess}: BrandEdi
 
     return (
         <Dialog open={isDialogOpen} onClose={handleClose} size="xl">
-            <DialogHeader title={isEditing ? 'Edit Brand' : 'Create Brand'}/>
+            <DialogHeader title={'Edit Brand'}/>
             <DialogContent>
                 <Form onSubmit={handleSubmit(onSubmit)}>
                     <div className="grid grid-cols-1 gap-4">
@@ -159,7 +170,6 @@ const BrandEditor = ({brand, isDialogOpen, setIsDialogOpen, onSuccess}: BrandEdi
                             control={control}
                             render={({field}) => (
                                 <FormItem
-                                    label="Logo"
                                     errorMessage={errors.logoUrl?.message}
                                     invalid={!!errors.logoUrl}
                                 >
@@ -215,7 +225,7 @@ const BrandEditor = ({brand, isDialogOpen, setIsDialogOpen, onSuccess}: BrandEdi
                 <Button
                     variant="solid"
                     onClick={handleSubmit(onSubmit)}
-                    disabled={isLoading || isSubmitting}
+                    disabled={isLoading || isSubmitting || isFetchingBrand || isDirty}
                 >
                     {isEditing ? 'Save Changes' : 'Create Brand'}
                 </Button>

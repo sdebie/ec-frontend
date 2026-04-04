@@ -1,6 +1,6 @@
-import React, { useEffect, useState } from 'react';
+import React from 'react';
 import CategoriesMenu from './CategoriesMenu';
-import { getAllCategories, CategoryData } from '../../../../services/CatagoryService';
+import useCategoryList from '@/pages/admin/category/hooks/useCategoryList.ts';
 
 interface ComponentHeaderProps {
   activeCategory: string;
@@ -8,35 +8,16 @@ interface ComponentHeaderProps {
 }
 
 const ComponentHeader: React.FC<ComponentHeaderProps> = ({ activeCategory, onSelectCategory }) => {
-  const [categories, setCategories] = useState<string[]>([]);
-  const [loading, setLoading] = useState<boolean>(true);
-  const [error, setError] = useState<string | null>(null);
+  const { categories: fetchedCategories, isLoading, errorMsg } = useCategoryList();
 
-  useEffect(() => {
-    const fetchCategories = async () => {
-      try {
-        setLoading(true);
-        const fetchedCategories: CategoryData[] = await getAllCategories();
-        const categoryNames = ['All', ...fetchedCategories.map(cat => cat.name)];
-        setCategories(categoryNames);
-      } catch (err) {
-        console.error("Failed to fetch categories:", err);
-        setError("Failed to load categories.");
-        setCategories(['All']); // Fallback
-      } finally {
-        setLoading(false);
-      }
-    };
+  const categories = ['All', ...fetchedCategories.map(cat => cat.name)];
 
-    fetchCategories();
-  }, []);
-
-  if (loading) {
+  if (isLoading) {
     return <div className="component-header p-4">Loading categories...</div>;
   }
 
-  if (error) {
-    return <div className="component-header p-4 text-red-600">{error}</div>;
+  if (errorMsg) {
+    return <div className="component-header p-4 text-red-600">{errorMsg}</div>;
   }
 
   return (

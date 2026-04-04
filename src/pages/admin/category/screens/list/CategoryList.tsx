@@ -1,18 +1,19 @@
 import {ColumnDef} from "@tanstack/react-table";
 import {DataTable} from "@/components/shared/datatable/DataTable.tsx";
-import useBrandList from "@/pages/admin/brands/hooks/useBrandList.ts";
-import {Brand} from "@/types/admin/BrandTypes.ts";
+import useCategoryList from "@/pages/admin/category/hooks/useCategoryList.ts";
+import {Category} from "@/types/admin/CategoryTypes.ts";
 import {useMemo, useState} from "react";
 import {Button, ConfirmationDialog, Thumbnail, toast} from "@/components";
-import {Download, PenLine, Plus, TrashIcon, Upload} from "lucide-react";
-import BrandEditor from "@/pages/admin/brands/screens/edit";
-import BrandCreate from "@/pages/admin/brands/screens/create";
-import useDeleteBrand from "@/pages/admin/brands/hooks/useDeleteBrand.ts";
+import {PenLine, Plus, TrashIcon} from "lucide-react";
+import CategoryCreate from "@/pages/admin/category/screens/create/CategoryCreate.tsx";
+import useDeleteCategory from "@/pages/admin/category/hooks/useDeleteCategory.ts";
+import CategoryEditor from "@/pages/admin/category/screens/edit";
 
-const BrandList = () => {
+
+const CategoryList = () => {
 
     const {
-        brands,
+        categories,
         isLoading,
         errorMsg,
         pageIndex,
@@ -23,47 +24,32 @@ const BrandList = () => {
         onPageSizeChange,
         onSearchChange,
         mutate,
-    } = useBrandList();
+    } = useCategoryList();
 
-    const [brand, setBrand] = useState<Brand>();
+    const [category, setCategory] = useState<Category>();
     const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
     const [isCreateDialogOpen, setIsCreateDialogOpen] = useState(false);
-    const [brandToDelete, setBrandToDelete] = useState<Brand>();
+    const [categoryToDelete, setCategoryToDelete] = useState<Category>();
     const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
 
-    const {deleteBrand, isLoading: isDeleting} = useDeleteBrand({
-        onSuccess: () => {
-            toast.success(`"${brandToDelete?.name}" deleted successfully.`);
-            setIsDeleteDialogOpen(false);
-            setBrandToDelete(undefined);
-            mutate();
-        },
-        onError: () => {
-            toast.error('Failed to delete brand. Please try again.');
-        },
-    });
+    function handleEdit(original: Category) {
+        setCategory(original);
+        setIsEditDialogOpen(true);
+    }
 
-    function handleDelete(original: Brand) {
-        setBrandToDelete(original);
+    function handleDelete(original: Category) {
+        setCategoryToDelete(original);
         setIsDeleteDialogOpen(true);
     }
 
-    function confirmDelete() {
-        if (brandToDelete) {
-            deleteBrand(brandToDelete.id).catch(() => {
-                toast.error('Failed to delete brand. Please try again.');
-            });
-        }
-    }
-
-    const columns: ColumnDef<Brand>[] = useMemo(() => [
+    const columns: ColumnDef<Category>[] = useMemo(() => [
         {
-            id: 'logo',
+            id: 'imageUrl',
             header: 'Logo',
             enableSorting: false,
             size: 72,
             cell: ({row}) => (
-                <Thumbnail logoUrl={row.original.logoUrl} name={row.original.name}/>
+                <Thumbnail logoUrl={row.original.imageUrl} name={row.original.name}/>
             ),
         },
         {
@@ -77,6 +63,14 @@ const BrandList = () => {
             accessorKey: 'description',
             header: 'Description',
             enableSorting: true,
+        },
+        {
+            id: 'parent',
+            header: 'Parent Category',
+            enableSorting: false,
+            cell: ({row}) => (
+                <div>{row.original.parent?.name || '-'}</div>
+            ),
         },
         {
             id: 'actions',
@@ -95,34 +89,40 @@ const BrandList = () => {
         }
     ], []);
 
-
-    function handleEdit(brand: Brand) {
-        setBrand(brand);
-        setIsEditDialogOpen(true);
-    }
-
-    function handleImport() {
-        //TODO:: Import file
-    }
-
-    function handleExport() {
-        //TODO:: Export file
-    }
-
     function handleCreate() {
-        setBrand(undefined);
+        setCategory(undefined);
         setIsCreateDialogOpen(true);
+    }
+
+    const {deleteCategory, isLoading: isDeleting} = useDeleteCategory({
+        onSuccess: () => {
+            toast.success(`"${categoryToDelete?.name}" deleted successfully.`);
+            setIsDeleteDialogOpen(false);
+            setCategoryToDelete(undefined);
+            mutate();
+        },
+        onError: () => {
+            toast.error('Failed to delete brand. Please try again.');
+        },
+    });
+
+    function confirmDelete() {
+        if (categoryToDelete) {
+            deleteCategory(categoryToDelete.id).catch(() => {
+                toast.error('Failed to delete category. Please try again.');
+            });
+        }
     }
 
     return (
         <>
-            <h1 className="text-2xl font-bold mb-4">Brands</h1>
-            <DataTable<Brand>
-                data={brands}
+            <h1 className="text-2xl font-bold mb-4">Categories</h1>
+            <DataTable<Category>
+                data={categories}
                 columns={columns}
                 isLoading={isLoading}
                 errorMsg={errorMsg}
-                globalSearchPlaceholder="Search brands..."
+                globalSearchPlaceholder="Search categories..."
                 manualPagination
                 serverPageIndex={pageIndex}
                 serverPageSize={pageSize}
@@ -133,12 +133,6 @@ const BrandList = () => {
                 onServerSearchChange={onSearchChange}
                 toolbarAction={
                     <div className={"flex items-center gap-2"}>
-                        <Button variant={"secondary"} onClick={handleImport} leftIcon={<Download size={16}/>}>
-                            Import
-                        </Button>
-                        <Button variant={"outline"} onClick={handleExport} leftIcon={<Upload size={16}/>}>
-                            Export
-                        </Button>
                         <Button onClick={handleCreate} leftIcon={<Plus size={16}/>}>
                             Create Brand
                         </Button>
@@ -146,30 +140,30 @@ const BrandList = () => {
                 }
             />
 
-            <BrandEditor brand={brand}
-                         isDialogOpen={isEditDialogOpen}
-                         setIsDialogOpen={setIsEditDialogOpen}
-                         onSuccess={mutate}
+            <CategoryEditor category={category}
+                            isDialogOpen={isEditDialogOpen}
+                            setIsDialogOpen={setIsEditDialogOpen}
+                            onSuccess={mutate}
             />
 
-            <BrandCreate isDialogOpen={isCreateDialogOpen}
-                         setIsDialogOpen={setIsCreateDialogOpen}
-                         onSuccess={mutate}
+            <CategoryCreate isDialogOpen={isCreateDialogOpen}
+                            setIsDialogOpen={setIsCreateDialogOpen}
+                            onSuccess={mutate}
             />
 
             <ConfirmationDialog
                 open={isDeleteDialogOpen}
                 onClose={() => setIsDeleteDialogOpen(false)}
                 onConfirm={confirmDelete}
-                title="Delete Brand"
+                title="Delete Category"
                 message={<>Are you sure you want to delete <strong
-                    className="text-admin-text">{brandToDelete?.name}</strong>? This action cannot be undone.</>}
+                    className="text-admin-text">{categoryToDelete?.name}</strong>? This action cannot be undone.</>}
                 confirmText="Delete"
                 variant="error"
                 loading={isDeleting}
             />
         </>
     );
-};
+}
 
-export default BrandList;
+export default CategoryList;

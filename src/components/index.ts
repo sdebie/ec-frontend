@@ -21,6 +21,7 @@ export {PresetSegmentItemOption} from './shared/presetsegment';
 export {Radio} from './shared/radio';
 export {Segment} from './shared/segment';
 export {Select} from './shared/select';
+export {SearchableSelect} from './shared/select';
 export {SidebarSection, SidebarItem} from './shared/sidebar';
 export {Switcher} from './shared/switcher';
 export {Textarea} from './shared/textarea';
