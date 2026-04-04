@@ -2,10 +2,11 @@ import { useEffect, useMemo, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { ColumnDef } from "@tanstack/react-table";
 import { Button, DataTable } from "@/components";
-import { getProductImportRows, processProductUploadBatch, ProductUploadStaged } from "@/services/ProductService.ts";
+import { getProductImportRows, ProductUploadStaged } from "@/services/ProductService.ts";
 import { PenLine } from "lucide-react";
 import { getProductImportValidationStatus } from "@/constants/enums/ProductImportValidationStatus.ts";
 import ProductImportRowDetailDialog from "./comonents/ProductImportRowDetailDialog.tsx";
+import {processProductUploadBatch} from "@/services/rest/admin/ProductService.ts";
 
 const ProductImportReview = () => {
     const { batchId } = useParams();

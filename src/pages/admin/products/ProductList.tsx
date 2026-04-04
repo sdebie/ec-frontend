@@ -1,8 +1,9 @@
 import {ColumnDef, createColumnHelper} from "@tanstack/react-table";
 import {DataTable} from "@/components/shared/datatable/DataTable.tsx";
-import {exportAllProducts, fetchProducts, ProductListItem} from "@/services/ProductService.ts";
+import {fetchProducts, ProductListItem} from "@/services/ProductService.ts";
 import {useEffect, useState} from "react";
 import {Button} from "@/components";
+import {exportAllProducts} from "@/services/rest/admin/ProductService.ts";
 
 const ProductList = () => {
     const [products, setProducts] = useState<ProductListItem[]>([]);

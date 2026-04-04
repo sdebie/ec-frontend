@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { apiOrderById, apiOrderBySessionId, apiUpdateOrderStatus } from '@/services/OrderService.ts';
 import { OrderData } from './types.ts';
 import { CartStore } from '@/store/cartStore.ts';
-import { fetchShippingMethods, ShippingMethod, PaymentMethodKey, fetchPaymentMethodsConfig, PaymentMethodsConfig, PaymentMethodInfo } from "../../../services/StoreSettings.ts";
+import { ShippingMethod, PaymentMethodKey, fetchPaymentMethodsConfig, PaymentMethodsConfig, PaymentMethodInfo } from "../../../services/StoreSettings.ts";
 import {
   lookupCustomer,
   registerOrUpdateCustomer,
@@ -27,7 +27,7 @@ interface HtmlFormField {
 const gatewayPath = 'https://sandbox.payfast.co.za/eng/process';
 
 const Checkout: React.FC = () => {
-  //Settings
+  //GeneralSettings
   const [shippingMethods, setShippingMethods] = useState<ShippingMethod[]>([]);
   const [selectedMethodId, setSelectedMethodId] = useState<number | null>(null);
   const [address, setAddress] = useState({
@@ -61,7 +61,7 @@ const Checkout: React.FC = () => {
 // Load shipping options on mount
   useEffect(() => {
     fetchShippingMethods().then(methods => {
-      setShippingMethods(methods.filter(m => m.isActive));
+      setShippingMethods(methods.filter(m => m.active));
     });
     // Load payment methods config from settings (new JSON format)
     fetchPaymentMethodsConfig().then((cfg) => {

@@ -1,8 +1,8 @@
 import React, { useState } from 'react';
 import { Button } from "@/components";
 import { useNavigate } from 'react-router-dom';
-import { uploadProductCsv } from "@/services/ProductService.ts";
 import { Dialog, DialogContent, DialogFooter, DialogHeader } from "@/components/shared/dialog/Dialog.tsx";
+import {uploadProductCsv} from "@/services/rest/admin/ProductService.ts";
 
 const ProductBulkUpload = () => {
     const [file, setFile] = useState<File | null>(null);
@@ -25,8 +25,7 @@ const ProductBulkUpload = () => {
         setIsUploading(true);
 
         try {
-            const response = await uploadProductCsv(file);
-            const result = await response.json();
+            await uploadProductCsv(file);
 
             setIsDialogOpen(false);
             navigate("/admin/imports/products/list");

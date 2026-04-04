@@ -108,7 +108,7 @@ export const adminMenuRoutes: Routes = [
     {
         key: 'admin.settings',
         path: '/admin/settings',
-        component: lazy(() => import('../../../pages/admin/settings/Settings.tsx')),
+        component: lazy(() => import('../../../pages/admin/settings/screens/./GeneralSettings')),
         authority: ['SUPER_ADMIN'],
         meta: {
             label: 'Settings',
@@ -117,6 +117,41 @@ export const adminMenuRoutes: Routes = [
             pageContainerType: 'contained',
             icon: 'settings',
         },
+        subMenu: [
+            {
+                key: 'admin.settings.general',
+                path: '/admin/settings/general',
+                component: lazy(() => import('../../../pages/admin/settings/screens/./GeneralSettings')),
+                authority: ['SUPER_ADMIN'],
+                meta: {
+                    label: 'General Settings',
+                    pageBackgroundType: 'plain',
+                    pageContainerType: 'contained',
+                },
+            },
+            {
+                key: 'admin.settings.store',
+                path: '/admin/settings/store',
+                component: lazy(() => import('../../../pages/admin/settings/screens/./StoreSettings')),
+                authority: ['SUPER_ADMIN'],
+                meta: {
+                    label: 'Store Settings',
+                    pageBackgroundType: 'plain',
+                    pageContainerType: 'contained',
+                },
+            },
+            {
+                key: 'admin.settings.shipping',
+                path: '/admin/settings/shipping',
+                component: lazy(() => import('../../../pages/admin/settings/screens/./ShippingSettings')),
+                authority: ['SUPER_ADMIN'],
+                meta: {
+                    label: 'Shipping Methods',
+                    pageBackgroundType: 'plain',
+                    pageContainerType: 'contained',
+                },
+            },
+        ],
     },
     {
         key: 'admin.component-demo',

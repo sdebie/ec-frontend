@@ -3,11 +3,11 @@ import {Button, DataTable} from "@/components";
 import {useEffect, useMemo, useState} from "react";
 import {ColumnDef} from "@tanstack/react-table";
 import {
-    getProductUploadBatchProcessStatus,
     getProductUploadBatches,
     ProductUploadBatch,
 } from "@/services/ProductService.ts";
-import {Eye, LoaderCircle, PenLine, Plus, RefreshCw} from "lucide-react";
+import {Eye, LoaderCircle, Plus, RefreshCw} from "lucide-react";
+import {getProductUploadBatchProcessStatus} from "@/services/rest/admin/ProductService.ts";
 
 const BulkProductUploadList = () => {
 

@@ -1,8 +1,10 @@
-import {useAdminTheme} from "@/hooks/useAdminTheme.ts";
-import {ThemePreset} from "@/context/AdminThemeContext.tsx";
+import {AdaptiveCard} from "@/components";
 import {cn} from "@/utils/cn.ts";
+import {useAdminTheme} from "@/hooks/useAdminTheme.ts";
 
-const Settings = () => {
+export type ThemePreset = 'blue' | 'purple' | 'green' | 'orange' | 'red';
+
+const GeneralSettings = () => {
     const {preset, setPreset} = useAdminTheme();
 
     const presets: { id: ThemePreset; name: string; colorClass: string }[] = [
@@ -12,20 +14,20 @@ const Settings = () => {
         {id: 'orange', name: 'Orange', colorClass: 'bg-orange-500'},
         {id: 'red', name: 'Red', colorClass: 'bg-red-500'},
     ];
-
     return (
         <>
-            <div className="grid gap-6">
-                <div
-                    className="bg-admin-panel border border-admin-border rounded-xl shadow-[0_1px_3px_0_rgba(0,0,0,0.02)] overflow-hidden">
-                    <div className="p-6 border-b border-admin-border">
-                        <h2 className="text-lg font-semibold text-admin-text">Appearance</h2>
-                        <p className="text-sm text-admin-text-muted mt-1">Customize the look and feel of your admin
-                            dashboard.</p>
-                    </div>
-
-                    <div className="p-6">
-                        <h3 className="text-sm font-medium text-admin-text mb-4">Theme Preset Theme Color</h3>
+            <section className="space-y-4">
+                <h2 className="text-xl font-semibold text-admin-text border-b border-admin-border pb-2">
+                    Appearance
+                </h2>
+                <AdaptiveCard>
+                    <div className="space-y-4">
+                        <div>
+                            <h3 className="text-sm font-medium text-admin-text mb-1">Theme Preset</h3>
+                            <p className="text-xs text-admin-text-muted mb-4">
+                                Customize the look and feel of your admin dashboard.
+                            </p>
+                        </div>
                         <div className="flex flex-wrap gap-4">
                             {presets.map((p) => (
                                 <button
@@ -44,10 +46,10 @@ const Settings = () => {
                             ))}
                         </div>
                     </div>
-                </div>
-            </div>
+                </AdaptiveCard>
+            </section>
         </>
     );
-}
+};
 
-export default Settings;
+export default GeneralSettings;
