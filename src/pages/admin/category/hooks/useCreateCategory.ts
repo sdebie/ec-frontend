@@ -1,7 +1,7 @@
 import {useState} from "react";
 import {extractTechnicalDetails} from "@/utils/graphqlErrorUtils.ts";
 import {Category} from "@/types/admin/CategoryTypes.ts";
-import {apiCreateCategory} from "@/services/graphql/admin/category/CategoryService.ts";
+import {apiCreateCategory} from "@/services/graphql/admin/category/CategoryService.graphql.ts";
 
 
 const FRIENDLY_ERROR_MSG = "We couldn't create the category right now. Please try again.";

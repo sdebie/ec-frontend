@@ -1,17 +1,10 @@
 import getServiceEndpoint from "@/utils/HostnameResolver.ts";
 import {Brand} from "@/types/admin/BrandTypes.ts";
 import {GraphQLService} from "@/services/graphql/GraphQLService.ts";
-import {
-    ALL_BRANDS,
-    BRAND_COUNT,
-    CREATE_BRAND,
-    DELETE_BRAND, GET_BRAND,
-    UPDATE_BRAND
-} from "@/services/graphql/admin/brand/BrandQueries.ts";
+import {ALL_BRANDS, BRAND_COUNT, CREATE_BRAND, DELETE_BRAND, GET_BRAND, UPDATE_BRAND} from "./brand.queries.ts";
 import {FilterRequest, PageRequest} from "@/types/graphql/query.types.ts";
 
 const graphQLEndpoint = getServiceEndpoint(8080) + '/api/graphql';
-
 
 export async function apiGetAllBrands(pageRequest: PageRequest, filterRequest: FilterRequest): Promise<Brand[]> {
 

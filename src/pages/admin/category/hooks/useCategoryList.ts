@@ -1,7 +1,7 @@
 import {useCallback, useEffect, useMemo, useState} from "react";
 import {Category} from "@/types/admin/CategoryTypes.ts";
 import {FilterRequest} from "@/types/graphql/query.types.ts";
-import {apiGetAllCategories, apiGetCategoryCount} from "@/services/graphql/admin/category/CategoryService.ts";
+import {apiGetAllCategories, apiGetCategoryCount} from "@/services/graphql/admin/category/CategoryService.graphql.ts";
 
 const DEFAULT_PAGE_SIZE = 10;
 

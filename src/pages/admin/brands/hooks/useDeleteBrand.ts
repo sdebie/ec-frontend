@@ -1,5 +1,5 @@
 import {useState} from "react";
-import {apiDeleteBrand} from "@/services/graphql/admin/brand/BrandService.ts";
+import {apiDeleteBrand} from "@/services/graphql/admin/brand/BrandService.graphql.ts";
 import {extractTechnicalDetails} from "@/utils/graphqlErrorUtils.ts";
 
 const FRIENDLY_ERROR_MSG = "We couldn't delete the brand right now. Please try again.";
