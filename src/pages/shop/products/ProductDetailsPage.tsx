@@ -1,7 +1,8 @@
 import ProductCard from "./components/ProductCard.tsx";
 import { useParams } from "react-router-dom";
 import { useEffect, useState } from "react";
-import { fetchProductWithVariants, ProductWithVariants } from "@/services/graphql/product/product.service.ts";
+import { fetchProductAndVariants } from "@/services/graphql/product/product.service.ts";
+import type { ProductAndVariants } from "@/types/admin/ProductTypes.ts";
 import { useAddToCart } from "@/pages/shop/cart/hook/useAddToCart.ts";
 
 // Define the UI Product type expected by ProductCard to keep this page self-contained
@@ -43,7 +44,7 @@ const ProductDetailsPage = () => {
         if (!idParam || idParam.length < 8) {
           throw new Error("Invalid product id");
         }
-        const result: ProductWithVariants | null = await fetchProductWithVariants(idParam);
+        const result: ProductAndVariants | null = await fetchProductAndVariants(idParam);
         if (isCancelled) return;
 
         if (!result) {

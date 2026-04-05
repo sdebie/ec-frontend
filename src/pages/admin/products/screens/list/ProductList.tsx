@@ -1,8 +1,8 @@
 import {ColumnDef} from "@tanstack/react-table";
 import {DataTable} from "@/components/shared/datatable/DataTable.tsx";
-import {ProductListItem} from "@/services/graphql/product/product.service.ts";
 import {Button} from "@/components";
 import useProductList from "@/pages/admin/products/hooks/useProductList.ts";
+import type {ProductListItem} from "@/types/admin/ProductTypes.ts";
 import {PenLine, Plus, Upload} from "lucide-react";
 import {useMemo} from "react";
 

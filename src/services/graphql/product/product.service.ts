@@ -2,74 +2,17 @@ import getServiceEndpoint from "@/utils/HostnameResolver.ts";
 import {GraphQLService} from "@/services/graphql/GraphQLService.ts";
 import {FilterRequest, PageRequest} from "@/types/graphql/query.types.ts";
 import {
+	ProductListItem,
+	ProductAndVariants,
+	VariantItem,
+} from "@/types/admin/ProductTypes.ts";
+import {
 	GET_PRODUCTS_LIST,
-	GET_PRODUCT_WITH_VARIANTS,
+	GET_PRODUCT_AND_VARIANTS,
 	PRODUCT_COUNT,
 	VARIANTS_BY_IDS,
 } from "@/services/graphql/product/product.queries.ts";
 
-export type ProductImage = {
-	id: string;
-	imageUrl: string;
-	sortOrder?: number | null;
-	isFeatured?: boolean | null;
-};
-
-export type ProductListItem = {
-	id: string;
-	name: string;
-	description?: string | null;
-	retailPrice?: number | null;
-	retailSalesPrice?: number | null;
-	wholesalePrice?: number | null;
-	wholesaleSalesPrice?: number | null;
-	productImages?: ProductImage[] | null;
-	variantIds?: string[] | null;
-	categoryName?: string | null;
-};
-
-export type VariantPrice = {
-	id: string;
-	priceType: string;
-	price: string | number;
-	priceStartDate?: string | null;
-	priceEndDate?: string | null;
-	isActive?: boolean | null;
-};
-
-export type VariantItem = {
-	id: string;
-	sku?: string | null;
-	retailPrice?: number | null;
-	retailSalesPrice?: number | null;
-	wholesalePrice?: number | null;
-	wholesaleSalesPrice?: number | null;
-	variantPrices?: VariantPrice[] | null;
-	stockQuantity?: number | null;
-	weightKg?: string | null;
-	attributesJson?: string | null;
-	product?: { name?: string | null } | null;
-};
-
-export type ProductVariant = {
-	id: string;
-	sku?: string | null;
-	retailPrice?: number | null;
-	retailSalesPrice?: number | null;
-	wholesalePrice?: number | null;
-	wholesaleSalesPrice?: number | null;
-	stockQuantity?: number | null;
-	attributesJson?: string | null;
-	weightKg?: string | null;
-};
-
-export type ProductWithVariants = {
-	productId: string;
-	productName?: string | null;
-	productDescription?: string | null;
-	productImages?: ProductImage[] | null;
-	variants?: ProductVariant[] | null;
-};
 
 const graphQLEndpoint = getServiceEndpoint(8080) + '/api/graphql';
 
@@ -111,19 +54,19 @@ export async function apiGetVariantsByIds(ids: string[]): Promise<VariantItem[]>
 	return result.variantsByIds ?? [];
 }
 
-export async function apiGetProductWithVariants(productId: string): Promise<ProductWithVariants | null> {
+export async function apiGetProductAndVariants(productId: string): Promise<ProductAndVariants | null> {
 	if (!productId) return null;
 
 	const client = await GraphQLService.getGraphQLClient(graphQLEndpoint);
 
-	const result = await client.request<{ getProductWithVariants: ProductWithVariants }>(GET_PRODUCT_WITH_VARIANTS, {
+	const result = await client.request<{ getProductAndVariants: ProductAndVariants }>(GET_PRODUCT_AND_VARIANTS, {
 		productId,
 	});
 
-	return result.getProductWithVariants ?? null;
+	return result.getProductAndVariants ?? null;
 }
 
 export const fetchProductsList = apiGetProductList;
 export const fetchVariantsByIds = apiGetVariantsByIds;
-export const fetchProductWithVariants = apiGetProductWithVariants;
+export const fetchProductAndVariants = apiGetProductAndVariants;
 export const fetchProductCount = apiGetProductCount;

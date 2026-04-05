@@ -38,9 +38,9 @@ export const VARIANTS_BY_IDS = gql`
     }
 `;
 
-export const GET_PRODUCT_WITH_VARIANTS = gql`
-    query GetProductWithVariants($productId: String!) {
-        getProductWithVariants(productId: $productId) {
+export const GET_PRODUCT_AND_VARIANTS = gql`
+    query GetProductAndVariants($productId: String!) {
+        getProductAndVariants(productId: $productId) {
             productId
             productName
             productDescription

@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react';
-import { fetchProductsList, ProductListItem } from '@/services/graphql/product/product.service.ts';
+import { fetchProductsList } from '@/services/graphql/product/product.service.ts';
+import type { ProductListItem } from '@/types/admin/ProductTypes.ts';
 import { useAddToCart } from '@/pages/shop/cart/hook/useAddToCart.ts';
 import { Link } from "react-router-dom";
 import ProductImage from "@/components/shared/imageupload/ProductImage.tsx";
@@ -43,6 +44,11 @@ const ProductList: React.FC<ProductListProps> = ({ activeCategory }) => {
         {items.map((p) => {
           // Get the first image for the list view
           const mainImage = p.productImages && p.productImages.length > 0 ? p.productImages[0] : null;
+          const primaryVariantId = p.variantIds?.[0];
+          const retailPrice = p.retailPrice ?? 0;
+          const selectedRetailPrice = p.retailSalesPrice != null && p.retailSalesPrice < retailPrice
+            ? p.retailSalesPrice
+            : retailPrice;
 
           return (
             <div key={p.id} className="border rounded-lg overflow-hidden bg-white shadow-sm">
@@ -93,15 +99,19 @@ const ProductList: React.FC<ProductListProps> = ({ activeCategory }) => {
                 <div className="flex items-center justify-between gap-2">
                   <button
                       onClick={() => {
+                        if (!primaryVariantId) return;
+
+                        const orderItem = {
+							quantity: 1,
+							unitPrice: selectedRetailPrice,
+							variant: primaryVariantId,
+						};
+
                         createOrder({
-                          items: [
-                            {
-                              quantity: 1,
-                              unitPrice: (p.retailSalesPrice && p.retailPrice < (p.retailPrice || 0)) ? p.retailSalesPrice : p.retailPrice || 0,
-                            },
-                          ],
+							items: [orderItem],
                         });
                       }}
+                      disabled={!primaryVariantId}
                       className="px-3 py-1.5 bg-blue-600 text-white rounded hover:bg-blue-700 text-sm whitespace-nowrap"
                   >
                     Add to Cart

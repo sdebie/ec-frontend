@@ -5,7 +5,7 @@ import {ColumnDef} from "@tanstack/react-table";
 import {
     apiGetProductUploadBatches,
 } from "@/services/graphql/admin/product/productImport.service.ts";
-import {ProductUploadBatch} from "@/types/admin/ProductTypes.ts";
+import type {ProductUploadBatch} from "@/types/admin/ProductTypes.ts";
 import {Eye, LoaderCircle, Plus, RefreshCw} from "lucide-react";
 import {getProductUploadBatchProcessStatus} from "@/services/rest/admin/ProductService.ts";
 

@@ -1,7 +1,7 @@
 import { type ReactNode } from "react";
 import { Button } from "@/components";
 import { Dialog, DialogContent, DialogFooter, DialogHeader } from "@/components/shared/dialog/Dialog.tsx";
-import { ProductUploadStaged } from "@/types/admin/ProductTypes.ts";
+import type { ProductUploadStaged } from "@/types/admin/ProductTypes.ts";
 
 interface ProductImportRowDetailDialogProps {
     selectedRow: ProductUploadStaged | null;
