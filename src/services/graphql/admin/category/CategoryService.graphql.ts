@@ -5,9 +5,11 @@ import {GraphQLService} from "@/services/graphql/GraphQLService.ts";
 import {
     ALL_CATEGORY,
     CATEGORY_COUNT,
-    CREATE_CATEGORY, DELETE_CATEGORY, GET_CATEGORY,
+    CREATE_CATEGORY,
+    DELETE_CATEGORY,
+    GET_CATEGORY,
     UPDATE_CATEGORY
-} from "@/services/graphql/admin/category/CategoryQueries.ts";
+} from "./category.queries.ts";
 
 const graphQLEndpoint = getServiceEndpoint(8080) + '/api/graphql';
 

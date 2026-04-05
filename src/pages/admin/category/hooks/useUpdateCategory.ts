@@ -1,7 +1,7 @@
 import {useState} from "react";
 import {extractTechnicalDetails} from "@/utils/graphqlErrorUtils.ts";
 import {Category} from "@/types/admin/CategoryTypes.ts";
-import {apiUpdateCategory} from "@/services/graphql/admin/category/CategoryService.ts";
+import {apiUpdateCategory} from "@/services/graphql/admin/category/CategoryService.graphql.ts";
 
 const FRIENDLY_ERROR_MSG = "We couldn't save your changes right now. Please try again.";
 
