@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { fetchProducts, ProductListItem } from '@/services/ProductService.ts';
+import { fetchProductsList, ProductListItem } from '@/services/graphql/product/product.service.ts';
 import { useAddToCart } from '@/pages/shop/cart/hook/useAddToCart.ts';
 import { Link } from "react-router-dom";
 import ProductImage from "@/components/shared/imageupload/ProductImage.tsx";
@@ -21,7 +21,7 @@ const ProductList: React.FC<ProductListProps> = ({ activeCategory }) => {
     (async () => {
       try {
         setLoading(true);
-        const list = await fetchProducts(activeCategory);
+        const list = await fetchProductsList(activeCategory);
         setItems(list);
       } catch (e: any) {
         console.error('Failed to load products', e);

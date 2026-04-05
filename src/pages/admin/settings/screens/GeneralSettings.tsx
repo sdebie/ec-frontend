@@ -1,8 +1,7 @@
 import {AdaptiveCard} from "@/components";
 import {cn} from "@/utils/cn.ts";
 import {useAdminTheme} from "@/hooks/useAdminTheme.ts";
-
-export type ThemePreset = 'blue' | 'purple' | 'green' | 'orange' | 'red';
+import {ThemePreset} from "@/context/AdminThemeContext.tsx";
 
 const GeneralSettings = () => {
     const {preset, setPreset} = useAdminTheme();

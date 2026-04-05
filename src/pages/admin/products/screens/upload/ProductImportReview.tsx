@@ -2,10 +2,11 @@ import { useEffect, useMemo, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { ColumnDef } from "@tanstack/react-table";
 import { Button, DataTable } from "@/components";
-import { getProductImportRows, ProductUploadStaged } from "@/services/ProductService.ts";
-import { PenLine } from "lucide-react";
+import { apiGetProductImportRows } from "@/services/graphql/admin/product/productImport.service.ts";
+import { ProductUploadStaged } from "@/types/admin/ProductTypes.ts";
+import {Eye} from "lucide-react";
 import { getProductImportValidationStatus } from "@/constants/enums/ProductImportValidationStatus.ts";
-import ProductImportRowDetailDialog from "./comonents/ProductImportRowDetailDialog.tsx";
+import ProductImportRowDetailDialog from "@/pages/admin/products/screens/comonents/ProductImportRowDetailDialog.tsx";
 import {processProductUploadBatch} from "@/services/rest/admin/ProductService.ts";
 
 const ProductImportReview = () => {
@@ -27,7 +28,7 @@ const ProductImportReview = () => {
                     return;
                 }
 
-                const data = await getProductImportRows(batchId);
+                const data = await apiGetProductImportRows(batchId);
                 setStagedData(data);
             } catch (error) {
                 console.error("Failed to fetch product import rows:", error);
@@ -73,7 +74,7 @@ const ProductImportReview = () => {
                     <div className="flex flex-col">
                         <span className="text-admin-text">{row.sku || "-"}</span>
                         {row.isNewVariant && (
-                            <span className="ext-xs text-admin-text-muted line-through">
+                            <span className="text-yellow-500">
                                 NEW
                             </span>
                         )}
@@ -93,10 +94,10 @@ const ProductImportReview = () => {
                     <div className="flex flex-col">
                         <span className="text-admin-text">{row.proposedName || "-"}</span>
                         {showCurrent && (
-                            <span className="text-xs text-admin-text-muted line-through">{row.currentName}</span>
+                            <span className="text-yellow-500 line-through">{row.currentName}</span>
                         )}
                         {row.isNewProduct && (
-                            <span className="ext-xs text-admin-text-muted line-through">
+                            <span className="text-yellow-500">
                                 NEW
                             </span>
                         )}
@@ -237,7 +238,7 @@ const ProductImportReview = () => {
             cell: (props) => (
                 <div className={"flex items-start justify-center"}>
                     <Button variant="solid" size={"sm"} onClick={() => setSelectedRow(props.row.original)}>
-                        <PenLine size={12}/>
+                        <Eye size={12}/>
                     </Button>
                 </div>
             )

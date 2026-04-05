@@ -3,9 +3,9 @@ import {Button, DataTable} from "@/components";
 import {useEffect, useMemo, useState} from "react";
 import {ColumnDef} from "@tanstack/react-table";
 import {
-    getProductUploadBatches,
-    ProductUploadBatch,
-} from "@/services/ProductService.ts";
+    apiGetProductUploadBatches,
+} from "@/services/graphql/admin/product/productImport.service.ts";
+import {ProductUploadBatch} from "@/types/admin/ProductTypes.ts";
 import {Eye, LoaderCircle, Plus, RefreshCw} from "lucide-react";
 import {getProductUploadBatchProcessStatus} from "@/services/rest/admin/ProductService.ts";
 
@@ -20,7 +20,7 @@ const BulkProductUploadList = () => {
         const fetchProductUploadList = async () => {
             try {
                 setIsLoading(true);
-                const data = await getProductUploadBatches();
+                const data = await apiGetProductUploadBatches();
                 setProductUploadList(data);
             } catch (error) {
                 console.error("Failed to fetch product upload List:", error);

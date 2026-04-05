@@ -1,4 +1,4 @@
-import {ProductUploadBatchProcessStatus} from "@/services/ProductService.ts";
+import {ProductUploadBatchProcessStatus} from "@/types/admin/ProductTypes.ts";
 import getServiceEndpoint from "@/utils/HostnameResolver.ts";
 
 export async function uploadProductCsv(file: File): Promise<Response> {

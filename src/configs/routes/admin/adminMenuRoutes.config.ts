@@ -58,7 +58,7 @@ export const adminMenuRoutes: Routes = [
             {
                 key: 'admin.products.list',
                 path: '/admin/products/list',
-                component: lazy(() => import('@/pages/admin/products/ProductList.tsx')),
+                component: lazy(() => import('@/pages/admin/products/screens/list/ProductList')),
                 authority: ['SUPER_ADMIN'],
                 meta: {
                     label: 'Product List',
@@ -95,7 +95,7 @@ export const adminMenuRoutes: Routes = [
             {
                 key: 'admin.imports.products.list',
                 path: '/admin/imports/products/list',
-                component: lazy(() => import('@/pages/admin/products/BulkProductUploadList.tsx')),
+                component: lazy(() => import('@/pages/admin/products/screens/upload/BulkProductUploadList')),
                 authority: ['SUPER_ADMIN'],
                 meta: {
                     label: 'Bulk Product Upload',

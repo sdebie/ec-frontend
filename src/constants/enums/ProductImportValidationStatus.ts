@@ -16,12 +16,12 @@ export const ProductImportValidationStatusOptions: Option[] = [
     {
         label: 'Valid',
         value: ProductImportValidationStatus.VALID,
-        colorClass: "text-orange-600 bg-orange-100 dark:text-orange-700 dark:bg-orange-200"
+        colorClass: "px-2 py-1 text-green-500/20 bg-blue-100 dark:text-blue-700 dark:bg-blue-200 rounded text-[10px] font-bold"
     },
     {
-        label: 'Invalid',
+        label: 'Invalid !!',
         value: ProductImportValidationStatus.INVALID,
-        colorClass: "text-red-600 bg-red-100 dark:text-red-700 dark:bg-red-200"
+        colorClass: "px-2 py-1 text-red-500/20 bg-red-100 dark:text-red-700 dark:bg-red-100 rounded text-[10px] font-bold"
     },
 ]
 

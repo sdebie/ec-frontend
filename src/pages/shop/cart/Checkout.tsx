@@ -4,7 +4,6 @@ import {apiOrderById, apiOrderBySessionId, apiUpdateOrderStatus} from '@/service
 import {OrderData} from './types.ts';
 import {CartStore} from '@/store/CartStore.ts';
 import {
-    fetchShippingMethods,
     ShippingMethod,
     PaymentMethodKey,
     fetchPaymentMethodsConfig,
@@ -67,9 +66,9 @@ const Checkout: React.FC = () => {
 
 // Load shipping options on mount
     useEffect(() => {
-        fetchShippingMethods().then(methods => {
-            setShippingMethods(methods.filter(m => m.isActive));
-        });
+        // fetchShippingMethods().then(methods => {
+        //     setShippingMethods(methods.filter(m => m.isActive));
+        // });
         // Load payment methods config from settings (new JSON format)
         fetchPaymentMethodsConfig().then((cfg) => {
             setPaymentConfig(cfg);

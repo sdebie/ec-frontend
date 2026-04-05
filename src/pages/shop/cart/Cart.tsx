@@ -3,7 +3,7 @@ import {useNavigate} from 'react-router-dom';
 import {CartStore} from '@/store/CartStore.ts';
 import {OrderItemsData, OrderData} from './types.ts';
 import {createOrder} from '@/services/OrderService.ts';
-import {fetchVariantsByIds} from '@/services/ProductService.ts';
+import {fetchVariantsByIds} from '@/services/graphql/product/product.service.ts';
 
 // LocalStorage key used across the app
 const LS_KEY = 'ec_cart_order_items';
