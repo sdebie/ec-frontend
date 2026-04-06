@@ -3,7 +3,9 @@ import {GraphQLService} from "@/services/graphql/GraphQLService.ts";
 import {FilterRequest, PageRequest} from "@/types/graphql/query.types.ts";
 import {
 	ProductListItem,
-	ProductAndVariants,
+	ProductInformation,
+	ProductImage,
+	ProductVariant,
 	VariantItem,
 } from "@/types/admin/ProductTypes.ts";
 import {
@@ -54,19 +56,53 @@ export async function apiGetVariantsByIds(ids: string[]): Promise<VariantItem[]>
 	return result.variantsByIds ?? [];
 }
 
-export async function apiGetProductAndVariants(productId: string): Promise<ProductAndVariants | null> {
+export async function apiGetProductInformation(productId: string): Promise<ProductInformation | null> {
 	if (!productId) return null;
 
 	const client = await GraphQLService.getGraphQLClient(graphQLEndpoint);
 
-	const result = await client.request<{ getProductAndVariants: ProductAndVariants }>(GET_PRODUCT_AND_VARIANTS, {
+	type ProductInformationResponse = {
+		product?: {
+			id: string;
+			slug?: string | null;
+			name?: string | null;
+			description?: string | null;
+			shortDescription?: string | null;
+			productType?: string | null;
+			createdAt?: string | null;
+			categoryId?: string | null;
+			brandId?: string | null;
+		} | null;
+		productImages?: ProductImage[] | null;
+		variants?: ProductVariant[] | null;
+	};
+
+	const result = await client.request<{ getProductInformation: ProductInformationResponse | null }>(GET_PRODUCT_AND_VARIANTS, {
 		productId,
 	});
 
-	return result.getProductAndVariants ?? null;
+	if (!result.getProductInformation?.product) return null;
+
+	const product = result.getProductInformation.product;
+
+	return {
+		productInfo: {
+			id: product.id,
+			slug: product.slug,
+			name: product.name,
+			description: product.description,
+			short_description: product.shortDescription,
+			product_type: product.productType,
+			date_created: product.createdAt,
+			category_is: product.categoryId,
+			brand_id: product.brandId,
+		},
+		variants: result.getProductInformation.variants,
+		images: result.getProductInformation.productImages,
+	};
 }
 
 export const fetchProductsList = apiGetProductList;
 export const fetchVariantsByIds = apiGetVariantsByIds;
-export const fetchProductAndVariants = apiGetProductAndVariants;
+export const fetchProductAndVariants = apiGetProductInformation;
 export const fetchProductCount = apiGetProductCount;

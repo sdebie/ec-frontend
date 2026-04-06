@@ -19,6 +19,16 @@ const adminPageOnlyRoutes: PageRoutes = [
         },
     },
     {
+        key: 'admin.product.detail',
+        path: '/admin/product/detail/:id',
+        component: lazy(() => import('@/pages/admin/products/screens/detail/ProductDetail')),
+        authority: ['SUPER_ADMIN'],
+        meta: {
+            pageBackgroundType: 'plain',
+            pageContainerType: 'contained',
+        },
+    },
+    {
         key: 'admin.imports.bulk.images',
         path: '/admin/imports/images/bulk-upload/',
         component: lazy(() => import('@/pages/admin/images/BulkImageUploader.tsx')),

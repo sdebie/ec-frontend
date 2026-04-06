@@ -55,12 +55,22 @@ export type ProductVariant = {
 	weightKg?: string | null;
 };
 
-export type ProductAndVariants = {
-	productId: string;
-	productName?: string | null;
-	productDescription?: string | null;
-	productImages?: ProductImage[] | null;
+export type ProductInfo = {
+	id: string;
+	slug?: string | null;
+	name?: string | null;
+	description?: string | null;
+	short_description?: string | null;
+	product_type?: string | null;
+	date_created?: string | null;
+	category_is?: string | null;
+	brand_id?: string | null;
+};
+
+export type ProductInformation = {
+	productInfo: ProductInfo;
 	variants?: ProductVariant[] | null;
+	images?: ProductImage[] | null;
 };
 
 export type ProductUploadStaged = {

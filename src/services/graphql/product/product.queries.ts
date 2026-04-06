@@ -14,6 +14,7 @@ export const GET_PRODUCTS_LIST = gql`
                 id
                 imageUrl
                 sortOrder
+                isFeatured: featured
             }
             variantIds
             categoryName
@@ -39,15 +40,24 @@ export const VARIANTS_BY_IDS = gql`
 `;
 
 export const GET_PRODUCT_AND_VARIANTS = gql`
-    query GetProductAndVariants($productId: String!) {
-        getProductAndVariants(productId: $productId) {
-            productId
-            productName
-            productDescription
+    query GetProductInformation($productId: String!) {
+        getProductInformation(productId: $productId) {
+            product {
+                id
+                slug
+                name
+                description
+                shortDescription
+                productType
+                createdAt
+                categoryId
+                brandId
+            }
             productImages {
                 id
                 imageUrl
                 sortOrder
+                isFeatured: featured
             }
             variants {
                 id

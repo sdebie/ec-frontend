@@ -5,11 +5,14 @@ import useProductList from "@/pages/admin/products/hooks/useProductList.ts";
 import type {ProductListItem} from "@/types/admin/ProductTypes.ts";
 import {PenLine, Plus, Upload} from "lucide-react";
 import {useMemo} from "react";
+import {useNavigate} from "react-router-dom";
 
 const formatPrice = (price?: number | null) =>
     price != null ? `R ${price.toFixed(2)}` : "-";
 
 const ProductList = () => {
+    const navigate = useNavigate();
+
     const {
         products,
         isLoading,
@@ -29,6 +32,7 @@ const ProductList = () => {
     }
     function handleEdit(productItem: ProductListItem) {
         console.log("Edit product:", productItem)
+        navigate('/admin/product/detail/'+productItem.id)
     }
 
     const columns: ColumnDef<ProductListItem>[] = useMemo(() => [
@@ -38,11 +42,18 @@ const ProductList = () => {
             header: "Product Name",
             enableSorting: true,
             cell: ({row}) => (
-                <div className="flex flex-col">
+                <div className="w-100 truncate flex flex-col">
                     <span>{row.original.name}</span>
                     <span className="text-xs text-gray-500">{row.original.description}</span>
                 </div>
             ),
+        },
+        {
+            id: "variantIds",
+            accessorKey: "variantIds",
+            header: "variations",
+            enableSorting: true,
+            cell: ({row}) => row.original.variantIds?.length || "-",
         },
         {
             id: "categoryName",

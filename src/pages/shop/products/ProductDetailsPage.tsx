@@ -2,7 +2,7 @@ import ProductCard from "./components/ProductCard.tsx";
 import { useParams } from "react-router-dom";
 import { useEffect, useState } from "react";
 import { fetchProductAndVariants } from "@/services/graphql/product/product.service.ts";
-import type { ProductAndVariants } from "@/types/admin/ProductTypes.ts";
+import type { ProductInformation } from "@/types/admin/ProductTypes.ts";
 import { useAddToCart } from "@/pages/shop/cart/hook/useAddToCart.ts";
 
 // Define the UI Product type expected by ProductCard to keep this page self-contained
@@ -44,7 +44,7 @@ const ProductDetailsPage = () => {
         if (!idParam || idParam.length < 8) {
           throw new Error("Invalid product id");
         }
-        const result: ProductAndVariants | null = await fetchProductAndVariants(idParam);
+        const result: ProductInformation | null = await fetchProductAndVariants(idParam);
         if (isCancelled) return;
 
         if (!result) {
@@ -54,10 +54,10 @@ const ProductDetailsPage = () => {
         }
 
         const uiProduct: UiProduct = {
-          id: result.productId ?? idParam,
-          name: result.productName ?? 'Product',
-          short_description: '',
-          description: result.productDescription ?? '',
+          id: result.productInfo.id ?? idParam,
+          name: result.productInfo.name ?? 'Product',
+          short_description: result.productInfo.short_description ?? '',
+          description: result.productInfo.description ?? '',
           variants: (result.variants || []).map((v) => ({
             id: v.id,
             sku: v.sku ?? '',
@@ -69,7 +69,7 @@ const ProductDetailsPage = () => {
             stock_quantity: v.stockQuantity ?? 0,
             attributes: safeParseAttributes(v.attributesJson),
           })),
-          productImages: (result.productImages || []).map(img => ({ id: img.id, imageUrl: img.imageUrl })),
+          productImages: (result.images || []).map(img => ({ id: img.id, imageUrl: img.imageUrl })),
         };
         setProduct(uiProduct);
       } catch (e: any) {
