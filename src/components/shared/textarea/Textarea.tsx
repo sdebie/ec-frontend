@@ -1,37 +1,42 @@
 import * as React from "react";
-import {clsx} from 'clsx';
+import {cn} from '@/utils/cn.ts';
+import {Label} from "@/components";
 
 export type TextareaProps = React.TextareaHTMLAttributes<HTMLTextAreaElement> & {
     label?: string;
-    hint?: string;
-    error?: string;
+    helperText?: React.ReactNode;
+    error?: React.ReactNode;
 };
 
 export const Textarea = React.forwardRef<HTMLTextAreaElement, TextareaProps>(
-    ({className, label, hint, error, id, ...props}, ref) => {
+    ({className, label, helperText, error, id, required, ...props}, ref) => {
         const textareaId = id ?? React.useId();
+        const hasError = !!error;
         return (
             <div className="space-y-1.5">
                 {label && (
-                    <label htmlFor={textareaId} className="text-sm font-medium text-slate-700">
+                    <Label htmlFor={textareaId} required={required}>
                         {label}
-                    </label>
+                    </Label>
                 )}
                 <textarea
                     ref={ref}
                     id={textareaId}
-                    className={clsx(
-                        "min-h-24 w-full rounded-lg border bg-white px-3 py-2 text-sm outline-none transition",
-                        "border-slate-200 focus:border-slate-400 focus:ring-2 focus:ring-slate-900/10",
-                        error && "border-red-300 focus:border-red-400 focus:ring-red-500/10",
+                    required={required}
+                    className={cn(
+                        "min-h-24 w-full rounded-md border-2 border-admin-border bg-admin-panel px-3 py-2 text-sm text-admin-text transition-colors",
+                        "placeholder:text-admin-text-muted",
+                        "focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent focus:ring-offset-1 focus:ring-offset-admin-bg",
+                        "disabled:cursor-not-allowed disabled:opacity-50 disabled:bg-admin-bg",
+                        hasError && 'border-red-500 focus:ring-red-500',
                         className
                     )}
                     {...props}
                 />
-                {error ? (
-                    <p className="text-xs text-red-600">{error}</p>
-                ) : hint ? (
-                    <p className="text-xs text-slate-500">{hint}</p>
+                {hasError && error ? (
+                    <p className="text-sm text-red-500">{error}</p>
+                ) : helperText ? (
+                    <p className="text-sm text-admin-text-muted">{helperText}</p>
                 ) : null}
             </div>
         );

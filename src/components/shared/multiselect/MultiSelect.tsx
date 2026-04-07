@@ -113,7 +113,7 @@ export const MultiSelect = React.forwardRef<HTMLDivElement, MultiSelectProps>(
             disabled={disabled}
             onClick={() => !disabled && setIsOpen((prev) => !prev)}
             className={cn(
-              'flex min-h-10 w-full items-center justify-between rounded-md border border-admin-border bg-admin-panel px-3 py-2 text-sm text-admin-text transition-colors',
+              'flex min-h-10 w-full items-center justify-between rounded-md border-2 border-admin-border bg-admin-panel px-3 py-2 text-sm text-admin-text transition-colors',
               'focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent focus:ring-offset-1 focus:ring-offset-admin-bg',
               'disabled:cursor-not-allowed disabled:opacity-50 disabled:bg-admin-bg',
               hasError && 'border-red-500 focus:ring-red-500'

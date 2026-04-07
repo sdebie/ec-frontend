@@ -427,7 +427,7 @@ export const SearchableSelect = React.forwardRef<HTMLDivElement, SearchableSelec
                     onKeyDown={handleTriggerKeyDown}
                     ref={triggerRef}
                     className={cn(
-                        'flex h-10 w-full items-center justify-between rounded-md border border-admin-border bg-admin-panel px-3 py-2 text-sm text-admin-text transition-colors',
+                        'flex h-10 w-full items-center justify-between rounded-md border-2 border-admin-border bg-admin-panel px-3 py-2 text-sm text-admin-text transition-colors',
                         'focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent focus:ring-offset-1 focus:ring-offset-admin-bg',
                         'disabled:cursor-not-allowed disabled:opacity-50 disabled:bg-admin-bg'
                     )}
@@ -480,7 +480,8 @@ export const SearchableSelect = React.forwardRef<HTMLDivElement, SearchableSelec
                                 }}
                                 onClick={(event) => event.stopPropagation()}
                             >
-                                <div className="mb-2 flex items-center gap-2 rounded-md border border-admin-border bg-admin-bg px-2 text-admin-text-muted">
+                                <div
+                                    className="mb-2 flex items-center gap-2 rounded-md border border-admin-border bg-admin-bg px-2 text-admin-text-muted">
                                     <Search className="h-4 w-4"/>
                                     <input
                                         ref={searchInputRef}
@@ -500,7 +501,8 @@ export const SearchableSelect = React.forwardRef<HTMLDivElement, SearchableSelec
                                     onWheelCapture={handleWheelCapture}
                                 >
                                     {filteredOptions.length === 0 ? (
-                                        <div className="px-3 py-6 text-center text-sm text-admin-text-muted">{emptyText}</div>
+                                        <div
+                                            className="px-3 py-6 text-center text-sm text-admin-text-muted">{emptyText}</div>
                                     ) : (
                                         <ul role="listbox" className="py-1">
                                             {filteredOptions.map((option, index) => {
@@ -544,7 +546,8 @@ export const SearchableSelect = React.forwardRef<HTMLDivElement, SearchableSelec
                                 )}
                                 onClick={(event) => event.stopPropagation()}
                             >
-                                <div className="mb-2 flex items-center gap-2 rounded-md border border-admin-border bg-admin-bg px-2 text-admin-text-muted">
+                                <div
+                                    className="mb-2 flex items-center gap-2 rounded-md border border-admin-border bg-admin-bg px-2 text-admin-text-muted">
                                     <Search className="h-4 w-4"/>
                                     <input
                                         ref={searchInputRef}
@@ -564,7 +567,8 @@ export const SearchableSelect = React.forwardRef<HTMLDivElement, SearchableSelec
                                     onWheelCapture={handleWheelCapture}
                                 >
                                     {filteredOptions.length === 0 ? (
-                                        <div className="px-3 py-6 text-center text-sm text-admin-text-muted">{emptyText}</div>
+                                        <div
+                                            className="px-3 py-6 text-center text-sm text-admin-text-muted">{emptyText}</div>
                                     ) : (
                                         <ul role="listbox" className="py-1">
                                             {filteredOptions.map((option, index) => {
