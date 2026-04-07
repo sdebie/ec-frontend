@@ -2,12 +2,12 @@ import { useEffect, useMemo, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { ColumnDef } from "@tanstack/react-table";
 import { Button, DataTable } from "@/components";
-import { apiGetProductImportRows } from "@/services/graphql/admin/product/productImport.service.ts";
+import { apiGetProductImportRows } from "@/services/graphql/admin/product/ProductImportService.graphql.ts";
 import type { ProductUploadStaged } from "@/types/admin/ProductTypes.ts";
 import {Eye} from "lucide-react";
 import { getProductImportValidationStatus } from "@/constants/enums/ProductImportValidationStatus.ts";
 import ProductImportRowDetailDialog from "@/pages/admin/products/screens/comonents/ProductImportRowDetailDialog.tsx";
-import {processProductUploadBatch} from "@/services/rest/admin/ProductService.ts";
+import {processProductUploadBatch} from "@/services/rest/admin/ProductService.rest.ts";
 
 const ProductImportReview = () => {
     const { batchId } = useParams();

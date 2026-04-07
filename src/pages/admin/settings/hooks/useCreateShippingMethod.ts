@@ -1,6 +1,6 @@
 import {useState} from "react";
 import {ShippingMethod} from "@/types/admin/SettingsTypes.ts";
-import {apiSaveShippingMethod} from "@/services/graphql/admin/settings/settings.service.ts";
+import {apiSaveShippingMethod} from "@/services/graphql/admin/settings/SettingsService.graphql.ts";
 import {extractTechnicalDetails} from "@/utils/graphqlErrorUtils.ts";
 
 const FRIENDLY_ERROR_MSG = "We couldn't create the shipping method right now. Please try again.";

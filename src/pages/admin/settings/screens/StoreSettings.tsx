@@ -1,6 +1,6 @@
 import {useEffect, useState} from 'react';
 import {cn} from "@/utils/cn.ts";
-import {apiGetStoreSettings, apiSaveStoreSettings} from "@/services/graphql/admin/settings/settings.service.ts";
+import {apiGetStoreSettings, apiSaveStoreSettings} from "@/services/graphql/admin/settings/SettingsService.graphql.ts";
 import {StoreSetting} from "@/types/admin/SettingsTypes.ts";
 import {AdaptiveCard, Button, Dialog, DialogContent, DialogFooter, DialogHeader, Input, Select, Switcher, toast} from "@/components";
 

@@ -1,4 +1,4 @@
-import {apiGetStoreSettings} from "./graphql/admin/settings/settings.service.ts";
+import {apiGetStoreSettings} from "./graphql/admin/settings/SettingsService.graphql.ts";
 
 // Types mirrored from backend entities
 export type StoreSetting = {

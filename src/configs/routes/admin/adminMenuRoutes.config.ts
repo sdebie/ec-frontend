@@ -154,6 +154,32 @@ export const adminMenuRoutes: Routes = [
         ],
     },
     {
+        key: 'admin.staff',
+        path: '/admin/staff',
+        component: lazy(() => import('@/pages/admin/staff/screens/list/./StaffList.tsx')),
+        authority: ['SUPER_ADMIN'],
+        meta: {
+            label: 'Staff',
+            section: 'CONFIGURATION',
+            pageBackgroundType: 'plain',
+            pageContainerType: 'contained',
+            icon: 'settings',
+        },
+        subMenu: [
+            {
+                key: 'admin.staff.list',
+                path: '/admin/staff/list',
+                component: lazy(() => import('@/pages/admin/staff/screens/list/./StaffList.tsx')),
+                authority: ['SUPER_ADMIN'],
+                meta: {
+                    label: 'Staff List',
+                    pageBackgroundType: 'plain',
+                    pageContainerType: 'contained',
+                },
+            },
+        ]
+    },
+    {
         key: 'admin.component-demo',
         path: '/admin/component-demo',
         component: lazy(() => import('../../../pages/shared/demo/ComponentsDemo.tsx')),
