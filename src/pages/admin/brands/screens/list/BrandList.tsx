@@ -1,14 +1,15 @@
 import {ColumnDef} from "@tanstack/react-table";
 import {DataTable} from "@/components/shared/datatable/DataTable.tsx";
 import useBrandList from "@/pages/admin/brands/hooks/useBrandList.ts";
-import {Brand} from "@/types/admin/brand.types.ts";
+import {Brand} from "@/types/admin/BrandTypes.ts";
 import {useMemo, useState} from "react";
-import {Button} from "@/components";
-import {PenLine, Plus} from "lucide-react";
+import {Button, ConfirmationDialog, Thumbnail, toast} from "@/components";
+import {Download, PenLine, Plus, TrashIcon, Upload} from "lucide-react";
 import BrandEditor from "@/pages/admin/brands/screens/edit";
+import BrandCreate from "@/pages/admin/brands/screens/create";
+import useDeleteBrand from "@/pages/admin/brands/hooks/useDeleteBrand.ts";
 
 const BrandList = () => {
-
 
     const {
         brands,
@@ -20,13 +21,51 @@ const BrandList = () => {
         pageCount,
         onPageChange,
         onPageSizeChange,
+        onSearchChange,
         mutate,
     } = useBrandList();
 
     const [brand, setBrand] = useState<Brand>();
-    const [isDialogOpen, setIsDialogOpen] = useState(false);
+    const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
+    const [isCreateDialogOpen, setIsCreateDialogOpen] = useState(false);
+    const [brandToDelete, setBrandToDelete] = useState<Brand>();
+    const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
+
+    const {deleteBrand, isLoading: isDeleting} = useDeleteBrand({
+        onSuccess: () => {
+            toast.success(`"${brandToDelete?.name}" deleted successfully.`);
+            setIsDeleteDialogOpen(false);
+            setBrandToDelete(undefined);
+            mutate();
+        },
+        onError: () => {
+            toast.error('Failed to delete brand. Please try again.');
+        },
+    });
+
+    function handleDelete(original: Brand) {
+        setBrandToDelete(original);
+        setIsDeleteDialogOpen(true);
+    }
+
+    function confirmDelete() {
+        if (brandToDelete) {
+            deleteBrand(brandToDelete.id).catch(() => {
+                toast.error('Failed to delete brand. Please try again.');
+            });
+        }
+    }
 
     const columns: ColumnDef<Brand>[] = useMemo(() => [
+        {
+            id: 'logo',
+            header: 'Logo',
+            enableSorting: false,
+            size: 72,
+            cell: ({row}) => (
+                <Thumbnail logoUrl={row.original.logoUrl} name={row.original.name}/>
+            ),
+        },
         {
             id: 'name',
             accessorKey: 'name',
@@ -44,9 +83,12 @@ const BrandList = () => {
             header: 'Actions',
             enableSorting: false,
             cell: (props) => (
-                <div className={"flex items-start justify-center"}>
+                <div className={"flex items-start justify-center gap-2"}>
                     <Button variant="solid" size={"sm"} onClick={() => handleEdit(props.row.original)}>
                         <PenLine size={12}/>
+                    </Button>
+                    <Button variant="solid" size={"sm"} onClick={() => handleDelete(props.row.original)}>
+                        <TrashIcon size={12}/>
                     </Button>
                 </div>
             )
@@ -55,14 +97,21 @@ const BrandList = () => {
 
 
     function handleEdit(brand: Brand) {
-        // navigate(`/admin/brands/${brand.id}/edit`);
         setBrand(brand);
-        setIsDialogOpen(true);
+        setIsEditDialogOpen(true);
+    }
+
+    function handleImport() {
+        //TODO:: Import file
+    }
+
+    function handleExport() {
+        //TODO:: Export file
     }
 
     function handleCreate() {
         setBrand(undefined);
-        setIsDialogOpen(true);
+        setIsCreateDialogOpen(true);
     }
 
     return (
@@ -81,13 +130,44 @@ const BrandList = () => {
                 serverPageCount={pageCount}
                 onServerPageChange={onPageChange}
                 onServerPageSizeChange={onPageSizeChange}
+                onServerSearchChange={onSearchChange}
                 toolbarAction={
-                    <Button onClick={handleCreate} leftIcon={<Plus size={16}/>}>
-                        Create Brand
-                    </Button>
+                    <div className={"flex items-center gap-2"}>
+                        <Button variant={"secondary"} onClick={handleImport} leftIcon={<Download size={16}/>}>
+                            Import
+                        </Button>
+                        <Button variant={"outline"} onClick={handleExport} leftIcon={<Upload size={16}/>}>
+                            Export
+                        </Button>
+                        <Button onClick={handleCreate} leftIcon={<Plus size={16}/>}>
+                            Create Brand
+                        </Button>
+                    </div>
                 }
             />
-            <BrandEditor brand={brand} isDialogOpen={isDialogOpen} setIsDialogOpen={setIsDialogOpen} onSuccess={mutate}/>
+
+            <BrandEditor brand={brand}
+                         isDialogOpen={isEditDialogOpen}
+                         setIsDialogOpen={setIsEditDialogOpen}
+                         onSuccess={mutate}
+            />
+
+            <BrandCreate isDialogOpen={isCreateDialogOpen}
+                         setIsDialogOpen={setIsCreateDialogOpen}
+                         onSuccess={mutate}
+            />
+
+            <ConfirmationDialog
+                open={isDeleteDialogOpen}
+                onClose={() => setIsDeleteDialogOpen(false)}
+                onConfirm={confirmDelete}
+                title="Delete Brand"
+                message={<>Are you sure you want to delete <strong
+                    className="text-admin-text">{brandToDelete?.name}</strong>? This action cannot be undone.</>}
+                confirmText="Delete"
+                variant="error"
+                loading={isDeleting}
+            />
         </>
     );
 };

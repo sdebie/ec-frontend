@@ -1,278 +1,326 @@
-import React, { useState, useRef } from 'react';
-import { clsx } from 'clsx';
-import { Button } from '../button/Button';
+import React, {useState, useRef, useEffect} from 'react';
+import {clsx} from 'clsx';
+import {UploadCloud, ImageIcon, CheckCircle2, X} from 'lucide-react';
 import ImageService from '@/services/ImageService';
 
 export type ImageType = 'product' | 'category' | 'brand';
 
 export interface ImageUploadProps {
-  /**
-   * Type of image being uploaded
-   */
-  type: ImageType;
-  /**
-   * Callback when image is successfully uploaded
-   */
-  onImageUpload: (fileName: string) => void;
-  /**
-   * Currently displayed image URL (optional)
-   */
-  currentImageUrl?: string;
-  /**
-   * Custom label for the upload area
-   */
-  label?: string;
-  /**
-   * Whether the component is disabled
-   */
-  disabled?: boolean;
-  /**
-   * Custom CSS class
-   */
-  className?: string;
-  /**
-   * Required for type='product' when image should be linked to a specific variant.
-   */
-  productVariantId?: string;
+    /**
+     * Type of image being uploaded
+     */
+    type: ImageType;
+    /**
+     * Callback when image is successfully uploaded
+     */
+    onImageUpload: (fileName: string) => void;
+    /**
+     * Currently displayed image URL (optional)
+     */
+    currentImageUrl?: string;
+    /**
+     * Custom label for the upload area
+     */
+    label?: string;
+    /**
+     * Whether the component is disabled
+     */
+    disabled?: boolean;
+    /**
+     * Custom CSS class
+     */
+    className?: string;
+    /**
+     * Required for type='product' when image should be linked to a specific variant.
+     */
+    productVariantId?: string;
 }
 
 export const ImageUpload: React.FC<ImageUploadProps> = ({
-  type,
-  onImageUpload,
-  currentImageUrl,
-  label = 'Upload Image',
-  disabled = false,
-  className,
-  productVariantId,
-}) => {
-  const [isLoading, setIsLoading] = useState(false);
-  const [error, setError] = useState<string | null>(null);
-  const [previewUrl, setPreviewUrl] = useState<string | undefined>(currentImageUrl);
-  const fileInputRef = useRef<HTMLInputElement>(null);
+                                                            type,
+                                                            onImageUpload,
+                                                            currentImageUrl,
+                                                            label = 'Upload Image',
+                                                            disabled = false,
+                                                            className,
+                                                            productVariantId,
+                                                        }) => {
+    const [isLoading, setIsLoading] = useState(false);
+    const [error, setError] = useState<string | null>(null);
+    const [previewUrl, setPreviewUrl] = useState<string | undefined>(currentImageUrl);
+    const [isDragging, setIsDragging] = useState(false);
+    const fileInputRef = useRef<HTMLInputElement>(null);
 
-  const uploadByType = async (file: File) => {
-    if (type === 'product') {
-      if (productVariantId) {
-        return ImageService.uploadProductVariantImage(file, productVariantId);
-      }
-      // Fallback keeps generic product uploads working in screens that do not have a variant context yet.
-      return ImageService.uploadImage(file);
-    }
-    if (type === 'category') {
-      return ImageService.uploadCategoryImage(file);
-    }
-    return ImageService.uploadBrandImage(file);
-  };
+    // Sync the preview whenever the parent updates currentImageUrl (e.g. when
+    // BrandEditor calls reset() after the dialog opens, or when the user switches
+    // to a different brand). useState() only captures the *initial* value on
+    // mount, so without this effect any later prop change is silently ignored.
+    useEffect(() => {
+        if (!isLoading) {
+            // Only sync when we are not mid-upload; during an upload the local
+            // blob URL is the optimistic preview and must not be overwritten.
+            setPreviewUrl(currentImageUrl);
+        }
+    }, [currentImageUrl]); // eslint-disable-line react-hooks/exhaustive-deps
 
-  const handleFileChange = async (event: React.ChangeEvent<HTMLInputElement>) => {
-    const file = event.target.files?.[0];
-    if (!file) return;
-
-    setError(null);
-
-    // Validate file type
-    if (!file.type.startsWith('image/')) {
-      setError('Please select a valid image file');
-      return;
-    }
-
-    // Validate file size (max 5MB)
-    if (file.size > 5 * 1024 * 1024) {
-      setError('Image size must be less than 5MB');
-      return;
-    }
-
-    try {
-      setIsLoading(true);
-
-      // Create preview
-      const reader = new FileReader();
-      reader.onload = (e) => {
-        setPreviewUrl(e.target?.result as string);
-      };
-      reader.readAsDataURL(file);
-
-      // Upload file
-      const response = await uploadByType(file);
-      onImageUpload(response.fileName);
-    } catch (err) {
-      setError('Failed to upload image. Please try again.');
-      console.error('Image upload error:', err);
-      setPreviewUrl(currentImageUrl);
-    } finally {
-      setIsLoading(false);
-      // Reset file input
-      if (fileInputRef.current) {
-        fileInputRef.current.value = '';
-      }
-    }
-  };
-
-  const handleDragOver = (e: React.DragEvent<HTMLDivElement>) => {
-    e.preventDefault();
-    e.stopPropagation();
-  };
-
-  const handleDrop = async (e: React.DragEvent<HTMLDivElement>) => {
-    e.preventDefault();
-    e.stopPropagation();
-
-    const file = e.dataTransfer.files?.[0];
-    if (!file) return;
-
-    setError(null);
-
-    // Validate file type
-    if (!file.type.startsWith('image/')) {
-      setError('Please select a valid image file');
-      return;
-    }
-
-    // Validate file size (max 5MB)
-    if (file.size > 5 * 1024 * 1024) {
-      setError('Image size must be less than 5MB');
-      return;
-    }
-
-    try {
-      setIsLoading(true);
-
-      // Create preview
-      const reader = new FileReader();
-      reader.onload = (e) => {
-        setPreviewUrl(e.target?.result as string);
-      };
-      reader.readAsDataURL(file);
-
-      // Upload file
-      const response = await uploadByType(file);
-      onImageUpload(response.fileName);
-    } catch (err) {
-      setError('Failed to upload image. Please try again.');
-      console.error('Image upload error:', err);
-      setPreviewUrl(currentImageUrl);
-    } finally {
-      setIsLoading(false);
-    }
-  };
-
-  return (
-    <div className={clsx('w-full', className)}>
-      <label className="block text-sm font-medium text-slate-700 mb-2">
-        {label}
-      </label>
-
-      <div className="space-y-4">
-        {/* Upload Area */}
-        <div
-          onDragOver={handleDragOver}
-          onDrop={handleDrop}
-          className={clsx(
-            'relative border-2 border-dashed rounded-lg p-6 transition-colors',
-            {
-              'border-slate-300 bg-slate-50 hover:bg-slate-100 hover:border-slate-400 cursor-pointer':
-                !disabled && !isLoading,
-              'border-slate-200 bg-slate-50 cursor-not-allowed opacity-50': disabled || isLoading,
+    const uploadByType = async (file: File) => {
+        if (type === 'product') {
+            if (productVariantId) {
+                return ImageService.uploadProductVariantImage(file, productVariantId);
             }
-          )}
-        >
-          <input
-            ref={fileInputRef}
-            type="file"
-            accept="image/*"
-            onChange={handleFileChange}
-            disabled={disabled || isLoading}
-            className="hidden"
-            aria-label="Upload image file"
-          />
+            return ImageService.uploadImage(file);
+        }
+        if (type === 'category') {
+            return ImageService.uploadCategoryImage(file);
+        }
+        return ImageService.uploadBrandImage(file);
+    };
 
-          <div
-            onClick={() => !disabled && !isLoading && fileInputRef.current?.click()}
-            className={clsx({
-              'cursor-pointer': !disabled && !isLoading,
-            })}
-          >
-            <div className="text-center">
-              <div className="text-slate-400 mb-2">
-                <svg
-                  className="mx-auto h-12 w-12"
-                  stroke="currentColor"
-                  fill="none"
-                  viewBox="0 0 48 48"
-                >
-                  <path
-                    d="M28 8H12a4 4 0 00-4 4v20a4 4 0 004 4h24a4 4 0 004-4V20m-4-8l-8-8m0 0l-8 8m8-8v20"
-                    strokeWidth={2}
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                  />
-                </svg>
-              </div>
-              <p className="text-sm text-slate-600">
-                <span className="font-medium text-slate-900">Click to upload</span> or drag and drop
-              </p>
-              <p className="text-xs text-slate-500 mt-1">
-                PNG, JPG, GIF up to 5MB ({type})
-              </p>
-            </div>
-          </div>
-        </div>
+    const handleFileChange = async (event: React.ChangeEvent<HTMLInputElement>) => {
+        const file = event.target.files?.[0];
+        if (!file) return;
 
-        {/* Preview */}
-        {previewUrl && (
-          <div className="relative">
-            <label className="block text-sm font-medium text-slate-700 mb-2">
-              Preview
-            </label>
-            <div className="relative inline-block">
-              <img
-                src={previewUrl}
-                alt="Preview"
-                className="max-w-xs h-auto rounded-lg border border-slate-200"
-              />
-              {isLoading && (
-                <div className="absolute inset-0 bg-black bg-opacity-40 rounded-lg flex items-center justify-center">
-                  <div className="inline-block h-6 w-6 animate-spin rounded-full border-2 border-white/30 border-t-white" />
-                </div>
-              )}
-            </div>
-          </div>
-        )}
+        setError(null);
 
-        {/* Error Message */}
-        {error && (
-          <div className="p-3 bg-red-50 border border-red-200 rounded-lg">
-            <p className="text-sm text-red-700">{error}</p>
-          </div>
-        )}
+        if (!file.type.startsWith('image/')) {
+            setError('Please select a valid image file');
+            return;
+        }
 
-        {/* Success Message */}
-        {!error && previewUrl && !isLoading && (
-          <div className="p-3 bg-green-50 border border-green-200 rounded-lg">
-            <p className="text-sm text-green-700">Image uploaded successfully</p>
-          </div>
-        )}
+        if (file.size > 5 * 1024 * 1024) {
+            setError('Image size must be less than 5MB');
+            return;
+        }
 
-        {/* Clear Button */}
-        {previewUrl && (
-          <Button
-            variant="ghost"
-            size="sm"
-            onClick={() => {
-              setPreviewUrl(undefined);
-              setError(null);
-              if (fileInputRef.current) {
+        try {
+            setIsLoading(true);
+
+            const reader = new FileReader();
+            reader.onload = (e) => {
+                setPreviewUrl(e.target?.result as string);
+            };
+            reader.readAsDataURL(file);
+
+            const response = await uploadByType(file);
+            onImageUpload(response.fileName);
+        } catch (err) {
+            setError('Failed to upload image. Please try again.');
+            console.error('Image upload error:', err);
+            setPreviewUrl(currentImageUrl);
+        } finally {
+            setIsLoading(false);
+            if (fileInputRef.current) {
                 fileInputRef.current.value = '';
-              }
-            }}
-            disabled={isLoading}
-          >
-            Clear Image
-          </Button>
-        )}
-      </div>
-    </div>
-  );
+            }
+        }
+    };
+
+    const handleDragOver = (e: React.DragEvent<HTMLDivElement>) => {
+        e.preventDefault();
+        e.stopPropagation();
+        if (!isDragging) setIsDragging(true);
+    };
+
+    const handleDragLeave = (e: React.DragEvent<HTMLDivElement>) => {
+        e.preventDefault();
+        e.stopPropagation();
+        setIsDragging(false);
+    };
+
+    const handleDrop = async (e: React.DragEvent<HTMLDivElement>) => {
+        e.preventDefault();
+        e.stopPropagation();
+        setIsDragging(false);
+
+        const file = e.dataTransfer.files?.[0];
+        if (!file) return;
+
+        setError(null);
+
+        if (!file.type.startsWith('image/')) {
+            setError('Please select a valid image file');
+            return;
+        }
+
+        if (file.size > 5 * 1024 * 1024) {
+            setError('Image size must be less than 5MB');
+            return;
+        }
+
+        try {
+            setIsLoading(true);
+
+            const reader = new FileReader();
+            reader.onload = (e) => {
+                setPreviewUrl(e.target?.result as string);
+            };
+            reader.readAsDataURL(file);
+
+            const response = await uploadByType(file);
+            onImageUpload(response.fileName);
+        } catch (err) {
+            setError('Failed to upload image. Please try again.');
+            console.error('Image upload error:', err);
+            setPreviewUrl(currentImageUrl);
+        } finally {
+            setIsLoading(false);
+        }
+    };
+
+    const handleClear = () => {
+        setPreviewUrl(undefined);
+        setError(null);
+        if (fileInputRef.current) {
+            fileInputRef.current.value = '';
+        }
+    };
+
+    return (
+        <div className={clsx('w-full', className)}>
+            <label className="block text-sm font-medium text-admin-text mb-3">
+                {label}
+            </label>
+
+            {/* Always-present hidden file input */}
+            <input
+                ref={fileInputRef}
+                type="file"
+                accept="image/*"
+                onChange={handleFileChange}
+                disabled={disabled || isLoading}
+                className="hidden"
+                aria-label="Upload image file"
+            />
+
+            <div className="space-y-3">
+
+                {/* ── Dropzone (shown when no image is selected) ── */}
+                {!previewUrl && (
+                    <div
+                        onDragOver={handleDragOver}
+                        onDragLeave={handleDragLeave}
+                        onDrop={handleDrop}
+                        onClick={() => !disabled && !isLoading && fileInputRef.current?.click()}
+                        role="button"
+                        tabIndex={disabled || isLoading ? -1 : 0}
+                        onKeyDown={(e) => {
+                            if ((e.key === 'Enter' || e.key === ' ') && !disabled && !isLoading) {
+                                e.preventDefault();
+                                fileInputRef.current?.click();
+                            }
+                        }}
+                        aria-label="Upload image"
+                        className={clsx(
+                            'flex flex-col items-center gap-3 rounded-xl border-2 border-dashed px-6 py-10 text-center transition-all duration-200 outline-none',
+                            {
+                                'border-admin-border hover:border-primary hover:bg-primary-subtle/20 cursor-pointer focus-visible:border-primary focus-visible:ring-2 focus-visible:ring-primary/30':
+                                    !disabled && !isLoading && !isDragging,
+                                'border-primary bg-primary-subtle/25 scale-[1.01] cursor-copy':
+                                    isDragging && !disabled && !isLoading,
+                                'border-admin-border cursor-not-allowed opacity-40':
+                                    disabled || isLoading,
+                            }
+                        )}
+                    >
+                        {/* Icon badge */}
+                        <div className={clsx(
+                            'flex h-12 w-12 items-center justify-center rounded-full transition-colors duration-200',
+                            isDragging
+                                ? 'bg-primary-subtle text-primary'
+                                : 'bg-admin-border/60 text-admin-text-muted'
+                        )}>
+                            <UploadCloud className="h-5 w-5"/>
+                        </div>
+
+                        {/* Copy */}
+                        <div className="space-y-1">
+                            <p className="text-sm font-medium text-admin-text leading-snug">
+                                {isDragging
+                                    ? 'Drop to upload'
+                                    : (
+                                        <>
+                                            Click to upload{' '}
+                                            <span className="font-normal text-admin-text-muted">or drag and drop</span>
+                                        </>
+                                    )
+                                }
+                            </p>
+                            <p className="text-xs text-admin-text-muted">PNG, JPG, GIF · max 5 MB</p>
+                        </div>
+                    </div>
+                )}
+
+                {/* ── Preview card (shown once an image is chosen) ── */}
+                {previewUrl && (
+                    <div className="overflow-hidden rounded-xl border border-admin-border bg-admin-panel">
+
+                        {/* Card header */}
+                        <div className="flex items-center justify-between border-b border-admin-border px-3 py-2">
+                            <div className="flex items-center gap-1.5 text-xs text-admin-text-muted">
+                                <ImageIcon className="h-3.5 w-3.5 shrink-0"/>
+                                <span className="font-medium">Preview</span>
+                                {!error && !isLoading && (
+                                    <span className="ml-1 inline-flex items-center gap-1 text-emerald-500">
+                                        <CheckCircle2 className="h-3 w-3"/>
+                                        Uploaded
+                                    </span>
+                                )}
+                            </div>
+                            <button
+                                type="button"
+                                onClick={handleClear}
+                                disabled={isLoading}
+                                aria-label="Remove image"
+                                className="rounded-md p-1 text-admin-text-muted transition-colors hover:bg-admin-bg hover:text-admin-text disabled:pointer-events-none disabled:opacity-40"
+                            >
+                                <X className="h-3.5 w-3.5"/>
+                            </button>
+                        </div>
+
+                        {/* Image body */}
+                        <div className="relative flex items-center justify-center bg-admin-bg/40 p-4 min-h-32">
+                            <img
+                                src={previewUrl}
+                                alt="Preview"
+                                className="max-h-48 max-w-full rounded-lg object-contain"
+                            />
+                            {isLoading && (
+                                <div
+                                    className="absolute inset-0 flex items-center justify-center bg-admin-panel/70 backdrop-blur-sm">
+                                    <div
+                                        className="h-6 w-6 animate-spin rounded-full border-2 border-admin-border border-t-primary"/>
+                                </div>
+                            )}
+                        </div>
+
+                        {/* Replace action */}
+                        {!isLoading && (
+                            <div className="border-t border-admin-border px-3 py-2.5">
+                                <button
+                                    type="button"
+                                    onClick={() => fileInputRef.current?.click()}
+                                    disabled={disabled}
+                                    className="w-full rounded-lg border border-dashed border-admin-border py-1.5 text-xs font-medium text-admin-text-muted transition-colors hover:border-primary hover:text-primary disabled:pointer-events-none disabled:opacity-40"
+                                >
+                                    Replace image
+                                </button>
+                            </div>
+                        )}
+                    </div>
+                )}
+
+                {/* ── Error message ── */}
+                {error && (
+                    <div
+                        className="flex items-start gap-2 rounded-lg border border-red-500/20 bg-red-500/10 px-3 py-2.5">
+                        <span className="mt-0.5 shrink-0 text-xs font-bold leading-none text-red-400">!</span>
+                        <p className="text-xs leading-relaxed text-red-400">{error}</p>
+                    </div>
+                )}
+
+            </div>
+        </div>
+    );
 };
 
 export default ImageUpload;

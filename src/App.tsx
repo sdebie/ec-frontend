@@ -1,6 +1,6 @@
 import {Suspense, useState, useEffect} from 'react';
 import {BrowserRouter, Routes, Route} from 'react-router-dom';
-import {Toaster} from 'sonner';
+import {ToastContainer} from '@/components/shared/toast';
 import {storeRoutingRoutes} from './configs/routes/store/storePageRoutes.config.ts';
 import {adminRoutingRoutes} from './configs/routes/admin/adminPageRoutes.config.ts';
 import {getHostname} from './utils/HostnameResolver';
@@ -59,7 +59,7 @@ function App() {
                     ))}
                 </Routes>
             </Suspense>
-            <Toaster richColors position="top-center" />
+            <ToastContainer />
         </BrowserRouter>
     );
 }

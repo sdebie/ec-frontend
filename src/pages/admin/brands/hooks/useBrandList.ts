@@ -1,6 +1,6 @@
 import {useCallback, useEffect, useMemo, useState} from "react";
-import {apiGetAllBrands, apiGetBrandCount} from "@/services/graphql/admin/brand/brand.service.ts";
-import {Brand} from "@/types/admin/brand.types.ts";
+import {apiGetAllBrands, apiGetBrandCount} from "@/services/graphql/admin/brand/BrandService.graphql.ts";
+import {Brand} from "@/types/admin/BrandTypes.ts";
 import {FilterRequest} from "@/types/graphql/query.types.ts";
 
 const DEFAULT_PAGE_SIZE = 10;
@@ -14,14 +14,27 @@ export default function useBrandList() {
     const [isLoading, setIsLoading] = useState(true);
     const [errorMsg, setErrorMsg] = useState("");
     const [refreshKey, setRefreshKey] = useState(0);
+    const [searchTerm, setSearchTerm] = useState("");
 
+    // Build filter dynamically so the server always receives the current search term.
+    // When the search term changes, an OR-group is sent: name ILIKE %term% OR description ILIKE %term%.
     const filterRequest = useMemo<FilterRequest>(
         () => ({
             filters: [],
-            filterGroups: [],
+            filterGroups: searchTerm.trim()
+                ? [
+                    {
+                        operator: "OR",
+                        filters: [
+                            {key: "name", operator: "ILIKE", value: searchTerm.trim()},
+                            {key: "description", operator: "ILIKE", value: searchTerm.trim()},
+                        ],
+                    },
+                ]
+                : [],
             sort: [{field: "name", direction: "ASC"}],
         }),
-        []
+        [searchTerm]
     );
 
     useEffect(() => {
@@ -69,6 +82,13 @@ export default function useBrandList() {
         setPageIndex(0);
     }, []);
 
+    // When the search term changes, atomically reset to page 0 so we never show
+    // an empty page because the old page index is beyond the new result set.
+    const handleSearchChange = useCallback((search: string) => {
+        setSearchTerm(search);
+        setPageIndex(0);
+    }, []);
+
     const mutate = useCallback(() => {
         setRefreshKey(k => k + 1);
     }, []);
@@ -85,6 +105,7 @@ export default function useBrandList() {
         pageCount,
         onPageChange: handlePageChange,
         onPageSizeChange: handlePageSizeChange,
+        onSearchChange: handleSearchChange,
         mutate,
     };
 }

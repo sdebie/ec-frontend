@@ -4,7 +4,7 @@ import {cn} from '@/utils/cn.ts';
 import type {ReactNode} from 'react';
 
 interface SidebarItemContentProps {
-    label: string;
+    label?: string;
     icon?: string | ReactNode;
     hasSubMenu?: boolean;
     isExpanded?: boolean;

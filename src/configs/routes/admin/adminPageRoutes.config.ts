@@ -19,6 +19,16 @@ const adminPageOnlyRoutes: PageRoutes = [
         },
     },
     {
+        key: 'admin.product.detail',
+        path: '/admin/product/detail/:id',
+        component: lazy(() => import('@/pages/admin/products/screens/detail/ProductDetail')),
+        authority: ['SUPER_ADMIN'],
+        meta: {
+            pageBackgroundType: 'plain',
+            pageContainerType: 'contained',
+        },
+    },
+    {
         key: 'admin.imports.bulk.images',
         path: '/admin/imports/images/bulk-upload/',
         component: lazy(() => import('@/pages/admin/images/BulkImageUploader.tsx')),
@@ -31,7 +41,7 @@ const adminPageOnlyRoutes: PageRoutes = [
     {
         key: 'admin.imports.bulk.products',
         path: '/admin/imports/products/bulk-upload',
-        component: lazy(() => import('@/pages/admin/products/ProductBulkUpload.tsx')),
+        component: lazy(() => import('@/pages/admin/products/screens/upload/ProductBulkUpload')),
         authority: ['SUPER_ADMIN'],
         meta: {
             pageBackgroundType: 'plain',
@@ -41,7 +51,7 @@ const adminPageOnlyRoutes: PageRoutes = [
     {
         key: 'admin.imports.bulk.products.review',
         path: '/admin/imports/products/bulk-upload/review/:batchId',
-        component: lazy(() => import('@/pages/admin/products/ProductImportReview.tsx')),
+        component: lazy(() => import('@/pages/admin/products/screens/upload/ProductImportReview')),
         authority: ['SUPER_ADMIN'],
         meta: {
             pageBackgroundType: 'plain',

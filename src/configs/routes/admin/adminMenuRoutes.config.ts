@@ -47,7 +47,7 @@ export const adminMenuRoutes: Routes = [
             {
                 key: 'admin.products.categories',
                 path: '/admin/products/categories',
-                component: lazy(() => import('../../../pages/admin/categories/CategoryList.tsx')),
+                component: lazy(() => import('@/pages/admin/category/screens/list')),
                 authority: ['SUPER_ADMIN'],
                 meta: {
                     label: 'Categories',
@@ -58,7 +58,7 @@ export const adminMenuRoutes: Routes = [
             {
                 key: 'admin.products.list',
                 path: '/admin/products/list',
-                component: lazy(() => import('@/pages/admin/products/ProductList.tsx')),
+                component: lazy(() => import('@/pages/admin/products/screens/list/ProductList')),
                 authority: ['SUPER_ADMIN'],
                 meta: {
                     label: 'Product List',
@@ -95,7 +95,7 @@ export const adminMenuRoutes: Routes = [
             {
                 key: 'admin.imports.products.list',
                 path: '/admin/imports/products/list',
-                component: lazy(() => import('@/pages/admin/products/BulkProductUploadList.tsx')),
+                component: lazy(() => import('@/pages/admin/products/screens/upload/BulkProductUploadList')),
                 authority: ['SUPER_ADMIN'],
                 meta: {
                     label: 'Bulk Product Upload',
@@ -108,7 +108,7 @@ export const adminMenuRoutes: Routes = [
     {
         key: 'admin.settings',
         path: '/admin/settings',
-        component: lazy(() => import('../../../pages/admin/settings/Settings.tsx')),
+        component: lazy(() => import('../../../pages/admin/settings/screens/./GeneralSettings')),
         authority: ['SUPER_ADMIN'],
         meta: {
             label: 'Settings',
@@ -117,6 +117,67 @@ export const adminMenuRoutes: Routes = [
             pageContainerType: 'contained',
             icon: 'settings',
         },
+        subMenu: [
+            {
+                key: 'admin.settings.general',
+                path: '/admin/settings/general',
+                component: lazy(() => import('../../../pages/admin/settings/screens/./GeneralSettings')),
+                authority: ['SUPER_ADMIN'],
+                meta: {
+                    label: 'General Settings',
+                    pageBackgroundType: 'plain',
+                    pageContainerType: 'contained',
+                },
+            },
+            {
+                key: 'admin.settings.store',
+                path: '/admin/settings/store',
+                component: lazy(() => import('../../../pages/admin/settings/screens/./StoreSettings')),
+                authority: ['SUPER_ADMIN'],
+                meta: {
+                    label: 'Store Settings',
+                    pageBackgroundType: 'plain',
+                    pageContainerType: 'contained',
+                },
+            },
+            {
+                key: 'admin.settings.shipping',
+                path: '/admin/settings/shipping',
+                component: lazy(() => import('../../../pages/admin/settings/screens/./ShippingSettings')),
+                authority: ['SUPER_ADMIN'],
+                meta: {
+                    label: 'Shipping Methods',
+                    pageBackgroundType: 'plain',
+                    pageContainerType: 'contained',
+                },
+            },
+        ],
+    },
+    {
+        key: 'admin.staff',
+        path: '/admin/staff',
+        component: lazy(() => import('@/pages/admin/staff/screens/list/./StaffList.tsx')),
+        authority: ['SUPER_ADMIN'],
+        meta: {
+            label: 'Staff',
+            section: 'CONFIGURATION',
+            pageBackgroundType: 'plain',
+            pageContainerType: 'contained',
+            icon: 'settings',
+        },
+        subMenu: [
+            {
+                key: 'admin.staff.list',
+                path: '/admin/staff/list',
+                component: lazy(() => import('@/pages/admin/staff/screens/list/./StaffList.tsx')),
+                authority: ['SUPER_ADMIN'],
+                meta: {
+                    label: 'Staff List',
+                    pageBackgroundType: 'plain',
+                    pageContainerType: 'contained',
+                },
+            },
+        ]
     },
     {
         key: 'admin.component-demo',
