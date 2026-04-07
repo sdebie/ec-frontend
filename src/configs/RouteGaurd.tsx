@@ -1,9 +1,9 @@
 import {Navigate} from 'react-router-dom';
 import {hasRequiredAuthority} from '@/utils/authorizationHelper';
 import AdminLayout from '@/components/layout/admin/AdminLayout.tsx';
-import PageHeader from '@/pages/shop/PageHeader';
-import FloatingSection from '@/pages/shop/FloatingSection';
 import {AdminThemeProvider} from "@/context/AdminThemeContext";
+import { StorefrontThemeProvider } from '@/components/layout/store/default/theme';
+import { getStorefrontThemeConfig } from '@/storefronts/default';
 
 interface RouteGuardProps {
     route: any;
@@ -19,7 +19,6 @@ const RouteGuard = ({
                         isAuthenticated,
                         isAdminDomain,
                         activeCategory,
-                        setActiveCategory,
                         onLoginSuccess
                     }: RouteGuardProps) => {
 
@@ -53,13 +52,9 @@ const RouteGuard = ({
 
     // Store Logic
     return (
-        <div className="min-h-screen bg-background text-foreground">
-            <PageHeader activeCategory={activeCategory} onSelectCategory={setActiveCategory}/>
-            <FloatingSection/>
-            <div className="container mx-auto px-4 py-6">
-                <Component activeCategory={activeCategory} {...(meta || {})} />
-            </div>
-        </div>
+        <StorefrontThemeProvider config={getStorefrontThemeConfig()}>
+            <Component activeCategory={activeCategory} {...(meta || {})} />
+        </StorefrontThemeProvider>
     );
 };
 

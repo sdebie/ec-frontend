@@ -9,7 +9,7 @@ export const storeMenuRoutes: Routes = [
     {
         key: 'home',
         path: `/`,
-        component: lazy(() => import('@/pages/shop/products/ProductList')),
+        component: lazy(() => import('@/pages/shop/home/HomePage')),
         authority: [],
         meta: {
             pageBackgroundType: 'plain',
@@ -19,7 +19,7 @@ export const storeMenuRoutes: Routes = [
     {
         key: 'products',
         path: `/products`,
-        component: lazy(() => import('@/pages/shop/products/ProductList')),
+        component: lazy(() => import('@/pages/shop/products/ShopPage')),
         authority: [],
         meta: {
             pageBackgroundType: 'plain',
