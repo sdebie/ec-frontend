@@ -2,10 +2,11 @@ import React, {useEffect, useState} from 'react'
 import {useNavigate, useSearchParams} from 'react-router-dom'
 import {StorefrontLayout} from '@/components/layout/store/default'
 import {Section} from '@/components/layout/store/default/sections'
-import {ProductCard} from '@/store/components/cards'
+
 import {useAddToCart} from '@/pages/shop/cart/hook/useAddToCart'
 import { fetchProductsList } from '@/services/graphql/product/product.service'
 import {ProductListItem} from "@/types/admin/ProductTypes.ts";
+import {ProductCard} from "@/components";
 
 interface ShopPageProps {
     activeCategory?: string
