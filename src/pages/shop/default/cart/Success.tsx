@@ -1,6 +1,6 @@
 import {useEffect, useState} from 'react';
 import {apiOrderById, apiOrderBySessionId} from '@/services/OrderService.ts';
-import {CartStore} from '@/store/CartStore.ts';
+import {CartStore} from '@/store/cartStore.ts';
 import {OrderStatus} from '@/constants/enums/OrderStatus.ts';
 
 const Success = () => {

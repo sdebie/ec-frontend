@@ -3,7 +3,18 @@ import {hasRequiredAuthority} from '@/utils/authorizationHelper';
 import AdminLayout from '@/components/layout/admin/AdminLayout.tsx';
 import {AdminThemeProvider} from "@/context/AdminThemeContext";
 import { StorefrontThemeProvider } from '@/components/layout/store/default/theme';
-import { getStorefrontThemeConfig } from '@/storefronts/default';
+
+import { getStorefrontThemeConfig as getDefaultStorefrontThemeConfig } from '@/storefronts/default';
+import { getStorefrontThemeConfig as getUvhStorefrontThemeConfig } from '@/storefronts/uvh';
+
+const theme = ((import.meta as any).env.VITE_STORE_FRONT || 'default') as 'default' | 'uvh';
+
+const storefrontThemeConfigMap = {
+    default: getDefaultStorefrontThemeConfig,
+    uvh: getUvhStorefrontThemeConfig,
+};
+
+const getStorefrontThemeConfig = storefrontThemeConfigMap[theme] ?? storefrontThemeConfigMap.default;
 
 interface RouteGuardProps {
     route: any;

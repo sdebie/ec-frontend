@@ -1,5 +1,5 @@
 import React from 'react';
-import CategoriesMenu from './CategoriesMenu';
+import CategoriesMenu from './CategoriesMenu.tsx';
 import useCategoryList from '@/pages/admin/category/hooks/useCategoryList.ts';
 
 interface ComponentHeaderProps {

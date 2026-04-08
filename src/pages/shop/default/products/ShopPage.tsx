@@ -1,10 +1,10 @@
 import React, {useEffect, useState} from 'react'
 import {useNavigate, useSearchParams} from 'react-router-dom'
-import {StorefrontLayout} from '@/components/layout/store/default'
+import {DefaultStorefrontLayout} from '@/components/layout/store/default'
 import {Section} from '@/components/layout/store/default/sections'
 
-import {useAddToCart} from '@/pages/shop/cart/hook/useAddToCart'
-import { fetchProductsList } from '@/services/graphql/product/product.service'
+import {useAddToCart} from '@/pages/shop/default/cart/hook/useAddToCart.ts'
+import { fetchProductsList } from '@/services/graphql/product/product.service.ts'
 import {ProductListItem} from "@/types/admin/ProductTypes.ts";
 import {ProductCard} from "@/components";
 
@@ -97,7 +97,7 @@ const ShopPage: React.FC<ShopPageProps> = ({activeCategory = 'All'}) => {
     }
 
     return (
-        <StorefrontLayout
+        <DefaultStorefrontLayout
             headerProps={{
                 onCartClick: () => navigate('/cart'),
             }}
@@ -210,7 +210,7 @@ const ShopPage: React.FC<ShopPageProps> = ({activeCategory = 'All'}) => {
                     </div>
                 )}
             </Section>
-        </StorefrontLayout>
+        </DefaultStorefrontLayout>
     )
 }
 

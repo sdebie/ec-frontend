@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { fetchProductsList } from '@/services/graphql/product/product.service.ts';
 import type { ProductListItem } from '@/types/admin/ProductTypes.ts';
-import { useAddToCart } from '@/pages/shop/cart/hook/useAddToCart.ts';
+import { useAddToCart } from '@/pages/shop/default/cart/hook/useAddToCart.ts';
 import { Link } from "react-router-dom";
 import ProductImage from "@/components/shared/imageupload/ProductImage.tsx";
 

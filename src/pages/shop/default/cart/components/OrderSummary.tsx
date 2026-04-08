@@ -1,7 +1,7 @@
 import React from 'react';
 import { ShoppingBag } from 'lucide-react';
 import { OrderData } from '../types.ts';
-import { ShippingMethod } from '../../../../services/StoreSettings.ts';
+import { ShippingMethod } from '../../../../../services/StoreSettings.ts';
 
 interface Props {
   order: OrderData | null;

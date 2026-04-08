@@ -1,5 +1,5 @@
 import {useState} from "react";
-import { addToCart as addToCartService } from "../../../../services/OrderService.ts";
+import { addToCart as addToCartService } from "../../../../../services/OrderService.ts";
 import { OrderData } from "../types.ts";
 
 export function useAddToCart() {

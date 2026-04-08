@@ -7,7 +7,7 @@ import type { StorefrontThemeConfig, ResolvedStorefrontTheme } from './themeType
  */
 export const defaultThemeConfig: StorefrontThemeConfig = {
   id: 'default',
-  siteName: 'E-Commerce Store',
+  siteName: 'Default Store',
 
   logo: {
     url: '/logo.svg',

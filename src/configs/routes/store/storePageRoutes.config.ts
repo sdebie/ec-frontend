@@ -3,6 +3,8 @@ import type { PageRoutes } from '../../../@types/routes'
 import { toPageRoutes } from '../routeHelpers'
 import { storeMenuRoutes } from './storeMenuRoutes.config'
 
+const storeFront = import.meta.env.VITE_STORE_FRONT || 'default';
+
 /**
  * Store page routes only contain routing metadata.
  * Menu-specific fields such as hideInMenu stay out of page routing.
@@ -11,7 +13,7 @@ const storePageOnlyRoutes: PageRoutes = [
     {
         key: 'productDetail',
         path: `/product/:productId`,
-        component: lazy(() => import('@/pages/shop/products/ProductDetailsPage')),
+        component: lazy(() => import(`../../pages/shop/${storeFront}/products/ProductDetailsPage.tsx`)),
         authority: [],
         meta: {
             pageBackgroundType: 'plain',
@@ -21,7 +23,7 @@ const storePageOnlyRoutes: PageRoutes = [
     {
         key: 'checkout',
         path: `/checkout`,
-        component: lazy(() => import('@/pages/shop/cart/Checkout')),
+        component: lazy(() => import(`../../pages/shop/${storeFront}/cart/Checkout.tsx`)),
         authority: [],
         meta: {
             pageBackgroundType: 'plain',
@@ -31,7 +33,7 @@ const storePageOnlyRoutes: PageRoutes = [
     {
         key: 'paymentSuccess',
         path: `/payment-success`,
-        component: lazy(() => import('@/pages/shop/cart/Success')),
+        component: lazy(() => import(`../../pages/shop/${storeFront}/cart/Success.tsx`)),
         authority: [],
         meta: {
             pageBackgroundType: 'plain',

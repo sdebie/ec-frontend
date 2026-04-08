@@ -1,4 +1,4 @@
-export { StorefrontLayout } from './StorefrontLayout.tsx'
-export { StorefrontHeader } from './StorefrontHeader.tsx'
-export { StorefrontFooter } from './StorefrontFooter.tsx'
+export { DefaultStorefrontLayout } from './DefaultStorefrontLayout.tsx'
+export { DefaultStorefrontHeader } from './DefaultStorefrontHeader.tsx'
+export { DefaultStorefrontFooter } from './DefaultStorefrontFooter.tsx'
 

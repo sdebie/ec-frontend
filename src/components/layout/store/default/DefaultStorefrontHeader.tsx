@@ -10,12 +10,12 @@ interface StorefrontHeaderProps {
 }
 
 /**
- * StorefrontHeader
+ * DefaultStorefrontHeader
  * Main header component for storefront pages
  * Includes logo, navigation, cart, and user menu
  * Theme-aware styling using CSS variables
  */
-export function StorefrontHeader({
+export function DefaultStorefrontHeader({
                                      onCartClick,
                                      onLoginClick,
                                      isAuthenticated = false,
@@ -210,7 +210,7 @@ export function StorefrontHeader({
     )
 }
 
-export default StorefrontHeader
+export default DefaultStorefrontHeader
 
 
 

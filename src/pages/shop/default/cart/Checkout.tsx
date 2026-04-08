@@ -2,7 +2,7 @@ import React, {useEffect, useMemo, useState} from 'react';
 import {useNavigate} from 'react-router-dom';
 import {apiOrderById, apiOrderBySessionId, apiUpdateOrderStatus} from '@/services/OrderService.ts';
 import {OrderData} from './types.ts';
-import {CartStore} from '@/store/CartStore.ts';
+import {CartStore} from '@/store/cartStore.ts';
 import {
     ShippingMethod,
     PaymentMethodKey,

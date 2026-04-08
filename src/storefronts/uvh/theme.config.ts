@@ -29,7 +29,7 @@ import { StorefrontThemeConfig } from '@/components/layout/store/default/theme'
 
 export const defaultStorefrontTheme: StorefrontThemeConfig = {
   id: 'default',
-  siteName: 'Default Store',
+  siteName: 'UVH Store',
 
   logo: {
     url: '/logo.svg',

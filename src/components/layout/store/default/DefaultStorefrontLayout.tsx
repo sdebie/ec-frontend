@@ -1,13 +1,13 @@
 import {ReactNode} from 'react'
-import {StorefrontHeader} from "@/components/layout/store/default/StorefrontHeader.tsx";
-import {StorefrontFooter} from "@/components/layout/store/default/StorefrontFooter.tsx";
+import {DefaultStorefrontHeader} from "@/components/layout/store/default/DefaultStorefrontHeader.tsx";
+import {DefaultStorefrontFooter} from "@/components/layout/store/default/DefaultStorefrontFooter.tsx";
 
 interface StorefrontLayoutProps {
     children: ReactNode
     /** Optional custom header props */
-    headerProps?: React.ComponentProps<typeof StorefrontHeader>
+    headerProps?: React.ComponentProps<typeof DefaultStorefrontHeader>
     /** Optional custom footer props */
-    footerProps?: React.ComponentProps<typeof StorefrontFooter>
+    footerProps?: React.ComponentProps<typeof DefaultStorefrontFooter>
     /** Whether to show the footer (default: true) */
     showFooter?: boolean
     /** CSS class names for the main content container */
@@ -15,16 +15,16 @@ interface StorefrontLayoutProps {
 }
 
 /**
- * StorefrontLayout
+ * DefaultStorefrontLayout
  * Main layout wrapper for storefront pages
  * Provides header, footer, and content area with theme support
  *
  * Usage:
- * <StorefrontLayout>
+ * <DefaultStorefrontLayout>
  *   <HomePage />
- * </StorefrontLayout>
+ * </DefaultStorefrontLayout>
  */
-export function StorefrontLayout({
+export function DefaultStorefrontLayout({
                                      children,
                                      headerProps,
                                      footerProps,
@@ -42,7 +42,7 @@ export function StorefrontLayout({
             }}
         >
             {/* Header */}
-            <StorefrontHeader {...headerProps} />
+            <DefaultStorefrontHeader {...headerProps} />
 
             {/* Main Content */}
             <main className={`flex-1 ${contentClassName}`}>
@@ -57,12 +57,12 @@ export function StorefrontLayout({
             </main>
 
             {/* Footer */}
-            {showFooter && <StorefrontFooter {...footerProps} />}
+            {showFooter && <DefaultStorefrontFooter {...footerProps} />}
         </div>
     )
 }
 
-export default StorefrontLayout
+export default DefaultStorefrontLayout
 
 
 

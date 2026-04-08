@@ -8,11 +8,11 @@ interface StorefrontFooterProps {
 }
 
 /**
- * StorefrontFooter
+ * DefaultStorefrontFooter
  * Footer component for storefront pages
  * Theme-aware with client-specific branding
  */
-export function StorefrontFooter({
+export function DefaultStorefrontFooter({
                                      companyName,
                                      description,
                                      quickLinks,
@@ -198,6 +198,6 @@ export function StorefrontFooter({
     )
 }
 
-export default StorefrontFooter
+export default DefaultStorefrontFooter
 
 
