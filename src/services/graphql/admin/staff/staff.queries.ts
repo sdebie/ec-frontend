@@ -4,11 +4,10 @@ export const STAFF_LIST = gql`
     query StaffList($pageRequest: PageRequestInput, $filterRequest: FilterRequestInput) {
         staffList(pageRequest: $pageRequest, filterRequest: $filterRequest) {
             id
-            username
             email
             fullName
             role
-            isActive
+            active
             createdAt
         }
     }
@@ -17,6 +16,32 @@ export const STAFF_LIST = gql`
 export const STAFF_COUNT = gql`
     query StaffCount($filterRequest: FilterRequestInput) {
         staffCount(filterRequest: $filterRequest)
+    }
+`;
+
+export const STAFF_BY_ID = gql`
+    query StaffById($id: String!) {
+        staffById(id: $id) {
+            id
+            email
+            fullName
+            role
+            active
+            resetPassword
+            createdAt
+        }
+    }
+`;
+
+export const CREATE_STAFF = gql`
+    mutation AddStaffUser($staffDto: StaffDtoInput!) {
+        addStaffUser(staffDto: $staffDto)
+    }
+`;
+
+export const UPDATE_STAFF = gql`
+    mutation UpdateStaffUser($id: String!, $staffDto: StaffDtoInput!) {
+        updateStaffUser(id: $id, staffDto: $staffDto)
     }
 `;
 

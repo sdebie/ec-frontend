@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import {useNavigate} from 'react-router-dom';
 import StaffService from '../../services/StaffService.ts';
 
 interface AdminLoginProps {
@@ -6,7 +7,8 @@ interface AdminLoginProps {
 }
 
 const AdminLogin: React.FC<AdminLoginProps> = ({ onLoginSuccess }) => {
-    const [credentials, setCredentials] = useState({ username: '', password: '' });
+    const navigate = useNavigate();
+    const [credentials, setCredentials] = useState({ email: '', password: '' });
     const [error, setError] = useState('');
 
     const handleLogin = async (e: React.FormEvent) => {
@@ -22,10 +24,17 @@ const AdminLogin: React.FC<AdminLoginProps> = ({ onLoginSuccess }) => {
             };
             localStorage.setItem('admin_user', JSON.stringify(userWithAuthority));
 
+            if (data.resetPassword) {
+                console.log('Password reset required. Redirecting to reset password page.');
+                navigate('/admin/reset-password', {replace: true});
+                return;
+            }
+
             // 3. Trigger the callback to update global app state
             onLoginSuccess();
-        } catch (err) {
-            setError('Invalid credentials or unauthorized access');
+        } catch (err: any) {
+            const message = err?.response?.data;
+            setError(typeof message === 'string' ? message : 'Invalid credentials or unauthorized access');
         }
     };
 
@@ -35,11 +44,11 @@ const AdminLogin: React.FC<AdminLoginProps> = ({ onLoginSuccess }) => {
                 <h2 className="text-2xl font-bold mb-6 text-gray-800 text-center">Staff Portal</h2>
 
                 <input
-                    type="text"
-                    placeholder="Username"
-                    value={credentials.username}
+                    type="email"
+                    placeholder="Email"
+                    value={credentials.email}
                     className="w-full p-3 mb-4 border rounded-lg focus:ring-2 focus:ring-blue-500 outline-none"
-                    onChange={(e) => setCredentials({...credentials, username: e.target.value})}
+                    onChange={(e) => setCredentials({...credentials, email: e.target.value})}
                 />
 
                 <input
@@ -56,7 +65,7 @@ const AdminLogin: React.FC<AdminLoginProps> = ({ onLoginSuccess }) => {
                     Log In
                 </button>
                 <div>
-                    Hint: admin (Admin@123)
+                    Hint: admin@gmail.com (Admin@123)
                 </div>
             </form>
         </div>

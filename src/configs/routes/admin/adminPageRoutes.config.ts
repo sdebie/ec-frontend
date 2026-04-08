@@ -19,6 +19,16 @@ const adminPageOnlyRoutes: PageRoutes = [
         },
     },
     {
+        key: 'admin.reset-password',
+        path: '/admin/reset-password',
+        component: lazy(() => import('../../../pages/admin/AdminResetPassword.tsx')),
+        authority: [],
+        meta: {
+            pageBackgroundType: 'plain',
+            pageContainerType: 'contained',
+        },
+    },
+    {
         key: 'admin.product.detail',
         path: '/admin/product/detail/:id',
         component: lazy(() => import('@/pages/admin/products/screens/detail/ProductDetail')),

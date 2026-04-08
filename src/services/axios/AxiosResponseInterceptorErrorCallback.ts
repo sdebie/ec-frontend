@@ -11,7 +11,7 @@ const AxiosResponseInterceptorErrorCallback = (error: AxiosError) => {
         setToken('')
         useSessionUser.getState().setUser({
             token: "",
-            username: "",
+            email: "",
             role: ""
         })
         useSessionUser.getState().setSessionSignedIn(false)

@@ -1,10 +1,17 @@
 export interface LoginRequest {
-  username?: string;
+  email?: string;
   password?: string;
 }
 
 export interface LoginResponse {
   token: string;
-  username: string;
+  email: string;
   role: string;
+  resetPassword: boolean;
+}
+
+export interface ResetPasswordRequest {
+  email: string;
+  password: string;
+  confirmPassword: string;
 }
