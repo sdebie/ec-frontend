@@ -69,10 +69,10 @@ export const adminMenuRoutes: Routes = [
             {
                 key: 'admin.productssales.list',
                 path: '/admin/productssales/list',
-                component: lazy(() => import('@/pages/admin/products/screens/list/ProductSalesList')),
+                component: lazy(() => import('@/pages/admin/products/screens/list/ProductSaleList')),
                 authority: ['SUPER_ADMIN'],
                 meta: {
-                    label: 'Product Sales List',
+                    label: 'Product on Sale List',
                     pageBackgroundType: 'plain',
                     pageContainerType: 'contained',
                 },

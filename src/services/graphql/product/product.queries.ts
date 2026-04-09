@@ -6,18 +6,63 @@ export const GET_PRODUCTS_LIST = gql`
             id
             name
             description
-            retailPrice
-            retailSalesPrice
-            wholesalePrice
-            wholesaleSalesPrice
-            productImages {
+            imageName
+            variantIds
+            categoryName
+            brandName
+        }
+    }
+`;
+
+export const GET_SHOPPING_PRODUCTS_LIST = gql`
+    query GetShoppingProductsList($categoryId: String, $pageRequest: PageRequestInput, $filterRequest: FilterRequestInput) {
+        shoppingProductList(categoryId: $categoryId, pageRequest: $pageRequest, filterRequest: $filterRequest) {
+            id
+            name
+            shortDescription
+            variantCount
+            images {
                 id
                 imageUrl
                 sortOrder
                 isFeatured: featured
             }
-            variantIds
-            categoryName
+            retailPrice {
+                id
+                priceType
+                price
+                priceStartDate
+                priceEndDate
+                isActive: active
+                saleDaysRemaining
+            }
+            wholesalePrice {
+                id
+                priceType
+                price
+                priceStartDate
+                priceEndDate
+                isActive: active
+                saleDaysRemaining
+            }
+            retailSalePrice {
+                id
+                priceType
+                price
+                priceStartDate
+                priceEndDate
+                isActive: active
+                saleDaysRemaining
+            }
+            wholesaleSalePrice {
+                id
+                priceType
+                price
+                priceStartDate
+                priceEndDate
+                isActive: active
+                saleDaysRemaining
+            }
         }
     }
 `;
@@ -25,19 +70,6 @@ export const GET_PRODUCTS_LIST = gql`
 export const GET_SALE_PRODUCTS_LIST = gql`
     query GetSaleProductsList($pageRequest: PageRequestInput) {
         saleProductList(pageRequest: $pageRequest) {
-            variant {
-                id
-                sku
-                retailPrice
-                retailSalesPrice
-                wholesalePrice
-                wholesaleSalesPrice
-                price_start_date
-                price_end_date
-                stockQuantity
-                weightKg
-                attributesJson
-            }
             product {
                 id
                 slug
@@ -57,11 +89,27 @@ export const GET_SALE_PRODUCTS_LIST = gql`
                     slug
                 }
             }
-            productImages {
+            variants {
                 id
-                imageUrl
-                sortOrder
-                isFeatured: featured
+                sku
+                stockQuantity
+                weightKg
+                attributesJson
+                prices {
+                    id
+                    priceType
+                    price
+                    priceStartDate
+                    priceEndDate
+                    isActive: active
+                    saleDaysRemaining
+                }
+                images {
+                    id
+                    imageUrl
+                    sortOrder
+                    isFeatured: featured
+                }
             }
         }
     }
@@ -106,22 +154,27 @@ export const GET_PRODUCT_AND_VARIANTS = gql`
                     slug
                 }
             }
-            productImages {
-                id
-                imageUrl
-                sortOrder
-                isFeatured: featured
-            }
             variants {
                 id
                 sku
                 stockQuantity
                 attributesJson
                 weightKg
-                retailPrice
-                retailSalesPrice
-                wholesalePrice
-                wholesaleSalesPrice
+                prices {
+                    id
+                    priceType
+                    price
+                    priceStartDate
+                    priceEndDate
+                    isActive: active
+                    saleDaysRemaining
+                }
+                images {
+                    id
+                    imageUrl
+                    sortOrder
+                    isFeatured: featured
+                }
             }
         }
     }

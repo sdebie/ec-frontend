@@ -198,14 +198,13 @@ const ShopPage: React.FC<ShopPageProps> = ({activeCategory = 'All'}) => {
                 {!loading && !error && filteredItems.length > 0 && (
                     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                         {filteredItems.map((product) => {
-                            const mainImage = product.productImages?.[0]
                             return (
                                 <ProductCard
                                     key={product.id}
                                     id={product.id}
                                     name={product.name}
                                     price={product.retailSalesPrice ?? product.retailPrice ?? 0}
-                                    image={mainImage?.imageUrl}
+                                    image={product.imageName ?? undefined}
                                     onAddToCart={() => handleAddToCart(product.id)}
                                 />
                             )
@@ -242,9 +241,3 @@ const ShopPage: React.FC<ShopPageProps> = ({activeCategory = 'All'}) => {
 }
 
 export default ShopPage
-
-
-
-
-
-

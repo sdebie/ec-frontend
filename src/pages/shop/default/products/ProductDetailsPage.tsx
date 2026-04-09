@@ -9,7 +9,7 @@ import { useAddToCart } from "@/pages/shop/default/cart/hook/useAddToCart.ts";
 interface UiVariant {
   id: string;
   sku: string;
-  price: number;           // Calculated from first active price
+  price: number;           // Calculated from variant prices
   retailPrice?: number | null;
   retailSalesPrice?: number | null;
   wholesalePrice?: number | null;
@@ -47,29 +47,43 @@ const ProductDetailsPage = () => {
         const result: ProductInformation | null = await fetchProductAndVariants(idParam);
         if (isCancelled) return;
 
-        if (!result) {
+        const baseProduct = result?.product;
+        if (!baseProduct) {
           setProduct(null);
           setLoading(false);
           return;
         }
 
+        const variants = result?.variants || [];
+        const variantImages = variants
+          .flatMap(v => v.images || [])
+          .map(img => ({ id: img.id, imageUrl: img.imageUrl }));
+
         const uiProduct: UiProduct = {
-          id: result.productInfo.id ?? idParam,
-          name: result.productInfo.name ?? 'Product',
-          short_description: result.productInfo.short_description ?? '',
-          description: result.productInfo.description ?? '',
-          variants: (result.variants || []).map((v) => ({
-            id: v.id,
-            sku: v.sku ?? '',
-            price: v.retailPrice ?? 0,
-            retailPrice: v.retailPrice,
-            retailSalesPrice: v.retailSalesPrice,
-            wholesalePrice: v.wholesalePrice,
-            wholesaleSalesPrice: v.wholesaleSalesPrice,
-            stock_quantity: v.stockQuantity ?? 0,
-            attributes: safeParseAttributes(v.attributesJson),
-          })),
-          productImages: (result.images || []).map(img => ({ id: img.id, imageUrl: img.imageUrl })),
+          id: baseProduct.id ?? idParam,
+          name: baseProduct.name ?? 'Product',
+          short_description: baseProduct.shortDescription ?? '',
+          description: baseProduct.description ?? '',
+          variants: variants.map((v) => {
+            const retailPrice = getVariantPrice(v.prices, "RETAIL_PRICE");
+            const retailSalesPrice = getVariantPrice(v.prices, "RETAIL_SALE_PRICE");
+            const wholesalePrice = getVariantPrice(v.prices, "WHOLESALE_PRICE");
+            const wholesaleSalesPrice = getVariantPrice(v.prices, "WHOLESALE_SALE_PRICE");
+            const displayPrice = retailSalesPrice ?? retailPrice ?? wholesaleSalesPrice ?? wholesalePrice ?? 0;
+
+            return {
+              id: v.id,
+              sku: v.sku ?? '',
+              price: displayPrice,
+              retailPrice,
+              retailSalesPrice,
+              wholesalePrice,
+              wholesaleSalesPrice,
+              stock_quantity: v.stockQuantity ?? 0,
+              attributes: safeParseAttributes(v.attributesJson),
+            };
+          }),
+          productImages: variantImages,
         };
         setProduct(uiProduct);
       } catch (e: any) {
@@ -131,6 +145,17 @@ function safeParseAttributes(json?: string | null): Record<string, string> {
     }
   } catch (_) {}
   return {};
+}
+
+function getVariantPrice(
+  prices: Array<{ priceType?: string | null; price?: number | null; isActive?: boolean | null }> | null | undefined,
+  priceType: string,
+): number | null {
+  if (!prices || prices.length === 0) return null;
+  const active = prices.find((p) => p.priceType === priceType && p.isActive);
+  if (active?.price != null) return active.price;
+  const fallback = prices.find((p) => p.priceType === priceType);
+  return fallback?.price ?? null;
 }
 
 export default ProductDetailsPage;

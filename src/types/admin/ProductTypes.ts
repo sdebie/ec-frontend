@@ -11,29 +11,25 @@ export type ProductListItem = {
 	id: string;
 	name: string;
 	description?: string | null;
-	retailPrice?: number | null;
-	retailSalesPrice?: number | null;
-	wholesalePrice?: number | null;
-	wholesaleSalesPrice?: number | null;
-	productImages?: ProductImage[] | null;
+	imageName?: string | null;
 	variantIds?: string[] | null;
 	categoryName?: string | null;
+	brandName?: string | null;
 };
 
-export type SaleVariantItem = {
-	variant?: {
-		id: string;
-		sku?: string | null;
-		retailPrice?: number | null;
-		retailSalesPrice?: number | null;
-		wholesalePrice?: number | null;
-		wholesaleSalesPrice?: number | null;
-		price_start_date?: string | null;
-		price_end_date?: string | null;
-		stockQuantity?: number | null;
-		weightKg?: string | null;
-		attributesJson?: string | null;
-	} | null;
+export type ProductShoppingListItem = {
+	id: string;
+	name: string;
+	shortDescription?: string | null;
+	variantCount?: number | null;
+	images?: ProductImage[] | null;
+	retailPrice?: VariantPrice | null;
+	wholesalePrice?: VariantPrice | null;
+	retailSalePrice?: VariantPrice | null;
+	wholesaleSalePrice?: VariantPrice | null;
+};
+
+export type SalesProductListItem = {
 	product?: {
 		id: string;
 		slug?: string | null;
@@ -45,19 +41,18 @@ export type SaleVariantItem = {
 		category?: { id: string; name?: string | null; slug?: string | null } | null;
 		brand?: { id: string; name?: string | null; slug?: string | null } | null;
 	} | null;
-	productImages?: ProductImage[] | null;
+	variants?: ProductVariant[] | null;
 };
 
-/** @deprecated use SaleVariantItem — kept only for migration safety */
-export type SaleProductListItem = SaleVariantItem;
 
 export type VariantPrice = {
 	id: string;
-	priceType: string;
-	price: string | number;
+	priceType?: string | null;
+	price?: number | null;
 	priceStartDate?: string | null;
 	priceEndDate?: string | null;
 	isActive?: boolean | null;
+	saleDaysRemaining?: number | null;
 };
 
 export type VariantItem = {
@@ -67,7 +62,6 @@ export type VariantItem = {
 	retailSalesPrice?: number | null;
 	wholesalePrice?: number | null;
 	wholesaleSalesPrice?: number | null;
-	variantPrices?: VariantPrice[] | null;
 	stockQuantity?: number | null;
 	weightKg?: string | null;
 	attributesJson?: string | null;
@@ -77,31 +71,26 @@ export type VariantItem = {
 export type ProductVariant = {
 	id: string;
 	sku?: string | null;
-	retailPrice?: number | null;
-	retailSalesPrice?: number | null;
-	wholesalePrice?: number | null;
-	wholesaleSalesPrice?: number | null;
 	stockQuantity?: number | null;
 	attributesJson?: string | null;
 	weightKg?: string | null;
-};
-
-export type ProductInfo = {
-	id: string;
-	slug?: string | null;
-	name?: string | null;
-	description?: string | null;
-	short_description?: string | null;
-	product_type?: string | null;
-	date_created?: string | null;
-	category?: { id: string; name?: string | null; slug?: string | null } | null;
-	brand?: { id: string; name?: string | null; slug?: string | null } | null;
+	prices?: VariantPrice[] | null;
+	images?: ProductImage[] | null;
 };
 
 export type ProductInformation = {
-	productInfo: ProductInfo;
+	product?: {
+		id: string;
+		slug?: string | null;
+		name?: string | null;
+		description?: string | null;
+		shortDescription?: string | null;
+		productType?: string | null;
+		createdAt?: string | null;
+		category?: { id: string; name?: string | null; slug?: string | null } | null;
+		brand?: { id: string; name?: string | null; slug?: string | null } | null;
+	} | null;
 	variants?: ProductVariant[] | null;
-	images?: ProductImage[] | null;
 };
 
 export type ProductUploadStaged = {
@@ -163,4 +152,3 @@ export type ProductUploadBatchProcessStatus = {
 	validationErrorCount?: number | null;
 	completed: boolean;
 };
-

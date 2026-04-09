@@ -3,10 +3,11 @@ import {useNavigate} from 'react-router-dom'
 import {DefaultStorefrontLayout} from '@/components/layout/store/default'
 import {HeroSection, Section} from '@/components/layout/store/default/sections'
 import {useAddToCart} from '@/pages/shop/default/cart/hook/useAddToCart.ts'
-import {fetchProductsList} from '@/services/graphql/product/product.service.ts'
+import {fetchProductsList, fetchShoppingProductsList} from '@/services/graphql/product/product.service.ts'
 import {useStorefrontTheme} from '@/components/layout/store/default/theme'
-import {ProductListItem} from '@/types/admin/ProductTypes.ts'
+import {ProductListItem, ProductShoppingListItem} from '@/types/admin/ProductTypes.ts'
 import {Button, ProductCard} from '@/components'
+import {IMAGE_BASE_URL, IMAGE_THUMBNAIL_URL} from "@/constants/api.constant.ts";
 
 interface HomePageProps {
     activeCategory?: string
@@ -22,6 +23,7 @@ const HomePage: React.FC<HomePageProps> = ({activeCategory = 'All'}) => {
     const {createOrder} = useAddToCart()
     const {config} = useStorefrontTheme()
     const [featuredProducts, setFeaturedProducts] = useState<ProductListItem[]>([])
+    const [shoppingProductsTest, setShoppingProductsTest] = useState<ProductShoppingListItem[]>([])
     const [loading, setLoading] = useState(true)
 
     const trustedBrands = [
@@ -69,6 +71,9 @@ const HomePage: React.FC<HomePageProps> = ({activeCategory = 'All'}) => {
                 setLoading(true)
                 const products = await fetchProductsList(activeCategory)
                 setFeaturedProducts(products.slice(0, 6))
+
+                const shoppingProducts = await fetchShoppingProductsList(activeCategory)
+                setShoppingProductsTest(shoppingProducts.slice(0, 3))
             } catch (error) {
                 console.error('Failed to load featured products:', error)
             } finally {
@@ -80,24 +85,7 @@ const HomePage: React.FC<HomePageProps> = ({activeCategory = 'All'}) => {
     }, [activeCategory])
 
     const handleAddToCart = async (productId: string) => {
-        try {
-            const product = featuredProducts.find(p => p.id === productId)
-            if (!product) return
-
-            const price = product.retailSalesPrice ?? product.retailPrice ?? 0
-            await createOrder({
-                items: [
-                    {
-                        quantity: 1,
-                        unitPrice: price,
-                        variant: productId,
-                    },
-                ],
-            })
-            navigate('/cart')
-        } catch (error) {
-            console.error('Failed to add to cart:', error)
-        }
+            //TODO::SDB New Chart
     }
 
     return (
@@ -141,19 +129,20 @@ const HomePage: React.FC<HomePageProps> = ({activeCategory = 'All'}) => {
                     <>
                         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                             {featuredProducts.map((product) => {
-                                const mainImage = product.productImages?.[0]
                                 return (
                                     <ProductCard
                                         key={product.id}
                                         id={product.id}
                                         name={product.name}
                                         price={product.retailSalesPrice ?? product.retailPrice ?? 0}
-                                        image={mainImage?.imageUrl}
+                                        image={product.imageName ?? undefined}
                                         onAddToCart={() => handleAddToCart(product.id)}
                                     />
                                 )
                             })}
                         </div>
+
+
 
                         <div className="mt-8 flex justify-center">
                             <Button
@@ -173,6 +162,73 @@ const HomePage: React.FC<HomePageProps> = ({activeCategory = 'All'}) => {
                     <div className="text-center py-12">
                         <p style={{color: 'var(--storefront-color-text-secondary)'}}>
                             No products available
+                        </p>
+                    </div>
+                )}
+            </Section>
+
+            <Section
+                title="Shopping Product List API Test (First 3)"
+                subtitle="Temporary section to validate shoppingProductList integration"
+                backgroundColor="background"
+                paddingSize="large"
+            >
+                {loading ? (
+                    <div className="text-center py-6">
+                        <p style={{color: 'var(--storefront-color-text-secondary)'}}>
+                            Loading shopping products...
+                        </p>
+                    </div>
+                ) : shoppingProductsTest.length > 0 ? (
+                    <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                        {shoppingProductsTest.map((product) => {
+                            const primaryImage = product.images?.find(img => img.isFeatured)?.imageUrl
+                                ?? product.images?.[0]?.imageUrl
+                                ?? ''
+                            const retailPrice = product.retailSalePrice?.price
+                                ?? product.retailPrice?.price
+                                ?? 0
+                            const wholesalePrice = product.wholesaleSalePrice?.price
+                                ?? product.wholesalePrice?.price
+                                ?? 0
+
+                            return (
+                                <div
+                                    key={`shopping-test-${product.id}`}
+                                    className="rounded-xl p-4"
+                                    style={{
+                                        backgroundColor: 'var(--storefront-color-surface)',
+                                        border: '1px solid var(--storefront-color-border)',
+                                    }}
+                                >
+                                    {primaryImage && (
+                                        <img
+                                            src={`${IMAGE_BASE_URL}${primaryImage}`}
+                                            alt="product.name"
+                                            className="w-full h-44 object-cover rounded-md mb-3"
+                                        />
+                                    )}
+                                    <h3 className="font-semibold mb-2" style={{color: 'var(--storefront-color-text-primary)'}}>
+                                        {product.name}
+                                    </h3>
+                                    <p className="text-sm mb-3" style={{color: 'var(--storefront-color-text-secondary)'}}>
+                                        {product.shortDescription || 'No short description'}
+                                    </p>
+                                    <p className="text-sm mb-1" style={{color: 'var(--storefront-color-text-secondary)'}}>
+                                        Variants: {product.variantCount ?? 0}
+                                    </p>
+                                    <p className="font-bold" style={{color: 'var(--storefront-color-primary)'}}>
+                                        R {Number(retailPrice).toFixed(2)}
+                                        R {Number(wholesalePrice).toFixed(2)}
+                                    </p>
+                                </div>
+                            )
+                        })}
+                    </div>
+                ) : (
+                    <div className="text-center py-6">
+                        <p style={{color: 'var(--storefront-color-text-secondary)'}}>
+                            No shopping products returned.
                         </p>
                     </div>
                 )}
@@ -472,9 +528,3 @@ const HomePage: React.FC<HomePageProps> = ({activeCategory = 'All'}) => {
 }
 
 export default HomePage
-
-
-
-
-
-

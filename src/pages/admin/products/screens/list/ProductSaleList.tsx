@@ -2,18 +2,34 @@ import { ColumnDef } from "@tanstack/react-table";
 import { DataTable } from "@/components/shared/datatable/DataTable.tsx";
 import { Button } from "@/components";
 import { apiGetSaleProductList } from "@/services/graphql/product/product.service.ts";
-import type { SaleVariantItem } from "@/types/admin/ProductTypes.ts";
+import type { SalesProductListItem } from "@/types/admin/ProductTypes.ts";
 import { PenLine } from "lucide-react";
 import { useEffect, useMemo, useState } from "react";
 import { useNavigate } from "react-router-dom";
 
+type SaleVariantRow = {
+    product?: SalesProductListItem["product"] | null;
+    productImages?: NonNullable<NonNullable<SalesProductListItem["variants"]>[number]["images"]>;
+    variant: {
+        id: string;
+        sku?: string | null;
+        stockQuantity?: number | null;
+        weightKg?: string | null;
+        attributesJson?: string | null;
+        retailSalesPrice?: number | null;
+        retailSaleDaysRemaining?: number | null;
+        wholesaleSalesPrice?: number | null;
+        wholesaleSaleDaysRemaining?: number | null;
+    };
+};
+
 const formatPrice = (price?: number | null) =>
     price != null ? `R ${price.toFixed(2)}` : "-";
 
-const ProductSalesList = () => {
+const ProductSaleList = () => {
     const navigate = useNavigate();
 
-    const [products, setProducts] = useState<SaleVariantItem[]>([]);
+    const [products, setProducts] = useState<SaleVariantRow[]>([]);
     const [isLoading, setIsLoading] = useState(true);
     const [errorMsg, setErrorMsg] = useState("");
 
@@ -26,8 +42,9 @@ const ProductSalesList = () => {
                 setErrorMsg("");
 
                 const result = await apiGetSaleProductList();
+                const flattened = flattenSalesProducts(result);
                 if (!isActive) return;
-                setProducts(result);
+                setProducts(flattened);
             } catch (error) {
                 console.error("Failed to fetch sale products:", error);
                 if (isActive) {
@@ -47,13 +64,43 @@ const ProductSalesList = () => {
         };
     }, []);
 
-    function handleEdit(productItem: SaleVariantItem) {
+      function flattenSalesProducts(items: SalesProductListItem[]): SaleVariantRow[] {
+        return (items ?? []).flatMap((item) => {
+          const variants = item.variants ?? [];
+          return variants.map((variant) => {
+            const retailSalePrice = variant.prices?.find((p) => p.priceType === "RETAIL_SALE_PRICE")?.price ?? null;
+            const retailSaleDaysRemaining = variant.prices?.find((p) => p.priceType === "RETAIL_SALE_PRICE")?.saleDaysRemaining ?? null;
+            const wholesaleSalePrice = variant.prices?.find((p) => p.priceType === "WHOLESALE_SALE_PRICE")?.price ?? null;
+            const wholesaleSaleDaysRemaining = variant.prices?.find((p) => p.priceType === "WHOLESALE_SALE_PRICE")?.saleDaysRemaining ?? null;
+
+            return {
+              product: item.product,
+              productImages: variant.images ?? [],
+              variant: {
+                id: variant.id,
+                sku: variant.sku,
+                stockQuantity: variant.stockQuantity,
+                weightKg: variant.weightKg,
+                attributesJson: variant.attributesJson,
+                retailSalesPrice: retailSalePrice,
+                retailSaleDaysRemaining,
+                wholesaleSalesPrice: wholesaleSalePrice,
+                wholesaleSaleDaysRemaining,
+                retailPrice: null,
+                wholesalePrice: null,
+              },
+            };
+          });
+        });
+      }
+
+    function handleEdit(productItem: SaleVariantRow) {
         const productId = productItem.product?.id;
         if (!productId) return;
         navigate(`/admin/product/detail/${productId}`);
     }
 
-    const columns: ColumnDef<SaleVariantItem>[] = useMemo(
+    const columns: ColumnDef<SaleVariantRow>[] = useMemo(
         () => [
             {
                 id: "name",
@@ -82,17 +129,30 @@ const ProductSalesList = () => {
                 cell: ({ row }) => row.original.product?.category?.name ?? "-",
             },
             {
-                id: "retailPrice",
-                accessorFn: (row) => row.variant?.retailPrice ?? null,
+                id: "wholesaleSalesPrice",
+                accessorFn: (row) => row.variant?.wholesaleSalesPrice ?? null,
                 header: () => (
                     <div>
-                        Retail
+                        Wholesale
                         <br />
-                        <div className="text-[10px]">Price</div>
+                        <div className="text-[10px]">Sale Price</div>
                     </div>
                 ),
                 enableSorting: true,
-                cell: ({ row }) => formatPrice(row.original.variant?.retailPrice),
+                cell: ({ row }) => formatPrice(row.original.variant?.wholesaleSalesPrice),
+            },
+            {
+                id: "wholesaleSaleDaysRemaining",
+                accessorFn: (row) => row.variant?.wholesaleSaleDaysRemaining ?? null,
+                header: () => (
+                    <div>
+                        Wholesale
+                        <br />
+                        <div className="text-[10px]">Days Left</div>
+                    </div>
+                ),
+                enableSorting: true,
+                cell: ({ row }) => row.original.variant?.wholesaleSaleDaysRemaining ?? "-",
             },
             {
                 id: "retailSalesPrice",
@@ -106,6 +166,19 @@ const ProductSalesList = () => {
                 ),
                 enableSorting: true,
                 cell: ({ row }) => formatPrice(row.original.variant?.retailSalesPrice),
+            },
+            {
+                id: "retailSaleDaysRemaining",
+                accessorFn: (row) => row.variant?.retailSaleDaysRemaining ?? null,
+                header: () => (
+                    <div>
+                        Retail
+                        <br />
+                        <div className="text-[10px]">Days Left</div>
+                    </div>
+                ),
+                enableSorting: true,
+                cell: ({ row }) => row.original.variant?.retailSaleDaysRemaining ?? "-",
             },
             {
                 id: "stockQuantity",
@@ -138,7 +211,7 @@ const ProductSalesList = () => {
     return (
         <div>
             <div className="mb-4 flex items-center justify-between">
-                <h1 className="text-2xl font-bold">Product Sales List</h1>
+                <h1 className="text-2xl font-bold">Product Sale List</h1>
             </div>
             <DataTable
                 data={products}
@@ -151,5 +224,5 @@ const ProductSalesList = () => {
     );
 };
 
-export default ProductSalesList;
+export default ProductSaleList;
 

@@ -3,14 +3,14 @@ import {GraphQLService} from "@/services/graphql/GraphQLService.ts";
 import {FilterRequest, PageRequest} from "@/types/graphql/query.types.ts";
 import {
 	ProductListItem,
+	ProductShoppingListItem,
 	ProductInformation,
-	ProductImage,
-	ProductVariant,
-	SaleVariantItem,
+	SalesProductListItem,
 	VariantItem,
 } from "@/types/admin/ProductTypes.ts";
 import {
 	GET_PRODUCTS_LIST,
+	GET_SHOPPING_PRODUCTS_LIST,
 	GET_SALE_PRODUCTS_LIST,
 	GET_PRODUCT_AND_VARIANTS,
 	PRODUCT_COUNT,
@@ -36,10 +36,26 @@ export async function apiGetProductList(
 	return result.productList ?? [];
 }
 
-export async function apiGetSaleProductList(pageRequest?: PageRequest | null): Promise<SaleVariantItem[]> {
+export async function apiGetShoppingProductsList(
+	categoryId?: string | null,
+	pageRequest?: PageRequest | null,
+	filterRequest?: FilterRequest | null
+): Promise<ProductShoppingListItem[]> {
 	const client = await GraphQLService.getGraphQLClient(graphQLEndpoint);
 
-	const result = await client.request<{ saleProductList: SaleVariantItem[] }>(GET_SALE_PRODUCTS_LIST, {
+	const result = await client.request<{ shoppingProductList: ProductShoppingListItem[] }>(GET_SHOPPING_PRODUCTS_LIST, {
+		categoryId,
+		pageRequest,
+		filterRequest,
+	});
+
+	return result.shoppingProductList ?? [];
+}
+
+export async function apiGetSaleProductList(pageRequest?: PageRequest | null): Promise<SalesProductListItem[]> {
+	const client = await GraphQLService.getGraphQLClient(graphQLEndpoint);
+
+	const result = await client.request<{ saleProductList: SalesProductListItem[] }>(GET_SALE_PRODUCTS_LIST, {
 		pageRequest,
 	});
 
@@ -73,48 +89,17 @@ export async function apiGetProductInformation(productId: string): Promise<Produ
 
 	const client = await GraphQLService.getGraphQLClient(graphQLEndpoint);
 
-	type ProductInformationResponse = {
-		product?: {
-			id: string;
-			slug?: string | null;
-			name?: string | null;
-			description?: string | null;
-			shortDescription?: string | null;
-			productType?: string | null;
-			createdAt?: string | null;
-			category?: { id: string; name?: string | null; slug?: string | null } | null;
-			brand?: { id: string; name?: string | null; slug?: string | null } | null;
-		} | null;
-		productImages?: ProductImage[] | null;
-		variants?: ProductVariant[] | null;
-	};
-
-	const result = await client.request<{ getProductInformation: ProductInformationResponse | null }>(GET_PRODUCT_AND_VARIANTS, {
+	const result = await client.request<{ getProductInformation: ProductInformation | null }>(GET_PRODUCT_AND_VARIANTS, {
 		productId,
 	});
 
-	if (!result.getProductInformation?.product) return null;
-
-	const product = result.getProductInformation.product;
-
-	return {
-		productInfo: {
-			id: product.id,
-			slug: product.slug,
-			name: product.name,
-			description: product.description,
-			short_description: product.shortDescription,
-			product_type: product.productType,
-			date_created: product.createdAt,
-			category: product.category,
-			brand: product.brand,
-		},
-		variants: result.getProductInformation.variants,
-		images: result.getProductInformation.productImages,
-	};
+	return result.getProductInformation ?? null;
 }
 
+
+
 export const fetchProductsList = apiGetProductList;
+export const fetchShoppingProductsList = apiGetShoppingProductsList;
 export const fetchSaleProductsList = apiGetSaleProductList;
 export const fetchVariantsByIds = apiGetVariantsByIds;
 export const fetchProductAndVariants = apiGetProductInformation;
