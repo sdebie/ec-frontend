@@ -20,6 +20,37 @@ export type ProductListItem = {
 	categoryName?: string | null;
 };
 
+export type SaleVariantItem = {
+	variant?: {
+		id: string;
+		sku?: string | null;
+		retailPrice?: number | null;
+		retailSalesPrice?: number | null;
+		wholesalePrice?: number | null;
+		wholesaleSalesPrice?: number | null;
+		price_start_date?: string | null;
+		price_end_date?: string | null;
+		stockQuantity?: number | null;
+		weightKg?: string | null;
+		attributesJson?: string | null;
+	} | null;
+	product?: {
+		id: string;
+		slug?: string | null;
+		name?: string | null;
+		description?: string | null;
+		shortDescription?: string | null;
+		productType?: string | null;
+		createdAt?: string | null;
+		category?: { id: string; name?: string | null; slug?: string | null } | null;
+		brand?: { id: string; name?: string | null; slug?: string | null } | null;
+	} | null;
+	productImages?: ProductImage[] | null;
+};
+
+/** @deprecated use SaleVariantItem — kept only for migration safety */
+export type SaleProductListItem = SaleVariantItem;
+
 export type VariantPrice = {
 	id: string;
 	priceType: string;
@@ -63,8 +94,8 @@ export type ProductInfo = {
 	short_description?: string | null;
 	product_type?: string | null;
 	date_created?: string | null;
-	category_is?: string | null;
-	brand_id?: string | null;
+	category?: { id: string; name?: string | null; slug?: string | null } | null;
+	brand?: { id: string; name?: string | null; slug?: string | null } | null;
 };
 
 export type ProductInformation = {

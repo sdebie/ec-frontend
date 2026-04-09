@@ -112,12 +112,20 @@ const ProductDetail = () => {
                                     <p className="text-sm text-admin-text">{renderValue(product.productInfo.date_created)}</p>
                                 </div>
                                 <div>
-                                    <p className="text-xs font-semibold uppercase tracking-wide text-admin-text-muted">Category ID</p>
-                                    <p className="text-sm text-admin-text break-all">{renderValue(product.productInfo.category_is)}</p>
+                                    <p className="text-xs font-semibold uppercase tracking-wide text-admin-text-muted">Category</p>
+                                    <p className="text-sm text-admin-text break-all">
+                                        {product.productInfo.category
+                                            ? `${product.productInfo.category.name ?? ""}${product.productInfo.category.slug ? ` (${product.productInfo.category.slug})` : ""}`
+                                            : "N/A"}
+                                    </p>
                                 </div>
                                 <div>
-                                    <p className="text-xs font-semibold uppercase tracking-wide text-admin-text-muted">Brand ID</p>
-                                    <p className="text-sm text-admin-text break-all">{renderValue(product.productInfo.brand_id)}</p>
+                                    <p className="text-xs font-semibold uppercase tracking-wide text-admin-text-muted">Brand</p>
+                                    <p className="text-sm text-admin-text break-all">
+                                        {product.productInfo.brand
+                                            ? `${product.productInfo.brand.name ?? ""}${product.productInfo.brand.slug ? ` (${product.productInfo.brand.slug})` : ""}`
+                                            : "N/A"}
+                                    </p>
                                 </div>
                                 <div className="md:col-span-2">
                                     <p className="text-xs font-semibold uppercase tracking-wide text-admin-text-muted">Description</p>

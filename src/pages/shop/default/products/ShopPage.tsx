@@ -5,6 +5,7 @@ import {Section} from '@/components/layout/store/default/sections'
 
 import {useAddToCart} from '@/pages/shop/default/cart/hook/useAddToCart.ts'
 import { fetchProductsList } from '@/services/graphql/product/product.service.ts'
+import {apiGetAllCategories} from '@/services/graphql/admin/category/CategoryService.graphql.ts'
 import {ProductListItem} from "@/types/admin/ProductTypes.ts";
 import {ProductCard} from "@/components";
 
@@ -29,17 +30,43 @@ const ShopPage: React.FC<ShopPageProps> = ({activeCategory = 'All'}) => {
     const [error, setError] = useState<string | null>(null)
     const [sortBy, setSortBy] = useState<SortOption>('newest')
     const [filteredItems, setFilteredItems] = useState<ProductListItem[]>([])
+    const [resolvedCategoryLabel, setResolvedCategoryLabel] = useState<string | null>(null)
 
-    // Get category from URL params or prop
-    const categoryParam = searchParams.get('category') || activeCategory
+    const categoryIdParam = searchParams.get('categoryId') || activeCategory
+    const legacyCategoryParam = searchParams.get('category')
 
     useEffect(() => {
         const loadProducts = async () => {
             try {
                 setLoading(true)
                 setError(null)
-                const list = await fetchProductsList(categoryParam)
+                let resolvedCategoryId: string | null = categoryIdParam
+                let resolvedLabel = categoryIdParam && categoryIdParam !== 'All' ? categoryIdParam : null
+
+                if (legacyCategoryParam) {
+                    const categories = await apiGetAllCategories(
+                        {pageIndex: 0, pageSize: 1000},
+                        {
+                            filters: [],
+                            filterGroups: [],
+                            sort: [{field: 'name', direction: 'ASC'}],
+                        },
+                    )
+
+                    const normalizedLegacyValue = legacyCategoryParam.trim().toLowerCase()
+                    const matchedCategory = categories.find(category =>
+                        category.id?.toLowerCase() === normalizedLegacyValue ||
+                        category.slug?.toLowerCase() === normalizedLegacyValue ||
+                        category.name?.trim().toLowerCase() === normalizedLegacyValue,
+                    )
+
+                    resolvedCategoryId = matchedCategory?.id ?? null
+                    resolvedLabel = matchedCategory?.name ?? legacyCategoryParam
+                }
+
+                const list = await fetchProductsList(resolvedCategoryId)
                 setItems(list)
+                setResolvedCategoryLabel(resolvedLabel)
             } catch (e: any) {
                 console.error('Failed to load products:', e)
                 setError(e?.message || 'Failed to load products')
@@ -49,7 +76,7 @@ const ShopPage: React.FC<ShopPageProps> = ({activeCategory = 'All'}) => {
         }
 
         loadProducts()
-    }, [categoryParam])
+    }, [categoryIdParam, legacyCategoryParam])
 
     // Sort products
     useEffect(() => {
@@ -106,8 +133,8 @@ const ShopPage: React.FC<ShopPageProps> = ({activeCategory = 'All'}) => {
             <Section
                 title="Our Products"
                 subtitle={
-                    categoryParam && categoryParam !== 'All'
-                        ? `Showing products in ${categoryParam}`
+                    resolvedCategoryLabel && resolvedCategoryLabel !== 'All'
+                        ? `Showing products in ${resolvedCategoryLabel}`
                         : 'Browse our full collection'
                 }
                 backgroundColor="surface"

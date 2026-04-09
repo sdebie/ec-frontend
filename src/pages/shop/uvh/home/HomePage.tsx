@@ -5,8 +5,8 @@ import {HeroSection, Section} from '@/components/layout/store/default/sections'
 import {useAddToCart} from '@/pages/shop/default/cart/hook/useAddToCart.ts'
 import {fetchProductsList} from '@/services/graphql/product/product.service.ts'
 import {useStorefrontTheme} from '@/components/layout/store/default/theme'
-import {ProductListItem} from "@/types/admin/ProductTypes.ts";
-import {CategoryCard, ProductCard} from "@/components";
+import {ProductListItem} from '@/types/admin/ProductTypes.ts'
+import {Button, ProductCard} from '@/components'
 
 interface HomePageProps {
     activeCategory?: string
@@ -24,31 +24,42 @@ const HomePage: React.FC<HomePageProps> = ({activeCategory = 'All'}) => {
     const [featuredProducts, setFeaturedProducts] = useState<ProductListItem[]>([])
     const [loading, setLoading] = useState(true)
 
-    // Sample categories for a featured section
-    const featuredCategories = [
+    const trustedBrands = [
+        'Dromex',
+        'Duraglove',
+        'Durawipe',
+        'Everest Safety',
+        'Golden Hands',
+        'Pioneer',
+        'Proflex',
+        'Superweld',
+    ]
+
+    const trustHighlights = [
         {
-            name: 'Electronics',
-            description: 'Latest gadgets and tech',
-            icon: '📱',
-            href: '/products?category=Electronics',
+            title: 'Fast Delivery',
+            description: 'Reliable delivery nationwide with responsive order updates.',
         },
         {
-            name: 'Fashion',
-            description: 'Trendy clothing and accessories',
-            icon: '👔',
-            href: '/products?category=Fashion',
+            title: 'Straightforward Returns',
+            description: 'Simple return support for damaged or incorrect orders.',
         },
         {
-            name: 'Home & Garden',
-            description: 'Furnishings and decor',
-            icon: '🏠',
-            href: '/products?category=Home',
+            title: 'Dedicated Procurement Support',
+            description: 'Our team helps with sourcing, quotations, and repeat supply.',
+        },
+    ]
+
+    const testimonials = [
+        {
+            quote:
+                'UVH has become our first stop for PPE and safety consumables. Fast turnaround and dependable quality.',
+            author: 'Operations Manager, Gauteng Manufacturing',
         },
         {
-            name: 'Sports',
-            description: 'Athletic gear and equipment',
-            icon: '⚽',
-            href: '/products?category=Sports',
+            quote:
+                'Their team understands our site requirements and always helps us source the right products quickly.',
+            author: 'Procurement Lead, Facilities Group',
         },
     ]
 
@@ -70,7 +81,6 @@ const HomePage: React.FC<HomePageProps> = ({activeCategory = 'All'}) => {
 
     const handleAddToCart = async (productId: string) => {
         try {
-            // Use the correct format for createOrder
             const product = featuredProducts.find(p => p.id === productId)
             if (!product) return
 
@@ -80,7 +90,7 @@ const HomePage: React.FC<HomePageProps> = ({activeCategory = 'All'}) => {
                     {
                         quantity: 1,
                         unitPrice: price,
-                        variant: productId, // Use product ID as variant identifier
+                        variant: productId,
                     },
                 ],
             })
@@ -99,45 +109,25 @@ const HomePage: React.FC<HomePageProps> = ({activeCategory = 'All'}) => {
         >
             {/* Hero Section */}
             <HeroSection
-                title={`Welcome to ${config.siteName}`}
-                subtitle="Discover amazing products at unbeatable prices"
-                backgroundImage="https://images.unsplash.com/photo-1483389127117-b6a2102724ae?w=1200&q=80"
+                title={config.siteName || 'UVH Holdings'}
+                subtitle="Your trusted partner for PPE, safety wear, medical, and cleaning supply solutions."
+                backgroundImage="https://images.unsplash.com/photo-1581578731548-c64695cc6952?w=1600&q=80"
                 ctaButton={{
-                    label: 'Shop Now',
+                    label: 'Shop Products',
                     href: '/products',
                     onClick: () => navigate('/products'),
                 }}
                 ctaButtonSecondary={{
-                    label: 'Learn More',
+                    label: 'Get A Quote',
                     href: '#featured-categories',
+                    onClick: () => navigate('/contact'),
                 }}
             />
 
-            {/* Featured Categories Section */}
-            <Section
-                title="Shop by Category"
-                subtitle="Explore our most popular collections"
-                backgroundColor="background"
-                paddingSize="large"
-            >
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-                    {featuredCategories.map((category) => (
-                        <CategoryCard
-                            key={category.name}
-                            name={category.name}
-                            description={category.description}
-                            icon={category.icon}
-                            href={category.href}
-                            onClick={() => navigate(category.href)}
-                        />
-                    ))}
-                </div>
-            </Section>
-
             {/* Featured Products Section */}
             <Section
-                title="Featured Products"
-                subtitle="Check out our best-selling items"
+                title="Featured / Best Sellers"
+                subtitle="Popular products trusted by businesses across South Africa"
                 backgroundColor="surface"
                 paddingSize="large"
             >
@@ -148,21 +138,37 @@ const HomePage: React.FC<HomePageProps> = ({activeCategory = 'All'}) => {
                         </p>
                     </div>
                 ) : featuredProducts.length > 0 ? (
-                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                        {featuredProducts.map((product) => {
-                            const mainImage = product.productImages?.[0]
-                            return (
-                                <ProductCard
-                                    key={product.id}
-                                    id={product.id}
-                                    name={product.name}
-                                    price={product.retailSalesPrice ?? product.retailPrice ?? 0}
-                                    image={mainImage?.imageUrl}
-                                    onAddToCart={() => handleAddToCart(product.id)}
-                                />
-                            )
-                        })}
-                    </div>
+                    <>
+                        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                            {featuredProducts.map((product) => {
+                                const mainImage = product.productImages?.[0]
+                                return (
+                                    <ProductCard
+                                        key={product.id}
+                                        id={product.id}
+                                        name={product.name}
+                                        price={product.retailSalesPrice ?? product.retailPrice ?? 0}
+                                        image={mainImage?.imageUrl}
+                                        onAddToCart={() => handleAddToCart(product.id)}
+                                    />
+                                )
+                            })}
+                        </div>
+
+                        <div className="mt-8 flex justify-center">
+                            <Button
+                                variant="secondary"
+                                onClick={() => navigate('/products')}
+                                style={{
+                                    borderColor: 'var(--storefront-color-border)',
+                                    color: 'var(--storefront-color-text-primary)',
+                                    backgroundColor: 'var(--storefront-color-surface)',
+                                }}
+                            >
+                                View Full Catalogue
+                            </Button>
+                        </div>
+                    </>
                 ) : (
                     <div className="text-center py-12">
                         <p style={{color: 'var(--storefront-color-text-secondary)'}}>
@@ -172,68 +178,219 @@ const HomePage: React.FC<HomePageProps> = ({activeCategory = 'All'}) => {
                 )}
             </Section>
 
-            {/* Promotional Banner Section */}
+            <Section
+                backgroundColor="background"
+                paddingSize="large"
+            >
+                <div
+                    className="rounded-lg p-8 md:p-12"
+                    style={{
+                        backgroundColor: 'var(--storefront-color-surface)',
+                        border: '1px solid var(--storefront-color-border)',
+                    }}
+                >
+                    <h2
+                        className="text-2xl md:text-3xl font-bold mb-8 text-center"
+                        style={{
+                            color: 'var(--storefront-color-text-primary)',
+                            fontFamily: 'var(--storefront-font-heading)',
+                        }}
+                    >
+                        Brands We Work With
+                    </h2>
+                    <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4">
+                        {trustedBrands.map((brand) => (
+                            <div
+                                key={brand}
+                                className="rounded-md px-4 py-3 text-center text-sm font-medium"
+                                style={{
+                                    border: '1px solid var(--storefront-color-border)',
+                                    color: 'var(--storefront-color-text-primary)',
+                                    backgroundColor: 'var(--storefront-color-background)',
+                                }}
+                            >
+                                {brand}
+                            </div>
+                        ))}
+                    </div>
+                </div>
+            </Section>
+
             <Section
                 backgroundColor="custom"
                 customBackgroundColor="var(--storefront-color-primary)"
                 paddingSize="large"
             >
-                <div className="text-center text-white">
+                <div className="text-center text-white max-w-3xl mx-auto">
                     <h2
                         className="text-3xl md:text-4xl font-bold mb-4"
                         style={{fontFamily: 'var(--storefront-font-heading)'}}
                     >
-                        Limited Time Offer
+                        Buying in Bulk?
                     </h2>
-                    <p className="text-lg mb-6 opacity-90">
-                        Get 20% off your first purchase with code: WELCOME20
+                    <p className="text-lg mb-8 opacity-90">
+                        Get volume pricing and sourcing support for your team, site, or facility.
                     </p>
-                    <button
-                        onClick={() => navigate('/products')}
-                        className="px-8 py-3 rounded-lg font-semibold transition-all hover:shadow-lg"
-                        style={{
-                            backgroundColor: 'rgba(255, 255, 255, 0.2)',
-                            border: '2px solid rgba(255, 255, 255, 0.5)',
-                            color: 'white',
-                        }}
-                        onMouseEnter={(e) => {
-                            e.currentTarget.style.backgroundColor = 'rgba(255, 255, 255, 0.3)'
-                        }}
-                        onMouseLeave={(e) => {
-                            e.currentTarget.style.backgroundColor = 'rgba(255, 255, 255, 0.2)'
-                        }}
-                    >
-                        Start Shopping
-                    </button>
+                    <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
+                        <Button
+                            variant="solid"
+                            onClick={() => navigate('/contact')}
+                            style={{
+                                backgroundColor: '#ffffff',
+                                color: 'var(--storefront-color-primary)',
+                            }}
+                        >
+                            Request a Quote
+                        </Button>
+                        <Button
+                            variant="ghost"
+                            onClick={() => navigate('/products')}
+                            style={{
+                                border: '1px solid rgba(255, 255, 255, 0.5)',
+                                color: '#ffffff',
+                            }}
+                        >
+                            Browse Products
+                        </Button>
+                    </div>
                 </div>
             </Section>
 
-            {/* Trust Section */}
             <Section
-                title="Why Shop With Us"
+                title="Specials / Deals"
+                subtitle="Limited promotions across selected categories"
+                backgroundColor="background"
+                paddingSize="large"
+            >
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                    {featuredProducts.slice(0, 3).map((product) => {
+                        const specialPrice = product.retailSalesPrice ?? product.retailPrice ?? 0
+                        const originalPrice = product.retailPrice ?? specialPrice
+                        const discount = originalPrice > specialPrice
+                            ? Math.round(((originalPrice - specialPrice) / originalPrice) * 100)
+                            : 10
+
+                        return (
+                            <div
+                                key={`deal-${product.id}`}
+                                className="rounded-xl p-6"
+                                style={{
+                                    backgroundColor: 'var(--storefront-color-surface)',
+                                    border: '1px solid var(--storefront-color-border)',
+                                }}
+                            >
+                                <p
+                                    className="text-xs font-semibold mb-3"
+                                    style={{color: 'var(--storefront-color-accent)'}}
+                                >
+                                    SAVE {discount}%
+                                </p>
+                                <h3
+                                    className="text-lg font-semibold mb-2 line-clamp-2"
+                                    style={{
+                                        color: 'var(--storefront-color-text-primary)',
+                                        fontFamily: 'var(--storefront-font-heading)',
+                                    }}
+                                >
+                                    {product.name}
+                                </h3>
+                                <p
+                                    className="text-sm mb-4"
+                                    style={{color: 'var(--storefront-color-text-secondary)'}}
+                                >
+                                    Best-value pricing while stock lasts.
+                                </p>
+                                <div className="flex items-center gap-2 mb-5">
+                                    <span className="text-xl font-bold" style={{color: 'var(--storefront-color-primary)'}}>
+                                        R {specialPrice.toFixed(2)}
+                                    </span>
+                                    {originalPrice > specialPrice && (
+                                        <span className="text-sm line-through" style={{color: 'var(--storefront-color-text-muted)'}}>
+                                            R {originalPrice.toFixed(2)}
+                                        </span>
+                                    )}
+                                </div>
+                                <Button
+                                    variant="solid"
+                                    fullWidth
+                                    onClick={() => handleAddToCart(product.id)}
+                                    style={{
+                                        backgroundColor: 'var(--storefront-color-button-primary)',
+                                        color: 'var(--storefront-color-button-primary-text)',
+                                    }}
+                                >
+                                    Add Deal to Cart
+                                </Button>
+                            </div>
+                        )
+                    })}
+                </div>
+            </Section>
+
+            <Section
+                backgroundColor="surface"
+                paddingSize="large"
+            >
+                <div
+                    className="rounded-xl p-8 md:p-10 text-center"
+                    style={{
+                        backgroundColor: 'var(--storefront-color-background)',
+                        border: '1px solid var(--storefront-color-border)',
+                    }}
+                >
+                    <h2
+                        className="text-3xl font-bold mb-3"
+                        style={{
+                            color: 'var(--storefront-color-text-primary)',
+                            fontFamily: 'var(--storefront-font-heading)',
+                        }}
+                    >
+                        Get a Quote
+                    </h2>
+                    <p
+                        className="max-w-2xl mx-auto mb-6"
+                        style={{color: 'var(--storefront-color-text-secondary)'}}
+                    >
+                        Tell us what you need and we will provide a tailored quote for your business requirements.
+                    </p>
+                    <Button
+                        variant="solid"
+                        onClick={() => navigate('/contact')}
+                        style={{
+                            backgroundColor: 'var(--storefront-color-button-primary)',
+                            color: 'var(--storefront-color-button-primary-text)',
+                        }}
+                    >
+                        Get A Quote
+                    </Button>
+                </div>
+            </Section>
+
+            <Section
+                title="Categories"
+                backgroundColor="surface"
+                paddingSize="large"
+            >
+                <div>
+                    TODO
+                </div>
+            </Section>
+
+            <Section
+                title="Trust & Reassurance"
                 backgroundColor="surface"
                 paddingSize="large"
             >
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-                    {[
-                        {
-                            icon: '🚚',
-                            title: 'Free Shipping',
-                            description: 'On orders over R500',
-                        },
-                        {
-                            icon: '🔒',
-                            title: 'Secure Checkout',
-                            description: 'Your data is always protected',
-                        },
-                        {
-                            icon: '↩️',
-                            title: 'Easy Returns',
-                            description: '30-day return guarantee',
-                        },
-                    ].map((item) => (
-                        <div key={item.title} className="text-center">
-                            <div className="text-4xl mb-4">{item.icon}</div>
+                    {trustHighlights.map((item) => (
+                        <div
+                            key={item.title}
+                            className="text-center rounded-xl p-6"
+                            style={{
+                                backgroundColor: 'var(--storefront-color-background)',
+                                border: '1px solid var(--storefront-color-border)',
+                            }}
+                        >
                             <h3
                                 className="text-lg font-semibold mb-2"
                                 style={{
@@ -256,63 +413,58 @@ const HomePage: React.FC<HomePageProps> = ({activeCategory = 'All'}) => {
                 </div>
             </Section>
 
-            {/* Newsletter CTA Section */}
             <Section
+                title="What Our Customers Say"
+                backgroundColor="surface"
+                paddingSize="large"
+            >
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    {testimonials.map((testimonial) => (
+                        <blockquote
+                            key={testimonial.author}
+                            className="rounded-xl p-6"
+                            style={{
+                                backgroundColor: 'var(--storefront-color-background)',
+                                border: '1px solid var(--storefront-color-border)',
+                            }}
+                        >
+                            <p
+                                className="mb-4"
+                                style={{color: 'var(--storefront-color-text-primary)'}}
+                            >
+                                "{testimonial.quote}"
+                            </p>
+                            <footer
+                                className="text-sm font-semibold"
+                                style={{color: 'var(--storefront-color-text-secondary)'}}
+                            >
+                                {testimonial.author}
+                            </footer>
+                        </blockquote>
+                    ))}
+                </div>
+            </Section>
+
+            <Section
+                title="Accreditors"
+                subtitle="Compliance-focused sourcing aligned with quality and safety expectations"
                 backgroundColor="background"
                 paddingSize="large"
             >
-                <div
-                    className="rounded-lg p-8 md:p-12 text-center"
-                    style={{
-                        backgroundColor: 'var(--storefront-color-surface)',
-                        border: '1px solid var(--storefront-color-border)',
-                    }}
-                >
-                    <h2
-                        className="text-2xl md:text-3xl font-bold mb-4"
-                        style={{
-                            color: 'var(--storefront-color-text-primary)',
-                            fontFamily: 'var(--storefront-font-heading)',
-                        }}
-                    >
-                        Stay Updated
-                    </h2>
-                    <p
-                        className="mb-6 text-lg"
-                        style={{
-                            color: 'var(--storefront-color-text-secondary)',
-                        }}
-                    >
-                        Subscribe to our newsletter for exclusive deals and new arrivals
-                    </p>
-                    <form
-                        className="flex flex-col sm:flex-row gap-3 max-w-md mx-auto"
-                        onSubmit={(e) => {
-                            e.preventDefault()
-                            // Handle newsletter subscription
-                        }}
-                    >
-                        <input
-                            type="email"
-                            placeholder="Enter your email"
-                            className="flex-1 px-4 py-2 rounded-lg focus:outline-none focus:ring-2"
+                <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-4">
+                    {['ISO', 'SABS', 'NRCS', 'OHSA', 'CIDB', 'B-BBEE'].map((accreditor) => (
+                        <div
+                            key={accreditor}
+                            className="rounded-lg py-5 text-center text-sm font-semibold"
                             style={{
-                                backgroundColor: 'var(--storefront-color-background)',
-                                color: 'var(--storefront-color-text-primary)',
-                                border: '1px solid var(--storefront-color-border)',
-                            }}
-                        />
-                        <button
-                            type="submit"
-                            className="px-6 py-2 rounded-lg font-semibold transition-all hover:shadow-md"
-                            style={{
-                                backgroundColor: 'var(--storefront-color-button-primary)',
-                                color: 'var(--storefront-color-button-primary-text)',
+                                border: '1px dashed var(--storefront-color-border)',
+                                color: 'var(--storefront-color-text-secondary)',
+                                backgroundColor: 'var(--storefront-color-surface)',
                             }}
                         >
-                            Subscribe
-                        </button>
-                    </form>
+                            {accreditor}
+                        </div>
+                    ))}
                 </div>
             </Section>
         </DefaultStorefrontLayout>

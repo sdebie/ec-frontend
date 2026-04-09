@@ -1,8 +1,8 @@
 import {gql} from "graphql-request";
 
 export const GET_PRODUCTS_LIST = gql`
-    query GetProductsList($categoryName: String, $pageRequest: PageRequestInput, $filterRequest: FilterRequestInput) {
-        productList(categoryName: $categoryName, pageRequest: $pageRequest, filterRequest: $filterRequest) {
+    query GetProductsList($categoryId: String, $pageRequest: PageRequestInput, $filterRequest: FilterRequestInput) {
+        productList(categoryId: $categoryId, pageRequest: $pageRequest, filterRequest: $filterRequest) {
             id
             name
             description
@@ -18,6 +18,51 @@ export const GET_PRODUCTS_LIST = gql`
             }
             variantIds
             categoryName
+        }
+    }
+`;
+
+export const GET_SALE_PRODUCTS_LIST = gql`
+    query GetSaleProductsList($pageRequest: PageRequestInput) {
+        saleProductList(pageRequest: $pageRequest) {
+            variant {
+                id
+                sku
+                retailPrice
+                retailSalesPrice
+                wholesalePrice
+                wholesaleSalesPrice
+                price_start_date
+                price_end_date
+                stockQuantity
+                weightKg
+                attributesJson
+            }
+            product {
+                id
+                slug
+                name
+                description
+                shortDescription
+                productType
+                createdAt
+                category {
+                    id
+                    name
+                    slug
+                }
+                brand {
+                    id
+                    name
+                    slug
+                }
+            }
+            productImages {
+                id
+                imageUrl
+                sortOrder
+                isFeatured: featured
+            }
         }
     }
 `;
@@ -50,8 +95,16 @@ export const GET_PRODUCT_AND_VARIANTS = gql`
                 shortDescription
                 productType
                 createdAt
-                categoryId
-                brandId
+                category {
+                    id
+                    name
+                    slug
+                }
+                brand {
+                    id
+                    name
+                    slug
+                }
             }
             productImages {
                 id

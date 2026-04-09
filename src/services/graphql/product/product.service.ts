@@ -6,10 +6,12 @@ import {
 	ProductInformation,
 	ProductImage,
 	ProductVariant,
+	SaleVariantItem,
 	VariantItem,
 } from "@/types/admin/ProductTypes.ts";
 import {
 	GET_PRODUCTS_LIST,
+	GET_SALE_PRODUCTS_LIST,
 	GET_PRODUCT_AND_VARIANTS,
 	PRODUCT_COUNT,
 	VARIANTS_BY_IDS,
@@ -19,19 +21,29 @@ import {
 const graphQLEndpoint = getServiceEndpoint(8080) + '/api/graphql';
 
 export async function apiGetProductList(
-	categoryName?: string | null,
+	categoryId?: string | null,
 	pageRequest?: PageRequest | null,
 	filterRequest?: FilterRequest | null
 ): Promise<ProductListItem[]> {
 	const client = await GraphQLService.getGraphQLClient(graphQLEndpoint);
 
 	const result = await client.request<{ productList: ProductListItem[] }>(GET_PRODUCTS_LIST, {
-		categoryName,
+		categoryId,
 		pageRequest,
 		filterRequest,
 	});
 
 	return result.productList ?? [];
+}
+
+export async function apiGetSaleProductList(pageRequest?: PageRequest | null): Promise<SaleVariantItem[]> {
+	const client = await GraphQLService.getGraphQLClient(graphQLEndpoint);
+
+	const result = await client.request<{ saleProductList: SaleVariantItem[] }>(GET_SALE_PRODUCTS_LIST, {
+		pageRequest,
+	});
+
+	return result.saleProductList ?? [];
 }
 
 export async function apiGetProductCount(filterRequest?: FilterRequest | null): Promise<number> {
@@ -70,8 +82,8 @@ export async function apiGetProductInformation(productId: string): Promise<Produ
 			shortDescription?: string | null;
 			productType?: string | null;
 			createdAt?: string | null;
-			categoryId?: string | null;
-			brandId?: string | null;
+			category?: { id: string; name?: string | null; slug?: string | null } | null;
+			brand?: { id: string; name?: string | null; slug?: string | null } | null;
 		} | null;
 		productImages?: ProductImage[] | null;
 		variants?: ProductVariant[] | null;
@@ -94,8 +106,8 @@ export async function apiGetProductInformation(productId: string): Promise<Produ
 			short_description: product.shortDescription,
 			product_type: product.productType,
 			date_created: product.createdAt,
-			category_is: product.categoryId,
-			brand_id: product.brandId,
+			category: product.category,
+			brand: product.brand,
 		},
 		variants: result.getProductInformation.variants,
 		images: result.getProductInformation.productImages,
@@ -103,6 +115,7 @@ export async function apiGetProductInformation(productId: string): Promise<Produ
 }
 
 export const fetchProductsList = apiGetProductList;
+export const fetchSaleProductsList = apiGetSaleProductList;
 export const fetchVariantsByIds = apiGetVariantsByIds;
 export const fetchProductAndVariants = apiGetProductInformation;
 export const fetchProductCount = apiGetProductCount;
