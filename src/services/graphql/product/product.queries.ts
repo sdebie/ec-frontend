@@ -185,3 +185,57 @@ export const PRODUCT_COUNT = gql`
         productCount(filterRequest: $filterRequest)
     }
 `;
+
+export const GET_TOP_BEST_SELLERS = gql`
+    query GetTopBestSellers {
+        topBestSellers {
+            id
+            name
+            shortDescription
+            variantCount
+            images {
+                id
+                imageUrl
+                sortOrder
+                isFeatured: featured
+            }
+            retailPrice {
+                id
+                priceType
+                price
+                priceStartDate
+                priceEndDate
+                isActive: active
+                saleDaysRemaining
+            }
+            wholesalePrice {
+                id
+                priceType
+                price
+                priceStartDate
+                priceEndDate
+                isActive: active
+                saleDaysRemaining
+            }
+            retailSalePrice {
+                id
+                priceType
+                price
+                priceStartDate
+                priceEndDate
+                isActive: active
+                saleDaysRemaining
+            }
+            wholesaleSalePrice {
+                id
+                priceType
+                price
+                priceStartDate
+                priceEndDate
+                isActive: active
+                saleDaysRemaining
+            }
+        }
+    }
+`;
+

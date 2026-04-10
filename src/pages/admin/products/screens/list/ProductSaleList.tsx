@@ -1,15 +1,15 @@
 import { ColumnDef } from "@tanstack/react-table";
 import { DataTable } from "@/components/shared/datatable/DataTable.tsx";
 import { Button } from "@/components";
-import { apiGetSaleProductList } from "@/services/graphql/product/product.service.ts";
-import type { SalesProductListItem } from "@/types/admin/ProductTypes.ts";
+import { apiGetProductOnSaleList } from "@/services/graphql/product/product.service.ts";
+import type { ProductOnSaleListItem } from "@/types/admin/ProductTypes.ts";
 import { PenLine } from "lucide-react";
 import { useEffect, useMemo, useState } from "react";
 import { useNavigate } from "react-router-dom";
 
 type SaleVariantRow = {
-    product?: SalesProductListItem["product"] | null;
-    productImages?: NonNullable<NonNullable<SalesProductListItem["variants"]>[number]["images"]>;
+    product?: ProductOnSaleListItem["product"] | null;
+    productImages?: NonNullable<NonNullable<ProductOnSaleListItem["variants"]>[number]["images"]>;
     variant: {
         id: string;
         sku?: string | null;
@@ -41,7 +41,7 @@ const ProductSaleList = () => {
                 setIsLoading(true);
                 setErrorMsg("");
 
-                const result = await apiGetSaleProductList();
+                const result = await apiGetProductOnSaleList();
                 const flattened = flattenSalesProducts(result);
                 if (!isActive) return;
                 setProducts(flattened);
@@ -64,7 +64,7 @@ const ProductSaleList = () => {
         };
     }, []);
 
-      function flattenSalesProducts(items: SalesProductListItem[]): SaleVariantRow[] {
+      function flattenSalesProducts(items: ProductOnSaleListItem[]): SaleVariantRow[] {
         return (items ?? []).flatMap((item) => {
           const variants = item.variants ?? [];
           return variants.map((variant) => {

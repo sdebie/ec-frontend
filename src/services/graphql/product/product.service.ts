@@ -5,7 +5,7 @@ import {
 	ProductListItem,
 	ProductShoppingListItem,
 	ProductInformation,
-	SalesProductListItem,
+	ProductOnSaleListItem,
 	VariantItem,
 } from "@/types/admin/ProductTypes.ts";
 import {
@@ -13,6 +13,7 @@ import {
 	GET_SHOPPING_PRODUCTS_LIST,
 	GET_SALE_PRODUCTS_LIST,
 	GET_PRODUCT_AND_VARIANTS,
+	GET_TOP_BEST_SELLERS,
 	PRODUCT_COUNT,
 	VARIANTS_BY_IDS,
 } from "@/services/graphql/product/product.queries.ts";
@@ -52,10 +53,10 @@ export async function apiGetShoppingProductsList(
 	return result.shoppingProductList ?? [];
 }
 
-export async function apiGetSaleProductList(pageRequest?: PageRequest | null): Promise<SalesProductListItem[]> {
+export async function apiGetProductOnSaleList(pageRequest?: PageRequest | null): Promise<ProductOnSaleListItem[]> {
 	const client = await GraphQLService.getGraphQLClient(graphQLEndpoint);
 
-	const result = await client.request<{ saleProductList: SalesProductListItem[] }>(GET_SALE_PRODUCTS_LIST, {
+	const result = await client.request<{ saleProductList: ProductOnSaleListItem[] }>(GET_SALE_PRODUCTS_LIST, {
 		pageRequest,
 	});
 
@@ -96,11 +97,21 @@ export async function apiGetProductInformation(productId: string): Promise<Produ
 	return result.getProductInformation ?? null;
 }
 
+export async function apiGetTopBestSellers(): Promise<ProductShoppingListItem[]> {
+	const client = await GraphQLService.getGraphQLClient(graphQLEndpoint);
+
+	const result = await client.request<{ topBestSellers: ProductShoppingListItem[] }>(GET_TOP_BEST_SELLERS);
+
+	return result.topBestSellers ?? [];
+}
+
+
 
 
 export const fetchProductsList = apiGetProductList;
 export const fetchShoppingProductsList = apiGetShoppingProductsList;
-export const fetchSaleProductsList = apiGetSaleProductList;
+export const fetchSaleProductsList = apiGetProductOnSaleList;
 export const fetchVariantsByIds = apiGetVariantsByIds;
 export const fetchProductAndVariants = apiGetProductInformation;
 export const fetchProductCount = apiGetProductCount;
+export const fetchTopBestSellers = apiGetTopBestSellers;

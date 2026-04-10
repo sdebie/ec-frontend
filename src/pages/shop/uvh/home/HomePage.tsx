@@ -2,12 +2,11 @@ import {useEffect, useState} from 'react'
 import {useNavigate} from 'react-router-dom'
 import {DefaultStorefrontLayout} from '@/components/layout/store/default'
 import {HeroSection, Section} from '@/components/layout/store/default/sections'
-import {useAddToCart} from '@/pages/shop/default/cart/hook/useAddToCart.ts'
-import {fetchProductsList, fetchShoppingProductsList} from '@/services/graphql/product/product.service.ts'
+import {apiGetProductOnSaleList, fetchShoppingProductsList, fetchTopBestSellers} from '@/services/graphql/product/product.service.ts'
 import {useStorefrontTheme} from '@/components/layout/store/default/theme'
-import {ProductListItem, ProductShoppingListItem} from '@/types/admin/ProductTypes.ts'
+import {ProductOnSaleListItem, ProductShoppingListItem} from '@/types/admin/ProductTypes.ts'
 import {Button, ProductCard} from '@/components'
-import {IMAGE_BASE_URL, IMAGE_THUMBNAIL_URL} from "@/constants/api.constant.ts";
+import {IMAGE_BASE_URL} from "@/constants/api.constant.ts";
 
 interface HomePageProps {
     activeCategory?: string
@@ -20,9 +19,9 @@ interface HomePageProps {
  */
 const HomePage: React.FC<HomePageProps> = ({activeCategory = 'All'}) => {
     const navigate = useNavigate()
-    const {createOrder} = useAddToCart()
     const {config} = useStorefrontTheme()
-    const [featuredProducts, setFeaturedProducts] = useState<ProductListItem[]>([])
+    const [bestSellers, setBestSellers] = useState<ProductShoppingListItem[]>([])
+    const [saleProducts, setSaleProducts] = useState<ProductOnSaleListItem[]>([])
     const [shoppingProductsTest, setShoppingProductsTest] = useState<ProductShoppingListItem[]>([])
     const [loading, setLoading] = useState(true)
 
@@ -69,8 +68,11 @@ const HomePage: React.FC<HomePageProps> = ({activeCategory = 'All'}) => {
         const loadFeaturedProducts = async () => {
             try {
                 setLoading(true)
-                const products = await fetchProductsList(activeCategory)
-                setFeaturedProducts(products.slice(0, 6))
+                const sellers = await fetchTopBestSellers()
+                setBestSellers(sellers)
+
+                const onSaleProducts = await apiGetProductOnSaleList()
+                setSaleProducts(onSaleProducts.slice(0, 3))
 
                 const shoppingProducts = await fetchShoppingProductsList(activeCategory)
                 setShoppingProductsTest(shoppingProducts.slice(0, 3))
@@ -84,7 +86,7 @@ const HomePage: React.FC<HomePageProps> = ({activeCategory = 'All'}) => {
         loadFeaturedProducts()
     }, [activeCategory])
 
-    const handleAddToCart = async (productId: string) => {
+    const handleAddToCart = async (_productId: string) => {
             //TODO::SDB New Chart
     }
 
@@ -125,23 +127,33 @@ const HomePage: React.FC<HomePageProps> = ({activeCategory = 'All'}) => {
                             Loading products...
                         </p>
                     </div>
-                ) : featuredProducts.length > 0 ? (
+                ) : bestSellers.length > 0 ? (
                     <>
                         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                            {featuredProducts.map((product) => {
+                            {bestSellers.map((product) => {
+                                const primaryImage = product.images?.find(img => img.isFeatured)?.imageUrl
+                                    ?? product.images?.[0]?.imageUrl
+
+                                const retailPrice = product.retailSalePrice?.price ?? product.retailPrice?.price ?? 0
+                                const originalPrice = product.retailSalePrice?.price != null
+                                    ? (product.retailPrice?.price ?? undefined)
+                                    : undefined
+                                const badge = product.retailSalePrice?.price != null ? 'Sale' : undefined
+
                                 return (
                                     <ProductCard
                                         key={product.id}
                                         id={product.id}
                                         name={product.name}
-                                        price={product.retailSalesPrice ?? product.retailPrice ?? 0}
-                                        image={product.imageName ?? undefined}
+                                        price={retailPrice}
+                                        originalPrice={originalPrice}
+                                        image={primaryImage ? `${IMAGE_BASE_URL}${primaryImage}` : undefined}
+                                        badge={badge}
                                         onAddToCart={() => handleAddToCart(product.id)}
                                     />
                                 )
                             })}
                         </div>
-
 
 
                         <div className="mt-8 flex justify-center">
@@ -184,44 +196,32 @@ const HomePage: React.FC<HomePageProps> = ({activeCategory = 'All'}) => {
                         {shoppingProductsTest.map((product) => {
                             const primaryImage = product.images?.find(img => img.isFeatured)?.imageUrl
                                 ?? product.images?.[0]?.imageUrl
-                                ?? ''
+
                             const retailPrice = product.retailSalePrice?.price
                                 ?? product.retailPrice?.price
                                 ?? 0
-                            const wholesalePrice = product.wholesaleSalePrice?.price
-                                ?? product.wholesalePrice?.price
-                                ?? 0
+
+                            const originalPrice = product.retailSalePrice?.price != null
+                                ? (product.retailPrice?.price ?? undefined)
+                                : undefined
+
+                            const badge = product.retailSalePrice?.price != null
+                                ? 'Sale'
+                                : product.wholesaleSalePrice?.price != null || product.wholesalePrice?.price != null
+                                    ? 'Wholesale Available'
+                                    : undefined
 
                             return (
-                                <div
+                                <ProductCard
                                     key={`shopping-test-${product.id}`}
-                                    className="rounded-xl p-4"
-                                    style={{
-                                        backgroundColor: 'var(--storefront-color-surface)',
-                                        border: '1px solid var(--storefront-color-border)',
-                                    }}
-                                >
-                                    {primaryImage && (
-                                        <img
-                                            src={`${IMAGE_BASE_URL}${primaryImage}`}
-                                            alt="product.name"
-                                            className="w-full h-44 object-cover rounded-md mb-3"
-                                        />
-                                    )}
-                                    <h3 className="font-semibold mb-2" style={{color: 'var(--storefront-color-text-primary)'}}>
-                                        {product.name}
-                                    </h3>
-                                    <p className="text-sm mb-3" style={{color: 'var(--storefront-color-text-secondary)'}}>
-                                        {product.shortDescription || 'No short description'}
-                                    </p>
-                                    <p className="text-sm mb-1" style={{color: 'var(--storefront-color-text-secondary)'}}>
-                                        Variants: {product.variantCount ?? 0}
-                                    </p>
-                                    <p className="font-bold" style={{color: 'var(--storefront-color-primary)'}}>
-                                        R {Number(retailPrice).toFixed(2)}
-                                        R {Number(wholesalePrice).toFixed(2)}
-                                    </p>
-                                </div>
+                                    id={product.id}
+                                    name={product.name}
+                                    price={retailPrice}
+                                    originalPrice={originalPrice}
+                                    image={primaryImage ? `${IMAGE_BASE_URL}${primaryImage}` : undefined}
+                                    badge={badge}
+                                    onAddToCart={() => handleAddToCart(product.id)}
+                                />
                             )
                         })}
                     </div>
@@ -318,69 +318,52 @@ const HomePage: React.FC<HomePageProps> = ({activeCategory = 'All'}) => {
                 backgroundColor="background"
                 paddingSize="large"
             >
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                    {featuredProducts.slice(0, 3).map((product) => {
-                        const specialPrice = product.retailSalesPrice ?? product.retailPrice ?? 0
-                        const originalPrice = product.retailPrice ?? specialPrice
-                        const discount = originalPrice > specialPrice
-                            ? Math.round(((originalPrice - specialPrice) / originalPrice) * 100)
-                            : 10
+                {loading ? (
+                    <div className="text-center py-6">
+                        <p style={{color: 'var(--storefront-color-text-secondary)'}}>
+                            Loading sale products...
+                        </p>
+                    </div>
+                ) : saleProducts.length > 0 ? (
+                    <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                        {saleProducts.map((item, index) => {
+                            const product = item.product
+                            const variants = item.variants ?? []
+                            const allImages = variants.flatMap(variant => variant.images ?? [])
+                            const primaryImage = allImages.find(image => image.isFeatured)?.imageUrl
+                                ?? allImages[0]?.imageUrl
 
-                        return (
-                            <div
-                                key={`deal-${product.id}`}
-                                className="rounded-xl p-6"
-                                style={{
-                                    backgroundColor: 'var(--storefront-color-surface)',
-                                    border: '1px solid var(--storefront-color-border)',
-                                }}
-                            >
-                                <p
-                                    className="text-xs font-semibold mb-3"
-                                    style={{color: 'var(--storefront-color-accent)'}}
-                                >
-                                    SAVE {discount}%
-                                </p>
-                                <h3
-                                    className="text-lg font-semibold mb-2 line-clamp-2"
-                                    style={{
-                                        color: 'var(--storefront-color-text-primary)',
-                                        fontFamily: 'var(--storefront-font-heading)',
-                                    }}
-                                >
-                                    {product.name}
-                                </h3>
-                                <p
-                                    className="text-sm mb-4"
-                                    style={{color: 'var(--storefront-color-text-secondary)'}}
-                                >
-                                    Best-value pricing while stock lasts.
-                                </p>
-                                <div className="flex items-center gap-2 mb-5">
-                                    <span className="text-xl font-bold" style={{color: 'var(--storefront-color-primary)'}}>
-                                        R {specialPrice.toFixed(2)}
-                                    </span>
-                                    {originalPrice > specialPrice && (
-                                        <span className="text-sm line-through" style={{color: 'var(--storefront-color-text-muted)'}}>
-                                            R {originalPrice.toFixed(2)}
-                                        </span>
-                                    )}
-                                </div>
-                                <Button
-                                    variant="solid"
-                                    fullWidth
-                                    onClick={() => handleAddToCart(product.id)}
-                                    style={{
-                                        backgroundColor: 'var(--storefront-color-button-primary)',
-                                        color: 'var(--storefront-color-button-primary-text)',
-                                    }}
-                                >
-                                    Add Deal to Cart
-                                </Button>
-                            </div>
-                        )
-                    })}
-                </div>
+                            const allPrices = variants.flatMap(variant => variant.prices ?? [])
+                            const salePrice = allPrices.find(price => price.priceType === 'RETAIL_SALE_PRICE')?.price
+                                ?? allPrices.find(price => price.priceType === 'WHOLESALE_SALE_PRICE')?.price
+                                ?? allPrices[0]?.price
+                                ?? 0
+                            const originalPrice = allPrices.find(price => price.priceType === 'RETAIL_PRICE')?.price
+                                ?? allPrices.find(price => price.priceType === 'WHOLESALE_PRICE')?.price
+                                ?? allPrices[0]?.price
+                                ?? 0
+
+                            return (
+                                <ProductCard
+                                    key={`deal-${product?.id ?? index}`}
+                                    id={product?.id ?? ''}
+                                    name={product?.name ?? 'Sale Product'}
+                                    price={salePrice}
+                                    originalPrice={originalPrice}
+                                    image={primaryImage ? `${IMAGE_BASE_URL}${primaryImage}` : undefined}
+                                    badge="Sale"
+                                    onAddToCart={product?.id ? () => handleAddToCart(product.id) : undefined}
+                                />
+                            )
+                        })}
+                    </div>
+                ) : (
+                    <div className="text-center py-6">
+                        <p style={{color: 'var(--storefront-color-text-secondary)'}}>
+                            No sale products available.
+                        </p>
+                    </div>
+                )}
             </Section>
 
             <Section

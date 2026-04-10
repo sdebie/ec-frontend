@@ -29,7 +29,7 @@ export type ProductShoppingListItem = {
 	wholesaleSalePrice?: VariantPrice | null;
 };
 
-export type SalesProductListItem = {
+export type ProductOnSaleListItem = {
 	product?: {
 		id: string;
 		slug?: string | null;
