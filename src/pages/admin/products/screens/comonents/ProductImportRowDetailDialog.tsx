@@ -9,10 +9,6 @@ interface ProductImportRowDetailDialogProps {
 }
 
 const ProductImportRowDetailDialog = ({ selectedRow, onClose }: ProductImportRowDetailDialogProps) => {
-    const formatCurrency = (value?: number | null) => {
-        if (value === null || value === undefined) return "-";
-        return `R${Number(value).toFixed(2)}`;
-    };
 
     const formatText = (value?: string | null) => {
         if (!value || !value.trim()) return "-";
@@ -176,30 +172,6 @@ const ProductImportRowDetailDialog = ({ selectedRow, onClose }: ProductImportRow
                                     current: formatText(selectedRow.sku),
                                     proposed: formatText(selectedRow.sku),
                                     changed: false,
-                                },
-                                {
-                                    field: "Retail Price",
-                                    current: formatCurrency(selectedRow.currentRetailPrice),
-                                    proposed: formatCurrency(selectedRow.proposedRetailPrice),
-                                    changed: !valuesMatch(selectedRow.currentRetailPrice, selectedRow.proposedRetailPrice),
-                                },
-                                {
-                                    field: "Retail Sale Price",
-                                    current: formatCurrency(selectedRow.currentRetailSalePrice),
-                                    proposed: formatCurrency(selectedRow.proposedRetailSalePrice),
-                                    changed: !valuesMatch(selectedRow.currentRetailSalePrice, selectedRow.proposedRetailSalePrice),
-                                },
-                                {
-                                    field: "Wholesale Price",
-                                    current: formatCurrency(selectedRow.currentWholesalePrice),
-                                    proposed: formatCurrency(selectedRow.proposedWholesalePrice),
-                                    changed: !valuesMatch(selectedRow.currentWholesalePrice, selectedRow.proposedWholesalePrice),
-                                },
-                                {
-                                    field: "Wholesale Sale Price",
-                                    current: formatCurrency(selectedRow.currentWholesaleSalePrice),
-                                    proposed: formatCurrency(selectedRow.proposedWholesaleSalePrice),
-                                    changed: !valuesMatch(selectedRow.currentWholesaleSalePrice, selectedRow.proposedWholesaleSalePrice),
                                 },
                                 {
                                     field: "Stock",

@@ -113,18 +113,22 @@ export type ProductUploadStaged = {
 	proposedDescription: string;
 	currentShortDescription: string;
 	proposedShortDescription: string;
-	currentRetailPrice?: number | null;
-	proposedRetailPrice?: number | null;
-	currentWholesalePrice?: number | null;
-	proposedWholesalePrice?: number | null;
-	currentRetailSalePrice?: number | null;
-	proposedRetailSalePrice?: number | null;
-	currentWholesaleSalePrice?: number | null;
-	proposedWholesaleSalePrice?: number | null;
 	isValidCategory?: boolean | null;
 	isValidBrand?: boolean | null;
 	isNewProduct?: boolean | null;
 	isNewVariant?: boolean | null;
+	hasChanges?: boolean | null;
+};
+
+export type ProductPriceUploadStaged = {
+	stagedId: string;
+	sku: string;
+	validationErrors?: string | null;
+	validationStatus?: ProductImportValidationStatus | null;
+	currentRetailPrice?: number | null;
+	proposedRetailPrice?: number | null;
+	currentWholesalePrice?: number | null;
+	proposedWholesalePrice?: number | null;
 	hasChanges?: boolean | null;
 };
 

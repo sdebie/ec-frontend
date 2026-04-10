@@ -51,7 +51,7 @@ const adminPageOnlyRoutes: PageRoutes = [
     {
         key: 'admin.imports.bulk.products',
         path: '/admin/imports/products/bulk-upload',
-        component: lazy(() => import('@/pages/admin/products/screens/upload/ProductBulkUpload')),
+        component: lazy(() => import('@/pages/admin/products/screens/upload/products/ProductBulkUpload.tsx')),
         authority: ['SUPER_ADMIN'],
         meta: {
             pageBackgroundType: 'plain',
@@ -61,7 +61,7 @@ const adminPageOnlyRoutes: PageRoutes = [
     {
         key: 'admin.imports.bulk.products.review',
         path: '/admin/imports/products/bulk-upload/review/:batchId',
-        component: lazy(() => import('@/pages/admin/products/screens/upload/ProductImportReview')),
+        component: lazy(() => import('@/pages/admin/products/screens/upload/products/ProductImportReview.tsx')),
         authority: ['SUPER_ADMIN'],
         meta: {
             pageBackgroundType: 'plain',
