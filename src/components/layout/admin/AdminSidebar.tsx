@@ -5,7 +5,7 @@ import {SidebarItem} from '@/components';
 import {hasRequiredAuthority} from '@/utils/authorizationHelper.ts';
 import {cn} from '@/utils/cn.ts';
 import {isRouteVisibleInSidebar} from '@/utils/sidebarVisibility.ts';
-import type {Route} from '@/@types/routes.tsx';
+import type {Route} from '@/types/routes';
 
 interface AdminSidebarXProps {
     isOpen?: boolean,

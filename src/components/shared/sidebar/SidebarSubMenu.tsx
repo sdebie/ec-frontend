@@ -1,6 +1,6 @@
 import {useMemo, useState} from 'react';
 import {matchPath, useLocation} from 'react-router-dom';
-import type {Route} from '@/@types/routes.tsx';
+import type {Route} from '@/types/routes';
 import {SidebarItem} from '@/components';
 import {SidebarItemContent} from './SidebarItemContent';
 import {cn} from '@/utils/cn.ts';

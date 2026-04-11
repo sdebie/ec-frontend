@@ -1,5 +1,5 @@
 import {NavLink} from 'react-router-dom';
-import type {Route} from '@/@types/routes.tsx';
+import type {Route} from '@/types/routes';
 import {SidebarSubMenu} from './SidebarSubMenu';
 import {SidebarItemContent} from './SidebarItemContent';
 import {cn} from '@/utils/cn.ts';

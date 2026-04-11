@@ -1,5 +1,5 @@
 import {lazy} from 'react'
-import type {Routes} from '@/@types/routes.tsx'
+import type {Routes} from '@/types/routes'
 
 /**
  * Menu routes for admin panel
