@@ -42,8 +42,7 @@ const ProductList: React.FC<ProductListProps> = ({ activeCategory }) => {
 
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
         {items.map((p) => {
-          // Get the first image for the list view
-          const mainImage = p.productImages && p.productImages.length > 0 ? p.productImages[0] : null;
+          const mainImage = p.imageName;
           const primaryVariantId = p.variantIds?.[0];
           const retailPrice = p.retailPrice ?? 0;
           const selectedRetailPrice = p.retailSalesPrice != null && p.retailSalesPrice < retailPrice
@@ -55,7 +54,7 @@ const ProductList: React.FC<ProductListProps> = ({ activeCategory }) => {
               <div className="w-full h-40 bg-gray-100 overflow-hidden flex items-center justify-center">
                 {mainImage ? (
                   <ProductImage
-                    fileName={mainImage.imageUrl}
+                    fileName={mainImage}
                     alt={p.name}
                     className="w-45 h-full object-cover rounded-md"
                   />

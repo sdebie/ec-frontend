@@ -1,23 +1,116 @@
 import {gql} from "graphql-request";
 
 export const GET_PRODUCTS_LIST = gql`
-    query GetProductsList($categoryName: String, $pageRequest: PageRequestInput, $filterRequest: FilterRequestInput) {
-        productList(categoryName: $categoryName, pageRequest: $pageRequest, filterRequest: $filterRequest) {
+    query GetProductsList($categoryId: String, $pageRequest: PageRequestInput, $filterRequest: FilterRequestInput) {
+        productList(categoryId: $categoryId, pageRequest: $pageRequest, filterRequest: $filterRequest) {
             id
             name
             description
-            retailPrice
-            retailSalesPrice
-            wholesalePrice
-            wholesaleSalesPrice
-            productImages {
+            imageName
+            variantIds
+            categoryName
+            brandName
+        }
+    }
+`;
+
+export const GET_SHOPPING_PRODUCTS_LIST = gql`
+    query GetShoppingProductsList($categoryId: String, $pageRequest: PageRequestInput, $filterRequest: FilterRequestInput) {
+        shoppingProductList(categoryId: $categoryId, pageRequest: $pageRequest, filterRequest: $filterRequest) {
+            id
+            name
+            shortDescription
+            variantCount
+            images {
                 id
                 imageUrl
                 sortOrder
                 isFeatured: featured
             }
-            variantIds
-            categoryName
+            retailPrice {
+                id
+                priceType
+                price
+                priceStartDate
+                priceEndDate
+                isActive: active
+                saleDaysRemaining
+            }
+            wholesalePrice {
+                id
+                priceType
+                price
+                priceStartDate
+                priceEndDate
+                isActive: active
+                saleDaysRemaining
+            }
+            retailSalePrice {
+                id
+                priceType
+                price
+                priceStartDate
+                priceEndDate
+                isActive: active
+                saleDaysRemaining
+            }
+            wholesaleSalePrice {
+                id
+                priceType
+                price
+                priceStartDate
+                priceEndDate
+                isActive: active
+                saleDaysRemaining
+            }
+        }
+    }
+`;
+
+export const GET_SALE_PRODUCTS_LIST = gql`
+    query GetSaleProductsList($pageRequest: PageRequestInput) {
+        saleProductList(pageRequest: $pageRequest) {
+            product {
+                id
+                slug
+                name
+                description
+                shortDescription
+                productType
+                createdAt
+                category {
+                    id
+                    name
+                    slug
+                }
+                brand {
+                    id
+                    name
+                    slug
+                }
+            }
+            variants {
+                id
+                sku
+                stockQuantity
+                weightKg
+                attributesJson
+                prices {
+                    id
+                    priceType
+                    price
+                    priceStartDate
+                    priceEndDate
+                    isActive: active
+                    saleDaysRemaining
+                }
+                images {
+                    id
+                    imageUrl
+                    sortOrder
+                    isFeatured: featured
+                }
+            }
         }
     }
 `;
@@ -50,14 +143,16 @@ export const GET_PRODUCT_AND_VARIANTS = gql`
                 shortDescription
                 productType
                 createdAt
-                categoryId
-                brandId
-            }
-            productImages {
-                id
-                imageUrl
-                sortOrder
-                isFeatured: featured
+                category {
+                    id
+                    name
+                    slug
+                }
+                brand {
+                    id
+                    name
+                    slug
+                }
             }
             variants {
                 id
@@ -65,10 +160,21 @@ export const GET_PRODUCT_AND_VARIANTS = gql`
                 stockQuantity
                 attributesJson
                 weightKg
-                retailPrice
-                retailSalesPrice
-                wholesalePrice
-                wholesaleSalesPrice
+                prices {
+                    id
+                    priceType
+                    price
+                    priceStartDate
+                    priceEndDate
+                    isActive: active
+                    saleDaysRemaining
+                }
+                images {
+                    id
+                    imageUrl
+                    sortOrder
+                    isFeatured: featured
+                }
             }
         }
     }
@@ -79,3 +185,57 @@ export const PRODUCT_COUNT = gql`
         productCount(filterRequest: $filterRequest)
     }
 `;
+
+export const GET_TOP_BEST_SELLERS = gql`
+    query GetTopBestSellers {
+        topBestSellers {
+            id
+            name
+            shortDescription
+            variantCount
+            images {
+                id
+                imageUrl
+                sortOrder
+                isFeatured: featured
+            }
+            retailPrice {
+                id
+                priceType
+                price
+                priceStartDate
+                priceEndDate
+                isActive: active
+                saleDaysRemaining
+            }
+            wholesalePrice {
+                id
+                priceType
+                price
+                priceStartDate
+                priceEndDate
+                isActive: active
+                saleDaysRemaining
+            }
+            retailSalePrice {
+                id
+                priceType
+                price
+                priceStartDate
+                priceEndDate
+                isActive: active
+                saleDaysRemaining
+            }
+            wholesaleSalePrice {
+                id
+                priceType
+                price
+                priceStartDate
+                priceEndDate
+                isActive: active
+                saleDaysRemaining
+            }
+        }
+    }
+`;
+

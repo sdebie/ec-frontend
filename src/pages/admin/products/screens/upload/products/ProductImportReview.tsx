@@ -56,11 +56,6 @@ const ProductImportReview = () => {
         }
     };
 
-    const formatCurrency = (value?: number | null) => {
-        if (value === null || value === undefined) return "-";
-        return `R${Number(value).toFixed(2)}`;
-    };
-
     const columns: ColumnDef<ProductUploadStaged>[] = useMemo(() => [
         {
             id: "sku",
@@ -99,86 +94,6 @@ const ProductImportReview = () => {
                         {row.isNewProduct && (
                             <span className="text-yellow-500">
                                 NEW
-                            </span>
-                        )}
-                    </div>
-                );
-            },
-        },
-        {
-            id: "retailPrice",
-            header: () => <div>Retail<br /><div className={"text-[10px]"}>Price</div></div>,
-            enableSorting: false,
-            cell: (props) => {
-                const row = props.row.original;
-                const showCurrent = !row.isNewVariant && row.currentRetailPrice !== row.proposedRetailPrice;
-
-                return (
-                    <div className="flex flex-col">
-                        <span>{formatCurrency(row.proposedRetailPrice)}</span>
-                        {showCurrent && (
-                            <span className="text-xs text-yellow-500 line-through">
-                                {formatCurrency(row.currentRetailPrice)}
-                            </span>
-                        )}
-                    </div>
-                );
-            },
-        },
-        {
-            id: "retailSalesPrice",
-            header: () => <div>Retail<br /><div className={"text-[10px]"}>Sale Price</div></div>,
-            enableSorting: false,
-            cell: (props) => {
-                const row = props.row.original;
-                const showCurrent = !row.isNewVariant && row.currentRetailSalePrice !== row.proposedRetailSalePrice;
-
-                return (
-                    <div className="flex flex-col">
-                        <span>{formatCurrency(row.proposedRetailSalePrice)}</span>
-                        {showCurrent && (
-                            <span className="text-xs text-yellow-500 line-through">
-                                {formatCurrency(row.currentRetailSalePrice)}
-                            </span>
-                        )}
-                    </div>
-                );
-            },
-        },
-        {
-            id: "wholesalePrice",
-            header: () => <div>Wholesale<br /><div className={"text-[10px]"}>Price</div></div>,
-            enableSorting: false,
-            cell: (props) => {
-                const row = props.row.original;
-                const showCurrent = !row.isNewVariant && row.currentWholesalePrice !== row.proposedWholesalePrice;
-
-                return (
-                    <div className="flex flex-col">
-                        <span>{formatCurrency(row.proposedWholesalePrice)}</span>
-                        {showCurrent && (
-                            <span className="text-xs text-yellow-500 line-through">
-                                {formatCurrency(row.currentWholesalePrice)}
-                            </span>
-                        )}
-                    </div>
-                );
-            },
-        },
-        {
-            id: "wholesaleSalesPrice",
-            header: () => <div>Wholesale<br /><div className={"text-[10px]"}>Sale Price</div></div>,
-            enableSorting: false,
-            cell: (props) => {
-                const row = props.row.original;
-                const showCurrent = !row.isNewVariant && row.currentWholesaleSalePrice !== row.proposedWholesaleSalePrice;
-
-                return (
-                    <div className="flex flex-col">
-                        <span>{formatCurrency(row.proposedWholesaleSalePrice)}</span>
-                        {showCurrent && (
-                            <span className="text-xs text-yellow-500 line-through">
-                                {formatCurrency(row.currentWholesaleSalePrice)}
                             </span>
                         )}
                     </div>

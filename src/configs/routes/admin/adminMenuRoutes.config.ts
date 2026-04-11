@@ -66,6 +66,17 @@ export const adminMenuRoutes: Routes = [
                     pageContainerType: 'contained',
                 },
             },
+            {
+                key: 'admin.productssales.list',
+                path: '/admin/productssales/list',
+                component: lazy(() => import('@/pages/admin/products/screens/list/ProductSaleList')),
+                authority: ['SUPER_ADMIN'],
+                meta: {
+                    label: 'Product on Sale List',
+                    pageBackgroundType: 'plain',
+                    pageContainerType: 'contained',
+                },
+            },
         ],
     },
     {
@@ -95,10 +106,21 @@ export const adminMenuRoutes: Routes = [
             {
                 key: 'admin.imports.products.list',
                 path: '/admin/imports/products/list',
-                component: lazy(() => import('@/pages/admin/products/screens/upload/BulkProductUploadList')),
+                component: lazy(() => import('@/pages/admin/products/screens/upload/products/BulkProductUploadList.tsx')),
                 authority: ['SUPER_ADMIN'],
                 meta: {
                     label: 'Bulk Product Upload',
+                    pageBackgroundType: 'plain',
+                    pageContainerType: 'contained',
+                },
+            },
+            {
+                key: 'admin.imports.products.price',
+                path: '/admin/imports/products/price',
+                component: lazy(() => import('@/pages/admin/products/screens/upload/prices/BulkProductPriceUploadList.tsx')),
+                authority: ['SUPER_ADMIN'],
+                meta: {
+                    label: 'Bulk Product Price Changes',
                     pageBackgroundType: 'plain',
                     pageContainerType: 'contained',
                 },

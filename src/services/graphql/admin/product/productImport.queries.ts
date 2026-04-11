@@ -22,14 +22,6 @@ export const PRODUCT_IMPORT_ROWS = gql`
 			proposedDescription
 			currentShortDescription
 			proposedShortDescription
-			currentRetailPrice
-			proposedRetailPrice
-			currentRetailSalePrice
-			proposedRetailSalePrice
-			currentWholesalePrice
-			proposedWholesalePrice
-			currentWholesaleSalePrice
-			proposedWholesaleSalePrice
 			isValidCategory
 			isValidBrand
 			isNewProduct

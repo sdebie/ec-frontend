@@ -11,22 +11,48 @@ export type ProductListItem = {
 	id: string;
 	name: string;
 	description?: string | null;
-	retailPrice?: number | null;
-	retailSalesPrice?: number | null;
-	wholesalePrice?: number | null;
-	wholesaleSalesPrice?: number | null;
-	productImages?: ProductImage[] | null;
+	imageName?: string | null;
 	variantIds?: string[] | null;
 	categoryName?: string | null;
+	brandName?: string | null;
 };
+
+export type ProductShoppingListItem = {
+	id: string;
+	name: string;
+	shortDescription?: string | null;
+	variantCount?: number | null;
+	images?: ProductImage[] | null;
+	retailPrice?: VariantPrice | null;
+	wholesalePrice?: VariantPrice | null;
+	retailSalePrice?: VariantPrice | null;
+	wholesaleSalePrice?: VariantPrice | null;
+};
+
+export type ProductOnSaleListItem = {
+	product?: {
+		id: string;
+		slug?: string | null;
+		name?: string | null;
+		description?: string | null;
+		shortDescription?: string | null;
+		productType?: string | null;
+		createdAt?: string | null;
+		category?: { id: string; name?: string | null; slug?: string | null } | null;
+		brand?: { id: string; name?: string | null; slug?: string | null } | null;
+	} | null;
+	variants?: ProductVariant[] | null;
+};
+
 
 export type VariantPrice = {
 	id: string;
-	priceType: string;
-	price: string | number;
+	priceType?: string | null;
+	price?: number | null;
 	priceStartDate?: string | null;
 	priceEndDate?: string | null;
 	isActive?: boolean | null;
+	saleDaysRemaining?: number | null;
 };
 
 export type VariantItem = {
@@ -36,7 +62,6 @@ export type VariantItem = {
 	retailSalesPrice?: number | null;
 	wholesalePrice?: number | null;
 	wholesaleSalesPrice?: number | null;
-	variantPrices?: VariantPrice[] | null;
 	stockQuantity?: number | null;
 	weightKg?: string | null;
 	attributesJson?: string | null;
@@ -46,31 +71,26 @@ export type VariantItem = {
 export type ProductVariant = {
 	id: string;
 	sku?: string | null;
-	retailPrice?: number | null;
-	retailSalesPrice?: number | null;
-	wholesalePrice?: number | null;
-	wholesaleSalesPrice?: number | null;
 	stockQuantity?: number | null;
 	attributesJson?: string | null;
 	weightKg?: string | null;
-};
-
-export type ProductInfo = {
-	id: string;
-	slug?: string | null;
-	name?: string | null;
-	description?: string | null;
-	short_description?: string | null;
-	product_type?: string | null;
-	date_created?: string | null;
-	category_is?: string | null;
-	brand_id?: string | null;
+	prices?: VariantPrice[] | null;
+	images?: ProductImage[] | null;
 };
 
 export type ProductInformation = {
-	productInfo: ProductInfo;
+	product?: {
+		id: string;
+		slug?: string | null;
+		name?: string | null;
+		description?: string | null;
+		shortDescription?: string | null;
+		productType?: string | null;
+		createdAt?: string | null;
+		category?: { id: string; name?: string | null; slug?: string | null } | null;
+		brand?: { id: string; name?: string | null; slug?: string | null } | null;
+	} | null;
 	variants?: ProductVariant[] | null;
-	images?: ProductImage[] | null;
 };
 
 export type ProductUploadStaged = {
@@ -93,18 +113,22 @@ export type ProductUploadStaged = {
 	proposedDescription: string;
 	currentShortDescription: string;
 	proposedShortDescription: string;
-	currentRetailPrice?: number | null;
-	proposedRetailPrice?: number | null;
-	currentWholesalePrice?: number | null;
-	proposedWholesalePrice?: number | null;
-	currentRetailSalePrice?: number | null;
-	proposedRetailSalePrice?: number | null;
-	currentWholesaleSalePrice?: number | null;
-	proposedWholesaleSalePrice?: number | null;
 	isValidCategory?: boolean | null;
 	isValidBrand?: boolean | null;
 	isNewProduct?: boolean | null;
 	isNewVariant?: boolean | null;
+	hasChanges?: boolean | null;
+};
+
+export type ProductPriceUploadStaged = {
+	stagedId: string;
+	sku: string;
+	validationErrors?: string | null;
+	validationStatus?: ProductImportValidationStatus | null;
+	currentRetailPrice?: number | null;
+	proposedRetailPrice?: number | null;
+	currentWholesalePrice?: number | null;
+	proposedWholesalePrice?: number | null;
 	hasChanges?: boolean | null;
 };
 
@@ -132,4 +156,3 @@ export type ProductUploadBatchProcessStatus = {
 	validationErrorCount?: number | null;
 	completed: boolean;
 };
-

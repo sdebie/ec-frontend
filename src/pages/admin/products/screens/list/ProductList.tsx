@@ -6,9 +6,7 @@ import type {ProductListItem} from "@/types/admin/ProductTypes.ts";
 import {PenLine, Plus, Upload} from "lucide-react";
 import {useMemo} from "react";
 import {useNavigate} from "react-router-dom";
-
-const formatPrice = (price?: number | null) =>
-    price != null ? `R ${price.toFixed(2)}` : "-";
+import {IMAGE_THUMBNAIL_URL} from "@/constants/api.constant.ts";
 
 const ProductList = () => {
     const navigate = useNavigate();
@@ -37,6 +35,18 @@ const ProductList = () => {
 
     const columns: ColumnDef<ProductListItem>[] = useMemo(() => [
         {
+            id: "imageName",
+            accessorKey: "",
+            header: "",
+            cell: ({row}) => (
+                <img
+                    src={`${IMAGE_THUMBNAIL_URL}${row.original.imageName}`}
+                    alt="Preview"
+                    className="h-10 w-10 rounded object-cover"
+                />
+            ),
+        },
+        {
             id: "name",
             accessorKey: "name",
             header: "Product Name",
@@ -63,32 +73,11 @@ const ProductList = () => {
             cell: ({row}) => row.original.categoryName || "-",
         },
         {
-            id: "retailPrice",
-            accessorKey: "retailPrice",
-            header: () => <div>Retail<br /><div className={"text-[10px]"}>Price</div></div>,
+            id: "brandName",
+            accessorKey: "brandName",
+            header: "Brand",
             enableSorting: true,
-            cell: ({row}) => formatPrice(row.original.retailPrice),
-        },
-        {
-            id: "retailSalesPrice",
-            accessorKey: "retailSalesPrice",
-            header: () => <div>Retail<br /><div className={"text-[10px]"}>Sale Price</div></div>,
-            enableSorting: true,
-            cell: ({row}) => formatPrice(row.original.retailSalesPrice),
-        },
-        {
-            id: "wholesalePrice",
-            accessorKey: "wholesalePrice",
-            header: () => <div>Wholesale<br /><div className={"text-[10px]"}>Price</div></div>,
-            enableSorting: true,
-            cell: ({row}) => formatPrice(row.original.wholesalePrice),
-        },
-        {
-            id: "wholesaleSalesPrice",
-            accessorKey: "wholesaleSalesPrice",
-            header: () => <div>Wholesale<br /><div className={"text-[10px]"}>Sale Price</div></div>,
-            enableSorting: true,
-            cell: ({row}) => formatPrice(row.original.wholesaleSalesPrice),
+            cell: ({row}) => row.original.brandName || "-",
         },
         {
             id: 'actions',
