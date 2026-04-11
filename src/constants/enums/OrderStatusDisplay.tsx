@@ -1,6 +1,6 @@
 import {Tag} from "lucide-react";
 import React from "react";
-import {getOrderStatus, OrderStatus} from "@/constants/enums/OrderStatus";
+import {getOrderStatus, OrderStatus} from "@/constants/enums/OrderStatus.ts";
 
 type Props = {
     status: OrderStatus | string;
