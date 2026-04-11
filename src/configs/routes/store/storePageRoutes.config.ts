@@ -1,5 +1,5 @@
 import { lazy } from 'react'
-import type { PageRoutes } from '../../../types/routes'
+import type { PageRoutes } from '@/types/routes.ts'
 import { toPageRoutes } from '../routeHelpers'
 import { storeMenuRoutes } from './storeMenuRoutes.config'
 

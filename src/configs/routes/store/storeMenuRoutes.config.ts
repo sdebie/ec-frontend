@@ -1,5 +1,5 @@
 import { lazy } from 'react'
-import type { Routes } from '../../../types/routes'
+import type { Routes } from '@/types/routes.ts'
 
 const storeFront = import.meta.env.VITE_STORE_FRONT || 'default';
 
