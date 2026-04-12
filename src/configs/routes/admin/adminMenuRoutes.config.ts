@@ -115,8 +115,8 @@ export const adminMenuRoutes: Routes = [
                 },
             },
             {
-                key: 'admin.imports.products.price',
-                path: '/admin/imports/products/price',
+                key: 'admin.imports.products.price.list',
+                path: '/admin/imports/products/price/list',
                 component: lazy(() => import('@/pages/admin/products/screens/upload/prices/BulkProductPriceUploadList.tsx')),
                 authority: ['SUPER_ADMIN'],
                 meta: {
