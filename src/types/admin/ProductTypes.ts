@@ -65,6 +65,7 @@ export type VariantItem = {
 	stockQuantity?: number | null;
 	weightKg?: string | null;
 	attributesJson?: string | null;
+	images?: ProductImage[] | null;
 	product?: { name?: string | null } | null;
 };
 

@@ -1,5 +1,3 @@
-
-
 export type OrderData = {
     id?: string
     sessionId?: string
@@ -13,7 +11,7 @@ export type OrderData = {
 export type OrderItemsData = {
     unitPrice?: number
     quantity?: number
-    // Maybe a numeric variant ID (when initially added) or a populated object after enrichment
+    // Variant can be an ID string (pre-enrichment) or a populated object (post-enrichment)
     variant?: variantData
 }
 
@@ -22,7 +20,15 @@ export type variantData = {
     stockQuantity?: number
     weightKg?: number
     attributesJson?: string
+    images?: productImageData[]
     product?: productData
+}
+
+export type productImageData = {
+    id?: string
+    imageUrl?: string
+    sortOrder?: number | null
+    isFeatured?: boolean | null
 }
 
 export type productData = {

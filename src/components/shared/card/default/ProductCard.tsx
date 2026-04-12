@@ -1,5 +1,4 @@
 import {Link} from 'react-router-dom'
-import {useStorefrontTheme} from '@/components/layout/store/default/theme'
 
 interface ProductCardProps {
     id: string
@@ -30,7 +29,6 @@ export function ProductCard({
                                 badge,
                                 onAddToCart,
                             }: ProductCardProps) {
-    const {config} = useStorefrontTheme()
 
     const formatCurrency = (value: number) => {
         return `R ${value.toFixed(2)}`

@@ -120,13 +120,24 @@ export const VARIANTS_BY_IDS = gql`
         variantsByIds(ids: $ids) {
             id
             sku
-            retailPrice
-            retailSalesPrice
-            wholesalePrice
-            wholesaleSalesPrice
+            prices {
+                active
+                id
+                price
+                priceEndDate
+                priceStartDate
+                priceType
+                saleDaysRemaining
+            }
             stockQuantity
             weightKg
             attributesJson
+            images {
+                id
+                imageUrl
+                sortOrder
+                isFeatured: featured
+            }
             product { name }
         }
     }

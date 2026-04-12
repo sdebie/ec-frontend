@@ -1,9 +1,7 @@
-import { lazy } from 'react'
-import type { PageRoutes } from '@/types/routes.ts'
-import { toPageRoutes } from '../routeHelpers'
-import { storeMenuRoutes } from './storeMenuRoutes.config'
-
-const storeFront = import.meta.env.VITE_STORE_FRONT || 'default';
+import {lazy} from 'react'
+import type {PageRoutes} from '@/types/routes.ts'
+import {toPageRoutes} from '../routeHelpers'
+import {storeMenuRoutes} from './storeMenuRoutes.config'
 
 /**
  * Store page routes only contain routing metadata.
@@ -13,7 +11,7 @@ const storePageOnlyRoutes: PageRoutes = [
     {
         key: 'productDetail',
         path: `/product/:productId`,
-        component: lazy(() => import(`../../pages/shop/${storeFront}/products/ProductDetailsPage.tsx`)),
+        component: lazy(() => import('../../../pages/shop/default/products/ProductDetailsPage.tsx')),
         authority: [],
         meta: {
             pageBackgroundType: 'plain',
@@ -23,7 +21,8 @@ const storePageOnlyRoutes: PageRoutes = [
     {
         key: 'checkout',
         path: `/checkout`,
-        component: lazy(() => import(`../../pages/shop/${storeFront}/cart/Checkout.tsx`)),
+        component: lazy(() => import('../../../pages/storefront/checkout/screens/Checkout.tsx')),
+        // component: lazy(() => import('../../../pages/shop/default/cart/Checkout.tsx')),
         authority: [],
         meta: {
             pageBackgroundType: 'plain',
@@ -33,7 +32,7 @@ const storePageOnlyRoutes: PageRoutes = [
     {
         key: 'paymentSuccess',
         path: `/payment-success`,
-        component: lazy(() => import(`../../pages/shop/${storeFront}/cart/Success.tsx`)),
+        component: lazy(() => import('../../../pages/shop/default/cart/Success.tsx')),
         authority: [],
         meta: {
             pageBackgroundType: 'plain',

@@ -1,5 +1,4 @@
 import {ReactNode} from 'react'
-import {useStorefrontTheme} from '@/components/layout/store/default/theme'
 
 interface CategoryCardProps {
     name: string
@@ -23,8 +22,6 @@ export function CategoryCard({
                                  href,
                                  onClick,
                              }: CategoryCardProps) {
-    const {config} = useStorefrontTheme()
-
     return (
         <a
             href={href}

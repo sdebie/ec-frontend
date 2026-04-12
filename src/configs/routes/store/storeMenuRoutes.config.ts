@@ -1,7 +1,6 @@
-import { lazy } from 'react'
-import type { Routes } from '@/types/routes.ts'
+import {lazy} from 'react'
+import type {Routes} from '@/types/routes.ts'
 
-const storeFront = import.meta.env.VITE_STORE_FRONT || 'default';
 
 /**
  * Menu routes for store
@@ -11,7 +10,7 @@ export const storeMenuRoutes: Routes = [
     {
         key: 'home',
         path: `/`,
-        component: lazy(() => import(`../../../pages/shop/${storeFront}/home/HomePage.tsx`)),
+        component: lazy(() => import('../../../pages/shop/default/home/StorefrontHomePage.tsx')),
         authority: [],
         meta: {
             pageBackgroundType: 'plain',
@@ -21,7 +20,7 @@ export const storeMenuRoutes: Routes = [
     {
         key: 'products',
         path: `/products`,
-        component: lazy(() => import(`../../../pages/shop/${storeFront}/products/ShopPage.tsx`)),
+        component: lazy(() => import('../../../pages/shop/default/products/ProductList.tsx')),
         authority: [],
         meta: {
             pageBackgroundType: 'plain',
@@ -31,7 +30,7 @@ export const storeMenuRoutes: Routes = [
     {
         key: 'cart',
         path: `/cart`,
-        component: lazy(() => import('@/pages/shop/default/cart/Cart')),
+        component: lazy(() => import('@/pages/storefront/shoppingCart/screens/ShoppingCart.tsx')),
         authority: [],
         meta: {
             pageBackgroundType: 'plain',

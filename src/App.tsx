@@ -1,14 +1,14 @@
-import {Suspense, useState, useEffect} from 'react';
-import {BrowserRouter, Routes, Route} from 'react-router-dom';
+import {Suspense, useEffect, useState} from 'react';
+import {BrowserRouter, Route, Routes} from 'react-router-dom';
 import {ToastContainer} from '@/components/shared/toast';
 import {storeRoutingRoutes} from './configs/routes/store/storePageRoutes.config.ts';
 import {adminRoutingRoutes} from './configs/routes/admin/adminPageRoutes.config.ts';
 import {getHostname} from './utils/HostnameResolver';
-import RouteGuard from "@/configs/RouteGaurd.tsx";
+import RouteGuard from "@/configs/routes/RouteGaurd.tsx";
 import {RouteObject} from "@/types/routes.ts";
+import {resolveStorefrontClient} from "@/configs/storefront/storefrontRegistry.ts";
 
 function App() {
-
     const [isAuthenticated, setIsAuthenticated] = useState(!!localStorage.getItem('admin_token'));
     const [activeCategory, setActiveCategory] = useState<string>('All');
 
@@ -19,6 +19,9 @@ function App() {
     }, []);
 
     const hostname = getHostname();
+    const forcedClientId = import.meta.env.VITE_STORE_FRONT;
+    const storefrontConfig = resolveStorefrontClient(hostname, forcedClientId);
+
     const isAdminDomain = hostname.startsWith('admin.');
     const isStoreDomain = hostname.startsWith('store.');
 
@@ -53,13 +56,14 @@ function App() {
                                     activeCategory={activeCategory}
                                     setActiveCategory={setActiveCategory}
                                     onLoginSuccess={handleLogin}
+                                    storefrontConfig={storefrontConfig}
                                 />
                             }
                         />
                     ))}
                 </Routes>
             </Suspense>
-            <ToastContainer />
+            <ToastContainer/>
         </BrowserRouter>
     );
 }

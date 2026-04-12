@@ -1,216 +1,337 @@
-import React, { useEffect, useState, useRef } from 'react';
-import { Link, useNavigate, useLocation } from 'react-router-dom';
+import React, {useEffect, useRef, useState} from 'react';
+import {Link, useLocation, useNavigate} from 'react-router-dom';
 import CartIcon from '../../../components/shared/icon/CartIcon.tsx';
-import { CartStore } from '@/store/cartStore.ts';
-import ComponentHeader from '@/pages/shop/default/components/Category/ComponentHeader.tsx';
 import ImageUploadModal from '@/pages/shop/default/components/ImageUploadModal.tsx';
 import LoginModal from '@/pages/shop/default/auth/LoginModal.tsx';
-import { CustomerProfile } from '@/services/CustomerService.ts';
+import {CustomerProfile} from '@/services/CustomerService.ts';
+import {NavMenuItem, StorefrontClientConfig} from '@/types/storefront/storefrontTypes.ts';
+import {CartStore} from '@/store/CartStore.ts';
+import styles from './PageHeader.module.css';
 
-// Keys duplicated here intentionally to avoid coupling to non-exported constants
-const LS_KEY = 'ec_cart_order_items';
-const CART_SESSION_KEY = 'cart_session_id';
 const AUTH_KEY = 'checkoutIsAuthenticated';
 const EMAIL_KEY = 'checkoutEmail';
+const DESKTOP_QUERY = '(min-width: 1024px)'; // Tailwind lg breakpoint
 
 interface PageHeaderProps {
-  activeCategory: string;
-  onSelectCategory: (category: string) => void;
+    activeCategory: string;
+    onSelectCategory: (category: string) => void;
+    storefrontConfig: StorefrontClientConfig;
 }
 
-const PageHeader: React.FC<PageHeaderProps> = ({ activeCategory, onSelectCategory }) => {
-  const navigate = useNavigate();
-  const location = useLocation();
+interface RenderNavItemOptions {
+    className?: string;
+    onClick?: () => void;
+}
 
-  const [lsItemsRaw, setLsItemsRaw] = useState<string | null>(null);
-  const [cartSessionId, setCartSessionId] = useState<string | null>(null);
-  const [isAuthenticated, setIsAuthenticated] = useState<boolean>(false);
-  const [showUserMenu, setShowUserMenu] = useState<boolean>(false);
-  const [isAdminAuthenticated, setIsAdminAuthenticated] = useState<boolean>(false);
-  const [showImageUploadModal, setShowImageUploadModal] = useState<boolean>(false);
-  const [showLoginModal, setShowLoginModal] = useState<boolean>(false);
-  const userMenuRef = useRef<HTMLDivElement>(null);
+const PageHeader: React.FC<PageHeaderProps> = ({storefrontConfig}) => {
+    const navigate = useNavigate();
+    const location = useLocation();
 
-  function readValues() {
-    try {
-      const ls = typeof window !== 'undefined' ? window.localStorage : null;
-      const items = ls ? ls.getItem(LS_KEY) : null;
-      const sid = ls ? ls.getItem(CART_SESSION_KEY) : null;
-      const auth = ls ? ls.getItem(AUTH_KEY) === 'true' : false;
-      const adminToken = ls ? ls.getItem('admin_token') : null;
-      setLsItemsRaw(items);
-      setCartSessionId(sid);
-      setIsAuthenticated(auth);
-      setIsAdminAuthenticated(!!adminToken);
-    } catch (_) {
-      setLsItemsRaw(null);
-      setCartSessionId(null);
-      setIsAuthenticated(false);
-      setIsAdminAuthenticated(false);
-    }
-  }
-
-  useEffect(() => {
-    // Initial read
-    readValues();
-
-    // Subscribe to our in-app cart store for same-tab updates
-    const unsubscribe = CartStore.subscribe(() => {
-      readValues();
+    const [isAuthenticated, setIsAuthenticated] = useState<boolean>(false);
+    const [showUserMenu, setShowUserMenu] = useState<boolean>(false);
+    const [isAdminAuthenticated, setIsAdminAuthenticated] = useState<boolean>(false);
+    const [showImageUploadModal, setShowImageUploadModal] = useState<boolean>(false);
+    const [showLoginModal, setShowLoginModal] = useState<boolean>(false);
+    const [showMobileMenu, setShowMobileMenu] = useState<boolean>(false);
+    const [isDesktopViewport, setIsDesktopViewport] = useState<boolean>(() => {
+        if (typeof window === 'undefined') return false;
+        return window.matchMedia(DESKTOP_QUERY).matches;
     });
+    const userMenuRef = useRef<HTMLDivElement>(null);
 
-    // Listen to storage changes from other tabs
-    const onStorage = (e: StorageEvent) => {
-      if (e.key === LS_KEY || e.key === CART_SESSION_KEY || e.key === AUTH_KEY) {
+    const menuItems = storefrontConfig.navigation.menuItems ?? [];
+    const logo = storefrontConfig.branding.logo;
+
+    function readValues() {
+        try {
+            const ls = typeof window !== 'undefined' ? window.localStorage : null;
+            const auth = ls ? ls.getItem(AUTH_KEY) === 'true' : false;
+            const adminToken = ls ? ls.getItem('admin_token') : null;
+            setIsAuthenticated(auth);
+            setIsAdminAuthenticated(!!adminToken);
+        } catch (_) {
+            setIsAuthenticated(false);
+            setIsAdminAuthenticated(false);
+        }
+    }
+
+    useEffect(() => {
         readValues();
-      }
+
+        const unsubscribe = CartStore.subscribe(() => {
+            readValues();
+        });
+
+        const onStorage = (e: StorageEvent) => {
+            if (e.key === AUTH_KEY || e.key === 'admin_token') {
+                readValues();
+            }
+        };
+        window.addEventListener('storage', onStorage);
+
+        const handleClickOutside = (event: MouseEvent) => {
+            if (userMenuRef.current && !userMenuRef.current.contains(event.target as Node)) {
+                setShowUserMenu(false);
+            }
+        };
+        document.addEventListener('mousedown', handleClickOutside);
+
+        return () => {
+            unsubscribe();
+            window.removeEventListener('storage', onStorage);
+            document.removeEventListener('mousedown', handleClickOutside);
+        };
+    }, []);
+
+    useEffect(() => {
+        setShowMobileMenu(false);
+    }, [location.pathname]);
+
+    useEffect(() => {
+        if (typeof window === 'undefined') return;
+
+        const mediaQuery = window.matchMedia(DESKTOP_QUERY);
+
+        const handleViewportChange = (matches: boolean) => {
+            setIsDesktopViewport(matches);
+            if (matches) {
+                // Prevent stale open mobile menu state when moving to desktop
+                setShowMobileMenu(false);
+            }
+        };
+
+        handleViewportChange(mediaQuery.matches);
+
+        const onChange = (event: MediaQueryListEvent) => {
+            handleViewportChange(event.matches);
+        };
+
+        if (typeof mediaQuery.addEventListener === 'function') {
+            mediaQuery.addEventListener('change', onChange);
+            return () => mediaQuery.removeEventListener('change', onChange);
+        }
+
+        // Safari legacy fallback
+        mediaQuery.addListener(onChange);
+        return () => mediaQuery.removeListener(onChange);
+    }, []);
+
+    const handleLogout = () => {
+        try {
+            window.localStorage.removeItem(AUTH_KEY);
+            window.localStorage.removeItem(EMAIL_KEY);
+            setIsAuthenticated(false);
+            setShowUserMenu(false);
+            setShowLoginModal(false);
+            readValues();
+            navigate('/');
+        } catch (e) {
+            console.error('Logout failed', e);
+        }
     };
-    window.addEventListener('storage', onStorage);
 
-    // Close user menu when clicking outside
-    const handleClickOutside = (event: MouseEvent) => {
-      if (userMenuRef.current && !userMenuRef.current.contains(event.target as Node)) {
-        setShowUserMenu(false);
-      }
+    const handleLoginSuccess = (profile: CustomerProfile) => {
+        try {
+            window.localStorage.setItem(AUTH_KEY, 'true');
+            window.localStorage.setItem(EMAIL_KEY, profile.email);
+            CartStore.emit();
+        } catch (e) {
+            console.error('Failed to save login state', e);
+        }
+        setIsAuthenticated(true);
+        setShowLoginModal(false);
     };
-    document.addEventListener('mousedown', handleClickOutside);
 
-    return () => {
-      unsubscribe();
-      window.removeEventListener('storage', onStorage);
-      document.removeEventListener('mousedown', handleClickOutside);
-    };
-  }, []);
+    const renderNavItem = (item: NavMenuItem, options: RenderNavItemOptions = {}) => {
+        const {className = styles.navLink, onClick} = options;
 
-  const handleLogout = () => {
-    try {
-      window.localStorage.removeItem(AUTH_KEY);
-      window.localStorage.removeItem(EMAIL_KEY);
-      setIsAuthenticated(false);
-      setShowUserMenu(false);
-      setShowLoginModal(false);
-      // Force a re-read to update UI immediately
-      readValues();
-      // Optionally navigate to home or refresh
-      navigate('/');
-    } catch (e) {
-      console.error('Logout failed', e);
-    }
-  };
+        if (item.external) {
+            return (
+                <a
+                    key={item.id}
+                    href={item.to}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className={className}
+                    style={{color: 'var(--sf-nav-text)'}}
+                    onClick={onClick}
+                >
+                    {item.label}
+                </a>
+            );
+        }
 
-  const handleLoginSuccess = (profile: CustomerProfile) => {
-    // Store the authentication state and email for checkout screen
-    try {
-      window.localStorage.setItem(AUTH_KEY, 'true');
-      window.localStorage.setItem(EMAIL_KEY, profile.email);
-      // Notify other components
-      CartStore.emit();
-    } catch (e) {
-      console.error('Failed to save login state', e);
-    }
-    setIsAuthenticated(true);
-    setShowLoginModal(false);
-  };
-
-
-  const truncate = (val: string | null | undefined, max = 48) => {
-    if (!val) return '';
-    return val.length > max ? `${val.slice(0, max)}…` : val;
-  };
-
-  const isProductsPage = location.pathname === '/products';
-
-  return (
-    <header className="w-full bg-white border-b border-gray-200 relative z-50">
-      <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
-        <div className="flex items-center gap-3">
-          <Link to="/" className="text-lg font-bold text-gray-900 hover:text-blue-600">
-            E-Comm Demo
-          </Link>
-          <Link to="/products" className="text-sm text-gray-700 hover:text-blue-600">Products</Link>
-        </div>
-        {isProductsPage && <ComponentHeader activeCategory={activeCategory} onSelectCategory={onSelectCategory} />}
-        <div className="flex items-center gap-4">
-          {/* Debug/visibility of localStorage keys as requested */}
-          <div className="hidden sm:flex flex-col text-xs text-gray-500 max-w-[22rem]">
-            <div><span className="font-medium text-gray-700">{LS_KEY}:</span> <span className="font-mono">{truncate(lsItemsRaw)}</span></div>
-            <div><span className="font-medium text-gray-700">{CART_SESSION_KEY}:</span> <span className="font-mono">{truncate(cartSessionId)}</span></div>
-          </div>
-          
-          {/* Image Upload Button - Admin Only */}
-          {isAdminAuthenticated && (
-            <button
-              onClick={() => setShowImageUploadModal(true)}
-              className="p-2 text-gray-600 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-colors"
-              title="Upload Image (Admin)"
+        return (
+            <Link
+                key={item.id}
+                to={item.to}
+                className={className}
+                style={{color: 'var(--sf-nav-text)'}}
+                onClick={onClick}
             >
-              <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-6 h-6">
-                <path strokeLinecap="round" strokeLinejoin="round" d="M12 16.5V9.75m0 0l3 3m-3-3l-3 3M6.75 19.5a4.5 4.5 0 01-1.41-8.775 5.25 5.25 0 0110.233-2.33A3 3 0 0116.5 19.5H6.75z" />
-              </svg>
-            </button>
-          )}
+                {item.label}
+            </Link>
+        );
+    };
 
-          <CartIcon
-            className="hover:text-blue-600"
-            size={22}
-            onClick={() => navigate('/cart')}
-          />
+    return (
+        <header
+            className={`relative z-50 w-full border-b ${styles.pageHeader}`}
+            style={{
+                borderColor: 'var(--sf-nav-border)',
+                backgroundColor: 'var(--sf-nav-bg)',
+            }}
+        >
+            <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
+                <div
+                    className="grid h-16 grid-cols-[minmax(0,1fr)_auto] items-center gap-2 lg:grid-cols-[auto_1fr_auto] lg:gap-6">
+                    <Link to="/" className="min-w-0 inline-flex items-center flex-nowrap gap-2 no-underline">
+                        {logo?.src ? (
+                            <img
+                                src={logo.src}
+                                alt={logo.alt || `${storefrontConfig.branding.name} logo`}
+                                width={logo.width}
+                                height={logo.height}
+                                className="shrink-0 h-8 w-auto object-contain"
+                                style={{width: logo.width, height: logo.height}}
+                            />
+                        ) : null}
+                        <span className={`${styles.brandLink} truncate`} style={{color: 'var(--sf-nav-text)'}}>
+                            {storefrontConfig.branding.name}
+                        </span>
+                    </Link>
 
-          {!isAuthenticated && (
-            <button
-              onClick={() => setShowLoginModal(true)}
-              className="p-2 text-gray-600 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-colors"
-              title="Sign In"
-            >
-              <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-6 h-6">
-                <path strokeLinecap="round" strokeLinejoin="round" d="M15.75 6a3.75 3.75 0 11-7.5 0 3.75 3.75 0 017.5 0zM4.501 20.118a7.5 7.5 0 0114.998 0A17.933 17.933 0 0112 21.75c-2.676 0-5.216-.584-7.499-1.632z" />
-              </svg>
-            </button>
-          )}
+                    <nav
+                        aria-label="Primary"
+                        className={`hidden lg:flex items-center justify-center gap-6 ${styles.navMenu}`}
+                    >
+                        {menuItems.map((item) => renderNavItem(item))}
+                    </nav>
 
-          {isAuthenticated && (
-            <div className="relative" ref={userMenuRef}>
-              <div 
-                className="text-gray-600 hover:text-blue-600 cursor-pointer p-1" 
-                title="User Profile"
-                onClick={() => setShowUserMenu(!showUserMenu)}
-              >
-                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-6 h-6">
-                  <path strokeLinecap="round" strokeLinejoin="round" d="M15.75 6a3.75 3.75 0 11-7.5 0 3.75 3.75 0 017.5 0zM4.501 20.118a7.5 7.5 0 0114.998 0A17.933 17.933 0 0112 21.75c-2.676 0-5.216-.584-7.499-1.632z" />
-                </svg>
-              </div>
-              
-              {showUserMenu && (
-                <div className="absolute right-0 mt-2 w-48 bg-white rounded-md shadow-lg py-1 ring-1 ring-black ring-opacity-5 focus:outline-none z-50">
-                  <button
-                    onClick={handleLogout}
-                    className="block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
-                  >
-                    Log Out
-                  </button>
+                    <div className="flex items-center justify-end gap-1 sm:gap-2">
+                        {isAdminAuthenticated && (
+                            <button
+                                onClick={() => setShowImageUploadModal(true)}
+                                className={styles.iconButton}
+                                style={{color: 'var(--sf-nav-icon-text)'}}
+                                title="Upload Image (Admin)"
+                            >
+                                {/* icon */}
+                            </button>
+                        )}
+
+                        <CartIcon
+                            className={`transition-colors ${styles.iconButton} text-(--sf-nav-icon-text)`}
+                            size={22}
+                            onClick={() => navigate('/cart')}
+                        />
+
+                        {!isAuthenticated && (
+                            <button
+                                onClick={() => setShowLoginModal(true)}
+                                className={styles.iconButton}
+                                style={{color: 'var(--sf-nav-icon-text)'}}
+                                title="Sign In"
+                            >
+                                {/* icon */}
+                            </button>
+                        )}
+
+                        {isAuthenticated && (
+                            <div className="relative" ref={userMenuRef}>
+                                <button
+                                    className={styles.iconButton}
+                                    style={{color: 'var(--sf-nav-icon-text)'}}
+                                    title="User Profile"
+                                    aria-haspopup="menu"
+                                    aria-expanded={showUserMenu}
+                                    onClick={() => setShowUserMenu(!showUserMenu)}
+                                >
+                                    {/* icon */}
+                                </button>
+
+                                {showUserMenu && (
+                                    <div
+                                        className={`absolute right-0 mt-2 w-48 rounded-md shadow-lg py-1 ring-1 ring-opacity-5 focus:outline-none z-50 ${styles.userMenu}`}
+                                        style={{
+                                            backgroundColor: 'var(--sf-nav-bg)',
+                                            borderColor: 'var(--sf-nav-border)',
+                                        }}
+                                        role="menu"
+                                    >
+                                        <button
+                                            onClick={handleLogout}
+                                            className={styles.userMenuButton}
+                                            style={{color: 'var(--sf-nav-text)'}}
+                                            role="menuitem"
+                                        >
+                                            Log Out
+                                        </button>
+                                    </div>
+                                )}
+                            </div>
+                        )}
+
+                        {!isDesktopViewport && (
+                            <button
+                                type="button"
+                                className={styles.iconButton}
+                                style={{color: 'var(--sf-nav-icon-text)'}}
+                                aria-label={showMobileMenu ? 'Close navigation menu' : 'Open navigation menu'}
+                                aria-expanded={showMobileMenu}
+                                aria-controls="mobile-primary-nav"
+                                onClick={() => setShowMobileMenu((prev) => !prev)}
+                            >
+                                {showMobileMenu ? (
+                                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
+                                         strokeWidth={1.5} stroke="currentColor" className="w-6 h-6">
+                                        <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12"/>
+                                    </svg>
+                                ) : (
+                                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
+                                         strokeWidth={1.5} stroke="currentColor" className="w-6 h-6">
+                                        <path strokeLinecap="round" strokeLinejoin="round"
+                                              d="M3.75 6.75h16.5M3.75 12h16.5m-16.5 5.25h16.5"/>
+                                    </svg>
+                                )}
+                            </button>
+                        )}
+                    </div>
                 </div>
-              )}
+
+                {!isDesktopViewport && showMobileMenu && (
+                    <nav
+                        id="mobile-primary-nav"
+                        aria-label="Mobile primary"
+                        className="border-t py-2"
+                        style={{borderColor: 'var(--sf-nav-border)'}}
+                    >
+                        <div className="flex flex-col">
+                            {menuItems.map((item) =>
+                                renderNavItem(item, {
+                                    className: 'block py-2 text-sm',
+                                    onClick: () => setShowMobileMenu(false),
+                                })
+                            )}
+                        </div>
+                    </nav>
+                )}
             </div>
-          )}
-        </div>
-      </div>
 
-      {/* Image Upload Modal */}
-      <ImageUploadModal
-        isOpen={showImageUploadModal}
-        onClose={() => setShowImageUploadModal(false)}
-        onImageUpload={() => setShowImageUploadModal(false)}
-      />
+            <ImageUploadModal
+                isOpen={showImageUploadModal}
+                onClose={() => setShowImageUploadModal(false)}
+                onImageUpload={() => setShowImageUploadModal(false)}
+            />
 
-      {/* Login Modal */}
-      <LoginModal
-        isOpen={showLoginModal}
-        onClose={() => setShowLoginModal(false)}
-        onLoginSuccess={handleLoginSuccess}
-        showEmailField={true}
-      />
-    </header>
-  );
+            <LoginModal
+                isOpen={showLoginModal}
+                onClose={() => setShowLoginModal(false)}
+                onLoginSuccess={handleLoginSuccess}
+                showEmailField={true}
+            />
+        </header>
+    );
 };
 
 export default PageHeader;

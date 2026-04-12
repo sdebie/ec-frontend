@@ -1,0 +1,145 @@
+// features/cart/components/CartItemRow.tsx
+import React, {useMemo} from 'react';
+import {CheckCircle2, ChevronDown, Clock3, ShoppingBag, Trash2,} from 'lucide-react';
+import {currency, getAvailability, getQuantityOptions,} from '@/utils/storefront/cart.utils.ts';
+import {OrderItemsData} from "@/pages/shop/default/cart/types.ts";
+import ProductImage from "@/components/shared/imageupload/ProductImage.tsx";
+import {formatAttributes} from "@/utils/formatAttributes.ts";
+
+type CartItemRowProps = {
+    item: OrderItemsData;
+    index: number;
+    onQuantityChange: (index: number, quantity: number) => void;
+    onRemove: (index: number) => void;
+};
+
+const CartItemRow: React.FC<CartItemRowProps> = ({
+                                                     item,
+                                                     index,
+                                                     onQuantityChange,
+                                                     onRemove,
+                                                 }) => {
+    const quantity = Math.max(1, Number(item.quantity || 1));
+    const quantityOptions = getQuantityOptions(quantity);
+    const lineTotal = Number(item.unitPrice || 0) * quantity;
+    const availability = getAvailability(item);
+
+    const thumbnailFileName = useMemo(() => {
+        if (typeof item.variant === 'string') return undefined;
+        const images = item.variant?.images ?? [];
+        if (!images.length) return undefined;
+
+        const sortedImages = [...images].sort((a, b) => {
+            const featuredDiff = Number(Boolean(b.isFeatured)) - Number(Boolean(a.isFeatured));
+            if (featuredDiff !== 0) return featuredDiff;
+            return Number(a.sortOrder ?? Number.MAX_SAFE_INTEGER) - Number(b.sortOrder ?? Number.MAX_SAFE_INTEGER);
+        });
+
+        return sortedImages[0]?.imageUrl;
+    }, [item.variant]);
+
+    return (
+        <li
+            className="flex py-6 sm:py-10"
+            key={typeof item.variant === 'string' ? `${item.variant}-${index}` : item.variant?.id ?? index}
+        >
+            <div className="shrink-0">
+                <div
+                    className="flex size-24 items-center justify-center rounded-md bg-gray-100 object-cover sm:size-48">
+                    {thumbnailFileName ? (
+                        <ProductImage
+                            fileName={thumbnailFileName}
+                            alt={item?.variant?.product?.name ?? 'Product image'}
+                            className="rounded-md object-cover"
+                        />
+                    ) : (
+                        <ShoppingBag className="h-10 w-10 text-gray-300 sm:h-14 sm:w-14"/>
+                    )}
+                </div>
+            </div>
+
+            <div className="ml-4 flex flex-1 flex-col justify-between sm:ml-6">
+                <div className="relative pr-9 sm:grid sm:grid-cols-2 sm:gap-x-6 sm:pr-0">
+                    <div>
+                        <div className="flex justify-between gap-4">
+                            <h3 className="text-sm font-medium text-gray-900">
+                                {item?.variant?.product?.name ?? 'Item'}
+                            </h3>
+                        </div>
+
+                        <div className="mt-1 flex flex-wrap text-sm text-gray-500">
+                            <p> {formatAttributes(item?.variant?.attributesJson) ?? 'Standard item'}</p>
+                        </div>
+
+                        <p className="mt-3 text-sm font-medium text-gray-900">
+                            {currency(item.unitPrice || 0)} each
+                        </p>
+
+                        <p className="mt-1 text-sm text-gray-500">
+                            Line total: {currency(lineTotal)}
+                        </p>
+                    </div>
+
+                    <div className="mt-4 sm:mt-0 sm:pr-9">
+                        <label htmlFor={`quantity-${index}`} className="sr-only">
+                            Quantity, {item?.variant?.product?.name ?? 'Item'}
+                        </label>
+
+                        <div className="grid w-full max-w-20 grid-cols-1">
+                            <select
+                                id={`quantity-${index}`}
+                                name={`quantity-${index}`}
+                                value={quantity}
+                                onChange={(event) =>
+                                    onQuantityChange(index, Number(event.target.value))
+                                }
+                                aria-label={`Quantity, ${item?.variant?.product?.name ?? 'Item'}`}
+                                className="col-start-1 row-start-1 appearance-none rounded-md bg-white py-2 pr-8 pl-3 text-base text-gray-900 outline-1 -outline-offset-1 outline-gray-300 focus:outline-2 focus:-outline-offset-2 focus:outline-indigo-600 sm:text-sm"
+                            >
+                                {quantityOptions.map((option) => (
+                                    <option key={option} value={option}>
+                                        {option}
+                                    </option>
+                                ))}
+                            </select>
+
+                            <ChevronDown
+                                aria-hidden="true"
+                                className="pointer-events-none col-start-1 row-start-1 mr-2 h-5 w-5 self-center justify-self-end text-gray-500 sm:h-4 sm:w-4"
+                            />
+                        </div>
+
+                        <div className="absolute top-0 right-0">
+                            <button
+                                type="button"
+                                onClick={() => onRemove(index)}
+                                className="-m-2 inline-flex p-2 text-gray-400 hover:text-red-500"
+                            >
+                                <span className="sr-only">Remove</span>
+                                <Trash2 aria-hidden="true" className="h-5 w-5"/>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <p className="mt-4 flex items-center space-x-2 text-sm text-gray-700">
+                    {availability.inStock ? (
+                        <CheckCircle2
+                            aria-hidden="true"
+                            className="h-5 w-5 shrink-0 text-green-500"
+                        />
+                    ) : (
+                        <Clock3
+                            aria-hidden="true"
+                            className="h-5 w-5 shrink-0 text-gray-300"
+                        />
+                    )}
+
+                    <span>{availability.label}</span>
+                </p>
+            </div>
+        </li>
+    );
+};
+
+export default CartItemRow;
