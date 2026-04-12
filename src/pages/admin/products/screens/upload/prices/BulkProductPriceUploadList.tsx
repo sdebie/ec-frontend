@@ -162,7 +162,7 @@ const BulkProductUploadList = () => {
 
     return (
         <div>
-            <h1 className="text-2xl font-bold mb-4">Product Upload List</h1>
+            <h1 className="text-2xl font-bold mb-4">Product Price Upload List</h1>
             <DataTable
                 data={productPriceUploadList}
                 columns={columns}

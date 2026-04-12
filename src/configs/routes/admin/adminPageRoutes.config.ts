@@ -68,6 +68,26 @@ const adminPageOnlyRoutes: PageRoutes = [
             pageContainerType: 'contained',
         },
     },
+    {
+        key: 'admin.imports.bulk.products.price',
+        path: '/admin/imports/products/price/bulk-upload',
+        component: lazy(() => import('@/pages/admin/products/screens/upload/prices/ProductPriceBulkUpload.tsx')),
+        authority: ['SUPER_ADMIN'],
+        meta: {
+            pageBackgroundType: 'plain',
+            pageContainerType: 'contained',
+        },
+    },
+    {
+        key: 'admin.imports.bulk.products.price.review',
+        path: '/admin/imports/products/price/bulk-upload/review/:batchId',
+        component: lazy(() => import('@/pages/admin/products/screens/upload/prices/ProductPriceImportReview.tsx')),
+        authority: ['SUPER_ADMIN'],
+        meta: {
+            pageBackgroundType: 'plain',
+            pageContainerType: 'contained',
+        },
+    },
 ]
 
 export const adminRoutingRoutes: PageRoutes = [

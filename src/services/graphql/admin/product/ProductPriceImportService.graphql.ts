@@ -11,11 +11,11 @@ const graphQLEndpoint = getServiceEndpoint(8080) + '/api/graphql';
 export async function apiGetProductPriceImportRows(batchId: string): Promise<ProductPriceUploadStaged[]> {
 	const client = await GraphQLService.getGraphQLClient(graphQLEndpoint);
 
-	const result = await client.request<{ importRows: ProductPriceUploadStaged[] }>(PRODUCT_PRICE_IMPORT_ROWS, {
+	const result = await client.request<{ getPriceImportRows: ProductPriceUploadStaged[] }>(PRODUCT_PRICE_IMPORT_ROWS, {
 		batchId,
 	});
 
-	return result.importRows ?? [];
+	return result.getPriceImportRows ?? [];
 }
 
 export async function apiGetProductPriceUploadBatches(): Promise<ProductUploadBatch[]> {
