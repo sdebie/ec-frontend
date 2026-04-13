@@ -21,29 +21,15 @@ export type ProductShoppingListItem = {
 	id: string;
 	name: string;
 	shortDescription?: string | null;
+	productType?: string | null;
 	variantCount?: number | null;
+	variantId?: string | null;
 	images?: ProductImage[] | null;
 	retailPrice?: VariantPrice | null;
 	wholesalePrice?: VariantPrice | null;
 	retailSalePrice?: VariantPrice | null;
 	wholesaleSalePrice?: VariantPrice | null;
 };
-
-export type ProductOnSaleListItem = {
-	product?: {
-		id: string;
-		slug?: string | null;
-		name?: string | null;
-		description?: string | null;
-		shortDescription?: string | null;
-		productType?: string | null;
-		createdAt?: string | null;
-		category?: { id: string; name?: string | null; slug?: string | null } | null;
-		brand?: { id: string; name?: string | null; slug?: string | null } | null;
-	} | null;
-	variants?: ProductVariant[] | null;
-};
-
 
 export type VariantPrice = {
 	id: string;

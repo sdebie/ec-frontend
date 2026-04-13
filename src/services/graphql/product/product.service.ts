@@ -5,7 +5,6 @@ import {
 	ProductListItem,
 	ProductShoppingListItem,
 	ProductInformation,
-	ProductOnSaleListItem,
 	VariantItem,
 } from "@/types/admin/ProductTypes.ts";
 import {
@@ -53,10 +52,10 @@ export async function apiGetShoppingProductsList(
 	return result.shoppingProductList ?? [];
 }
 
-export async function apiGetProductOnSaleList(pageRequest?: PageRequest | null): Promise<ProductOnSaleListItem[]> {
+export async function apiGetProductOnSaleList(pageRequest?: PageRequest | null): Promise<ProductShoppingListItem[]> {
 	const client = await GraphQLService.getGraphQLClient(graphQLEndpoint);
 
-	const result = await client.request<{ saleProductList: ProductOnSaleListItem[] }>(GET_SALE_PRODUCTS_LIST, {
+	const result = await client.request<{ saleProductList: ProductShoppingListItem[] }>(GET_SALE_PRODUCTS_LIST, {
 		pageRequest,
 	});
 

@@ -51,7 +51,8 @@ const ProductList: React.FC<ProductListProps> = ({ activeCategory }) => {
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
         {items.map((p) => {
           const mainImage = p.images?.[0]?.imageUrl;
-          const primaryVariantId = p.variantCount;
+          const primaryVariantId = p.variantId;
+          const variantCount = p.variantCount;
           const retailPrice = toPriceNumber(p.retailPrice) ?? 0;
           const retailSalePrice = toPriceNumber(p.retailSalePrice);
           const wholesalePrice = toPriceNumber(p.wholesalePrice) ?? 0;
@@ -107,28 +108,33 @@ const ProductList: React.FC<ProductListProps> = ({ activeCategory }) => {
                   </div>
                 </div>
                 <div className="flex items-center justify-between gap-2">
-                  <button
-                      onClick={() => {
-                        if (!primaryVariantId) return;
+                  {primaryVariantId && (
+                    <button
+                        onClick={() => {
+                          const orderItem = {
+                              quantity: 1,
+                              unitPrice: selectedRetailPrice,
+                              variant: String(primaryVariantId),
+                          };
 
-                        const orderItem = {
-                            quantity: 1,
-                            unitPrice: selectedRetailPrice,
-                            variant: String(primaryVariantId),
-                        };
-
-                        createOrder({
-                            items: [orderItem],
-                        });
-                      }}
-                      disabled={!primaryVariantId}
-                      className="px-3 py-1.5 bg-blue-600 text-white rounded hover:bg-blue-700 text-sm whitespace-nowrap"
-                  >
-                    Add to Cart
-                  </button>
-                  <Link to={`/product/${p.id}`} className="px-3 py-1.5 bg-gray-300 text-gray-900 rounded hover:bg-gray-400 text-sm whitespace-nowrap">
-                    View
-                  </Link>
+                          createOrder({
+                              items: [orderItem],
+                          });
+                        }}
+                        className="px-3 py-1.5 bg-blue-600 text-white rounded hover:bg-blue-700 text-sm whitespace-nowrap"
+                    >
+                      Add to Cart
+                    </button>
+                  )}
+                  {primaryVariantId ? (
+                    <Link to={`/product/${p.id}`} className="px-3 py-1.5 bg-gray-300 text-gray-900 rounded hover:bg-gray-400 text-sm whitespace-nowrap">
+                      View
+                    </Link>
+                  ) : (
+                      <Link to={`/product/${p.id}`} className="px-3 py-1.5 bg-gray-300 text-gray-900 rounded hover:bg-gray-400 text-sm whitespace-nowrap">
+                        <span className="text-sm text-gray-500 whitespace-nowrap">Select 1 of {variantCount} options</span>
+                      </Link>
+                  )}
                 </div>
               </div>
             </div>

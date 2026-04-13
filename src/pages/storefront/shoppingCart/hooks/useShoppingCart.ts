@@ -49,6 +49,7 @@ export const useShoppingCart = (): UseCartReturn => {
             }
 
             try {
+                console.log("variantIds :" + variantIds.length);
                 const variants = await fetchVariantsByIds(variantIds);
                 const variantMap = new Map<string, any>();
 

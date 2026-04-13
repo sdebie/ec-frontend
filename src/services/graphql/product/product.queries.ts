@@ -20,7 +20,9 @@ export const GET_SHOPPING_PRODUCTS_LIST = gql`
             id
             name
             shortDescription
+            productType
             variantCount
+            variantId
             images {
                 id
                 imageUrl
@@ -70,46 +72,53 @@ export const GET_SHOPPING_PRODUCTS_LIST = gql`
 export const GET_SALE_PRODUCTS_LIST = gql`
     query GetSaleProductsList($pageRequest: PageRequestInput) {
         saleProductList(pageRequest: $pageRequest) {
-            product {
+            id
+            name
+            shortDescription
+            productType
+            variantCount
+            variantId
+            images {
                 id
-                slug
-                name
-                description
-                shortDescription
-                productType
-                createdAt
-                category {
-                    id
-                    name
-                    slug
-                }
-                brand {
-                    id
-                    name
-                    slug
-                }
+                imageUrl
+                sortOrder
+                isFeatured: featured
             }
-            variants {
+            retailPrice {
                 id
-                sku
-                stockQuantity
-                weightKg
-                attributesJson
-                prices {
-                    id
-                    priceType
-                    price
-                    priceStartDate
-                    priceEndDate
-                    isActive: active
-                    saleDaysRemaining
-                }
-                images {
-                    id
-                    imageUrl
-                    sortOrder
-                    isFeatured: featured
-                }
+                priceType
+                price
+                priceStartDate
+                priceEndDate
+                isActive: active
+                saleDaysRemaining
+            }
+            wholesalePrice {
+                id
+                priceType
+                price
+                priceStartDate
+                priceEndDate
+                isActive: active
+                saleDaysRemaining
+            }
+            retailSalePrice {
+                id
+                priceType
+                price
+                priceStartDate
+                priceEndDate
+                isActive: active
+                saleDaysRemaining
+            }
+            wholesaleSalePrice {
+                id
+                priceType
+                price
+                priceStartDate
+                priceEndDate
+                isActive: active
+                saleDaysRemaining
             }
         }
     }
@@ -249,4 +258,3 @@ export const GET_TOP_BEST_SELLERS = gql`
         }
     }
 `;
-

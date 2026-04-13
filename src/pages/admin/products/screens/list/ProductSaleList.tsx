@@ -2,26 +2,12 @@ import { ColumnDef } from "@tanstack/react-table";
 import { DataTable } from "@/components/shared/datatable/DataTable.tsx";
 import { Button } from "@/components";
 import { apiGetProductOnSaleList } from "@/services/graphql/product/product.service.ts";
-import type { ProductOnSaleListItem } from "@/types/admin/ProductTypes.ts";
+import type { ProductShoppingListItem } from "@/types/admin/ProductTypes.ts";
 import { PenLine } from "lucide-react";
 import { useEffect, useMemo, useState } from "react";
 import { useNavigate } from "react-router-dom";
 
-type SaleVariantRow = {
-    product?: ProductOnSaleListItem["product"] | null;
-    productImages?: NonNullable<NonNullable<ProductOnSaleListItem["variants"]>[number]["images"]>;
-    variant: {
-        id: string;
-        sku?: string | null;
-        stockQuantity?: number | null;
-        weightKg?: string | null;
-        attributesJson?: string | null;
-        retailSalesPrice?: number | null;
-        retailSaleDaysRemaining?: number | null;
-        wholesaleSalesPrice?: number | null;
-        wholesaleSaleDaysRemaining?: number | null;
-    };
-};
+type SaleProductRow = ProductShoppingListItem;
 
 const formatPrice = (price?: number | null) =>
     price != null ? `R ${price.toFixed(2)}` : "-";
@@ -29,7 +15,7 @@ const formatPrice = (price?: number | null) =>
 const ProductSaleList = () => {
     const navigate = useNavigate();
 
-    const [products, setProducts] = useState<SaleVariantRow[]>([]);
+    const [products, setProducts] = useState<SaleProductRow[]>([]);
     const [isLoading, setIsLoading] = useState(true);
     const [errorMsg, setErrorMsg] = useState("");
 
@@ -42,9 +28,8 @@ const ProductSaleList = () => {
                 setErrorMsg("");
 
                 const result = await apiGetProductOnSaleList();
-                const flattened = flattenSalesProducts(result);
                 if (!isActive) return;
-                setProducts(flattened);
+                setProducts(result ?? []);
             } catch (error) {
                 console.error("Failed to fetch sale products:", error);
                 if (isActive) {
@@ -64,73 +49,42 @@ const ProductSaleList = () => {
         };
     }, []);
 
-      function flattenSalesProducts(items: ProductOnSaleListItem[]): SaleVariantRow[] {
-        return (items ?? []).flatMap((item) => {
-          const variants = item.variants ?? [];
-          return variants.map((variant) => {
-            const retailSalePrice = variant.prices?.find((p) => p.priceType === "RETAIL_SALE_PRICE")?.price ?? null;
-            const retailSaleDaysRemaining = variant.prices?.find((p) => p.priceType === "RETAIL_SALE_PRICE")?.saleDaysRemaining ?? null;
-            const wholesaleSalePrice = variant.prices?.find((p) => p.priceType === "WHOLESALE_SALE_PRICE")?.price ?? null;
-            const wholesaleSaleDaysRemaining = variant.prices?.find((p) => p.priceType === "WHOLESALE_SALE_PRICE")?.saleDaysRemaining ?? null;
-
-            return {
-              product: item.product,
-              productImages: variant.images ?? [],
-              variant: {
-                id: variant.id,
-                sku: variant.sku,
-                stockQuantity: variant.stockQuantity,
-                weightKg: variant.weightKg,
-                attributesJson: variant.attributesJson,
-                retailSalesPrice: retailSalePrice,
-                retailSaleDaysRemaining,
-                wholesaleSalesPrice: wholesaleSalePrice,
-                wholesaleSaleDaysRemaining,
-                retailPrice: null,
-                wholesalePrice: null,
-              },
-            };
-          });
-        });
-      }
-
-    function handleEdit(productItem: SaleVariantRow) {
-        const productId = productItem.product?.id;
-        if (!productId) return;
-        navigate(`/admin/product/detail/${productId}`);
+    function handleEdit(productItem: SaleProductRow) {
+        if (!productItem.id) return;
+        navigate(`/admin/product/detail/${productItem.id}`);
     }
 
-    const columns: ColumnDef<SaleVariantRow>[] = useMemo(
+    const columns: ColumnDef<SaleProductRow>[] = useMemo(
         () => [
             {
                 id: "name",
-                accessorFn: (row) => row.product?.name ?? "",
+                accessorFn: (row) => row.name ?? "",
                 header: "Product Name",
                 enableSorting: true,
                 cell: ({ row }) => (
                     <div className="w-100 truncate flex flex-col">
-                        <span>{row.original.product?.name ?? "-"}</span>
-                        <span className="text-xs text-gray-500">{row.original.product?.description ?? "-"}</span>
+                        <span>{row.original.name ?? "-"}</span>
+                        <span className="text-xs text-gray-500">{row.original.shortDescription ?? "-"}</span>
                     </div>
                 ),
             },
             {
-                id: "sku",
-                accessorFn: (row) => row.variant?.sku ?? "",
-                header: "SKU",
+                id: "productType",
+                accessorFn: (row) => row.productType ?? "",
+                header: "Type",
                 enableSorting: true,
-                cell: ({ row }) => row.original.variant?.sku ?? "-",
+                cell: ({ row }) => row.original.productType ?? "-",
             },
             {
-                id: "categoryName",
-                accessorFn: (row) => row.product?.category?.name ?? "",
-                header: "Category",
+                id: "variantCount",
+                accessorFn: (row) => row.variantCount ?? 0,
+                header: "Variants",
                 enableSorting: true,
-                cell: ({ row }) => row.original.product?.category?.name ?? "-",
+                cell: ({ row }) => row.original.variantCount ?? "-",
             },
             {
                 id: "wholesaleSalesPrice",
-                accessorFn: (row) => row.variant?.wholesaleSalesPrice ?? null,
+                accessorFn: (row) => row.wholesaleSalePrice?.price ?? null,
                 header: () => (
                     <div>
                         Wholesale
@@ -139,11 +93,11 @@ const ProductSaleList = () => {
                     </div>
                 ),
                 enableSorting: true,
-                cell: ({ row }) => formatPrice(row.original.variant?.wholesaleSalesPrice),
+                cell: ({ row }) => formatPrice(row.original.wholesaleSalePrice?.price ?? null),
             },
             {
                 id: "wholesaleSaleDaysRemaining",
-                accessorFn: (row) => row.variant?.wholesaleSaleDaysRemaining ?? null,
+                accessorFn: (row) => row.wholesaleSalePrice?.saleDaysRemaining ?? null,
                 header: () => (
                     <div>
                         Wholesale
@@ -152,11 +106,11 @@ const ProductSaleList = () => {
                     </div>
                 ),
                 enableSorting: true,
-                cell: ({ row }) => row.original.variant?.wholesaleSaleDaysRemaining ?? "-",
+                cell: ({ row }) => row.original.wholesaleSalePrice?.saleDaysRemaining ?? "-",
             },
             {
                 id: "retailSalesPrice",
-                accessorFn: (row) => row.variant?.retailSalesPrice ?? null,
+                accessorFn: (row) => row.retailSalePrice?.price ?? null,
                 header: () => (
                     <div>
                         Retail
@@ -165,11 +119,11 @@ const ProductSaleList = () => {
                     </div>
                 ),
                 enableSorting: true,
-                cell: ({ row }) => formatPrice(row.original.variant?.retailSalesPrice),
+                cell: ({ row }) => formatPrice(row.original.retailSalePrice?.price ?? null),
             },
             {
                 id: "retailSaleDaysRemaining",
-                accessorFn: (row) => row.variant?.retailSaleDaysRemaining ?? null,
+                accessorFn: (row) => row.retailSalePrice?.saleDaysRemaining ?? null,
                 header: () => (
                     <div>
                         Retail
@@ -178,14 +132,7 @@ const ProductSaleList = () => {
                     </div>
                 ),
                 enableSorting: true,
-                cell: ({ row }) => row.original.variant?.retailSaleDaysRemaining ?? "-",
-            },
-            {
-                id: "stockQuantity",
-                accessorFn: (row) => row.variant?.stockQuantity ?? null,
-                header: "Stock",
-                enableSorting: true,
-                cell: ({ row }) => row.original.variant?.stockQuantity ?? "-",
+                cell: ({ row }) => row.original.retailSalePrice?.saleDaysRemaining ?? "-",
             },
             {
                 id: "actions",
@@ -197,7 +144,7 @@ const ProductSaleList = () => {
                             variant="solid"
                             size="sm"
                             onClick={() => handleEdit(props.row.original)}
-                            disabled={!props.row.original.product?.id}
+                            disabled={!props.row.original.id}
                         >
                             <PenLine size={12} />
                         </Button>
