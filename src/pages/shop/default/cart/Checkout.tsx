@@ -1,7 +1,7 @@
 import React, {useEffect, useMemo, useState} from 'react';
 import {useNavigate} from 'react-router-dom';
-import {apiOrderById, apiOrderBySessionId, apiUpdateOrderStatus} from '@/services/OrderService.ts';
-import {OrderData} from './types.ts';
+import {apiOrderById, apiOrderBySessionId, apiUpdateOrderStatus} from '@/services/graphql/order/OrderService.graphql.ts';
+import {OrderData} from '@/types/order.types.ts';
 import {CartStore} from '@/store/cartStore.ts';
 import {
     ShippingMethod,

@@ -1,19 +1,27 @@
 import React, { useEffect, useState } from 'react';
-import { fetchProductsList } from '@/services/graphql/product/product.service.ts';
-import type { ProductListItem } from '@/types/admin/ProductTypes.ts';
+import { apiGetShoppingProductsList } from '@/services/graphql/product/product.service.ts';
+import { ProductShoppingListItem, VariantPrice } from '@/types/admin/ProductTypes.ts';
 import { useAddToCart } from '@/pages/shop/default/cart/hook/useAddToCart.ts';
 import { Link } from "react-router-dom";
 import ProductImage from "@/components/shared/imageupload/ProductImage.tsx";
 
-const currency = (val?: number | null) =>
-  typeof val === 'number' ? `R ${val.toFixed(2)}` : '—';
+const toPriceNumber = (val?: VariantPrice | number | null): number | null => {
+  if (typeof val === 'number') return val;
+  if (val && typeof val.price === 'number') return val.price;
+  return null;
+};
+
+const currency = (val?: VariantPrice | number | null) => {
+  const amount = toPriceNumber(val);
+  return amount != null ? `R ${amount.toFixed(2)}` : '—';
+};
 
 interface ProductListProps {
   activeCategory: string;
 }
 
 const ProductList: React.FC<ProductListProps> = ({ activeCategory }) => {
-  const [items, setItems] = useState<ProductListItem[]>([]);
+  const [items, setItems] = useState<ProductShoppingListItem[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const { createOrder } = useAddToCart();
@@ -22,7 +30,7 @@ const ProductList: React.FC<ProductListProps> = ({ activeCategory }) => {
     (async () => {
       try {
         setLoading(true);
-        const list = await fetchProductsList(activeCategory);
+        const list = await apiGetShoppingProductsList(activeCategory);
         setItems(list);
       } catch (e: any) {
         console.error('Failed to load products', e);
@@ -42,11 +50,14 @@ const ProductList: React.FC<ProductListProps> = ({ activeCategory }) => {
 
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
         {items.map((p) => {
-          const mainImage = p.imageName;
-          const primaryVariantId = p.variantIds?.[0];
-          const retailPrice = p.retailPrice ?? 0;
-          const selectedRetailPrice = p.retailSalesPrice != null && p.retailSalesPrice < retailPrice
-            ? p.retailSalesPrice
+          const mainImage = p.images?.[0]?.imageUrl;
+          const primaryVariantId = p.variantCount;
+          const retailPrice = toPriceNumber(p.retailPrice) ?? 0;
+          const retailSalePrice = toPriceNumber(p.retailSalePrice);
+          const wholesalePrice = toPriceNumber(p.wholesalePrice) ?? 0;
+          const wholesaleSalePrice = toPriceNumber(p.wholesaleSalePrice);
+          const selectedRetailPrice = retailSalePrice != null && retailSalePrice < retailPrice
+            ? retailSalePrice
             : retailPrice;
 
           return (
@@ -60,7 +71,7 @@ const ProductList: React.FC<ProductListProps> = ({ activeCategory }) => {
                   />
                 ) : (
                   <img
-                    src="/img/default-product.png"
+                    src={mainImage}
                     alt={p.name}
                     className="w-full h-40 object-cover"
                   />
@@ -68,30 +79,30 @@ const ProductList: React.FC<ProductListProps> = ({ activeCategory }) => {
               </div>
               <div className="p-4">
                 <div className="font-semibold text-gray-900 mb-1">{p.name}</div>
-                <div className="text-sm text-gray-600 mb-3 line-clamp-3">{p.description}</div>
+                <div className="text-sm text-gray-600 mb-3 line-clamp-3">{p.shortDescription}</div>
                 <div className="flex items-center justify-between gap-2">
                   <div>
-                    {p.retailSalesPrice && p.retailSalesPrice < (p.retailPrice || 0) ? (
+                    {retailSalePrice != null && retailSalePrice < retailPrice ? (
                       <>
-                        <div className="text-lg font-bold text-green-600">{currency(p.retailSalesPrice)}</div>
+                        <div className="text-lg font-bold text-green-600">{currency(retailSalePrice)}</div>
                         <div className="text-sm text-gray-500 line-through">
-                          {currency(p.retailPrice)}
+                          {currency(retailPrice)}
                         </div>
                       </>
                     ) : (
-                      <div className="text-lg font-bold">{currency(p.retailPrice)}</div>
+                      <div className="text-lg font-bold">{currency(retailPrice)}</div>
                     )}
                   </div>
                   <div>
-                    {p.wholesaleSalesPrice && p.wholesaleSalesPrice < (p.wholesalePrice || 0) ? (
+                    {wholesaleSalePrice != null && wholesaleSalePrice < wholesalePrice ? (
                         <>
-                          <div className="text-lg font-bold text-green-600">{currency(p.wholesaleSalesPrice)}</div>
+                          <div className="text-lg font-bold text-green-600">{currency(wholesaleSalePrice)}</div>
                           <div className="text-sm text-gray-500 line-through">
-                            {currency(p.wholesalePrice)}
+                            {currency(wholesalePrice)}
                           </div>
                         </>
                     ) : (
-                        <div className="text-lg font-bold">{currency(p.wholesalePrice)}</div>
+                        <div className="text-lg font-bold">{currency(wholesalePrice)}</div>
                     )}
                   </div>
                 </div>
@@ -101,13 +112,13 @@ const ProductList: React.FC<ProductListProps> = ({ activeCategory }) => {
                         if (!primaryVariantId) return;
 
                         const orderItem = {
-							quantity: 1,
-							unitPrice: selectedRetailPrice,
-							variant: primaryVariantId,
-						};
+                            quantity: 1,
+                            unitPrice: selectedRetailPrice,
+                            variant: String(primaryVariantId),
+                        };
 
                         createOrder({
-							items: [orderItem],
+                            items: [orderItem],
                         });
                       }}
                       disabled={!primaryVariantId}

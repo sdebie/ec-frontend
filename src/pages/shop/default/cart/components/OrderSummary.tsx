@@ -1,6 +1,6 @@
 import React from 'react';
 import { ShoppingBag } from 'lucide-react';
-import { OrderData } from '../types.ts';
+import { OrderData, asVariant } from '@/types/order.types.ts';
 import { ShippingMethod } from '../../../../../services/StoreSettings.ts';
 
 interface Props {
@@ -40,12 +40,13 @@ const OrderSummary: React.FC<Props> = ({
               const qty = Number(item.quantity || 0);
               const price = Number(item.unitPrice || 0);
               const lineTotal = qty * price;
+              const variant = asVariant(item.variant);
               return (
                 <div key={idx} className="flex items-start justify-between text-sm">
                   <div className="max-w-[65%]">
-                    <p className="font-medium text-gray-800 truncate">{item?.variant?.product?.name ?? 'Product'}</p>
-                    {item?.variant?.attributesJson ? (
-                      <p className="text-xs text-gray-500 truncate">{item.variant.attributesJson}</p>
+                    <p className="font-medium text-gray-800 truncate">{variant?.product?.name ?? 'Product'}</p>
+                    {variant?.attributesJson ? (
+                      <p className="text-xs text-gray-500 truncate">{variant.attributesJson}</p>
                     ) : null}
                     <p className="text-xs text-gray-500">Qty: {qty} × R{price.toFixed(2)}</p>
                   </div>

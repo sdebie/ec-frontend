@@ -1,8 +1,8 @@
 import React, {useEffect, useMemo, useState} from 'react';
 import {useNavigate} from 'react-router-dom';
 
-import {OrderItemsData, OrderData} from './types.ts';
-import {createOrder} from '@/services/OrderService.ts';
+import {OrderItemData as OrderItemsData, OrderInput, asVariant} from '@/types/order.types.ts';
+import {apiCreateOrder} from '@/services/graphql/order/OrderService.graphql.ts';
 import {fetchVariantsByIds} from '@/services/graphql/product/product.service.ts';
 import {CartStore} from "@/store/CartStore.ts";
 
@@ -109,16 +109,16 @@ const Cart: React.FC = () => {
         if (!hasItems || placingOrder) return;
         setPlacingOrder(true);
         try {
-            const payload: OrderData = {
-                sessionId: CartStore.getOrderSessionId(), items: items.map(i => ({
+            const payload: OrderInput = {
+                sessionId: CartStore.getOrderSessionId() ?? undefined,
+                items: items.map(i => ({
                     unitPrice: i.unitPrice,
                     quantity: i.quantity,
                     // Always send only the variant ID to backend
-                    variant: typeof i.variant === 'string' ? i.variant : i.variant?.id,
-
+                    variant: typeof i.variant === 'string' ? i.variant : asVariant(i.variant)?.id,
                 }))
             };
-            await createOrder<OrderData>(payload);
+            await apiCreateOrder(payload);
             navigate('/checkout');
         } catch (err) {
             console.error('Failed to create order before checkout', err);
@@ -150,21 +150,23 @@ const Cart: React.FC = () => {
             {hasItems && (
                 <div className="space-y-4">
                     <div className="bg-white border rounded divide-y">
-                        {items.map((it, idx) => (
+                        {items.map((it, idx) => {
+                            const variant = asVariant(it.variant);
+                            return (
                             <div key={idx} className="p-4 flex items-center justify-between">
                                 <div className="text-sm text-gray-800">
-                                    <div className="font-medium">{it?.variant?.product?.name ?? 'Item'}</div>
-                                    <div className="font-medium">{it?.variant?.attributesJson ?? 'Item'}</div>
+                                    <div className="font-medium">{variant?.product?.name ?? 'Item'}</div>
+                                    <div className="font-medium">{variant?.attributesJson ?? 'Item'}</div>
                                     <div className="flex items-center gap-2 text-gray-500 mt-2">
                                         <button
-                                            onClick={() => handleQuantityChange(idx, it.quantity - 1)}
+                                            onClick={() => handleQuantityChange(idx, (it.quantity ?? 0) - 1)}
                                             className="px-2 py-1 border rounded"
                                         >
                                             -
                                         </button>
                                         <span>{it.quantity}</span>
                                         <button
-                                            onClick={() => handleQuantityChange(idx, it.quantity + 1)}
+                                            onClick={() => handleQuantityChange(idx, (it.quantity ?? 0) + 1)}
                                             className="px-2 py-1 border rounded"
                                         >
                                             +
@@ -180,7 +182,8 @@ const Cart: React.FC = () => {
                                 <div
                                     className="text-sm text-gray-700">{currency((it.unitPrice || 0) * (it.quantity || 0))}</div>
                             </div>
-                        ))}
+                            );
+                        })}
                     </div>
 
                     <div className="flex items-center justify-between text-lg font-semibold">

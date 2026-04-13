@@ -2,7 +2,7 @@
 import React, {useMemo} from 'react';
 import {CheckCircle2, ChevronDown, Clock3, ShoppingBag, Trash2,} from 'lucide-react';
 import {currency, getAvailability, getQuantityOptions,} from '@/utils/storefront/cart.utils.ts';
-import {OrderItemsData} from "@/pages/shop/default/cart/types.ts";
+import {OrderItemData as OrderItemsData, asVariant} from "@/types/order.types.ts";
 import ProductImage from "@/components/shared/imageupload/ProductImage.tsx";
 import {formatAttributes} from "@/utils/formatAttributes.ts";
 
@@ -23,6 +23,7 @@ const CartItemRow: React.FC<CartItemRowProps> = ({
     const quantityOptions = getQuantityOptions(quantity);
     const lineTotal = Number(item.unitPrice || 0) * quantity;
     const availability = getAvailability(item);
+    const variant = asVariant(item.variant);
 
     const thumbnailFileName = useMemo(() => {
         if (typeof item.variant === 'string') return undefined;
@@ -49,7 +50,7 @@ const CartItemRow: React.FC<CartItemRowProps> = ({
                     {thumbnailFileName ? (
                         <ProductImage
                             fileName={thumbnailFileName}
-                            alt={item?.variant?.product?.name ?? 'Product image'}
+                            alt={variant?.product?.name ?? 'Product image'}
                             className="rounded-md object-cover"
                         />
                     ) : (
@@ -63,12 +64,12 @@ const CartItemRow: React.FC<CartItemRowProps> = ({
                     <div>
                         <div className="flex justify-between gap-4">
                             <h3 className="text-sm font-medium text-gray-900">
-                                {item?.variant?.product?.name ?? 'Item'}
+                                {variant?.product?.name ?? 'Item'}
                             </h3>
                         </div>
 
                         <div className="mt-1 flex flex-wrap text-sm text-gray-500">
-                            <p> {formatAttributes(item?.variant?.attributesJson) ?? 'Standard item'}</p>
+                            <p> {formatAttributes(variant?.attributesJson) ?? 'Standard item'}</p>
                         </div>
 
                         <p className="mt-3 text-sm font-medium text-gray-900">
@@ -82,7 +83,7 @@ const CartItemRow: React.FC<CartItemRowProps> = ({
 
                     <div className="mt-4 sm:mt-0 sm:pr-9">
                         <label htmlFor={`quantity-${index}`} className="sr-only">
-                            Quantity, {item?.variant?.product?.name ?? 'Item'}
+                            Quantity, {variant?.product?.name ?? 'Item'}
                         </label>
 
                         <div className="grid w-full max-w-20 grid-cols-1">
@@ -93,7 +94,7 @@ const CartItemRow: React.FC<CartItemRowProps> = ({
                                 onChange={(event) =>
                                     onQuantityChange(index, Number(event.target.value))
                                 }
-                                aria-label={`Quantity, ${item?.variant?.product?.name ?? 'Item'}`}
+                                aria-label={`Quantity, ${variant?.product?.name ?? 'Item'}`}
                                 className="col-start-1 row-start-1 appearance-none rounded-md bg-white py-2 pr-8 pl-3 text-base text-gray-900 outline-1 -outline-offset-1 outline-gray-300 focus:outline-2 focus:-outline-offset-2 focus:outline-indigo-600 sm:text-sm"
                             >
                                 {quantityOptions.map((option) => (

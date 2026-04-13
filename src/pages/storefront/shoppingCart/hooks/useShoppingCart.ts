@@ -1,10 +1,10 @@
 import {useCallback, useEffect, useMemo, useState} from 'react';
 import {useNavigate} from 'react-router-dom';
 import {CartStore} from '@/store/CartStore.ts';
-import {createOrder} from '@/services/OrderService.ts';
+import {apiCreateOrder} from '@/services/graphql/order/OrderService.graphql.ts';
 import {fetchVariantsByIds} from '@/services/graphql/product/product.service.ts';
 import {getVariantId, LS_KEY} from '../../../../utils/storefront/cart.utils.ts';
-import {OrderData, OrderItemsData} from "@/pages/shop/default/cart/types.ts";
+import {OrderInput, OrderItemData as OrderItemsData} from "@/types/order.types.ts";
 
 type UseCartReturn = {
     items: OrderItemsData[];
@@ -154,7 +154,7 @@ export const useShoppingCart = (): UseCartReturn => {
         setPlacingOrder(true);
 
         try {
-            const payload: OrderData = {
+            const payload: OrderInput = {
                 sessionId: CartStore.getOrderSessionId() ?? undefined,
                 items: items.map((item) => ({
                     unitPrice: item.unitPrice,
@@ -163,7 +163,7 @@ export const useShoppingCart = (): UseCartReturn => {
                 })),
             };
 
-            await createOrder<OrderData>(payload);
+            await apiCreateOrder(payload);
             navigate('/checkout');
         } catch (error) {
             console.error('Failed to create order before checkout', error);

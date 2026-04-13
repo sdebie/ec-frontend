@@ -1,4 +1,4 @@
-import {OrderItemsData} from "@/pages/shop/default/cart/types.ts";
+import {OrderItemData as OrderItemsData, asVariant} from "@/types/order.types.ts";
 
 export const LS_KEY = 'ec_cart_order_items';
 
@@ -14,8 +14,9 @@ export const getQuantityOptions = (quantity?: number | null) => {
 };
 
 export const getAvailability = (item: OrderItemsData) => {
-    if (typeof item?.variant?.stockQuantity === 'number') {
-        return item.variant.stockQuantity > 0
+    const variant = asVariant(item?.variant);
+    if (typeof variant?.stockQuantity === 'number') {
+        return variant.stockQuantity > 0
             ? {label: 'In stock', inStock: true}
             : {label: 'Currently unavailable', inStock: false};
     }

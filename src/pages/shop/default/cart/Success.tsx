@@ -1,5 +1,5 @@
 import {useEffect, useState} from 'react';
-import {apiOrderById, apiOrderBySessionId} from '@/services/OrderService.ts';
+import {apiOrderById, apiOrderBySessionId} from '@/services/graphql/order/OrderService.graphql.ts';
 import {CartStore} from '@/store/CartStore.ts';
 import {OrderStatus} from '@/constants/enums/OrderStatus.ts';
 

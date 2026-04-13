@@ -1,6 +1,6 @@
 import {useState} from "react";
-import { addToCart as addToCartService } from "../../../../../services/OrderService.ts";
-import { OrderData } from "../types.ts";
+import { addToCart as addToCartService } from "@/services/graphql/order/OrderService.graphql.ts";
+import { OrderData } from "@/types/order.types.ts";
 
 export function useAddToCart() {
 

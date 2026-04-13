@@ -1,6 +1,7 @@
 import React from 'react';
 import {ShoppingBag} from 'lucide-react';
-import type {OrderData} from '@/pages/shop/default/cart/types.ts';
+import type {OrderData} from '@/types/order.types.ts';
+import {asVariant} from '@/types/order.types.ts';
 import type {ShippingMethod} from '@/services/StoreSettings.ts';
 import {formatCurrency} from './helpers.ts';
 import OrderSummaryItem from './OrderSummaryItem.tsx';
@@ -40,7 +41,7 @@ const OrderSummary: React.FC<Props> = ({
                 <>
                     <ul className="space-y-4">
                         {(order?.items || []).map((item, index) => (
-                            <OrderSummaryItem key={`${item?.variant?.id || 'item'}-${index}`} item={item}
+                            <OrderSummaryItem key={`${asVariant(item?.variant)?.id || 'item'}-${index}`} item={item}
                                               index={index}/>
                         ))}
                     </ul>
