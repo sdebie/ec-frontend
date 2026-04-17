@@ -1,7 +1,7 @@
 import React, {useState, useRef, useEffect} from 'react';
 import {clsx} from 'clsx';
 import {UploadCloud, ImageIcon, CheckCircle2, X} from 'lucide-react';
-import ImageService from '@/services/ImageService';
+import ImageServiceRest from '@/services/rest/admin/ImageService.rest.ts';
 
 export type ImageType = 'product' | 'category' | 'brand';
 
@@ -66,14 +66,14 @@ export const ImageUpload: React.FC<ImageUploadProps> = ({
     const uploadByType = async (file: File) => {
         if (type === 'product') {
             if (productVariantId) {
-                return ImageService.uploadProductVariantImage(file, productVariantId);
+                return ImageServiceRest.uploadProductVariantImage(file, productVariantId);
             }
-            return ImageService.uploadImage(file);
+            return ImageServiceRest.uploadImage(file);
         }
         if (type === 'category') {
-            return ImageService.uploadCategoryImage(file);
+            return ImageServiceRest.uploadCategoryImage(file);
         }
-        return ImageService.uploadBrandImage(file);
+        return ImageServiceRest.uploadBrandImage(file);
     };
 
     const handleFileChange = async (event: React.ChangeEvent<HTMLInputElement>) => {

@@ -5,7 +5,7 @@ import { Button, DataTable } from "@/components";
 import type {ProductPriceUploadStaged} from "@/types/admin/ProductTypes.ts";
 import { getProductImportValidationStatus } from "@/constants/enums/ProductImportValidationStatus.ts";
 import {apiGetProductPriceImportRows} from "@/services/graphql/admin/product/ProductPriceImportService.graphql.ts";
-import {processProductPriceUploadBatch} from "@/services/rest/admin/ProductPriceService.rest.ts";
+import {processProductPriceUploadBatch} from "@/services/rest/admin/ProductPriceUploadService.rest.ts";
 
 const ProductImportReview = () => {
     const { batchId } = useParams();

@@ -80,6 +80,32 @@ export const adminMenuRoutes: Routes = [
         ],
     },
     {
+        key: 'admin.orders',
+        path: '/admin/orders',
+        component: lazy(() => import('../../../pages/shared/ToDoView.tsx')),
+        authority: ['SUPER_ADMIN', 'VIEWER'],
+        meta: {
+            label: 'Orders',
+            section: 'PRODUCT MANAGEMENT',
+            pageBackgroundType: 'plain',
+            pageContainerType: 'contained',
+            icon: 'package',
+        },
+        subMenu: [
+            {
+                key: 'admin.orders.list',
+                path: '/admin/orders/list',
+                component: lazy(() => import('@/pages/admin/orders/screens/list/OrderList.tsx')),
+                authority: ['SUPER_ADMIN'],
+                meta: {
+                    label: 'Order List',
+                    pageBackgroundType: 'plain',
+                    pageContainerType: 'contained',
+                },
+            },
+        ],
+    },
+    {
         key: 'admin.imports',
         path: '/admin/imports',
         component: lazy(() => import('../../../pages/shared/ToDoView.tsx')),

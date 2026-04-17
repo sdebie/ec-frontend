@@ -4,6 +4,7 @@ const ORDER_FIELDS = `
     id
     sessionId
     status
+    createDate
     totalAmount
     items {
         id
@@ -50,7 +51,7 @@ export const UPDATE_ORDER_STATUS = gql`
 `;
 
 export const ORDER_BY_ID = gql`
-    query OrderById($id: UUID!) {
+    query OrderById($id: String!) {
         orderById(id: $id) {
             ${ORDER_FIELDS}
         }
@@ -65,3 +66,63 @@ export const ORDER_BY_SESSION_ID = gql`
     }
 `;
 
+export const GET_ORDER_DETAIL = gql`
+    query GetOrderDetail($orderid: String!) {
+        getOrderDetail(orderid: $orderid) {
+            id
+            sessionId
+            totalAmount
+            status
+            createdAt
+            shippingPhone
+            shippingAddressLine1
+            shippingAddressLine2
+            shippingCity
+            shippingProvince
+            shippingPostalCode
+            customerEntity {
+                email
+            }
+            items {
+                id
+                unitPrice
+                quantity
+                variant {
+                    id
+                    stockQuantity
+                    attributesJson
+                    weightKg
+                    product { name }
+                    images {
+                        id
+                        imageUrl
+                        sortOrder
+                    }
+                }
+            }
+            statusHistory {
+                id
+                status
+                comment
+                changedBy
+                createdAt
+            }
+        }
+    }
+`;
+
+export const ALL_ORDERS = gql`
+    query AllOrders($pageRequest: PageRequestInput, $filterRequest: FilterRequestInput) {
+        allOrders(pageRequest: $pageRequest, filterRequest: $filterRequest) {
+            id
+            sessionId
+            status
+            createDate
+            totalAmount
+            itemCount
+            customer {
+                email
+            }
+        }
+    }
+`;

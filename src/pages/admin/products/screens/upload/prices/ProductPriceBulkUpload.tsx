@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { Button } from "@/components";
 import { useNavigate } from 'react-router-dom';
 import { Dialog, DialogContent, DialogFooter, DialogHeader } from "@/components/shared/dialog/Dialog.tsx";
-import {uploadProductPriceCsv} from "@/services/rest/admin/ProductPriceService.rest.ts";
+import {uploadProductPriceCsv} from "@/services/rest/admin/ProductPriceUploadService.rest.ts";
 
 const ProductBulkUpload = () => {
     const [file, setFile] = useState<File | null>(null);

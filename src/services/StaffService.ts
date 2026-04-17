@@ -1,4 +1,4 @@
-import ApiService from './RestApiService';
+import ApiService from './rest/RestApiService.ts';
 import { LoginRequest, LoginResponse, ResetPasswordRequest } from '../types/auth';
 
 const StaffService = {

@@ -1,4 +1,4 @@
-import ApiService from './RestApiService';
+import ApiService from '../RestApiService.ts';
 
 interface ImageUploadResponse {
   fileName: string;
@@ -9,7 +9,7 @@ interface BulkImageUploadResponse {
   skipped: string[];
 }
 
-const ImageService = {
+const ImageServiceRest = {
   uploadImage: (file: File) => {
     const formData = new FormData();
     formData.append('file', file);
@@ -88,4 +88,4 @@ const ImageService = {
   },
 };
 
-export default ImageService;
+export default ImageServiceRest;

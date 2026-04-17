@@ -2,7 +2,7 @@ import {IMAGE_BASE_URL} from "@/constants/api.constant.ts";
 import {useState, useCallback, useEffect, useRef} from "react";
 import {Input, Button} from "@/components";
 import {Check, Loader} from "lucide-react";
-import ImageService from "@/services/ImageService.ts";
+import ImageServiceRest from "@/services/rest/admin/ImageService.rest.ts";
 
 interface ImageGalleryPickerProps {
     images?: string[];
@@ -38,7 +38,7 @@ export const ImageGalleryPicker = ({
 
         setIsLoading(true);
         try {
-            const response = await ImageService.fetchImageFilenamesPaginated(
+            const response = await ImageServiceRest.fetchImageFilenamesPaginated(
                 page,
                 pageSize,
                 search

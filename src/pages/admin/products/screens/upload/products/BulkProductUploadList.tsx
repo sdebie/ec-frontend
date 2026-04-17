@@ -7,7 +7,7 @@ import {
 } from "@/services/graphql/admin/product/ProductImportService.graphql.ts";
 import type {ProductUploadBatch} from "@/types/admin/ProductTypes.ts";
 import {Eye, LoaderCircle, Plus, RefreshCw} from "lucide-react";
-import {getProductUploadBatchProcessStatus} from "@/services/rest/admin/ProductService.rest.ts";
+import {getProductUploadBatchProcessStatus} from "@/services/rest/admin/ProductUploadService.rest.ts";
 
 const BulkProductUploadList = () => {
 

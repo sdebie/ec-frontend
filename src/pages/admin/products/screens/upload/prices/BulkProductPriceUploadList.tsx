@@ -4,7 +4,7 @@ import {useEffect, useMemo, useState} from "react";
 import {ColumnDef} from "@tanstack/react-table";
 import type {ProductUploadBatch} from "@/types/admin/ProductTypes.ts";
 import {Eye, LoaderCircle, Plus, RefreshCw} from "lucide-react";
-import {getProductPriceUploadBatchProcessStatus} from "@/services/rest/admin/ProductPriceService.rest.ts";
+import {getProductPriceUploadBatchProcessStatus} from "@/services/rest/admin/ProductPriceUploadService.rest.ts";
 import {apiGetProductPriceUploadBatches} from "@/services/graphql/admin/product/ProductPriceImportService.graphql.ts";
 
 const BulkProductUploadList = () => {

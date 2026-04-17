@@ -7,7 +7,7 @@ import type { ProductUploadStaged } from "@/types/admin/ProductTypes.ts";
 import {Eye} from "lucide-react";
 import { getProductImportValidationStatus } from "@/constants/enums/ProductImportValidationStatus.ts";
 import ProductImportRowDetailDialog from "@/pages/admin/products/screens/comonents/ProductImportRowDetailDialog.tsx";
-import {processProductUploadBatch} from "@/services/rest/admin/ProductService.rest.ts";
+import {processProductUploadBatch} from "@/services/rest/admin/ProductUploadService.rest.ts";
 
 const ProductImportReview = () => {
     const { batchId } = useParams();

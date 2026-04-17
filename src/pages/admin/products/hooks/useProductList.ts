@@ -1,6 +1,6 @@
 import {useCallback, useEffect, useMemo, useState} from "react";
 import {apiGetProductList, fetchProductCount} from "@/services/graphql/product/product.service.ts";
-import {exportAllProducts} from "@/services/rest/admin/ProductService.rest.ts";
+import {exportAllProducts} from "@/services/rest/admin/ProductUploadService.rest.ts";
 import type {ProductListItem} from "@/types/admin/ProductTypes.ts";
 import {FilterRequest} from "@/types/graphql/query.types.ts";
 
