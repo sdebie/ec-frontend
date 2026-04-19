@@ -22,48 +22,40 @@ export const clientUvhStorefrontConfig: StorefrontClientConfig = {
                 label: 'Home',
                 to: '/',
             },
-            // {
-            //     id: 'products',
-            //     label: 'Products',
-            //     to: '/shop',
-            // },
             {
                 id: 'about',
                 label: 'About Us',
-                to: '/about',
+                to: '/about-us',
             },
             {
                 id: 'contact',
                 label: 'Contact Us',
-                to: '/contact',
-            },
-            {
-                id: 'blog',
-                label: 'Blog',
-                to: '/blog',
-            },
-            {
-                id: 'quote',
-                label: 'Get A Quote',
-                to: '/get-a-quote',
+                to: '/contact-us',
             },
         ],
     },
     theme: {
-        background: '#f8fafc',
+        background: '#f5f5f5',
         panel: '#ffffff',
-        text: '#0f172a',
-        mutedText: '#64748b',
-        accent: '#1d4ed8',
+        text: '#111111',
+        mutedText: '#666666',
+        accent: '#7a0019',
         accentText: '#ffffff',
-        border: '#e2e8f0',
+        border: '#e5e5e5',
 
-        navBackground: '#0f172a',
+        navBackground: '#111111',
         navText: '#ffffff',
-        navTextHover: '#93c5fd',
-        navBorder: '#1e293b',
-        navIconText: '#cbd5e1',
+        navTextHover: '#7a0019',
+        navBorder: '#1f1f1f',
+        navIconText: '#d4d4d4',
         navIconTextHover: '#ffffff',
+    },
+    pages: {
+        variants: {
+            products: 'uvh-products',
+            contactUs: 'uvh-contact-us',
+            aboutUs: 'uvh-about-us',
+        },
     },
     home: {
         sections: [
@@ -210,7 +202,7 @@ export const clientUvhStorefrontConfig: StorefrontClientConfig = {
                     {
                         id: 'about',
                         label: 'About Us',
-                        to: '/about'
+                        to: '/about-us'
                     },
                     {
                         id: 'blog',
@@ -220,7 +212,7 @@ export const clientUvhStorefrontConfig: StorefrontClientConfig = {
                     {
                         id: 'contact',
                         label: 'Contact Us',
-                        to: '/contact'
+                        to: '/contact-us'
                     },
                 ],
             },

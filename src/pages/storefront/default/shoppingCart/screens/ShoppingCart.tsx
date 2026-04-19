@@ -1,8 +1,8 @@
 import {useNavigate} from 'react-router-dom';
-import EmptyCart from '../components/EmptyCart';
-import CartItemList from '../components/CartItemList';
-import CartSummary from '../components/CartSummary';
-import {useShoppingCart} from "@/pages/storefront/shoppingCart/hooks/useShoppingCart.ts";
+import EmptyCart from '../components/EmptyCart.tsx';
+import CartItemList from '../components/CartItemList.tsx';
+import CartSummary from '../components/CartSummary.tsx';
+import {useShoppingCart} from "@/pages/storefront/default/shoppingCart/hooks/useShoppingCart.ts";
 
 function ShoppingCart() {
 

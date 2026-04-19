@@ -3,7 +3,7 @@ import {useNavigate} from 'react-router-dom';
 import {CartStore} from '@/store/CartStore.ts';
 import {apiCreateOrder} from '@/services/graphql/order/OrderService.graphql.ts';
 import {fetchVariantsByIds} from '@/services/graphql/product/product.service.ts';
-import {getVariantId, LS_KEY} from '../../../../utils/storefront/cart.utils.ts';
+import {getVariantId, LS_KEY} from '../../../../../utils/storefront/cart.utils.ts';
 import {OrderInput, OrderItemData as OrderItemsData} from "@/types/order.types.ts";
 
 type UseCartReturn = {

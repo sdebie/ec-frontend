@@ -105,8 +105,6 @@ export async function apiGetTopBestSellers(): Promise<ProductShoppingListItem[]>
 }
 
 
-
-
 export const fetchProductsList = apiGetProductList;
 export const fetchShoppingProductsList = apiGetShoppingProductsList;
 export const fetchSaleProductsList = apiGetProductOnSaleList;

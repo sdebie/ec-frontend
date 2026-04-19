@@ -21,8 +21,7 @@ const storePageOnlyRoutes: PageRoutes = [
     {
         key: 'checkout',
         path: `/checkout`,
-        component: lazy(() => import('../../../pages/storefront/checkout/screens/Checkout.tsx')),
-        // component: lazy(() => import('../../../pages/shop/default/cart/Checkout.tsx')),
+        component: lazy(() => import('@/pages/storefront/default/checkout/screens/Checkout.tsx')),
         authority: [],
         meta: {
             pageBackgroundType: 'plain',

@@ -1,3 +1,5 @@
+import type {StorefrontPageKey} from '@/types/storefront/storefrontPageKeys.ts';
+
 export type StorefrontClientId = 'default' | 'uvh';
 
 export type StorefrontSectionType =
@@ -199,31 +201,6 @@ export type StorefrontSectionConfig =
     | StorefrontSectionBase<'category-preview', CategoryPreviewSectionProps>
     | StorefrontSectionBase<'testimonials', TestimonialsSectionProps>
     | StorefrontSectionBase<'newsletter', NewsletterSectionProps>;
-// export type StorefrontSectionConfig =
-//     | {
-//     id: string;
-//     type: 'hero';
-//     enabled?: boolean;
-//     props: HeroSectionProps;
-// }
-//     | {
-//     id: string;
-//     type: 'featured-products';
-//     enabled?: boolean;
-//     props: FeaturedProductsSectionProps;
-// }
-//     | {
-//     id: string;
-//     type: 'benefits';
-//     enabled?: boolean;
-//     props: BenefitsSectionProps;
-// }
-//     | {
-//     id: string;
-//     type: 'cta';
-//     enabled?: boolean;
-//     props: CtaSectionProps;
-// };
 
 export interface StorefrontClientConfig {
     id: StorefrontClientId;
@@ -232,9 +209,11 @@ export interface StorefrontClientConfig {
     branding: StorefrontBranding;
     navigation: StorefrontNavigation;
     theme: StorefrontTheme;
+    pages?: {
+        variants?: Partial<Record<StorefrontPageKey, string>>;
+    };
     home: {
         sections: StorefrontSectionConfig[];
     };
     footer: FooterConfig;
 }
-

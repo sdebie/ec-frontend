@@ -1,4 +1,4 @@
-import CartItemRow from './CartItemRow';
+import CartItemRow from './CartItemRow.tsx';
 import {OrderItemData as OrderItemsData} from "@/types/order.types.ts";
 
 type CartItemListProps = {

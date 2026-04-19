@@ -7,8 +7,10 @@ import {getHostname} from './utils/HostnameResolver';
 import RouteGuard from "@/configs/routes/RouteGaurd.tsx";
 import {RouteObject} from "@/types/routes.ts";
 import {resolveStorefrontClient} from "@/configs/storefront/storefrontRegistry.ts";
+import {validateStorefrontPageInfrastructure} from '@/configs/storefront/storefrontPageValidation.ts';
 
 function App() {
+
     const [isAuthenticated, setIsAuthenticated] = useState(!!localStorage.getItem('admin_token'));
     const [activeCategory, setActiveCategory] = useState<string>('All');
 
@@ -16,6 +18,12 @@ function App() {
         const syncAuth = () => setIsAuthenticated(!!localStorage.getItem('admin_token'));
         window.addEventListener('storage', syncAuth);
         return () => window.removeEventListener('storage', syncAuth);
+    }, []);
+
+    useEffect(() => {
+        if (import.meta.env.VITE_STORE_FRONT) {
+            validateStorefrontPageInfrastructure();
+        }
     }, []);
 
     const hostname = getHostname();
