@@ -25,6 +25,10 @@ export const StorefrontThemeProvider = ({
         ['--sf-nav-border' as string]: clientConfig.theme.navBorder || clientConfig.theme.border,
         ['--sf-nav-icon-text' as string]: clientConfig.theme.navIconText || clientConfig.theme.mutedText,
         ['--sf-nav-icon-text-hover' as string]: clientConfig.theme.navIconTextHover || clientConfig.theme.accent,
+
+        // Status tokens
+        ['--sf-error' as string]: clientConfig.theme.error || '#ef4444',
+        ['--sf-success' as string]: clientConfig.theme.success || '#10b981',
     };
 
     return (

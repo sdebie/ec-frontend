@@ -120,17 +120,17 @@ const ProductDetailsPage = () => {
   };
 
   if (loading) {
-    return <div className="min-h-screen bg-white p-8">Loading product…</div>;
+    return <div className="min-h-screen bg-(--sf-bg) p-8">Loading product…</div>;
   }
   if (error) {
-    return <div className="min-h-screen bg-white p-8 text-red-600">{error}</div>;
+    return <div className="min-h-screen bg-(--sf-bg) p-8 text-(--sf-error)">{error}</div>;
   }
   if (!product) {
-    return <div className="min-h-screen bg-white p-8">Product not found.</div>;
+    return <div className="min-h-screen bg-(--sf-bg) p-8">Product not found.</div>;
   }
 
   return (
-    <div className="min-h-screen bg-white">
+    <div className="min-h-screen bg-(--sf-bg)">
       <ProductCard product={product} onAddToCart={handleAddToCart} />
     </div>
   );

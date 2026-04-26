@@ -43,9 +43,9 @@ const ContactInformationSection: React.FC<Props> = ({
     return (
         <>
             <div>
-                <h2 className="text-lg font-medium text-gray-900">Contact information</h2>
+                <h2 className="text-lg font-medium text-(--sf-text)">Contact information</h2>
                 <div className="mt-4">
-                    <label htmlFor="email-address" className="block text-sm/6 font-medium text-gray-700">
+                    <label htmlFor="email-address" className="block text-sm/6 font-medium text-(--sf-text)">
                         Email address
                     </label>
                     <div className="mt-2">
@@ -57,14 +57,14 @@ const ContactInformationSection: React.FC<Props> = ({
                             disabled={isAuthenticated}
                             onBlur={() => setEmailTouched(true)}
                             onChange={(e) => setEmail(e.target.value)}
-                            className={`block w-full rounded-md bg-white px-3 py-2 text-base text-gray-900 outline-1 -outline-offset-1 outline-gray-300 placeholder:text-gray-400 focus:outline-2 focus:-outline-offset-2 focus:outline-indigo-600 sm:text-sm/6
+                            className={`block w-full rounded-md bg-(--sf-panel) px-3 py-2 text-base text-(--sf-text) outline-1 -outline-offset-1 outline-(--sf-border) placeholder:text-(--sf-muted-text) focus:outline-2 focus:-outline-offset-2 focus:outline-(--sf-accent) sm:text-sm/6
                             ${isAuthenticated
-                                ? 'cursor-not-allowed bg-gray-100 text-gray-500'
-                                : 'border-gray-300 focus:border-gray-900 focus:ring-1 focus:ring-gray-900'
+                                ? 'cursor-not-allowed bg-(--sf-bg) text-(--sf-muted-text)'
+                                : 'border-(--sf-border) focus:border-(--sf-accent) focus:ring-1 focus:ring-(--sf-accent)'
                             }`}
                         />
                         {email && !emailValid && emailTouched && (
-                            <p className="mt-1 text-xs text-red-600">
+                            <p className="mt-1 text-xs text-(--sf-error)">
                                 Please enter a valid email address.
                             </p>
                         )}
@@ -79,7 +79,7 @@ const ContactInformationSection: React.FC<Props> = ({
                                 ) : (
                                     <>
                                         {lookupState === 'loading' &&
-                                            <span className="text-gray-500">
+                                            <span className="text-(--sf-muted-text)">
                                                 Checking account...
                                             </span>
                                         }
@@ -124,8 +124,8 @@ const ContactInformationSection: React.FC<Props> = ({
                                         onClick={() => setReturningChoice('login')}
                                         className={`rounded-lg border px-3 py-2 text-sm font-semibold ${
                                             returningChoice === 'login'
-                                                ? 'border-blue-700 bg-blue-600 text-white'
-                                                : 'border-blue-300 bg-white text-blue-700'
+                                                ? 'border-(--sf-accent) bg-(--sf-accent) text-(--sf-accent-text)'
+                                                : 'border-(--sf-border) bg-(--sf-panel) text-(--sf-text) hover:border-(--sf-accent)'
                                         }`}
                                     >
                                         Sign in
@@ -135,8 +135,8 @@ const ContactInformationSection: React.FC<Props> = ({
                                         onClick={() => setReturningChoice('guest')}
                                         className={`rounded-lg border px-3 py-2 text-sm font-semibold ${
                                             returningChoice === 'guest'
-                                                ? 'border-blue-700 bg-blue-600 text-white'
-                                                : 'border-blue-300 bg-white text-blue-700'
+                                                ? 'border-(--sf-accent) bg-(--sf-accent) text-(--sf-accent-text)'
+                                                : 'border-(--sf-border) bg-(--sf-panel) text-(--sf-text) hover:border-(--sf-accent)'
                                         }`}
                                     >
                                         Continue as guest

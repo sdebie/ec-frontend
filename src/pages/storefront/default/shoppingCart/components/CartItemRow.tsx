@@ -46,7 +46,7 @@ const CartItemRow: React.FC<CartItemRowProps> = ({
         >
             <div className="shrink-0">
                 <div
-                    className="flex size-24 items-center justify-center rounded-md bg-gray-100 object-cover sm:size-48">
+                    className="flex size-24 items-center justify-center rounded-md bg-(--sf-bg) object-cover sm:size-48">
                     {thumbnailFileName ? (
                         <ProductImage
                             fileName={thumbnailFileName}
@@ -54,7 +54,7 @@ const CartItemRow: React.FC<CartItemRowProps> = ({
                             className="rounded-md object-cover"
                         />
                     ) : (
-                        <ShoppingBag className="h-10 w-10 text-gray-300 sm:h-14 sm:w-14"/>
+                        <ShoppingBag className="h-10 w-10 text-(--sf-muted-text) sm:h-14 sm:w-14"/>
                     )}
                 </div>
             </div>
@@ -63,20 +63,20 @@ const CartItemRow: React.FC<CartItemRowProps> = ({
                 <div className="relative pr-9 sm:grid sm:grid-cols-2 sm:gap-x-6 sm:pr-0">
                     <div>
                         <div className="flex justify-between gap-4">
-                            <h3 className="text-sm font-medium text-gray-900">
+                            <h3 className="text-sm font-medium text-(--sf-text)">
                                 {variant?.product?.name ?? 'Item'}
                             </h3>
                         </div>
 
-                        <div className="mt-1 flex flex-wrap text-sm text-gray-500">
+                        <div className="mt-1 flex flex-wrap text-sm text-(--sf-muted-text)">
                             <p> {formatAttributes(variant?.attributesJson) ?? 'Standard item'}</p>
                         </div>
 
-                        <p className="mt-3 text-sm font-medium text-gray-900">
+                        <p className="mt-3 text-sm font-medium text-(--sf-text)">
                             {currency(item.unitPrice || 0)} each
                         </p>
 
-                        <p className="mt-1 text-sm text-gray-500">
+                        <p className="mt-1 text-sm text-(--sf-muted-text)">
                             Line total: {currency(lineTotal)}
                         </p>
                     </div>
@@ -95,7 +95,7 @@ const CartItemRow: React.FC<CartItemRowProps> = ({
                                     onQuantityChange(index, Number(event.target.value))
                                 }
                                 aria-label={`Quantity, ${variant?.product?.name ?? 'Item'}`}
-                                className="col-start-1 row-start-1 appearance-none rounded-md bg-white py-2 pr-8 pl-3 text-base text-gray-900 outline-1 -outline-offset-1 outline-gray-300 focus:outline-2 focus:-outline-offset-2 focus:outline-indigo-600 sm:text-sm"
+                                className="col-start-1 row-start-1 appearance-none rounded-md bg-(--sf-panel) py-2 pr-8 pl-3 text-base text-(--sf-text) outline-1 -outline-offset-1 outline-(--sf-border) focus:outline-2 focus:-outline-offset-2 focus:outline-(--sf-accent) sm:text-sm"
                             >
                                 {quantityOptions.map((option) => (
                                     <option key={option} value={option}>
@@ -106,7 +106,7 @@ const CartItemRow: React.FC<CartItemRowProps> = ({
 
                             <ChevronDown
                                 aria-hidden="true"
-                                className="pointer-events-none col-start-1 row-start-1 mr-2 h-5 w-5 self-center justify-self-end text-gray-500 sm:h-4 sm:w-4"
+                                className="pointer-events-none col-start-1 row-start-1 mr-2 h-5 w-5 self-center justify-self-end text-(--sf-muted-text) sm:h-4 sm:w-4"
                             />
                         </div>
 
@@ -114,7 +114,7 @@ const CartItemRow: React.FC<CartItemRowProps> = ({
                             <button
                                 type="button"
                                 onClick={() => onRemove(index)}
-                                className="-m-2 inline-flex p-2 text-gray-400 hover:text-red-500"
+                                className="-m-2 inline-flex p-2 text-(--sf-muted-text) hover:text-(--sf-error)"
                             >
                                 <span className="sr-only">Remove</span>
                                 <Trash2 aria-hidden="true" className="h-5 w-5"/>
@@ -123,16 +123,16 @@ const CartItemRow: React.FC<CartItemRowProps> = ({
                     </div>
                 </div>
 
-                <p className="mt-4 flex items-center space-x-2 text-sm text-gray-700">
+                <p className="mt-4 flex items-center space-x-2 text-sm text-(--sf-text)">
                     {availability.inStock ? (
                         <CheckCircle2
                             aria-hidden="true"
-                            className="h-5 w-5 shrink-0 text-green-500"
+                            className="h-5 w-5 shrink-0 text-(--sf-success)"
                         />
                     ) : (
                         <Clock3
                             aria-hidden="true"
-                            className="h-5 w-5 shrink-0 text-gray-300"
+                            className="h-5 w-5 shrink-0 text-(--sf-muted-text)"
                         />
                     )}
 

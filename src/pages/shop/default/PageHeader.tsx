@@ -153,7 +153,6 @@ const PageHeader: React.FC<PageHeaderProps> = ({storefrontConfig}) => {
                     target="_blank"
                     rel="noopener noreferrer"
                     className={className}
-                    style={{color: 'var(--sf-nav-text)'}}
                     onClick={onClick}
                 >
                     {item.label}
@@ -166,7 +165,6 @@ const PageHeader: React.FC<PageHeaderProps> = ({storefrontConfig}) => {
                 key={item.id}
                 to={item.to}
                 className={className}
-                style={{color: 'var(--sf-nav-text)'}}
                 onClick={onClick}
             >
                 {item.label}
@@ -176,11 +174,7 @@ const PageHeader: React.FC<PageHeaderProps> = ({storefrontConfig}) => {
 
     return (
         <header
-            className={`relative z-50 w-full border-b ${styles.pageHeader}`}
-            style={{
-                borderColor: 'var(--sf-nav-border)',
-                backgroundColor: 'var(--sf-nav-bg)',
-            }}
+            className={`relative z-50 w-full border-b border-(--sf-nav-border) bg-(--sf-nav-bg) ${styles.pageHeader}`}
         >
             <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
                 <div
@@ -196,7 +190,7 @@ const PageHeader: React.FC<PageHeaderProps> = ({storefrontConfig}) => {
                                 style={{width: logo.width, height: logo.height}}
                             />
                         ) : null}
-                        <span className={`${styles.brandLink} truncate`} style={{color: 'var(--sf-nav-text)'}}>
+                        <span className={`${styles.brandLink} truncate text-(--sf-nav-text)`}>
                             {storefrontConfig.branding.name}
                         </span>
                     </Link>
@@ -212,8 +206,7 @@ const PageHeader: React.FC<PageHeaderProps> = ({storefrontConfig}) => {
                         {isAdminAuthenticated && (
                             <button
                                 onClick={() => setShowImageUploadModal(true)}
-                                className={styles.iconButton}
-                                style={{color: 'var(--sf-nav-icon-text)'}}
+                                className={`${styles.iconButton} text-(--sf-nav-icon-text)`}
                                 title="Upload Image (Admin)"
                             >
                                 {/* icon */}
@@ -229,8 +222,7 @@ const PageHeader: React.FC<PageHeaderProps> = ({storefrontConfig}) => {
                         {!isAuthenticated && (
                             <button
                                 onClick={() => setShowLoginModal(true)}
-                                className={styles.iconButton}
-                                style={{color: 'var(--sf-nav-icon-text)'}}
+                                className={`${styles.iconButton} text-(--sf-nav-icon-text)`}
                                 title="Sign In"
                             >
                                 {/* icon */}
@@ -240,8 +232,7 @@ const PageHeader: React.FC<PageHeaderProps> = ({storefrontConfig}) => {
                         {isAuthenticated && (
                             <div className="relative" ref={userMenuRef}>
                                 <button
-                                    className={styles.iconButton}
-                                    style={{color: 'var(--sf-nav-icon-text)'}}
+                                    className={`${styles.iconButton} text-(--sf-nav-icon-text)`}
                                     title="User Profile"
                                     aria-haspopup="menu"
                                     aria-expanded={showUserMenu}
@@ -252,17 +243,12 @@ const PageHeader: React.FC<PageHeaderProps> = ({storefrontConfig}) => {
 
                                 {showUserMenu && (
                                     <div
-                                        className={`absolute right-0 mt-2 w-48 rounded-md shadow-lg py-1 ring-1 ring-opacity-5 focus:outline-none z-50 ${styles.userMenu}`}
-                                        style={{
-                                            backgroundColor: 'var(--sf-nav-bg)',
-                                            borderColor: 'var(--sf-nav-border)',
-                                        }}
+                                        className={`absolute right-0 mt-2 w-48 rounded-md shadow-lg py-1 ring-1 ring-opacity-5 focus:outline-none z-50 bg-(--sf-nav-bg) ${styles.userMenu}`}
                                         role="menu"
                                     >
                                         <button
                                             onClick={handleLogout}
-                                            className={styles.userMenuButton}
-                                            style={{color: 'var(--sf-nav-text)'}}
+                                            className={`${styles.userMenuButton} text-(--sf-nav-text)`}
                                             role="menuitem"
                                         >
                                             Log Out
@@ -275,8 +261,7 @@ const PageHeader: React.FC<PageHeaderProps> = ({storefrontConfig}) => {
                         {!isDesktopViewport && (
                             <button
                                 type="button"
-                                className={styles.iconButton}
-                                style={{color: 'var(--sf-nav-icon-text)'}}
+                                className={`${styles.iconButton} text-(--sf-nav-icon-text)`}
                                 aria-label={showMobileMenu ? 'Close navigation menu' : 'Open navigation menu'}
                                 aria-expanded={showMobileMenu}
                                 aria-controls="mobile-primary-nav"
@@ -303,8 +288,7 @@ const PageHeader: React.FC<PageHeaderProps> = ({storefrontConfig}) => {
                     <nav
                         id="mobile-primary-nav"
                         aria-label="Mobile primary"
-                        className="border-t py-2"
-                        style={{borderColor: 'var(--sf-nav-border)'}}
+                        className="border-t border-(--sf-nav-border) py-2"
                     >
                         <div className="flex flex-col">
                             {menuItems.map((item) =>

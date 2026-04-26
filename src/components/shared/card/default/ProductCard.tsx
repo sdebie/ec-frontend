@@ -40,16 +40,12 @@ export function ProductCard({
 
     return (
         <div
-            className="rounded-lg overflow-hidden transition-all hover:shadow-lg group"
-            style={{
-                backgroundColor: 'var(--storefront-color-surface)',
-                border: '1px solid var(--storefront-color-border)',
-            }}
+            className="rounded-lg overflow-hidden transition-all hover:shadow-lg group bg-(--sf-panel) border border-(--sf-border)"
         >
             {/* Image Container */}
             <Link
                 to={`/product/${id}`}
-                className="relative block h-48 bg-gray-100 overflow-hidden"
+                className="relative block h-48 bg-(--sf-bg) overflow-hidden"
             >
                 {image ? (
                     <img
@@ -59,12 +55,10 @@ export function ProductCard({
                     />
                 ) : (
                     <div
-                        className="w-full h-full flex items-center justify-center"
-                        style={{backgroundColor: 'var(--storefront-color-background)'}}
+                        className="w-full h-full flex items-center justify-center bg-(--sf-bg)"
                     >
                         <svg
-                            className="w-12 h-12"
-                            style={{color: 'var(--storefront-color-border)'}}
+                            className="w-12 h-12 text-(--sf-border)"
                             fill="none"
                             stroke="currentColor"
                             viewBox="0 0 24 24"
@@ -82,10 +76,7 @@ export function ProductCard({
                 {/* Badge */}
                 {badge && (
                     <div
-                        className="absolute top-3 left-3 px-3 py-1 rounded-full text-xs font-semibold text-white"
-                        style={{
-                            backgroundColor: 'var(--storefront-color-accent)',
-                        }}
+                        className="absolute top-3 left-3 px-3 py-1 rounded-full text-xs font-semibold bg-(--sf-accent) text-(--sf-accent-text)"
                     >
                         {badge}
                     </div>
@@ -94,10 +85,7 @@ export function ProductCard({
                 {/* Discount Badge */}
                 {discountPercentage > 0 && (
                     <div
-                        className="absolute top-3 right-3 px-2 py-1 rounded-full text-xs font-bold text-white"
-                        style={{
-                            backgroundColor: 'var(--storefront-color-error, #ef4444)',
-                        }}
+                        className="absolute top-3 right-3 px-2 py-1 rounded-full text-xs font-bold text-white bg-(--sf-error)"
                     >
                         -{discountPercentage}%
                     </div>
@@ -112,11 +100,7 @@ export function ProductCard({
                     className="block mb-2 hover:opacity-75 transition-opacity"
                 >
                     <h3
-                        className="font-semibold line-clamp-2"
-                        style={{
-                            color: 'var(--storefront-color-text-primary)',
-                            fontFamily: 'var(--storefront-font-heading)',
-                        }}
+                        className="font-semibold line-clamp-2 text-(--sf-text)"
                     >
                         {name}
                     </h3>
@@ -129,12 +113,7 @@ export function ProductCard({
                             {[...Array(5)].map((_, i) => (
                                 <svg
                                     key={i}
-                                    className="w-4 h-4"
-                                    style={{
-                                        color: i < Math.round(rating)
-                                            ? 'var(--storefront-color-accent)'
-                                            : 'var(--storefront-color-border)',
-                                    }}
+                                    className={`w-4 h-4 ${i < Math.round(rating) ? 'text-(--sf-accent)' : 'text-(--sf-border)'}`}
                                     fill="currentColor"
                                     viewBox="0 0 20 20"
                                 >
@@ -145,8 +124,7 @@ export function ProductCard({
                         </div>
                         {reviewCount && (
                             <span
-                                className="text-xs ml-1"
-                                style={{color: 'var(--storefront-color-text-muted)'}}
+                                className="text-xs ml-1 text-(--sf-muted-text)"
                             >
                 ({reviewCount})
               </span>
@@ -158,15 +136,13 @@ export function ProductCard({
                 <div className="mb-4">
                     <div className="flex items-baseline gap-2">
             <span
-                className="text-lg font-bold"
-                style={{color: 'var(--storefront-color-primary)'}}
+                className="text-lg font-bold text-(--sf-text)"
             >
               {formatCurrency(price)}
             </span>
                         {originalPrice && originalPrice > price && (
                             <span
-                                className="text-sm line-through"
-                                style={{color: 'var(--storefront-color-text-muted)'}}
+                                className="text-sm line-through text-(--sf-muted-text)"
                             >
                 {formatCurrency(originalPrice)}
               </span>
@@ -178,11 +154,7 @@ export function ProductCard({
                 {onAddToCart && (
                     <button
                         onClick={onAddToCart}
-                        className="w-full py-2 rounded-lg font-semibold transition-all hover:shadow-md active:scale-95"
-                        style={{
-                            backgroundColor: 'var(--storefront-color-button-primary)',
-                            color: 'var(--storefront-color-button-primary-text)',
-                        }}
+                        className="w-full py-2 rounded-lg font-semibold transition-all hover:shadow-md active:scale-95 bg-(--sf-accent) text-(--sf-accent-text)"
                     >
                         Add to Cart
                     </button>

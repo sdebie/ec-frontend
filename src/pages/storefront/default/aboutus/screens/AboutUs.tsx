@@ -1,3 +1,5 @@
+import { SfCard } from '@/components/storefront'
+
 const stats = [
     {label: 'Transactions every 24 hours', value: '44 million'},
     {label: 'Assets under holding', value: '$119 trillion'},
@@ -89,15 +91,15 @@ const blogPosts = [
 
 const AboutUs = () => {
     return (
-        <main className="min-h-screen" style={{backgroundColor: 'var(--sf-bg)', color: 'var(--sf-text)'}}>
+        <main className="min-h-screen bg-(--sf-bg) text-(--sf-text)">
             {/* Hero section */}
             <div className="relative isolate overflow-hidden">
                 <div className="mx-auto max-w-7xl px-6 py-24 sm:py-32 lg:px-8">
                     <div className="mx-auto max-w-2xl text-center">
-                        <h1 className="text-4xl font-semibold tracking-tight sm:text-5xl lg:text-6xl" style={{color: 'var(--sf-text)'}}>
+                        <h1 className="text-4xl font-semibold tracking-tight sm:text-5xl lg:text-6xl text-(--sf-text)">
                             We're changing the way people shop
                         </h1>
-                        <p className="mt-6 text-lg leading-8" style={{color: 'var(--sf-muted-text)'}}>
+                        <p className="mt-6 text-lg leading-8 text-(--sf-muted-text)">
                             Cupidatat minim id magna ipsum sint dolor qui. Sunt sit in quis cupidatat mollit
                             aute velit. Et labore commodo nulla aliqua proident mollit ullamco exercitation
                             tempor.
@@ -107,17 +109,17 @@ const AboutUs = () => {
             </div>
 
             {/* Mission section */}
-            <div className="mx-auto max-w-7xl px-6 py-16 sm:py-24 lg:px-8" style={{backgroundColor: 'var(--sf-panel)'}}>
+            <div className="mx-auto max-w-7xl px-6 py-16 sm:py-24 lg:px-8 bg-(--sf-panel)">
                 <div className="mx-auto max-w-3xl text-center">
-                    <h2 className="text-3xl font-semibold tracking-tight sm:text-4xl" style={{color: 'var(--sf-text)'}}>
+                    <h2 className="text-3xl font-semibold tracking-tight sm:text-4xl text-(--sf-text)">
                         Our mission
                     </h2>
-                    <p className="mt-6 text-base leading-relaxed" style={{color: 'var(--sf-muted-text)'}}>
+                    <p className="mt-6 text-base leading-relaxed text-(--sf-muted-text)">
                         Aliquet nec orci mattis amet quisque ullamcorper neque, nibh sem. At arcu, sit dui mi,
                         nibh dui, diam eget aliquam. Quisque id at vitae feugiat egestas ac. Diam nulla orci at
                         in viverra scelerisque eget. Eleifend egestas fringilla sapien.
                     </p>
-                    <p className="mt-6 text-base leading-relaxed" style={{color: 'var(--sf-muted-text)'}}>
+                    <p className="mt-6 text-base leading-relaxed text-(--sf-muted-text)">
                         Faucibus commodo massa rhoncus, volutpat. Dignissim sed eget risus enim. Mattis mauris
                         semper sed amet vitae sed turpis id. Id dolor praesent donec est.
                     </p>
@@ -126,11 +128,11 @@ const AboutUs = () => {
                 {/* Stats */}
                 <div className="mx-auto mt-16 grid max-w-2xl grid-cols-1 gap-x-12 gap-y-12 sm:grid-cols-3 lg:mx-0 lg:max-w-none lg:gap-x-16">
                     {stats.map((stat) => (
-                        <div key={stat.label} className="text-center border-l" style={{borderColor: 'var(--sf-border)', paddingLeft: '1.5rem'}}>
-                            <dt className="text-sm font-medium leading-6" style={{color: 'var(--sf-muted-text)'}}>
+                        <div key={stat.label} className="text-center border-l border-(--sf-border) pl-6">
+                            <dt className="text-sm font-medium leading-6 text-(--sf-muted-text)">
                                 {stat.label}
                             </dt>
-                            <dd className="mt-2 text-3xl font-bold tracking-tight sm:text-4xl" style={{color: 'var(--sf-accent)'}}>
+                            <dd className="mt-2 text-3xl font-bold tracking-tight sm:text-4xl text-(--sf-accent)">
                                 {stat.value}
                             </dd>
                         </div>
@@ -140,42 +142,38 @@ const AboutUs = () => {
 
             {/* Image section */}
             <div className="mx-auto max-w-7xl px-6 py-16 sm:py-24 lg:px-8">
-                <div className="relative overflow-hidden rounded-lg" style={{backgroundColor: 'var(--sf-panel)', border: `1px solid var(--sf-border)`}}>
+                <SfCard className="relative overflow-hidden rounded-lg">
                     <img
                         alt="Team collaboration"
                         src="https://images.unsplash.com/photo-1529156069898-49953e39b3ac?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=2832&q=80"
                         className="aspect-video w-full object-cover"
                     />
-                </div>
+                </SfCard>
             </div>
 
             {/* Values section */}
-            <div className="mx-auto max-w-7xl px-6 py-16 sm:py-24 lg:px-8" style={{backgroundColor: 'var(--sf-panel)'}}>
+            <div className="mx-auto max-w-7xl px-6 py-16 sm:py-24 lg:px-8 bg-(--sf-panel)">
                 <div className="mx-auto max-w-3xl text-center mb-12">
-                    <h2 className="text-3xl font-semibold tracking-tight sm:text-4xl" style={{color: 'var(--sf-text)'}}>
+                    <h2 className="text-3xl font-semibold tracking-tight sm:text-4xl text-(--sf-text)">
                         Our values
                     </h2>
-                    <p className="mt-4 text-base leading-relaxed" style={{color: 'var(--sf-muted-text)'}}>
+                    <p className="mt-4 text-base leading-relaxed text-(--sf-muted-text)">
                         These principles guide every decision we make and shape our company culture.
                     </p>
                 </div>
                 <div className="mx-auto grid max-w-4xl grid-cols-1 gap-x-8 gap-y-12 sm:grid-cols-2 lg:grid-cols-3">
                     {values.map((value) => (
-                        <div
+                        <SfCard
                             key={value.name}
-                            className="flex flex-col p-6 rounded-lg border"
-                            style={{
-                                backgroundColor: 'var(--sf-bg)',
-                                borderColor: 'var(--sf-border)',
-                            }}
+                            className="flex flex-col p-6 rounded-lg bg-(--sf-bg)"
                         >
-                            <dt className="font-semibold text-lg" style={{color: 'var(--sf-text)'}}>
+                            <dt className="font-semibold text-lg text-(--sf-text)">
                                 {value.name}
                             </dt>
-                            <dd className="mt-2 text-sm leading-relaxed" style={{color: 'var(--sf-muted-text)'}}>
+                            <dd className="mt-2 text-sm leading-relaxed text-(--sf-muted-text)">
                                 {value.description}
                             </dd>
-                        </div>
+                        </SfCard>
                     ))}
                 </div>
             </div>
@@ -183,22 +181,19 @@ const AboutUs = () => {
             {/* Blog section */}
             <div className="mx-auto max-w-7xl px-6 py-16 sm:py-24 lg:px-8">
                 <div className="mb-12">
-                    <h2 className="text-3xl font-semibold tracking-tight sm:text-4xl" style={{color: 'var(--sf-text)'}}>
+                    <h2 className="text-3xl font-semibold tracking-tight sm:text-4xl text-(--sf-text)">
                         From the blog
                     </h2>
-                    <p className="mt-4 text-base" style={{color: 'var(--sf-muted-text)'}}>
+                    <p className="mt-4 text-base text-(--sf-muted-text)">
                         Learn how to grow your business with our expert advice.
                     </p>
                 </div>
                 <div className="mx-auto grid max-w-4xl grid-cols-1 gap-8 sm:grid-cols-2 lg:grid-cols-3 lg:mx-0 lg:max-w-none">
                     {blogPosts.map((post) => (
-                        <article
+                        <SfCard
+                            as="article"
                             key={post.id}
-                            className="flex flex-col overflow-hidden rounded-lg border h-full"
-                            style={{
-                                backgroundColor: 'var(--sf-panel)',
-                                borderColor: 'var(--sf-border)',
-                            }}
+                            className="flex h-full flex-col overflow-hidden rounded-lg"
                         >
                             <img
                                 alt=""
@@ -213,44 +208,40 @@ const AboutUs = () => {
                                         className="size-8 flex-none rounded-full"
                                     />
                                     <div>
-                                        <div style={{color: 'var(--sf-text)'}} className="font-medium">
+                                        <div className="font-medium text-(--sf-text)">
                                             {post.author.name}
                                         </div>
-                                        <time dateTime={post.datetime} style={{color: 'var(--sf-muted-text)'}}>
+                                        <time dateTime={post.datetime} className="text-(--sf-muted-text)">
                                             {post.date}
                                         </time>
                                     </div>
                                 </div>
-                                <h3 className="font-semibold text-lg leading-snug line-clamp-3 mb-2" style={{color: 'var(--sf-text)'}}>
+                                <h3 className="font-semibold text-lg leading-snug line-clamp-3 mb-2 text-(--sf-text)">
                                     <a href={post.href} className="hover:opacity-75 transition-opacity">
                                         {post.title}
                                     </a>
                                 </h3>
-                                <p className="text-sm line-clamp-2" style={{color: 'var(--sf-muted-text)'}}>
+                                <p className="text-sm line-clamp-2 text-(--sf-muted-text)">
                                     {post.description}
                                 </p>
                             </div>
-                        </article>
+                        </SfCard>
                     ))}
                 </div>
             </div>
 
             {/* CTA section */}
-            <div className="mx-auto max-w-7xl px-6 py-16 sm:py-24 lg:px-8" style={{backgroundColor: 'var(--sf-panel)'}}>
+            <div className="mx-auto max-w-7xl px-6 py-16 sm:py-24 lg:px-8 bg-(--sf-panel)">
                 <div className="mx-auto max-w-2xl text-center">
-                    <h2 className="text-3xl font-semibold tracking-tight sm:text-4xl" style={{color: 'var(--sf-text)'}}>
+                    <h2 className="text-3xl font-semibold tracking-tight sm:text-4xl text-(--sf-text)">
                         Ready to join us?
                     </h2>
-                    <p className="mt-4 text-base leading-relaxed mb-8" style={{color: 'var(--sf-muted-text)'}}>
+                    <p className="mt-4 text-base leading-relaxed mb-8 text-(--sf-muted-text)">
                         Discover our full range of products and start shopping today.
                     </p>
                     <a
                         href="/products"
-                        className="inline-flex items-center justify-center px-6 py-3 rounded-md font-semibold transition-opacity hover:opacity-90"
-                        style={{
-                            backgroundColor: 'var(--sf-accent)',
-                            color: 'var(--sf-accent-text)',
-                        }}
+                        className="inline-flex items-center justify-center px-6 py-3 rounded-md font-semibold transition-opacity hover:opacity-90 bg-(--sf-accent) text-(--sf-accent-text)"
                     >
                         Browse Products
                     </a>

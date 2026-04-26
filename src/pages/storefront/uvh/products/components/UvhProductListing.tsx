@@ -2,6 +2,7 @@ import {useMemo, useState} from "react";
 import {Category} from "@/types/admin/CategoryTypes.ts";
 import {ProductShoppingListItem} from "@/types/admin/ProductTypes.ts";
 import {ProductCard} from "@/components/shared/card/default/ProductCard.tsx";
+import { SfCard, SfInput } from '@/components/storefront';
 
 type UvhCatalogueProduct = ProductShoppingListItem & {
     category?: {
@@ -45,35 +46,20 @@ const UvhProductListing = ({
         : 'All Products';
 
     return (
-        <div className="min-h-screen" style={{backgroundColor: 'var(--sf-bg)'}}>
-            <div
-                className="border-b px-4 py-5 sm:px-6 lg:px-8"
-                style={{
-                    backgroundColor: 'var(--sf-panel)',
-                    borderColor: 'var(--sf-border)',
-                }}
-            >
+        <div className="min-h-screen bg-(--sf-bg)">
+            <div className="border-b border-(--sf-border) bg-(--sf-panel) px-4 py-5 sm:px-6 lg:px-8">
                 <div className="mx-auto max-w-7xl">
                     <div className="flex flex-col gap-1 sm:flex-row sm:items-end sm:justify-between">
                         <div>
-                            <p
-                                className="text-xs font-semibold uppercase tracking-[0.14em]"
-                                style={{color: 'var(--sf-accent)'}}
-                            >
+                            <p className="text-xs font-semibold uppercase tracking-[0.14em] text-(--sf-accent)">
                                 {listingLabel}
                             </p>
-                            <h1
-                                className="mt-1 text-2xl font-semibold tracking-tight sm:text-3xl"
-                                style={{color: 'var(--sf-text)'}}
-                            >
+                            <h1 className="mt-1 text-2xl font-semibold tracking-tight sm:text-3xl text-(--sf-text)">
                                 {listingTitle}
                             </h1>
                         </div>
 
-                        <p
-                            className="text-sm"
-                            style={{color: 'var(--sf-muted-text)'}}
-                        >
+                        <p className="text-sm text-(--sf-muted-text)">
                             {filteredProducts.length} {filteredProducts.length === 1 ? 'product' : 'products'}
                         </p>
                     </div>
@@ -82,55 +68,31 @@ const UvhProductListing = ({
 
             <div className="mx-auto max-w-7xl px-4 py-6 sm:px-6 lg:px-8">
                 <div className="flex flex-col gap-6 lg:flex-row lg:items-start">
-                    <aside
-                        className="w-full shrink-0 rounded-2xl border p-5 lg:w-60 xl:w-64"
-                        style={{
-                            backgroundColor: 'var(--sf-panel)',
-                            borderColor: 'var(--sf-border)',
-                        }}
-                    >
-                        <p
-                            className="mb-3 text-xs font-semibold uppercase tracking-[0.14em]"
-                            style={{color: 'var(--sf-accent)'}}
-                        >
+                    <SfCard as="aside" className="w-full shrink-0 p-5 lg:w-60 xl:w-64">
+                        <p className="mb-3 text-xs font-semibold uppercase tracking-[0.14em] text-(--sf-accent)">
                             Filter
                         </p>
 
-                        <input
+                        <SfInput
                             type="search"
                             placeholder="Search products…"
                             value={search}
                             onChange={(e) => setSearch(e.target.value)}
-                            className="w-full rounded-lg border px-3 py-2 text-sm focus:outline-none focus-visible:ring-2"
-                            style={{
-                                backgroundColor: 'var(--sf-bg)',
-                                borderColor: 'var(--sf-border)',
-                                color: 'var(--sf-text)',
-                            }}
+                            className="px-3 py-2 text-sm focus:ring-0 focus-visible:ring-2 focus-visible:ring-(--sf-accent)"
                         />
 
-                        <div
-                            className="mt-5 text-xs"
-                            style={{color: 'var(--sf-muted-text)'}}
-                        >
+                        <div className="mt-5 text-xs text-(--sf-muted-text)">
                             {selectedSubcategory
                                 ? `Showing products in ${selectedSubcategory.name}.`
                                 : 'Showing all products.'}
                         </div>
-                    </aside>
+                    </SfCard>
 
                     <div className="min-w-0 flex-1">
                         {filteredProducts.length === 0 ? (
-                            <div
-                                className="flex h-48 items-center justify-center rounded-2xl border"
-                                style={{
-                                    backgroundColor: 'var(--sf-panel)',
-                                    borderColor: 'var(--sf-border)',
-                                    color: 'var(--sf-muted-text)',
-                                }}
-                            >
+                            <SfCard className="flex h-48 items-center justify-center text-(--sf-muted-text)">
                                 <p className="text-sm">No products found.</p>
-                            </div>
+                            </SfCard>
                         ) : (
                             <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-2 xl:grid-cols-3">
                                 {filteredProducts.map((product) => {

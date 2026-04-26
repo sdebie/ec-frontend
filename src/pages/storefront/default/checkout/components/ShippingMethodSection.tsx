@@ -59,14 +59,16 @@ const ShippingMethodSection: React.FC<Props> = ({
     }, [selectedMethodId, shippingMethods, setSelectedMethodId]);
 
     return (
-        <div className="mt-8 border-t border-gray-200 pt-8">
-            <h2 className="text-lg font-medium text-gray-900">Shipping information</h2>
+        <div className="mt-8 border-t border-(--sf-border) pt-8">
+            <h2 className="text-lg font-medium text-(--sf-text)">Shipping information</h2>
             <div className="mt-5 space-y-3">
                 {shippingMethods.map((method) => (
                     <label
                         key={method.id}
                         className={`flex cursor-pointer items-center justify-between rounded-xl border p-4 transition ${
-                            selectedMethodId === method.id ? 'border-gray-900 bg-gray-50' : 'border-gray-200 hover:border-gray-300'
+                            selectedMethodId === method.id
+                                ? 'border-(--sf-accent) bg-(--sf-bg)'
+                                : 'border-(--sf-border) hover:border-(--sf-accent)'
                         }`}
                     >
                         <input
@@ -77,47 +79,47 @@ const ShippingMethodSection: React.FC<Props> = ({
                             onChange={() => method.id && setSelectedMethodId(method.id)}
                         />
                         <div>
-                            <p className="text-sm font-semibold text-gray-900">{method.name || 'Shipping'}</p>
-                            <p className="text-xs text-gray-500">{method.estimatedDays || 'Standard'} delivery</p>
+                            <p className="text-sm font-semibold text-(--sf-text)">{method.name || 'Shipping'}</p>
+                            <p className="text-xs text-(--sf-muted-text)">{method.estimatedDays || 'Standard'} delivery</p>
                         </div>
-                        <p className="text-sm font-semibold text-gray-900">{formatCurrency(Number(method.baseFee || 0))}</p>
+                        <p className="text-sm font-semibold text-(--sf-text)">{formatCurrency(Number(method.baseFee || 0))}</p>
                     </label>
                 ))}
             </div>
 
             {needsShippingAddress && (
-                <div className="mt-5 space-y-3 border-t border-gray-100 pt-5">
-                    <p className="text-sm font-medium text-gray-700">Delivery address</p>
+                <div className="mt-5 space-y-3 border-t border-(--sf-border) pt-5">
+                    <p className="text-sm font-medium text-(--sf-text)">Delivery address</p>
                     <input
                         placeholder="Street address"
                         value={address.street}
-                        className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm outline-none focus:border-gray-900 focus:ring-1 focus:ring-gray-900"
+                        className="w-full rounded-lg border border-(--sf-border) px-3 py-2 text-sm text-(--sf-text) outline-none focus:border-(--sf-accent) focus:ring-1 focus:ring-(--sf-accent)"
                         onChange={(e) => setAddress({...address, street: e.target.value})}
                     />
                     <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
                         <input
                             placeholder="City"
                             value={address.city}
-                            className="rounded-lg border border-gray-300 px-3 py-2 text-sm outline-none focus:border-gray-900 focus:ring-1 focus:ring-gray-900"
+                            className="rounded-lg border border-(--sf-border) px-3 py-2 text-sm text-(--sf-text) outline-none focus:border-(--sf-accent) focus:ring-1 focus:ring-(--sf-accent)"
                             onChange={(e) => setAddress({...address, city: e.target.value})}
                         />
                         <input
                             placeholder="Postal code"
                             value={address.postalCode}
-                            className="rounded-lg border border-gray-300 px-3 py-2 text-sm outline-none focus:border-gray-900 focus:ring-1 focus:ring-gray-900"
+                            className="rounded-lg border border-(--sf-border) px-3 py-2 text-sm text-(--sf-text) outline-none focus:border-(--sf-accent) focus:ring-1 focus:ring-(--sf-accent)"
                             onChange={(e) => setAddress({...address, postalCode: e.target.value})}
                         />
                     </div>
                     <input
                         placeholder="Province"
                         value={address.province}
-                        className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm outline-none focus:border-gray-900 focus:ring-1 focus:ring-gray-900"
+                        className="w-full rounded-lg border border-(--sf-border) px-3 py-2 text-sm text-(--sf-text) outline-none focus:border-(--sf-accent) focus:ring-1 focus:ring-(--sf-accent)"
                         onChange={(e) => setAddress({...address, province: e.target.value})}
                     />
 
                     {customer && isAuthenticated && isAccountAddressEdited && (
-                        <div className="rounded-lg border border-gray-200 bg-gray-50 p-3">
-                            <label className="flex items-center gap-2 text-sm text-gray-700">
+                        <div className="rounded-lg border border-(--sf-border) bg-(--sf-bg) p-3">
+                            <label className="flex items-center gap-2 text-sm text-(--sf-text)">
                                 <input
                                     type="checkbox"
                                     checked={updateAccountAddress}
@@ -129,8 +131,8 @@ const ShippingMethodSection: React.FC<Props> = ({
                     )}
 
                     {(!customer || !customer.hasPassword) && (
-                        <div className="rounded-lg border border-gray-200 bg-gray-50 p-3">
-                            <label className="flex items-center gap-2 text-sm text-gray-700">
+                        <div className="rounded-lg border border-(--sf-border) bg-(--sf-bg) p-3">
+                            <label className="flex items-center gap-2 text-sm text-(--sf-text)">
                                 <input
                                     type="checkbox"
                                     checked={saveDetails}
@@ -153,19 +155,19 @@ const ShippingMethodSection: React.FC<Props> = ({
                                         placeholder="Create a password (min 6 characters)"
                                         value={registerPassword}
                                         onChange={(e) => setRegisterPassword(e.target.value)}
-                                        className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm outline-none focus:border-gray-900 focus:ring-1 focus:ring-gray-900"
+                                        className="w-full rounded-lg border border-(--sf-border) px-3 py-2 text-sm text-(--sf-text) outline-none focus:border-(--sf-accent) focus:ring-1 focus:ring-(--sf-accent)"
                                     />
                                     <input
                                         type="password"
                                         placeholder="Confirm your password"
                                         value={registerPasswordConfirm}
                                         onChange={(e) => setRegisterPasswordConfirm(e.target.value)}
-                                        className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm outline-none focus:border-gray-900 focus:ring-1 focus:ring-gray-900"
+                                        className="w-full rounded-lg border border-(--sf-border) px-3 py-2 text-sm text-(--sf-text) outline-none focus:border-(--sf-accent) focus:ring-1 focus:ring-(--sf-accent)"
                                     />
                                     {registerPassword &&
                                         registerPasswordConfirm &&
                                         registerPassword !== registerPasswordConfirm && (
-                                            <p className="text-xs text-red-600">Passwords do not match.</p>
+                                            <p className="text-xs text-(--sf-error)">Passwords do not match.</p>
                                         )}
                                 </div>
                             )}

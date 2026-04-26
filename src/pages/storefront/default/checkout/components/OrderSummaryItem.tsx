@@ -19,25 +19,25 @@ const OrderSummaryItem: React.FC<Props> = ({item, index}) => {
     const imageUrl = variant?.images?.[0]?.imageUrl;
 
     return (
-        <li className="flex gap-4 border-b border-gray-100 pb-4 last:border-b-0 last:pb-0">
-            <div className="h-16 w-16 shrink-0 overflow-hidden rounded-md border border-gray-200 bg-white">
+        <li className="flex gap-4 border-b border-(--sf-border) pb-4 last:border-b-0 last:pb-0">
+            <div className="h-16 w-16 shrink-0 overflow-hidden rounded-md border border-(--sf-border) bg-(--sf-panel)">
                 {imageUrl ? (
 
                     <img src={`${IMAGE_THUMBNAIL_URL}${imageUrl}`} alt={variant?.product?.name || 'Product'}
                          className="h-full w-full object-cover"/>
                 ) : (
-                    <div className="flex h-full w-full items-center justify-center text-xs text-gray-400">Item</div>
+                    <div className="flex h-full w-full items-center justify-center text-xs text-(--sf-muted-text)">Item</div>
                 )}
             </div>
 
             <div className="min-w-0 flex-1">
-                <p className="truncate text-sm font-medium text-gray-900">{variant?.product?.name || `Product ${index + 1}`}</p>
-                <p className="mt-1 text-xs text-gray-500">Qty {quantity} x {formatCurrency(unitPrice)}</p>
+                <p className="truncate text-sm font-medium text-(--sf-text)">{variant?.product?.name || `Product ${index + 1}`}</p>
+                <p className="mt-1 text-xs text-(--sf-muted-text)">Qty {quantity} x {formatCurrency(unitPrice)}</p>
                 {attrs.length > 0 && (
-                    <dl className="mt-2 space-y-1 text-xs text-gray-500">
+                    <dl className="mt-2 space-y-1 text-xs text-(--sf-muted-text)">
                         {attrs.map((entry) => (
                             <div key={`${entry.label}-${entry.value}`} className="flex gap-1">
-                                <dt className="font-medium text-gray-600">{entry.label}:</dt>
+                                <dt className="font-medium text-(--sf-muted-text)">{entry.label}:</dt>
                                 <dd className="truncate">{entry.value}</dd>
                             </div>
                         ))}
@@ -45,7 +45,7 @@ const OrderSummaryItem: React.FC<Props> = ({item, index}) => {
                 )}
             </div>
 
-            <p className="text-sm font-semibold text-gray-900">{formatCurrency(lineTotal)}</p>
+            <p className="text-sm font-semibold text-(--sf-text)">{formatCurrency(lineTotal)}</p>
         </li>
     );
 };

@@ -113,6 +113,10 @@ export interface StorefrontTheme {
     navBorder?: string;
     navIconText?: string;
     navIconTextHover?: string;
+
+    // NEW: Status tokens
+    error?: string;
+    success?: string;
 }
 
 export interface StorefrontBrandLogo {

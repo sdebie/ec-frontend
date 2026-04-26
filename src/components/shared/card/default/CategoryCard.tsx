@@ -31,18 +31,11 @@ export function CategoryCard({
                     onClick()
                 }
             }}
-            className="group block rounded-lg overflow-hidden transition-all hover:shadow-lg"
-            style={{
-                backgroundColor: 'var(--storefront-color-surface)',
-                border: '1px solid var(--storefront-color-border)',
-            }}
+            className="group block rounded-lg overflow-hidden transition-all hover:shadow-lg bg-(--sf-panel) border border-(--sf-border)"
         >
             {/* Image or Icon Area */}
             <div
-                className="relative h-40 flex items-center justify-center overflow-hidden"
-                style={{
-                    backgroundColor: 'var(--storefront-color-background)',
-                }}
+                className="relative h-40 flex items-center justify-center overflow-hidden bg-(--sf-bg)"
             >
                 {image ? (
                     <img
@@ -51,17 +44,12 @@ export function CategoryCard({
                         className="w-full h-full object-cover group-hover:scale-105 transition-transform"
                     />
                 ) : icon ? (
-                    <div className="text-4xl text-opacity-50 group-hover:text-opacity-100 transition-all"
-                         style={{color: 'var(--storefront-color-primary)'}}>
+                    <div className="text-4xl opacity-50 group-hover:opacity-100 transition-all text-(--sf-accent)">
                         {icon}
                     </div>
                 ) : (
                     <div
-                        className="w-20 h-20 rounded-full flex items-center justify-center"
-                        style={{
-                            backgroundColor: 'var(--storefront-color-primary)',
-                            opacity: 0.1,
-                        }}
+                        className="w-20 h-20 rounded-full flex items-center justify-center bg-(--sf-accent) opacity-10"
                     />
                 )}
             </div>
@@ -69,20 +57,13 @@ export function CategoryCard({
             {/* Content */}
             <div className="p-4">
                 <h3
-                    className="font-semibold text-lg mb-1"
-                    style={{
-                        color: 'var(--storefront-color-text-primary)',
-                        fontFamily: 'var(--storefront-font-heading)',
-                    }}
+                    className="font-semibold text-lg mb-1 text-(--sf-text)"
                 >
                     {name}
                 </h3>
                 {description && (
                     <p
-                        className="text-sm"
-                        style={{
-                            color: 'var(--storefront-color-text-secondary)',
-                        }}
+                        className="text-sm text-(--sf-muted-text)"
                     >
                         {description}
                     </p>

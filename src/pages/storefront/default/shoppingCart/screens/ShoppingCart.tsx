@@ -25,11 +25,11 @@ function ShoppingCart() {
             <div className="mx-auto max-w-2xl px-4 pt-16 pb-24 sm:px-6 lg:max-w-7xl lg:px-8">
                 <div className="flex items-end justify-between gap-4">
                     <div>
-                        <h1 className="text-3xl font-bold tracking-tight text-gray-900 sm:text-4xl">
+                        <h1 className="text-3xl font-bold tracking-tight text-(--sf-text) sm:text-4xl">
                             Shopping Cart
                         </h1>
 
-                        <p className="mt-2 text-sm text-gray-500">
+                        <p className="mt-2 text-sm text-(--sf-muted-text)">
                             {hasItems
                                 ? `${itemCount} item${itemCount === 1 ? '' : 's'} ready for checkout.`
                                 : 'Review your selected items before checkout.'}

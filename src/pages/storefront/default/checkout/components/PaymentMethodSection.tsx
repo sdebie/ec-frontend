@@ -16,8 +16,8 @@ const PaymentMethodSection: React.FC<Props> = ({
                                                    setSelectedPayment,
                                                }) => {
     return (
-        <div className="mt-10 border-t border-gray-200 pt-10">
-            <h2 className="text-lg font-medium text-gray-900 mb-3">Payment</h2>
+        <div className="mt-10 border-t border-(--sf-border) pt-10">
+            <h2 className="mb-3 text-lg font-medium text-(--sf-text)">Payment</h2>
             {enabledPayments.length === 0 ? (
                 <div className="rounded-lg border border-yellow-200 bg-yellow-50 p-3 text-sm text-yellow-800">
                     No payment methods are currently available. Please contact the store.
@@ -36,8 +36,8 @@ const PaymentMethodSection: React.FC<Props> = ({
                                 key={pm}
                                 className={`flex cursor-pointer items-center gap-3 rounded-xl border p-4 transition ${
                                     selectedPayment === pm
-                                        ? 'border-gray-900 bg-gray-50'
-                                        : 'border-gray-200 hover:border-gray-300'
+                                        ? 'border-(--sf-accent) bg-(--sf-bg)'
+                                        : 'border-(--sf-border) hover:border-(--sf-accent)'
                                 }`}
                             >
                                 <input
@@ -47,10 +47,10 @@ const PaymentMethodSection: React.FC<Props> = ({
                                     checked={selectedPayment === pm}
                                     onChange={() => setSelectedPayment(pm)}
                                 />
-                                <CreditCard className="h-5 w-5 text-gray-700"/>
+                                <CreditCard className="h-5 w-5 text-(--sf-muted-text)"/>
                                 <div>
-                                    <p className="text-sm font-semibold text-gray-900">{title}</p>
-                                    <p className="text-xs text-gray-500">{description}</p>
+                                    <p className="text-sm font-semibold text-(--sf-text)">{title}</p>
+                                    <p className="text-xs text-(--sf-muted-text)">{description}</p>
                                 </div>
                             </label>
                         );

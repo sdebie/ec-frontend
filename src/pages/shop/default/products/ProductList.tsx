@@ -4,6 +4,7 @@ import {ProductShoppingListItem, VariantPrice} from '@/types/admin/ProductTypes.
 import {useAddToCart} from '@/pages/shop/default/cart/hook/useAddToCart.ts';
 import {Link} from "react-router-dom";
 import ProductImage from "@/components/shared/imageupload/ProductImage.tsx";
+import { SfButton } from '@/components/storefront';
 
 const toPriceNumber = (val?: VariantPrice | number | null): number | null => {
     if (typeof val === 'number') return val;
@@ -47,7 +48,7 @@ const ProductList: React.FC<ProductListProps> = ({activeCategory}) => {
             <h1 className="text-2xl font-bold mb-6">Products</h1>
 
             {loading && <div>Loading…</div>}
-            {error && <div className="text-red-600">{error}</div>}
+            {error && <div className="text-(--sf-error)">{error}</div>}
 
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
                 {items.map((p) => {
@@ -63,8 +64,8 @@ const ProductList: React.FC<ProductListProps> = ({activeCategory}) => {
                         : retailPrice;
 
                     return (
-                        <div key={p.id} className="border rounded-lg overflow-hidden bg-white shadow-sm">
-                            <div className="w-full h-40 bg-gray-100 overflow-hidden flex items-center justify-center">
+                        <div key={p.id} className="border border-(--sf-border) rounded-lg overflow-hidden bg-(--sf-panel) shadow-sm">
+                            <div className="w-full h-40 bg-(--sf-bg) overflow-hidden flex items-center justify-center">
                                 {mainImage ? (
                                     <ProductImage
                                         fileName={mainImage}
@@ -80,15 +81,14 @@ const ProductList: React.FC<ProductListProps> = ({activeCategory}) => {
                                 )}
                             </div>
                             <div className="p-4">
-                                <div className="font-semibold text-gray-900 mb-1">{p.name}</div>
-                                <div className="text-sm text-gray-600 mb-3 line-clamp-3">{p.shortDescription}</div>
+                                <div className="font-semibold text-(--sf-text) mb-1">{p.name}</div>
+                                <div className="text-sm text-(--sf-muted-text) mb-3 line-clamp-3">{p.shortDescription}</div>
                                 <div className="flex items-center justify-between gap-2">
                                     <div>
                                         {retailSalePrice != null && retailSalePrice < retailPrice ? (
                                             <>
-                                                <div
-                                                    className="text-lg font-bold text-green-600">{currency(retailSalePrice)}</div>
-                                                <div className="text-sm text-gray-500 line-through">
+                                                <div className="text-lg font-bold text-(--sf-success)">{currency(retailSalePrice)}</div>
+                                                <div className="text-sm text-(--sf-muted-text) line-through">
                                                     {currency(retailPrice)}
                                                 </div>
                                             </>
@@ -99,9 +99,8 @@ const ProductList: React.FC<ProductListProps> = ({activeCategory}) => {
                                     <div>
                                         {wholesaleSalePrice != null && wholesaleSalePrice < wholesalePrice ? (
                                             <>
-                                                <div
-                                                    className="text-lg font-bold text-green-600">{currency(wholesaleSalePrice)}</div>
-                                                <div className="text-sm text-gray-500 line-through">
+                                                <div className="text-lg font-bold text-(--sf-success)">{currency(wholesaleSalePrice)}</div>
+                                                <div className="text-sm text-(--sf-muted-text) line-through">
                                                     {currency(wholesalePrice)}
                                                 </div>
                                             </>
@@ -112,33 +111,31 @@ const ProductList: React.FC<ProductListProps> = ({activeCategory}) => {
                                 </div>
                                 <div className="flex items-center justify-between gap-2">
                                     {primaryVariantId && (
-                                        <button
+                                        <SfButton
                                             onClick={() => {
                                                 const orderItem = {
                                                     quantity: 1,
                                                     unitPrice: selectedRetailPrice,
                                                     variant: String(primaryVariantId),
                                                 };
-
                                                 createOrder({
                                                     items: [orderItem],
                                                 });
                                             }}
-                                            className="px-3 py-1.5 bg-blue-600 text-white rounded hover:bg-blue-700 text-sm whitespace-nowrap"
+                                            className="px-3 py-1.5 rounded text-sm whitespace-nowrap"
                                         >
                                             Add to Cart
-                                        </button>
+                                        </SfButton>
                                     )}
                                     {primaryVariantId ? (
                                         <Link to={`/product/${p.id}`}
-                                              className="px-3 py-1.5 bg-gray-300 text-gray-900 rounded hover:bg-gray-400 text-sm whitespace-nowrap">
+                                              className="px-3 py-1.5 bg-(--sf-border) text-(--sf-text) rounded hover:opacity-80 text-sm whitespace-nowrap">
                                             View
                                         </Link>
                                     ) : (
                                         <Link to={`/product/${p.id}`}
-                                              className="px-3 py-1.5 bg-gray-300 text-gray-900 rounded hover:bg-gray-400 text-sm whitespace-nowrap">
-                                            <span
-                                                className="text-sm text-gray-500 whitespace-nowrap">Select 1 of {variantCount} options</span>
+                                              className="px-3 py-1.5 bg-(--sf-border) text-(--sf-text) rounded hover:opacity-80 text-sm whitespace-nowrap">
+                                            <span className="text-sm text-(--sf-muted-text) whitespace-nowrap">Select 1 of {variantCount} options</span>
                                         </Link>
                                     )}
                                 </div>

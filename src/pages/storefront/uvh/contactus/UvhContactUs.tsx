@@ -1,19 +1,20 @@
 import {Mail, MapPin, MessageSquare, Phone} from "lucide-react";
 import {TbDeviceLandlinePhone} from "react-icons/tb";
+import { SfCard, SfButton, SfInput, SfTextarea, SfAccentDivider, SfIconBox } from '@/components/storefront';
 
 const UvhContactUs = () => {
     return (
-        <div className="min-h-screen" style={{backgroundColor: 'var(--sf-bg)'}}>
+        <div className="min-h-screen bg-(--sf-bg)">
             {/* Page Header */}
             <div className="text-center py-6 px-6">
-                <h1 className="text-4xl font-bold" style={{color: 'var(--sf-text)'}}>
+                <h1 className="text-4xl font-bold text-(--sf-text)">
                     Contact Us
                 </h1>
-                <p className="mt-4 text-2xl" style={{color: 'var(--sf-muted-text)'}}>
+                <p className="mt-4 text-2xl text-(--sf-muted-text)">
                     Need product advice, a quote, or wholesale help?
                 </p>
-                <p className="mt-2" style={{color: 'var(--sf-muted-text)'}}>
-                    Call, WhatsApp, or email us and we’ll get back to you as quickly as possible.
+                <p className="mt-2 text-(--sf-muted-text)">
+                    Call, WhatsApp, or email us and we'll get back to you as quickly as possible.
                 </p>
             </div>
 
@@ -21,20 +22,11 @@ const UvhContactUs = () => {
             <div className="max-w-6xl mx-auto px-4 ">
                 <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 items-stretch">
                     {/* Left Card - Contact Details (appears second on mobile, first on desktop) */}
-                    <div className="h-full rounded-lg p-8 border order-2 lg:order-1" style={{
-                        backgroundColor: 'var(--sf-panel)',
-                        borderColor: 'var(--sf-border)'
-                    }}>
-                        <h2
-                            className="text-lg font-bold mb-4"
-                            style={{color: 'var(--sf-text)'}}
-                        >
+                    <SfCard elevation="sm" className="rounded-lg h-full p-8 order-2 lg:order-1">
+                        <h2 className="text-lg font-bold mb-4 text-(--sf-text)">
                             Contact Details
                             {/* Accent Divider */}
-                            <div
-                                className="h-1 w-15 mt-2 mb-5 rounded"
-                                style={{backgroundColor: 'var(--sf-accent)'}}
-                            />
+                            <SfAccentDivider className="w-15 mt-2 mb-5" />
                         </h2>
 
                         {/* Contact Sections */}
@@ -42,33 +34,20 @@ const UvhContactUs = () => {
                             {/* Call / WhatsApp */}
                             <div>
                                 <div className="flex items-start gap-4">
-                                    <div
-                                        className="p-3 rounded-lg"
-                                        style={{backgroundColor: 'var(--sf-bg)'}}
-                                    >
-                                        <Phone
-                                            size={20}
-                                            style={{color: 'var(--sf-accent)'}}
-                                        />
-                                    </div>
+                                    <SfIconBox><Phone size={20} /></SfIconBox>
                                     <div>
-                                        <p
-                                            className="font-semibold text-xs"
-                                            style={{color: 'var(--sf-muted-text)'}}
-                                        >
+                                        <p className="font-semibold text-xs text-(--sf-muted-text)">
                                             Call / WhatsApp
                                         </p>
                                         <a
                                             href="tel:+27768195245"
-                                            className="text-xs font-medium mt-1 block hover:underline"
-                                            style={{color: 'var(--sf-text)'}}
+                                            className="text-xs font-medium mt-1 block hover:underline text-(--sf-text)"
                                         >
                                             +27 76 819 5245
                                         </a>
                                         <a
                                             href="tel:+27714614419"
-                                            className="text-xs font-medium mt-1 block hover:underline"
-                                            style={{color: 'var(--sf-text)'}}
+                                            className="text-xs font-medium mt-1 block hover:underline text-(--sf-text)"
                                         >
                                             +27 71 461 4419
                                         </a>
@@ -79,26 +58,14 @@ const UvhContactUs = () => {
                             {/* Landline */}
                             <div>
                                 <div className="flex items-start gap-4">
-                                    <div
-                                        className="p-3 rounded-lg"
-                                        style={{backgroundColor: 'var(--sf-bg)'}}
-                                    >
-                                        <TbDeviceLandlinePhone
-                                            size={20}
-                                            style={{color: 'var(--sf-accent)'}}
-                                        />
-                                    </div>
+                                    <SfIconBox><TbDeviceLandlinePhone size={20} /></SfIconBox>
                                     <div>
-                                        <p
-                                            className="font-semibold text-xs"
-                                            style={{color: 'var(--sf-muted-text)'}}
-                                        >
+                                        <p className="font-semibold text-xs text-(--sf-muted-text)">
                                             Landline
                                         </p>
                                         <a
                                             href="tel:+27129949184"
-                                            className="text-xs font-medium mt-1 block hover:underline"
-                                            style={{color: 'var(--sf-text)'}}
+                                            className="text-xs font-medium mt-1 block hover:underline text-(--sf-text)"
                                         >
                                             +27 (12) 994-9184
                                         </a>
@@ -109,40 +76,26 @@ const UvhContactUs = () => {
                             {/* Email */}
                             <div>
                                 <div className="flex items-start gap-4">
-                                    <div
-                                        className="p-3 rounded-lg"
-                                        style={{backgroundColor: 'var(--sf-bg)'}}
-                                    >
-                                        <Mail
-                                            size={20}
-                                            style={{color: 'var(--sf-accent)'}}
-                                        />
-                                    </div>
+                                    <SfIconBox><Mail size={20} /></SfIconBox>
                                     <div>
-                                        <p
-                                            className="font-semibold text-xs"
-                                            style={{color: 'var(--sf-muted-text)'}}
-                                        >
+                                        <p className="font-semibold text-xs text-(--sf-muted-text)">
                                             Email
                                         </p>
                                         <a
                                             href="mailto:info@uvhholdings.co.za"
-                                            className="text-xs font-medium mt-1 block hover:underline"
-                                            style={{color: 'var(--sf-text)'}}
+                                            className="text-xs font-medium mt-1 block hover:underline text-(--sf-text)"
                                         >
                                             info@uvhholdings.co.za
                                         </a>
                                         <a
                                             href="mailto:sales@uvhholdings.co.za"
-                                            className="text-xs font-medium mt-1 block hover:underline"
-                                            style={{color: 'var(--sf-text)'}}
+                                            className="text-xs font-medium mt-1 block hover:underline text-(--sf-text)"
                                         >
                                             sales@uvhholdings.co.za
                                         </a>
                                         <a
                                             href="mailto:accounts@uvhholdings.co.za"
-                                            className="text-xs font-medium mt-1 block hover:underline"
-                                            style={{color: 'var(--sf-text)'}}
+                                            className="text-xs font-medium mt-1 block hover:underline text-(--sf-text)"
                                         >
                                             accounts@uvhholdings.co.za
                                         </a>
@@ -153,26 +106,12 @@ const UvhContactUs = () => {
                             {/* Address */}
                             <div>
                                 <div className="flex items-start gap-4">
-                                    <div
-                                        className="p-3 rounded-lg"
-                                        style={{backgroundColor: 'var(--sf-bg)'}}
-                                    >
-                                        <MapPin
-                                            size={20}
-                                            style={{color: 'var(--sf-accent)'}}
-                                        />
-                                    </div>
+                                    <SfIconBox><MapPin size={20} /></SfIconBox>
                                     <div>
-                                        <p
-                                            className="font-semibold text-xs"
-                                            style={{color: 'var(--sf-muted-text)'}}
-                                        >
+                                        <p className="font-semibold text-xs text-(--sf-muted-text)">
                                             Address
                                         </p>
-                                        <p
-                                            className="text-xs font-medium mt-1"
-                                            style={{color: 'var(--sf-text)'}}
-                                        >
+                                        <p className="text-xs font-medium mt-1 text-(--sf-text)">
                                             207 Edison Crescent
                                             <br/>
                                             Centurion, Gauteng, 0157, South Africa
@@ -183,10 +122,7 @@ const UvhContactUs = () => {
                         </div>
 
                         {/* Map/Image Placeholder */}
-                        <div
-                            className="mt-4 rounded-lg h-30 flex items-center justify-center"
-                            style={{backgroundColor: 'var(--sf-bg)'}}
-                        >
+                        <div className="mt-4 rounded-lg h-30 flex items-center justify-center bg-(--sf-bg)">
                             <iframe
                                 title="Location Map"
                                 src="https://www.google.com/maps?q=-25.8723417,28.1661571&z=15&output=embed"
@@ -195,25 +131,14 @@ const UvhContactUs = () => {
                                 referrerPolicy="no-referrer-when-downgrade"
                             />
                         </div>
-                    </div>
+                    </SfCard>
 
                     {/* Right Card - Contact Form (appears first on mobile, second on desktop) */}
-                    <div className="h-full rounded-lg p-8 border order-1 lg:order-2"
-                         style={{
-                             backgroundColor: 'var(--sf-panel)',
-                             borderColor: 'var(--sf-border)'
-                         }}
-                    >
-                        <h2
-                            className="text-lg font-bold mb-4"
-                            style={{color: 'var(--sf-text)'}}
-                        >
+                    <SfCard elevation="sm" className="rounded-lg h-full p-8 order-1 lg:order-2">
+                        <h2 className="text-lg font-bold mb-4 text-(--sf-text)">
                             Contact Us
                             {/* Accent Divider */}
-                            <div
-                                className="h-1 w-15 mt-3 mb-6 rounded"
-                                style={{backgroundColor: 'var(--sf-accent)'}}
-                            />
+                            <SfAccentDivider className="w-15 mt-3 mb-6" />
                         </h2>
                         <form action="#" method="POST" className="space-y-1">
                             {/* 2-Column Grid for Form Fields (desktop) */}
@@ -222,23 +147,16 @@ const UvhContactUs = () => {
                                 <div>
                                     <label
                                         htmlFor="name"
-                                        className="block text-xs font-semibold mb-2"
-                                        style={{color: 'var(--sf-text)'}}
+                                        className="block text-xs font-semibold mb-2 text-(--sf-text)"
                                     >
                                         Name
                                     </label>
-                                    <input
+                                    <SfInput
                                         id="name"
                                         name="name"
                                         type="text"
                                         placeholder="Your name"
-                                        className="w-full px-4 py-1.5 rounded-lg border focus:outline-none focus:ring-2 text-xs"
-                                        style={{
-                                            backgroundColor: 'var(--sf-panel)',
-                                            borderColor: 'var(--sf-border)',
-                                            color: 'var(--sf-text)',
-                                            '--tw-ring-color': 'var(--sf-accent)'
-                                        } as React.CSSProperties}
+                                        className="px-4 py-1.5 text-xs"
                                     />
                                 </div>
 
@@ -246,23 +164,16 @@ const UvhContactUs = () => {
                                 <div>
                                     <label
                                         htmlFor="email"
-                                        className="block text-xs font-semibold mb-2"
-                                        style={{color: 'var(--sf-text)'}}
+                                        className="block text-xs font-semibold mb-2 text-(--sf-text)"
                                     >
                                         Email
                                     </label>
-                                    <input
+                                    <SfInput
                                         id="email"
                                         name="email"
                                         type="email"
                                         placeholder="your@email.com"
-                                        className="w-full px-4 py-1.5 rounded-lg border focus:outline-none focus:ring-2 text-xs"
-                                        style={{
-                                            backgroundColor: 'var(--sf-panel)',
-                                            borderColor: 'var(--sf-border)',
-                                            color: 'var(--sf-text)',
-                                            '--tw-ring-color': 'var(--sf-accent)'
-                                        } as React.CSSProperties}
+                                        className="px-4 py-1.5 text-xs"
                                     />
                                 </div>
 
@@ -270,23 +181,16 @@ const UvhContactUs = () => {
                                 <div>
                                     <label
                                         htmlFor="phone"
-                                        className="block text-xs font-semibold mb-2"
-                                        style={{color: 'var(--sf-text)'}}
+                                        className="block text-xs font-semibold mb-2 text-(--sf-text)"
                                     >
                                         Phone
                                     </label>
-                                    <input
+                                    <SfInput
                                         id="phone"
                                         name="phone"
                                         type="tel"
                                         placeholder="+27 (123) 456-789"
-                                       className="w-full px-4 py-1.5 rounded-lg border focus:outline-none focus:ring-2 text-xs"
-                                        style={{
-                                            backgroundColor: 'var(--sf-panel)',
-                                            borderColor: 'var(--sf-border)',
-                                            color: 'var(--sf-text)',
-                                            '--tw-ring-color': 'var(--sf-accent)'
-                                        } as React.CSSProperties}
+                                        className="px-4 py-1.5 text-xs"
                                     />
                                 </div>
 
@@ -294,23 +198,16 @@ const UvhContactUs = () => {
                                 <div>
                                     <label
                                         htmlFor="company"
-                                        className="block text-xs font-semibold mb-2"
-                                        style={{color: 'var(--sf-text)'}}
+                                        className="block text-xs font-semibold mb-2 text-(--sf-text)"
                                     >
                                         Company
                                     </label>
-                                    <input
+                                    <SfInput
                                         id="company"
                                         name="company"
                                         type="text"
                                         placeholder="Your company"
-                                        className="w-full px-4 py-1.5 rounded-lg border focus:outline-none focus:ring-2 text-xs"
-                                        style={{
-                                            backgroundColor: 'var(--sf-panel)',
-                                            borderColor: 'var(--sf-border)',
-                                            color: 'var(--sf-text)',
-                                            '--tw-ring-color': 'var(--sf-accent)'
-                                        } as React.CSSProperties}
+                                        className="px-4 py-1.5 text-xs"
                                     />
                                 </div>
                             </div>
@@ -319,42 +216,31 @@ const UvhContactUs = () => {
                             <div>
                                 <label
                                     htmlFor="message"
-                                    className="block text-xs font-semibold mb-2"
-                                    style={{color: 'var(--sf-text)'}}
+                                    className="block text-xs font-semibold mb-2 text-(--sf-text)"
                                 >
                                     Message
                                 </label>
-                                <textarea
+                                <SfTextarea
                                     id="message"
                                     name="message"
                                     rows={5}
                                     placeholder="Your message here..."
-                                    className="w-full px-4 py-2.5 rounded-lg border focus:outline-none focus:ring-2 resize-none text-xs"
-                                    style={{
-                                        backgroundColor: 'var(--sf-panel)',
-                                        borderColor: 'var(--sf-border)',
-                                        color: 'var(--sf-text)',
-                                        '--tw-ring-color': 'var(--sf-accent)'
-                                    } as React.CSSProperties}
+                                    className="px-4 py-2.5 resize-none text-xs"
                                 />
                             </div>
 
                             {/* Submit Button */}
                             <div className="flex justify-end pt-1">
-                                <button
+                                <SfButton
                                     type="submit"
-                                    className="px-8 py-2 rounded-lg font-semibold transition-opacity hover:opacity-90 flex items-center gap-2 text-xs"
-                                    style={{
-                                        backgroundColor: 'var(--sf-accent)',
-                                        color: 'var(--sf-accent-text)'
-                                    }}
+                                    className="px-8 py-2 text-xs flex items-center gap-2"
                                 >
                                     <MessageSquare size={18}/>
                                     Send Message
-                                </button>
+                                </SfButton>
                             </div>
                         </form>
-                    </div>
+                    </SfCard>
                 </div>
             </div>
         </div>

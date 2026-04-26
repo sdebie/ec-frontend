@@ -15,7 +15,7 @@ function CartItemList({items, onQuantityChange, onRemove}: CartItemListProps) {
                 Items in your shopping cart
             </h2>
 
-            <ul role="list" className="divide-y divide-gray-200 border-t border-b border-gray-200">
+            <ul role="list" className="divide-y divide-(--sf-border) border-t border-b border-(--sf-border)">
                 {items.map((item, index) => (
                     <CartItemRow
                         key={typeof item.variant === 'string' ? `${item.variant}-${index}` : item.variant?.id ?? index}

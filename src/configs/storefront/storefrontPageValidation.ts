@@ -1,8 +1,28 @@
 // ec-frontend/src/configs/storefront/storefrontPageValidation.ts
 import type {StorefrontPageKey} from '@/types/storefront/storefrontPageContracts.ts';
-import {storefrontPageRegistry} from '@/configs/storefront/storefrontPageRegistry.ts';
+import {CANONICAL_STOREFRONT_PAGE_KEYS} from '@/types/storefront/storefrontPageKeys.ts';
+import {
+    storefrontPageRegistry,
+    storefrontPageVariantRegistry,
+} from '@/configs/storefront/storefrontPageRegistry.ts';
+import {getStorefrontRegistry} from '@/configs/storefront/storefrontRegistry.ts';
 import {storeMenuRoutes} from '@/configs/routes/store/storeMenuRoutes.config.ts';
 import {storeRoutingRoutes} from '@/configs/routes/store/storePageRoutes.config.ts';
+
+const normalizePath = (value: string): string => {
+    const [withoutQuery] = value.split('?');
+    const [withoutHash] = withoutQuery.split('#');
+    const normalized = withoutHash.trim();
+    if (normalized === '/') return '/';
+    return normalized.replace(/\/+$/, '');
+};
+
+const isExternalLink = (to: string, external?: boolean): boolean => {
+    if (external) return true;
+    // Covers http(s), mailto, tel, etc.
+    if (/^[a-z][a-z0-9+.-]*:/i.test(to)) return true;
+    return to.startsWith('//');
+};
 
 /**
  * Phase 1 validation for storefront page resolver infrastructure.
@@ -17,17 +37,9 @@ export const validateStorefrontPageInfrastructure = (): { valid: boolean; warnin
     const routeKeysFromPageRoutes = storeRoutingRoutes.map((route) => route.key);
     const allRouteKeys = new Set([...routeKeysFromMenuRoutes, ...routeKeysFromPageRoutes]);
 
-    // All canonical page keys
-    const canonicalPageKeys: StorefrontPageKey[] = [
-        'home',
-        'products',
-        'cart',
-        'productDetail',
-        'checkout',
-        'paymentSuccess',
-        'accessDenied',
-        'contactUs',
-    ];
+    // Canonical page keys from the single source of truth.
+    const canonicalPageKeys: readonly StorefrontPageKey[] =
+        CANONICAL_STOREFRONT_PAGE_KEYS;
 
     // Validate: all canonical page keys must have registry entries
     canonicalPageKeys.forEach((pageKey) => {
@@ -55,6 +67,61 @@ export const validateStorefrontPageInfrastructure = (): { valid: boolean; warnin
                 `[StorefrontPageValidation] Route key "${routeKey}" is not in canonical StorefrontPageKey union. Consider adding it if intentional.`
             );
         }
+    });
+
+    // Collect known store route paths for nav-path validation.
+    const knownStorePaths = new Set(
+        storeRoutingRoutes.map((route) => normalizePath(route.path)),
+    );
+
+    // Validate client-level variant and navigation drift. Warnings only.
+    const storefrontClients = Object.values(getStorefrontRegistry());
+    storefrontClients.forEach((clientConfig) => {
+        const clientId = clientConfig.id;
+        const variants = clientConfig.pages?.variants ?? {};
+
+        Object.entries(variants).forEach(([rawPageKey, variantId]) => {
+            const pageKey = rawPageKey as StorefrontPageKey;
+
+            if (!canonicalPageKeys.includes(pageKey)) {
+                warnings.push(
+                    `[StorefrontPageValidation] Client "${clientId}" references unknown page variant key "${rawPageKey}".`,
+                );
+                return;
+            }
+
+            const variantsForPage = storefrontPageVariantRegistry[pageKey];
+            const variantExists = !!variantsForPage?.[variantId as string];
+            if (!variantExists) {
+                warnings.push(
+                    `[StorefrontPageValidation] Client "${clientId}" references unknown variant id "${variantId}" for page "${pageKey}".`,
+                );
+            }
+        });
+
+        const menuItems = clientConfig.navigation?.menuItems ?? [];
+        const seenNavIds = new Set<string>();
+
+        menuItems.forEach((item) => {
+            if (seenNavIds.has(item.id)) {
+                warnings.push(
+                    `[StorefrontPageValidation] Client "${clientId}" has duplicate navigation item id "${item.id}".`,
+                );
+            } else {
+                seenNavIds.add(item.id);
+            }
+
+            if (isExternalLink(item.to, item.external)) {
+                return;
+            }
+
+            const normalizedNavPath = normalizePath(item.to);
+            if (!knownStorePaths.has(normalizedNavPath)) {
+                warnings.push(
+                    `[StorefrontPageValidation] Client "${clientId}" navigation item "${item.id}" points to unknown internal path "${item.to}".`,
+                );
+            }
+        });
     });
 
     if (warnings.length > 0) {

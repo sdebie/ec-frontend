@@ -475,7 +475,7 @@ const Checkout: React.FC = () => {
 
     return (
         <>
-            <div className="min-h-screen bg-gray-50">
+            <div className="min-h-screen bg-(--sf-bg)">
                 <div
                     className="mx-auto grid w-full max-w-7xl grid-cols-1 gap-8 px-4 py-8 sm:px-6 lg:grid-cols-12 lg:gap-10 lg:px-8">
                     <main className="space-y-6 lg:col-span-7">
