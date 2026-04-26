@@ -1,18 +1,29 @@
 import {useNavigate} from "react-router-dom";
 import {Button, DataTable} from "@/components";
-import {useEffect, useMemo, useState} from "react";
+import {useCallback, useEffect, useMemo, useState} from "react";
 import {ColumnDef} from "@tanstack/react-table";
 import type {ProductUploadBatch} from "@/types/admin/ProductTypes.ts";
-import {Eye, LoaderCircle, Plus, RefreshCw} from "lucide-react";
+import {Eye, LoaderCircle, Plus, RefreshCw, Upload} from "lucide-react";
 import {getProductPriceUploadBatchProcessStatus} from "@/services/rest/admin/ProductPriceUploadService.rest.ts";
 import {apiGetProductPriceUploadBatches} from "@/services/graphql/admin/product/ProductPriceImportService.graphql.ts";
+import {exportProductsPrice} from "@/services/rest/admin/ProductExportService.rest.ts";
 
 const BulkProductUploadList = () => {
 
     const [productPriceUploadList, setProductPriceUploadList] = useState<ProductUploadBatch[]>([]);
     const [isLoading, setIsLoading] = useState(true);
+    const [isExporting, setIsExporting] = useState(false);
     const [refreshingBatchIds, setRefreshingBatchIds] = useState<string[]>([]);
     const navigate = useNavigate();
+
+    const onExportProductsPrice = useCallback(async () => {
+        try {
+            setIsExporting(true);
+            await exportProductsPrice();
+        } finally {
+            setIsExporting(false);
+        }
+    }, []);
 
     useEffect(() => {
         const fetchProductPriceUploadList = async () => {
@@ -168,9 +179,22 @@ const BulkProductUploadList = () => {
                 columns={columns}
                 isLoading={isLoading}
                 toolbarAction={
-                    <Button onClick={bulkUpload} leftIcon={<Plus size={16}/>}>
-                        Upload Products Prices
-                    </Button>
+                    <div className={"flex items-center gap-2"}>
+                        <Button
+                            variant={"outline"}
+                            leftIcon={<Upload size={16}/>}
+                            onClick={() => onExportProductsPrice().catch(() => {
+                                console.error("Failed to export products prices.");
+                                window.alert("Failed to export products prices. Please try again.");
+                            })}
+                            disabled={isExporting}
+                        >
+                            {isExporting ? "Exporting..." : "Export Prices"}
+                        </Button>
+                        <Button onClick={bulkUpload} leftIcon={<Plus size={16}/>}>
+                            Upload Products Prices
+                        </Button>
+                    </div>
                 }
             />
         </div>
