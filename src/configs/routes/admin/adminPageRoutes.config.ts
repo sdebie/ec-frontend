@@ -1,5 +1,5 @@
 import { lazy } from 'react'
-import type { PageRoutes } from '@/@types/routes.tsx'
+import type { PageRoutes } from '@/types/routes'
 import { toPageRoutes } from '../routeHelpers'
 import { adminMenuRoutes } from './adminMenuRoutes.config'
 
@@ -19,9 +19,29 @@ const adminPageOnlyRoutes: PageRoutes = [
         },
     },
     {
+        key: 'admin.reset-password',
+        path: '/admin/reset-password',
+        component: lazy(() => import('../../../pages/admin/AdminResetPassword.tsx')),
+        authority: [],
+        meta: {
+            pageBackgroundType: 'plain',
+            pageContainerType: 'contained',
+        },
+    },
+    {
         key: 'admin.product.detail',
         path: '/admin/product/detail/:id',
         component: lazy(() => import('@/pages/admin/products/screens/detail/ProductDetail')),
+        authority: ['SUPER_ADMIN'],
+        meta: {
+            pageBackgroundType: 'plain',
+            pageContainerType: 'contained',
+        },
+    },
+    {
+        key: 'admin.order.detail',
+        path: '/admin/order/detail/:id',
+        component: lazy(() => import('@/pages/admin/orders/screens/detail/OrderDetail.tsx')),
         authority: ['SUPER_ADMIN'],
         meta: {
             pageBackgroundType: 'plain',
@@ -41,7 +61,7 @@ const adminPageOnlyRoutes: PageRoutes = [
     {
         key: 'admin.imports.bulk.products',
         path: '/admin/imports/products/bulk-upload',
-        component: lazy(() => import('@/pages/admin/products/screens/upload/ProductBulkUpload')),
+        component: lazy(() => import('@/pages/admin/products/screens/upload/products/ProductBulkUpload.tsx')),
         authority: ['SUPER_ADMIN'],
         meta: {
             pageBackgroundType: 'plain',
@@ -51,7 +71,27 @@ const adminPageOnlyRoutes: PageRoutes = [
     {
         key: 'admin.imports.bulk.products.review',
         path: '/admin/imports/products/bulk-upload/review/:batchId',
-        component: lazy(() => import('@/pages/admin/products/screens/upload/ProductImportReview')),
+        component: lazy(() => import('@/pages/admin/products/screens/upload/products/ProductImportReview.tsx')),
+        authority: ['SUPER_ADMIN'],
+        meta: {
+            pageBackgroundType: 'plain',
+            pageContainerType: 'contained',
+        },
+    },
+    {
+        key: 'admin.imports.bulk.products.price',
+        path: '/admin/imports/products/price/bulk-upload',
+        component: lazy(() => import('@/pages/admin/products/screens/upload/prices/ProductPriceBulkUpload.tsx')),
+        authority: ['SUPER_ADMIN'],
+        meta: {
+            pageBackgroundType: 'plain',
+            pageContainerType: 'contained',
+        },
+    },
+    {
+        key: 'admin.imports.bulk.products.price.review',
+        path: '/admin/imports/products/price/bulk-upload/review/:batchId',
+        component: lazy(() => import('@/pages/admin/products/screens/upload/prices/ProductPriceImportReview.tsx')),
         authority: ['SUPER_ADMIN'],
         meta: {
             pageBackgroundType: 'plain',

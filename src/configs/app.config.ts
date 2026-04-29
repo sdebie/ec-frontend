@@ -1,4 +1,6 @@
 
+const apiBaseUrl = ((import.meta.env as unknown as Record<string, string | undefined>).VITE_API_BASE_URL)?.trim() || '/api'
+
 export type AppConfig = {
 	apiPrefix: string
 	authenticatedEntryPath: string
@@ -16,7 +18,7 @@ export type AppConfig = {
 }
 
 const appConfig: AppConfig = {
-	apiPrefix: 'http://localhost:8080/api', // Updated to include full base URL
+	apiPrefix: apiBaseUrl,
 	platformRealm: 'ToSet',
 	authenticatedEntryPath: '/dashboard',
 	unAuthenticatedEntryPath: '',

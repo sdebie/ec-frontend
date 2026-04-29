@@ -3,7 +3,7 @@ import { IMAGE_BASE_URL } from '@/constants/api.constant.ts';
 import { AdaptiveCard, Button } from "@/components";
 import { PageContainer } from "@/components/layout/shared/PageContainer.tsx";
 import { useNavigate } from "react-router-dom";
-import ImageService from "@/services/ImageService.ts";
+import ImageServiceRest from "@/services/rest/admin/ImageService.rest.ts";
 import { Upload } from 'lucide-react';
 
 const ProductGallery = () => {
@@ -14,7 +14,7 @@ const ProductGallery = () => {
     useEffect(() => {
         const loadImages = async () => {
             try {
-                const data = await ImageService.fetchImageFilenames();
+                const data = await ImageServiceRest.fetchImageFilenames();
                 setImages(data);
                 if (data.length > 0) setSelectedImage(data[0]);
             } catch (error) {

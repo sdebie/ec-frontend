@@ -1,6 +1,6 @@
 import React, { useState, useRef } from 'react';
 import { Button } from "@/components";
-import ImageService from "@/services/ImageService.ts";
+import ImageServiceRest from "@/services/rest/admin/ImageService.rest.ts";
 import { Dialog, DialogContent, DialogFooter, DialogHeader } from "@/components/shared/dialog/Dialog.tsx";
 
 const BulkImageUploader = () => {
@@ -32,8 +32,8 @@ const BulkImageUploader = () => {
     const startUpload = async () => {
         setIsUploading(true);
         try {
-            const response = await ImageService.bulkUploadImages(selectedFiles);
-            alert(`Upload Complete! Saved: ${response.uploaded.length}, Skipped: ${response.skipped.length}`);
+            const response = await ImageServiceRest.bulkUploadImages(selectedFiles);
+            alert(`Upload Complete! Saved: ${response.uploaded}, Skipped: ${response.skipped}`);
             setIsUploadDialogOpen(false);
             setSelectedFiles([]);
         } catch (error) {

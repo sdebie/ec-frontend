@@ -6,7 +6,7 @@ interface ProductImageProps {
     className?: string;
 }
 
-const ProductImage: React.FC<ProductImageProps> = ({ fileName, alt, className }) => {
+const ProductImage: React.FC<ProductImageProps> = ({fileName, alt, className}) => {
     // Construct the full path using your local Quarkus server address
     const src = `${IMAGE_BASE_URL}${fileName}`;
     console.log("ProductImage :" + src)

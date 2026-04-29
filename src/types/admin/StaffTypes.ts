@@ -2,11 +2,13 @@ export type StaffRole = 'SUPER_ADMIN' | 'CATALOG_MANAGER' | 'ORDER_MANAGER' | 'V
 
 export type Staff = {
     id: string;
-    username: string;
     email: string;
     fullName?: string | null;
     role: StaffRole;
-    isActive: boolean;
+    active: boolean;
+    resetPassword?: boolean;
     createdAt?: string | null;
 };
+
+
 

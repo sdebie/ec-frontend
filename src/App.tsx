@@ -1,67 +1,33 @@
-import {Suspense, useState, useEffect} from 'react';
-import {BrowserRouter, Routes, Route} from 'react-router-dom';
-import {ToastContainer} from '@/components/shared/toast';
-import {storeRoutingRoutes} from './configs/routes/store/storePageRoutes.config.ts';
-import {adminRoutingRoutes} from './configs/routes/admin/adminPageRoutes.config.ts';
-import {getHostname} from './utils/HostnameResolver';
-import RouteGuard from "@/configs/RouteGaurd.tsx";
-import {RouteObject} from "@/types/routes.ts";
+import {useCallback} from 'react'
+import {ToastContainer} from '@/components/shared/toast'
+import {AppProviders} from '@/app/providers/AppProviders'
+import {env} from '@/lib/env'
+import {useAdminAuthState} from '@/app/bootstrap/useAdminAuthState'
+import {useStorefrontBootstrap} from '@/app/bootstrap/useStorefrontBootstrap'
+import {useAppRouterFactory} from '@/app/bootstrap/useAppRouterFactory'
 
 function App() {
-
-    const [isAuthenticated, setIsAuthenticated] = useState(!!localStorage.getItem('admin_token'));
-    const [activeCategory, setActiveCategory] = useState<string>('All');
-
-    useEffect(() => {
-        const syncAuth = () => setIsAuthenticated(!!localStorage.getItem('admin_token'));
-        window.addEventListener('storage', syncAuth);
-        return () => window.removeEventListener('storage', syncAuth);
-    }, []);
-
-    const hostname = getHostname();
-    const isAdminDomain = hostname.startsWith('admin.');
-    const isStoreDomain = hostname.startsWith('store.');
-
-    let routesToShow = [...storeRoutingRoutes, ...adminRoutingRoutes];
-    if (isAdminDomain) routesToShow = adminRoutingRoutes;
-    else if (isStoreDomain) routesToShow = storeRoutingRoutes;
-
-    const flattenRoutes = (routes: RouteObject[]): RouteObject[] => {
-        return routes.flatMap((route) => [
-            route,
-            ...(route.subMenu ? flattenRoutes(route.subMenu) : [])
-        ]);
-    };
-
-    const handleLogin = () => {
-        setIsAuthenticated(true);
-    };
+    const {isAuthenticated, setAuthenticated} = useAdminAuthState()
+    const handleLogin = useCallback(() => {
+        setAuthenticated()
+    }, [setAuthenticated])
+    const {router, hostname} = useAppRouterFactory({
+        isAuthenticated,
+        onLoginSuccess: handleLogin,
+    })
+    const manifest = useStorefrontBootstrap()
+    const forcedClientId = env.isDev ? env.storefrontTenant : undefined
 
     return (
-        <BrowserRouter>
-            <Suspense fallback={<div className="flex items-center justify-center h-screen">Loading...</div>}>
-                <Routes>
-                    {flattenRoutes(routesToShow).map((route) => (
-                        <Route
-                            key={route.key}
-                            path={route.path}
-                            element={
-                                <RouteGuard
-                                    route={route}
-                                    isAuthenticated={isAuthenticated}
-                                    isAdminDomain={isAdminDomain}
-                                    activeCategory={activeCategory}
-                                    setActiveCategory={setActiveCategory}
-                                    onLoginSuccess={handleLogin}
-                                />
-                            }
-                        />
-                    ))}
-                </Routes>
-            </Suspense>
-            <ToastContainer />
-        </BrowserRouter>
-    );
+        <AppProviders storefrontOptions={{hostname, forcedClientId}} router={router}>
+            {/* Manifest bootstrap seam loaded at app startup for normalization. */}
+            <div
+                data-storefront-manifest-generated={manifest.generatedAt}
+                className="hidden"
+            />
+            <ToastContainer/>
+        </AppProviders>
+    )
 }
 
-export default App;
+export default App

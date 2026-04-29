@@ -1,4 +1,4 @@
-import type { PageMeta, PageRoute, PageRoutes, Route, Routes } from '@/@types/routes'
+import type { PageMeta, PageRoute, PageRoutes, Route, Routes } from '@/types/routes'
 
 /**
  * Filter routes to get only menu-visible routes

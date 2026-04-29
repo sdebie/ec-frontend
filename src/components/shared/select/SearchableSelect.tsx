@@ -44,7 +44,9 @@ export const SearchableSelect = React.forwardRef<HTMLDivElement, SearchableSelec
     ) => {
         const [isOpen, setIsOpen] = React.useState(false);
         const [query, setQuery] = React.useState('');
-        const [highlightedIndex, setHighlightedIndex] = React.useState(0);
+        const [highlightedIndex, setHighlightedIndex] = React.useState(-1);
+        const [isNavigatingKeyboard, setIsNavigatingKeyboard] = React.useState(false);
+        const [isHovering, setIsHovering] = React.useState(false);
 
         const containerRef = React.useRef<HTMLDivElement>(null);
         const triggerRef = React.useRef<HTMLButtonElement>(null);
@@ -218,6 +220,8 @@ export const SearchableSelect = React.forwardRef<HTMLDivElement, SearchableSelec
         React.useEffect(() => {
             if (!isOpen) return;
             searchInputRef.current?.focus();
+            setIsNavigatingKeyboard(false);
+            setIsHovering(false);
 
             const selectedIndex = filteredOptions.findIndex((option) => option.value === value && !option.disabled);
             if (selectedIndex >= 0) {
@@ -226,7 +230,7 @@ export const SearchableSelect = React.forwardRef<HTMLDivElement, SearchableSelec
             }
 
             const firstEnabledIndex = filteredOptions.findIndex((option) => !option.disabled);
-            setHighlightedIndex(firstEnabledIndex >= 0 ? firstEnabledIndex : 0);
+            setHighlightedIndex(firstEnabledIndex >= 0 ? firstEnabledIndex : -1);
         }, [isOpen, filteredOptions, value]);
 
         React.useEffect(() => {
@@ -319,6 +323,9 @@ export const SearchableSelect = React.forwardRef<HTMLDivElement, SearchableSelec
         const closeMenu = React.useCallback((shouldRestoreFocus = false) => {
             setIsOpen(false);
             setQuery('');
+            setHighlightedIndex(-1);
+            setIsNavigatingKeyboard(false);
+            setIsHovering(false);
             if (shouldRestoreFocus) {
                 requestAnimationFrame(() => triggerRef.current?.focus());
             }
@@ -369,6 +376,9 @@ export const SearchableSelect = React.forwardRef<HTMLDivElement, SearchableSelec
                 closeMenu(true);
                 return;
             }
+
+            setIsNavigatingKeyboard(true);
+            setIsHovering(false);
 
             if (event.key === 'ArrowDown') {
                 event.preventDefault();
@@ -427,8 +437,9 @@ export const SearchableSelect = React.forwardRef<HTMLDivElement, SearchableSelec
                     onKeyDown={handleTriggerKeyDown}
                     ref={triggerRef}
                     className={cn(
-                        'flex h-10 w-full items-center justify-between rounded-md border border-admin-border bg-admin-panel px-3 py-2 text-sm text-admin-text transition-colors',
-                        'focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent focus:ring-offset-1 focus:ring-offset-admin-bg',
+                        'flex h-10 w-full items-center justify-between rounded-md border border-admin-border bg-admin-panel px-3 py-2 text-sm text-admin-text transition-all duration-200',
+                        'focus:outline-none focus:border-admin-text/30 focus:bg-admin-panel/80',
+                        isOpen && 'border-primary/30 bg-primary/5 shadow-sm ring-1 ring-primary/10',
                         'disabled:cursor-not-allowed disabled:opacity-50 disabled:bg-admin-bg'
                     )}
                     aria-haspopup="listbox"
@@ -480,8 +491,8 @@ export const SearchableSelect = React.forwardRef<HTMLDivElement, SearchableSelec
                                 }}
                                 onClick={(event) => event.stopPropagation()}
                             >
-                                <div className="mb-2 flex items-center gap-2 rounded-md border border-admin-border bg-admin-bg px-2 text-admin-text-muted">
-                                    <Search className="h-4 w-4"/>
+                                <div className="mb-2 relative">
+                                    <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-admin-text-muted pointer-events-none" />
                                     <input
                                         ref={searchInputRef}
                                         type="text"
@@ -489,23 +500,42 @@ export const SearchableSelect = React.forwardRef<HTMLDivElement, SearchableSelec
                                         onChange={(event) => setQuery(event.target.value)}
                                         onKeyDown={handleMenuKeyDown}
                                         placeholder={searchPlaceholder}
-                                        className="h-9 w-full bg-transparent text-sm text-admin-text outline-none placeholder:text-admin-text-muted"
+                                        className={cn(
+                                            'flex h-10 w-full rounded-md border border-admin-border/40 bg-admin-panel/30 pl-9 pr-9 py-2 text-sm text-admin-text transition-colors duration-150',
+                                            'placeholder:text-admin-text-muted/60',
+                                            'focus:outline-none focus:border-admin-border/70 focus:bg-admin-panel/50',
+                                        )}
                                     />
+                                    {query && (
+                                        <button
+                                            type="button"
+                                            onClick={() => {
+                                                setQuery('');
+                                                searchInputRef.current?.focus();
+                                            }}
+                                            className="absolute right-3 top-1/2 -translate-y-1/2 rounded p-0.5 text-admin-text-muted hover:text-admin-text hover:bg-admin-sidebar-hover transition-colors duration-150"
+                                            aria-label="Clear search"
+                                            tabIndex={-1}
+                                        >
+                                            <X className="h-4 w-4" />
+                                        </button>
+                                    )}
                                 </div>
 
                                 <div
                                     ref={listRef}
-                                    className="overflow-y-auto overscroll-contain rounded-md border border-admin-border/70"
+                                    className="overflow-y-auto overscroll-contain"
                                     style={{maxHeight: listMaxHeightStyle}}
                                     onWheelCapture={handleWheelCapture}
                                 >
                                     {filteredOptions.length === 0 ? (
-                                        <div className="px-3 py-6 text-center text-sm text-admin-text-muted">{emptyText}</div>
+                                        <div
+                                            className="px-3 py-6 text-center text-sm text-admin-text-muted">{emptyText}</div>
                                     ) : (
-                                        <ul role="listbox" className="py-1">
+                                        <ul role="listbox" className="">
                                             {filteredOptions.map((option, index) => {
                                                 const isSelected = option.value === value;
-                                                const isHighlighted = index === highlightedIndex;
+                                                const isHighlighted = index === highlightedIndex && (isNavigatingKeyboard || isHovering);
 
                                                 return (
                                                     <li
@@ -514,18 +544,25 @@ export const SearchableSelect = React.forwardRef<HTMLDivElement, SearchableSelec
                                                         aria-selected={isSelected}
                                                         data-option-index={index}
                                                         className={cn(
-                                                            'flex cursor-pointer items-center justify-between px-3 py-2 text-sm',
+                                                            'flex cursor-pointer items-center justify-between px-3 py-2 text-sm transition-colors rounded-sm',
                                                             option.disabled
                                                                 ? 'cursor-not-allowed text-admin-text-muted opacity-60'
                                                                 : 'text-admin-text',
                                                             isHighlighted && !option.disabled && 'bg-admin-sidebar-hover',
-                                                            isSelected && 'bg-primary-subtle text-primary font-medium'
+                                                            isSelected && !isHighlighted && 'text-admin-text'
                                                         )}
-                                                        onMouseEnter={() => setHighlightedIndex(index)}
+                                                        onMouseEnter={() => {
+                                                            setHighlightedIndex(index);
+                                                            setIsHovering(true);
+                                                            setIsNavigatingKeyboard(false);
+                                                        }}
+                                                        onMouseLeave={() => {
+                                                            setIsHovering(false);
+                                                        }}
                                                         onClick={() => selectOption(option)}
                                                     >
                                                         <span className="truncate">{option.label}</span>
-                                                        {isSelected && <Check className="ml-2 h-4 w-4 shrink-0"/>}
+                                                        {isSelected && <Check className="ml-2 h-4 w-4 shrink-0 text-primary"/>}
                                                     </li>
                                                 );
                                             })}
@@ -544,8 +581,8 @@ export const SearchableSelect = React.forwardRef<HTMLDivElement, SearchableSelec
                                 )}
                                 onClick={(event) => event.stopPropagation()}
                             >
-                                <div className="mb-2 flex items-center gap-2 rounded-md border border-admin-border bg-admin-bg px-2 text-admin-text-muted">
-                                    <Search className="h-4 w-4"/>
+                                <div className="mb-2 relative">
+                                    <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-admin-text-muted pointer-events-none" />
                                     <input
                                         ref={searchInputRef}
                                         type="text"
@@ -553,23 +590,42 @@ export const SearchableSelect = React.forwardRef<HTMLDivElement, SearchableSelec
                                         onChange={(event) => setQuery(event.target.value)}
                                         onKeyDown={handleMenuKeyDown}
                                         placeholder={searchPlaceholder}
-                                        className="h-9 w-full bg-transparent text-sm text-admin-text outline-none placeholder:text-admin-text-muted"
+                                        className={cn(
+                                            'flex h-10 w-full rounded-md border border-admin-border/40 bg-admin-panel/30 pl-9 pr-9 py-2 text-sm text-admin-text transition-colors duration-150',
+                                            'placeholder:text-admin-text-muted/60',
+                                            'focus:outline-none focus:border-admin-border/70 focus:bg-admin-panel/50',
+                                        )}
                                     />
+                                    {query && (
+                                        <button
+                                            type="button"
+                                            onClick={() => {
+                                                setQuery('');
+                                                searchInputRef.current?.focus();
+                                            }}
+                                            className="absolute right-3 top-1/2 -translate-y-1/2 rounded p-0.5 text-admin-text-muted hover:text-admin-text hover:bg-admin-sidebar-hover transition-colors duration-150"
+                                            aria-label="Clear search"
+                                            tabIndex={-1}
+                                        >
+                                            <X className="h-4 w-4" />
+                                        </button>
+                                    )}
                                 </div>
 
                                 <div
                                     ref={listRef}
-                                    className="overflow-y-auto overscroll-contain rounded-md border border-admin-border/70"
+                                    className="overflow-y-auto overscroll-contain"
                                     style={{maxHeight: listMaxHeightStyle}}
                                     onWheelCapture={handleWheelCapture}
                                 >
                                     {filteredOptions.length === 0 ? (
-                                        <div className="px-3 py-6 text-center text-sm text-admin-text-muted">{emptyText}</div>
+                                        <div
+                                            className="px-3 py-6 text-center text-sm text-admin-text-muted">{emptyText}</div>
                                     ) : (
-                                        <ul role="listbox" className="py-1">
+                                        <ul role="listbox" className="">
                                             {filteredOptions.map((option, index) => {
                                                 const isSelected = option.value === value;
-                                                const isHighlighted = index === highlightedIndex;
+                                                const isHighlighted = index === highlightedIndex && (isNavigatingKeyboard || isHovering);
 
                                                 return (
                                                     <li
@@ -578,18 +634,25 @@ export const SearchableSelect = React.forwardRef<HTMLDivElement, SearchableSelec
                                                         aria-selected={isSelected}
                                                         data-option-index={index}
                                                         className={cn(
-                                                            'flex cursor-pointer items-center justify-between px-3 py-2 text-sm',
+                                                            'flex cursor-pointer items-center justify-between px-3 py-2 text-sm transition-colors rounded-sm',
                                                             option.disabled
                                                                 ? 'cursor-not-allowed text-admin-text-muted opacity-60'
                                                                 : 'text-admin-text',
                                                             isHighlighted && !option.disabled && 'bg-admin-sidebar-hover',
-                                                            isSelected && 'bg-primary-subtle text-primary font-medium'
+                                                            isSelected && !isHighlighted && 'text-admin-text'
                                                         )}
-                                                        onMouseEnter={() => setHighlightedIndex(index)}
+                                                        onMouseEnter={() => {
+                                                            setHighlightedIndex(index);
+                                                            setIsHovering(true);
+                                                            setIsNavigatingKeyboard(false);
+                                                        }}
+                                                        onMouseLeave={() => {
+                                                            setIsHovering(false);
+                                                        }}
                                                         onClick={() => selectOption(option)}
                                                     >
                                                         <span className="truncate">{option.label}</span>
-                                                        {isSelected && <Check className="ml-2 h-4 w-4 shrink-0"/>}
+                                                        {isSelected && <Check className="ml-2 h-4 w-4 shrink-0 text-primary"/>}
                                                     </li>
                                                 );
                                             })}

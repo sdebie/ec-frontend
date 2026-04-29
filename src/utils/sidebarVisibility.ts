@@ -1,4 +1,4 @@
-import type { Route } from '@/@types/routes.tsx'
+import type { Route } from '@/types/routes'
 
 export const isRouteVisibleInSidebar = (route: Route): boolean => {
     if (typeof route.meta.showInSidebar === 'boolean') {

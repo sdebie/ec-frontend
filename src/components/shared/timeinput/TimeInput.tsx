@@ -26,7 +26,7 @@ export const TimeInput = React.forwardRef<HTMLInputElement, TimeInputProps>(
           disabled={disabled}
           placeholder={placeholder}
           className={cn(
-            'flex h-10 w-full rounded-md border border-admin-border bg-admin-panel px-3 py-2 text-sm text-admin-text transition-colors pr-10',
+            'flex h-10 w-full rounded-md border-2 border-admin-border bg-admin-panel px-3 py-2 text-sm text-admin-text transition-colors pr-10',
             'placeholder:text-admin-text-muted',
             'focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent focus:ring-offset-1 focus:ring-offset-admin-bg',
             'disabled:cursor-not-allowed disabled:opacity-50 disabled:bg-admin-bg',

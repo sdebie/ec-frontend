@@ -1,0 +1,2 @@
+export { SfAccentDivider } from './SfAccentDivider';
+

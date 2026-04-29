@@ -1,5 +1,5 @@
 import {lazy} from 'react'
-import type {Routes} from '@/@types/routes.tsx'
+import type {Routes} from '@/types/routes'
 
 /**
  * Menu routes for admin panel
@@ -66,6 +66,43 @@ export const adminMenuRoutes: Routes = [
                     pageContainerType: 'contained',
                 },
             },
+            {
+                key: 'admin.productssales.list',
+                path: '/admin/productssales/list',
+                component: lazy(() => import('@/pages/admin/products/screens/list/ProductSaleList')),
+                authority: ['SUPER_ADMIN'],
+                meta: {
+                    label: 'Product on Sale List',
+                    pageBackgroundType: 'plain',
+                    pageContainerType: 'contained',
+                },
+            },
+        ],
+    },
+    {
+        key: 'admin.orders',
+        path: '/admin/orders',
+        component: lazy(() => import('../../../pages/shared/ToDoView.tsx')),
+        authority: ['SUPER_ADMIN', 'VIEWER'],
+        meta: {
+            label: 'Orders',
+            section: 'PRODUCT MANAGEMENT',
+            pageBackgroundType: 'plain',
+            pageContainerType: 'contained',
+            icon: 'package',
+        },
+        subMenu: [
+            {
+                key: 'admin.orders.list',
+                path: '/admin/orders/list',
+                component: lazy(() => import('@/pages/admin/orders/screens/list/OrderList.tsx')),
+                authority: ['SUPER_ADMIN'],
+                meta: {
+                    label: 'Order List',
+                    pageBackgroundType: 'plain',
+                    pageContainerType: 'contained',
+                },
+            },
         ],
     },
     {
@@ -95,10 +132,21 @@ export const adminMenuRoutes: Routes = [
             {
                 key: 'admin.imports.products.list',
                 path: '/admin/imports/products/list',
-                component: lazy(() => import('@/pages/admin/products/screens/upload/BulkProductUploadList')),
+                component: lazy(() => import('@/pages/admin/products/screens/upload/products/BulkProductUploadList.tsx')),
                 authority: ['SUPER_ADMIN'],
                 meta: {
                     label: 'Bulk Product Upload',
+                    pageBackgroundType: 'plain',
+                    pageContainerType: 'contained',
+                },
+            },
+            {
+                key: 'admin.imports.products.price.list',
+                path: '/admin/imports/products/price/list',
+                component: lazy(() => import('@/pages/admin/products/screens/upload/prices/BulkProductPriceUploadList.tsx')),
+                authority: ['SUPER_ADMIN'],
+                meta: {
+                    label: 'Bulk Product Price Changes',
                     pageBackgroundType: 'plain',
                     pageContainerType: 'contained',
                 },

@@ -73,6 +73,8 @@ const ProductDetail = () => {
         };
     }, [id]);
 
+    const variantImages = (product?.variants ?? []).flatMap(variant => variant.images ?? []);
+
     return (
         <PageContainer>
             <div className="flex flex-col gap-6">
@@ -85,47 +87,62 @@ const ProductDetail = () => {
                         <section className="rounded-lg border border-admin-border bg-admin-bg p-6 shadow-sm">
                             <div className="mb-4 flex items-center justify-between gap-4">
                                 <div>
-                                    <h1 className="text-2xl font-semibold">{product.productInfo.name ?? "Product"}</h1>
+                                    <h1 className="text-2xl font-semibold">{product.product?.name ?? "Product"}</h1>
                                     <p className="text-sm text-admin-text-muted">Full product information</p>
                                 </div>
                                 <div className="text-right text-sm text-admin-text-muted">
                                     <p>Variants: {product.variants?.length ?? 0}</p>
-                                    <p>Images: {product.images?.length ?? 0}</p>
+                                    <p>Images: {variantImages.length}</p>
                                 </div>
                             </div>
 
                             <div className="grid gap-4 md:grid-cols-2">
                                 <div>
                                     <p className="text-xs font-semibold uppercase tracking-wide text-gray-500">Product ID</p>
-                                    <p className="text-sm text-admin-text break-all">{renderValue(product.productInfo.id)}</p>
+                                    <p className="text-sm text-admin-text break-all">{renderValue(product.product?.id)}</p>
                                 </div>
                                 <div>
                                     <p className="text-xs font-semibold uppercase tracking-wide text-admin-text-muted">Slug</p>
-                                    <p className="text-sm text-admin-text">{renderValue(product.productInfo.slug)}</p>
+                                    <p className="text-sm text-admin-text">{renderValue(product.product?.slug)}</p>
                                 </div>
                                 <div>
                                     <p className="text-xs font-semibold uppercase tracking-wide text-admin-text-muted">Product Type</p>
-                                    <p className="text-sm text-admin-text">{renderValue(product.productInfo.product_type)}</p>
+                                    <p className="text-sm text-admin-text">{renderValue(product.product?.productType)}</p>
                                 </div>
                                 <div>
                                     <p className="text-xs font-semibold uppercase tracking-wide text-admin-text-muted">Created</p>
-                                    <p className="text-sm text-admin-text">{renderValue(product.productInfo.date_created)}</p>
+                                    <p className="text-sm text-admin-text">{renderValue(product.product?.createdAt)}</p>
+                                </div>
+                                <div className="md:col-span-2">
+                                    <p className="text-xs font-semibold uppercase tracking-wide text-admin-text-muted mb-2">Categories</p>
+                                    {product.product?.categories && product.product.categories.length > 0 ? (
+                                        <div className="grid gap-2 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-4">
+                                            {product.product.categories.map((category) => (
+                                                <div key={category.id} className="rounded border border-admin-border bg-admin-bg p-3">
+                                                    <p className="text-sm font-medium text-admin-text">{renderValue(category.name)}</p>
+                                                    <p className="text-xs text-admin-text-muted break-all">{renderValue(category.slug)}</p>
+                                                </div>
+                                            ))}
+                                        </div>
+                                    ) : (
+                                        <p className="text-sm text-admin-text-muted">No categories assigned.</p>
+                                    )}
                                 </div>
                                 <div>
-                                    <p className="text-xs font-semibold uppercase tracking-wide text-admin-text-muted">Category ID</p>
-                                    <p className="text-sm text-admin-text break-all">{renderValue(product.productInfo.category_is)}</p>
-                                </div>
-                                <div>
-                                    <p className="text-xs font-semibold uppercase tracking-wide text-admin-text-muted">Brand ID</p>
-                                    <p className="text-sm text-admin-text break-all">{renderValue(product.productInfo.brand_id)}</p>
+                                    <p className="text-xs font-semibold uppercase tracking-wide text-admin-text-muted">Brand</p>
+                                    <p className="text-sm text-admin-text break-all">
+                                        {product.product?.brand
+                                            ? `${product.product.brand.name ?? ""}${product.product.brand.slug ? ` (${product.product.brand.slug})` : ""}`
+                                            : "N/A"}
+                                    </p>
                                 </div>
                                 <div className="md:col-span-2">
                                     <p className="text-xs font-semibold uppercase tracking-wide text-admin-text-muted">Description</p>
-                                    <p className="text-sm text-admin-text whitespace-pre-wrap">{renderValue(product.productInfo.description)}</p>
+                                    <p className="text-sm text-admin-text whitespace-pre-wrap">{renderValue(product.product?.description)}</p>
                                 </div>
                                 <div className="md:col-span-2">
                                     <p className="text-xs font-semibold uppercase tracking-wide text-admin-text-muted">Short Description</p>
-                                    <p className="text-sm text-admin-text whitespace-pre-wrap">{renderValue(product.productInfo.short_description)}</p>
+                                    <p className="text-sm text-admin-text whitespace-pre-wrap">{renderValue(product.product?.shortDescription)}</p>
                                 </div>
                             </div>
                         </section>
@@ -133,18 +150,18 @@ const ProductDetail = () => {
                         <section className="rounded-lg border border-admin-border bg-admin-bg p-6 shadow-sm">
                             <div className="mb-4 flex items-center justify-between gap-4">
                                 <h2 className="text-xl font-semibold">Images</h2>
-                                <span className="text-sm text-admin-text-muted">{product.images?.length ?? 0} total</span>
+                                <span className="text-sm text-admin-text-muted">{variantImages.length} total</span>
                             </div>
 
-                            {product.images && product.images.length > 0 ? (
+                            {variantImages.length > 0 ? (
                                 <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
-                                    {product.images.map((image, index) => (
-                                        <article key={image.id} className="overflow-hidden rounded-lg border border-admin-border bg-admin-bg">
+                                    {variantImages.map((image, index) => (
+                                        <article key={image.id ?? `${image.imageUrl}-${index}`} className="overflow-hidden rounded-lg border border-admin-border bg-admin-bg">
                                             <div className="aspect-4/3 bg-admin-bg">
                                                 {image.imageUrl ? (
                                                     <img
                                                         src={resolveImageUrl(image.imageUrl)}
-                                                        alt={`${product.productInfo.name ?? "Product"} image ${index + 1}`}
+                                                        alt={`${product.product?.name ?? "Product"} image ${index + 1}`}
                                                         className="h-full w-full object-cover"
                                                     />
                                                 ) : (
@@ -196,7 +213,8 @@ const ProductDetail = () => {
 
                             {product.variants && product.variants.length > 0 ? (
                                 <div className="grid gap-4 xl:grid-cols-2">
-                                    {product.variants.map((variant, index) => (
+                                    {product.variants.map((variant, index) => {
+                                        return (
                                         <article key={variant.id} className="rounded-lg border border-admin-border bg-admin-bg p-4">
                                             <div className="mb-3 flex items-start justify-between gap-4">
                                                 <div>
@@ -210,22 +228,6 @@ const ProductDetail = () => {
 
                                             <div className="grid gap-4 md:grid-cols-2">
                                                 <div>
-                                                    <p className="text-xs font-semibold uppercase tracking-wide text-admin-text-muted">Retail Price</p>
-                                                    <p className="text-sm text-admin-text">{renderValue(variant.retailPrice)}</p>
-                                                </div>
-                                                <div>
-                                                    <p className="text-xs font-semibold uppercase tracking-wide text-admin-text-muted">Retail Sale Price</p>
-                                                    <p className="text-sm text-admin-text">{renderValue(variant.retailSalesPrice)}</p>
-                                                </div>
-                                                <div>
-                                                    <p className="text-xs font-semibold uppercase tracking-wide text-admin-text-muted">Wholesale Price</p>
-                                                    <p className="text-sm text-admin-text">{renderValue(variant.wholesalePrice)}</p>
-                                                </div>
-                                                <div>
-                                                    <p className="text-xs font-semibold uppercase tracking-wide text-admin-text-muted">Wholesale Sale Price</p>
-                                                    <p className="text-sm text-admin-text">{renderValue(variant.wholesaleSalesPrice)}</p>
-                                                </div>
-                                                <div>
                                                     <p className="text-xs font-semibold uppercase tracking-wide text-admin-text-muted">Stock Quantity</p>
                                                     <p className="text-sm text-admin-text">{renderValue(variant.stockQuantity)}</p>
                                                 </div>
@@ -233,6 +235,41 @@ const ProductDetail = () => {
                                                     <p className="text-xs font-semibold uppercase tracking-wide text-admin-text-muted">Weight (Kg)</p>
                                                     <p className="text-sm text-admin-text">{renderValue(variant.weightKg)}</p>
                                                 </div>
+
+                                                <div className="md:col-span-2">
+                                                    <p className="mb-2 text-xs font-semibold uppercase tracking-wide text-admin-text-muted">Pricing</p>
+                                                    {variant.prices && variant.prices.length > 0 ? (
+                                                        <div className="overflow-x-auto rounded border border-admin-border">
+                                                            <table className="min-w-full text-left text-sm">
+                                                                <thead className="bg-admin-bg border-b border-admin-border">
+                                                                    <tr>
+                                                                        <th className="px-3 py-2 font-semibold text-admin-text-muted">Type</th>
+                                                                        <th className="px-3 py-2 font-semibold text-admin-text-muted">Price</th>
+                                                                        <th className="px-3 py-2 font-semibold text-admin-text-muted">Active</th>
+                                                                        <th className="px-3 py-2 font-semibold text-admin-text-muted">Sale Days Left</th>
+                                                                        <th className="px-3 py-2 font-semibold text-admin-text-muted">Start</th>
+                                                                        <th className="px-3 py-2 font-semibold text-admin-text-muted">End</th>
+                                                                    </tr>
+                                                                </thead>
+                                                                <tbody>
+                                                                    {variant.prices.map((price) => (
+                                                                        <tr key={price.id} className="border-b border-admin-border last:border-b-0">
+                                                                            <td className="px-3 py-2 text-admin-text">{renderValue(price.priceType)}</td>
+                                                                            <td className="px-3 py-2 text-admin-text">{renderValue(price.price)}</td>
+                                                                            <td className="px-3 py-2 text-admin-text">{renderValue(price.isActive)}</td>
+                                                                            <td className="px-3 py-2 text-admin-text">{renderValue(price.saleDaysRemaining)}</td>
+                                                                            <td className="px-3 py-2 text-admin-text">{renderValue(price.priceStartDate)}</td>
+                                                                            <td className="px-3 py-2 text-admin-text">{renderValue(price.priceEndDate)}</td>
+                                                                        </tr>
+                                                                    ))}
+                                                                </tbody>
+                                                            </table>
+                                                        </div>
+                                                    ) : (
+                                                        <p className="text-sm text-admin-text-muted">No pricing available.</p>
+                                                    )}
+                                                </div>
+
                                                 <div className="md:col-span-2">
                                                     <p className="text-xs font-semibold uppercase tracking-wide text-admin-text-muted">Attributes JSON</p>
                                                     <pre className="overflow-x-auto rounded border border-admin-border bg-admin-bg p-3 text-xs text-admin-text whitespace-pre-wrap">
@@ -241,7 +278,8 @@ const ProductDetail = () => {
                                                 </div>
                                             </div>
                                         </article>
-                                    ))}
+                                        );
+                                    })}
                                 </div>
                             ) : (
                                 <p className="text-sm text-admin-text-muted">No variants available.</p>
@@ -255,3 +293,4 @@ const ProductDetail = () => {
 };
 
 export default ProductDetail;
+
