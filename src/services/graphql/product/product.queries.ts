@@ -8,7 +8,7 @@ export const GET_PRODUCTS_LIST = gql`
             description
             imageName
             variantIds
-            categoryName
+            categoryNames
             brandName
         }
     }
@@ -163,7 +163,7 @@ export const GET_PRODUCT_AND_VARIANTS = gql`
                 shortDescription
                 productType
                 createdAt
-                category {
+                categories {
                     id
                     name
                     slug

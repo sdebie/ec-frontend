@@ -113,13 +113,20 @@ const ProductDetail = () => {
                                     <p className="text-xs font-semibold uppercase tracking-wide text-admin-text-muted">Created</p>
                                     <p className="text-sm text-admin-text">{renderValue(product.product?.createdAt)}</p>
                                 </div>
-                                <div>
-                                    <p className="text-xs font-semibold uppercase tracking-wide text-admin-text-muted">Category</p>
-                                    <p className="text-sm text-admin-text break-all">
-                                        {product.product?.category
-                                            ? `${product.product.category.name ?? ""}${product.product.category.slug ? ` (${product.product.category.slug})` : ""}`
-                                            : "N/A"}
-                                    </p>
+                                <div className="md:col-span-2">
+                                    <p className="text-xs font-semibold uppercase tracking-wide text-admin-text-muted mb-2">Categories</p>
+                                    {product.product?.categories && product.product.categories.length > 0 ? (
+                                        <div className="grid gap-2 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-4">
+                                            {product.product.categories.map((category) => (
+                                                <div key={category.id} className="rounded border border-admin-border bg-admin-bg p-3">
+                                                    <p className="text-sm font-medium text-admin-text">{renderValue(category.name)}</p>
+                                                    <p className="text-xs text-admin-text-muted break-all">{renderValue(category.slug)}</p>
+                                                </div>
+                                            ))}
+                                        </div>
+                                    ) : (
+                                        <p className="text-sm text-admin-text-muted">No categories assigned.</p>
+                                    )}
                                 </div>
                                 <div>
                                     <p className="text-xs font-semibold uppercase tracking-wide text-admin-text-muted">Brand</p>

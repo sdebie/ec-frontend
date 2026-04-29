@@ -5,8 +5,8 @@ interface ImageUploadResponse {
 }
 
 interface BulkImageUploadResponse {
-  uploaded: string[];
-  skipped: string[];
+  uploaded: number;
+  skipped: number;
 }
 
 const ImageServiceRest = {
@@ -18,9 +18,6 @@ const ImageServiceRest = {
       url: '/admin/images/upload',
       method: 'POST',
       data: formData,
-      headers: {
-        'Content-Type': 'multipart/form-data',
-      },
     });
   },
 
@@ -32,9 +29,6 @@ const ImageServiceRest = {
       url: `/admin/images/upload/product-variant/${productVariantId}`,
       method: 'POST',
       data: formData,
-      headers: {
-        'Content-Type': 'multipart/form-data',
-      },
     });
   },
 
@@ -46,9 +40,6 @@ const ImageServiceRest = {
       url: '/admin/images/upload/category',
       method: 'POST',
       data: formData,
-      headers: {
-        'Content-Type': 'multipart/form-data',
-      },
     });
   },
 
@@ -60,9 +51,6 @@ const ImageServiceRest = {
       url: '/admin/images/upload/brand',
       method: 'POST',
       data: formData,
-      headers: {
-        'Content-Type': 'multipart/form-data',
-      },
     });
   },
 
@@ -74,9 +62,6 @@ const ImageServiceRest = {
       url: '/admin/images/bulk-upload',
       method: 'POST',
       data: formData,
-      headers: {
-        'Content-Type': 'multipart/form-data',
-      },
     });
   },
 
