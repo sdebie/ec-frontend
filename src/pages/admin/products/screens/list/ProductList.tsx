@@ -66,11 +66,11 @@ const ProductList = () => {
             cell: ({row}) => row.original.variantIds?.length || "-",
         },
         {
-            id: "categoryName",
-            accessorKey: "categoryName",
+            id: "categoryNames",
+            accessorKey: "categoryNames",
             header: "Category",
             enableSorting: true,
-            cell: ({row}) => row.original.categoryName || "-",
+            cell: ({row}) => row.original.categoryNames?.length ? row.original.categoryNames.join(", ") : "-",
         },
         {
             id: "brandName",

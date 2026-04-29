@@ -33,7 +33,7 @@ const BulkImageUploader = () => {
         setIsUploading(true);
         try {
             const response = await ImageServiceRest.bulkUploadImages(selectedFiles);
-            alert(`Upload Complete! Saved: ${response.uploaded.length}, Skipped: ${response.skipped.length}`);
+            alert(`Upload Complete! Saved: ${response.uploaded}, Skipped: ${response.skipped}`);
             setIsUploadDialogOpen(false);
             setSelectedFiles([]);
         } catch (error) {

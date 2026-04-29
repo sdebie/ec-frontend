@@ -13,7 +13,7 @@ export type ProductListItem = {
 	description?: string | null;
 	imageName?: string | null;
 	variantIds?: string[] | null;
-	categoryName?: string | null;
+	categoryNames?: string[] | null;
 	brandName?: string | null;
 };
 
@@ -74,7 +74,7 @@ export type ProductInformation = {
 		shortDescription?: string | null;
 		productType?: string | null;
 		createdAt?: string | null;
-		category?: { id: string; name?: string | null; slug?: string | null } | null;
+		categories?: { id: string; name?: string | null; slug?: string | null }[] | null;
 		brand?: { id: string; name?: string | null; slug?: string | null } | null;
 	} | null;
 	variants?: ProductVariant[] | null;

@@ -1,4 +1,5 @@
 interface ImportMetaEnv {
+    readonly VITE_API_BASE_URL?: string
     readonly VITE_STORE_FRONT?: string
     readonly CI?: string
     readonly MODE: string
