@@ -32,7 +32,7 @@ export interface RouteObject {
     key: string
     path: string
     component: ComponentType<any>
-    authority?: string[]
+    authority: string[]
     meta?: RouteMeta
     subMenu?: RouteObject[]
 }
