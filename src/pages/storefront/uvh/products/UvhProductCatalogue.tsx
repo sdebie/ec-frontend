@@ -3,6 +3,7 @@ import {Category} from '@/types/admin/CategoryTypes.ts';
 import UvhCategoryMenu from '@/pages/storefront/uvh/products/components/UvhCategoryMenu.tsx';
 import UvhProductListing from '@/pages/storefront/uvh/products/components/UvhProductListing.tsx';
 import {useShoppingProducts} from "@/pages/storefront/uvh/products/hooks/useShoppingProducts.ts";
+import { SfCard } from '@/components/storefront';
 
 const UvhProductCatalogue = () => {
 
@@ -27,7 +28,9 @@ const UvhProductCatalogue = () => {
                     activeRootCategory={activeRootCategory}
                     onRootCategoryChange={setActiveRootCategory}
                 />
-                <div className="p-4">Loading products...</div>
+                <div className="mx-auto max-w-7xl p-4">
+                    <SfCard className="p-6 text-sm text-(--sf-muted-text)">Loading products...</SfCard>
+                </div>
             </div>
         );
     }
@@ -41,7 +44,9 @@ const UvhProductCatalogue = () => {
                     activeRootCategory={activeRootCategory}
                     onRootCategoryChange={setActiveRootCategory}
                 />
-                <div className="p-4">Error: {error}</div>
+                <div className="mx-auto max-w-7xl p-4">
+                    <SfCard className="p-6 text-sm text-(--sf-error)">Error: {error}</SfCard>
+                </div>
             </div>
         );
     }

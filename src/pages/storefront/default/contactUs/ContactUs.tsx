@@ -1,4 +1,5 @@
 import {ChevronDownIcon} from "lucide-react";
+import {Link} from "react-router-dom";
 
 const ContactUs = () => {
     return (
@@ -136,9 +137,9 @@ const ContactUs = () => {
                         </div>
                         <label htmlFor="agree-to-policies" className="text-sm/6 text-(--sf-muted-text)">
                             By selecting this, you agree to our{' '}
-                            <a href="#" className="font-semibold whitespace-nowrap text-(--sf-accent)">
+                            <Link to="/privacy" className="font-semibold whitespace-nowrap text-(--sf-accent)">
                                 privacy policy
-                            </a>
+                            </Link>
                             .
                         </label>
                     </div>

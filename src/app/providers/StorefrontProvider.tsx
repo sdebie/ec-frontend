@@ -3,6 +3,7 @@ import {
     type PropsWithChildren,
     useContext,
     useMemo,
+    useState,
 } from 'react'
 import {
     resolveActiveStorefrontConfig,
@@ -12,6 +13,9 @@ import type {
     ResolveStorefrontConfigOptions,
     StorefrontContextValue,
 } from '@/storefront/registry/types'
+import {resetTenantScopedState} from '@/storefront/tenant/tenantLifecycle'
+import {resetSessionUserStore} from '@/store/authStore'
+import {env} from '@/lib/env'
 
 interface StorefrontProviderProps extends PropsWithChildren {
     options?: ResolveStorefrontConfigOptions
@@ -19,18 +23,30 @@ interface StorefrontProviderProps extends PropsWithChildren {
 
 const StorefrontContext = createContext<StorefrontContextValue | null>(null)
 
-/**
- * Dormant provider boundary that reuses current storefront resolvers.
- */
 export function StorefrontProvider({
     children,
     options,
 }: StorefrontProviderProps) {
+    const [forcedClientId, setForcedClientId] = useState<string | undefined>(
+        options?.forcedClientId,
+    )
+
     const value = useMemo<StorefrontContextValue>(() => {
-        const config = resolveActiveStorefrontConfig(options)
+        const config = resolveActiveStorefrontConfig({
+            ...options,
+            forcedClientId,
+        })
         const navigation = buildNavigationModel(config)
-        return {config, navigation}
-    }, [options?.forcedClientId, options?.hostname])
+        const switchTenant = (tenantId: string) => {
+            if (!env.isDev) return
+            if (!tenantId || tenantId === config.id) return
+            resetTenantScopedState(config.id)
+            resetTenantScopedState(tenantId)
+            resetSessionUserStore()
+            setForcedClientId(tenantId)
+        }
+        return {config, navigation, switchTenant}
+    }, [forcedClientId, options])
 
     return (
         <StorefrontContext.Provider value={value}>
@@ -39,10 +55,6 @@ export function StorefrontProvider({
     )
 }
 
-/**
- * Optional boundary seam for phased cutovers.
- * Returns null when called outside StorefrontProvider.
- */
 export function useOptionalStorefrontBoundary(): StorefrontContextValue | null {
     return useContext(StorefrontContext)
 }

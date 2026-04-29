@@ -1,10 +1,22 @@
 import {defaultStorefrontConfig} from '@/configs/storefront/clients/defaultStorefrontConfig';
-import type {StorefrontClientConfig, StorefrontClientId} from '@/types/storefront/storefrontTypes';
-import {clientUvhStorefrontConfig} from "@/configs/storefront/clients/clientUvhStorefrontConfig.ts";
+import type {StorefrontClientConfig} from '@/types/storefront/storefrontTypes';
+import { storefrontConfigImports } from 'virtual:storefront-config-map';
 
-const storefrontRegistry: Record<StorefrontClientId, StorefrontClientConfig> = {
+type StorefrontRegistryRecord = Record<string, StorefrontClientConfig>
+
+const fallbackStorefrontRegistry: StorefrontRegistryRecord = {
     default: defaultStorefrontConfig,
-    uvh: clientUvhStorefrontConfig,
+};
+
+const virtualRegistry = storefrontConfigImports as Partial<StorefrontRegistryRecord>;
+const sanitizedVirtualRegistry = Object.fromEntries(
+    Object.entries(virtualRegistry).filter(
+        (entry): entry is [string, StorefrontClientConfig] => Boolean(entry[1]),
+    ),
+) as StorefrontRegistryRecord;
+const storefrontRegistry: StorefrontRegistryRecord = {
+    ...fallbackStorefrontRegistry,
+    ...sanitizedVirtualRegistry,
 };
 
 const normalizeHostname = (hostname?: string): string => (hostname || '').trim().toLowerCase();
@@ -23,12 +35,12 @@ export const resolveStorefrontClient = (
     forcedClientId?: string,
 ): StorefrontClientConfig => {
     if (forcedClientId && forcedClientId in storefrontRegistry) {
-        return storefrontRegistry[forcedClientId as StorefrontClientId];
+        return storefrontRegistry[forcedClientId];
     }
 
     return getClientByHostname(hostname) || storefrontRegistry.default;
 };
 
-export const getStorefrontRegistry = (): Record<StorefrontClientId, StorefrontClientConfig> =>
+export const getStorefrontRegistry = (): StorefrontRegistryRecord =>
     storefrontRegistry;
 

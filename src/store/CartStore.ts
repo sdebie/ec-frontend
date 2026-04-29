@@ -1,13 +1,14 @@
 import {OrderData, OrderItemData as OrderItemsData} from "@/types/order.types.ts";
+import {
+    getCartItemsStorageKey,
+    getCartSessionStorageKey,
+} from '@/utils/storefront/tenantStorageKeys'
+import {STOREFRONT_TENANT_RESET_EVENT} from '@/storefront/tenant/tenantLifecycle'
 
 // A tiny event-based store to keep track of cart item count across the app
 // Minimal and framework-agnostic — no external dependencies
 
 type Listener = () => void;
-
-const LS_KEY = "ec_cart_order_items";
-// We no longer persist a last order id; instead reuse the persistent cart session id
-const CART_SESSION_KEY = "cart_session_id";
 
 function calcCount(items?: OrderItemsData[]): number {
     if (!Array.isArray(items)) return 0;
@@ -15,6 +16,14 @@ function calcCount(items?: OrderItemsData[]): number {
 }
 
 class CartStoreImpl {
+    private getItemsStorageKey(): string {
+        return getCartItemsStorageKey()
+    }
+
+    private getSessionStorageKey(): string {
+        return getCartSessionStorageKey()
+    }
+
     private listeners: Set<Listener> = new Set();
     private itemCount = 0;
     // Historically named orderSessionId, now holds the persistent cart session id
@@ -38,12 +47,12 @@ class CartStoreImpl {
     constructor() {
         // Initialize from localStorage if present
         try {
-            const raw = localStorage.getItem(LS_KEY);
+            const raw = localStorage.getItem(this.getItemsStorageKey());
             if (raw) {
                 const items: OrderItemsData[] = JSON.parse(raw);
                 this.itemCount = calcCount(items);
             }
-            const sessionId = localStorage.getItem(CART_SESSION_KEY);
+            const sessionId = localStorage.getItem(this.getSessionStorageKey());
             this.orderSessionId = sessionId || null;
         } catch (_) {
             // ignore parsing/storage errors
@@ -54,7 +63,7 @@ class CartStoreImpl {
         // React to storage updates done in other tabs
         if (typeof window !== "undefined") {
             window.addEventListener("storage", (e) => {
-                if (e.key === LS_KEY) {
+                if (e.key === this.getItemsStorageKey()) {
                     try {
                         const items = e.newValue ? (JSON.parse(e.newValue) as OrderItemsData[]) : [];
                         this.itemCount = calcCount(items);
@@ -62,11 +71,16 @@ class CartStoreImpl {
                     } catch (_) {
                     }
                 }
-                if (e.key === CART_SESSION_KEY) {
+                if (e.key === this.getSessionStorageKey()) {
                     this.orderSessionId = e.newValue || null;
                     this.emit();
                 }
             });
+            window.addEventListener(STOREFRONT_TENANT_RESET_EVENT, () => {
+                this.itemCount = 0
+                this.orderSessionId = null
+                this.emit()
+            })
         }
     }
 
@@ -98,7 +112,7 @@ class CartStoreImpl {
         this.itemCount = calcCount(items);
         // Do NOT update session id here; it is managed by ensureCartSessionId() at app start
         try {
-            localStorage.setItem(LS_KEY, JSON.stringify(items));
+            localStorage.setItem(this.getItemsStorageKey(), JSON.stringify(items));
         } catch (_) {
             // ignore storage errors
         }
@@ -108,7 +122,7 @@ class CartStoreImpl {
     setItems(items: OrderItemsData[]) {
         this.itemCount = calcCount(items);
         try {
-            localStorage.setItem(LS_KEY, JSON.stringify(items));
+            localStorage.setItem(this.getItemsStorageKey(), JSON.stringify(items));
         } catch (_) {
             // ignore storage errors
         }
@@ -119,7 +133,7 @@ class CartStoreImpl {
         this.itemCount = 0;
         this.orderSessionId = null;
         try {
-            localStorage.removeItem(LS_KEY);
+            localStorage.removeItem(this.getItemsStorageKey());
             // Do not clear the cart session id here; it persists for the browser session/lifecycle
         } catch (_) {
         }
@@ -132,8 +146,8 @@ class CartStoreImpl {
         const newId = this.generateUuid();
         this.orderSessionId = newId;
         try {
-            localStorage.removeItem(LS_KEY);
-            localStorage.setItem(CART_SESSION_KEY, newId);
+            localStorage.removeItem(this.getItemsStorageKey());
+            localStorage.setItem(this.getSessionStorageKey(), newId);
         } catch (_) {
         }
         this.emit();

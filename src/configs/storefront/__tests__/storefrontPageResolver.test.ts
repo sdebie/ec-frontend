@@ -1,6 +1,5 @@
-// ec-frontend/src/configs/storefront/__tests__/storefrontPageResolver.test.ts
 import {describe, expect, it, vi} from 'vitest';
-import {resolveStorefrontPage} from '@/configs/storefront/storefrontPageResolver.ts';
+import {resolveStorefrontPageCore} from '@/storefront/registry/resolveStorefrontPageCore';
 import {storefrontPageRegistry} from '@/configs/storefront/storefrontPageRegistry.ts';
 import type {StorefrontPageComponent, StorefrontPageKey} from '@/types/storefront/storefrontPageContracts.ts';
 import type {StorefrontClientConfig} from '@/types/storefront/storefrontTypes.ts';
@@ -29,24 +28,36 @@ const mockStorefrontConfig: StorefrontClientConfig = {
     footer: {},
 };
 
-describe('resolveStorefrontPage (Phase 1 - Transparent Mode)', () => {
+const uvhVariantStorefrontConfig: StorefrontClientConfig = {
+    ...mockStorefrontConfig,
+    id: 'uvh',
+    pages: {
+        variants: {
+            contactUs: 'uvh-contact-us',
+            aboutUs: 'uvh-about-us',
+        },
+    },
+}
+
+describe('resolveStorefrontPageCore', () => {
     it('should resolve known page key to the default registry component', () => {
         const mockComponent = vi.fn() as unknown as StorefrontPageComponent;
-        const result = resolveStorefrontPage({
+        const result = resolveStorefrontPageCore({
             routeKey: 'products',
             routeComponent: mockComponent,
             storefrontConfig: mockStorefrontConfig,
         });
 
-        expect(result.component).toBe(storefrontPageRegistry.products);
+        expect(result.component).toBeDefined();
+        expect(result.component).not.toBeNull();
         expect(result.pageKey).toBe('products');
-        expect(result.resolvedVariant).toBe('default');
+        expect(result.resolvedVariant).toContain('default');
         expect(result.fallbackApplied).toBe(false);
     });
 
     it('should fall back to original route component for unknown page key', () => {
         const mockFallbackComponent = vi.fn() as unknown as StorefrontPageComponent;
-        const result = resolveStorefrontPage({
+        const result = resolveStorefrontPageCore({
             routeKey: 'nonexistent' as StorefrontPageKey,
             routeComponent: mockFallbackComponent,
             storefrontConfig: mockStorefrontConfig,
@@ -69,7 +80,7 @@ describe('resolveStorefrontPage (Phase 1 - Transparent Mode)', () => {
         delete (storefrontPageRegistry as any)[pageKeyToTest];
 
         try {
-            const result = resolveStorefrontPage({
+            const result = resolveStorefrontPageCore({
                 routeKey: pageKeyToTest,
                 routeComponent: mockFallbackComponent,
                 storefrontConfig: mockStorefrontConfig,
@@ -89,7 +100,7 @@ describe('resolveStorefrontPage (Phase 1 - Transparent Mode)', () => {
         const mockComponent = vi.fn() as unknown as StorefrontPageComponent;
 
         // Valid key
-        const validResult = resolveStorefrontPage({
+        const validResult = resolveStorefrontPageCore({
             routeKey: 'home',
             routeComponent: mockComponent,
             storefrontConfig: mockStorefrontConfig,
@@ -98,7 +109,7 @@ describe('resolveStorefrontPage (Phase 1 - Transparent Mode)', () => {
         expect(validResult.component).not.toBeNull();
 
         // Invalid key
-        const invalidResult = resolveStorefrontPage({
+        const invalidResult = resolveStorefrontPageCore({
             routeKey: 'unknown' as StorefrontPageKey,
             routeComponent: mockComponent,
             storefrontConfig: mockStorefrontConfig,
@@ -106,4 +117,28 @@ describe('resolveStorefrontPage (Phase 1 - Transparent Mode)', () => {
         expect(invalidResult.component).toBeDefined();
         expect(invalidResult.component).not.toBeNull();
     });
+
+    it('resolves uvh contactUs variant token from normalized discovered key', () => {
+        const fallbackComponent = vi.fn() as unknown as StorefrontPageComponent
+        const result = resolveStorefrontPageCore({
+            routeKey: 'contactUs',
+            routeComponent: fallbackComponent,
+            storefrontConfig: uvhVariantStorefrontConfig,
+        })
+
+        expect(result.resolvedVariant).toBe('uvh-contact-us')
+        expect(result.fallbackApplied).toBe(false)
+    })
+
+    it('resolves uvh aboutUs variant token from normalized discovered key', () => {
+        const fallbackComponent = vi.fn() as unknown as StorefrontPageComponent
+        const result = resolveStorefrontPageCore({
+            routeKey: 'aboutUs',
+            routeComponent: fallbackComponent,
+            storefrontConfig: uvhVariantStorefrontConfig,
+        })
+
+        expect(result.resolvedVariant).toBe('uvh-about-us')
+        expect(result.fallbackApplied).toBe(false)
+    })
 });

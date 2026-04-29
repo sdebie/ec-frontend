@@ -2,9 +2,10 @@ import {Navigate} from 'react-router-dom';
 import {hasRequiredAuthority} from '@/utils/authorizationHelper.ts';
 import AdminLayout from '@/components/layout/admin/AdminLayout.tsx';
 import {AdminThemeProvider} from "@/context/AdminThemeContext.tsx";
+import type { RouteObject } from '@/types/routes.ts';
 
 interface RouteGuardProps {
-    route: any;
+    route: RouteObject;
     isAuthenticated: boolean;
     isAdminDomain: boolean;
     onLoginSuccess: () => void; // Add this back!

@@ -1,4 +1,4 @@
-import {storeRoutingRoutes} from '@/configs/routes/store/storePageRoutes.config.ts'
+import {listStorefrontRouteContracts} from '@/configs/storefront/storefrontRouteContracts.ts'
 import type {
     NavMenuItem,
     StorefrontClientConfig,
@@ -14,7 +14,9 @@ function normalizePath(value: string): string {
 }
 
 export function listKnownStorefrontPaths(): Set<string> {
-    return new Set(storeRoutingRoutes.map((route) => normalizePath(route.path)))
+    return new Set(
+        listStorefrontRouteContracts().map((route) => normalizePath(route.path)),
+    )
 }
 
 /**

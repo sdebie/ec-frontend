@@ -5,9 +5,7 @@ import {OrderItemData as OrderItemsData, OrderInput, asVariant} from '@/types/or
 import {apiCreateOrder} from '@/services/graphql/order/OrderService.graphql.ts';
 import {fetchVariantsByIds} from '@/services/graphql/product/product.service.ts';
 import {CartStore} from "@/store/CartStore.ts";
-
-// LocalStorage key used across the app
-const LS_KEY = 'ec_cart_order_items';
+import {getCartItemsStorageKey} from '@/utils/storefront/tenantStorageKeys'
 
 const currency = (val?: number | null) =>
     typeof val === 'number' ? `R ${val.toFixed(2)}` : '—';
@@ -20,8 +18,9 @@ const Cart: React.FC = () => {
     // Read from localStorage and keep in sync with CartStore updates
     useEffect(() => {
         const read = async () => {
+            const cartItemsKey = getCartItemsStorageKey();
             try {
-                const raw = typeof window !== 'undefined' ? window.localStorage.getItem(LS_KEY) : null;
+                const raw = typeof window !== 'undefined' ? window.localStorage.getItem(cartItemsKey) : null;
                 const parsed: OrderItemsData[] = raw ? JSON.parse(raw) : [];
                 const safeItems = Array.isArray(parsed) ? parsed : [];
 
@@ -46,7 +45,7 @@ const Cart: React.FC = () => {
                         // Persist enriched items back to localStorage for consistency across tabs
                         try {
                             if (typeof window !== 'undefined') {
-                                window.localStorage.setItem(LS_KEY, JSON.stringify(enriched));
+                                window.localStorage.setItem(cartItemsKey, JSON.stringify(enriched));
                             }
                         } catch {
                         }
@@ -67,10 +66,11 @@ const Cart: React.FC = () => {
 
         // subscribe for in-app changes
         const unsub = CartStore.subscribe(read);
+        const cartItemsKey = getCartItemsStorageKey();
 
         // and for other tabs
         const onStorage = (e: StorageEvent) => {
-            if (e.key === LS_KEY) read();
+            if (e.key === cartItemsKey) read();
         };
         window.addEventListener('storage', onStorage);
         return () => {

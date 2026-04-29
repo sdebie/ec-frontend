@@ -2,9 +2,105 @@ import { defineConfig } from 'vite'
 import react from '@vitejs/plugin-react'
 import path from 'path';
 import dynamicImport from 'vite-plugin-dynamic-import'
+function buildStorefrontConfigVirtualModule(): string {
+  return `
+const configModules = import.meta.glob('/src/configs/storefront/clients/*StorefrontConfig.ts', { eager: true });
+
+const toTenantId = (modulePath) => {
+  const filename = modulePath.split('/').pop() ?? '';
+  if (filename === 'defaultStorefrontConfig.ts') return 'default';
+  const clientMatch = /^client(.+)StorefrontConfig\\.ts$/.exec(filename);
+  if (!clientMatch) return null;
+  const candidate = clientMatch[1];
+  return candidate.charAt(0).toLowerCase() + candidate.slice(1);
+};
+
+const readDefaultExport = (moduleValue) => {
+  if (!moduleValue || typeof moduleValue !== 'object') return undefined;
+  if ('defaultStorefrontConfig' in moduleValue) return moduleValue.defaultStorefrontConfig;
+  const firstConfig = Object.values(moduleValue).find((value) => value && typeof value === 'object' && 'id' in value);
+  return firstConfig;
+};
+
+const resolvedConfigImports = Object.entries(configModules).reduce((registry, [modulePath, moduleValue]) => {
+  const tenantId = toTenantId(modulePath);
+  if (!tenantId) return registry;
+  const config = readDefaultExport(moduleValue);
+  if (!config) return registry;
+  return { ...registry, [tenantId]: config };
+}, {});
+
+const normalizeTenantFilter = (rawTenant) => {
+  const tenant = (rawTenant ?? '').trim().toLowerCase();
+  if (!tenant || tenant === 'all') return null;
+  return tenant === 'default' ? ['default'] : ['default', tenant];
+};
+
+const allowedTenants = normalizeTenantFilter(import.meta.env.VITE_STORE_FRONT);
+
+export const storefrontConfigImports = allowedTenants
+  ? Object.fromEntries(Object.entries(resolvedConfigImports).filter(([tenantId]) => allowedTenants.includes(tenantId)))
+  : resolvedConfigImports;
+`;
+}
+
+function buildStorefrontPageVirtualModule(): string {
+  return `
+const pageModules = import.meta.glob('/src/pages/storefront/*/*/page.tsx');
+
+const normalizeTenantFilter = (rawTenant) => {
+  const tenant = (rawTenant ?? '').trim().toLowerCase();
+  if (!tenant || tenant === 'all') return null;
+  return tenant === 'default' ? ['default'] : ['default', tenant];
+};
+
+const allowedTenants = normalizeTenantFilter(import.meta.env.VITE_STORE_FRONT);
+
+const toPageImportKey = (modulePath) => {
+  const match = /^\\/src\\/pages\\/storefront\\/([^/]+)\\/([^/]+)\\/page\\.tsx$/.exec(modulePath);
+  if (!match) return null;
+  const [, tenantId, pageKey] = match;
+  return { tenantId, pageKey };
+};
+
+export const storefrontPageImports = Object.entries(pageModules).reduce((registry, [modulePath, loader]) => {
+  const parsed = toPageImportKey(modulePath);
+  if (!parsed) return registry;
+  if (allowedTenants && !allowedTenants.includes(parsed.tenantId)) return registry;
+  return {
+    ...registry,
+    [\`\${parsed.tenantId}/\${parsed.pageKey}\`]: loader,
+  };
+}, {});
+`;
+}
+
+const storefrontVirtualModules = () => {
+  const configVirtualId = 'virtual:storefront-config-map';
+  const pageVirtualId = 'virtual:storefront-page-map';
+  const resolvedConfigVirtualId = `\0${configVirtualId}`;
+  const resolvedPageVirtualId = `\0${pageVirtualId}`;
+  return {
+    name: 'storefront-virtual-modules',
+    resolveId(id: string) {
+      if (id === configVirtualId) return resolvedConfigVirtualId;
+      if (id === pageVirtualId) return resolvedPageVirtualId;
+      return null;
+    },
+    load(id: string) {
+      if (id === resolvedConfigVirtualId) {
+        return buildStorefrontConfigVirtualModule();
+      }
+      if (id === resolvedPageVirtualId) {
+        return buildStorefrontPageVirtualModule();
+      }
+      return null;
+    },
+  };
+};
 
 export default defineConfig({
-  plugins: [react(), dynamicImport()],
+  plugins: [storefrontVirtualModules(), react(), dynamicImport()],
   assetsInclude: ['**/*.md'],
   optimizeDeps: {
     include: [

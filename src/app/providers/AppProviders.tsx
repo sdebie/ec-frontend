@@ -1,10 +1,11 @@
-import type {PropsWithChildren} from 'react'
-import {BrowserRouter} from 'react-router-dom'
+import type {ComponentProps, PropsWithChildren} from 'react'
+import {RouterProvider} from 'react-router-dom'
 import {StorefrontProvider} from './StorefrontProvider'
 import type {ResolveStorefrontConfigOptions} from '@/storefront/registry/types'
 
 interface AppProvidersProps extends PropsWithChildren {
     storefrontOptions?: ResolveStorefrontConfigOptions
+    router: ComponentProps<typeof RouterProvider>['router']
 }
 
 /**
@@ -14,13 +15,13 @@ interface AppProvidersProps extends PropsWithChildren {
 export function AppProviders({
     children,
     storefrontOptions,
+    router,
 }: AppProvidersProps) {
     return (
-        <BrowserRouter>
-            <StorefrontProvider options={storefrontOptions}>
-                {children}
-            </StorefrontProvider>
-        </BrowserRouter>
+        <StorefrontProvider options={storefrontOptions}>
+            <RouterProvider router={router} />
+            {children}
+        </StorefrontProvider>
     )
 }
 

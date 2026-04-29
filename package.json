@@ -5,7 +5,14 @@
   "type": "module",
   "scripts": {
     "dev": "vite",
+    "typecheck": "tsc --noEmit",
+    "typecheck:storefront": "tsc --noEmit --project tsconfig.storefront.json",
     "build": "vite build",
+    "build:default": "VITE_STORE_FRONT=default vite build",
+    "build:uvh": "VITE_STORE_FRONT=uvh vite build",
+    "build:tenant-matrix": "npm run build:default && npm run build:uvh",
+    "test:storefront": "vitest run src/configs/storefront/__tests__ src/storefront/registry/__tests__ src/storefront/tenant/__tests__",
+    "verify:storefront": "npm run typecheck:storefront && npm run test:storefront && npm run build:tenant-matrix",
     "lint": "eslint .",
     "preview": "vite preview"
   },

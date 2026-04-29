@@ -19,9 +19,9 @@ export const SfTextarea = React.forwardRef<HTMLTextAreaElement, SfTextareaProps>
             <textarea
                 ref={ref}
                 className={cn(
-                    'w-full rounded-lg border border-(--sf-border) bg-(--sf-bg) text-(--sf-text)',
+                    'w-full rounded-[calc(var(--sf-radius)-0.25rem)] border border-(--sf-border) bg-(--sf-bg) text-(--sf-text)',
                     'placeholder:text-(--sf-muted-text)',
-                    'focus:outline-none focus:ring-2 focus:ring-(--sf-accent)',
+                    'focus:outline-none focus:ring-2 focus:ring-(--sf-ring) focus:ring-offset-2 focus:ring-offset-(--sf-panel)',
                     'disabled:cursor-not-allowed disabled:opacity-50',
                     className
                 )}

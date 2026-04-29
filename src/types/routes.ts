@@ -10,12 +10,12 @@ export type PageHeaderProps = {
 export interface PageMeta {
     pageContainerType?: 'default' | 'gutterless' | 'contained'
     pageBackgroundType?: 'default' | 'plain'
+    layout?: 'default' | 'plain' | 'full' | 'shop'
     header?: PageHeaderProps
     footer?: boolean
 }
 
 export interface RouteMeta extends PageMeta {
-    layout?: 'default' | 'plain' | 'full';
     headerTitle?: string;
     label?: string
     icon?: string | ReactNode
@@ -24,7 +24,7 @@ export interface RouteMeta extends PageMeta {
     section?: string
     menuMatch?: 'exact' | 'prefix'
 
-    [key: string]: any;
+    [key: string]: unknown;
 }
 
 // Generic route interface
@@ -43,7 +43,7 @@ export type PageRoute = {
     path: string
     component: LazyExoticComponent<ComponentType<any>>
     authority: string[]
-    meta: PageMeta
+    meta: RouteMeta
     subMenu?: PageRoute[]
 }
 

@@ -1,4 +1,5 @@
 import { SfCard } from '@/components/storefront'
+import { Link } from 'react-router-dom'
 
 const stats = [
     {label: 'Transactions every 24 hours', value: '44 million'},
@@ -217,9 +218,9 @@ const AboutUs = () => {
                                     </div>
                                 </div>
                                 <h3 className="font-semibold text-lg leading-snug line-clamp-3 mb-2 text-(--sf-text)">
-                                    <a href={post.href} className="hover:opacity-75 transition-opacity">
+                                    <Link to={post.href} className="hover:opacity-75 transition-opacity">
                                         {post.title}
-                                    </a>
+                                    </Link>
                                 </h3>
                                 <p className="text-sm line-clamp-2 text-(--sf-muted-text)">
                                     {post.description}
@@ -239,12 +240,12 @@ const AboutUs = () => {
                     <p className="mt-4 text-base leading-relaxed mb-8 text-(--sf-muted-text)">
                         Discover our full range of products and start shopping today.
                     </p>
-                    <a
-                        href="/products"
+                    <Link
+                        to="/products"
                         className="inline-flex items-center justify-center px-6 py-3 rounded-md font-semibold transition-opacity hover:opacity-90 bg-(--sf-accent) text-(--sf-accent-text)"
                     >
                         Browse Products
-                    </a>
+                    </Link>
                 </div>
             </div>
         </main>

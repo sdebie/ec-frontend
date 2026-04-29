@@ -1,6 +1,7 @@
 import {OrderItemData as OrderItemsData, asVariant} from "@/types/order.types.ts";
+import {getCartItemsStorageKey} from '@/utils/storefront/tenantStorageKeys'
 
-export const LS_KEY = 'ec_cart_order_items';
+export const getCartItemsKey = () => getCartItemsStorageKey();
 
 export const currency = (val?: number | null) =>
     typeof val === 'number' ? `R ${val.toFixed(2)}` : '—';

@@ -5,7 +5,7 @@ import type {StorefrontPageKey} from '@/types/storefront/storefrontPageKeys.ts';
 export {CANONICAL_STOREFRONT_PAGE_KEYS} from '@/types/storefront/storefrontPageKeys.ts';
 export type {StorefrontPageKey} from '@/types/storefront/storefrontPageKeys.ts';
 
-export type StorefrontPageComponent = LazyExoticComponent<ComponentType<any>>;
+export type StorefrontPageComponent = LazyExoticComponent<ComponentType<Record<string, unknown>>>;
 
 /**
  * Minimal resolver input contract for Phase 1 (transparent mode).

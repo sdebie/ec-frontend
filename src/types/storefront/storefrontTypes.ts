@@ -1,6 +1,7 @@
 import type {StorefrontPageKey} from '@/types/storefront/storefrontPageKeys.ts';
 
-export type StorefrontClientId = 'default' | 'uvh';
+export type KnownStorefrontClientId = 'default' | 'uvh';
+export type StorefrontClientId = string;
 
 export type StorefrontSectionType =
     | 'hero'
@@ -117,6 +118,13 @@ export interface StorefrontTheme {
     // NEW: Status tokens
     error?: string;
     success?: string;
+
+    // Optional surface and interaction tokens for storefront visual polish
+    surfaceMuted?: string;
+    ring?: string;
+    radius?: string;
+    shadowSm?: string;
+    shadowLg?: string;
 }
 
 export interface StorefrontBrandLogo {
@@ -149,6 +157,59 @@ export interface FooterConfig {
     columns?: FooterLinkColumn[];
     socialLinks?: FooterSocialLink[];
     legalLinks?: NavMenuItem[];   // reuses the existing link shape directly
+}
+
+export type StorefrontSlotId =
+    | 'layout.header'
+    | 'layout.footer'
+    | 'store.nav'
+    | 'home.hero';
+
+export interface StorefrontSlotContribution {
+    id: string;
+    slot: StorefrontSlotId;
+    order?: number;
+    content: {
+        title?: string;
+        description?: string;
+    };
+}
+
+export type StorefrontCmsHeroBlock = {
+    id: string;
+    type: 'hero';
+    content: {
+        title?: string;
+        subtitle?: string;
+    };
+}
+
+export type StorefrontCmsRichTextBlock = {
+    id: string;
+    type: 'rich-text';
+    content: {
+        body?: string;
+    };
+}
+
+export type StorefrontCmsCtaBlock = {
+    id: string;
+    type: 'cta';
+    content: {
+        title?: string;
+        description?: string;
+    };
+}
+
+export type StorefrontCmsBlock =
+    | StorefrontCmsHeroBlock
+    | StorefrontCmsRichTextBlock
+    | StorefrontCmsCtaBlock
+
+export interface StorefrontCmsPageDefinition {
+    path: string;
+    title: string;
+    blocks: StorefrontCmsBlock[];
 }
 
 export type HeroContentAlignment = 'left' | 'center' | 'right';
@@ -215,8 +276,10 @@ export interface StorefrontClientConfig {
     theme: StorefrontTheme;
     pages?: {
         variants?: Partial<Record<StorefrontPageKey, string>>;
+        cms?: StorefrontCmsPageDefinition[];
     };
-    home: {
+    slots?: StorefrontSlotContribution[];
+    home?: {
         sections: StorefrontSectionConfig[];
     };
     footer: FooterConfig;

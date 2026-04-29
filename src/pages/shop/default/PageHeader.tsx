@@ -176,9 +176,17 @@ const PageHeader: React.FC<PageHeaderProps> = ({storefrontConfig}) => {
         <header
             className={`relative z-50 w-full border-b border-(--sf-nav-border) bg-(--sf-nav-bg) ${styles.pageHeader}`}
         >
+            <div className="border-b border-(--sf-nav-border) bg-black/15">
+                <div className="mx-auto flex max-w-6xl flex-wrap items-center justify-between gap-2 px-4 py-2 text-[11px] text-(--sf-nav-icon-text) sm:px-6 lg:px-8">
+                    <p className="font-medium">Wholesale & retail supplier for PPE, medical and cleaning essentials.</p>
+                    <Link to="/contact-us" className="font-semibold text-(--sf-nav-text) hover:text-(--sf-nav-text-hover)">
+                        Get a fast quote
+                    </Link>
+                </div>
+            </div>
             <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
                 <div
-                    className="grid h-16 grid-cols-[minmax(0,1fr)_auto] items-center gap-2 lg:grid-cols-[auto_1fr_auto] lg:gap-6">
+                    className="grid h-18 grid-cols-[minmax(0,1fr)_auto] items-center gap-2 lg:grid-cols-[auto_1fr_auto] lg:gap-8">
                     <Link to="/" className="min-w-0 inline-flex items-center flex-nowrap gap-2 no-underline">
                         {logo?.src ? (
                             <img
@@ -186,7 +194,7 @@ const PageHeader: React.FC<PageHeaderProps> = ({storefrontConfig}) => {
                                 alt={logo.alt || `${storefrontConfig.branding.name} logo`}
                                 width={logo.width}
                                 height={logo.height}
-                                className="shrink-0 h-8 w-auto object-contain"
+                                className="shrink-0 h-9 w-auto object-contain"
                                 style={{width: logo.width, height: logo.height}}
                             />
                         ) : null}
@@ -197,7 +205,7 @@ const PageHeader: React.FC<PageHeaderProps> = ({storefrontConfig}) => {
 
                     <nav
                         aria-label="Primary"
-                        className={`hidden lg:flex items-center justify-center gap-6 ${styles.navMenu}`}
+                        className={`hidden lg:flex items-center justify-center gap-7 ${styles.navMenu}`}
                     >
                         {menuItems.map((item) => renderNavItem(item))}
                     </nav>
@@ -288,12 +296,12 @@ const PageHeader: React.FC<PageHeaderProps> = ({storefrontConfig}) => {
                     <nav
                         id="mobile-primary-nav"
                         aria-label="Mobile primary"
-                        className="border-t border-(--sf-nav-border) py-2"
+                        className="border-t border-(--sf-nav-border) bg-black/10 py-2"
                     >
-                        <div className="flex flex-col">
+                        <div className="flex flex-col pb-2">
                             {menuItems.map((item) =>
                                 renderNavItem(item, {
-                                    className: 'block py-2 text-sm',
+                                    className: 'block rounded-md px-2 py-2 text-sm text-(--sf-nav-text) hover:bg-white/10',
                                     onClick: () => setShowMobileMenu(false),
                                 })
                             )}

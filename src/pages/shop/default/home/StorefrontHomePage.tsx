@@ -6,7 +6,7 @@ interface StorefrontHomePageProps {
 }
 
 const StorefrontHomePage = ({storefrontConfig}: StorefrontHomePageProps) => {
-    return <StorefrontComposer sections={storefrontConfig.home.sections}/>;
+    return <StorefrontComposer sections={storefrontConfig.home?.sections ?? []}/>;
 };
 
 export default StorefrontHomePage;

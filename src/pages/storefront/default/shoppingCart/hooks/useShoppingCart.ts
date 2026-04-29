@@ -3,7 +3,7 @@ import {useNavigate} from 'react-router-dom';
 import {CartStore} from '@/store/CartStore.ts';
 import {apiCreateOrder} from '@/services/graphql/order/OrderService.graphql.ts';
 import {fetchVariantsByIds} from '@/services/graphql/product/product.service.ts';
-import {getVariantId, LS_KEY} from '../../../../../utils/storefront/cart.utils.ts';
+import {getCartItemsKey, getVariantId} from '../../../../../utils/storefront/cart.utils.ts';
 import {OrderInput, OrderItemData as OrderItemsData} from "@/types/order.types.ts";
 
 type UseCartReturn = {
@@ -25,8 +25,9 @@ export const useShoppingCart = (): UseCartReturn => {
     const [placingOrder, setPlacingOrder] = useState(false);
 
     const readCart = useCallback(async () => {
+        const cartItemsKey = getCartItemsKey();
         try {
-            const raw = typeof window !== 'undefined' ? window.localStorage.getItem(LS_KEY) : null;
+            const raw = typeof window !== 'undefined' ? window.localStorage.getItem(cartItemsKey) : null;
 
             const parsed: OrderItemsData[] = raw ? JSON.parse(raw) : [];
             const safeItems = Array.isArray(parsed) ? parsed : [];
@@ -70,7 +71,7 @@ export const useShoppingCart = (): UseCartReturn => {
 
                 try {
                     if (typeof window !== 'undefined') {
-                        window.localStorage.setItem(LS_KEY, JSON.stringify(enrichedItems));
+                        window.localStorage.setItem(cartItemsKey, JSON.stringify(enrichedItems));
                     }
                 } catch {
                     // ignore localStorage write failure
@@ -88,9 +89,10 @@ export const useShoppingCart = (): UseCartReturn => {
         void readCart();
 
         const unsubscribe = CartStore.subscribe(readCart);
+        const cartItemsKey = getCartItemsKey();
 
         const onStorage = (event: StorageEvent) => {
-            if (event.key === LS_KEY) {
+            if (event.key === cartItemsKey) {
                 void readCart();
             }
         };

@@ -6,8 +6,7 @@ import {
     storefrontPageVariantRegistry,
 } from '@/configs/storefront/storefrontPageRegistry.ts';
 import {getStorefrontRegistry} from '@/configs/storefront/storefrontRegistry.ts';
-import {storeMenuRoutes} from '@/configs/routes/store/storeMenuRoutes.config.ts';
-import {storeRoutingRoutes} from '@/configs/routes/store/storePageRoutes.config.ts';
+import {listStorefrontRouteContracts} from '@/configs/storefront/storefrontRouteContracts.ts';
 
 const normalizePath = (value: string): string => {
     const [withoutQuery] = value.split('?');
@@ -27,15 +26,17 @@ const isExternalLink = (to: string, external?: boolean): boolean => {
 /**
  * Phase 1 validation for storefront page resolver infrastructure.
  * Ensures canonical page keys are aligned with route definitions and registry coverage.
- * Non-blocking: validation failures log warnings but do not prevent runtime.
+ * Validation strategy can be warning-only or strict fail.
  */
-export const validateStorefrontPageInfrastructure = (): { valid: boolean; warnings: string[] } => {
+export type StorefrontValidationMode = 'warn' | 'fail'
+
+export const validateStorefrontPageInfrastructure = (
+    mode: StorefrontValidationMode = 'warn',
+): { valid: boolean; warnings: string[] } => {
     const warnings: string[] = [];
 
-    // Collect all route keys from store route definitions
-    const routeKeysFromMenuRoutes = storeMenuRoutes.map((route) => route.key);
-    const routeKeysFromPageRoutes = storeRoutingRoutes.map((route) => route.key);
-    const allRouteKeys = new Set([...routeKeysFromMenuRoutes, ...routeKeysFromPageRoutes]);
+    const storefrontRouteContracts = listStorefrontRouteContracts();
+    const allRouteKeys = new Set(storefrontRouteContracts.map((route) => route.key));
 
     // Canonical page keys from the single source of truth.
     const canonicalPageKeys: readonly StorefrontPageKey[] =
@@ -71,7 +72,7 @@ export const validateStorefrontPageInfrastructure = (): { valid: boolean; warnin
 
     // Collect known store route paths for nav-path validation.
     const knownStorePaths = new Set(
-        storeRoutingRoutes.map((route) => normalizePath(route.path)),
+        storefrontRouteContracts.map((route) => normalizePath(route.path)),
     );
 
     // Validate client-level variant and navigation drift. Warnings only.
@@ -127,6 +128,11 @@ export const validateStorefrontPageInfrastructure = (): { valid: boolean; warnin
     if (warnings.length > 0) {
         if (typeof console !== 'undefined' && console.warn) {
             warnings.forEach((warning) => console.warn(warning));
+        }
+        if (mode === 'fail') {
+            throw new Error(
+                `[StorefrontPageValidation] Validation failed with ${warnings.length} warning(s).\n${warnings.join('\n')}`,
+            )
         }
     }
 

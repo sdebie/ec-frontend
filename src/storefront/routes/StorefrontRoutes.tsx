@@ -1,7 +1,10 @@
-import {StorefrontShell} from '@/storefront/layouts/StorefrontShell.tsx'
-import {resolveStorefrontPageForRoute} from '@/storefront/registry/pageRegistry.ts'
+import {resolveStorefrontPageCore} from '@/storefront/registry/resolveStorefrontPageCore'
 import {useStorefrontBoundary} from '@/app/providers/StorefrontProvider'
 import type {RouteObject} from '@/types/routes.ts'
+import type {
+    StorefrontPageComponent,
+    StorefrontPageKey,
+} from '@/types/storefront/storefrontPageContracts'
 
 interface StorefrontRoutesProps {
     route: RouteObject
@@ -15,30 +18,23 @@ interface StorefrontRoutesProps {
 export function StorefrontRoutes({
     route,
     activeCategory,
-    setActiveCategory,
+    setActiveCategory: _setActiveCategory,
 }: StorefrontRoutesProps) {
     const {config: effectiveStorefrontConfig} = useStorefrontBoundary()
 
-    const {component: StorefrontComponent} = resolveStorefrontPageForRoute(
-        route,
-        effectiveStorefrontConfig,
-    )
+    const {component: StorefrontComponent} = resolveStorefrontPageCore({
+        routeKey: route.key as StorefrontPageKey,
+        routeComponent: route.component as StorefrontPageComponent,
+        storefrontConfig: effectiveStorefrontConfig,
+    })
     const meta = route.meta || {}
 
     return (
-        <StorefrontShell
-            storefrontConfig={effectiveStorefrontConfig}
+        <StorefrontComponent
             activeCategory={activeCategory}
-            onSelectCategory={setActiveCategory}
-        >
-            <div>
-                <StorefrontComponent
-                    activeCategory={activeCategory}
-                    storefrontConfig={effectiveStorefrontConfig}
-                    {...meta}
-                />
-            </div>
-        </StorefrontShell>
+            storefrontConfig={effectiveStorefrontConfig}
+            {...meta}
+        />
     )
 }
 

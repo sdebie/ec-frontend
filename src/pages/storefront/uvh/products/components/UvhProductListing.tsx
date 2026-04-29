@@ -1,8 +1,9 @@
 import {useMemo, useState} from "react";
+import { Link } from 'react-router-dom';
 import {Category} from "@/types/admin/CategoryTypes.ts";
 import {ProductShoppingListItem} from "@/types/admin/ProductTypes.ts";
 import {ProductCard} from "@/components/shared/card/default/ProductCard.tsx";
-import { SfCard, SfInput } from '@/components/storefront';
+import { SfButton, SfCard, SfInput } from '@/components/storefront';
 
 type UvhCatalogueProduct = ProductShoppingListItem & {
     category?: {
@@ -47,7 +48,7 @@ const UvhProductListing = ({
 
     return (
         <div className="min-h-screen bg-(--sf-bg)">
-            <div className="border-b border-(--sf-border) bg-(--sf-panel) px-4 py-5 sm:px-6 lg:px-8">
+            <div className="border-b border-(--sf-border) bg-gradient-to-b from-(--sf-panel) to-(--sf-surface-muted) px-4 py-5 sm:px-6 lg:px-8">
                 <div className="mx-auto max-w-7xl">
                     <div className="flex flex-col gap-1 sm:flex-row sm:items-end sm:justify-between">
                         <div>
@@ -57,6 +58,11 @@ const UvhProductListing = ({
                             <h1 className="mt-1 text-2xl font-semibold tracking-tight sm:text-3xl text-(--sf-text)">
                                 {listingTitle}
                             </h1>
+                            {selectedSubcategory && (
+                                <p className="mt-2 text-sm text-(--sf-muted-text)">
+                                    Filter active: {selectedSubcategory.name}
+                                </p>
+                            )}
                         </div>
 
                         <p className="text-sm text-(--sf-muted-text)">
@@ -66,7 +72,7 @@ const UvhProductListing = ({
                 </div>
             </div>
 
-            <div className="mx-auto max-w-7xl px-4 py-6 sm:px-6 lg:px-8">
+            <div className="mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:px-8">
                 <div className="flex flex-col gap-6 lg:flex-row lg:items-start">
                     <SfCard as="aside" className="w-full shrink-0 p-5 lg:w-60 xl:w-64">
                         <p className="mb-3 text-xs font-semibold uppercase tracking-[0.14em] text-(--sf-accent)">
@@ -86,6 +92,14 @@ const UvhProductListing = ({
                                 ? `Showing products in ${selectedSubcategory.name}.`
                                 : 'Showing all products.'}
                         </div>
+
+                        <div className="mt-5">
+                            <Link to="/contact-us" className="block">
+                                <SfButton type="button" className="w-full px-3 py-2 text-xs">
+                                    Request bulk quote
+                                </SfButton>
+                            </Link>
+                        </div>
                     </SfCard>
 
                     <div className="min-w-0 flex-1">
@@ -94,27 +108,35 @@ const UvhProductListing = ({
                                 <p className="text-sm">No products found.</p>
                             </SfCard>
                         ) : (
-                            <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-2 xl:grid-cols-3">
-                                {filteredProducts.map((product) => {
-                                    const featuredImage =
-                                        product.images?.find((img) => img.isFeatured) ??
-                                        product.images?.[0];
+                            <>
+                                <div className="mb-4 rounded-xl border border-(--sf-border) bg-(--sf-panel) p-4 text-xs text-(--sf-muted-text)">
+                                    Need large quantities, recurring supply, or tender support?{' '}
+                                    <Link to="/contact-us" className="font-semibold text-(--sf-accent)">
+                                        Talk to UVH sales.
+                                    </Link>
+                                </div>
+                                <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-2 xl:grid-cols-3">
+                                    {filteredProducts.map((product) => {
+                                        const featuredImage =
+                                            product.images?.find((img) => img.isFeatured) ??
+                                            product.images?.[0];
 
-                                    const retailPrice = product.retailPrice?.price ?? 0;
-                                    const salePrice = product.retailSalePrice?.price ?? undefined;
+                                        const retailPrice = product.retailPrice?.price ?? 0;
+                                        const salePrice = product.retailSalePrice?.price ?? undefined;
 
-                                    return (
-                                        <ProductCard
-                                            key={product.id}
-                                            id={product.id}
-                                            name={product.name}
-                                            price={salePrice ?? retailPrice}
-                                            originalPrice={salePrice ? retailPrice : undefined}
-                                            image={featuredImage?.imageUrl}
-                                        />
-                                    );
-                                })}
-                            </div>
+                                        return (
+                                            <ProductCard
+                                                key={product.id}
+                                                id={product.id}
+                                                name={product.name}
+                                                price={salePrice ?? retailPrice}
+                                                originalPrice={salePrice ? retailPrice : undefined}
+                                                image={featuredImage?.imageUrl}
+                                            />
+                                        );
+                                    })}
+                                </div>
+                            </>
                         )}
                     </div>
                 </div>

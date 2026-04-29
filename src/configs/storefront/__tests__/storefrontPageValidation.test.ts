@@ -2,8 +2,7 @@ import {beforeEach, describe, expect, it, vi} from 'vitest'
 import type {StorefrontPageKey} from '@/types/storefront/storefrontPageKeys.ts'
 
 const {
-  mockStoreMenuRoutes,
-  mockStoreRoutingRoutes,
+  mockStorefrontRouteContracts,
   mockStorefrontPageRegistry,
   mockStorefrontPageVariantRegistry,
   mockStorefrontRegistry,
@@ -23,6 +22,14 @@ const {
     { key: 'paymentSuccess', path: '/payment-success', component: vi.fn(), authority: [], meta: {} },
     { key: 'accessDenied', path: '/access-denied', component: vi.fn(), authority: [], meta: {} },
   ]
+
+  const routeContracts = routingRoutes.map((route) => ({
+    key: route.key,
+    path: route.path,
+    component: route.component,
+    menu: menuRoutes.some((menuRoute) => menuRoute.key === route.key),
+    meta: route.meta,
+  }))
 
   const pageRegistry = {
     home: vi.fn(),
@@ -81,20 +88,15 @@ const {
   }
 
   return {
-    mockStoreMenuRoutes: menuRoutes,
-    mockStoreRoutingRoutes: routingRoutes,
+    mockStorefrontRouteContracts: routeContracts,
     mockStorefrontPageRegistry: pageRegistry,
     mockStorefrontPageVariantRegistry: variantRegistry,
     mockStorefrontRegistry: storefrontRegistry,
   }
 })
 
-vi.mock('@/configs/routes/store/storeMenuRoutes.config.ts', () => ({
-  storeMenuRoutes: mockStoreMenuRoutes,
-}))
-
-vi.mock('@/configs/routes/store/storePageRoutes.config.ts', () => ({
-  storeRoutingRoutes: mockStoreRoutingRoutes,
+vi.mock('@/configs/storefront/storefrontRouteContracts.ts', () => ({
+  listStorefrontRouteContracts: () => mockStorefrontRouteContracts,
 }))
 
 vi.mock('@/configs/storefront/storefrontPageRegistry.ts', () => ({
@@ -200,6 +202,16 @@ describe('validateStorefrontPageInfrastructure', () => {
 
     const result = validateStorefrontPageInfrastructure()
     expect(result.warnings.some((w) => w.includes('duplicate navigation item id "dup"'))).toBe(true)
+  })
+
+  it('throws in fail mode when validation warnings exist', () => {
+    mockStorefrontRegistry.default.navigation.menuItems = [
+      { id: 'broken', label: 'Broken', to: '/missing-path' },
+    ]
+
+    expect(() => validateStorefrontPageInfrastructure('fail')).toThrow(
+      /Validation failed/,
+    )
   })
 })
 

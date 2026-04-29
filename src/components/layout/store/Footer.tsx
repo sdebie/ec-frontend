@@ -113,6 +113,13 @@ export const Footer = ({branding, footer}: FooterProps) => {
                             </p>
                         ) : null}
 
+                        <div className="mt-4 rounded-xl border border-(--sf-nav-border) bg-black/15 p-4 text-xs text-(--sf-nav-icon-text)">
+                            <p className="font-semibold uppercase tracking-[0.12em] text-(--sf-nav-text)">Bulk orders & tenders</p>
+                            <p className="mt-2 leading-5">
+                                Need recurring supply, large quantities, or tender support? Our team can assist quickly.
+                            </p>
+                        </div>
+
                         {hasSocial ? (
                             <div className="mt-6 flex flex-wrap gap-3" aria-label="Social links">
                                 {footer.socialLinks?.map((social) => (
@@ -134,7 +141,7 @@ export const Footer = ({branding, footer}: FooterProps) => {
                                             <li key={link.id}>
                                                 <FooterLink
                                                     item={link}
-                                                    className="text-sm text-(--sf-nav-icon-text) transition-colors hover:text-(--sf-nav-text-hover)"
+                                                    className="text-sm text-(--sf-nav-icon-text) underline-offset-4 transition-colors hover:text-(--sf-nav-text-hover) hover:underline"
                                                 />
                                             </li>
                                         ))}

@@ -22,6 +22,7 @@ import PaymentMethodSection from './components/PaymentMethodSection.tsx';
 import OrderSummary from './components/OrderSummary.tsx';
 import SaveConfirmModal from './components/SaveConfirmModal.tsx';
 import {OrderStatus} from '@/constants/enums/OrderStatus.ts';
+import {getCartItemsStorageKey} from '@/utils/storefront/tenantStorageKeys';
 
 // Interface shaped like backend HtmlFormField
 interface HtmlFormField {
@@ -489,7 +490,7 @@ const Checkout: React.FC = () => {
             }
             // Clear cart items from localStorage and update UI
             try {
-                window.localStorage.removeItem('ec_cart_order_items');
+                window.localStorage.removeItem(getCartItemsStorageKey());
             } catch (_) {
             }
             try {

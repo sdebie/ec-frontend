@@ -29,6 +29,13 @@ export const StorefrontThemeProvider = ({
         // Status tokens
         ['--sf-error' as string]: clientConfig.theme.error || '#ef4444',
         ['--sf-success' as string]: clientConfig.theme.success || '#10b981',
+        ['--sf-surface-muted' as string]: clientConfig.theme.surfaceMuted || '#f8fafc',
+        ['--sf-ring' as string]: clientConfig.theme.ring || clientConfig.theme.accent,
+        ['--sf-radius' as string]: clientConfig.theme.radius || '1rem',
+        ['--sf-shadow-sm' as string]:
+            clientConfig.theme.shadowSm || '0 8px 20px -18px rgba(15, 23, 42, 0.35)',
+        ['--sf-shadow-lg' as string]:
+            clientConfig.theme.shadowLg || '0 24px 44px -28px rgba(15, 23, 42, 0.45)',
     };
 
     return (

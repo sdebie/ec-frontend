@@ -2,14 +2,15 @@ import { StrictMode } from 'react'
 import { createRoot } from 'react-dom/client'
 import './index.css'
 import App from './App.jsx'
+import {getCartSessionStorageKey} from '@/utils/storefront/tenantStorageKeys'
 
 // Ensure a persistent cart session id exists on app load
-const CART_SESSION_KEY = 'cart_session_id';
 function ensureCartSessionId() {
   try {
     if (typeof window === 'undefined' || !('localStorage' in window)) return;
     const ls = window.localStorage;
-    let sessionId = ls.getItem(CART_SESSION_KEY);
+    const cartSessionKey = getCartSessionStorageKey();
+    let sessionId = ls.getItem(cartSessionKey);
     if (!sessionId) {
       const simpleUuid = () =>
         'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, c => {
@@ -20,11 +21,11 @@ function ensureCartSessionId() {
       const uuid = (typeof window !== 'undefined' && window.crypto && typeof window.crypto.randomUUID === 'function')
         ? window.crypto.randomUUID()
         : simpleUuid();
-      ls.setItem(CART_SESSION_KEY, uuid);
+      ls.setItem(cartSessionKey, uuid);
     }
   } catch (e) {
     // Non-fatal: if localStorage is blocked or unavailable, just continue
-    console.warn('[cart] Failed to ensure cart_session_id:', e);
+    console.warn('[cart] Failed to ensure tenant cart session id:', e);
   }
 }
 

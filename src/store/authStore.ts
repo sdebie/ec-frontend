@@ -4,6 +4,7 @@ import { TOKEN_NAME_IN_STORAGE } from '@/constants/api.constant'
 import { create } from 'zustand'
 import { persist, createJSONStorage } from 'zustand/middleware'
 import {LoginResponse} from '@/types/auth'
+import {getSessionUserStorageKey} from '@/utils/storefront/tenantStorageKeys'
 
 type Session = {
     signedIn: boolean
@@ -17,6 +18,7 @@ type AuthState = {
 type AuthAction = {
     setSessionSignedIn: (payload: boolean) => void
     setUser: (payload: LoginResponse) => void
+    resetAuthState: () => void
 }
 
 const getPersistStorage = () => {
@@ -36,6 +38,8 @@ const initialState: AuthState = {
         signedIn: false,
     },
     user: {
+        token: '',
+        role: '',
         avatar: '',
         userName: '',
         email: '',
@@ -61,10 +65,15 @@ export const useSessionUser = create<AuthState & AuthAction>()(
                         ...payload,
                     },
                 })),
+            resetAuthState: () => set(() => ({...initialState})),
         }),
-        { name: 'sessionUser', storage: createJSONStorage(() => localStorage) },
+        { name: getSessionUserStorageKey(), storage: createJSONStorage(() => localStorage) },
     ),
 )
+
+export const resetSessionUserStore = () => {
+    useSessionUser.getState().resetAuthState()
+}
 
 export const useToken = () => {
     const storage = getPersistStorage()

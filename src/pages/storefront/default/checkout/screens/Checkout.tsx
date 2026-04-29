@@ -25,6 +25,7 @@ import OrderSummary from '../components/OrderSummary.tsx';
 import CheckoutSubmitBar from '../components/CheckoutSubmitBar.tsx';
 import SaveConfirmModal from '../components/SaveConfirmModal.tsx';
 import {isInStorePickup} from '../components/helpers.ts';
+import {getCartItemsStorageKey} from '@/utils/storefront/tenantStorageKeys';
 
 interface HtmlFormField {
     type: string;
@@ -306,7 +307,7 @@ const Checkout: React.FC = () => {
                 console.warn('[In-Store] Failed to set order status to IN_STORE_PAYMENT:', e);
             }
             try {
-                window.localStorage.removeItem('ec_cart_order_items');
+                window.localStorage.removeItem(getCartItemsStorageKey());
             } catch {
             }
             try {

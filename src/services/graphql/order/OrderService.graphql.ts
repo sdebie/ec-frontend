@@ -13,6 +13,7 @@ import { CustomerInformation, OrderData, OrderDetailData, OrderInput, OrderItemD
 import { FilterRequest, PageRequest } from "@/types/graphql/query.types.ts";
 import { CartStore } from "@/store/CartStore.ts";
 import { OrderStatus } from "@/constants/enums/OrderStatus.ts";
+import {getCartItemsStorageKey} from '@/utils/storefront/tenantStorageKeys'
 
 const graphQLEndpoint = getServiceEndpoint(8080) + '/api/graphql';
 
@@ -80,14 +81,13 @@ export async function apiGetOrderDetail(orderid: string): Promise<OrderDetailDat
 // ---------------------------------------------------------------------------
 // Local-only cart helper (no network call — merges items into localStorage)
 // ---------------------------------------------------------------------------
-const LS_KEY = 'ec_cart_order_items';
-
 export async function addToCart(order: OrderData): Promise<OrderData> {
+    const cartItemsKey = getCartItemsStorageKey();
     const incoming: OrderItemData[] = Array.isArray(order?.items) ? order.items : [];
 
     let existing: OrderItemData[] = [];
     try {
-        const raw = typeof window !== 'undefined' ? window.localStorage.getItem(LS_KEY) : null;
+        const raw = typeof window !== 'undefined' ? window.localStorage.getItem(cartItemsKey) : null;
         const parsed = raw ? JSON.parse(raw) : [];
         existing = Array.isArray(parsed) ? parsed : [];
     } catch {
@@ -128,7 +128,7 @@ export async function addToCart(order: OrderData): Promise<OrderData> {
 
     try {
         if (typeof window !== 'undefined') {
-            window.localStorage.setItem(LS_KEY, JSON.stringify(merged));
+            window.localStorage.setItem(cartItemsKey, JSON.stringify(merged));
         }
     } catch {
         // ignore

@@ -9,7 +9,7 @@ import type {
     StorefrontPageKey,
 } from '@/types/storefront/storefrontPageContracts.ts'
 
-export type StorefrontLayoutId = 'default'
+export type StorefrontLayoutId = 'default' | 'shop'
 
 export interface StorefrontResolvedPage {
     pageKey: StorefrontPageKey
@@ -26,6 +26,7 @@ export interface StorefrontNavigationModel {
 export interface StorefrontContextValue {
     config: StorefrontClientConfig
     navigation: StorefrontNavigationModel
+    switchTenant: (tenantId: string) => void
 }
 
 export interface ResolveStorefrontConfigOptions {

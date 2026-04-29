@@ -7,7 +7,10 @@ export interface LoginResponse {
   token: string;
   email: string;
   role: string;
-  resetPassword: boolean;
+  resetPassword?: boolean;
+  avatar?: string;
+  userName?: string;
+  authority?: string[];
 }
 
 export interface ResetPasswordRequest {

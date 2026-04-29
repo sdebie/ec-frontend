@@ -29,12 +29,12 @@ export function SfCard<T extends ElementType = 'div'>({
     ...rest
 }: SfCardProps<T>) {
     const Tag = (as ?? 'div') as ElementType;
-    const shadowClass = elevation === 'sm' ? 'shadow-sm' : undefined;
+    const shadowClass = elevation === 'sm' ? 'shadow-[var(--sf-shadow-sm)]' : undefined;
 
     return (
         <Tag
             className={cn(
-                'rounded-2xl border border-(--sf-border) bg-(--sf-panel)',
+                'rounded-[var(--sf-radius)] border border-(--sf-border) bg-(--sf-panel) transition-shadow duration-200',
                 shadowClass,
                 className
             )}
