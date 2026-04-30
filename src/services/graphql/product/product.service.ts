@@ -9,6 +9,7 @@ import {
 } from "@/types/admin/ProductTypes.ts";
 import {
 	GET_PRODUCTS_LIST,
+	GET_PRODUCTS_LIST_BY_CATEGORY,
 	GET_SHOPPING_PRODUCTS_LIST,
 	GET_SALE_PRODUCTS_LIST,
 	GET_PRODUCT_AND_VARIANTS,
@@ -23,12 +24,24 @@ const graphQLEndpoint = getServiceEndpoint(8080) + '/api/graphql';
 export async function apiGetProductList(
 	categoryId?: string | null,
 	pageRequest?: PageRequest | null,
-	filterRequest?: FilterRequest | null
+	filterRequest?: FilterRequest | null,
+	includeSubCategories = true
 ): Promise<ProductListItem[]> {
 	const client = await GraphQLService.getGraphQLClient(graphQLEndpoint);
+	const useCategoryScopedQuery = !!categoryId && categoryId !== 'ALL';
+
+	if (useCategoryScopedQuery) {
+		const result = await client.request<{ productListByCategory: ProductListItem[] }>(GET_PRODUCTS_LIST_BY_CATEGORY, {
+			categoryId,
+			includeSubCategories,
+			pageRequest,
+			filterRequest,
+		});
+
+		return result.productListByCategory ?? [];
+	}
 
 	const result = await client.request<{ productList: ProductListItem[] }>(GET_PRODUCTS_LIST, {
-		categoryId,
 		pageRequest,
 		filterRequest,
 	});

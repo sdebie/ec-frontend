@@ -52,7 +52,7 @@ export default function useCategoryList() {
                 setErrorMsg("");
 
                 const [page, count] = await Promise.all([
-                    apiGetAllCategories({pageIndex, pageSize}, filterRequest),
+                    apiGetAllCategories({pageIndex, pageSize}, filterRequest, true),
                     apiGetCategoryCount(filterRequest),
                 ]);
 

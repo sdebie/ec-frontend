@@ -33,7 +33,7 @@ export default function useStorefrontParentCategories() {
                 setErrorMsg("");
 
                 const [page, count] = await Promise.all([
-                    apiGetAllCategories({pageIndex, pageSize}, filterRequest),
+                    apiGetAllCategories({pageIndex, pageSize}, filterRequest, false),
                     apiGetCategoryCount(filterRequest),
                 ]);
 

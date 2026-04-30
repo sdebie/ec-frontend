@@ -13,13 +13,18 @@ import {
 
 const graphQLEndpoint = getServiceEndpoint(8080) + '/api/graphql';
 
-export async function apiGetAllCategories(pageRequest: PageRequest, filterRequest: FilterRequest): Promise<Category[]> {
+export async function apiGetAllCategories(
+    pageRequest: PageRequest,
+    filterRequest: FilterRequest,
+    includeSubCategories = false
+): Promise<Category[]> {
 
     const client = await GraphQLService.getGraphQLClient(graphQLEndpoint);
 
     const result = await client.request<{ allCategories: Category[] }>(ALL_CATEGORY, {
         pageRequest,
         filterRequest,
+        includeSubCategories,
     });
 
     return result.allCategories ?? [];

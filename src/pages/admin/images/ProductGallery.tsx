@@ -4,26 +4,42 @@ import { AdaptiveCard, Button } from "@/components";
 import { PageContainer } from "@/components/layout/shared/PageContainer.tsx";
 import { useNavigate } from "react-router-dom";
 import ImageServiceRest from "@/services/rest/admin/ImageService.rest.ts";
-import { Upload } from 'lucide-react';
+import { Loader, Upload } from 'lucide-react';
+
+const PAGE_SIZE = 80;
 
 const ProductGallery = () => {
     const [images, setImages] = useState<string[]>([]);
     const [selectedImage, setSelectedImage] = useState<string | null>(null);
+    const [currentPage, setCurrentPage] = useState(0);
+    const [totalCount, setTotalCount] = useState(0);
+    const [isLoading, setIsLoading] = useState(false);
     const navigate = useNavigate();
 
-    useEffect(() => {
-        const loadImages = async () => {
-            try {
-                const data = await ImageServiceRest.fetchImageFilenames();
-                setImages(data);
-                if (data.length > 0) setSelectedImage(data[0]);
-            } catch (error) {
-                console.error("Failed to fetch image filenames:", error);
-            }
-        };
+    const loadImages = async (page: number) => {
+        setIsLoading(true);
+        try {
+            const response = await ImageServiceRest.fetchImageFilenamesPaginated(page, PAGE_SIZE);
+            setImages(response.images || []);
+            setTotalCount(response.totalCount || 0);
+            setCurrentPage(response.page || 0);
 
-        loadImages();
+            if (!selectedImage && response.images.length > 0) {
+                setSelectedImage(response.images[0]);
+            }
+        } catch (error) {
+            console.error("Failed to fetch paginated image filenames:", error);
+        } finally {
+            setIsLoading(false);
+        }
+    };
+
+    useEffect(() => {
+        loadImages(0);
     }, []);
+
+    const totalPages = Math.ceil(totalCount / PAGE_SIZE);
+    const canLoadMore = images.length < totalCount && currentPage < totalPages - 1;
 
     return (
         <PageContainer
@@ -59,7 +75,7 @@ const ProductGallery = () => {
                 {/* Thumbnails Grid */}
                 <section className="space-y-4">
                     <h2 className="text-xl font-semibold text-admin-text border-b border-admin-border pb-2">
-                        All Images ({images.length})
+                        All Images ({images.length} of {totalCount})
                     </h2>
                     <div className="grid grid-cols-2 sm:grid-cols-4 md:grid-cols-6 lg:grid-cols-8 gap-4">
                         {images.map((filename) => (
@@ -86,6 +102,26 @@ const ProductGallery = () => {
                             </button>
                         ))}
                     </div>
+
+                    {canLoadMore && (
+                        <div className="pt-2">
+                            <Button
+                                variant="secondary"
+                                className="w-full"
+                                disabled={isLoading}
+                                onClick={() => loadImages(currentPage + 1)}
+                            >
+                                {isLoading ? (
+                                    <>
+                                        <Loader className="w-4 h-4 animate-spin mr-2" />
+                                        Loading...
+                                    </>
+                                ) : (
+                                    `Load More (${images.length} of ${totalCount})`
+                                )}
+                            </Button>
+                        </div>
+                    )}
                 </section>
             </div>
         </PageContainer>

@@ -1,8 +1,27 @@
 import {gql} from "graphql-request";
 
 export const GET_PRODUCTS_LIST = gql`
-    query GetProductsList($categoryId: String, $pageRequest: PageRequestInput, $filterRequest: FilterRequestInput) {
-        productList(categoryId: $categoryId, pageRequest: $pageRequest, filterRequest: $filterRequest) {
+    query GetProductsList($pageRequest: PageRequestInput, $filterRequest: FilterRequestInput) {
+        productList(pageRequest: $pageRequest, filterRequest: $filterRequest) {
+            id
+            name
+            description
+            imageName
+            variantIds
+            categoryNames
+            brandName
+        }
+    }
+`;
+
+export const GET_PRODUCTS_LIST_BY_CATEGORY = gql`
+    query GetProductsListByCategory($categoryId: String!, $includeSubCategories: Boolean!, $pageRequest: PageRequestInput, $filterRequest: FilterRequestInput) {
+        productListByCategory(
+            categoryId: $categoryId,
+            includeSubCategories: $includeSubCategories,
+            pageRequest: $pageRequest,
+            filterRequest: $filterRequest
+        ) {
             id
             name
             description

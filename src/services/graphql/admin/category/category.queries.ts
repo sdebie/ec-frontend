@@ -1,8 +1,8 @@
 import {gql} from "graphql-request";
 
 export const ALL_CATEGORY = gql`
-    query AllCategories($pageRequest: PageRequestInput, $filterRequest: FilterRequestInput) {
-        allCategories(pageRequest: $pageRequest, filterRequest: $filterRequest) {
+    query AllCategories($pageRequest: PageRequestInput, $filterRequest: FilterRequestInput, $includeSubCategories: Boolean = false) {
+        allCategories(pageRequest: $pageRequest, filterRequest: $filterRequest, includeSubCategories: $includeSubCategories) {
             id
             name
             description

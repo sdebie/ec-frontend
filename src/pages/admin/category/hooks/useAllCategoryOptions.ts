@@ -20,7 +20,8 @@ export default function useAllCategoryOptions() {
                         filters: [],
                         filterGroups: [],
                         sort: [{field: "name", direction: "ASC"}],
-                    }
+                    },
+                    true
                 );
                 if (!isActive) return;
                 setCategories(result);

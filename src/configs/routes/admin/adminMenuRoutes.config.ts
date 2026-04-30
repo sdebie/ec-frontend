@@ -77,6 +77,17 @@ export const adminMenuRoutes: Routes = [
                     pageContainerType: 'contained',
                 },
             },
+            {
+                key: 'admin.productcatagory.list',
+                path: '/admin/productcatagory/list',
+                component: lazy(() => import('@/pages/admin/products/screens/list/ProductCategoryList.tsx')),
+                authority: ['SUPER_ADMIN'],
+                meta: {
+                    label: 'Product Category List',
+                    pageBackgroundType: 'plain',
+                    pageContainerType: 'contained',
+                },
+            },
         ],
     },
     {
