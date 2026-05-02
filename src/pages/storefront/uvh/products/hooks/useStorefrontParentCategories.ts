@@ -1,7 +1,8 @@
 import {useCallback, useEffect, useMemo, useState} from "react";
 import {Category} from "@/types/admin/CategoryTypes.ts";
 import {FilterRequest} from "@/types/graphql/query.types.ts";
-import {apiGetAllCategories, apiGetCategoryCount} from "@/services/graphql/admin/category/CategoryService.graphql.ts";
+import {fetchStorefrontCatalogueCategories} from '@/services/storefront/catalogue/catalogue.service.ts';
+import {apiGetCategoryCount} from "@/services/graphql/admin/category/CategoryService.graphql.ts";
 
 export default function useStorefrontParentCategories() {
 
@@ -12,7 +13,6 @@ export default function useStorefrontParentCategories() {
     const [isLoading, setIsLoading] = useState(true);
     const [errorMsg, setErrorMsg] = useState("");
     const [refreshKey, setRefreshKey] = useState(0);
-    const [searchTerm, setSearchTerm] = useState("");
 
     const filterRequest = useMemo<FilterRequest>(() => ({
         filters: [],
@@ -22,7 +22,7 @@ export default function useStorefrontParentCategories() {
                 field: "name",
                 direction: "ASC"
             }],
-    }), [searchTerm]);
+    }), []);
 
     useEffect(() => {
         let isActive = true;
@@ -33,7 +33,7 @@ export default function useStorefrontParentCategories() {
                 setErrorMsg("");
 
                 const [page, count] = await Promise.all([
-                    apiGetAllCategories({pageIndex, pageSize}, filterRequest, false),
+                    fetchStorefrontCatalogueCategories({pageIndex, pageSize}, filterRequest),
                     apiGetCategoryCount(filterRequest),
                 ]);
 
@@ -70,11 +70,6 @@ export default function useStorefrontParentCategories() {
         setPageIndex(0); // Reset to the first page when the page size changes
     }, []);
 
-    const handleSearchChange = useCallback((searchTerm: string) => {
-        setSearchTerm(searchTerm);
-        setPageIndex(0);
-    }, []);
-
     const mutate = useCallback(() => {
         setRefreshKey(prev => prev + 1);
     }, []);
@@ -91,7 +86,6 @@ export default function useStorefrontParentCategories() {
         pageCount,
         onPageChange: handlePageChange,
         onPageSizeChange: handlePageSizeChange,
-        onSearchChange: handleSearchChange,
         mutate,
     }
 }

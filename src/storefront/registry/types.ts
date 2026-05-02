@@ -31,6 +31,7 @@ export interface StorefrontContextValue {
 
 export interface ResolveStorefrontConfigOptions {
     hostname?: string
+    pathname?: string
     forcedClientId?: string
 }
 

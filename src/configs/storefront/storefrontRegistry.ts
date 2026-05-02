@@ -30,16 +30,32 @@ const getClientByHostname = (hostname: string): StorefrontClientConfig | undefin
     );
 };
 
+const getClientById = (clientId?: string): StorefrontClientConfig | undefined => {
+    if (!clientId) return undefined;
+    return storefrontRegistry[clientId];
+}
+
+export const resolveStorefrontClientByHostname = (
+    hostname: string,
+): StorefrontClientConfig | undefined => {
+    return getClientByHostname(hostname);
+}
+
 export const resolveStorefrontClient = (
     hostname: string,
     forcedClientId?: string,
 ): StorefrontClientConfig => {
-    if (forcedClientId && forcedClientId in storefrontRegistry) {
-        return storefrontRegistry[forcedClientId];
+    const forcedClient = getClientById(forcedClientId);
+    if (forcedClient) {
+        return forcedClient;
     }
 
     return getClientByHostname(hostname) || storefrontRegistry.default;
 };
+
+export const resolveStorefrontClientById = (
+    clientId?: string,
+): StorefrontClientConfig | undefined => getClientById(clientId)
 
 export const getStorefrontRegistry = (): StorefrontRegistryRecord =>
     storefrontRegistry;

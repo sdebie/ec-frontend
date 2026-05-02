@@ -12,6 +12,7 @@ const normalizeStorefrontTenant = (value: unknown): string | undefined => {
 
 export const env = {
   storefrontTenant: normalizeStorefrontTenant(import.meta.env.VITE_STORE_FRONT),
+  storefrontDefaultTenant: normalizeStorefrontTenant(import.meta.env.VITE_DEFAULT_TENANT_ID),
   storefrontBuildTarget: getEnvString(import.meta.env.VITE_STORE_FRONT)?.toLowerCase() ?? 'all',
   mode: import.meta.env.MODE,
   isDev: import.meta.env.DEV,

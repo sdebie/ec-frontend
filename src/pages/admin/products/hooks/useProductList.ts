@@ -1,6 +1,6 @@
 import {useCallback, useEffect, useMemo, useState} from "react";
 import {apiGetProductList, fetchProductCount} from "@/services/graphql/product/product.service.ts";
-import {exportAllProducts, exportProductsList} from "@/services/rest/admin/ProductExportService.rest.ts";
+import {exportAllProducts} from "@/services/rest/admin/ProductExportService.rest.ts";
 import type {ProductListItem} from "@/types/admin/ProductTypes.ts";
 import {FilterRequest} from "@/types/graphql/query.types.ts";
 
@@ -92,15 +92,6 @@ export default function useProductList() {
         try {
             setIsExporting(true);
             await exportAllProducts();
-        } finally {
-            setIsExporting(false);
-        }
-    }, []);
-
-    const onExportProductsList = useCallback(async () => {
-        try {
-            setIsExporting(true);
-            await exportProductsList();
         } finally {
             setIsExporting(false);
         }

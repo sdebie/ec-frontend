@@ -2,7 +2,7 @@ import React, {useEffect, useMemo, useState} from 'react';
 import {useNavigate} from 'react-router-dom';
 import {apiOrderById, apiOrderBySessionId, apiUpdateOrderStatus} from '@/services/graphql/order/OrderService.graphql.ts';
 import {OrderData} from '@/types/order.types.ts';
-import {CartStore} from '@/store/cartStore.ts';
+import {CartStore} from '@/store/CartStore.ts';
 import {
     ShippingMethod,
     PaymentMethodKey,
@@ -35,7 +35,7 @@ const gatewayPath = 'https://sandbox.payfast.co.za/eng/process';
 
 const Checkout: React.FC = () => {
     //Settings
-    const [shippingMethods, setShippingMethods] = useState<ShippingMethod[]>([]);
+    const [shippingMethods] = useState<ShippingMethod[]>([]);
     const [selectedMethodId, setSelectedMethodId] = useState<string | null>(null);
     const [address, setAddress] = useState({
         street: '',
