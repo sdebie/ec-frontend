@@ -124,17 +124,17 @@ export type UvhCategoryShowcaseSectionProps = {
 }
 
 export function UvhCategoryShowcaseSection({
-    sectionId,
-    title,
-    theme,
-    viewAllTo,
-    categoryId,
-    products,
-    loading,
-    error,
-    decorativeImageSrc,
-    decorativeImageAlt,
-}: UvhCategoryShowcaseSectionProps) {
+                                               sectionId,
+                                               title,
+                                               theme,
+                                               viewAllTo,
+                                               categoryId,
+                                               products,
+                                               loading,
+                                               error,
+                                               decorativeImageSrc,
+                                               decorativeImageAlt,
+                                           }: UvhCategoryShowcaseSectionProps) {
     const gradient = THEME_GRADIENT[theme]
     const shieldDefaults = UVH_SHOWCASE_SHIELD_BY_THEME[theme]
     const resolvedShieldSrc = decorativeImageSrc ?? shieldDefaults.src

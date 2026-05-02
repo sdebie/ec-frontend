@@ -11,10 +11,10 @@ import {ProductCard} from '@/components/shared/card/default/ProductCard.tsx'
 import {UvhProductRow} from '@/pages/storefront/uvh/products/UvhProductRow.tsx'
 
 function CategorySelect({
-    rootCategories,
-    selectedCategory,
-    onSelect,
-}: {
+                            rootCategories,
+                            selectedCategory,
+                            onSelect,
+                        }: {
     rootCategories: Category[]
     selectedCategory: Category | null
     onSelect: (category: Category | null) => void
