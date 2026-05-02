@@ -1,4 +1,5 @@
 import {Link} from 'react-router-dom'
+import {IMAGE_THUMBNAIL_URL} from "@/constants/api.constant.ts";
 
 export interface UvhProductRowProps {
     name: string
@@ -23,7 +24,15 @@ export function UvhProductRow({
         <article className="flex gap-3 border-b border-(--sf-border) py-4 last:border-b-0">
             <div className="relative size-24 shrink-0 overflow-hidden rounded-md border border-(--sf-border) bg-(--sf-surface-muted)">
                 {image ? (
-                    <img alt={name} className="size-full object-cover" src={image} />
+                    <img
+                        alt={name}
+                        className="h-24 w-24 object-cover"
+                        src={`${IMAGE_THUMBNAIL_URL}${image}`}
+                        onLoad={() => console.log("Image loaded:", `${IMAGE_THUMBNAIL_URL}${image}`)}
+                        onError={(event) => {
+                            console.error("Image failed:", event.currentTarget.src)
+                        }}
+                    />
                 ) : (
                     <div
                         aria-hidden
