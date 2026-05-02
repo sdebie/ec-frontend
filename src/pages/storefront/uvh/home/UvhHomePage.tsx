@@ -5,6 +5,7 @@ import { SfCard } from '@/components/storefront';
 import { apiGetShoppingProductsList, apiGetTopBestSellers } from '@/services/graphql/product/product.service.ts';
 import type { ProductShoppingListItem } from '@/types/admin/ProductTypes.ts';
 import { uvhHomeContent } from '@/pages/storefront/uvh/content/uvhContent.ts';
+import { UvhHomeCategoryShowcases } from '@/pages/storefront/uvh/home/UvhHomeCategoryShowcases.tsx';
 
 const pickFeaturedImage = (product: ProductShoppingListItem): string | undefined => {
   return product.images?.find((img) => img.isFeatured)?.imageUrl ?? product.images?.[0]?.imageUrl;
@@ -63,7 +64,7 @@ const UvhHomePage = () => {
   }, [bestSellers, featuredProducts]);
 
   return (
-    <div className="bg-(--sf-bg)">
+    <div className="w-full bg-(--sf-bg)">
       <section className="border-b border-(--sf-border) bg-gradient-to-b from-(--sf-panel) to-(--sf-surface-muted)">
         <div className="mx-auto grid max-w-7xl gap-8 px-4 py-10 sm:px-6 lg:grid-cols-[1.35fr_1fr] lg:px-8 lg:py-14">
           <div className="flex flex-col gap-5">
@@ -105,25 +106,9 @@ const UvhHomePage = () => {
         </div>
       </section>
 
-      <section className="mx-auto max-w-7xl px-4 py-2 sm:px-6 lg:px-8">
-        <div className="mb-4 flex items-end justify-between">
-          <h2 className="text-2xl font-semibold text-(--sf-text)">Shop by category</h2>
-          <Link to="/products" className="text-sm font-semibold text-(--sf-accent)">
-            View all products
-          </Link>
-        </div>
-        <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-          {uvhHomeContent.categories.map((category) => (
-            <SfCard key={category.id} className="h-full p-5">
-              <h3 className="text-base font-semibold text-(--sf-text)">{category.label}</h3>
-              <p className="mt-2 text-sm text-(--sf-muted-text)">{category.description}</p>
-              <Link to={category.to} className="mt-4 inline-flex text-sm font-semibold text-(--sf-accent)">
-                Browse
-              </Link>
-            </SfCard>
-          ))}
-        </div>
-      </section>
+      <div className="w-full py-8 sm:py-10">
+        <UvhHomeCategoryShowcases />
+      </div>
 
       <section className="mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:px-8">
         <div className="mb-4 flex items-end justify-between">

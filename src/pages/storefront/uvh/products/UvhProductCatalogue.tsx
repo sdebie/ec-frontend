@@ -1,5 +1,5 @@
 import {useEffect, useMemo, useState} from 'react'
-import {Link} from 'react-router-dom'
+import {Link, useSearchParams} from 'react-router-dom'
 import {SfButton, SfCard, SfInput} from '@/components/storefront'
 import type {Category} from '@/types/admin/CategoryTypes.ts'
 import useStorefrontParentCategories from '@/pages/storefront/uvh/products/hooks/useStorefrontParentCategories.ts'
@@ -45,7 +45,7 @@ function CategorySelect({
 }
 
 const UvhProductCatalogue = () => {
-    const [selectedCategory, setSelectedCategory] = useState<Category | null>(null)
+    const [searchParams, setSearchParams] = useSearchParams()
     const [searchTerm, setSearchTerm] = useState('')
     const [sortBy, setSortBy] = useState<ShoppingProductsQuery['sortBy']>('name')
     const [pageIndex, setPageIndex] = useState(0)
@@ -54,23 +54,53 @@ const UvhProductCatalogue = () => {
     const {categories, isLoading: categoriesLoading, errorMsg: categoriesError} =
         useStorefrontParentCategories()
 
+    const rootCategories = useMemo(
+        () => categories.filter((category) => category.parent === null),
+        [categories],
+    )
+
+    const categoryIdFromUrl = searchParams.get('category')
+
+    const categoryIdKnownValid = useMemo(() => {
+        if (!categoryIdFromUrl) return false
+        return rootCategories.some((category) => category.id === categoryIdFromUrl)
+    }, [categoryIdFromUrl, rootCategories])
+
+    const categoryIdForProducts = useMemo(() => {
+        if (!categoryIdFromUrl) return null
+        if (categoriesLoading) return categoryIdFromUrl
+        return categoryIdKnownValid ? categoryIdFromUrl : null
+    }, [categoryIdFromUrl, categoriesLoading, categoryIdKnownValid])
+
+    const selectedCategory = useMemo((): Category | null => {
+        if (!categoryIdFromUrl || !categoryIdKnownValid) return null
+        return rootCategories.find((category) => category.id === categoryIdFromUrl) ?? null
+    }, [categoryIdFromUrl, categoryIdKnownValid, rootCategories])
+
+    useEffect(() => {
+        if (categoriesLoading || !categoryIdFromUrl || categoryIdKnownValid) return
+        setSearchParams(
+            (prev) => {
+                const next = new URLSearchParams(prev)
+                next.delete('category')
+                return next
+            },
+            {replace: true},
+        )
+    }, [categoriesLoading, categoryIdFromUrl, categoryIdKnownValid, setSearchParams])
+
     const {
         products,
         hasNextPage,
         loading: productsLoading,
         error: productsError,
     } = useShoppingProducts({
-        categoryId: selectedCategory?.id ?? null,
+        categoryId: categoryIdForProducts,
         search: searchTerm,
         sortBy,
         pageIndex,
         pageSize,
     })
-
-    const rootCategories = useMemo(
-        () => categories.filter((category) => category.parent === null),
-        [categories],
-    )
 
     const canGoNext = hasNextPage
 
@@ -83,8 +113,19 @@ const UvhProductCatalogue = () => {
     const error = productsError || categoriesError || null
 
     const handleCategoryChange = (category: Category | null) => {
-        setSelectedCategory(category)
         setPageIndex(0)
+        setSearchParams(
+            (prev) => {
+                const next = new URLSearchParams(prev)
+                if (category) {
+                    next.set('category', category.id)
+                } else {
+                    next.delete('category')
+                }
+                return next
+            },
+            {replace: true},
+        )
     }
 
     return (
