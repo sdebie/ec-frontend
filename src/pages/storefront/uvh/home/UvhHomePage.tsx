@@ -6,7 +6,7 @@ import { apiGetShoppingProductsList, apiGetTopBestSellers } from '@/services/gra
 import type { ProductShoppingListItem } from '@/types/admin/ProductTypes.ts';
 import { uvhHomeContent } from '@/pages/storefront/uvh/content/uvhContent.ts';
 import { UvhHomeCategoryShowcases } from '@/pages/storefront/uvh/home/UvhHomeCategoryShowcases.tsx';
-import {IMAGE_BASE_URL, IMAGE_THUMBNAIL_URL} from "@/constants/api.constant.ts";
+import {IMAGE_BASE_URL} from "@/constants/api.constant.ts";
 
 const pickFeaturedImage = (product: ProductShoppingListItem): string | undefined => {
   return product.images?.find((img) => img.isFeatured)?.imageUrl ?? product.images?.[0]?.imageUrl;

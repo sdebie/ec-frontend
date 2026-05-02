@@ -9,7 +9,7 @@ import {
 } from '@/pages/storefront/uvh/products/hooks/useShoppingProducts.ts'
 import {ProductCard} from '@/components/shared/card/default/ProductCard.tsx'
 import {UvhProductRow} from '@/pages/storefront/uvh/products/UvhProductRow.tsx'
-import {IMAGE_THUMBNAIL_URL} from "@/constants/api.constant.ts";
+import {IMAGE_BASE_URL, IMAGE_THUMBNAIL_URL} from "@/constants/api.constant.ts";
 
 function CategorySelect({
                             rootCategories,
@@ -288,7 +288,7 @@ const UvhProductCatalogue = () => {
                                             <ProductCard
                                                 key={product.id}
                                                 id={product.id}
-                                                image={`${IMAGE_THUMBNAIL_URL}${featuredImage?.imageUrl}`}
+                                                image={`${IMAGE_BASE_URL}${featuredImage?.imageUrl}`}
                                                 name={product.name}
                                                 originalPrice={salePrice ? retailPrice : undefined}
                                                 price={salePrice ?? retailPrice}
