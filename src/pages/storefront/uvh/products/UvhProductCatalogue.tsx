@@ -1,21 +1,20 @@
-import {useMemo, useState} from 'react'
+import {useEffect, useMemo, useState} from 'react'
 import {Link} from 'react-router-dom'
 import {SfButton, SfCard, SfInput} from '@/components/storefront'
 import type {Category} from '@/types/admin/CategoryTypes.ts'
 import useStorefrontParentCategories from '@/pages/storefront/uvh/products/hooks/useStorefrontParentCategories.ts'
 import {
-    type ShoppingProductsQuery,
     useShoppingProducts,
+    type ShoppingProductsQuery,
 } from '@/pages/storefront/uvh/products/hooks/useShoppingProducts.ts'
 import {ProductCard} from '@/components/shared/card/default/ProductCard.tsx'
 import {UvhProductRow} from '@/pages/storefront/uvh/products/UvhProductRow.tsx'
-import {Search} from "lucide-react";
 
 function CategorySelect({
-                            rootCategories,
-                            selectedCategory,
-                            onSelect,
-                        }: {
+    rootCategories,
+    selectedCategory,
+    onSelect,
+}: {
     rootCategories: Category[]
     selectedCategory: Category | null
     onSelect: (category: Category | null) => void
@@ -50,13 +49,14 @@ const UvhProductCatalogue = () => {
     const [searchTerm, setSearchTerm] = useState('')
     const [sortBy, setSortBy] = useState<ShoppingProductsQuery['sortBy']>('name')
     const [pageIndex, setPageIndex] = useState(0)
-    const pageSize = 24
+    const pageSize = 15
 
     const {categories, isLoading: categoriesLoading, errorMsg: categoriesError} =
         useStorefrontParentCategories()
 
     const {
         products,
+        hasNextPage,
         loading: productsLoading,
         error: productsError,
     } = useShoppingProducts({
@@ -72,7 +72,13 @@ const UvhProductCatalogue = () => {
         [categories],
     )
 
-    const canGoNext = products.length === pageSize
+    const canGoNext = hasNextPage
+
+    useEffect(() => {
+        if (!productsLoading && products.length === 0 && pageIndex > 0) {
+            setPageIndex(0)
+        }
+    }, [productsLoading, products.length, pageIndex])
     const isLoading = productsLoading || categoriesLoading
     const error = productsError || categoriesError || null
 
@@ -112,9 +118,8 @@ const UvhProductCatalogue = () => {
                             type="search"
                             value={searchTerm}
                         />
-                        <span
-                            className="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 text-(--sf-muted-text)">
-                           <Search/>
+                        <span className="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 text-(--sf-muted-text)">
+                            🔍
                         </span>
                     </div>
                 </div>
@@ -177,9 +182,8 @@ const UvhProductCatalogue = () => {
                                     type="search"
                                     value={searchTerm}
                                 />
-                                <span
-                                    className="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 text-(--sf-muted-text)">
-                                    <Search/>
+                                <span className="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 text-(--sf-muted-text)">
+                                    🔍
                                 </span>
                             </div>
 
@@ -265,8 +269,7 @@ const UvhProductCatalogue = () => {
                             >
                                 Prev
                             </button>
-                            <span
-                                className="rounded border border-(--sf-border) bg-(--sf-accent) px-3 py-1 text-(--sf-accent-text)">
+                            <span className="rounded border border-(--sf-border) bg-(--sf-accent) px-3 py-1 text-(--sf-accent-text)">
                                 {pageIndex + 1}
                             </span>
                             <button
@@ -276,7 +279,17 @@ const UvhProductCatalogue = () => {
                                         : 'cursor-not-allowed border-(--sf-border) text-(--sf-muted-text)'
                                 }`}
                                 disabled={!canGoNext}
-                                onClick={() => setPageIndex((current) => current + 1)}
+                                onClick={() => {
+                                    setPageIndex((current) => current + 1)
+                                    const reduceMotion = window.matchMedia(
+                                        '(prefers-reduced-motion: reduce)',
+                                    ).matches
+                                    window.scrollTo({
+                                        top: 0,
+                                        left: 0,
+                                        behavior: reduceMotion ? 'auto' : 'smooth',
+                                    })
+                                }}
                                 type="button"
                             >
                                 Next
@@ -287,8 +300,7 @@ const UvhProductCatalogue = () => {
             </div>
 
             <div className="border-t border-(--sf-border) bg-(--sf-surface-muted) px-4 py-4 sm:px-6 lg:px-8">
-                <div
-                    className="mx-auto flex max-w-7xl flex-col items-start justify-between gap-4 md:flex-row md:items-center">
+                <div className="mx-auto flex max-w-7xl flex-col items-start justify-between gap-4 md:flex-row md:items-center">
                     <div>
                         <p className="text-sm font-semibold text-(--sf-text)">Can&apos;t find what you need?</p>
                         <p className="text-sm text-(--sf-muted-text)">

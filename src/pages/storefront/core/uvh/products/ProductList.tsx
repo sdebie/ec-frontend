@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { apiGetShoppingProductsList } from '@/services/graphql/product/product.service.ts';
 import { ProductShoppingListItem, VariantPrice } from '@/types/admin/ProductTypes.ts';
-import { useAddToCart } from '@/pages/shop/default/cart/hook/useAddToCart.ts';
+import { useAddToCart } from '@/pages/storefront/core/default/cart/hook/useAddToCart.ts';
 import { Link } from "react-router-dom";
 import ProductImage from "@/components/shared/imageupload/ProductImage.tsx";
 

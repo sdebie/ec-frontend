@@ -20,7 +20,7 @@ const storePageOnlyRoutes: PageRoutes = [
     {
         key: 'productDetail',
         path: '/product/:productId',
-        component: lazy(() => import('@/pages/storefront/default/products/ProductDetailsPage.tsx')),
+        component: lazy(() => import('@/pages/storefront/core/default/products/ProductDetailsPage.tsx')),
         authority: [],
         meta: shopMeta,
     },
@@ -34,7 +34,7 @@ const storePageOnlyRoutes: PageRoutes = [
     {
         key: 'paymentSuccess',
         path: '/payment-success',
-        component: lazy(() => import('@/pages/storefront/default/payment/Success.tsx')),
+        component: lazy(() => import('@/pages/storefront/core/default/cart/Success.tsx')),
         authority: [],
         meta: defaultMeta,
     },

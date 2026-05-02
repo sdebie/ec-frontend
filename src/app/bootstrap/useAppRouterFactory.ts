@@ -1,4 +1,4 @@
-import {useMemo, useState} from 'react'
+import {useMemo} from 'react'
 import {getHostname} from '@/utils/HostnameResolver'
 import {createAppDataRouter} from '@/app/router/createAppDataRouter'
 
@@ -11,7 +11,6 @@ export function useAppRouterFactory({
     isAuthenticated,
     onLoginSuccess,
 }: UseAppRouterFactoryOptions) {
-    const [activeCategory, setActiveCategory] = useState<string>('All')
     const hostname = getHostname()
     const isAdminDomain = hostname.startsWith('admin.')
 
@@ -21,11 +20,9 @@ export function useAppRouterFactory({
                 hostname,
                 isAdminDomain,
                 isAuthenticated,
-                activeCategory,
-                setActiveCategory,
                 onLoginSuccess,
             }),
-        [activeCategory, hostname, isAdminDomain, isAuthenticated, onLoginSuccess],
+        [hostname, isAdminDomain, isAuthenticated, onLoginSuccess],
     )
 
     return {

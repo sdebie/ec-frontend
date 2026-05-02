@@ -18,14 +18,14 @@ export const storeMenuRoutes: Routes = [
     {
         key: 'home',
         path: '/',
-        component: lazy(() => import('@/pages/storefront/default/home/StorefrontHomePage.tsx')),
+        component: lazy(() => import('@/pages/storefront/core/default/home/StorefrontHomePage.tsx')),
         authority: [],
         meta: defaultMeta,
     },
     {
         key: 'products',
         path: '/products',
-        component: lazy(() => import('@/pages/storefront/default/products/ProductList.tsx')),
+        component: lazy(() => import('@/pages/storefront/core/default/products/ProductList.tsx')),
         authority: [],
         meta: shopMeta,
     },

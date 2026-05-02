@@ -1,154 +1,130 @@
-import {useCallback, useEffect, useMemo, useState} from 'react';
-import {fetchStorefrontCatalogueProducts} from '@/services/storefront/catalogue/catalogue.service.ts';
-import type {ProductShoppingListItem} from '@/types/admin/ProductTypes.ts';
+import {useCallback, useEffect, useMemo, useState} from 'react'
+import {fetchStorefrontCatalogueProducts} from '@/services/storefront/catalogue/catalogue.service.ts'
+import type {ProductShoppingListItem} from '@/types/admin/ProductTypes.ts'
+import type {FilterRequest} from '@/types/graphql/query.types.ts'
 
-export type ShoppingProductsResponse = ProductShoppingListItem[];
+export type ShoppingProductsResponse = ProductShoppingListItem[]
 
 export type UseShoppingProductsResult = {
-    products: ProductShoppingListItem[];
-    loading: boolean;
-    error: string | null;
-    refetch: () => Promise<void>;
-};
+    products: ProductShoppingListItem[]
+    /** True when the last fetch returned a full page (there may be another page). */
+    hasNextPage: boolean
+    loading: boolean
+    error: string | null
+    refetch: () => void
+}
 
 export type ShoppingProductsQuery = {
-    categoryId?: string | null;
-    search?: string;
-    sortBy?: 'name' | 'price-asc' | 'price-desc';
-    pageIndex?: number;
-    pageSize?: number;
-};
+    categoryId?: string | null
+    search?: string
+    sortBy?: 'name' | 'price-asc' | 'price-desc'
+    pageIndex?: number
+    pageSize?: number
+}
+
+const DEFAULT_PAGE_SIZE = 15
+
+function buildShoppingCatalogueFilterRequest(searchTerm: string): FilterRequest {
+    const trimmed = searchTerm.trim()
+    const filterGroups = trimmed
+        ? [
+              {
+                  operator: 'OR' as const,
+                  filters: [
+                      {key: 'name', operator: 'ILIKE' as const, value: trimmed},
+                      {key: 'description', operator: 'ILIKE' as const, value: trimmed},
+                      {key: 'shorDescription', operator: 'ILIKE' as const, value: trimmed},
+                      {key: 'category.name', operator: 'ILIKE' as const, value: trimmed},
+                  ],
+              },
+          ]
+        : []
+
+    return {
+        ...(filterGroups.length > 0 ? {filterGroups} : {}),
+        sort: [{field: 'name', direction: 'ASC'}],
+    }
+}
+
+function sortPageByPrice(
+    items: ProductShoppingListItem[],
+    sortBy: 'price-asc' | 'price-desc',
+): ProductShoppingListItem[] {
+    return [...items].sort((a, b) => {
+        const pa = a.retailPrice?.price ?? 0
+        const pb = b.retailPrice?.price ?? 0
+        return sortBy === 'price-asc' ? pa - pb : pb - pa
+    })
+}
 
 export const useShoppingProducts = (
     query: ShoppingProductsQuery = {},
 ): UseShoppingProductsResult => {
-    const [products, setProducts] = useState<ProductShoppingListItem[]>([]);
-    const [loading, setLoading] = useState<boolean>(true);
-    const [error, setError] = useState<string | null>(null);
+    const [pageProducts, setPageProducts] = useState<ProductShoppingListItem[]>([])
+    const [loading, setLoading] = useState<boolean>(true)
+    const [error, setError] = useState<string | null>(null)
+    const [refreshKey, setRefreshKey] = useState(0)
 
-    const pageRequest = useMemo(
-        () => ({
-            pageIndex: query.pageIndex ?? 0,
-            pageSize: query.pageSize ?? 12,
-        }),
-        [query.pageIndex, query.pageSize],
-    );
-
-    const sortProductsOnClient = useCallback(
-        (items: ProductShoppingListItem[]): ProductShoppingListItem[] => {
-            if (query.sortBy === 'name') {
-                return [...items].sort((a, b) => a.name.localeCompare(b.name));
-            }
-            if (query.sortBy === 'price-asc') {
-                return [...items].sort(
-                    (a, b) => (a.retailPrice?.price ?? 0) - (b.retailPrice?.price ?? 0),
-                );
-            }
-            if (query.sortBy === 'price-desc') {
-                return [...items].sort(
-                    (a, b) => (b.retailPrice?.price ?? 0) - (a.retailPrice?.price ?? 0),
-                );
-            }
-            return items;
-        },
-        [query.sortBy],
-    );
-
-    const applyClientFilters = useCallback(
-        (items: ProductShoppingListItem[]): ProductShoppingListItem[] => {
-            const searchTerm = query.search?.trim().toLowerCase();
-            if (!searchTerm) return items;
-
-            return items.filter((item) => {
-                const name = item.name?.toLowerCase() ?? '';
-                const shortDescription = item.shortDescription?.toLowerCase() ?? '';
-                return name.includes(searchTerm) || shortDescription.includes(searchTerm);
-            });
-        },
-        [query.search],
-    );
-
-    const paginateProducts = useCallback(
-        (items: ProductShoppingListItem[]): ProductShoppingListItem[] => {
-            const start = pageRequest.pageIndex * pageRequest.pageSize;
-            const end = start + pageRequest.pageSize;
-            return items.slice(start, end);
-        },
-        [pageRequest.pageIndex, pageRequest.pageSize],
-    );
-
-    const transformProducts = useCallback(
-        (items: ProductShoppingListItem[]): ProductShoppingListItem[] => {
-            const searched = applyClientFilters(items);
-            const sorted = sortProductsOnClient(searched);
-            return paginateProducts(sorted);
-        },
-        [applyClientFilters, paginateProducts, sortProductsOnClient],
-    );
-
-    const fetchProducts = useCallback(async () => {
-        try {
-            setLoading(true);
-            setError(null);
-
-            // Backend currently throws SemanticException for filterRequest on this endpoint.
-            // Keep API call compatible by only sending categoryId and applying search/sort/page client-side.
-            const response = await fetchStorefrontCatalogueProducts(
-                query.categoryId ?? null,
-                undefined,
-                undefined,
-            );
-            const data = response as ShoppingProductsResponse;
-            setProducts(Array.isArray(data) ? transformProducts(data) : []);
-        } catch (err) {
-            setError(err instanceof Error ? err.message : 'Failed to load products.');
-            setProducts([]);
-        } finally {
-            setLoading(false);
-        }
-    }, [query.categoryId, transformProducts]);
+    const pageIndex = query.pageIndex ?? 0
+    const pageSize = query.pageSize ?? DEFAULT_PAGE_SIZE
+    const sortBy = query.sortBy ?? 'name'
 
     useEffect(() => {
-        let isMounted = true;
+        let isMounted = true
 
         const run = async () => {
             try {
-                setLoading(true);
-                setError(null);
-
-                const response = await fetchStorefrontCatalogueProducts(
+                setLoading(true)
+                setError(null)
+                const filterRequest = buildShoppingCatalogueFilterRequest(query.search ?? '')
+                const data = await fetchStorefrontCatalogueProducts(
                     query.categoryId ?? null,
-                    undefined,
-                    undefined,
-                );
-                const data = response as ShoppingProductsResponse;
-
+                    {
+                        pageIndex,
+                        pageSize,
+                    },
+                    filterRequest,
+                )
                 if (isMounted) {
-                    setProducts(Array.isArray(data) ? transformProducts(data) : []);
+                    setPageProducts(Array.isArray(data) ? data : [])
                 }
             } catch (err) {
                 if (isMounted) {
-                    setError(err instanceof Error ? err.message : 'Failed to load products.');
-                    setProducts([]);
+                    setError(err instanceof Error ? err.message : 'Failed to load products.')
+                    setPageProducts([])
                 }
             } finally {
                 if (isMounted) {
-                    setLoading(false);
+                    setLoading(false)
                 }
             }
-        };
+        }
 
-        run();
+        void run()
 
         return () => {
-            isMounted = false;
-        };
-    }, [query.categoryId, transformProducts]);
+            isMounted = false
+        }
+    }, [query.categoryId, query.search, sortBy, pageIndex, pageSize, refreshKey])
+
+    const products = useMemo(() => {
+        if (sortBy === 'price-asc' || sortBy === 'price-desc') {
+            return sortPageByPrice(pageProducts, sortBy)
+        }
+        return pageProducts
+    }, [pageProducts, sortBy])
+
+    const hasNextPage = pageProducts.length === pageSize
+
+    const refetch = useCallback(() => {
+        setRefreshKey((key) => key + 1)
+    }, [])
 
     return {
         products,
+        hasNextPage,
         loading,
         error,
-        refetch: fetchProducts,
-    };
-};
+        refetch,
+    }
+}

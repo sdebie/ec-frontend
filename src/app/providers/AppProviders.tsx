@@ -1,5 +1,6 @@
 import type {ComponentProps, PropsWithChildren} from 'react'
 import {RouterProvider} from 'react-router-dom'
+import {StorefrontCategoryProvider} from './StorefrontCategoryProvider'
 import {StorefrontProvider} from './StorefrontProvider'
 import type {ResolveStorefrontConfigOptions} from '@/storefront/registry/types'
 
@@ -19,8 +20,10 @@ export function AppProviders({
 }: AppProvidersProps) {
     return (
         <StorefrontProvider options={storefrontOptions}>
-            <RouterProvider router={router} />
-            {children}
+            <StorefrontCategoryProvider>
+                <RouterProvider router={router} />
+                {children}
+            </StorefrontCategoryProvider>
         </StorefrontProvider>
     )
 }

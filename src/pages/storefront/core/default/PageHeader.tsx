@@ -1,8 +1,8 @@
 import React, {useEffect, useRef, useState} from 'react';
 import {Link, useLocation, useNavigate} from 'react-router-dom';
-import CartIcon from '../../../components/shared/icon/CartIcon.tsx';
-import ImageUploadModal from '@/pages/shop/default/components/ImageUploadModal.tsx';
-import LoginModal from '@/pages/shop/default/auth/LoginModal.tsx';
+import CartIcon from '@/components/shared/icon/CartIcon.tsx';
+import ImageUploadModal from '@/pages/storefront/core/default/components/ImageUploadModal.tsx';
+import LoginModal from '@/pages/storefront/core/default/auth/LoginModal.tsx';
 import {CustomerProfile} from '@/services/CustomerService.ts';
 import {NavMenuItem, StorefrontClientConfig} from '@/types/storefront/storefrontTypes.ts';
 import {CartStore} from '@/store/CartStore.ts';
@@ -13,8 +13,6 @@ const EMAIL_KEY = 'checkoutEmail';
 const DESKTOP_QUERY = '(min-width: 1024px)'; // Tailwind lg breakpoint
 
 interface PageHeaderProps {
-    activeCategory: string;
-    onSelectCategory: (category: string) => void;
     storefrontConfig: StorefrontClientConfig;
 }
 
@@ -23,7 +21,7 @@ interface RenderNavItemOptions {
     onClick?: () => void;
 }
 
-const PageHeader: React.FC<PageHeaderProps> = ({storefrontConfig}) => {
+const PageHeader: React.FC<PageHeaderProps> = ({ storefrontConfig }) => {
     const navigate = useNavigate();
     const location = useLocation();
 

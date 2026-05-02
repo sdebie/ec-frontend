@@ -1,4 +1,4 @@
-import ProductList from './ProductList';
+import ProductList from '@/pages/storefront/core/default/products/ProductList.tsx'
 
-export default ProductList;
+export default ProductList
 

@@ -1,7 +1,7 @@
 import React from 'react';
 import {CustomerProfile} from '@/services/CustomerService.ts';
 import {CustomerType} from "@/constants/enums/CustomerType.ts";
-import InlineLogin from '@/pages/shop/default/auth/InlineLogin.tsx';
+import InlineLogin from '@/pages/storefront/core/default/auth/InlineLogin.tsx';
 
 export type LookupState = 'idle' | 'loading' | 'found' | 'not_found' | 'error';
 

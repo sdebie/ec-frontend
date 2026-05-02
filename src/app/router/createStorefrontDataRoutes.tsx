@@ -8,8 +8,6 @@ import type {RouteMeta, RouteObject} from '@/types/routes'
 
 export interface AppRouterStorefrontOptions {
     isAdminDomain: boolean
-    activeCategory: string
-    setActiveCategory: (value: string) => void
 }
 
 interface GroupedStorefrontRoute {
@@ -40,24 +38,12 @@ function toChildPath(path: string): {index?: boolean; path?: string} {
     return {path: path.replace(/^\//, '')}
 }
 
-function StorefrontLayoutRoute({
-    layout,
-    activeCategory,
-    setActiveCategory,
-}: {
-    layout: StorefrontLayoutId
-    activeCategory: string
-    setActiveCategory: (value: string) => void
-}) {
+function StorefrontLayoutRoute({layout}: {layout: StorefrontLayoutId}) {
     const {config: storefrontConfig} = useStorefrontBoundary()
     const Shell = layoutRegistry[layout] ?? layoutRegistry.default
 
     return (
-        <Shell
-            storefrontConfig={storefrontConfig}
-            activeCategory={activeCategory}
-            onSelectCategory={setActiveCategory}
-        >
+        <Shell storefrontConfig={storefrontConfig}>
             <Outlet />
         </Shell>
     )
@@ -83,23 +69,11 @@ export function createStorefrontDataRoutes(
         {
             path: '/',
             children: groupedRoutes.map((group) => ({
-                element: (
-                    <StorefrontLayoutRoute
-                        layout={group.layout}
-                        activeCategory={options.activeCategory}
-                        setActiveCategory={options.setActiveCategory}
-                    />
-                ),
+                element: <StorefrontLayoutRoute layout={group.layout} />,
                 children: [
                     ...group.routes.map((route) => ({
                         ...toChildPath(route.path),
-                        element: (
-                            <StorefrontRoutes
-                                route={route}
-                                activeCategory={options.activeCategory}
-                                setActiveCategory={options.setActiveCategory}
-                            />
-                        ),
+                        element: <StorefrontRoutes route={route} />,
                     })),
                 ],
             })),

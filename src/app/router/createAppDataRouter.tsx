@@ -10,8 +10,6 @@ export interface AppRouterSharedOptions {
 
 export interface AppRouterStorefrontOptions {
     isAdminDomain: boolean
-    activeCategory: string
-    setActiveCategory: (value: string) => void
 }
 
 interface CreateAppDataRouterOptions

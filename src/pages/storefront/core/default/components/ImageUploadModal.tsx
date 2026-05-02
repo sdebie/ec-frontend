@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import ImageUpload from '../../../../components/shared/imageupload/ImageUpload.tsx';
+import ImageUpload from '@/components/shared/imageupload/ImageUpload.tsx';
 
 interface ImageUploadModalProps {
   isOpen: boolean;

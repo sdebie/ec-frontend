@@ -1,5 +1,5 @@
 import React from 'react';
-import InlineLogin from '@/pages/shop/default/auth/InlineLogin.tsx';
+import InlineLogin from '@/pages/storefront/core/default/auth/InlineLogin.tsx';
 import {CustomerProfile} from '@/services/CustomerService.ts';
 import {CustomerType} from '@/constants/enums/CustomerType.ts';
 

@@ -37,8 +37,6 @@ export interface ResolveStorefrontConfigOptions {
 
 export interface StorefrontShellRenderProps {
     storefrontConfig: StorefrontClientConfig
-    activeCategory: string
-    onSelectCategory: (value: string) => void
     children?: ReactNode
 }
 
@@ -51,8 +49,6 @@ export interface StorefrontRouteInput {
     route: RouteObject
     isAuthenticated: boolean
     isAdminDomain: boolean
-    activeCategory: string
-    setActiveCategory: (value: string) => void
     onLoginSuccess: () => void
     storefrontConfig: StorefrontClientConfig
 }
