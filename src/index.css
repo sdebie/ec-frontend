@@ -21,6 +21,11 @@
 
 @layer base {
     :root {
+        /* `SfUtilityBanner` sticky offset for the main bar below it. Sync if banner padding/typography changes. */
+        --sf-storefront-utility-banner-height: 4rem;
+        /* Storefront `PageHeader.tsx`: utility strip + main bar (h-18) + borders. Update if header layout changes. */
+        --sf-storefront-header-height: 7rem;
+
         /* Light Mode Basics */
         --admin-bg: #f3f4f6; /* gray-100 */
         --admin-panel: #ffffff;
@@ -34,6 +39,12 @@
         --admin-sidebar-border: #e5e7eb;
 
         --admin-header-bg: #ffffff;
+    }
+
+    @media (min-width: 640px) {
+        :root {
+            --sf-storefront-utility-banner-height: 2.75rem;
+        }
     }
 
     .dark {

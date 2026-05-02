@@ -269,6 +269,7 @@ export type StorefrontSectionConfig =
 
 export interface StorefrontClientConfig {
     id: StorefrontClientId;
+    stickyHeader?: boolean;
     displayName: string;
     hostnames: string[];
     branding: StorefrontBranding;

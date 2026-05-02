@@ -2,7 +2,7 @@ import {useEffect, useState} from 'react'
 import {apiGetShoppingProductsList} from '@/services/graphql/product/product.service.ts'
 import type {ProductShoppingListItem} from '@/types/admin/ProductTypes.ts'
 import useStorefrontParentCategories from '@/pages/storefront/uvh/products/hooks/useStorefrontParentCategories.ts'
-import {UvhCategoryShowcaseSection} from '@/pages/storefront/uvh/home/UvhCategoryShowcaseSection.tsx'
+import {UvhCategoryShowcaseSection} from '@/pages/storefront/uvh/home/components/UvhCategoryShowcaseSection.tsx'
 import {
     UVH_CATEGORY_SHOWCASES,
     type UvhCategoryShowcaseSpec,
@@ -83,7 +83,7 @@ export function UvhHomeCategoryShowcases() {
     const loading = categoriesLoading || productsLoading
 
     return (
-        <div className="flex w-full flex-col gap-6 sm:gap-8">
+        <div className="flex w-full flex-col gap-0">
             {categoriesError ? (
                 <div className="w-full px-4 sm:px-6 lg:px-8 xl:px-10 2xl:px-12">
                     <SfCard className="border-(--sf-border) p-4 text-sm text-(--sf-error)">

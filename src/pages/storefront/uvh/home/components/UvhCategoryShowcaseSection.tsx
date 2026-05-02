@@ -5,6 +5,7 @@ import {
     UVH_SHOWCASE_SHIELD_BY_THEME,
     type UvhShowcaseTheme,
 } from '@/pages/storefront/uvh/home/uvhCategoryShowcases.config.ts'
+import {IMAGE_THUMBNAIL_URL} from "@/constants/api.constant.ts";
 
 const THEME_GRADIENT: Record<UvhShowcaseTheme, string> = {
     'medical-blue': 'from-sky-600 via-blue-900 to-slate-950',
@@ -21,7 +22,7 @@ function pickFeaturedImage(product: ProductShoppingListItem): string | undefined
     return product.images?.find((img) => img.isFeatured)?.imageUrl ?? product.images?.[0]?.imageUrl
 }
 
-function getRetailDisplay(product: ProductShoppingListItem): {price: number; originalPrice?: number} {
+function getRetailDisplay(product: ProductShoppingListItem): { price: number; originalPrice?: number } {
     const retail = product.retailPrice?.price ?? 0
     const sale = product.retailSalePrice?.price ?? undefined
     if (sale != null && sale > 0 && retail > sale) {
@@ -30,20 +31,21 @@ function getRetailDisplay(product: ProductShoppingListItem): {price: number; ori
     return {price: retail}
 }
 
-function UvhShowcaseProductCard({product}: {product: ProductShoppingListItem}) {
+function UvhShowcaseProductCard({product}: { product: ProductShoppingListItem }) {
     const image = pickFeaturedImage(product)
     const {price, originalPrice} = getRetailDisplay(product)
     const wholesale = product.wholesalePrice?.price ?? product.wholesaleSalePrice?.price ?? undefined
 
     return (
         <article className="w-[min(100%,260px)] shrink-0 snap-start">
-            <div className="flex h-full flex-col overflow-hidden rounded-2xl border border-white/10 bg-(--sf-panel) shadow-[0_20px_40px_-28px_rgba(0,0,0,0.45)]">
+            <div
+                className="flex h-full flex-col overflow-hidden rounded-2xl border border-white/10 bg-(--sf-panel) shadow-[0_20px_40px_-28px_rgba(0,0,0,0.45)]">
                 <Link
                     to={`/product/${product.id}`}
                     className="relative block aspect-square bg-(--sf-bg)"
                 >
                     {image ? (
-                        <img src={image} alt={product.name} className="h-full w-full object-cover" />
+                        <img src={`${IMAGE_THUMBNAIL_URL}${image}`} alt={product.name} className="h-full w-full object-cover"/>
                     ) : (
                         <div className="flex h-full w-full items-center justify-center text-(--sf-muted-text)">
                             <span className="text-xs">No image</span>
@@ -70,7 +72,8 @@ function UvhShowcaseProductCard({product}: {product: ProductShoppingListItem}) {
                             aria-label={`Save ${product.name}`}
                         >
                             <svg className="h-4 w-4" fill="currentColor" viewBox="0 0 24 24">
-                                <path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z" />
+                                <path
+                                    d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/>
                             </svg>
                         </Link>
                     </div>
@@ -156,7 +159,7 @@ export function UvhCategoryShowcaseSection({
     return (
         <section
             aria-labelledby={`showcase-heading-${sectionId}`}
-            className={`w-full bg-gradient-to-br ${gradient} shadow-[0_24px_60px_-32px_rgba(0,0,0,0.55)]`}
+            className={`w-full bg-linear-to-br ${gradient} shadow-[0_24px_60px_-32px_rgba(0,0,0,0.55)]`}
         >
             <div className="w-full px-4 py-10 sm:px-6 sm:py-12 lg:px-8 xl:px-10 2xl:px-12">
                 <div className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
@@ -167,7 +170,7 @@ export function UvhCategoryShowcaseSection({
                         >
                             {title}
                         </h2>
-                        <div className="mt-2 h-1 w-14 rounded-full bg-white/90" />
+                        <div className="mt-2 h-1 w-14 rounded-full bg-white/90"/>
                     </div>
                     <Link
                         to={catalogueHref}
@@ -178,7 +181,8 @@ export function UvhCategoryShowcaseSection({
                 </div>
 
                 <div className="mt-8 grid items-stretch gap-8 lg:grid-cols-[minmax(0,220px)_1fr] lg:gap-10">
-                    <div className="mx-auto flex w-full max-w-[min(100%,320px)] justify-center self-stretch lg:mx-0 lg:h-full lg:max-w-none lg:min-h-0">
+                    <div
+                        className="mx-auto flex w-full max-w-[min(100%,320px)] justify-center self-stretch lg:mx-0 lg:h-full lg:max-w-none lg:min-h-0">
                         <Link
                             to={catalogueHref}
                             className="flex w-full items-center justify-center transition hover:opacity-95 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-white lg:h-full lg:min-h-0"
@@ -232,7 +236,7 @@ export function UvhCategoryShowcaseSection({
                                     className="flex gap-4 overflow-x-auto scroll-smooth pb-2 [-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden snap-x snap-mandatory md:px-12"
                                 >
                                     {products.map((product) => (
-                                        <UvhShowcaseProductCard key={product.id} product={product} />
+                                        <UvhShowcaseProductCard key={product.id} product={product}/>
                                     ))}
                                 </div>
                             </>

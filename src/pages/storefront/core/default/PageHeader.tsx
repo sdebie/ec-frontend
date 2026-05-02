@@ -7,6 +7,7 @@ import {CustomerProfile} from '@/services/CustomerService.ts';
 import {NavMenuItem, StorefrontClientConfig} from '@/types/storefront/storefrontTypes.ts';
 import {CartStore} from '@/store/CartStore.ts';
 import styles from './PageHeader.module.css';
+import {SfUtilityBanner} from "@/components/storefront/shell/SfUtilityBanner.tsx";
 
 const AUTH_KEY = 'checkoutIsAuthenticated';
 const EMAIL_KEY = 'checkoutEmail';
@@ -39,6 +40,7 @@ const PageHeader: React.FC<PageHeaderProps> = ({ storefrontConfig }) => {
 
     const menuItems = storefrontConfig.navigation.menuItems ?? [];
     const logo = storefrontConfig.branding.logo;
+    const stickyHeader = Boolean(storefrontConfig.stickyHeader);
 
     function readValues() {
         try {
@@ -172,17 +174,16 @@ const PageHeader: React.FC<PageHeaderProps> = ({ storefrontConfig }) => {
 
     return (
         <header
-            className={`relative z-50 w-full border-b border-(--sf-nav-border) bg-(--sf-nav-bg) ${styles.pageHeader}`}
+            className={`${
+                stickyHeader ? 'sticky top-0 z-50' : 'relative z-40'
+            } w-full border-b border-(--sf-nav-border) bg-(--sf-nav-bg) ${styles.pageHeader}`}
         >
-            <div className="border-b border-(--sf-nav-border) bg-black/15">
-                <div className="mx-auto flex max-w-6xl flex-wrap items-center justify-between gap-2 px-4 py-2 text-[11px] text-(--sf-nav-icon-text) sm:px-6 lg:px-8">
-                    <p className="font-medium">Wholesale & retail supplier for PPE, medical and cleaning essentials.</p>
-                    <Link to="/contact-us" className="font-semibold text-(--sf-nav-text) hover:text-(--sf-nav-text-hover)">
-                        Get a fast quote
-                    </Link>
-                </div>
-            </div>
-            <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
+            <SfUtilityBanner
+                message="Wholesale & retail supplier for PPE, medical and cleaning essentials."
+                ctaTo="/contact-us"
+                ctaLabel="Get a fast quote"
+            />
+            <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 bg-(--sf-nav-bg)">
                 <div
                     className="grid h-18 grid-cols-[minmax(0,1fr)_auto] items-center gap-2 lg:grid-cols-[auto_1fr_auto] lg:gap-8">
                     <Link to="/" className="min-w-0 inline-flex items-center flex-nowrap gap-2 no-underline">

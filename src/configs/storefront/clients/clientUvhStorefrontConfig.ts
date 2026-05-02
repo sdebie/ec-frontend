@@ -2,6 +2,7 @@ import type {StorefrontClientConfig} from '@/types/storefront/storefrontTypes';
 
 export const clientUvhStorefrontConfig: StorefrontClientConfig = {
     id: 'uvh',
+    stickyHeader: true,
     displayName: 'UVH Holdings',
     hostnames: ['uvhholdings.co.za'],
     branding: {
