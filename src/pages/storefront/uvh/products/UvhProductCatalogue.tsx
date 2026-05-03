@@ -10,6 +10,7 @@ import {
 import {ProductCard} from '@/components/shared/card/default/ProductCard.tsx'
 import {UvhProductRow} from '@/pages/storefront/uvh/products/UvhProductRow.tsx'
 import {IMAGE_BASE_URL, IMAGE_THUMBNAIL_URL} from "@/constants/api.constant.ts";
+import {Search} from "lucide-react";
 
 function CategorySelect({
                             rootCategories,
@@ -131,16 +132,37 @@ const UvhProductCatalogue = () => {
 
     return (
         <div className="min-h-screen bg-(--sf-bg)">
-            <div className="border-b border-(--sf-border) bg-(--sf-surface-muted) px-4 py-8 sm:px-6 sm:py-10 lg:px-8">
-                <div className="mx-auto max-w-7xl text-center">
-                    <h1 className="text-2xl font-semibold tracking-tight text-(--sf-text) sm:text-3xl">
-                        Our Products
-                    </h1>
-                    <p className="mt-2 text-sm text-(--sf-muted-text) sm:text-base">
-                        Browse our range of quality industrial products.
-                    </p>
+            <section className="relative w-full overflow-hidden py-8 sm:py-10 lg:py-12">
+                <div
+                    className="pointer-events-none absolute inset-0 bg-[linear-gradient(90deg,#000000_0%,#0a0202_42%,#2b0505_100%)]"
+                    aria-hidden
+                />
+                <div
+                    className="pointer-events-none absolute inset-0 bg-[linear-gradient(155deg,rgba(55,12,12,0.5)_0%,transparent_40%)]"
+                    aria-hidden
+                />
+                <div
+                    className="pointer-events-none absolute inset-y-0 right-0 w-[min(100%,52rem)] bg-[radial-gradient(ellipse_75%_115%_at_100%_50%,rgba(58,10,10,0.55)_0%,transparent_72%)]"
+                    aria-hidden
+                />
+
+                <div className="relative mx-auto w-full max-w-7xl px-4 sm:px-6 lg:px-8">
+                    <div className="max-w-xl lg:max-w-2xl">
+                        <div className="flex items-center gap-3">
+                            <span className="h-0.5 w-8 shrink-0 bg-(--sf-accent)" aria-hidden />
+                            <p className="text-xs font-bold uppercase tracking-[0.14em] text-white">
+                                Our Products
+                            </p>
+                        </div>
+                        <h1 className="mt-3 text-3xl font-bold tracking-tight text-white sm:text-4xl lg:text-5xl">
+                            {selectedCategory?.name ?? 'All Products'}
+                        </h1>
+                        <p className="mt-3 text-sm font-normal leading-relaxed text-white sm:text-base">
+                            Browse our range of quality industrial products.
+                        </p>
+                    </div>
                 </div>
-            </div>
+            </section>
 
             <div className="mx-auto max-w-7xl px-4 py-5 sm:px-6 sm:py-6 lg:px-8">
                 <div className="mb-5 flex flex-col gap-3 lg:hidden">
@@ -161,7 +183,7 @@ const UvhProductCatalogue = () => {
                             value={searchTerm}
                         />
                         <span className="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 text-(--sf-muted-text)">
-                            🔍
+                            <Search/>
                         </span>
                     </div>
                 </div>
@@ -225,7 +247,7 @@ const UvhProductCatalogue = () => {
                                     value={searchTerm}
                                 />
                                 <span className="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 text-(--sf-muted-text)">
-                                    🔍
+                                    <Search/>
                                 </span>
                             </div>
 

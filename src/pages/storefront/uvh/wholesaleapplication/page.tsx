@@ -1,4 +1,4 @@
-import {WholesaleApplicationForm} from '@/pages/storefront/default/wholesaleApplication/components/WholesaleApplicationForm.tsx';
+import {WholesaleApplicationForm} from '@/pages/storefront/default/wholesaleApplication/WholesaleApplicationForm.tsx';
 
 export default function UvhWholesaleApplicationPage() {
     return (
@@ -20,7 +20,7 @@ export default function UvhWholesaleApplicationPage() {
                 <div className="relative mx-auto w-full max-w-7xl px-4 sm:px-6 lg:px-8">
                     <div className="max-w-xl lg:max-w-2xl">
                         <div className="flex items-center gap-3">
-                            <span className="h-0.5 w-8 shrink-0 bg-[#d00000]" aria-hidden />
+                            <span className="h-0.5 w-8 shrink-0 bg-(--sf-accent)" aria-hidden />
                             <p className="text-xs font-bold uppercase tracking-[0.14em] text-white">Business</p>
                         </div>
                         <h1 className="mt-3 text-3xl font-bold tracking-tight text-white sm:text-4xl lg:text-5xl">

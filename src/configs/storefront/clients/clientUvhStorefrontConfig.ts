@@ -38,16 +38,6 @@ export const clientUvhStorefrontConfig: StorefrontClientConfig = {
                 label: 'Products',
                 to: '/products',
             },
-            {
-                id: 'quote',
-                label: 'Get A Quote',
-                to: '/contact-us',
-            },
-            {
-                id: 'wholesale',
-                label: 'Wholesale',
-                to: '/wholesale-application',
-            },
         ],
     },
     theme: {

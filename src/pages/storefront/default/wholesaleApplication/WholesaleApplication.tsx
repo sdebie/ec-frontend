@@ -1,5 +1,5 @@
 import {Link} from 'react-router-dom';
-import {WholesaleApplicationForm} from '@/pages/storefront/default/wholesaleApplication/components/WholesaleApplicationForm.tsx';
+import {WholesaleApplicationForm} from '@/pages/storefront/default/wholesaleApplication/WholesaleApplicationForm.tsx';
 
 const WholesaleApplication = () => {
     return (
