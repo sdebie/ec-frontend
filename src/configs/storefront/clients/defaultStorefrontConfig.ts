@@ -33,6 +33,11 @@ export const defaultStorefrontConfig: StorefrontClientConfig = {
                 label: 'Contact',
                 to: '/contact-us',
             },
+            {
+                id: 'wholesale',
+                label: 'Wholesale',
+                to: '/wholesale-application',
+            },
         ],
     },
     theme: {
@@ -56,6 +61,10 @@ export const defaultStorefrontConfig: StorefrontClientConfig = {
     },
     footer: {
         description: 'A flexible demo storefront built for multi-client ecommerce experiences.',
+        footerCallout: {
+            heading: 'Bulk orders & tenders',
+            body: 'Need recurring supply, large quantities, or tender support? Our team can assist quickly.',
+        },
         columns: [
             {
                 heading: 'Company',

@@ -20,6 +20,7 @@ const emptyRows = (): ShowcaseRowState[] =>
     UVH_CATEGORY_SHOWCASES.map((spec) => ({spec, products: [], error: null}))
 
 export function UvhHomeCategoryShowcases() {
+
     const {categories, isLoading: categoriesLoading, errorMsg: categoriesError} =
         useStorefrontParentCategories()
     const [rows, setRows] = useState<ShowcaseRowState[]>(emptyRows)

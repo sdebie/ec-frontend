@@ -12,6 +12,7 @@ export const CANONICAL_STOREFRONT_PAGE_KEYS = [
     'accessDenied',
     'contactUs',
     'aboutUs',
+    'wholesaleApplication',
 ] as const;
 
 export type StorefrontPageKey = (typeof CANONICAL_STOREFRONT_PAGE_KEYS)[number];

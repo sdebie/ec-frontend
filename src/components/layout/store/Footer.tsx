@@ -81,11 +81,12 @@ export const Footer = ({branding, footer}: FooterProps) => {
     const hasSocial = (footer.socialLinks?.length ?? 0) > 0;
     const hasLegal = (footer.legalLinks?.length ?? 0) > 0;
     const hasDescription = Boolean(footer.description);
+    const callout = footer.footerCallout;
 
     return (
         <footer
             aria-label="Store footer"
-            className="mt-16 border-t border-(--sf-nav-border) bg-(--sf-nav-bg) text-(--sf-nav-text)"
+            className="border-t border-(--sf-nav-border) bg-(--sf-nav-bg) text-(--sf-nav-text)"
         >
             <div className="mx-auto max-w-6xl px-4 py-12 sm:px-6 lg:px-8">
                 <div className="grid gap-10 lg:grid-cols-12">
@@ -113,12 +114,14 @@ export const Footer = ({branding, footer}: FooterProps) => {
                             </p>
                         ) : null}
 
-                        <div className="mt-4 rounded-xl border border-(--sf-nav-border) bg-black/15 p-4 text-xs text-(--sf-nav-icon-text)">
-                            <p className="font-semibold uppercase tracking-[0.12em] text-(--sf-nav-text)">Bulk orders & tenders</p>
-                            <p className="mt-2 leading-5">
-                                Need recurring supply, large quantities, or tender support? Our team can assist quickly.
-                            </p>
-                        </div>
+                        {callout ? (
+                            <div className="mt-4 rounded-xl border border-(--sf-nav-border) bg-black/15 p-4 text-xs text-(--sf-nav-icon-text)">
+                                <p className="font-semibold uppercase tracking-[0.12em] text-(--sf-nav-text)">
+                                    {callout.heading}
+                                </p>
+                                <p className="mt-2 leading-5">{callout.body}</p>
+                            </div>
+                        ) : null}
 
                         {hasSocial ? (
                             <div className="mt-6 flex flex-wrap gap-3" aria-label="Social links">

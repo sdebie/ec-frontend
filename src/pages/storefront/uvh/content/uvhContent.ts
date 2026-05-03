@@ -17,6 +17,49 @@ export type UvhTrustPoint = {
     description: string;
 };
 
+export type UvhBrandTile = {
+    id: string;
+    label: string;
+    imageSrc?: string;
+    imageAlt?: string;
+    /** Tailwind classes for text tiles (ignored when imageSrc is set). */
+    labelClassName?: string;
+};
+
+const uvhHomeTestimonials = [
+    {
+        id: 'juan',
+        quote: 'Very well priced on all safety work wear. Amazing service.',
+        author: 'Juan Pierre Prinsloo',
+    },
+    {
+        id: 'maggi',
+        quote: 'Super friendly staff and quick turnaround time.',
+        author: 'Maggi Sigg',
+    },
+    {
+        id: 'bianca',
+        quote:
+            'Uvh is always willing to assist with the best prices as well as the friendliest, fast and efficient service. Well done team. Looking forward towards 2025!',
+        author: 'Bianca Olivier',
+    },
+    {
+        id: 'reflect',
+        quote: 'Best service and unbeatable prices.',
+        author: 'Reflect FC',
+    },
+    {
+        id: 'l3-supplies',
+        quote: 'Very efficient service and an excellent product. Steve is a pleasure to work with.',
+        author: 'L3 Supplies',
+    },
+    {
+        id: 'renee-moll',
+        quote: 'Best service quality and price - well done Keith and Thank you',
+        author: 'Renee Moll',
+    },
+] as const satisfies readonly UvhTestimonial[];
+
 export const uvhHomeContent = {
     hero: {
         overline: 'WHOLESALE & RETAIL SUPPLIER',
@@ -102,29 +145,46 @@ export const uvhHomeContent = {
             description: 'Need help choosing products or ordering in bulk? We can assist.',
         },
     ] as UvhTrustPoint[],
-    testimonials: [
-        {
-            id: 'juan',
-            quote: 'Very well priced on all safety work wear. Amazing service.',
-            author: 'Juan Pierre Prinsloo',
-        },
-        {
-            id: 'maggi',
-            quote: 'Super friendly staff and quick turnaround time.',
-            author: 'Maggi Sigg',
-        },
-        {
-            id: 'bianca',
-            quote:
-                'UVH is always willing to assist with the best prices as well as fast and efficient service.',
-            author: 'Bianca Olivier',
-        },
-        {
-            id: 'reflect',
-            quote: 'Best service and unbeatable prices.',
-            author: 'Reflect FC',
-        },
-    ] as UvhTestimonial[],
+    getQuoteCta: {
+        overline: 'GET A QUOTE',
+        title: 'Get a Quote',
+        description:
+            "Send us your list and we'll come back with a fast, competitive quote — we can beat any quote.",
+        cta: {label: 'Get a Quote', to: '/contact-us'},
+    },
+    wholesaleCta: {
+        overline: 'BUSINESS & WHOLESALE',
+        title: 'Buying in Bulk?',
+        description:
+            'Open a wholesale account for business pricing, bulk ordering, and faster quoting.',
+        cta: {label: 'Apply for a Wholesale Account', to: '/wholesale-application'},
+    },
+    accreditorsSection: {
+        heading: 'Accreditors',
+        items: [
+            {
+                id: 'sabs',
+                imageSrc: '/img/sabs-logo.png',
+                imageAlt: 'SABS — South African Bureau of Standards',
+            },
+            {
+                id: 'sahpra',
+                imageSrc: '/img/SAHPRA-logo.png',
+                imageAlt: 'SAHPRA — South African Health Products Regulatory Authority',
+            },
+            {
+                id: 'safripol',
+                imageSrc: '/img/Safripol-Logo.png',
+                imageAlt: 'Safripol',
+            },
+        ],
+    },
+    testimonials: uvhHomeTestimonials,
+    customerReviewsSection: {
+        overline: 'CUSTOMER REVIEWS',
+        title: 'What Our Customers Say',
+        items: uvhHomeTestimonials,
+    },
 } as const;
 
 export const uvhAboutContent = {

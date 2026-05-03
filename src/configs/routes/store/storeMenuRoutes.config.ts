@@ -50,4 +50,11 @@ export const storeMenuRoutes: Routes = [
         authority: [],
         meta: defaultMeta,
     },
+    {
+        key: 'wholesaleApplication',
+        path: '/wholesale-application',
+        component: lazy(() => import('@/pages/storefront/default/wholesaleApplication/WholesaleApplication.tsx')),
+        authority: [],
+        meta: defaultMeta,
+    },
 ]
