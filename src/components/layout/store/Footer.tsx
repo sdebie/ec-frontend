@@ -96,7 +96,7 @@ const SocialLink = ({social}: { social: FooterSocialLink }) => {
             rel="noopener noreferrer"
             aria-label={social.label}
             title={social.label}
-            className="inline-flex h-10 w-10 items-center justify-center rounded-full border border-(--sf-nav-border) bg-(--sf-nav-bg) text-(--sf-nav-icon-text) transition-colors hover:text-[var(--sf-nav-text-hover)]"
+            className="inline-flex h-10 w-10 items-center justify-center rounded-full border border-(--sf-nav-border) bg-(--sf-nav-bg) text-(--sf-nav-icon-text) transition-colors hover:text-(--sf-nav-text-hover)"
         >
             <Icon className="h-4 w-4"/>
         </a>
