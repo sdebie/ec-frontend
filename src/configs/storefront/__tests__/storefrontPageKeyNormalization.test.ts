@@ -6,6 +6,10 @@ describe('normalizeDiscoveredStorefrontPageKey', () => {
         expect(normalizeDiscoveredStorefrontPageKey('contactus')).toBe('contactUs')
         expect(normalizeDiscoveredStorefrontPageKey('aboutus')).toBe('aboutUs')
         expect(normalizeDiscoveredStorefrontPageKey('wholesaleapplication')).toBe('wholesaleApplication')
+        expect(normalizeDiscoveredStorefrontPageKey('privacypolicy')).toBe('privacyPolicy')
+        expect(normalizeDiscoveredStorefrontPageKey('deliveryandreturnspolicy')).toBe(
+            'deliveryAndReturnsPolicy',
+        )
     })
 
     it('passes through canonical keys unchanged', () => {

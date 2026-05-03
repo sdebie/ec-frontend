@@ -125,7 +125,7 @@ export const defaultStorefrontConfig: StorefrontClientConfig = {
             {
                 id: 'privacy',
                 label: 'Privacy Policy',
-                to: '/privacy',
+                to: '/privacy-policy',
             },
             {
                 id: 'terms',

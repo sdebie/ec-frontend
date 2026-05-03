@@ -43,6 +43,11 @@ export const clientUvhStorefrontConfig: StorefrontClientConfig = {
                 label: 'Get A Quote',
                 to: '/contact-us',
             },
+            {
+                id: 'wholesale',
+                label: 'Wholesale',
+                to: '/wholesale-application',
+            },
         ],
     },
     theme: {
@@ -73,6 +78,9 @@ export const clientUvhStorefrontConfig: StorefrontClientConfig = {
             contactUs: 'uvh-contact-us',
             aboutUs: 'uvh-about-us',
             termsAndConditions: 'uvh-terms-and-conditions',
+            privacyPolicy: 'uvh-privacy-policy',
+            deliveryAndReturnsPolicy: 'uvh-delivery-and-returns-policy',
+            wholesaleApplication: 'uvh-wholesale-application',
         },
     },
     footer: {
@@ -114,7 +122,7 @@ export const clientUvhStorefrontConfig: StorefrontClientConfig = {
                     {
                         id: 'bulk',
                         label: 'Wholesale Support',
-                        to: '/contact-us'
+                        to: '/wholesale-application'
                     },
                 ],
             },
@@ -159,14 +167,12 @@ export const clientUvhStorefrontConfig: StorefrontClientConfig = {
             {
                 id: 'privacy',
                 label: 'Privacy Policy',
-                to: 'https://uvhholdings.co.za/privacy-policy/',
-                external: true,
+                to: '/privacy-policy',
             },
             {
                 id: 'delivery-returns',
                 label: 'Delivery & Returns Policy',
-                to: 'https://uvhholdings.co.za/delivery-and-returns-policy/',
-                external: true,
+                to: '/delivery-and-returns-policy',
             },
         ],
     },

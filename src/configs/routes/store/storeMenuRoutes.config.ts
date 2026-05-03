@@ -64,4 +64,18 @@ export const storeMenuRoutes: Routes = [
         authority: [],
         meta: defaultMeta,
     },
+    {
+        key: 'privacyPolicy',
+        path: '/privacy-policy',
+        component: lazy(() => import('@/pages/storefront/default/privacypolicy/PrivacyPolicy.tsx')),
+        authority: [],
+        meta: defaultMeta,
+    },
+    {
+        key: 'deliveryAndReturnsPolicy',
+        path: '/delivery-and-returns-policy',
+        component: lazy(() => import('@/pages/storefront/default/deliveryandreturnspolicy/DeliveryAndReturnsPolicy.tsx')),
+        authority: [],
+        meta: defaultMeta,
+    },
 ]

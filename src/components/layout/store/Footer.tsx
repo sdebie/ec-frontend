@@ -1,4 +1,4 @@
-import {Link} from 'react-router-dom';
+import {Link, useLocation} from 'react-router-dom';
 import type {IconType} from 'react-icons';
 import {FaFacebookF, FaGlobe, FaInstagram, FaLinkedinIn, FaTiktok, FaXTwitter, FaYoutube,} from 'react-icons/fa6';
 import type {
@@ -37,6 +37,22 @@ const sameOriginRouterPath = (href: string): string | null => {
     }
 };
 
+/** Pathname only, for comparing with `location.pathname`. */
+const footerLinkPathname = (item: NavMenuItem): string | null => {
+    if (item.external) return null;
+    const internalPath = sameOriginRouterPath(item.to);
+    const path = internalPath ?? (isHttpUrl(item.to) ? null : item.to);
+    if (path === null) return null;
+    const pathname = path.split('?')[0].split('#')[0];
+    if (!pathname) return '/';
+    return pathname.length > 1 && pathname.endsWith('/')
+        ? pathname.slice(0, -1)
+        : pathname;
+};
+
+const normalizeLocationPathname = (pathname: string) =>
+    pathname.length > 1 && pathname.endsWith('/') ? pathname.slice(0, -1) : pathname;
+
 const getSocialIcon = (iconKey: string): IconType => {
     const normalized = iconKey.trim().toLowerCase();
     return socialIconMap[normalized] ?? FaGlobe;
@@ -49,6 +65,15 @@ const FooterLink = ({
     item: NavMenuItem;
     className: string;
 }) => {
+    const location = useLocation();
+    const targetPathname = footerLinkPathname(item);
+
+    const scrollToTopIfCurrentPage = () => {
+        if (targetPathname === null) return;
+        if (normalizeLocationPathname(location.pathname) !== targetPathname) return;
+        window.scrollTo({top: 0, behavior: 'smooth'});
+    };
+
     if (item.external) {
         return (
             <a
@@ -65,7 +90,7 @@ const FooterLink = ({
     const internalPath = sameOriginRouterPath(item.to);
     if (internalPath !== null) {
         return (
-            <Link to={internalPath} className={className}>
+            <Link to={internalPath} className={className} onClick={scrollToTopIfCurrentPage}>
                 {item.label}
             </Link>
         );
@@ -80,7 +105,7 @@ const FooterLink = ({
     }
 
     return (
-        <Link to={item.to} className={className}>
+        <Link to={item.to} className={className} onClick={scrollToTopIfCurrentPage}>
             {item.label}
         </Link>
     );
@@ -96,7 +121,7 @@ const SocialLink = ({social}: { social: FooterSocialLink }) => {
             rel="noopener noreferrer"
             aria-label={social.label}
             title={social.label}
-            className="inline-flex h-10 w-10 items-center justify-center rounded-full border border-(--sf-nav-border) bg-(--sf-nav-bg) text-(--sf-nav-icon-text) transition-colors hover:text-(--sf-nav-text-hover)"
+            className="inline-flex h-10 w-10 items-center justify-center rounded-full border border-(--sf-nav-border) bg-(--sf-nav-bg) text-(--sf-nav-icon-text) transition-colors hover:text-[var(--sf-nav-text-hover)]"
         >
             <Icon className="h-4 w-4"/>
         </a>
