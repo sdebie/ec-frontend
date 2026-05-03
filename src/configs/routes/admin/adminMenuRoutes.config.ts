@@ -88,6 +88,17 @@ export const adminMenuRoutes: Routes = [
                     pageContainerType: 'contained',
                 },
             },
+            {
+                key: 'admin.productbrand.list',
+                path: '/admin/productbrand/list',
+                component: lazy(() => import('@/pages/admin/products/screens/list/ProductBrandList.tsx')),
+                authority: ['SUPER_ADMIN'],
+                meta: {
+                    label: 'Product Brand List',
+                    pageBackgroundType: 'plain',
+                    pageContainerType: 'contained',
+                },
+            },
         ],
     },
     {

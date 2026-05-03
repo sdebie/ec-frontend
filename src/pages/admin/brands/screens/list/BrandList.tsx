@@ -8,7 +8,7 @@ import {Download, PenLine, Plus, TrashIcon, Upload} from "lucide-react";
 import BrandEditor from "@/pages/admin/brands/screens/edit";
 import BrandCreate from "@/pages/admin/brands/screens/create";
 import useDeleteBrand from "@/pages/admin/brands/hooks/useDeleteBrand.ts";
-import {IMAGE_BASE_URL, IMAGE_THUMBNAIL_URL} from "@/constants/api.constant.ts";
+import {IMAGE_BASE_URL} from "@/constants/api.constant.ts";
 
 const BrandList = () => {
 

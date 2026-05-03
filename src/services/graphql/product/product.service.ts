@@ -9,6 +9,7 @@ import {
 } from "@/types/admin/ProductTypes.ts";
 import {
 	GET_PRODUCTS_LIST,
+	GET_PRODUCTS_LIST_BY_BRAND,
 	GET_PRODUCTS_LIST_BY_CATEGORY,
 	GET_SHOPPING_PRODUCTS_LIST,
 	GET_SALE_PRODUCTS_LIST,
@@ -47,6 +48,24 @@ export async function apiGetProductList(
 	});
 
 	return result.productList ?? [];
+}
+
+export async function apiGetProductListByBrand(
+	brandId: string,
+	pageRequest?: PageRequest | null,
+	filterRequest?: FilterRequest | null,
+): Promise<ProductListItem[]> {
+	if (!brandId || brandId === 'ALL') return [];
+
+	const client = await GraphQLService.getGraphQLClient(graphQLEndpoint);
+
+	const result = await client.request<{ productListByBrand: ProductListItem[] }>(GET_PRODUCTS_LIST_BY_BRAND, {
+		brandId,
+		pageRequest,
+		filterRequest,
+	});
+
+	return result.productListByBrand ?? [];
 }
 
 export async function apiGetShoppingProductsList(
@@ -119,6 +138,7 @@ export async function apiGetTopBestSellers(): Promise<ProductShoppingListItem[]>
 
 
 export const fetchProductsList = apiGetProductList;
+export const fetchProductsListByBrand = apiGetProductListByBrand;
 export const fetchShoppingProductsList = apiGetShoppingProductsList;
 export const fetchSaleProductsList = apiGetProductOnSaleList;
 export const fetchVariantsByIds = apiGetVariantsByIds;

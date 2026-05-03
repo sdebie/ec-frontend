@@ -33,6 +33,24 @@ export const GET_PRODUCTS_LIST_BY_CATEGORY = gql`
     }
 `;
 
+export const GET_PRODUCTS_LIST_BY_BRAND = gql`
+    query GetProductsListByBrand($brandId: String!, $pageRequest: PageRequestInput, $filterRequest: FilterRequestInput) {
+        productListByBrand(
+            brandId: $brandId,
+            pageRequest: $pageRequest,
+            filterRequest: $filterRequest
+        ) {
+            id
+            name
+            description
+            imageName
+            variantIds
+            categoryNames
+            brandName
+        }
+    }
+`;
+
 export const GET_SHOPPING_PRODUCTS_LIST = gql`
     query GetShoppingProductsList($categoryId: String, $pageRequest: PageRequestInput, $filterRequest: FilterRequestInput) {
         shoppingProductList(categoryId: $categoryId, pageRequest: $pageRequest, filterRequest: $filterRequest) {
