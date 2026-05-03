@@ -3,7 +3,9 @@ import { Link } from 'react-router-dom';
 import { ProductCard } from '@/components/shared/card/default/ProductCard.tsx';
 import { SfCard } from '@/components/storefront';
 import { apiGetShoppingProductsList, apiGetTopBestSellers } from '@/services/graphql/product/product.service.ts';
+import { apiGetAllBrands } from '@/services/graphql/admin/brand/BrandService.graphql.ts';
 import type { ProductShoppingListItem } from '@/types/admin/ProductTypes.ts';
+import type { Brand } from '@/types/admin/BrandTypes.ts';
 import { uvhHomeContent } from '@/pages/storefront/uvh/content/uvhContent.ts';
 import { UvhHomeCategoryShowcases } from '@/pages/storefront/uvh/home/UvhHomeCategoryShowcases.tsx';
 import {IMAGE_BASE_URL} from "@/constants/api.constant.ts";
@@ -22,11 +24,21 @@ const getDisplayPrice = (product: ProductShoppingListItem): { price: number; ori
   return { price: retail };
 };
 
+const resolveBrandLogoSrc = (logoUrl?: string | null): string | null => {
+  const cleanLogoUrl = logoUrl?.trim();
+  if (!cleanLogoUrl) return null;
+
+  return `${IMAGE_BASE_URL}${cleanLogoUrl}`;
+};
+
 const UvhHomePage = () => {
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
   const [bestSellers, setBestSellers] = useState<ProductShoppingListItem[]>([]);
   const [featuredProducts, setFeaturedProducts] = useState<ProductShoppingListItem[]>([]);
+  const [brands, setBrands] = useState<Brand[]>([]);
+  const [brandsLoading, setBrandsLoading] = useState<boolean>(true);
+  const [brokenBrandLogos, setBrokenBrandLogos] = useState<Record<string, boolean>>({});
 
   useEffect(() => {
     let mounted = true;
@@ -34,22 +46,33 @@ const UvhHomePage = () => {
     const load = async () => {
       try {
         setLoading(true);
+        setBrandsLoading(true);
         setError(null);
 
-        const [bestSellerResult, shoppingResult] = await Promise.all([
+        const [bestSellerResult, shoppingResult, allBrands] = await Promise.all([
           apiGetTopBestSellers(),
           apiGetShoppingProductsList(),
+          apiGetAllBrands(
+            { pageIndex: 0, pageSize: 30 },
+            { filters: [], filterGroups: [], sort: [{ field: 'name', direction: 'ASC' }] },
+          ),
         ]);
 
         if (!mounted) return;
 
         setBestSellers(bestSellerResult ?? []);
         setFeaturedProducts(shoppingResult ?? []);
+        setBrands(allBrands ?? []);
+        setBrokenBrandLogos({});
       } catch (err) {
         if (!mounted) return;
         setError(err instanceof Error ? err.message : 'Failed to load homepage data.');
+        setBrands([]);
       } finally {
-        if (mounted) setLoading(false);
+        if (mounted) {
+          setLoading(false);
+          setBrandsLoading(false);
+        }
       }
     };
 
@@ -155,6 +178,57 @@ const UvhHomePage = () => {
               <p className="mt-2 text-sm text-(--sf-muted-text)">{point.description}</p>
             </SfCard>
           ))}
+        </div>
+      </section>
+
+      <section className="mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:px-8">
+        <div className="mb-5">
+          <h2 className="text-2xl font-semibold text-(--sf-text)">Brands</h2>
+          <span className="mt-3 block h-1 w-18 rounded bg-(--sf-accent)" />
+        </div>
+        <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4 xl:grid-cols-6">
+          {brandsLoading && (
+            Array.from({ length: 6 }).map((_, index) => (
+              <SfCard
+                key={`brand-skeleton-${index}`}
+                className="flex min-h-24 items-center justify-center rounded-2xl border border-(--sf-border) bg-(--sf-panel) px-4 py-6"
+              >
+                <span className="h-6 w-24 animate-pulse rounded bg-(--sf-surface-muted)" />
+              </SfCard>
+            ))
+          )}
+
+          {!brandsLoading && brands.length === 0 && (
+            <SfCard className="col-span-full p-5 text-sm text-(--sf-muted-text)">
+              Brand logos will appear here once available.
+            </SfCard>
+          )}
+
+          {!brandsLoading && brands.map((brand) => {
+            const logoSrc = resolveBrandLogoSrc(brand.logoUrl);
+            const showLogo = !!logoSrc && !brokenBrandLogos[brand.id];
+
+            return (
+              <SfCard
+                key={brand.id}
+                className="flex min-h-24 items-center justify-center rounded-2xl border border-(--sf-border) bg-(--sf-panel) px-4 py-6"
+              >
+                {showLogo ? (
+                  <img
+                    src={logoSrc}
+                    alt={brand.name}
+                    className="max-h-10 w-full object-contain"
+                    loading="lazy"
+                    onError={() => {
+                      setBrokenBrandLogos((prev) => ({ ...prev, [brand.id]: true }));
+                    }}
+                  />
+                ) : (
+                  <p className="text-center text-sm font-semibold uppercase tracking-wide text-(--sf-text)">{brand.name}</p>
+                )}
+              </SfCard>
+            );
+          })}
         </div>
       </section>
 
