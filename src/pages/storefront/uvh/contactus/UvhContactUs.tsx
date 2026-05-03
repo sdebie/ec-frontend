@@ -66,7 +66,7 @@ const UvhContactUs = () => {
                 Contact details
               </h2>
               <div
-                className="mt-4 h-0.5 w-12 max-w-[4.5rem] bg-(--sf-accent)"
+                className="mt-4 h-0.5 w-12 max-w-18 bg-(--sf-accent)"
                 aria-hidden
               />
 
@@ -159,7 +159,7 @@ const UvhContactUs = () => {
                 Send an inquiry
               </h2>
               <div
-                className="mt-4 h-0.5 w-12 max-w-[4.5rem] bg-(--sf-accent)"
+                className="mt-4 h-0.5 w-12 max-w-18 bg-(--sf-accent)"
                 aria-hidden
               />
 
