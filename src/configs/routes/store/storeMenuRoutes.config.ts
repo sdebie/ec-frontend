@@ -57,4 +57,11 @@ export const storeMenuRoutes: Routes = [
         authority: [],
         meta: defaultMeta,
     },
+    {
+        key: 'termsAndConditions',
+        path: '/terms-and-conditions',
+        component: lazy(() => import('@/pages/storefront/default/termsandconditions/TermsAndConditions.tsx')),
+        authority: [],
+        meta: defaultMeta,
+    },
 ]

@@ -13,6 +13,7 @@ export const CANONICAL_STOREFRONT_PAGE_KEYS = [
     'contactUs',
     'aboutUs',
     'wholesaleApplication',
+    'termsAndConditions',
 ] as const;
 
 export type StorefrontPageKey = (typeof CANONICAL_STOREFRONT_PAGE_KEYS)[number];

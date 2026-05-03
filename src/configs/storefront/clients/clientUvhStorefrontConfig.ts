@@ -43,11 +43,6 @@ export const clientUvhStorefrontConfig: StorefrontClientConfig = {
                 label: 'Get A Quote',
                 to: '/contact-us',
             },
-            {
-                id: 'wholesale',
-                label: 'Wholesale',
-                to: '/wholesale-application',
-            },
         ],
     },
     theme: {
@@ -77,6 +72,7 @@ export const clientUvhStorefrontConfig: StorefrontClientConfig = {
             products: 'uvh-products',
             contactUs: 'uvh-contact-us',
             aboutUs: 'uvh-about-us',
+            termsAndConditions: 'uvh-terms-and-conditions',
         },
     },
     footer: {
@@ -158,8 +154,7 @@ export const clientUvhStorefrontConfig: StorefrontClientConfig = {
             {
                 id: 'terms',
                 label: 'Terms & Conditions',
-                to: 'https://uvhholdings.co.za/terms-and-conditions/',
-                external: true,
+                to: '/terms-and-conditions',
             },
             {
                 id: 'privacy',

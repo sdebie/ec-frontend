@@ -23,7 +23,19 @@ const socialIconMap: Record<string, IconType> = {
     tiktok: FaTiktok,
 };
 
-const isExternalHref = (href: string) => /^https?:\/\//i.test(href);
+const isHttpUrl = (href: string) => /^https?:\/\//i.test(href);
+
+/** Same-site absolute URLs use client-side navigation (no new tab). */
+const sameOriginRouterPath = (href: string): string | null => {
+    if (typeof window === 'undefined' || !isHttpUrl(href)) return null;
+    try {
+        const url = new URL(href);
+        if (url.origin !== window.location.origin) return null;
+        return `${url.pathname}${url.search}${url.hash}`;
+    } catch {
+        return null;
+    }
+};
 
 const getSocialIcon = (iconKey: string): IconType => {
     const normalized = iconKey.trim().toLowerCase();
@@ -37,9 +49,7 @@ const FooterLink = ({
     item: NavMenuItem;
     className: string;
 }) => {
-    const external = item.external || isExternalHref(item.to);
-
-    if (external) {
+    if (item.external) {
         return (
             <a
                 href={item.to}
@@ -47,6 +57,23 @@ const FooterLink = ({
                 rel="noopener noreferrer"
                 className={className}
             >
+                {item.label}
+            </a>
+        );
+    }
+
+    const internalPath = sameOriginRouterPath(item.to);
+    if (internalPath !== null) {
+        return (
+            <Link to={internalPath} className={className}>
+                {item.label}
+            </Link>
+        );
+    }
+
+    if (isHttpUrl(item.to)) {
+        return (
+            <a href={item.to} className={className}>
                 {item.label}
             </a>
         );
