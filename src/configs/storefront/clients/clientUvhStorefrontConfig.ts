@@ -71,6 +71,7 @@ export const clientUvhStorefrontConfig: StorefrontClientConfig = {
             privacyPolicy: 'uvh-privacy-policy',
             deliveryAndReturnsPolicy: 'uvh-delivery-and-returns-policy',
             wholesaleApplication: 'uvh-wholesale-application',
+            productDetail: 'uvh-product-detail',
         },
     },
     footer: {

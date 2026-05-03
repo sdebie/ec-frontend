@@ -5,7 +5,8 @@ import {
     UVH_SHOWCASE_SHIELD_BY_THEME,
     type UvhShowcaseTheme,
 } from '@/pages/storefront/uvh/home/uvhCategoryShowcases.config.ts'
-import {IMAGE_THUMBNAIL_URL} from "@/constants/api.constant.ts";
+import {IMAGE_THUMBNAIL_URL} from '@/constants/api.constant.ts'
+import {cn} from '@/utils/cn'
 
 const THEME_GRADIENT: Record<UvhShowcaseTheme, string> = {
     'medical-blue': 'from-sky-600 via-blue-900 to-slate-950',
@@ -31,13 +32,25 @@ function getRetailDisplay(product: ProductShoppingListItem): { price: number; or
     return {price: retail}
 }
 
-function UvhShowcaseProductCard({product}: { product: ProductShoppingListItem }) {
+export function UvhShowcaseProductCard({
+    product,
+    articleClassName,
+}: {
+    product: ProductShoppingListItem
+    /** When set (e.g. catalogue grid), overrides default horizontal-scroll sizing. */
+    articleClassName?: string
+}) {
     const image = pickFeaturedImage(product)
     const {price, originalPrice} = getRetailDisplay(product)
     const wholesale = product.wholesalePrice?.price ?? product.wholesaleSalePrice?.price ?? undefined
 
     return (
-        <article className="w-[min(100%,260px)] shrink-0 snap-start">
+        <article
+            className={cn(
+                'min-w-0 shrink-0',
+                articleClassName ?? 'w-[min(100%,260px)] snap-start',
+            )}
+        >
             <div
                 className="flex h-full flex-col overflow-hidden rounded-2xl border border-white/10 bg-(--sf-panel) shadow-[0_20px_40px_-28px_rgba(0,0,0,0.45)]">
                 <Link
