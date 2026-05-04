@@ -2,6 +2,7 @@ import type {StorefrontClientConfig} from '@/types/storefront/storefrontTypes';
 
 export const clientUvhStorefrontConfig: StorefrontClientConfig = {
     id: 'uvh',
+    stickyHeader: true,
     displayName: 'UVH Holdings',
     hostnames: ['uvhholdings.co.za'],
     branding: {
@@ -37,11 +38,6 @@ export const clientUvhStorefrontConfig: StorefrontClientConfig = {
                 label: 'Products',
                 to: '/products',
             },
-            {
-                id: 'quote',
-                label: 'Get A Quote',
-                to: '/contact-us',
-            },
         ],
     },
     theme: {
@@ -71,6 +67,11 @@ export const clientUvhStorefrontConfig: StorefrontClientConfig = {
             products: 'uvh-products',
             contactUs: 'uvh-contact-us',
             aboutUs: 'uvh-about-us',
+            termsAndConditions: 'uvh-terms-and-conditions',
+            privacyPolicy: 'uvh-privacy-policy',
+            deliveryAndReturnsPolicy: 'uvh-delivery-and-returns-policy',
+            wholesaleApplication: 'uvh-wholesale-application',
+            productDetail: 'uvh-product-detail',
         },
     },
     footer: {
@@ -112,7 +113,7 @@ export const clientUvhStorefrontConfig: StorefrontClientConfig = {
                     {
                         id: 'bulk',
                         label: 'Wholesale Support',
-                        to: '/contact-us'
+                        to: '/wholesale-application'
                     },
                 ],
             },
@@ -152,20 +153,17 @@ export const clientUvhStorefrontConfig: StorefrontClientConfig = {
             {
                 id: 'terms',
                 label: 'Terms & Conditions',
-                to: 'https://uvhholdings.co.za/terms-and-conditions/',
-                external: true,
+                to: '/terms-and-conditions',
             },
             {
                 id: 'privacy',
                 label: 'Privacy Policy',
-                to: 'https://uvhholdings.co.za/privacy-policy/',
-                external: true,
+                to: '/privacy-policy',
             },
             {
                 id: 'delivery-returns',
                 label: 'Delivery & Returns Policy',
-                to: 'https://uvhholdings.co.za/delivery-and-returns-policy/',
-                external: true,
+                to: '/delivery-and-returns-policy',
             },
         ],
     },

@@ -13,6 +13,13 @@ const {
     { key: 'cart', path: '/cart', component: vi.fn(), authority: [], meta: {} },
     { key: 'contactUs', path: '/contact-us', component: vi.fn(), authority: [], meta: {} },
     { key: 'aboutUs', path: '/about-us', component: vi.fn(), authority: [], meta: {} },
+    {
+      key: 'wholesaleApplication',
+      path: '/wholesale-application',
+      component: vi.fn(),
+      authority: [],
+      meta: {},
+    },
   ]
 
   const routingRoutes = [
@@ -41,6 +48,7 @@ const {
     accessDenied: vi.fn(),
     contactUs: vi.fn(),
     aboutUs: vi.fn(),
+    wholesaleApplication: vi.fn(),
   }
 
   const variantRegistry: Partial<Record<StorefrontPageKey, Record<string, unknown>>> = {

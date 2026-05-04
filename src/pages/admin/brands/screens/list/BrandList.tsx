@@ -8,7 +8,6 @@ import {Download, PenLine, Plus, TrashIcon, Upload} from "lucide-react";
 import BrandEditor from "@/pages/admin/brands/screens/edit";
 import BrandCreate from "@/pages/admin/brands/screens/create";
 import useDeleteBrand from "@/pages/admin/brands/hooks/useDeleteBrand.ts";
-import {IMAGE_BASE_URL} from "@/constants/api.constant.ts";
 
 const BrandList = () => {
 
@@ -64,7 +63,7 @@ const BrandList = () => {
             enableSorting: false,
             size: 72,
             cell: ({row}) => (
-                <Thumbnail logoUrl={`${IMAGE_BASE_URL}${row.original.logoUrl}`} name={row.original.name}/>
+                <Thumbnail logoUrl={row.original.logoUrl} name={row.original.name}/>
             ),
         },
         {

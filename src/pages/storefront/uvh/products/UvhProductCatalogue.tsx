@@ -1,15 +1,15 @@
 import {useEffect, useMemo, useState} from 'react'
-import {Link, useSearchParams} from 'react-router-dom'
-import {SfButton, SfCard, SfInput} from '@/components/storefront'
+import {useSearchParams} from 'react-router-dom'
+import {SfCard, SfInput} from '@/components/storefront'
 import type {Category} from '@/types/admin/CategoryTypes.ts'
 import useStorefrontParentCategories from '@/pages/storefront/uvh/products/hooks/useStorefrontParentCategories.ts'
 import {
-    useShoppingProducts,
     type ShoppingProductsQuery,
+    useShoppingProducts,
 } from '@/pages/storefront/uvh/products/hooks/useShoppingProducts.ts'
-import {ProductCard} from '@/components/shared/card/default/ProductCard.tsx'
-import {UvhProductRow} from '@/pages/storefront/uvh/products/UvhProductRow.tsx'
-import {IMAGE_BASE_URL, IMAGE_THUMBNAIL_URL} from "@/constants/api.constant.ts";
+import {UvhShowcaseProductCard} from '@/pages/storefront/uvh/home/components/UvhCategoryShowcaseSection.tsx'
+import {UvhTitleHero} from '@/pages/storefront/uvh/components/UvhTitleHero.tsx'
+import {Search} from 'lucide-react'
 
 function CategorySelect({
                             rootCategories,
@@ -131,16 +131,11 @@ const UvhProductCatalogue = () => {
 
     return (
         <div className="min-h-screen bg-(--sf-bg)">
-            <div className="border-b border-(--sf-border) bg-(--sf-surface-muted) px-4 py-8 sm:px-6 sm:py-10 lg:px-8">
-                <div className="mx-auto max-w-7xl text-center">
-                    <h1 className="text-2xl font-semibold tracking-tight text-(--sf-text) sm:text-3xl">
-                        Our Products
-                    </h1>
-                    <p className="mt-2 text-sm text-(--sf-muted-text) sm:text-base">
-                        Browse our range of quality industrial products.
-                    </p>
-                </div>
-            </div>
+            <UvhTitleHero
+                description="Browse our range of quality industrial products."
+                eyebrow="Our Products"
+                title={selectedCategory?.name ?? 'All Products'}
+            />
 
             <div className="mx-auto max-w-7xl px-4 py-5 sm:px-6 sm:py-6 lg:px-8">
                 <div className="mb-5 flex flex-col gap-3 lg:hidden">
@@ -160,8 +155,9 @@ const UvhProductCatalogue = () => {
                             type="search"
                             value={searchTerm}
                         />
-                        <span className="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 text-(--sf-muted-text)">
-                            🔍
+                        <span
+                            className="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 text-(--sf-muted-text)">
+                            <Search/>
                         </span>
                     </div>
                 </div>
@@ -224,8 +220,9 @@ const UvhProductCatalogue = () => {
                                     type="search"
                                     value={searchTerm}
                                 />
-                                <span className="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 text-(--sf-muted-text)">
-                                    🔍
+                                <span
+                                    className="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 text-(--sf-muted-text)">
+                                   <Search/>
                                 </span>
                             </div>
 
@@ -250,51 +247,36 @@ const UvhProductCatalogue = () => {
                             <SfCard className="p-6 text-sm text-(--sf-error)">Error: {error}</SfCard>
                         ) : (
                             <>
-                                <div className="lg:hidden">
+                                <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:hidden">
                                     {products.length === 0 ? (
-                                        <SfCard className="p-6 text-sm text-(--sf-muted-text)">
+                                        <SfCard className="p-6 text-sm text-(--sf-muted-text) sm:col-span-2">
                                             No products match your filters.
                                         </SfCard>
                                     ) : (
-                                        <div className="rounded-lg border border-(--sf-border) bg-(--sf-panel) px-4">
-                                            {products.map((product) => {
-                                                const featuredImage =
-                                                    product.images?.find((img) => img.isFeatured) ??
-                                                    product.images?.[0]
-
-                                                return (
-                                                    <UvhProductRow
-                                                        key={product.id}
-                                                        description={product.shortDescription}
-                                                        image={`${IMAGE_THUMBNAIL_URL}${featuredImage?.imageUrl}`}
-                                                        name={product.name}
-                                                    />
-                                                )
-                                            })}
-                                        </div>
+                                        products.map((product) => (
+                                            <UvhShowcaseProductCard
+                                                key={product.id}
+                                                articleClassName="w-full"
+                                                product={product}
+                                            />
+                                        ))
                                     )}
                                 </div>
 
-                                <div className="hidden gap-3 lg:grid lg:grid-cols-5">
-                                    {products.map((product) => {
-                                        const featuredImage =
-                                            product.images?.find((img) => img.isFeatured) ??
-                                            product.images?.[0]
-                                        const retailPrice = product.retailPrice?.price ?? 0
-                                        const salePrice = product.retailSalePrice?.price ?? undefined
-
-
-                                        return (
-                                            <ProductCard
+                                <div className="hidden gap-4 lg:grid lg:grid-cols-5">
+                                    {products.length === 0 ? (
+                                        <SfCard className="col-span-full p-6 text-sm text-(--sf-muted-text)">
+                                            No products match your filters.
+                                        </SfCard>
+                                    ) : (
+                                        products.map((product) => (
+                                            <UvhShowcaseProductCard
                                                 key={product.id}
-                                                id={product.id}
-                                                image={`${IMAGE_BASE_URL}${featuredImage?.imageUrl}`}
-                                                name={product.name}
-                                                originalPrice={salePrice ? retailPrice : undefined}
-                                                price={salePrice ?? retailPrice}
+                                                articleClassName="w-full"
+                                                product={product}
                                             />
-                                        )
-                                    })}
+                                        ))
+                                    )}
                                 </div>
                             </>
                         )}
@@ -312,7 +294,8 @@ const UvhProductCatalogue = () => {
                             >
                                 Prev
                             </button>
-                            <span className="rounded border border-(--sf-border) bg-(--sf-accent) px-3 py-1 text-(--sf-accent-text)">
+                            <span
+                                className="rounded border border-(--sf-border) bg-(--sf-accent) px-3 py-1 text-(--sf-accent-text)">
                                 {pageIndex + 1}
                             </span>
                             <button
@@ -339,20 +322,6 @@ const UvhProductCatalogue = () => {
                             </button>
                         </div>
                     </section>
-                </div>
-            </div>
-
-            <div className="border-t border-(--sf-border) bg-(--sf-surface-muted) px-4 py-4 sm:px-6 lg:px-8">
-                <div className="mx-auto flex max-w-7xl flex-col items-start justify-between gap-4 md:flex-row md:items-center">
-                    <div>
-                        <p className="text-sm font-semibold text-(--sf-text)">Can&apos;t find what you need?</p>
-                        <p className="text-sm text-(--sf-muted-text)">
-                            Request a custom quote and we&apos;ll source it for you.
-                        </p>
-                    </div>
-                    <Link to="/contact-us">
-                        <SfButton type="button">Request Quote</SfButton>
-                    </Link>
                 </div>
             </div>
         </div>

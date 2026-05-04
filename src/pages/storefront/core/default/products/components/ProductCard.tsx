@@ -27,7 +27,22 @@ interface Product {
     productImages?: ProductImageObject[] | null; // new: list of image objects
 }
 
-const ProductCard: React.FC<{ product: Product; onAddToCart: (vId: string) => void }> = ({ product, onAddToCart }) => {
+const defaultPageContainerClass =
+    'max-w-6xl mx-auto p-6 grid grid-cols-1 md:grid-cols-2 gap-12 bg-(--sf-bg)';
+
+const ProductCard: React.FC<{
+    product: Product;
+    onAddToCart: (vId: string) => void;
+    /** Override outer wrapper (e.g. UVH panel embed). */
+    containerClassName?: string;
+    /** When true, title and short description are omitted (shown in page hero instead). */
+    compactSummary?: boolean;
+}> = ({
+    product,
+    onAddToCart,
+    containerClassName = defaultPageContainerClass,
+    compactSummary = false,
+}) => {
     const [selections, setSelections] = useState<Record<string, string>>({});
     const [openSection, setOpenSection] = useState<string | null>('Description');
     const [selectedMainImage, setSelectedMainImage] = useState<string | undefined>(undefined);
@@ -67,7 +82,7 @@ const ProductCard: React.FC<{ product: Product; onAddToCart: (vId: string) => vo
     const displayImage = selectedMainImage || mainImageFile;
 
     return (
-        <div className="max-w-6xl mx-auto p-6 grid grid-cols-1 md:grid-cols-2 gap-12 bg-(--sf-bg)">
+        <div className={containerClassName}>
             {/* Left: Image Gallery */}
             <div className="space-y-4">
                 <div className="aspect-square bg-(--sf-bg) rounded-2xl overflow-hidden border border-(--sf-border)">
@@ -103,13 +118,29 @@ const ProductCard: React.FC<{ product: Product; onAddToCart: (vId: string) => vo
 
             {/* Right: Product Details */}
             <div className="flex flex-col">
-                <div className="flex justify-between items-start">
-                    <h1 className="text-3xl font-bold text-(--sf-text)">{product.name}</h1>
-                    <span className="text-xl font-semibold text-(--sf-text)">
-            R{activeVariant?.price ?? product.variants[0]?.price}
-          </span>
-                </div>
-                <p className="text-(--sf-muted-text) mt-2">{product.short_description}</p>
+                {compactSummary ? (
+                    <>
+                        <h1 className="sr-only">{product.name}</h1>
+                        <div className="flex flex-wrap items-baseline justify-between gap-4 border-b border-(--sf-border) pb-4">
+                            <p className="text-xs font-semibold uppercase tracking-[0.12em] text-(--sf-muted-text)">
+                                Price (Ex. VAT)
+                            </p>
+                            <span className="text-2xl font-bold text-(--sf-accent)">
+                                R {(activeVariant?.price ?? product.variants[0]?.price ?? 0).toFixed(2)}
+                            </span>
+                        </div>
+                    </>
+                ) : (
+                    <>
+                        <div className="flex justify-between items-start">
+                            <h1 className="text-3xl font-bold text-(--sf-text)">{product.name}</h1>
+                            <span className="text-xl font-semibold text-(--sf-text)">
+                                R{activeVariant?.price ?? product.variants[0]?.price}
+                            </span>
+                        </div>
+                        <p className="text-(--sf-muted-text) mt-2">{product.short_description}</p>
+                    </>
+                )}
 
                 {/* Dynamic Selectors from JSONB keys */}
                 {Object.entries(options).map(([attrKey, values]) => (

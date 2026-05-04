@@ -1,4 +1,4 @@
-import {Link} from 'react-router-dom';
+import {Link, useLocation} from 'react-router-dom';
 import type {IconType} from 'react-icons';
 import {FaFacebookF, FaGlobe, FaInstagram, FaLinkedinIn, FaTiktok, FaXTwitter, FaYoutube,} from 'react-icons/fa6';
 import type {
@@ -23,7 +23,35 @@ const socialIconMap: Record<string, IconType> = {
     tiktok: FaTiktok,
 };
 
-const isExternalHref = (href: string) => /^https?:\/\//i.test(href);
+const isHttpUrl = (href: string) => /^https?:\/\//i.test(href);
+
+/** Same-site absolute URLs use client-side navigation (no new tab). */
+const sameOriginRouterPath = (href: string): string | null => {
+    if (typeof window === 'undefined' || !isHttpUrl(href)) return null;
+    try {
+        const url = new URL(href);
+        if (url.origin !== window.location.origin) return null;
+        return `${url.pathname}${url.search}${url.hash}`;
+    } catch {
+        return null;
+    }
+};
+
+/** Pathname only, for comparing with `location.pathname`. */
+const footerLinkPathname = (item: NavMenuItem): string | null => {
+    if (item.external) return null;
+    const internalPath = sameOriginRouterPath(item.to);
+    const path = internalPath ?? (isHttpUrl(item.to) ? null : item.to);
+    if (path === null) return null;
+    const pathname = path.split('?')[0].split('#')[0];
+    if (!pathname) return '/';
+    return pathname.length > 1 && pathname.endsWith('/')
+        ? pathname.slice(0, -1)
+        : pathname;
+};
+
+const normalizeLocationPathname = (pathname: string) =>
+    pathname.length > 1 && pathname.endsWith('/') ? pathname.slice(0, -1) : pathname;
 
 const getSocialIcon = (iconKey: string): IconType => {
     const normalized = iconKey.trim().toLowerCase();
@@ -37,9 +65,16 @@ const FooterLink = ({
     item: NavMenuItem;
     className: string;
 }) => {
-    const external = item.external || isExternalHref(item.to);
+    const location = useLocation();
+    const targetPathname = footerLinkPathname(item);
 
-    if (external) {
+    const scrollToTopIfCurrentPage = () => {
+        if (targetPathname === null) return;
+        if (normalizeLocationPathname(location.pathname) !== targetPathname) return;
+        window.scrollTo({top: 0, behavior: 'smooth'});
+    };
+
+    if (item.external) {
         return (
             <a
                 href={item.to}
@@ -52,8 +87,25 @@ const FooterLink = ({
         );
     }
 
+    const internalPath = sameOriginRouterPath(item.to);
+    if (internalPath !== null) {
+        return (
+            <Link to={internalPath} className={className} onClick={scrollToTopIfCurrentPage}>
+                {item.label}
+            </Link>
+        );
+    }
+
+    if (isHttpUrl(item.to)) {
+        return (
+            <a href={item.to} className={className}>
+                {item.label}
+            </a>
+        );
+    }
+
     return (
-        <Link to={item.to} className={className}>
+        <Link to={item.to} className={className} onClick={scrollToTopIfCurrentPage}>
             {item.label}
         </Link>
     );
@@ -81,11 +133,12 @@ export const Footer = ({branding, footer}: FooterProps) => {
     const hasSocial = (footer.socialLinks?.length ?? 0) > 0;
     const hasLegal = (footer.legalLinks?.length ?? 0) > 0;
     const hasDescription = Boolean(footer.description);
+    const callout = footer.footerCallout;
 
     return (
         <footer
             aria-label="Store footer"
-            className="mt-16 border-t border-(--sf-nav-border) bg-(--sf-nav-bg) text-(--sf-nav-text)"
+            className="border-t border-(--sf-nav-border) bg-(--sf-nav-bg) text-(--sf-nav-text)"
         >
             <div className="mx-auto max-w-6xl px-4 py-12 sm:px-6 lg:px-8">
                 <div className="grid gap-10 lg:grid-cols-12">
@@ -113,12 +166,14 @@ export const Footer = ({branding, footer}: FooterProps) => {
                             </p>
                         ) : null}
 
-                        <div className="mt-4 rounded-xl border border-(--sf-nav-border) bg-black/15 p-4 text-xs text-(--sf-nav-icon-text)">
-                            <p className="font-semibold uppercase tracking-[0.12em] text-(--sf-nav-text)">Bulk orders & tenders</p>
-                            <p className="mt-2 leading-5">
-                                Need recurring supply, large quantities, or tender support? Our team can assist quickly.
-                            </p>
-                        </div>
+                        {callout ? (
+                            <div className="mt-4 rounded-xl border border-(--sf-nav-border) bg-black/15 p-4 text-xs text-(--sf-nav-icon-text)">
+                                <p className="font-semibold uppercase tracking-[0.12em] text-(--sf-nav-text)">
+                                    {callout.heading}
+                                </p>
+                                <p className="mt-2 leading-5">{callout.body}</p>
+                            </div>
+                        ) : null}
 
                         {hasSocial ? (
                             <div className="mt-6 flex flex-wrap gap-3" aria-label="Social links">
