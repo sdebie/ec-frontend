@@ -1,7 +1,8 @@
 import {useEffect, useState} from "react";
-import {Category} from "@/types/admin/CategoryTypes.ts";
-import {apiGetAllCategories} from "@/services/graphql/admin/category/CategoryService.graphql.ts";
+
 import {SearchableSelectOption} from "@/components/shared/select/SearchableSelect.tsx";
+import {apiGetAllCategories} from "@/services/graphql/admin/category/CategoryService.graphql.ts";
+import {Category} from "@/types/admin/CategoryTypes.ts";
 
 export default function useAllCategoryOptions() {
     const [categories, setCategories] = useState<Category[]>([]);

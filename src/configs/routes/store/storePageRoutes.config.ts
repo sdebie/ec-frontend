@@ -1,7 +1,10 @@
 import {lazy} from 'react'
-import type {PageRoutes} from '@/types/routes'
+
 import {toPageRoutes} from '../routeHelpers'
+
 import {storeMenuRoutes} from './storeMenuRoutes.config'
+
+import type {PageRoutes} from '@/types/routes'
 
 const defaultMeta = {
     pageBackgroundType: 'plain',
@@ -20,21 +23,21 @@ const storePageOnlyRoutes: PageRoutes = [
     {
         key: 'productDetail',
         path: '/product/:productId',
-        component: lazy(() => import('@/pages/storefront/core/default/products/ProductDetailsPage.tsx')),
+        component: lazy(() => import('@/tenants/default/pages/productdetail/page.tsx')),
         authority: [],
         meta: shopMeta,
     },
     {
         key: 'checkout',
         path: '/checkout',
-        component: lazy(() => import('@/pages/storefront/default/checkout/screens/Checkout.tsx')),
+        component: lazy(() => import('@/tenants/default/pages/checkout/screens/Checkout.tsx')),
         authority: [],
         meta: shopMeta,
     },
     {
         key: 'paymentSuccess',
         path: '/payment-success',
-        component: lazy(() => import('@/pages/storefront/core/default/cart/Success.tsx')),
+        component: lazy(() => import('@/features/checkout/PaymentSuccess.tsx')),
         authority: [],
         meta: defaultMeta,
     },

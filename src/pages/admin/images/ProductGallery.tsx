@@ -1,10 +1,12 @@
-import { useEffect, useState } from 'react';
-import { IMAGE_BASE_URL } from '@/constants/api.constant.ts';
-import { AdaptiveCard, Button } from "@/components";
-import { PageContainer } from "@/components/layout/shared/PageContainer.tsx";
-import { useNavigate } from "react-router-dom";
-import ImageServiceRest from "@/services/rest/admin/ImageService.rest.ts";
 import { Loader, Upload } from 'lucide-react';
+import { useEffect, useState } from 'react';
+import { useNavigate } from "react-router-dom";
+
+import { PageLayout } from "@/components";
+import { IMAGE_BASE_URL } from '@/constants/api.constant.ts';
+import { Button } from '@/primitives/button';
+import { Card } from '@/primitives/card';
+import ImageServiceRest from "@/services/rest/admin/ImageService.rest.ts";
 
 const PAGE_SIZE = 80;
 
@@ -42,7 +44,7 @@ const ProductGallery = () => {
     const canLoadMore = images.length < totalCount && currentPage < totalPages - 1;
 
     return (
-        <PageContainer
+        <PageLayout
             title="Product Image Library"
             description="Browse and manage all product images in your store."
             action={
@@ -58,7 +60,7 @@ const ProductGallery = () => {
             <div className="flex flex-col gap-6">
                 {/* Feature Preview */}
                 {selectedImage && (
-                    <AdaptiveCard className="p-0 overflow-hidden">
+                    <Card className="p-0 overflow-hidden">
                         <div className="w-full h-120 flex items-center justify-center relative">
                             <img
                                 src={`${IMAGE_BASE_URL}${selectedImage}`}
@@ -69,7 +71,7 @@ const ProductGallery = () => {
                                 {selectedImage}
                             </div>
                         </div>
-                    </AdaptiveCard>
+                    </Card>
                 )}
 
                 {/* Thumbnails Grid */}
@@ -124,7 +126,7 @@ const ProductGallery = () => {
                     )}
                 </section>
             </div>
-        </PageContainer>
+        </PageLayout>
     );
 };
 

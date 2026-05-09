@@ -1,3 +1,10 @@
+import {zodResolver} from "@hookform/resolvers/zod";
+import {AlertCircle, ChevronDown, ChevronUp} from "lucide-react";
+import {useEffect, useState} from "react";
+import {Controller, useForm} from "react-hook-form";
+import {z} from "zod";
+
+
 import {
     Button,
     Dialog,
@@ -6,19 +13,15 @@ import {
     DialogHeader,
     Form,
     FormItem,
-    Input,
     Select,
     Switcher,
 } from "@/components";
-import type {Staff, StaffRole} from "@/types/admin/StaffTypes.ts";
-import {z} from "zod";
-import {Controller, useForm} from "react-hook-form";
-import {zodResolver} from "@hookform/resolvers/zod";
-import useUpdateStaff from "@/pages/admin/staff/hooks/useUpdateStaff.ts";
-import {useEffect, useState} from "react";
-import {AlertCircle, ChevronDown, ChevronUp} from "lucide-react";
 import {toast} from "@/components/shared/toast";
 import useGetStaff from "@/pages/admin/staff/hooks/useGetStaff.ts";
+import useUpdateStaff from "@/pages/admin/staff/hooks/useUpdateStaff.ts";
+import {Input} from "@/primitives/input";
+
+import type {Staff, StaffRole} from "@/types/admin/StaffTypes.ts";
 
 type StaffEditProps = {
     staff?: Staff;
@@ -131,7 +134,7 @@ const StaffEdit = ({staff, isDialogOpen, setIsDialogOpen, onSuccess}: StaffEditP
                                     errorMessage={errors.email?.message}
                                     invalid={!!errors.email}
                                 >
-                                    <Input {...field} type="email" placeholder="name@company.com" className="w-full"/>
+                                    <Input size="lg" {...field} type="email" placeholder="name@company.com" className="w-full"/>
                                 </FormItem>
                             )}
                         />
@@ -145,7 +148,7 @@ const StaffEdit = ({staff, isDialogOpen, setIsDialogOpen, onSuccess}: StaffEditP
                                     errorMessage={errors.fullName?.message}
                                     invalid={!!errors.fullName}
                                 >
-                                    <Input {...field} placeholder="Jane Doe" className="w-full"/>
+                                    <Input size="lg" {...field} placeholder="Jane Doe" className="w-full"/>
                                 </FormItem>
                             )}
                         />

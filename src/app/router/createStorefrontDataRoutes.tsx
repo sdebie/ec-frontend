@@ -1,10 +1,14 @@
 import {Outlet} from 'react-router-dom'
-import {StorefrontRoutes} from '@/storefront/routes/StorefrontRoutes'
+
+
+import {layoutRegistry} from '@/app/layouts/storefront/layoutRegistry'
 import {useStorefrontBoundary} from '@/app/providers/StorefrontProvider'
+import {StorefrontRoutes} from '@/configs/routes/store/StorefrontRoutes'
 import {listStorefrontRouteContracts} from '@/configs/storefront/storefrontRouteContracts'
-import {layoutRegistry} from '@/storefront/layouts/layoutRegistry'
-import type {StorefrontLayoutId} from '@/storefront/registry/types'
+
+import type {StorefrontLayoutId} from '@/configs/storefront/storefrontRegistryTypes'
 import type {RouteMeta, RouteObject} from '@/types/routes'
+
 
 export interface AppRouterStorefrontOptions {
     isAdminDomain: boolean

@@ -5,17 +5,20 @@ import {
     useMemo,
     useState,
 } from 'react'
+
+
+import {buildNavigationModel} from '@/configs/storefront/navigationRegistry'
 import {
     resolveActiveStorefrontConfig,
-} from '@/storefront/registry/resolveStorefrontConfig'
-import {buildNavigationModel} from '@/storefront/registry/navigationRegistry'
+} from '@/configs/storefront/resolveStorefrontConfig'
+import {env} from '@/lib/env'
+import {resetSessionUserStore} from '@/store/authStore'
+import {resetTenantScopedState} from '@/storefront/tenant/tenantLifecycle'
+
 import type {
     ResolveStorefrontConfigOptions,
     StorefrontContextValue,
-} from '@/storefront/registry/types'
-import {resetTenantScopedState} from '@/storefront/tenant/tenantLifecycle'
-import {resetSessionUserStore} from '@/store/authStore'
-import {env} from '@/lib/env'
+} from '@/configs/storefront/storefrontRegistryTypes'
 
 interface StorefrontProviderProps extends PropsWithChildren {
     options?: ResolveStorefrontConfigOptions

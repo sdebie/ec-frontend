@@ -1,9 +1,13 @@
+import { ArrowLeft } from "lucide-react";
 import { useEffect, useState } from "react";
-import { useParams } from "react-router-dom";
-import { PageContainer } from "@/components";
-import { apiGetProductInformation } from "@/services/graphql/product/product.service.ts";
-import type { ProductInformation } from "@/types/admin/ProductTypes.ts";
+import { useNavigate, useParams } from "react-router-dom";
+
+
+import {PageLayout} from '@/components';
 import {IMAGE_BASE_URL} from "@/constants/api.constant.ts";
+import { apiGetProductInformation } from "@/services/graphql/product/product.service.ts";
+
+import type { ProductInformation } from "@/types/admin/ProductTypes.ts";
 
 const renderValue = (value?: string | number | boolean | null) => {
     if (value === null || value === undefined || value === "") {
@@ -31,6 +35,7 @@ const resolveImageUrl = (imageUrl?: string | null) => {
 
 const ProductDetail = () => {
     const { id } = useParams<{ id: string }>();
+    const navigate = useNavigate();
     const [product, setProduct] = useState<ProductInformation | null>(null);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
@@ -76,7 +81,17 @@ const ProductDetail = () => {
     const variantImages = (product?.variants ?? []).flatMap(variant => variant.images ?? []);
 
     return (
-        <PageContainer>
+        <PageLayout
+            title="Product Detail"
+            action={(
+                <button
+                    onClick={() => navigate(-1)}
+                    className="flex items-center gap-1 text-sm text-admin-text-muted hover:text-admin-text"
+                >
+                    <ArrowLeft size={16} /> Back
+                </button>
+            )}
+        >
             <div className="flex flex-col gap-6">
                 {loading && <p>Loading product details...</p>}
                 {error && <p className="text-red-500">{error}</p>}
@@ -87,7 +102,7 @@ const ProductDetail = () => {
                         <section className="rounded-lg border border-admin-border bg-admin-bg p-6 shadow-sm">
                             <div className="mb-4 flex items-center justify-between gap-4">
                                 <div>
-                                    <h1 className="text-2xl font-semibold">{product.product?.name ?? "Product"}</h1>
+                                    <h2 className="text-2xl font-semibold">{product.product?.name ?? "Product"}</h2>
                                     <p className="text-sm text-admin-text-muted">Full product information</p>
                                 </div>
                                 <div className="text-right text-sm text-admin-text-muted">
@@ -288,7 +303,7 @@ const ProductDetail = () => {
                     </div>
                 )}
             </div>
-        </PageContainer>
+        </PageLayout>
     );
 };
 

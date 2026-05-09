@@ -1,4 +1,5 @@
 import {lazy} from 'react'
+
 import type {Routes} from '@/types/routes'
 
 const defaultMeta = {
@@ -18,63 +19,63 @@ export const storeMenuRoutes: Routes = [
     {
         key: 'home',
         path: '/',
-        component: lazy(() => import('@/pages/storefront/core/default/home/StorefrontHomePage.tsx')),
+        component: lazy(() => import('@/tenants/default/pages/home/StorefrontHomePage.tsx')),
         authority: [],
         meta: defaultMeta,
     },
     {
         key: 'products',
         path: '/products',
-        component: lazy(() => import('@/pages/storefront/core/default/products/ProductList.tsx')),
+        component: lazy(() => import('@/tenants/default/pages/products/ProductList.tsx')),
         authority: [],
         meta: shopMeta,
     },
     {
         key: 'cart',
         path: '/cart',
-        component: lazy(() => import('@/pages/storefront/default/shoppingCart/screens/ShoppingCart.tsx')),
+        component: lazy(() => import('@/tenants/default/pages/shoppingCart/screens/ShoppingCart.tsx')),
         authority: [],
         meta: shopMeta,
     },
     {
         key: 'contactUs',
         path: '/contact-us',
-        component: lazy(() => import('@/pages/storefront/default/contactUs/ContactUs.tsx')),
+        component: lazy(() => import('@/tenants/default/pages/contactUs/ContactUs.tsx')),
         authority: [],
         meta: defaultMeta,
     },
     {
         key: 'aboutUs',
         path: '/about-us',
-        component: lazy(() => import('@/pages/storefront/default/aboutus/screens')),
+        component: lazy(() => import('@/tenants/default/pages/aboutus/screens')),
         authority: [],
         meta: defaultMeta,
     },
     {
         key: 'wholesaleApplication',
         path: '/wholesale-application',
-        component: lazy(() => import('@/pages/storefront/default/wholesaleApplication/WholesaleApplication.tsx')),
+        component: lazy(() => import('@/tenants/default/pages/wholesaleApplication/WholesaleApplication.tsx')),
         authority: [],
         meta: defaultMeta,
     },
     {
         key: 'termsAndConditions',
         path: '/terms-and-conditions',
-        component: lazy(() => import('@/pages/storefront/default/termsandconditions/TermsAndConditions.tsx')),
+        component: lazy(() => import('@/tenants/default/pages/termsandconditions/TermsAndConditions.tsx')),
         authority: [],
         meta: defaultMeta,
     },
     {
         key: 'privacyPolicy',
         path: '/privacy-policy',
-        component: lazy(() => import('@/pages/storefront/default/privacypolicy/PrivacyPolicy.tsx')),
+        component: lazy(() => import('@/tenants/default/pages/privacypolicy/PrivacyPolicy.tsx')),
         authority: [],
         meta: defaultMeta,
     },
     {
         key: 'deliveryAndReturnsPolicy',
         path: '/delivery-and-returns-policy',
-        component: lazy(() => import('@/pages/storefront/default/deliveryandreturnspolicy/DeliveryAndReturnsPolicy.tsx')),
+        component: lazy(() => import('@/tenants/default/pages/deliveryandreturnspolicy/DeliveryAndReturnsPolicy.tsx')),
         authority: [],
         meta: defaultMeta,
     },

@@ -1,3 +1,9 @@
+import {zodResolver} from "@hookform/resolvers/zod";
+import {AlertCircle, ChevronDown, ChevronUp} from "lucide-react";
+import {useEffect, useState} from "react";
+import {Controller, useForm} from "react-hook-form";
+import {z} from "zod";
+
 import {
     Button,
     Dialog,
@@ -6,19 +12,14 @@ import {
     DialogHeader,
     Form,
     FormItem,
-    ImageUpload,
-    Input
+    ImageUpload
 } from "@/components";
-import {Brand} from "@/types/admin/BrandTypes.ts";
-import {z} from "zod";
-import {Controller, useForm} from "react-hook-form";
-import {zodResolver} from "@hookform/resolvers/zod";
-import useUpdateBrand from "@/pages/admin/brands/hooks/useUpdateBrand.ts";
-import {useEffect, useState} from "react";
-import {AlertCircle, ChevronDown, ChevronUp} from "lucide-react";
 import {toast} from "@/components/shared/toast";
 import {IMAGE_BASE_URL} from "@/constants/api.constant.ts";
 import useGetBrand from "@/pages/admin/brands/hooks/useGetBrand.ts";
+import useUpdateBrand from "@/pages/admin/brands/hooks/useUpdateBrand.ts";
+import {Input} from "@/primitives/input";
+import {Brand} from "@/types/admin/BrandTypes.ts";
 
 type BrandEditorProps = {
     brand?: Brand;
@@ -122,6 +123,7 @@ const BrandEditor = ({brand, isDialogOpen, setIsDialogOpen, onSuccess}: BrandEdi
                                     invalid={!!errors.name}
                                 >
                                     <Input
+                                        size="lg"
                                         {...field}
                                         placeholder="Brand Name"
                                         className="w-full"
@@ -140,6 +142,7 @@ const BrandEditor = ({brand, isDialogOpen, setIsDialogOpen, onSuccess}: BrandEdi
                                     invalid={!!errors.description}
                                 >
                                     <Input
+                                        size="lg"
                                         {...field}
                                         placeholder="Brand Description"
                                         className="w-full"
@@ -158,6 +161,7 @@ const BrandEditor = ({brand, isDialogOpen, setIsDialogOpen, onSuccess}: BrandEdi
                                     invalid={!!errors.slug}
                                 >
                                     <Input
+                                        size="lg"
                                         {...field}
                                         placeholder="brand-slug"
                                         className="w-full"

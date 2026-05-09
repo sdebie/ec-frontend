@@ -1,7 +1,8 @@
 import React, { useEffect, useRef, useState } from 'react';
+
 import { Button, Select } from "@/components";
-import ImageServiceRest from "@/services/rest/admin/ImageService.rest.ts";
 import { Dialog, DialogContent, DialogFooter, DialogHeader } from "@/components/shared/dialog/Dialog.tsx";
+import ImageServiceRest from "@/services/rest/admin/ImageService.rest.ts";
 
 const UPLOAD_BATCH_SIZE = 100;
 

@@ -1,4 +1,5 @@
 import {describe, expect, it, vi} from 'vitest'
+
 import {createStorefrontDataRoutes} from '@/app/router/createStorefrontDataRoutes'
 
 vi.mock('@/configs/storefront/storefrontRouteContracts', async (importOriginal) => {

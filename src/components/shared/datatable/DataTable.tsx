@@ -1,4 +1,3 @@
-import * as React from "react";
 import {
     ColumnDef,
     flexRender,
@@ -19,9 +18,10 @@ import {
     ArrowUp,
     ArrowDown,
 } from "lucide-react";
+import * as React from "react";
 
+import {Input} from '@/primitives/input';
 import {cn} from "@/utils/cn";
-import {Input} from "@/components/shared/input/Input.tsx";
 
 type DataTableProps<T> = {
     data: T[];

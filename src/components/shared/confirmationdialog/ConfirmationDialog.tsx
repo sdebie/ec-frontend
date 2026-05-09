@@ -1,8 +1,9 @@
-import * as React from 'react';
 import { AlertTriangle, CheckCircle2, HelpCircle, Info, XCircle } from 'lucide-react';
-import { cn } from '@/utils/cn';
+import * as React from 'react';
+
 import { Dialog, DialogContent, DialogFooter, DialogHeader } from '@/components/shared/dialog';
-import { Button } from '@/components/shared/button';
+import { Button } from '@/primitives/button';
+import { cn } from '@/utils/cn';
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 

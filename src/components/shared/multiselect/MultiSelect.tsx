@@ -1,7 +1,8 @@
-import * as React from 'react';
-import { cn } from '@/utils/cn.ts';
 import { ChevronDown, X, Check } from 'lucide-react';
+import * as React from 'react';
+
 import { Label } from '@/components';
+import { cn } from '@/utils/cn.ts';
 
 export interface MultiSelectOption {
   value: string;

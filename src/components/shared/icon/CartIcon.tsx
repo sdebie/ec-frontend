@@ -1,7 +1,9 @@
-import React, {useEffect, useState} from 'react';
 import {ShoppingCart} from 'lucide-react';
-import {CartStore} from '@/store/CartStore.ts';
+import React, {useEffect, useState} from 'react';
 import {useNavigate} from 'react-router-dom';
+
+import { cartStore } from '@/features/cart';
+
 
 export type CartIconProps = {
     className?: string;
@@ -12,19 +14,19 @@ export type CartIconProps = {
 
 const CartIcon: React.FC<CartIconProps> = ({className = '', onClick, size = 24, showZero = false}) => {
 
-    const [count, setCount] = useState<number>(() => CartStore.getItemCount());
-    const [sessionId, setOrderId] = useState<string | null>(() => CartStore.getOrderSessionId());
+    const [count, setCount] = useState<number>(() => cartStore.getItemCount());
+    const [sessionId, setOrderId] = useState<string | null>(() => cartStore.getOrderSessionId());
     const navigate = useNavigate();
 
     useEffect(() => {
         // Subscribe to global cart changes
-        const unsub = CartStore.subscribe(() => {
-            setCount(CartStore.getItemCount());
-            setOrderId(CartStore.getOrderSessionId());
+        const unsub = cartStore.subscribe(() => {
+            setCount(cartStore.getItemCount());
+            setOrderId(cartStore.getOrderSessionId());
         });
         // Ensure initial state is in sync if something changed before mount
-        setCount(CartStore.getItemCount());
-        setOrderId(CartStore.getOrderSessionId());
+        setCount(cartStore.getItemCount());
+        setOrderId(cartStore.getOrderSessionId());
         return () => unsub();
     }, []);
 

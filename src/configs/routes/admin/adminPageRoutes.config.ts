@@ -1,7 +1,10 @@
 import { lazy } from 'react'
-import type { PageRoutes } from '@/types/routes'
+
 import { toPageRoutes } from '../routeHelpers'
+
 import { adminMenuRoutes } from './adminMenuRoutes.config'
+
+import type { PageRoutes } from '@/types/routes'
 
 /**
  * Admin page routes only contain routing metadata.

@@ -1,3 +1,8 @@
+import {zodResolver} from "@hookform/resolvers/zod";
+import {useMemo} from "react";
+import {Controller, useForm} from "react-hook-form";
+import {z} from "zod";
+
 import {
     Button,
     Dialog,
@@ -7,17 +12,13 @@ import {
     Form,
     FormItem,
     ImageUpload,
-    Input,
     SearchableSelect,
     toast
 } from "@/components";
-import {Controller, useForm} from "react-hook-form";
-import {useMemo} from "react";
 import {IMAGE_BASE_URL} from "@/constants/api.constant.ts";
-import {zodResolver} from "@hookform/resolvers/zod";
-import {z} from "zod";
-import useCreateCategory from "@/pages/admin/category/hooks/useCreateCategory.ts";
 import useAllCategoryOptions from "@/pages/admin/category/hooks/useAllCategoryOptions.ts";
+import useCreateCategory from "@/pages/admin/category/hooks/useCreateCategory.ts";
+import {Input} from "@/primitives/input";
 
 interface CategoryCreateProps {
     isDialogOpen: boolean;
@@ -110,6 +111,7 @@ const CategoryCreate = ({isDialogOpen, setIsDialogOpen, onSuccess}: CategoryCrea
                                     invalid={!!errors.name}
                                 >
                                     <Input
+                                        size="lg"
                                         {...field}
                                         placeholder="Category Name"
                                         className="w-full"
@@ -128,6 +130,7 @@ const CategoryCreate = ({isDialogOpen, setIsDialogOpen, onSuccess}: CategoryCrea
                                     invalid={!!errors.description}
                                 >
                                     <Input
+                                        size="lg"
                                         {...field}
                                         placeholder="Category Description"
                                         className="w-full"
@@ -146,6 +149,7 @@ const CategoryCreate = ({isDialogOpen, setIsDialogOpen, onSuccess}: CategoryCrea
                                     invalid={!!errors.slug}
                                 >
                                     <Input
+                                        size="lg"
                                         {...field}
                                         placeholder="category-slug"
                                         className="w-full"

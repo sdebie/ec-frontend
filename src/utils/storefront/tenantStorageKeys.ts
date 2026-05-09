@@ -1,5 +1,5 @@
-import {env} from '@/lib/env'
 import {resolveStorefrontClient} from '@/configs/storefront/storefrontRegistry'
+import {env} from '@/lib/env'
 import {getHostname} from '@/utils/HostnameResolver'
 
 const CART_ITEMS_KEY_BASE = 'ec_cart_order_items'

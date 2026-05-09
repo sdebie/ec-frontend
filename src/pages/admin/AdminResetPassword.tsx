@@ -1,5 +1,6 @@
 import React, {useState} from 'react';
 import {useNavigate} from 'react-router-dom';
+
 import StaffService from '../../services/StaffService.ts';
 
 const AdminResetPassword: React.FC = () => {
@@ -48,7 +49,7 @@ const AdminResetPassword: React.FC = () => {
             const updatedUser = {...user, resetPassword: false};
             localStorage.setItem('admin_user', JSON.stringify(updatedUser));
             navigate('/admin', {replace: true});
-        } catch (_err) {
+        } catch {
             setError('Could not reset password. Please try again.');
         } finally {
             setIsSaving(false);

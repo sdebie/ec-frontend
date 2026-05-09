@@ -1,5 +1,6 @@
-import {cn} from "@/utils/cn.ts";
 import React from "react";
+
+import {cn} from "@/utils/cn.ts";
 
 export interface LabelProps extends React.LabelHTMLAttributes<HTMLLabelElement> {
     required?: boolean;

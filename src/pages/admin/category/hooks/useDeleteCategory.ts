@@ -1,6 +1,7 @@
 import {useState} from "react";
-import {extractTechnicalDetails} from "@/utils/graphqlErrorUtils.ts";
+
 import {apiDeleteCategory} from "@/services/graphql/admin/category/CategoryService.graphql.ts";
+import {extractTechnicalDetails} from "@/utils/graphqlErrorUtils.ts";
 
 const FRIENDLY_ERROR_MSG = "We couldn't delete the category right now. Please try again.";
 

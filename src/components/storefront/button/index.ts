@@ -1,2 +1,0 @@
-export { SfButton } from './SfButton';
-

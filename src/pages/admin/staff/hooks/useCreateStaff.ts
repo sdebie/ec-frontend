@@ -1,7 +1,10 @@
  import {useState} from "react";
-import type {Staff} from "@/types/admin/StaffTypes.ts";
+
+
 import {apiCreateStaff} from "@/services/graphql/admin/staff/StaffService.graphql.ts";
 import {extractTechnicalDetails} from "@/utils/graphqlErrorUtils.ts";
+
+import type {Staff} from "@/types/admin/StaffTypes.ts";
 
 const FRIENDLY_ERROR_MSG = "We couldn't create the staff user right now. Please try again.";
 

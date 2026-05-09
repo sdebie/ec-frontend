@@ -1,8 +1,9 @@
-import {Link, useNavigate} from 'react-router-dom';
-import AdminThemeToggle from "@/components/layout/admin/AdminThemeToggle.tsx";
-import {Menu, MenuItem, MenuLabel, MenuList, MenuSection, MenuSeparator, MenuTrigger} from "@/components";
-import React from "react";
 import {Menu as MenuIcon} from "lucide-react";
+import React from "react";
+import {Link, useNavigate} from 'react-router-dom';
+
+import {Menu, MenuItem, MenuLabel, MenuList, MenuSection, MenuSeparator, MenuTrigger} from "@/components";
+import AdminThemeToggle from "@/components/layout/admin/AdminThemeToggle.tsx";
 
 interface AdminHeaderProps {
     onMenuClick?: () => void;

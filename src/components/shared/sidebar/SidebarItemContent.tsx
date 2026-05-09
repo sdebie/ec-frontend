@@ -1,7 +1,12 @@
-import Icon from '../../shared/icon/Icon';
 import {ChevronDown, ChevronUp} from 'lucide-react';
+
 import {cn} from '@/utils/cn.ts';
+
+import Icon from '../../shared/icon/Icon';
+
 import type {ReactNode} from 'react';
+
+
 
 interface SidebarItemContentProps {
     label?: string;

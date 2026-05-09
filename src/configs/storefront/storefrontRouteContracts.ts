@@ -1,8 +1,10 @@
-import type {LazyExoticComponent, ComponentType} from 'react'
-import type {StorefrontPageKey} from '@/types/storefront/storefrontPageKeys'
-import type {PageMeta, PageRoute, Route, RouteMeta} from '@/types/routes'
 import {storeMenuRoutes} from '@/configs/routes/store/storeMenuRoutes.config'
 import {storeRoutingRoutes} from '@/configs/routes/store/storePageRoutes.config'
+
+import type {PageMeta, PageRoute, Route, RouteMeta} from '@/types/routes'
+import type {StorefrontPageKey} from '@/types/storefront/storefrontPageKeys'
+import type {LazyExoticComponent, ComponentType} from 'react'
+
 
 type StorefrontRouteComponent = LazyExoticComponent<ComponentType<any>>
 

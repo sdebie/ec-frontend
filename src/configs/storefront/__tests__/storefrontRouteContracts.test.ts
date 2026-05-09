@@ -1,10 +1,11 @@
 import {describe, expect, it} from 'vitest'
+
+import {storefrontPageRegistry} from '@/configs/storefront/storefrontPageRegistry'
 import {
     listStorefrontMenuRoutes,
     listStorefrontPageRoutes,
     listStorefrontRouteContracts,
 } from '@/configs/storefront/storefrontRouteContracts'
-import {storefrontPageRegistry} from '@/configs/storefront/storefrontPageRegistry'
 
 const toSorted = (values: Iterable<string>): string[] => [...values].sort()
 

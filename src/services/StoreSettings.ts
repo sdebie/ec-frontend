@@ -45,14 +45,14 @@ export async function fetchPaymentMethodsConfig(): Promise<PaymentMethodsConfig>
         let parsed: any = null;
         try {
             parsed = raw ? JSON.parse(raw) : null;
-        } catch (_) {
+        } catch {
             // Attempt to handle CSV-like strings e.g. IN_STORE, FASTPAY
             const trimmed = String(raw || '').trim();
             if (trimmed.includes(',')) {
                 parsed = trimmed
-                    .replace(/^[\[\]]$/g, '')
+                    .replace(/^(\[|\])$/g, '')
                     .split(',')
-                    .map((s: string) => s.replace(/^[\s\"]+|[\s\"]+$/g, ''));
+                    .map((s: string) => s.replace(/^[\s"]+|[\s"]+$/g, ''));
             }
         }
 

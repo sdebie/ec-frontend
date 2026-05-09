@@ -1,4 +1,7 @@
 import {beforeEach, describe, expect, it, vi} from 'vitest'
+
+import { validateStorefrontPageInfrastructure } from '@/configs/storefront/storefrontPageValidation.ts'
+
 import type {StorefrontPageKey} from '@/types/storefront/storefrontPageKeys.ts'
 
 const {
@@ -115,8 +118,6 @@ vi.mock('@/configs/storefront/storefrontPageRegistry.ts', () => ({
 vi.mock('@/configs/storefront/storefrontRegistry.ts', () => ({
   getStorefrontRegistry: () => mockStorefrontRegistry,
 }))
-
-import { validateStorefrontPageInfrastructure } from '@/configs/storefront/storefrontPageValidation.ts'
 
 function resetMocks() {
   Object.keys(mockStorefrontRegistry).forEach((key) => {

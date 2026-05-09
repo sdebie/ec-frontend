@@ -1,12 +1,13 @@
-import {Link, useLocation} from 'react-router-dom';
-import type {IconType} from 'react-icons';
 import {FaFacebookF, FaGlobe, FaInstagram, FaLinkedinIn, FaTiktok, FaXTwitter, FaYoutube,} from 'react-icons/fa6';
+import {Link, useLocation} from 'react-router-dom';
+
 import type {
     FooterConfig,
     FooterSocialLink,
     NavMenuItem,
     StorefrontBranding,
 } from '@/types/storefront/storefrontTypes';
+import type {IconType} from 'react-icons';
 
 interface FooterProps {
     branding: StorefrontBranding;

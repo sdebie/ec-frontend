@@ -1,6 +1,7 @@
-import React, {useState, useRef, useEffect} from 'react';
 import {clsx} from 'clsx';
 import {UploadCloud, ImageIcon, CheckCircle2, X} from 'lucide-react';
+import React, {useState, useRef, useEffect} from 'react';
+
 import ImageServiceRest from '@/services/rest/admin/ImageService.rest.ts';
 
 export type ImageType = 'product' | 'category' | 'brand';

@@ -1,6 +1,7 @@
-import * as React from 'react';
-import { cn } from '@/utils/cn.ts';
 import { Check } from 'lucide-react';
+import * as React from 'react';
+
+import { cn } from '@/utils/cn.ts';
 
 export interface CheckboxProps {
   checked?: boolean;

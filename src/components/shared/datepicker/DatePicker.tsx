@@ -1,6 +1,7 @@
-import * as React from 'react';
-import { cn } from '@/utils/cn.ts';
 import { Calendar } from 'lucide-react';
+import * as React from 'react';
+
+import { cn } from '@/utils/cn.ts';
 
 export interface DatePickerProps {
   value?: string;

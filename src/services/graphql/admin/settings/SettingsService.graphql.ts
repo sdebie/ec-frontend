@@ -1,7 +1,3 @@
-import getServiceEndpoint from "@/utils/HostnameResolver.ts";
-import {Settings, ShippingMethod, StoreSetting} from "@/types/admin/SettingsTypes";
-import {GraphQLService} from "@/services/graphql/GraphQLService.ts";
-
 import {
     SETTINGS,
     STORE_SETTINGS,
@@ -10,6 +6,9 @@ import {
     UPDATE_SETTING,
     SAVE_SHIPPING_METHOD,
 } from "@/services/graphql/admin/settings/settings.queries.ts";
+import {GraphQLService} from "@/services/graphql/GraphQLService.ts";
+import {Settings, ShippingMethod, StoreSetting} from "@/types/admin/SettingsTypes";
+import getServiceEndpoint from "@/utils/HostnameResolver.ts";
 
 const graphQLEndpoint = getServiceEndpoint(8080) + '/api/graphql';
 

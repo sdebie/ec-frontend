@@ -1,9 +1,11 @@
+
 import appConfig from '@/configs/app.config'
 import {
     TOKEN_TYPE,
     REQUEST_HEADER_AUTH_KEY,
     TOKEN_NAME_IN_STORAGE,
 } from '@/constants/api.constant.ts'
+
 import type { InternalAxiosRequestConfig } from 'axios'
 
 const AxiosRequestIntrceptorConfigCallback = (

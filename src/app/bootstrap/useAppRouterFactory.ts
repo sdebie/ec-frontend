@@ -1,6 +1,7 @@
 import {useMemo} from 'react'
-import {getHostname} from '@/utils/HostnameResolver'
+
 import {createAppDataRouter} from '@/app/router/createAppDataRouter'
+import {getHostname} from '@/utils/HostnameResolver'
 
 interface UseAppRouterFactoryOptions {
     isAuthenticated: boolean

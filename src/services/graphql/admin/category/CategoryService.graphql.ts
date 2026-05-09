@@ -1,7 +1,9 @@
-import getServiceEndpoint from "@/utils/HostnameResolver.ts";
-import {FilterRequest, PageRequest} from "@/types/graphql/query.types.ts";
-import {Category} from "@/types/admin/CategoryTypes.ts";
+
 import {GraphQLService} from "@/services/graphql/GraphQLService.ts";
+import {Category} from "@/types/admin/CategoryTypes.ts";
+import {FilterRequest, PageRequest} from "@/types/graphql/query.types.ts";
+import getServiceEndpoint from "@/utils/HostnameResolver.ts";
+
 import {
     ALL_CATEGORY,
     CATEGORY_COUNT,
@@ -10,6 +12,7 @@ import {
     GET_CATEGORY,
     UPDATE_CATEGORY
 } from "./category.queries.ts";
+
 
 const graphQLEndpoint = getServiceEndpoint(8080) + '/api/graphql';
 

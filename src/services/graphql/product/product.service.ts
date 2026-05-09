@@ -1,12 +1,4 @@
-import getServiceEndpoint from "@/utils/HostnameResolver.ts";
 import {GraphQLService} from "@/services/graphql/GraphQLService.ts";
-import {FilterRequest, PageRequest} from "@/types/graphql/query.types.ts";
-import {
-	ProductListItem,
-	ProductShoppingListItem,
-	ProductInformation,
-	VariantItem,
-} from "@/types/admin/ProductTypes.ts";
 import {
 	GET_PRODUCTS_LIST,
 	GET_PRODUCTS_LIST_BY_BRAND,
@@ -18,6 +10,14 @@ import {
 	PRODUCT_COUNT,
 	VARIANTS_BY_IDS,
 } from "@/services/graphql/product/product.queries.ts";
+import {
+	ProductListItem,
+	ProductShoppingListItem,
+	ProductInformation,
+	VariantItem,
+} from "@/types/admin/ProductTypes.ts";
+import {FilterRequest, PageRequest} from "@/types/graphql/query.types.ts";
+import getServiceEndpoint from "@/utils/HostnameResolver.ts";
 
 
 const graphQLEndpoint = getServiceEndpoint(8080) + '/api/graphql';

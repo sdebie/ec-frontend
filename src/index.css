@@ -1,4 +1,7 @@
 @import "tailwindcss";
+@import "./primitives/surface/tokens.css";
+@import "./tenants/default/theme.css";
+@import "./tenants/uvh/theme.css";
 
 @theme {
     --color-admin-bg: var(--admin-bg);

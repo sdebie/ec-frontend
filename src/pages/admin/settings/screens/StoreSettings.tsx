@@ -1,8 +1,11 @@
 import {useEffect, useState} from 'react';
-import {cn} from "@/utils/cn.ts";
+
+import {Dialog, DialogContent, DialogFooter, DialogHeader, InputField, Select, Switcher, toast} from "@/components";
+import {Button} from '@/primitives/button';
+import {Card} from '@/primitives/card';
 import {apiGetStoreSettings, apiSaveStoreSettings} from "@/services/graphql/admin/settings/SettingsService.graphql.ts";
 import {StoreSetting} from "@/types/admin/SettingsTypes.ts";
-import {AdaptiveCard, Button, Dialog, DialogContent, DialogFooter, DialogHeader, Input, Select, Switcher, toast} from "@/components";
+import {cn} from "@/utils/cn.ts";
 
 type PaymentMethodConfig = {
     displayName: string;
@@ -163,7 +166,16 @@ const StoreSettings = () => {
                     );
                 } catch (e) {
                     console.warn("Failed to parse payment_methods_allowed JSON", e);
-                    return <Input {...commonProps} value={setting.value} onChange={(e) => handleInputChange(setting.key, e.target.value)} />;
+                    return (
+                        <div key={setting.key} className="space-y-1">
+                            <InputField
+                                label={commonProps.label}
+                                helperText={commonProps.helperText}
+                                value={setting.value}
+                                onChange={(e) => handleInputChange(setting.key, e.target.value)}
+                            />
+                        </div>
+                    );
                 }
             case 'site_maintenance_enabled':
             case 'allow_guest_checkout':
@@ -178,11 +190,14 @@ const StoreSettings = () => {
                 );
             default:
                 return (
-                    <Input
-                        {...commonProps}
-                        value={setting.value}
-                        onChange={(e) => handleInputChange(setting.key, e.target.value)}
-                    />
+                    <div key={setting.key} className="space-y-1">
+                        <InputField
+                            label={commonProps.label}
+                            helperText={commonProps.helperText}
+                            value={setting.value}
+                            onChange={(e) => handleInputChange(setting.key, e.target.value)}
+                        />
+                    </div>
                 );
         }
     };
@@ -194,7 +209,7 @@ const StoreSettings = () => {
                 <h2 className="text-xl font-semibold text-admin-text border-b border-admin-border pb-2">
                     General Settings
                 </h2>
-                <AdaptiveCard>
+                <Card>
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                         {isLoading ? (
                             <div className="col-span-2 py-10 flex justify-center">
@@ -211,7 +226,7 @@ const StoreSettings = () => {
                             </Button>
                         </div>
                     )}
-                </AdaptiveCard>
+                </Card>
             </section>
 
             <Dialog
@@ -224,19 +239,23 @@ const StoreSettings = () => {
                     description="Configure a new payment method for your store."
                 />
                 <DialogContent className="space-y-4">
-                    <Input
-                        label="Display Name"
-                        placeholder="e.g. Credit Card, PayPal"
-                        value={newMethodName}
-                        onChange={(e) => setNewMethodName(e.target.value)}
-                        required
-                    />
-                    <Input
-                        label="Description"
-                        placeholder="e.g. Pay securely with your credit card"
-                        value={newMethodDescription}
-                        onChange={(e) => setNewMethodDescription(e.target.value)}
-                    />
+                    <div className="space-y-1">
+                        <InputField
+                            label="Display Name"
+                            placeholder="e.g. Credit Card, PayPal"
+                            value={newMethodName}
+                            onChange={(e) => setNewMethodName(e.target.value)}
+                            required
+                        />
+                    </div>
+                    <div className="space-y-1">
+                        <InputField
+                            label="Description"
+                            placeholder="e.g. Pay securely with your credit card"
+                            value={newMethodDescription}
+                            onChange={(e) => setNewMethodDescription(e.target.value)}
+                        />
+                    </div>
                     <div className="flex items-center justify-between p-3 border border-admin-border rounded-lg bg-admin-sidebar">
                         <div className="space-y-0.5">
                             <p className="text-sm font-medium text-admin-text">Enabled</p>

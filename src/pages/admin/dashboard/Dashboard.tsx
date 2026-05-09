@@ -1,10 +1,11 @@
 import {DollarSign, ShoppingBag, Users as UsersIcon, ArrowRight} from 'lucide-react';
-import {PageContainer} from "@/components";
+
+import {PageLayout} from '@/components';
 import {StatCard} from "@/components/shared/card";
 
 export function Dashboard() {
     return (
-        <PageContainer
+        <PageLayout
             title="Dashboard Overview"
             description="Welcome back, here's what's happening with your store today."
             action={
@@ -83,7 +84,7 @@ export function Dashboard() {
                     </div>
                 </div>
             </div>
-        </PageContainer>
+        </PageLayout>
     );
 }
 

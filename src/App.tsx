@@ -1,6 +1,12 @@
-import {ToastContainer} from '@/components/shared/toast'
-import {AppProviders} from '@/app/providers/AppProviders'
 import {useAppComposition} from '@/app/bootstrap/useAppComposition'
+import {AppProviders} from '@/app/providers/AppProviders'
+import {ToastContainer} from '@/components/shared/toast'
+import {useCustomerTypeUrlBootstrap} from '@/store/customerTypeStore.ts'
+
+function CustomerTypeBootstrap() {
+    useCustomerTypeUrlBootstrap()
+    return null
+}
 
 function App() {
     const {router, storefrontOptions, manifestGeneratedAt} = useAppComposition()
@@ -12,6 +18,7 @@ function App() {
                 data-storefront-manifest-generated={manifestGeneratedAt}
                 className="hidden"
             />
+            <CustomerTypeBootstrap/>
             <ToastContainer/>
         </AppProviders>
     )

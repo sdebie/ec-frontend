@@ -1,7 +1,8 @@
 import {useEffect, useMemo} from 'react'
-import {env} from '@/lib/env'
+
+import {loadStorefrontManifest} from '@/app/bootstrap/loadStorefrontManifest'
 import {validateStorefrontPageInfrastructure} from '@/configs/storefront/storefrontPageValidation'
-import {loadStorefrontManifest} from '@/storefront/bootstrap/loadStorefrontManifest'
+import {env} from '@/lib/env'
 
 export function useStorefrontBootstrap() {
     useEffect(() => {

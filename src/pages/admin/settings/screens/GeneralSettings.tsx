@@ -1,7 +1,7 @@
-import {AdaptiveCard} from "@/components";
-import {cn} from "@/utils/cn.ts";
-import {useAdminTheme} from "@/hooks/useAdminTheme.ts";
 import {ThemePreset} from "@/context/AdminThemeContext.tsx";
+import {useAdminTheme} from "@/hooks/useAdminTheme.ts";
+import {Card} from "@/primitives/card";
+import {cn} from "@/utils/cn.ts";
 
 const GeneralSettings = () => {
     const {preset, setPreset} = useAdminTheme();
@@ -19,7 +19,7 @@ const GeneralSettings = () => {
                 <h2 className="text-xl font-semibold text-admin-text border-b border-admin-border pb-2">
                     Appearance
                 </h2>
-                <AdaptiveCard>
+                <Card>
                     <div className="space-y-4">
                         <div>
                             <h3 className="text-sm font-medium text-admin-text mb-1">Theme Preset</h3>
@@ -45,7 +45,7 @@ const GeneralSettings = () => {
                             ))}
                         </div>
                     </div>
-                </AdaptiveCard>
+                </Card>
             </section>
         </>
     );

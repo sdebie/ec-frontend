@@ -1,8 +1,11 @@
-import getServiceEndpoint from "../utils/HostnameResolver";
-import {CustomerInformation} from "@/types/order.types.ts";
-import {CartStore} from "../store/CartStore.ts";
 import {gql} from "graphql-request";
+
+import {CustomerInformation} from "@/types/order.types.ts";
+
+import getServiceEndpoint from "../utils/HostnameResolver";
+
 import {GraphQLService} from "./graphql/GraphQLService.ts";
+
 
 // Allow environment variable override for production deployments
 const envGraphQl = (typeof import.meta !== 'undefined' && (import.meta as any).env)
@@ -76,9 +79,9 @@ export async function registerOrUpdateCustomer(payload: RegisterOrUpdatePayload)
 
 export async function apiUpdateCustomerInformation(
     customer: CustomerInformation,
-    sessionId?: string
+    sessionId: string
 ): Promise<CustomerInformation> {
-  const sid = sessionId || CartStore.getOrderSessionId();
+  const sid = sessionId;
   if (!sid) {
     throw new Error('Missing sessionId to update customer information');
   }
@@ -106,7 +109,7 @@ export async function apiUpdateCustomerInformation(
 // Convenience wrapper returning only CustomerInformation; does not mutate CartStore
 export async function updateCustomerInformation(
     customer: CustomerInformation,
-    sessionId?: string
+    sessionId: string
 ): Promise<CustomerInformation> {
   const updated = await apiUpdateCustomerInformation(customer, sessionId);
   return updated;

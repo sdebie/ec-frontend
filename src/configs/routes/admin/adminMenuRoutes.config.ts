@@ -1,4 +1,5 @@
 import {lazy} from 'react'
+
 import type {Routes} from '@/types/routes'
 
 /**

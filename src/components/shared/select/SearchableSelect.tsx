@@ -1,7 +1,8 @@
+import {Check, ChevronDown, Search, X} from 'lucide-react';
 import * as React from 'react';
 import {createPortal} from 'react-dom';
+
 import {cn} from '@/utils/cn.ts';
-import {Check, ChevronDown, Search, X} from 'lucide-react';
 
 export interface SearchableSelectOption {
     value: string;

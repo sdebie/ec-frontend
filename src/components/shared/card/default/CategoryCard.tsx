@@ -1,5 +1,6 @@
-import type {MouseEvent, ReactNode} from 'react'
 import {Link} from 'react-router-dom'
+
+import type {MouseEvent, ReactNode} from 'react'
 
 interface CategoryCardProps {
     name: string

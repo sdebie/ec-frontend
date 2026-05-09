@@ -1,5 +1,9 @@
-import {OrderItemData as OrderItemsData, asVariant} from "@/types/order.types.ts";
-import {getCartItemsStorageKey} from '@/utils/storefront/tenantStorageKeys'
+import {getDisplayPriceFromVariantPriceRows} from '@/features/catalog/utils/pricing.ts';
+import {OrderItemData as OrderItemsData, asVariant} from '@/types/order.types.ts';
+import {getCartItemsStorageKey} from '@/utils/storefront/tenantStorageKeys';
+
+import type {CustomerType} from '@/store/customerTypeStore';
+
 
 export const getCartItemsKey = () => getCartItemsStorageKey();
 
@@ -29,3 +33,16 @@ export const getVariantId = (item: OrderItemsData) => {
     const variant = item.variant as string | { id?: string } | undefined;
     return typeof variant === 'string' ? variant : variant?.id;
 };
+
+/**
+ * Cart line display unit: use enriched variant `prices` when present; otherwise persisted `unitPrice`.
+ * Lives in storefront utils (not `features/cart`) so `features/cart` does not import `features/catalog`.
+ */
+export function getCartLineDisplayUnit(item: OrderItemsData, customerType: CustomerType): number {
+    const variant = asVariant(item.variant);
+    const rows = variant?.prices;
+    if (rows && rows.length > 0) {
+        return getDisplayPriceFromVariantPriceRows(rows, customerType).price;
+    }
+    return Number(item.unitPrice ?? 0);
+}

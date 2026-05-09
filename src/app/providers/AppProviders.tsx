@@ -1,8 +1,10 @@
-import type {ComponentProps, PropsWithChildren} from 'react'
 import {RouterProvider} from 'react-router-dom'
+
 import {StorefrontCategoryProvider} from './StorefrontCategoryProvider'
 import {StorefrontProvider} from './StorefrontProvider'
-import type {ResolveStorefrontConfigOptions} from '@/storefront/registry/types'
+
+import type {ResolveStorefrontConfigOptions} from '@/configs/storefront/storefrontRegistryTypes'
+import type {ComponentProps, PropsWithChildren} from 'react'
 
 interface AppProvidersProps extends PropsWithChildren {
     storefrontOptions?: ResolveStorefrontConfigOptions

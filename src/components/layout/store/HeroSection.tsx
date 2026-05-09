@@ -1,4 +1,5 @@
 import {Link} from 'react-router-dom';
+
 import type {HeroContentAlignment, HeroContentMaxWidth, HeroSectionProps} from '@/types/storefront/storefrontTypes';
 
 interface Props {

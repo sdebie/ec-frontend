@@ -1,6 +1,7 @@
-import * as React from 'react';
-import { cn } from '@/utils/cn.ts';
 import { Upload as UploadIcon, X } from 'lucide-react';
+import * as React from 'react';
+
+import { cn } from '@/utils/cn.ts';
 
 export interface UploadProps {
   value?: File | File[] | null;
