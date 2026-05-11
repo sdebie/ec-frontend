@@ -42,6 +42,16 @@ const adminPageOnlyRoutes: PageRoutes = [
         },
     },
     {
+        key: 'admin.product.edit',
+        path: '/admin/product/edit/:id',
+        component: lazy(() => import('@/pages/admin/products/screens/edit/ProductEdit')),
+        authority: ['SUPER_ADMIN'],
+        meta: {
+            pageBackgroundType: 'plain',
+            pageContainerType: 'contained',
+        },
+    },
+    {
         key: 'admin.order.detail',
         path: '/admin/order/detail/:id',
         component: lazy(() => import('@/pages/admin/orders/screens/detail/OrderDetail.tsx')),

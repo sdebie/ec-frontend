@@ -9,6 +9,7 @@ import {
 	GET_TOP_BEST_SELLERS,
 	PRODUCT_COUNT,
 	VARIANTS_BY_IDS,
+	UPDATE_PRODUCT_INFORMATION,
 } from "@/services/graphql/product/product.queries.ts";
 import {
 	ProductListItem,
@@ -126,6 +127,19 @@ export async function apiGetProductInformation(productId: string): Promise<Produ
 	});
 
 	return result.getProductInformation ?? null;
+}
+
+export async function apiUpdateProductInformation(productId: string, input: ProductInformation): Promise<ProductInformation | null> {
+	if (!productId) return null;
+
+	const client = await GraphQLService.getGraphQLClient(graphQLEndpoint);
+
+	const result = await client.request<{ updateProductInformation: ProductInformation | null }>(UPDATE_PRODUCT_INFORMATION, {
+		productId,
+		input,
+	});
+
+	return result.updateProductInformation ?? null;
 }
 
 export async function apiGetTopBestSellers(): Promise<ProductShoppingListItem[]> {

@@ -1,14 +1,12 @@
 import { ArrowLeft } from "lucide-react";
 import { useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
-
-
 import {PageLayout} from '@/components';
 import {IMAGE_BASE_URL} from "@/constants/api.constant.ts";
+import { PageContainer } from "@/components";
+import { Button } from "@/components";
 import { apiGetProductInformation } from "@/services/graphql/product/product.service.ts";
-
 import type { ProductInformation } from "@/types/admin/ProductTypes.ts";
-import {IMAGE_BASE_URL} from "@/constants/api.constant.ts";
 import { useFormatAmount } from "@/hooks/useFormatAmount.ts";
 
 const renderValue = (value?: string | number | boolean | null) => {
@@ -37,8 +35,8 @@ const resolveImageUrl = (imageUrl?: string | null) => {
 
 const ProductDetail = () => {
     const { id } = useParams<{ id: string }>();
-    const { format: formatAmount } = useFormatAmount();
     const navigate = useNavigate();
+    const { format: formatAmount } = useFormatAmount();
     const [product, setProduct] = useState<ProductInformation | null>(null);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
@@ -111,6 +109,11 @@ const ProductDetail = () => {
                                 <div className="text-right text-sm text-admin-text-muted">
                                     <p>Variants: {product.variants?.length ?? 0}</p>
                                     <p>Images: {variantImages.length}</p>
+                                    <div className="mt-3">
+                                        <Button variant="solid" size="sm" onClick={() => navigate(`/admin/product/edit/${id}`)}>
+                                            Edit Product
+                                        </Button>
+                                    </div>
                                 </div>
                             </div>
 
