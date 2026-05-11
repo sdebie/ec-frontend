@@ -1,8 +1,13 @@
+import getServiceEndpoint from "@/utils/HostnameResolver.ts";
+import {CountrySetting, Settings, ShippingMethod, StoreSetting} from "@/types/admin/SettingsTypes";
+import {GraphQLService} from "@/services/graphql/GraphQLService.ts";
+
 import {
     SETTINGS,
     STORE_SETTINGS,
     SAVE_STORE_SETTINGS,
     SHIPPING_METHODS,
+    COUNTRY_SETTINGS,
     UPDATE_SETTING,
     SAVE_SHIPPING_METHOD,
 } from "@/services/graphql/admin/settings/settings.queries.ts";
@@ -44,6 +49,14 @@ export async function apiGetShippingMethods(): Promise<ShippingMethod[]> {
     const result = await client.request<{ shippingMethods: ShippingMethod[] }>(SHIPPING_METHODS);
 
     return result.shippingMethods ?? [];
+}
+
+export async function apiGetCountrySettings(): Promise<CountrySetting[]> {
+    const client = await GraphQLService.getGraphQLClient(graphQLEndpoint);
+
+    const result = await client.request<{ countrySettings: CountrySetting[] }>(COUNTRY_SETTINGS);
+
+    return result.countrySettings ?? [];
 }
 
 export async function apiUpdateSetting(key: string, value: string): Promise<StoreSetting> {

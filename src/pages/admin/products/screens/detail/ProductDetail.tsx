@@ -8,6 +8,8 @@ import {IMAGE_BASE_URL} from "@/constants/api.constant.ts";
 import { apiGetProductInformation } from "@/services/graphql/product/product.service.ts";
 
 import type { ProductInformation } from "@/types/admin/ProductTypes.ts";
+import {IMAGE_BASE_URL} from "@/constants/api.constant.ts";
+import { useFormatAmount } from "@/hooks/useFormatAmount.ts";
 
 const renderValue = (value?: string | number | boolean | null) => {
     if (value === null || value === undefined || value === "") {
@@ -35,6 +37,7 @@ const resolveImageUrl = (imageUrl?: string | null) => {
 
 const ProductDetail = () => {
     const { id } = useParams<{ id: string }>();
+    const { format: formatAmount } = useFormatAmount();
     const navigate = useNavigate();
     const [product, setProduct] = useState<ProductInformation | null>(null);
     const [loading, setLoading] = useState(true);
@@ -270,7 +273,7 @@ const ProductDetail = () => {
                                                                     {variant.prices.map((price) => (
                                                                         <tr key={price.id} className="border-b border-admin-border last:border-b-0">
                                                                             <td className="px-3 py-2 text-admin-text">{renderValue(price.priceType)}</td>
-                                                                            <td className="px-3 py-2 text-admin-text">{renderValue(price.price)}</td>
+                                                                            <td className="px-3 py-2 text-admin-text">{typeof price.price === "number" ? formatAmount(price.price) : renderValue(price.price)}</td>
                                                                             <td className="px-3 py-2 text-admin-text">{renderValue(price.isActive)}</td>
                                                                             <td className="px-3 py-2 text-admin-text">{renderValue(price.saleDaysRemaining)}</td>
                                                                             <td className="px-3 py-2 text-admin-text">{renderValue(price.priceStartDate)}</td>
