@@ -111,6 +111,5 @@ export async function updateCustomerInformation(
     customer: CustomerInformation,
     sessionId: string
 ): Promise<CustomerInformation> {
-  const updated = await apiUpdateCustomerInformation(customer, sessionId);
-  return updated;
+  return await apiUpdateCustomerInformation(customer, sessionId);
 }
