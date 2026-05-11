@@ -31,7 +31,7 @@ export type PaymentMethodsConfig = Partial<Record<PaymentMethodKey, PaymentMetho
 export async function fetchAllowedPaymentMethods(): Promise<PaymentMethodKey[]> {
     const cfg = await fetchPaymentMethodsConfig();
     const keys = Object.entries(cfg)
-        .filter(([_, info]) => !!info && !!(info as PaymentMethodInfo).enabled)
+        .filter(([_, info]) => !!info && (info as PaymentMethodInfo).enabled)
         .map(([key]) => key as PaymentMethodKey);
     return keys.length ? keys : ['FASTPAY'];
 }
@@ -50,7 +50,7 @@ export async function fetchPaymentMethodsConfig(): Promise<PaymentMethodsConfig>
             const trimmed = String(raw || '').trim();
             if (trimmed.includes(',')) {
                 parsed = trimmed
-                    .replace(/^(\[|\])$/g, '')
+                    .replace(/^([\[\]])$/g, '')
                     .split(',')
                     .map((s: string) => s.replace(/^[\s"]+|[\s"]+$/g, ''));
             }
