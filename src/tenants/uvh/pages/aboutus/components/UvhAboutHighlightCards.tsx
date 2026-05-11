@@ -10,7 +10,7 @@ export function UvhAboutHighlightCards() {
     return (
         <section
             aria-label="UVH service highlights"
-            className="w-full border-t border-(--sf-border) bg-(--sf-surface-muted) py-10 sm:py-12"
+            className="w-full border-t border-(--sf-border) py-10 sm:py-12"
         >
             <Container className="px-4 sm:px-6 lg:px-8" padded={false} size="lg">
                 <div className="grid grid-cols-1 gap-4 md:grid-cols-3 md:gap-6">

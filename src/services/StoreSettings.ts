@@ -1,22 +1,13 @@
-import {apiGetStoreSettings} from "./graphql/admin/settings/SettingsService.graphql.ts";
-
-// Types mirrored from backend entities
-export type StoreSetting = {
-    key: string;
-    value: string;
-    description?: string | null;
-};
-
-export type ShippingMethod = {
-    id?: string | null;
-    name?: string | null;
-    active?: boolean | null;
-    baseFee?: number | null;
-    estimatedDays?: string | null;
-};
+import {apiGetCountrySettings, apiGetStoreSettings} from "./graphql/admin/settings/SettingsService.graphql.ts";
+import type {CountrySetting, ShippingMethod, StoreSetting} from "@/types/admin/SettingsTypes.ts";
+export type {StoreSetting, ShippingMethod, CountrySetting};
 
 // Payment methods allowed values from settings
 export type PaymentMethodKey = 'IN_STORE' | 'FASTPAY';
+
+export async function fetchCountrySettings(): Promise<CountrySetting[]> {
+    return apiGetCountrySettings();
+}
 
 // Structured config for payment methods (new JSON format)
 export type PaymentMethodInfo = {
