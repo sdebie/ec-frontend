@@ -57,7 +57,7 @@ export function UvhBrandsSection() {
                                 <img
                                     src={logoSrc}
                                     alt={brand.name}
-                                    className="max-h-10 w-full object-contain"
+                                    className="max-h-6 w-full object-contain"
                                     loading="lazy"
                                     onError={() => {
                                         setBrokenBrandLogos((prev) => ({...prev, [brand.id]: true}));
