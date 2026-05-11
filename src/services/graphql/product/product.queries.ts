@@ -237,6 +237,54 @@ export const GET_PRODUCT_AND_VARIANTS = gql`
     }
 `;
 
+export const UPDATE_PRODUCT_INFORMATION = gql`
+    mutation UpdateProductInformation($productId: String!, $input: ProductInformationDtoInput!) {
+        updateProductInformation(productId: $productId, input: $input) {
+            product {
+                id
+                slug
+                name
+                description
+                shortDescription
+                productType
+                createdAt
+                categories {
+                    id
+                    name
+                    slug
+                }
+                brand {
+                    id
+                    name
+                    slug
+                }
+            }
+            variants {
+                id
+                sku
+                stockQuantity
+                attributesJson
+                weightKg
+                prices {
+                    id
+                    priceType
+                    price
+                    priceStartDate
+                    priceEndDate
+                    isActive: active
+                    saleDaysRemaining
+                }
+                images {
+                    id
+                    imageUrl
+                    sortOrder
+                    isFeatured: featured
+                }
+            }
+        }
+    }
+`;
+
 export const PRODUCT_COUNT = gql`
     query ProductCount($filterRequest: FilterRequestInput) {
         productCount(filterRequest: $filterRequest)

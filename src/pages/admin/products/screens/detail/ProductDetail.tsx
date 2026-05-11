@@ -1,10 +1,12 @@
 import { useEffect, useState } from "react";
-import { useParams } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 import { PageContainer } from "@/components";
+import { Button } from "@/components";
 import { apiGetProductInformation } from "@/services/graphql/product/product.service.ts";
 import type { ProductInformation } from "@/types/admin/ProductTypes.ts";
 import {IMAGE_BASE_URL} from "@/constants/api.constant.ts";
 import { useFormatAmount } from "@/hooks/useFormatAmount.ts";
+import {ArrowLeft} from "lucide-react";
 
 const renderValue = (value?: string | number | boolean | null) => {
     if (value === null || value === undefined || value === "") {
@@ -32,6 +34,7 @@ const resolveImageUrl = (imageUrl?: string | null) => {
 
 const ProductDetail = () => {
     const { id } = useParams<{ id: string }>();
+    const navigate = useNavigate();
     const { format: formatAmount } = useFormatAmount();
     const [product, setProduct] = useState<ProductInformation | null>(null);
     const [loading, setLoading] = useState(true);
@@ -79,6 +82,12 @@ const ProductDetail = () => {
 
     return (
         <PageContainer>
+            <button
+                onClick={() => navigate(-1)}
+                className="flex items-center gap-1 text-sm text-admin-text-muted hover:text-admin-text"
+            >
+                <ArrowLeft size={16} /> Back
+            </button>
             <div className="flex flex-col gap-6">
                 {loading && <p>Loading product details...</p>}
                 {error && <p className="text-red-500">{error}</p>}
@@ -95,6 +104,11 @@ const ProductDetail = () => {
                                 <div className="text-right text-sm text-admin-text-muted">
                                     <p>Variants: {product.variants?.length ?? 0}</p>
                                     <p>Images: {variantImages.length}</p>
+                                    <div className="mt-3">
+                                        <Button variant="solid" size="sm" onClick={() => navigate(`/admin/product/edit/${id}`)}>
+                                            Edit Product
+                                        </Button>
+                                    </div>
                                 </div>
                             </div>
 

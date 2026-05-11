@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { loginCustomer, CustomerProfile } from '@/services/CustomerService.ts';
+import { loginCustomer, CustomerProfile, initiateCustomerPasswordReset } from '@/services/CustomerService.ts';
 
 interface InlineLoginProps {
   email: string;
@@ -41,6 +41,31 @@ const InlineLogin: React.FC<InlineLoginProps> = ({
     }
   };
 
+  const handleForgotPassword = async () => {
+    const typed = window.prompt('Enter your email address to reset your password:', (email || '').trim());
+    if (typed === null) {
+      return;
+    }
+
+    const resetEmail = typed.trim();
+    if (!resetEmail || !resetEmail.includes('@')) {
+      setError('Please enter a valid email address.');
+      return;
+    }
+
+    setError(null);
+    setLoading(true);
+    try {
+      const message = await initiateCustomerPasswordReset(resetEmail);
+      window.alert(message || 'If the account exists, a reset link has been sent.');
+    } catch (err: any) {
+      const errorMsg = typeof err?.message === 'string' ? err.message : 'Could not submit reset request. Please try again.';
+      setError(errorMsg);
+    } finally {
+      setLoading(false);
+    }
+  };
+
   if (compact) {
     return (
       <div className="space-y-2">
@@ -63,6 +88,14 @@ const InlineLogin: React.FC<InlineLoginProps> = ({
             {loading ? 'Signing in...' : 'Sign In'}
           </button>
         </div>
+        <button
+          type="button"
+          onClick={handleForgotPassword}
+          disabled={loading}
+          className="text-xs text-blue-700 hover:underline disabled:cursor-not-allowed disabled:opacity-60"
+        >
+          Forgot password?
+        </button>
         {error && <p className="text-sm text-red-600">{error}</p>}
       </div>
     );
@@ -87,6 +120,14 @@ const InlineLogin: React.FC<InlineLoginProps> = ({
         className="w-full px-4 py-3 bg-blue-600 text-white rounded-lg font-semibold hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
       >
         {loading ? 'Signing in...' : 'Sign In'}
+      </button>
+      <button
+        type="button"
+        onClick={handleForgotPassword}
+        disabled={loading}
+        className="text-sm text-blue-700 hover:underline disabled:cursor-not-allowed disabled:opacity-60"
+      >
+        Forgot password?
       </button>
       {error && <p className="text-sm text-red-600">{error}</p>}
     </div>

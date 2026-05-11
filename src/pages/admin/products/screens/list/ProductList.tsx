@@ -3,7 +3,7 @@ import {DataTable} from "@/components/shared/datatable/DataTable.tsx";
 import {Button} from "@/components";
 import useProductList from "@/pages/admin/products/hooks/useProductList.ts";
 import type {ProductListItem} from "@/types/admin/ProductTypes.ts";
-import {PenLine, Plus, Upload} from "lucide-react";
+import {EyeIcon, PenLine, Plus, Upload} from "lucide-react";
 import {useMemo} from "react";
 import {useNavigate} from "react-router-dom";
 import {IMAGE_THUMBNAIL_URL} from "@/constants/api.constant.ts";
@@ -30,6 +30,11 @@ const ProductList = () => {
     }
     function handleEdit(productItem: ProductListItem) {
         console.log("Edit product:", productItem)
+        navigate('/admin/product/edit/'+productItem.id)
+    }
+
+    function handleDetail(productItem: ProductListItem) {
+        console.log("Product Detail:", productItem)
         navigate('/admin/product/detail/'+productItem.id)
     }
 
@@ -85,6 +90,9 @@ const ProductList = () => {
             enableSorting: false,
             cell: (props) => (
                 <div className={"flex items-start justify-center gap-2"}>
+                    <Button variant="solid" size={"sm"} onClick={() => handleDetail(props.row.original)}>
+                        <EyeIcon size={12}/>
+                    </Button>
                     <Button variant="solid" size={"sm"} onClick={() => handleEdit(props.row.original)}>
                         <PenLine size={12}/>
                     </Button>

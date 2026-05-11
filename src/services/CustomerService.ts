@@ -111,3 +111,23 @@ export async function updateCustomerInformation(
   const updated = await apiUpdateCustomerInformation(customer, sessionId);
   return updated;
 }
+
+export async function initiateCustomerPasswordReset(email: string): Promise<string> {
+  const normalizedEmail = (email || '').trim();
+  if (!normalizedEmail) {
+    throw new Error('Email is required');
+  }
+
+  const mutation = gql`
+    mutation InitiateCustomerPasswordReset($email: String!) {
+      initiateCustomerPasswordReset(email: $email)
+    }
+  `;
+
+  const client = await GraphQLService.getGraphQLClient(graphQlEndpoint);
+  const result = await client.request<{ initiateCustomerPasswordReset: string }>(mutation, {
+    email: normalizedEmail,
+  });
+
+  return result.initiateCustomerPasswordReset;
+}
