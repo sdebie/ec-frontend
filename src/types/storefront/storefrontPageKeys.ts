@@ -8,6 +8,7 @@ export const CANONICAL_STOREFRONT_PAGE_KEYS = [
     'cart',
     'productDetail',
     'checkout',
+    'createAccount',
     'paymentSuccess',
     'accessDenied',
     'contactUs',

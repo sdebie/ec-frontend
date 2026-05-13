@@ -346,7 +346,7 @@ function ProductDetailCard({
                     }
                     className="mt-10 w-full py-4 text-lg"
                 >
-                    {activeVariant ? 'Add to cart' : 'Select Options'}
+                    {activeVariant ? 'Add to cart..' : 'Select Options'}
                 </Button>
 
                 <div className="mt-10 border-t border-(--sf-border)">

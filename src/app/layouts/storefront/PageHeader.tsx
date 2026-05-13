@@ -10,6 +10,7 @@ import {CustomerProfile} from '@/services/CustomerService.ts';
 import {NavMenuItem, StorefrontClientConfig} from '@/types/storefront/storefrontTypes.ts';
 
 import styles from './PageHeader.module.css';
+import {TrashIcon, UserIcon} from "lucide-react";
 const AUTH_KEY = 'checkoutIsAuthenticated';
 const EMAIL_KEY = 'checkoutEmail';
 const DESKTOP_QUERY = '(min-width: 1024px)'; // Tailwind lg breakpoint
@@ -253,7 +254,9 @@ const PageHeader: React.FC<PageHeaderProps> = ({ storefrontConfig }) => {
                                 className={`${styles.iconButton} text-(--sf-nav-icon-text)`}
                                 title="Sign In"
                             >
-                                {/* icon */}
+                                <UserIcon
+                                    size={22}
+                                />
                             </button>
                         )}
 

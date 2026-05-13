@@ -35,6 +35,13 @@ const storePageOnlyRoutes: PageRoutes = [
         meta: shopMeta,
     },
     {
+        key: 'createAccount',
+        path: '/create-account',
+        component: lazy(() => import('@/tenants/default/pages/createaccount/CreateAccount.tsx')),
+        authority: [],
+        meta: defaultMeta,
+    },
+    {
         key: 'paymentSuccess',
         path: '/payment-success',
         component: lazy(() => import('@/features/checkout/PaymentSuccess.tsx')),

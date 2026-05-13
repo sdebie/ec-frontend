@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { Link } from 'react-router-dom';
 
 import { loginCustomer, CustomerProfile } from '@/services/CustomerService.ts';
 
@@ -110,6 +111,14 @@ const LoginModal: React.FC<LoginModalProps> = ({
           >
             {loading ? 'Signing in...' : 'Sign In'}
           </button>
+
+          <Link
+            to="/create-account"
+            onClick={onClose}
+            className="block w-full py-3 border border-blue-600 text-blue-600 font-semibold text-center rounded-lg hover:bg-blue-50 transition-colors"
+          >
+            Create Account
+          </Link>
         </form>
       </div>
     </div>

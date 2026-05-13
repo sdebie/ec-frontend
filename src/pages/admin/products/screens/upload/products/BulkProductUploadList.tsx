@@ -141,11 +141,11 @@ const BulkProductUploadList = () => {
                 return (
                     <div className="flex flex-col">
                         <span>{row.status}</span>
-                        {isProcessing && totalRows > 0 && (
-                            <span className="text-xs text-admin-text-muted">
-                                {processedRows} processed / {skippedRows} skipped / {totalRows} total
-                            </span>
-                        )}
+                        {/*{isProcessing && totalRows > 0 && (*/}
+                        {/*    <span className="text-xs text-admin-text-muted">*/}
+                        {/*        {processedRows} processed / {skippedRows} skipped / {totalRows} total*/}
+                        {/*    </span>*/}
+                        {/*)}*/}
                     </div>
                 );
             },

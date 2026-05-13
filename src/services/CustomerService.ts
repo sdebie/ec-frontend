@@ -18,6 +18,7 @@ const graphQlEndpoint = (envGraphQl && envGraphQl.length > 0)
 
 export type CustomerProfile = {
   email: string;
+  status?: 'ACTIVE' | 'DISABLED' | 'REGISTERING';
   firstName?: string;
   lastName?: string;
   phone?: string;
