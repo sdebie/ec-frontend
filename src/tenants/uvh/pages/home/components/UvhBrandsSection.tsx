@@ -17,12 +17,12 @@ export function UvhBrandsSection() {
     const [brokenBrandLogos, setBrokenBrandLogos] = useState<Record<string, boolean>>({});
 
     return (
-        <section className="mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:px-8">
+        <section className="mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:px-6">
             <div className="mb-5">
                 <h2 className="text-2xl font-semibold text-(--sf-text)">Brands</h2>
                 <span className="mt-3 block h-1 w-18 rounded bg-(--sf-accent)"/>
             </div>
-            <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4 xl:grid-cols-6">
+            <div className="grid gap-2 sm:grid-cols-2 lg:grid-cols-4 xl:grid-cols-6">
                 {brandsLoading && (
                     Array.from({length: 6}).map((_, index) => (
                         <Card
@@ -57,7 +57,7 @@ export function UvhBrandsSection() {
                                 <img
                                     src={logoSrc}
                                     alt={brand.name}
-                                    className="max-h-6 w-full object-contain"
+                                    className="max-h-10 w-full object-contain"
                                     loading="lazy"
                                     onError={() => {
                                         setBrokenBrandLogos((prev) => ({...prev, [brand.id]: true}));

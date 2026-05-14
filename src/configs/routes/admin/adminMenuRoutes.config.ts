@@ -31,7 +31,7 @@ export const adminMenuRoutes: Routes = [
             section: 'PRODUCT MANAGEMENT',
             pageBackgroundType: 'plain',
             pageContainerType: 'contained',
-            icon: 'package',
+            icon: 'store',
         },
         subMenu: [
             {
@@ -138,7 +138,7 @@ export const adminMenuRoutes: Routes = [
             section: 'PRODUCT MANAGEMENT',
             pageBackgroundType: 'plain',
             pageContainerType: 'contained',
-            icon: 'package',
+            icon: 'import',
         },
         subMenu: [
             {
@@ -260,7 +260,7 @@ export const adminMenuRoutes: Routes = [
             section: 'CONFIGURATION',
             pageBackgroundType: 'plain',
             pageContainerType: 'contained',
-            icon: 'settings',
+            icon: 'users',
         },
         subMenu: [
             {

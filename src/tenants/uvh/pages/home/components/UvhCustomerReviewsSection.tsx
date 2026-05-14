@@ -43,42 +43,42 @@ export function UvhCustomerReviewsSection() {
                 </p>
                 <h2
                     id="uvh-customer-reviews-heading"
-                    className="mt-3 text-2xl font-bold tracking-tight text-white sm:text-3xl"
+                    className="mt-2 text-2xl font-bold tracking-tight text-white sm:text-3xl"
                 >
                     {content.title}
                 </h2>
 
-                <div className="mt-8 flex items-center gap-3 md:gap-4">
+                <div className="mt-6 flex items-center gap-2.5 md:gap-3">
                     <button
                         type="button"
                         onClick={() => scrollByDirection(-1)}
-                        className="hidden h-11 w-11 shrink-0 items-center justify-center rounded-full bg-(--sf-accent) text-white shadow-lg transition hover:opacity-90 md:flex"
+                        className="hidden h-10 w-10 shrink-0 items-center justify-center rounded-full bg-(--sf-accent) text-white shadow-lg transition hover:opacity-90 md:flex"
                         aria-label="Scroll reviews left"
                     >
-                        <ChevronLeft className="h-5 w-5"/>
+                        <ChevronLeft className="h-4 w-4"/>
                     </button>
 
                     <div
                         ref={scrollerRef}
-                        className="min-w-0 flex-1 flex snap-x snap-mandatory gap-4 overflow-x-auto scroll-smooth pb-1 [-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:[display:none]"
+                        className="min-w-0 flex-1 flex snap-x snap-mandatory gap-3 overflow-x-auto scroll-smooth pb-1 [-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:[display:none]"
                     >
                         {content.items.map((item) => (
                             <article
                                 key={item.id}
-                                className="flex min-h-[200px] w-[min(100%,340px)] shrink-0 snap-start flex-col rounded-2xl border border-white/12 bg-white/[0.07] p-6 shadow-[0_16px_40px_rgba(0,0,0,0.35)] backdrop-blur-[1px] sm:w-[min(100%,380px)]"
+                                className="flex min-h-[180px] w-[min(100%,320px)] shrink-0 snap-start flex-col rounded-2xl border border-white/12 bg-white/[0.07] p-5 shadow-[0_16px_40px_rgba(0,0,0,0.35)] backdrop-blur-[1px] sm:w-[min(100%,350px)]"
                             >
                                 <div className="flex gap-0.5" aria-label="5 out of 5 stars">
                                     {Array.from({length: 5}).map((_, i) => (
                                         <Star
                                             key={i}
-                                            className="h-4 w-4 fill-white text-white"
+                                            className="h-3.5 w-3.5 fill-white text-white"
                                             strokeWidth={0}
                                             aria-hidden
                                         />
                                     ))}
                                 </div>
-                                <p className="mt-4 flex-1 text-sm leading-relaxed text-white/95">{item.quote}</p>
-                                <p className="mt-5 text-sm font-bold text-white">{item.author}</p>
+                                <p className="mt-3 flex-1 text-xs leading-relaxed text-white/95">{item.quote}</p>
+                                <p className="mt-4 text-xs font-bold text-white">{item.author}</p>
                             </article>
                         ))}
                     </div>
@@ -86,10 +86,10 @@ export function UvhCustomerReviewsSection() {
                     <button
                         type="button"
                         onClick={() => scrollByDirection(1)}
-                        className="hidden h-11 w-11 shrink-0 items-center justify-center rounded-full bg-(--sf-accent) text-white shadow-lg transition hover:opacity-90 md:flex"
+                        className="hidden h-10 w-10 shrink-0 items-center justify-center rounded-full bg-(--sf-accent) text-white shadow-lg transition hover:opacity-90 md:flex"
                         aria-label="Scroll reviews right"
                     >
-                        <ChevronRight className="h-5 w-5"/>
+                        <ChevronRight className="h-4 w-4"/>
                     </button>
                 </div>
             </div>

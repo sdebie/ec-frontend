@@ -28,7 +28,7 @@ export function UvhAccreditorsSection() {
                             <img
                                 src={item.imageSrc}
                                 alt={item.imageAlt}
-                                className="max-h-28 w-auto max-w-[min(100%,360px)] object-contain sm:max-h-36"
+                                className="max-h-28 w-auto max-w-[min(100%,360px)] object-contain sm:max-h-46"
                                 loading="lazy"
                                 decoding="async"
                             />

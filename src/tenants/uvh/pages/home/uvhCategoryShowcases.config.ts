@@ -3,19 +3,19 @@ export type UvhShowcaseTheme = 'medical-blue' | 'ppe-red' | 'cleaning-green' | '
 /** Shield artwork in `public/img` — one per themed showcase row. */
 export const UVH_SHOWCASE_SHIELD_BY_THEME: Record<UvhShowcaseTheme, { src: string; alt: string }> = {
     'medical-blue': {
-        src: '/img/Medical.png',
+        src: '/img/uvh/shields/medical.png',
         alt: 'UVH Medical — supplies and protective equipment',
     },
     'ppe-red': {
-        src: '/img/PPE.png',
+        src: '/img/uvh/shields/ppe.png',
         alt: 'UVH PPE — personal protective equipment',
     },
     'cleaning-green': {
-        src: '/img/Cleaning-Equipment.png',
+        src: '/img/uvh/shields/cleaning-equipment.png',
         alt: 'UVH Cleaning and equipment',
     },
     'safety-yellow': {
-        src: '/img/Safety-Wear-Equipment.png',
+        src: '/img/uvh/shields/safety-wear-equipment.png',
         alt: 'UVH Safety wear and equipment',
     },
 }

@@ -40,11 +40,11 @@ const UvhHomePage = () => {
                 intro="Clear communication, secure checkout, and support when you need it."
                 title="Trust & Reassurance"
             >
-                <div className="mt-5 grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
+                <div className="mt-4 grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
                     {uvhHomeContent.trustPoints.map((point) => (
                         <div key={point.id} className={FROSTED_CARD}>
-                            <h3 className="text-base font-semibold text-white">{point.title}</h3>
-                            <p className="mt-1 text-sm leading-relaxed text-white/85">{point.description}</p>
+                            <h3 className="text-sm font-semibold text-white">{point.title}</h3>
+                            <p className="mt-1 text-xs leading-relaxed text-white/85">{point.description}</p>
                         </div>
                     ))}
                 </div>

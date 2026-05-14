@@ -1,59 +1,137 @@
-import {FileText, ShoppingBag} from 'lucide-react';
-import {Link} from 'react-router-dom';
+import {MapPin, Package, ShieldCheck, Truck, type LucideIcon} from 'lucide-react';
 
 import {uvhHomeContent} from '@/tenants/uvh/content/uvhContent.ts';
+import type {UvhHeroStatIcon} from '@/tenants/uvh/content/uvhContent.ts';
 
+const STAT_ICONS: Record<UvhHeroStatIcon, LucideIcon> = {
+    package: Package,
+    truck: Truck,
+    mapPin: MapPin,
+    shieldCheck: ShieldCheck,
+};
+
+/**
+ * Hero layout follows the Tailwind UI "full-bleed image + isolated content"
+ * pattern:
+ *   - `relative isolate overflow-hidden` creates a fresh stacking context.
+ *   - The composite image is rendered as `absolute inset-0 -z-10` so all
+ *     content stacks on top without z-index gymnastics.
+ *   - A left-anchored white scrim keeps the copy readable on smaller screens
+ *     where the image's natural white panel doesn't extend far enough left.
+ */
 export function UvhHoldingHero() {
     const {hero} = uvhHomeContent;
 
     return (
-        <div className="w-full">
-            <section className="relative bg-white" aria-labelledby="uvh-hero-heading">
-                <div className="flex min-h-[calc(100dvh-var(--sf-storefront-header-height))] w-full flex-col lg:grid lg:grid-cols-2 lg:items-stretch">
-                    <div className="order-2 flex shrink-0 flex-col justify-center gap-3 bg-white px-4 pt-6 pb-6 sm:px-6 lg:order-none lg:col-start-1 lg:row-start-1 lg:min-h-0 lg:gap-3 lg:py-6 lg:pl-8 lg:pr-12 xl:pl-[max(1.5rem,calc((100vw-80rem)/2+1.5rem))]">
-                        <p className="max-w-xl text-sm font-semibold uppercase tracking-[0.16em] text-(--sf-accent)">
-                            {hero.overline}
-                        </p>
+        <section aria-labelledby="uvh-hero-heading" className="bg-white">
+            <div className="relative isolate overflow-hidden">
+                {/* Full-bleed composite background */}
+                <img
+                    src={hero.heroImage}
+                    alt={hero.heroImageAlt}
+                    width={1726}
+                    height={920}
+                    decoding="async"
+                    fetchPriority="high"
+                    className="absolute inset-0 -z-10 size-full object-cover object-right"
+                />
+
+                {/* Readability scrim.
+                    Below `lg`: uniform whitewash across the entire image so the
+                    text and icons stay legible over the dark truck/warehouse photo.
+                    `lg+`: left-anchored gradient that fades to transparent, letting
+                    the image breathe alongside the natural white panel. */}
+                <div
+                    aria-hidden
+                    className="absolute inset-0 -z-10 bg-white/80 lg:bg-transparent lg:bg-linear-to-r lg:from-white lg:via-white/40 lg:to-white/0 lg:to-50%"
+                />
+
+                <div className="mx-auto max-w-7xl px-6 py-8 sm:py-10 lg:mx-0 lg:max-w-none lg:px-12 lg:py-14 xl:pl-16">
+                    <div className="max-w-xl lg:max-w-2xl">
                         <h1
                             id="uvh-hero-heading"
-                            className="max-w-xl text-balance text-3xl font-bold tracking-tight text-neutral-950 sm:text-4xl lg:text-[2.5rem] lg:leading-[1.12]"
+                            className="mt-4 text-balance text-4xl font-extrabold uppercase leading-[1.02] tracking-tight sm:text-5xl lg:text-6xl xl:text-7xl"
                         >
-                            {hero.title}
+                            <span className="block text-neutral-950">{hero.titleLine1}</span>
+                            <span className="block text-3xl text-(--sf-accent) sm:text-4xl lg:text-5xl xl:text-6xl">
+                                {hero.titleLine2}
+                            </span>
                         </h1>
-                        <p className="max-w-xl text-pretty text-sm text-neutral-600 sm:text-base">
-                            {hero.subtitle}
-                        </p>
-                        <div className="flex w-full max-w-xl flex-col gap-3 sm:flex-row sm:flex-wrap">
-                            <Link
-                                to={hero.primaryCta.to}
-                                className="inline-flex w-full items-center justify-center gap-2 rounded-lg bg-(--sf-accent) px-4 py-2.5 text-sm font-semibold text-(--sf-accent-text) shadow-sm transition-opacity hover:opacity-95 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-(--sf-accent) sm:w-auto"
-                            >
-                                <FileText className="size-5 shrink-0" aria-hidden />
-                                {hero.primaryCta.label}
-                            </Link>
-                            <Link
-                                to={hero.secondaryCta.to}
-                                className="inline-flex w-full items-center justify-center gap-2 rounded-lg border border-(--sf-accent) bg-white px-4 py-2.5 text-sm font-semibold text-neutral-950 shadow-sm transition-colors hover:bg-neutral-50 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-(--sf-accent) sm:w-auto"
-                            >
-                                <ShoppingBag className="size-5 shrink-0 text-(--sf-accent)" aria-hidden />
-                                {hero.secondaryCta.label}
-                            </Link>
-                        </div>
-                    </div>
 
-                    <div className="relative order-1 min-h-[min(12rem,35svh)] w-full flex-1 lg:order-0 lg:col-start-2 lg:row-start-1 lg:h-full lg:min-h-0 lg:flex-none">
-                        <img
-                            src={hero.heroImage}
-                            alt={hero.heroImageAlt}
-                            width={900}
-                            height={1200}
-                            decoding="async"
-                            fetchPriority="high"
-                            className="absolute inset-0 size-full object-cover object-center"
-                        />
+                        <p className="mt-4 max-w-md text-pretty text-sm leading-snug text-neutral-700">
+                            {hero.description.map((segment, index) =>
+                                segment.bold ? (
+                                    <strong
+                                        key={index}
+                                        className="font-semibold text-neutral-950"
+                                    >
+                                        {segment.text}
+                                    </strong>
+                                ) : (
+                                    <span key={index}>{segment.text}</span>
+                                ),
+                            )}
+                        </p>
+
+                        <ul className="mt-5 grid max-w-md grid-cols-4 gap-x-3 gap-y-3 sm:gap-x-4 lg:max-w-lg">
+                            {hero.services.map((service) => (
+                                <li
+                                    key={service.id}
+                                    className="flex flex-col items-center text-center"
+                                >
+                                    <img
+                                        src={service.imageSrc}
+                                        alt={service.imageAlt}
+                                        width={120}
+                                        height={140}
+                                        decoding="async"
+                                        loading="lazy"
+                                        className="h-25 w-auto sm:h-25 lg:h-25"
+                                    />
+                                    <span className="mt-1.5 text-[10px] font-bold uppercase leading-tight tracking-wide text-neutral-950 sm:text-[11px]">
+                                        {service.label}
+                                    </span>
+                                </li>
+                            ))}
+                        </ul>
                     </div>
                 </div>
-            </section>
-        </div>
+            </div>
+
+            {/* Bottom stats / social-proof band */}
+            <div className="w-full bg-neutral-950 py-6 lg:py-8">
+                <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-3">
+                    <ul className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-4 lg:gap-4">
+                        {hero.stats.map((stat) => {
+                            const Icon = stat.icon ? STAT_ICONS[stat.icon] : null;
+                            return (
+                                <li
+                                    key={stat.id}
+                                    className="flex items-center gap-4 rounded-lg bg-white/3 px-5 py-4 ring-1 ring-white/5 sm:gap-5 sm:px-6 sm:py-5"
+                                >
+                                    {Icon ? (
+                                        <Icon
+                                            className="size-10 shrink-0 text-(--sf-accent) sm:size-12 lg:size-12"
+                                            strokeWidth={1.5}
+                                            aria-hidden
+                                        />
+                                    ) : null}
+                                    <div className="min-w-0">
+                                        {stat.value ? (
+                                            <p className="text-lg font-bold uppercase leading-tight tracking-tight text-(--sf-accent) sm:text-xl lg:text-lg">
+                                                {stat.value}
+                                            </p>
+                                        ) : null}
+                                        <p className="mt-1 text-sm leading-snug text-white/85 sm:text-base lg:text-sm">
+                                            {stat.label}
+                                        </p>
+                                    </div>
+                                </li>
+                            );
+                        })}
+                    </ul>
+                </div>
+            </div>
+        </section>
     );
 }

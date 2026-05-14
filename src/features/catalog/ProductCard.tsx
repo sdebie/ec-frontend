@@ -1,12 +1,12 @@
-import { Link } from 'react-router-dom';
+import {Link} from 'react-router-dom';
 
 
-import { IMAGE_THUMBNAIL_URL } from '@/constants/api.constant.ts';
-import { getDisplayPrice } from '@/features/catalog/utils/pricing.ts';
-import { useCustomerType } from '@/store/customerTypeStore.ts';
-import { cn } from '@/utils/cn';
+import {IMAGE_THUMBNAIL_URL} from '@/constants/api.constant.ts';
+import {getDisplayPrice} from '@/features/catalog/utils/pricing.ts';
+import {useCustomerType} from '@/store/customerTypeStore.ts';
+import {cn} from '@/utils/cn';
 
-import type { CatalogProductListItem } from '@/features/catalog/types.ts';
+import type {CatalogProductListItem} from '@/features/catalog/types.ts';
 
 type ProductCardProps = {
     product: CatalogProductListItem;
@@ -19,16 +19,17 @@ const formatCurrency = (value: number): string => `R ${value.toFixed(2)}`;
 const pickFeaturedImage = (product: CatalogProductListItem): string | undefined =>
     product.images?.find((img) => img.isFeatured)?.imageUrl ?? product.images?.[0]?.imageUrl;
 
-export function ProductCard({ product, className, onAddToCart }: ProductCardProps) {
+export function ProductCard({product, className}: ProductCardProps) {
     const customerType = useCustomerType();
     const image = pickFeaturedImage(product);
-    const { price, originalPrice } = getDisplayPrice(product, customerType);
+    const {price, originalPrice} = getDisplayPrice(product, customerType);
     const wholesale = product.wholesaleSalePrice?.price ?? product.wholesalePrice?.price;
     const showWholesaleHint = customerType === 'retail' && wholesale != null && wholesale > 0;
 
     return (
         <article className={cn('min-w-0', className)}>
-            <div className="flex h-full flex-col overflow-hidden rounded-2xl border border-(--sf-border) bg-(--sf-panel) shadow-sm">
+            <div
+                className="flex h-full flex-col overflow-hidden rounded-2xl border border-(--sf-border) bg-(--sf-panel) shadow-sm">
                 <Link to={`/product/${product.id}`} className="relative block aspect-square bg-(--sf-bg)">
                     {image ? (
                         <img
@@ -43,7 +44,7 @@ export function ProductCard({ product, className, onAddToCart }: ProductCardProp
                     )}
                 </Link>
                 <div className="flex flex-1 flex-col p-4">
-                    <Link to={`/product/${product.id}`} className="block min-h-[2.75rem]">
+                    <Link to={`/product/${product.id}`} className="block min-h-11">
                         <h3 className="line-clamp-2 text-sm font-semibold text-(--sf-text)">{product.name}</h3>
                     </Link>
                     <div className="mt-3 space-y-1">
@@ -61,15 +62,15 @@ export function ProductCard({ product, className, onAddToCart }: ProductCardProp
                         )}
                     </div>
                     <div className="mt-4 flex gap-2">
-                        {onAddToCart && product.variantId ? (
-                            <button
-                                type="button"
-                                className="flex-1 rounded-xl border border-(--sf-border) bg-(--sf-panel) py-2.5 text-sm font-semibold text-(--sf-text) transition hover:bg-(--sf-bg)"
-                                onClick={() => onAddToCart(product)}
-                            >
-                                Add to cart
-                            </button>
-                        ) : null}
+                        {/*{onAddToCart && product.variantId ? (*/}
+                        {/*    <button*/}
+                        {/*        type="button"*/}
+                        {/*        className="flex-1 rounded-xl border border-(--sf-border) bg-(--sf-panel) py-2.5 text-sm font-semibold text-(--sf-text) transition hover:bg-(--sf-bg)"*/}
+                        {/*        onClick={() => onAddToCart(product)}*/}
+                        {/*    >*/}
+                        {/*        Add to cart*/}
+                        {/*    </button>*/}
+                        {/*) : null}*/}
                         <Link
                             to={`/product/${product.id}`}
                             className="flex-1 rounded-xl bg-(--sf-accent) py-2.5 text-center text-sm font-semibold text-(--sf-accent-text) transition hover:opacity-95"

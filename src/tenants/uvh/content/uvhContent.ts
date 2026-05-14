@@ -26,6 +26,43 @@ export type UvhBrandTile = {
     labelClassName?: string;
 };
 
+export type UvhHeroLogo = {
+    src: string;
+    alt: string;
+};
+
+export type UvhHeroDescriptionSegment = {
+    text: string;
+    bold?: boolean;
+};
+
+export type UvhHeroServiceTile = {
+    id: string;
+    imageSrc: string;
+    imageAlt: string;
+    label: string;
+};
+
+export type UvhHeroSloganPart = {
+    text: string;
+    accent?: boolean;
+};
+
+export type UvhHeroShield = {
+    id: string;
+    imageSrc: string;
+    imageAlt: string;
+};
+
+export type UvhHeroStatIcon = 'package' | 'truck' | 'mapPin' | 'shieldCheck';
+
+export type UvhHeroStat = {
+    id: string;
+    icon?: UvhHeroStatIcon;
+    value?: string;
+    label: string;
+};
+
 const uvhHomeTestimonials = [
     {
         id: 'juan',
@@ -62,17 +99,94 @@ const uvhHomeTestimonials = [
 
 export const uvhHomeContent = {
     hero: {
-        overline: 'WHOLESALE & RETAIL SUPPLIER',
-        title: 'UVH Holdings',
-        heroImage: '/img/uvh-holding-hero.jpg',
+        logo: {
+            src: '/img/uvh-logo.png',
+            alt: 'UVH Holdings',
+        } as UvhHeroLogo,
+        titleLine1: 'We will beat',
+        titleLine2: 'Any written quote',
+        description: [
+            {text: 'Medical, PPE, Cleaning & Equipment, Safety Wear & Equipment, Hospitality, Household, Bulk Paper Products and Automotives — all in one place. '},
+        ] as readonly UvhHeroDescriptionSegment[],
+        heroImage: '/img/uvh-hero-new.png',
         heroImageAlt:
-            'Industrial safety boots on a concrete floor with hazard markings, representing workplace PPE supply.',
-        subtitle:
-            'Medical, PPE, Cleaning & Equipment, Safety Wear & Equipment, Hospitality, Household, Bulk Paper Products and Automotives — all in one place.',
+            'UVH Holdings truck reversing into a warehouse loading bay with a stylised red brand chevron overlay.',
         notice:
             'We will beat any price and quote. We will also assist you in all your tender needs! Please note that prices may not be accurate and are subject to change after order completion due to supply chain disruptions in the Middle East driving up supplier prices.',
         primaryCta: {label: 'Get a Quote', to: '/contact-us'},
         secondaryCta: {label: 'Browse Products', to: '/products'},
+        services: [
+            {
+                id: 'medical',
+                imageSrc: '/img/uvh/shields/medical.png',
+                imageAlt: 'UVH Medical sub-brand shield',
+                label: 'Medical',
+            },
+            {
+                id: 'safety',
+                imageSrc: '/img/uvh/shields/safety-wear-equipment.png',
+                imageAlt: 'UVH Safety Wear & Equipment sub-brand shield',
+                label: 'Safety Wear & Equipment',
+            },
+            {
+                id: 'cleaning',
+                imageSrc: '/img/uvh/shields/cleaning-equipment.png',
+                imageAlt: 'UVH Cleaning & Equipment sub-brand shield',
+                label: 'Cleaning & Equipment',
+            },
+            {
+                id: 'ppe',
+                imageSrc: '/img/uvh/shields/ppe.png',
+                imageAlt: 'UVH PPE sub-brand shield',
+                label: 'PPE',
+            },
+        ] as readonly UvhHeroServiceTile[],
+        slogan: [
+            {text: 'Building.'},
+            {text: 'Empowering.'},
+            {text: 'Growing'},
+            {text: 'Together.', accent: true},
+        ] as readonly UvhHeroSloganPart[],
+        shields: [
+            {
+                id: 'cleaning',
+                imageSrc: '/img/uvh/shields/cleaning-equipment.png',
+                imageAlt: 'UVH Cleaning & Equipment sub-brand shield'
+            },
+            {id: 'medical', imageSrc: '/img/uvh/shields/medical.png', imageAlt: 'UVH Medical sub-brand shield'},
+            {id: 'ppe', imageSrc: '/img/uvh/shields/ppe.png', imageAlt: 'UVH PPE sub-brand shield'},
+            {
+                id: 'safety',
+                imageSrc: '/img/uvh/shields/safety-wear-equipment.png',
+                imageAlt: 'UVH Safety Wear & Equipment sub-brand shield'
+            },
+        ] as readonly UvhHeroShield[],
+        stats: [
+            {
+                id: 'delivery',
+                icon: 'truck',
+                value: '48H',
+                label: 'Target fulfilment window (where practical)',
+            },
+            {
+                id: 'reach',
+                icon: 'mapPin',
+                value: 'SA & Africa',
+                label: 'Nationwide delivery and export support',
+            },
+            {
+                id: 'supplier',
+                icon: 'package',
+                value: 'One supplier',
+                label: 'PPE, cleaning, hygiene, medical consumables',
+            },
+            {
+                id: 'trust',
+                icon: 'shieldCheck',
+                value: 'Trusted by',
+                label: 'Businesses across South Africa',
+            },
+        ] as readonly UvhHeroStat[],
     },
     highlights: [
         {
@@ -340,7 +454,7 @@ export const uvhAboutContent = {
                 title: 'Medical',
                 description:
                     'Medical disposables and clinic essentials for practices, facilities, and healthcare operations.',
-                imageSrc: '/img/Medical.png',
+                imageSrc: '/img/uvh/shields/medical.png',
                 imageAlt: 'Medical and clinical supplies',
             },
             {
@@ -348,7 +462,7 @@ export const uvhAboutContent = {
                 title: 'PPE',
                 description:
                     'Protection you can rely on—from gloves and masks to workplace PPE for multiple industries.',
-                imageSrc: '/img/PPE.png',
+                imageSrc: '/img/uvh/shields/ppe.png',
                 imageAlt: 'Personal protective equipment',
             },
             {
@@ -356,7 +470,7 @@ export const uvhAboutContent = {
                 title: 'Cleaning & Equipment',
                 description:
                     'Cleaning chemicals, hygiene supplies, and equipment to keep facilities safe and compliant.',
-                imageSrc: '/img/Cleaning-Equipment.png',
+                imageSrc: '/img/uvh/shields/cleaning-equipment.png',
                 imageAlt: 'Cleaning and hygiene products',
             },
             {
@@ -364,7 +478,7 @@ export const uvhAboutContent = {
                 title: 'Safety Wear & Equipment',
                 description:
                     'Workwear and safety equipment designed for tough environments and daily use.',
-                imageSrc: '/img/Safety-Wear-Equipment.png',
+                imageSrc: '/img/uvh/shields/safety-wear-equipment.png',
                 imageAlt: 'Safety wear and workplace equipment',
             },
         ] as const,

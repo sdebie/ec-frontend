@@ -25,7 +25,7 @@ const CardRoot = React.forwardRef<HTMLElement, CardProps>(
                     'bg-(--c-panel) text-(--c-text) rounded-(--c-radius)',
                     bordered && 'border border-(--c-border)',
                     padded && 'p-4',
-                    elevation === 'sm' && 'shadow-[var(--c-shadow-sm)]',
+                    elevation === 'sm' && 'shadow-(--c-shadow-sm)',
                     className
                 )}
                 {...(props as React.HTMLAttributes<HTMLElement>)}

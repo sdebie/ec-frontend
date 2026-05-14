@@ -11,10 +11,10 @@ import {
 import type {ProductShoppingListItem} from '@/types/admin/ProductTypes.ts'
 
 const THEME_GRADIENT: Record<UvhShowcaseTheme, string> = {
-    'medical-blue': 'from-sky-600 via-blue-900 to-slate-950',
-    'ppe-red': 'from-rose-600 via-red-900 to-stone-950',
-    'cleaning-green': 'from-emerald-600 via-teal-900 to-slate-950',
-    'safety-yellow': 'from-amber-500 via-amber-800 to-stone-900',
+    'medical-blue': 'from-sky-500 via-blue-700 to-slate-950',
+    'ppe-red': 'from-red-600 via-red-700 to-stone-950',
+    'cleaning-green': 'from-green-600 via-emerald-650 to-slate-950',
+    'safety-yellow': 'from-yellow-400 via-yellow-600 to-stone-950',
 }
 
 export type UvhCategoryShowcaseSectionProps = {

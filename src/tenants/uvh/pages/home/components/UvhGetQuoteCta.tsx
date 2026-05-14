@@ -7,10 +7,10 @@ export function UvhGetQuoteCta() {
 
     return (
         <section
-            className="uvh-dark-section-gradient w-full py-10 sm:py-12"
+            className="uvh-dark-section-gradient w-full py-6 sm:py-8"
             aria-labelledby="uvh-get-quote-heading"
         >
-            <div className="mx-auto flex max-w-7xl flex-col gap-6 px-4 sm:px-6 sm:py-1 lg:flex-row lg:items-center lg:justify-between lg:gap-10 lg:px-8">
+            <div className="mx-auto flex max-w-7xl flex-col gap-5 px-4 sm:px-6 sm:py-1 lg:flex-row lg:items-center lg:justify-between lg:gap-9 lg:px-8">
                 <div className="flex min-w-0 flex-1 flex-col gap-2">
                     <p className="text-xs font-bold uppercase tracking-[0.14em] text-white">
                         <span
@@ -25,14 +25,14 @@ export function UvhGetQuoteCta() {
                     >
                         {title}
                     </h2>
-                    <p className="max-w-2xl text-sm leading-relaxed text-white/90 sm:text-base">
+                    <p className="max-w-2xl text-sm leading-relaxed text-white/90">
                         {description}
                     </p>
                 </div>
                 <div className="shrink-0 lg:self-center">
                     <Link
                         to={cta.to}
-                        className="inline-flex w-full items-center justify-center rounded-xl border border-red-500/35 bg-[#800010] px-8 py-3.5 text-center text-sm font-bold text-white shadow-[0_8px_24px_rgba(0,0,0,0.35)] transition hover:bg-[#6d000e] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white sm:w-auto"
+                        className="inline-flex w-full items-center justify-center rounded-xl border border-red-500/35 bg-[#800010] px-7 py-3 text-center text-sm font-bold text-white shadow-[0_8px_24px_rgba(0,0,0,0.35)] transition hover:bg-[#6d000e] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white sm:w-auto"
                     >
                         {cta.label}
                     </Link>

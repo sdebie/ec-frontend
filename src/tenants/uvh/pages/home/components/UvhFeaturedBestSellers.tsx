@@ -3,9 +3,9 @@ import {Link} from 'react-router-dom';
 
 
 import {IMAGE_BASE_URL} from '@/constants/api.constant.ts';
-import { getDisplayPrice } from '@/features/catalog/utils/pricing.ts';
+import {getDisplayPrice} from '@/features/catalog/utils/pricing.ts';
 import {Card} from '@/primitives/card';
-import { useCustomerType } from '@/store/customerTypeStore.ts';
+import {useCustomerType} from '@/store/customerTypeStore.ts';
 
 import type {ProductShoppingListItem} from '@/types/admin/ProductTypes.ts';
 
@@ -20,7 +20,7 @@ const pickFeaturedImage = (product: ProductShoppingListItem): string | undefined
     return product.images?.find((img) => img.isFeatured)?.imageUrl ?? product.images?.[0]?.imageUrl;
 };
 
-function CartGlyph({className}: {className?: string}) {
+function CartGlyph({className}: { className?: string }) {
     return (
         <svg className={className} viewBox="0 0 24 24" fill="none" stroke="currentColor" aria-hidden>
             <path
@@ -33,7 +33,7 @@ function CartGlyph({className}: {className?: string}) {
     );
 }
 
-function ChevronLeft({className}: {className?: string}) {
+function ChevronLeft({className}: { className?: string }) {
     return (
         <svg className={className} viewBox="0 0 24 24" fill="none" stroke="currentColor" aria-hidden>
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7"/>
@@ -41,7 +41,7 @@ function ChevronLeft({className}: {className?: string}) {
     );
 }
 
-function ChevronRight({className}: {className?: string}) {
+function ChevronRight({className}: { className?: string }) {
     return (
         <svg className={className} viewBox="0 0 24 24" fill="none" stroke="currentColor" aria-hidden>
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7"/>
@@ -68,11 +68,11 @@ export function UvhFeaturedBestSellers({products, loading, error}: UvhFeaturedBe
 
     return (
         <section
-            className="w-full bg-zinc-100 py-10 sm:py-12"
+            className="w-full bg-zinc-100 py-6 sm:py-8"
             aria-label="Featured and best selling products"
         >
             <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-                <h2 className="text-2xl font-bold tracking-tight text-zinc-900 sm:text-3xl">
+                <h2 className="text-xl font-bold tracking-tight text-zinc-900 sm:text-2xl">
                     <span className="relative inline-block">
                         Featured
                         <span
@@ -84,10 +84,13 @@ export function UvhFeaturedBestSellers({products, loading, error}: UvhFeaturedBe
                 </h2>
 
                 {loading && (
-                    <Card elevation="none" padded={false} className="mt-8 p-8 text-sm text-(--sf-muted-text)">Loading products...</Card>
+                    <Card elevation="none" padded={false} className="mt-8 p-8 text-sm text-(--sf-muted-text)">
+                        Loading products...
+                    </Card>
                 )}
                 {error && !loading && (
-                    <Card elevation="none" padded={false} className="mt-8 p-8 text-sm text-(--sf-muted-text)">Error: {error}</Card>
+                    <Card elevation="none" padded={false}
+                          className="mt-8 p-8 text-sm text-(--sf-muted-text)">Error: {error}</Card>
                 )}
                 {!loading && !error && products.length === 0 && (
                     <Card elevation="none" padded={false} className="mt-8 p-8 text-sm text-(--sf-muted-text)">
@@ -96,7 +99,7 @@ export function UvhFeaturedBestSellers({products, loading, error}: UvhFeaturedBe
                 )}
 
                 {!loading && !error && products.length > 0 && (
-                    <div className="relative mt-8">
+                    <div className="relative mt-6">
                         <button
                             type="button"
                             onClick={() => scrollByDirection(-1)}
@@ -116,7 +119,7 @@ export function UvhFeaturedBestSellers({products, loading, error}: UvhFeaturedBe
 
                         <div
                             ref={scrollerRef}
-                            className="flex snap-x snap-mandatory gap-4 overflow-x-auto scroll-smooth [-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:[display:none]"
+                            className="flex snap-x snap-mandatory gap-3 overflow-x-auto scroll-smooth [-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:[display:none]"
                         >
                             {products.map((product) => {
                                 const priceInfo = getDisplayPrice(product, customerType);
@@ -130,9 +133,10 @@ export function UvhFeaturedBestSellers({products, loading, error}: UvhFeaturedBe
                                 return (
                                     <article
                                         key={product.id}
-                                        className="snap-start shrink-0 w-[min(85vw,260px)] sm:w-[248px] lg:w-[calc((100%-4rem)/5)]"
+                                        className="snap-start shrink-0 w-[min(80vw,220px)] sm:w-[210px] lg:w-[calc((100%-3rem)/5)]"
                                     >
-                                        <div className="flex h-full flex-col overflow-hidden rounded-xl border border-zinc-200/80 bg-white shadow-[0_8px_24px_rgba(0,0,0,0.06)]">
+                                        <div
+                                            className="flex h-full flex-col overflow-hidden rounded-xl border border-zinc-200/80 bg-white shadow-[0_8px_24px_rgba(0,0,0,0.06)]">
                                             <div className="relative aspect-square bg-zinc-100">
                                                 <Link
                                                     to={productTo}
@@ -148,7 +152,8 @@ export function UvhFeaturedBestSellers({products, loading, error}: UvhFeaturedBe
                                                         <span className="text-xs text-zinc-400">No image</span>
                                                     )}
                                                 </Link>
-                                                <span className="absolute left-3 top-3 rounded-full bg-(--sf-accent) px-2.5 py-1 text-xs font-semibold text-(--sf-accent-text)">
+                                                <span
+                                                    className="absolute left-3 top-3 rounded-full bg-(--sf-accent) px-2.5 py-1 text-xs font-semibold text-(--sf-accent-text)">
                                                     Best Seller
                                                 </span>
                                                 <div className="absolute right-3 top-3 flex flex-col gap-2">
@@ -181,17 +186,17 @@ export function UvhFeaturedBestSellers({products, loading, error}: UvhFeaturedBe
                                                     </Link>
                                                 </div>
                                             </div>
-                                            <div className="flex flex-1 flex-col gap-3 p-4">
+                                            <div className="flex flex-1 flex-col gap-2 p-3">
                                                 <Link
                                                     to={productTo}
-                                                    className="line-clamp-2 text-left text-sm font-bold leading-snug text-zinc-900 hover:underline"
+                                                    className="line-clamp-2 text-left text-xs font-bold leading-snug text-zinc-900 hover:underline"
                                                 >
                                                     {product.name}
                                                 </Link>
                                                 <div>
-                                                    <p className="text-base font-bold text-(--sf-accent)">
+                                                    <p className="text-sm font-bold text-(--sf-accent)">
                                                         {formatZar(priceInfo.price)}
-                                                        <span className="ml-1 text-sm font-normal text-zinc-500">
+                                                        <span className="ml-1 text-xs font-normal text-zinc-500">
                                                             Ex. Vat
                                                         </span>
                                                     </p>
@@ -202,14 +207,14 @@ export function UvhFeaturedBestSellers({products, loading, error}: UvhFeaturedBe
                                                             </p>
                                                         )}
                                                     {showWholesaleHint && (
-                                                        <p className="mt-1 text-sm text-zinc-800">
+                                                        <p className="mt-0.5 text-xs text-zinc-800">
                                                             Wholesale: {formatZar(wholesale ?? 0)}
                                                         </p>
                                                     )}
                                                 </div>
                                                 <Link
                                                     to={productTo}
-                                                    className="mt-auto block w-full rounded-lg bg-(--sf-accent) py-2.5 text-center text-sm font-semibold text-(--sf-accent-text) transition hover:opacity-95"
+                                                    className="mt-auto block w-full rounded-lg bg-(--sf-accent) py-2 text-center text-xs font-semibold text-(--sf-accent-text) transition hover:opacity-95"
                                                 >
                                                     View Product
                                                 </Link>
