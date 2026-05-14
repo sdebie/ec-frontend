@@ -4,6 +4,7 @@ import { CustomerType } from '@/constants/enums/CustomerType.ts';
 // eslint-disable-next-line import/no-restricted-paths -- Deferred: checkout embeds customer auth UI; extract shared composition or move login shell when auth/checkout boundaries are reworked (REFACTOR_FINDINGS).
 import InlineLogin from '@/features/auth/customer/components/InlineLogin.tsx';
 import { CustomerProfile } from '@/services/CustomerService.ts';
+import {CustomerStatus} from "@/constants/enums/CustomerStatus.ts";
 
 export type LookupState = 'idle' | 'loading' | 'found' | 'not_found' | 'error';
 
@@ -38,6 +39,7 @@ const ContactInfoSection: React.FC<Props> = ({
         !!customer &&
         !!customer.hasPassword &&
         customer.shopperType?.toUpperCase() !== 'GUEST' &&
+        customer.status?.toUpperCase() !== 'PENDING' &&
         !isAuthenticated &&
         emailValid &&
         lookupState === 'found';
@@ -70,6 +72,10 @@ const ContactInfoSection: React.FC<Props> = ({
                             <p className="mt-1 text-xs text-(--sf-error)">Please enter a valid email address.</p>
                         )}
 
+                        {isAuthenticated && (
+                            <p className="mt-1 text-xs text-(--sf-error)">Auth.</p>
+                        )}
+
                         {emailValid && (
                             <div className="mt-1 text-xs">
                                 {isAuthenticated ? (
@@ -82,9 +88,9 @@ const ContactInfoSection: React.FC<Props> = ({
                                             <span className="text-(--sf-muted-text)">Checking account...</span>
                                         )}
                                         {lookupState === 'found' &&
-                                            customer?.shopperType?.toUpperCase() === CustomerType.REGISTERED.toUpperCase() && (
+                                            customer?.status?.toUpperCase() !== CustomerStatus.ACTIVE.toUpperCase() && (
                                                 <span className="inline-flex rounded-md border border-blue-200 bg-blue-50 px-2 py-1 text-blue-700">
-                                                    Account found for {customer.email}
+                                                    Account not active for {customer.email} - continuing as guest
                                                 </span>
                                             )}
                                         {lookupState === 'found' &&

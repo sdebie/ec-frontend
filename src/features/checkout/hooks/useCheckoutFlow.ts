@@ -87,10 +87,10 @@ export function useCheckoutFlow(callbacks: CheckoutTenantCallbacks) {
     const prefillAddressFromProfile = (p: CustomerProfile | null) => {
         if (!p) return;
         const next = {
-            street: p.addressLine1 || '',
-            city: p.city || '',
-            postalCode: p.postalCode || '',
-            province: p.province || '',
+            street: p.physicalAddressLine1 || p.postalAddressLine1 || '',
+            city: p.physicalCity || p.postalCity || '',
+            postalCode: p.physicalPostalCode || p.postalPostalCode || '',
+            province: p.physicalProvince || p.postalProvince || '',
         };
         setAddress((a) => ({
             street: next.street || a.street || '',
@@ -228,10 +228,14 @@ export function useCheckoutFlow(callbacks: CheckoutTenantCallbacks) {
         await registerOrUpdateCustomer({
             email: email.trim(),
             password: registerPassword,
-            addressLine1: address.street,
-            city: address.city,
-            postalCode: address.postalCode,
-            province: address.province,
+            physicalAddressLine1: address.street,
+            physicalCity: address.city,
+            physicalPostalCode: address.postalCode,
+            physicalProvince: address.province,
+            postalAddressLine1: address.street,
+            postalCity: address.city,
+            postalPostalCode: address.postalCode,
+            postalProvince: address.province,
         });
     };
 
@@ -250,10 +254,14 @@ export function useCheckoutFlow(callbacks: CheckoutTenantCallbacks) {
                 try {
                     await registerOrUpdateCustomer({
                         email: email.trim(),
-                        addressLine1: address.street,
-                        city: address.city,
-                        postalCode: address.postalCode,
-                        province: address.province,
+                        physicalAddressLine1: address.street,
+                        physicalCity: address.city,
+                        physicalPostalCode: address.postalCode,
+                        physicalProvince: address.province,
+                        postalAddressLine1: address.street,
+                        postalCity: address.city,
+                        postalPostalCode: address.postalCode,
+                        postalProvince: address.province,
                     });
                     setInitialAccountAddress({ ...address });
                     setUpdateAccountAddress(false);
@@ -333,10 +341,14 @@ export function useCheckoutFlow(callbacks: CheckoutTenantCallbacks) {
             try {
                 await registerOrUpdateCustomer({
                     email: email.trim(),
-                    addressLine1: address.street,
-                    city: address.city,
-                    postalCode: address.postalCode,
-                    province: address.province,
+                    physicalAddressLine1: address.street,
+                    physicalCity: address.city,
+                    physicalPostalCode: address.postalCode,
+                    physicalProvince: address.province,
+                    postalAddressLine1: address.street,
+                    postalCity: address.city,
+                    postalPostalCode: address.postalCode,
+                    postalProvince: address.province,
                 });
                 setInitialAccountAddress({ ...address });
                 setUpdateAccountAddress(false);

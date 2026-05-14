@@ -40,7 +40,7 @@ export async function submitUvhInquiry(payload: UvhInquiryPayload): Promise<void
         firstName: firstName || payload.name.trim(),
         lastName: restName.join(' ').trim() || undefined,
         phone: payload.phone.trim(),
-        addressLine2: payload.company.trim() || undefined,
+        postalAddressLine2: payload.company.trim() || undefined,
     })
 
     window.location.href = buildMailtoUrl(payload)

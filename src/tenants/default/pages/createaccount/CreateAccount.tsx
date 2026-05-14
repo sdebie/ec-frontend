@@ -94,11 +94,16 @@ const CreateAccount: React.FC = () => {
                 firstName: form.firstName.trim(),
                 lastName: form.lastName.trim(),
                 phone: form.phone.trim(),
-                addressLine1: form.addressLine1.trim(),
-                addressLine2: form.addressLine2.trim(),
-                city: form.city.trim(),
-                province: form.province.trim(),
-                postalCode: form.postalCode.trim(),
+                physicalAddressLine1: form.addressLine1.trim(),
+                physicalAddressLine2: form.addressLine2.trim(),
+                physicalCity: form.city.trim(),
+                physicalProvince: form.province.trim(),
+                physicalPostalCode: form.postalCode.trim(),
+                postalAddressLine1: form.addressLine1.trim(),
+                postalAddressLine2: form.addressLine2.trim(),
+                postalCity: form.city.trim(),
+                postalProvince: form.province.trim(),
+                postalPostalCode: form.postalCode.trim(),
             });
 
             setSuccess(true);

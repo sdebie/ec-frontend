@@ -103,6 +103,32 @@ export const adminMenuRoutes: Routes = [
         ],
     },
     {
+        key: 'admin.wholesale',
+        path: '/admin/wholesale',
+        component: lazy(() => import('../../../pages/shared/ToDoView.tsx')),
+        authority: ['SUPER_ADMIN', 'VIEWER'],
+        meta: {
+            label: 'Wholesale',
+            section: 'WHOLESALE MANAGEMENT',
+            pageBackgroundType: 'plain',
+            pageContainerType: 'contained',
+            icon: 'package',
+        },
+        subMenu: [
+            {
+                key: 'admin.wholesale.list',
+                path: '/admin/wholesale/list',
+                component: lazy(() => import('@/pages/admin/wholesale/screens/list/WholesaleApplicationList.tsx')),
+                authority: ['SUPER_ADMIN'],
+                meta: {
+                    label: 'Wholesale Applications',
+                    pageBackgroundType: 'plain',
+                    pageContainerType: 'contained',
+                },
+            },
+        ],
+    },
+    {
         key: 'admin.orders',
         path: '/admin/orders',
         component: lazy(() => import('../../../pages/shared/ToDoView.tsx')),

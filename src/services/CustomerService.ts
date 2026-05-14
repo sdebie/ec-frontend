@@ -18,15 +18,23 @@ const graphQlEndpoint = (envGraphQl && envGraphQl.length > 0)
 
 export type CustomerProfile = {
   email: string;
-  status?: 'ACTIVE' | 'DISABLED' | 'REGISTERING';
+  status?: 'ACTIVE' | 'DISABLED' | 'PENDING';
   firstName?: string;
   lastName?: string;
   phone?: string;
-  addressLine1?: string;
-  addressLine2?: string;
-  city?: string;
-  province?: string;
-  postalCode?: string;
+  physicalAddressLine1?: string;
+  physicalAddressLine2?: string;
+  physicalSuburb?: string;
+  physicalCity?: string;
+  physicalProvince?: string;
+  physicalPostalCode?: string;
+  postalAddressLine1?: string;
+  postalAddressLine2?: string;
+  postalSuburb?: string;
+  postalCity?: string;
+  postalProvince?: string;
+  postalPostalCode?: string;
+  additionalInfo?: Record<string, unknown>;
   shopperType?: string; // RETURNING | GUEST | undefined
   hasPassword?: boolean;
 };
@@ -61,11 +69,19 @@ export type RegisterOrUpdatePayload = {
   firstName?: string;
   lastName?: string;
   phone?: string;
-  addressLine1?: string;
-  addressLine2?: string;
-  city?: string;
-  province?: string;
-  postalCode?: string;
+  physicalAddressLine1?: string;
+  physicalAddressLine2?: string;
+  physicalSuburb?: string;
+  physicalCity?: string;
+  physicalProvince?: string;
+  physicalPostalCode?: string;
+  postalAddressLine1?: string;
+  postalAddressLine2?: string;
+  postalSuburb?: string;
+  postalCity?: string;
+  postalProvince?: string;
+  postalPostalCode?: string;
+  additionalInfo?: Record<string, unknown>;
 };
 
 export async function registerOrUpdateCustomer(payload: RegisterOrUpdatePayload): Promise<CustomerProfile> {
