@@ -32,7 +32,7 @@ export function UvhGetQuoteCta() {
                 <div className="shrink-0 lg:self-center">
                     <Link
                         to={cta.to}
-                        className="inline-flex w-full items-center justify-center rounded-xl border border-red-500/35 bg-[#800010] px-7 py-3 text-center text-sm font-bold text-white shadow-[0_8px_24px_rgba(0,0,0,0.35)] transition hover:bg-[#6d000e] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white sm:w-auto"
+                        className="inline-flex w-full items-center justify-center rounded-xl border border-red-500/35 bg-[#800010] px-7 py-3 text-center text-sm font-bold text-white shadow-[0_8px_24px_rgba(0,0,0,0.35)] transition hover:bg-[#6d000e] focus-visible:outline focus-visible:outline-offset-2 focus-visible:outline-white sm:w-auto"
                     >
                         {cta.label}
                     </Link>

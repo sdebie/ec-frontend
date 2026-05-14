@@ -92,7 +92,7 @@ export function UvhCategoryShowcaseSection({
                         className="mx-auto flex w-full max-w-[min(100%,320px)] justify-center self-stretch lg:mx-0 lg:h-full lg:max-w-none lg:min-h-0">
                         <Link
                             to={catalogueHref}
-                            className="flex w-full items-center justify-center transition hover:opacity-95 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-white lg:h-full lg:min-h-0"
+                            className="flex w-full items-center justify-center transition hover:opacity-95 focus-visible:outline focus-visible:outline-offset-4 focus-visible:outline-white lg:h-full lg:min-h-0"
                         >
                             <img
                                 src={resolvedShieldSrc}
