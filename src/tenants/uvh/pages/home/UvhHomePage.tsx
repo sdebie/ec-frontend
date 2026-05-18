@@ -35,6 +35,9 @@ const UvhHomePage = () => {
         <div className="w-full bg-(--sf-bg)">
             <UvhHoldingHero/>
 
+
+            <UvhFeaturedBestSellers products={topProducts} loading={loading} error={error}/>
+
             <UvhGradientTrustBand
                 eyebrow="Trust & Reassurance"
                 intro="Clear communication, secure checkout, and support when you need it."
@@ -50,11 +53,9 @@ const UvhHomePage = () => {
                 </div>
             </UvhGradientTrustBand>
 
-            <UvhFeaturedBestSellers products={topProducts} loading={loading} error={error}/>
+            <UvhBrandsSection/>
 
             <UvhGetQuoteCta/>
-
-            <UvhBrandsSection/>
 
             <UvhHomeCategoryShowcases/>
 

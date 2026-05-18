@@ -141,24 +141,30 @@ export const Footer = ({branding, footer}: FooterProps) => {
             aria-label="Store footer"
             className="border-t border-(--sf-nav-border) bg-(--sf-nav-bg) text-(--sf-nav-text)"
         >
-            <div className="mx-auto max-w-6xl px-4 py-12 sm:px-6 lg:px-8">
-                <div className="grid gap-10 lg:grid-cols-12">
+            <div className="mx-auto max-w-6xl px-4 py-8 sm:px-6 sm:py-12 lg:px-8">
+                <div className="grid gap-8 lg:grid-cols-12 lg:gap-10">
                     <div className="lg:col-span-4">
-                        <div className="flex items-center gap-3">
-                            {branding.logo?.src ? (
-                                <img
-                                    src={branding.logo.src}
-                                    alt={branding.logo.alt || `${branding.name} logo`}
-                                    width={branding.logo.width}
-                                    height={branding.logo.height}
-                                    className="h-10 w-auto object-contain"
-                                    style={{
-                                        width: branding.logo.width,
-                                        height: branding.logo.height,
-                                    }}
-                                />
+                        <div className="flex flex-nowrap items-center justify-between gap-3">
+                            <div className="flex flex-nowrap items-center gap-3">
+                                {branding.logo?.src ? (
+                                    <img
+                                        src={branding.logo.src}
+                                        alt={branding.logo.alt || `${branding.name} logo`}
+                                        width={branding.logo.width}
+                                        height={branding.logo.height}
+                                        className="h-16 w-auto object-contain sm:h-10"
+                                    />
+                                ) : null}
+                                <p className="whitespace-nowrap text-lg font-semibold tracking-tight">{branding.name}</p>
+                            </div>
+
+                            {hasSocial ? (
+                                <div className="flex flex-wrap gap-2 lg:hidden" aria-label="Social links">
+                                    {footer.socialLinks?.map((social) => (
+                                        <SocialLink key={social.id} social={social}/>
+                                    ))}
+                                </div>
                             ) : null}
-                            <p className="text-lg font-semibold tracking-tight">{branding.name}</p>
                         </div>
 
                         {hasDescription ? (
@@ -177,7 +183,7 @@ export const Footer = ({branding, footer}: FooterProps) => {
                         ) : null}
 
                         {hasSocial ? (
-                            <div className="mt-6 flex flex-wrap gap-3" aria-label="Social links">
+                            <div className="mt-6 hidden flex-wrap gap-3 lg:flex" aria-label="Social links">
                                 {footer.socialLinks?.map((social) => (
                                     <SocialLink key={social.id} social={social}/>
                                 ))}
@@ -186,7 +192,7 @@ export const Footer = ({branding, footer}: FooterProps) => {
                     </div>
 
                     {hasColumns ? (
-                        <div className="grid gap-8 sm:grid-cols-2 lg:col-span-8 lg:grid-cols-3">
+                        <div className="grid grid-cols-2 gap-6 sm:gap-8 lg:col-span-8 lg:grid-cols-3">
                             {footer.columns?.map((column) => (
                                 <div key={column.heading}>
                                     <h3 className="text-sm font-semibold uppercase tracking-wider">

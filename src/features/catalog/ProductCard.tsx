@@ -12,6 +12,8 @@ type ProductCardProps = {
     product: CatalogProductListItem;
     className?: string;
     onAddToCart?: (product: CatalogProductListItem) => void;
+    /** Visual size variant. `compact` is used by the home showcase scrollers. */
+    size?: 'default' | 'compact';
 };
 
 const formatCurrency = (value: number): string => `R ${value.toFixed(2)}`;
@@ -19,17 +21,22 @@ const formatCurrency = (value: number): string => `R ${value.toFixed(2)}`;
 const pickFeaturedImage = (product: CatalogProductListItem): string | undefined =>
     product.images?.find((img) => img.isFeatured)?.imageUrl ?? product.images?.[0]?.imageUrl;
 
-export function ProductCard({product, className}: ProductCardProps) {
+export function ProductCard({product, className, size = 'default'}: ProductCardProps) {
     const customerType = useCustomerType();
     const image = pickFeaturedImage(product);
     const {price, originalPrice} = getDisplayPrice(product, customerType);
-    const wholesale = product.wholesaleSalePrice?.price ?? product.wholesalePrice?.price;
-    const showWholesaleHint = customerType === 'retail' && wholesale != null && wholesale > 0;
+    // const wholesale = product.wholesaleSalePrice?.price ?? product.wholesalePrice?.price;
+    // const showWholesaleHint = customerType === 'retail' && wholesale != null && wholesale > 0;
+
+    const compact = size === 'compact';
 
     return (
         <article className={cn('min-w-0', className)}>
             <div
-                className="flex h-full flex-col overflow-hidden rounded-2xl border border-(--sf-border) bg-(--sf-panel) shadow-sm">
+                className={cn(
+                    'flex h-full flex-col overflow-hidden border border-(--sf-border) bg-(--sf-panel) shadow-sm',
+                    compact ? 'rounded-xl' : 'rounded-2xl',
+                )}>
                 <Link to={`/product/${product.id}`} className="relative block aspect-square bg-(--sf-bg)">
                     {image ? (
                         <img
@@ -43,25 +50,25 @@ export function ProductCard({product, className}: ProductCardProps) {
                         </div>
                     )}
                 </Link>
-                <div className="flex flex-1 flex-col p-4">
-                    <Link to={`/product/${product.id}`} className="block min-h-11">
-                        <h3 className="line-clamp-2 text-sm font-semibold text-(--sf-text)">{product.name}</h3>
+                <div className={cn('flex flex-1 flex-col', compact ? 'p-2.5' : 'p-4')}>
+                    <Link to={`/product/${product.id}`} className={cn('block', compact ? 'min-h-9' : 'min-h-11')}>
+                        <h3 className={cn('line-clamp-2 font-semibold text-(--sf-text)', compact ? 'text-xs leading-snug' : 'text-sm')}>{product.name}</h3>
                     </Link>
-                    <div className="mt-3 space-y-1">
-                        <p className="text-base font-bold text-(--sf-accent)">
+                    <div className={cn('space-y-1', compact ? 'mt-1.5' : 'mt-3')}>
+                        <p className={cn('font-bold text-(--sf-accent)', compact ? 'text-sm' : 'text-base')}>
                             {formatCurrency(price)}
-                            <span className="ml-1 text-xs font-semibold text-(--sf-muted-text)">Ex. VAT</span>
+                            <span className={cn('ml-1 font-semibold text-(--sf-muted-text)', compact ? 'text-[10px]' : 'text-xs')}>Ex. VAT</span>
                         </p>
                         {originalPrice != null && originalPrice > price && (
-                            <p className="text-xs text-(--sf-muted-text) line-through">
+                            <p className={cn('text-(--sf-muted-text) line-through', compact ? 'text-[10px]' : 'text-xs')}>
                                 {formatCurrency(originalPrice)}
                             </p>
                         )}
-                        {showWholesaleHint && (
-                            <p className="text-xs text-(--sf-muted-text)">Wholesale: {formatCurrency(wholesale!)}</p>
-                        )}
+                        {/*{showWholesaleHint && (*/}
+                        {/*    <p className="text-xs text-(--sf-muted-text)">Wholesale: {formatCurrency(wholesale!)}</p>*/}
+                        {/*)}*/}
                     </div>
-                    <div className="mt-4 flex gap-2">
+                    <div className={cn('flex gap-2', compact ? 'mt-2' : 'mt-4')}>
                         {/*{onAddToCart && product.variantId ? (*/}
                         {/*    <button*/}
                         {/*        type="button"*/}
@@ -73,7 +80,10 @@ export function ProductCard({product, className}: ProductCardProps) {
                         {/*) : null}*/}
                         <Link
                             to={`/product/${product.id}`}
-                            className="flex-1 rounded-xl bg-(--sf-accent) py-2.5 text-center text-sm font-semibold text-(--sf-accent-text) transition hover:opacity-95"
+                            className={cn(
+                                'flex-1 bg-(--sf-accent) text-center font-semibold text-(--sf-accent-text) transition hover:opacity-95',
+                                compact ? 'rounded-lg py-1.5 text-xs' : 'rounded-xl py-2.5 text-sm',
+                            )}
                         >
                             View product
                         </Link>

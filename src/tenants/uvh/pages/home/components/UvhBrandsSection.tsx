@@ -22,7 +22,7 @@ export function UvhBrandsSection() {
                 <h2 className="text-2xl font-semibold text-(--sf-text)">Brands</h2>
                 <span className="mt-3 block h-1 w-18 rounded bg-(--sf-accent)"/>
             </div>
-            <div className="grid gap-2 sm:grid-cols-2 lg:grid-cols-4 xl:grid-cols-6">
+            <div className="grid grid-cols-4 gap-2 lg:grid-cols-4 xl:grid-cols-6">
                 {brandsLoading && (
                     Array.from({length: 6}).map((_, index) => (
                         <Card
