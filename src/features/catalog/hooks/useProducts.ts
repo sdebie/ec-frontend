@@ -9,12 +9,19 @@ import type { FilterRequest } from '@/types/graphql/query.types.ts';
 type UseProductsResult = {
     products: CatalogProductListItem[];
     hasNextPage: boolean;
+    totalCount: number;
     loading: boolean;
     error: string | null;
     refetch: () => void;
 };
 
-const DEFAULT_PAGE_SIZE = 15;
+const DEFAULT_PAGE_SIZE = 10;
+/**
+ * Fetch ceiling for category / all-products mode. We load every matching
+ * product in one shot and paginate client-side so we always know the total
+ * page count (the backend has no count endpoint scoped to category).
+ */
+const CLIENT_PAGINATION_FETCH_SIZE = 500;
 
 function buildFilterRequest(searchTerm: string): FilterRequest {
     const trimmed = searchTerm.trim();
@@ -67,7 +74,7 @@ export async function fetchProductsPage(params: {
 }
 
 export function useProducts(query: CatalogProductsQuery = {}): UseProductsResult {
-    const [pageProducts, setPageProducts] = useState<CatalogProductListItem[]>([]);
+    const [allProducts, setAllProducts] = useState<CatalogProductListItem[]>([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
     const [refreshKey, setRefreshKey] = useState(0);
@@ -82,18 +89,20 @@ export function useProducts(query: CatalogProductsQuery = {}): UseProductsResult
             try {
                 setLoading(true);
                 setError(null);
+                // Fetch the full matching set once (search + category) so we can
+                // paginate client-side and expose an accurate totalCount.
                 const data = await fetchProductsPage({
                     categoryId: query.categoryId,
                     search: query.search,
-                    pageIndex,
-                    pageSize,
+                    pageIndex: 0,
+                    pageSize: CLIENT_PAGINATION_FETCH_SIZE,
                 });
                 if (!isMounted) return;
-                setPageProducts(data);
+                setAllProducts(data);
             } catch (err) {
                 if (!isMounted) return;
                 setError(err instanceof Error ? err.message : 'Failed to load products.');
-                setPageProducts([]);
+                setAllProducts([]);
             } finally {
                 if (isMounted) setLoading(false);
             }
@@ -103,22 +112,31 @@ export function useProducts(query: CatalogProductsQuery = {}): UseProductsResult
         return () => {
             isMounted = false;
         };
-    }, [query.categoryId, query.search, sortBy, pageIndex, pageSize, refreshKey]);
+    }, [query.categoryId, query.search, refreshKey]);
+
+    const sortedAll = useMemo(() => {
+        if (sortBy === 'price-asc' || sortBy === 'price-desc') {
+            return sortByPrice(allProducts, sortBy);
+        }
+        return allProducts;
+    }, [allProducts, sortBy]);
 
     const products = useMemo(() => {
-        if (sortBy === 'price-asc' || sortBy === 'price-desc') {
-            return sortByPrice(pageProducts, sortBy);
-        }
-        return pageProducts;
-    }, [pageProducts, sortBy]);
+        const start = pageIndex * pageSize;
+        return sortedAll.slice(start, start + pageSize);
+    }, [sortedAll, pageIndex, pageSize]);
 
     const refetch = useCallback(() => {
         setRefreshKey((current) => current + 1);
     }, []);
 
+    const totalCount = sortedAll.length;
+    const hasNextPage = totalCount > (pageIndex + 1) * pageSize;
+
     return {
         products,
-        hasNextPage: pageProducts.length === pageSize,
+        hasNextPage,
+        totalCount,
         loading,
         error,
         refetch,
