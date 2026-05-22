@@ -1,7 +1,6 @@
-import {Mail, MapPin, MessageSquare, Phone} from "lucide-react";
+import {Mail, MapPin, Phone, Send} from "lucide-react";
 import {FaWhatsapp} from "react-icons/fa";
 import {TbDeviceLandlinePhone} from "react-icons/tb";
-
 
 
 import {Button} from '@/primitives/button';
@@ -39,11 +38,13 @@ function UvhContactHeroQuickLinks() {
                 WhatsApp
             </a>
             <a className={HERO_QUICK_LINK_CLASS} href={`mailto:${salesEmail}`}>
-                <Mail className="size-4 shrink-0 text-white/90 transition-colors group-hover:text-(--sf-accent-text)" aria-hidden />
+                <Mail className="size-4 shrink-0 text-white/90 transition-colors group-hover:text-(--sf-accent-text)"
+                      aria-hidden/>
                 Email
             </a>
             <a className={HERO_QUICK_LINK_CLASS} href={telHref}>
-                <Phone className="size-4 shrink-0 text-white/90 transition-colors group-hover:text-(--sf-accent-text)" aria-hidden />
+                <Phone className="size-4 shrink-0 text-white/90 transition-colors group-hover:text-(--sf-accent-text)"
+                       aria-hidden/>
                 Call <span className="whitespace-nowrap">{primaryMobile}</span>
             </a>
         </div>
@@ -64,14 +65,11 @@ const UvhContactUs = () => {
     return (
         <main className="min-h-screen w-full bg-(--sf-bg)">
             <UvhTitleHero
-                afterDescription={<UvhContactHeroQuickLinks />}
-                contentWidth="wide"
-                description={
-                    <>
-                        Product advice, quotes, and wholesale support — use a quick action below or the inquiry form.
-                        <span className="mt-2 block text-white/85 text-xs">{uvhContactContent.responseSla}</span>
-                    </>
-                }
+                rightSlot={<UvhContactHeroQuickLinks/>}
+                afterDescription={<div className="lg:hidden mt-5"><UvhContactHeroQuickLinks/></div>}
+                className="py-5 sm:py-6 lg:py-8"
+                contentWidth="standard"
+                description="Product advice, quotes, and wholesale support — use a quick action below or the inquiry form."
                 eyebrow="Contact UVH"
                 title="We're here to Help"
             />
@@ -296,16 +294,16 @@ const UvhContactUs = () => {
                                     {uvhContactContent.responseSla}
                                 </p>
 
-                                <div className="flex justify-start pt-2">
-                                    <Button
-                                        type="submit"
-                                        disabled={isSubmitting || !canSubmit}
-                                        className="flex items-center gap-2 px-8 py-2.5 text-sm disabled:cursor-not-allowed disabled:opacity-60"
-                                    >
-                                        <MessageSquare size={18}/>
-                                        {isSubmitting ? "Sending..." : "Send message"}
-                                    </Button>
-                                </div>
+                                <Button
+                                    type="submit"
+                                    fullWidth
+                                    size="lg"
+                                    disabled={isSubmitting || !canSubmit}
+                                    leftIcon={<Send size={16}/>}
+                                    className="mt-2 disabled:cursor-not-allowed disabled:opacity-60"
+                                >
+                                    {isSubmitting ? "Sending..." : "Send inquiry"}
+                                </Button>
                             </form>
                         </div>
                     </div>

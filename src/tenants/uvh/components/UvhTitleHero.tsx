@@ -4,10 +4,10 @@ import type {ReactNode} from 'react';
 
 
 const DEFAULT_TITLE_CLASS =
-    'mt-3 text-3xl font-bold tracking-tight text-white sm:text-4xl lg:text-5xl';
+    'mt-2 text-2xl font-bold tracking-tight text-white sm:text-3xl lg:text-4xl';
 
 const DEFAULT_DESCRIPTION_CLASS =
-    'mt-3 text-sm font-normal leading-relaxed text-white sm:text-base';
+    'mt-2 text-sm font-normal leading-relaxed text-white';
 
 export type UvhTitleHeroProps = {
     eyebrow: string;
@@ -15,6 +15,8 @@ export type UvhTitleHeroProps = {
     description?: ReactNode;
     /** Rendered below the description (e.g. CTAs); not wrapped in a paragraph */
     afterDescription?: ReactNode;
+    /** Rendered to the right of the content column on lg+ screens */
+    rightSlot?: ReactNode;
     /** Inner text column width (`full` matches the hero container for long one-line titles) */
     contentWidth?: 'standard' | 'wide' | 'full';
     /** e.g. back / secondary links above the eyebrow */
@@ -29,6 +31,7 @@ export function UvhTitleHero({
     title,
     description,
     afterDescription,
+    rightSlot,
     contentWidth = 'standard',
     topSlot,
     titleClassName = DEFAULT_TITLE_CLASS,
@@ -37,7 +40,7 @@ export function UvhTitleHero({
 }: UvhTitleHeroProps) {
     return (
         <section
-            className={cn('relative w-full overflow-hidden py-8 sm:py-10 lg:py-12', className)}
+            className={cn('relative w-full overflow-hidden py-5 sm:py-6 lg:py-8', className)}
         >
             <div
                 className="pointer-events-none absolute inset-0 uvh-dark-section-gradient"
@@ -52,26 +55,29 @@ export function UvhTitleHero({
                 aria-hidden
             />
 
-            <div className="relative mx-auto w-full max-w-7xl px-4 sm:px-6 lg:px-8">
-                {topSlot}
-                <div
-                    className={cn(
-                        contentWidth === 'full'
-                            ? 'max-w-none'
-                            : contentWidth === 'wide'
-                              ? 'max-w-3xl lg:max-w-4xl'
-                              : 'max-w-xl lg:max-w-2xl',
-                        topSlot ? 'mt-4' : undefined,
-                    )}
-                >
-                    <div className="flex items-center gap-3">
-                        <span className="h-0.5 w-8 shrink-0 bg-(--sf-accent)" aria-hidden />
-                        <p className="text-xs font-bold uppercase tracking-[0.14em] text-white">{eyebrow}</p>
+            <div className={cn('relative mx-auto w-full max-w-7xl px-4 sm:px-6 lg:px-8', rightSlot ? 'flex items-center justify-between gap-8' : undefined)}>
+                <div>
+                    {topSlot}
+                    <div
+                        className={cn(
+                            contentWidth === 'full'
+                                ? 'max-w-none'
+                                : contentWidth === 'wide'
+                                  ? 'max-w-3xl lg:max-w-4xl'
+                                  : 'max-w-xl lg:max-w-2xl',
+                            topSlot ? 'mt-4' : undefined,
+                        )}
+                    >
+                        <div className="flex items-center gap-3">
+                            <span className="h-0.5 w-8 shrink-0 bg-(--sf-accent)" aria-hidden />
+                            <p className="text-xs font-bold uppercase tracking-[0.14em] text-white">{eyebrow}</p>
+                        </div>
+                        <h1 className={titleClassName}>{title}</h1>
+                        {description ? <p className={descriptionClassName}>{description}</p> : null}
+                        {afterDescription ? <div className="mt-5">{afterDescription}</div> : null}
                     </div>
-                    <h1 className={titleClassName}>{title}</h1>
-                    {description ? <p className={descriptionClassName}>{description}</p> : null}
-                    {afterDescription ? <div className="mt-5">{afterDescription}</div> : null}
                 </div>
+                {rightSlot ? <div className="hidden shrink-0 lg:flex lg:flex-row lg:flex-wrap lg:gap-3">{rightSlot}</div> : null}
             </div>
         </section>
     );

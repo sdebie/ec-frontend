@@ -1,15 +1,12 @@
-import { ChevronDown, ChevronUp } from 'lucide-react';
-import { useMemo, useState } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import {ChevronDown, ChevronUp} from 'lucide-react';
+import {useMemo, useState} from 'react';
+import {Link, useNavigate} from 'react-router-dom';
 
 import ProductImage from '@/components/shared/imageupload/ProductImage.tsx';
-import { useProduct } from '@/features/catalog/hooks/useProduct.ts';
-import {
-    getDisplayPriceForVariantTiers,
-    pickVariantPriceByType,
-} from '@/features/catalog/utils/pricing.ts';
-import { Button } from '@/primitives/button';
-import { useCustomerType } from '@/store/customerTypeStore.ts';
+import {useProduct} from '@/features/catalog/hooks/useProduct.ts';
+import {getDisplayPriceForVariantTiers, pickVariantPriceByType,} from '@/features/catalog/utils/pricing.ts';
+import {Button} from '@/primitives/button';
+import {useCustomerType} from '@/store/customerTypeStore.ts';
 
 type ProductDetailLayout = 'default' | 'uvh';
 
@@ -42,9 +39,9 @@ type ProductDetailProps = {
 const defaultContainerClass = 'max-w-6xl mx-auto p-6 grid grid-cols-1 md:grid-cols-2 gap-12 bg-(--sf-bg)';
 const uvhContainerClass = 'w-full grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-10 bg-transparent p-6 sm:p-8';
 
-export function ProductDetail({ productId, layout = 'default', onAddToCart }: ProductDetailProps) {
+export function ProductDetail({productId, layout = 'default', onAddToCart}: ProductDetailProps) {
     const navigate = useNavigate();
-    const { product, loading, error } = useProduct(productId);
+    const {product, loading, error} = useProduct(productId);
     const mapped = useMemo(() => mapToUiProduct(product), [product]);
 
     if (layout === 'uvh') {
@@ -90,11 +87,11 @@ export function ProductDetail({ productId, layout = 'default', onAddToCart }: Pr
 }
 
 function renderUvhLayout({
-    loading,
-    error,
-    product,
-    onAddToCart,
-}: {
+                             loading,
+                             error,
+                             product,
+                             onAddToCart,
+                         }: {
     loading: boolean;
     error: string | null;
     product: UiProduct | null;
@@ -103,9 +100,10 @@ function renderUvhLayout({
     if (loading) {
         return (
             <main className="min-h-screen w-full bg-(--sf-bg)">
-                <UvhDetailHero subtitle="Loading product details…" title="Product" />
+                <UvhDetailHero subtitle="Loading product details…" title="Product"/>
                 <div className="mx-auto mt-6 max-w-7xl px-4 py-8 sm:mt-8 sm:px-6 sm:py-10 lg:px-8">
-                    <div className="rounded-2xl border border-(--sf-border) bg-(--sf-panel) p-8 text-(--sf-muted-text) shadow-sm">
+                    <div
+                        className="rounded-2xl border border-(--sf-border) bg-(--sf-panel) p-8 text-(--sf-muted-text) shadow-sm">
                         Loading product…
                     </div>
                 </div>
@@ -116,9 +114,10 @@ function renderUvhLayout({
     if (error) {
         return (
             <main className="min-h-screen w-full bg-(--sf-bg)">
-                <UvhDetailHero subtitle="We couldn’t load this item." title="Product" />
+                <UvhDetailHero subtitle="We couldn’t load this item." title="Product"/>
                 <div className="mx-auto mt-6 max-w-7xl px-4 py-8 sm:mt-8 sm:px-6 sm:py-10 lg:px-8">
-                    <div className="rounded-2xl border border-(--sf-border) bg-(--sf-panel) p-8 text-(--sf-error) shadow-sm">
+                    <div
+                        className="rounded-2xl border border-(--sf-border) bg-(--sf-panel) p-8 text-(--sf-error) shadow-sm">
                         {error}
                     </div>
                 </div>
@@ -129,9 +128,10 @@ function renderUvhLayout({
     if (!product) {
         return (
             <main className="min-h-screen w-full bg-(--sf-bg)">
-                <UvhDetailHero subtitle="This product may have been removed." title="Product not found" />
+                <UvhDetailHero subtitle="This product may have been removed." title="Product not found"/>
                 <div className="mx-auto mt-6 max-w-7xl px-4 py-8 sm:mt-8 sm:px-6 sm:py-10 lg:px-8">
-                    <div className="rounded-2xl border border-(--sf-border) bg-(--sf-panel) p-8 text-(--sf-muted-text) shadow-sm">
+                    <div
+                        className="rounded-2xl border border-(--sf-border) bg-(--sf-panel) p-8 text-(--sf-muted-text) shadow-sm">
                         <Link className="font-semibold text-(--sf-accent) hover:underline" to="/products">
                             Browse all products
                         </Link>
@@ -161,7 +161,7 @@ function renderUvhLayout({
     );
 }
 
-function UvhDetailHero({ title, subtitle }: { title: string; subtitle?: string }) {
+function UvhDetailHero({title, subtitle}: { title: string; subtitle?: string }) {
     const navigate = useNavigate();
     return (
         <section className="bg-(--sf-text) text-(--sf-accent-text)">
@@ -195,11 +195,11 @@ function UvhDetailHero({ title, subtitle }: { title: string; subtitle?: string }
 }
 
 function ProductDetailCard({
-    product,
-    onAddToCart,
-    containerClassName,
-    compactSummary = false,
-}: {
+                               product,
+                               onAddToCart,
+                               containerClassName,
+                               compactSummary = false,
+                           }: {
     product: UiProduct;
     onAddToCart: (variantId: string, unitPrice: number) => Promise<void> | void;
     containerClassName: string;
@@ -228,7 +228,7 @@ function ProductDetailCard({
 
     const pricePresentation = useMemo(() => {
         const variant = activeVariant ?? product.variants[0];
-        if (!variant) return { price: 0, originalPrice: undefined as number | undefined };
+        if (!variant) return {price: 0, originalPrice: undefined as number | undefined};
         return getDisplayPriceForVariantTiers(
             {
                 retailPrice: variant.retailPrice,
@@ -248,9 +248,11 @@ function ProductDetailCard({
             <div className="space-y-4">
                 <div className="aspect-square overflow-hidden rounded-2xl border border-(--sf-border) bg-(--sf-bg)">
                     {displayImage ? (
-                        <ProductImage fileName={displayImage} alt={product.name} className="h-full w-full object-cover rounded-md" />
+                        <ProductImage fileName={displayImage} alt={product.name}
+                                      className="h-full w-full object-cover rounded-md"/>
                     ) : (
-                        <div className="flex h-full w-full items-center justify-center text-(--sf-muted-text)">No image</div>
+                        <div className="flex h-full w-full items-center justify-center text-(--sf-muted-text)">No
+                            image</div>
                     )}
                 </div>
                 <div className="flex gap-4">
@@ -265,7 +267,8 @@ function ProductDetailCard({
                                     : 'border border-(--sf-border)'
                             }`}
                         >
-                            <ProductImage fileName={thumb} alt={`${product.name} thumb ${index + 1}`} className="h-full w-full object-cover rounded-md" />
+                            <ProductImage fileName={thumb} alt={`${product.name} thumb ${index + 1}`}
+                                          className="h-full w-full object-cover rounded-md"/>
                         </button>
                     ))}
                 </div>
@@ -273,10 +276,13 @@ function ProductDetailCard({
 
             <div className="flex flex-col">
                 {compactSummary ? (
-                    <div className="flex flex-wrap items-baseline justify-between gap-4 border-b border-(--sf-border) pb-4">
-                        <p className="text-xs font-semibold uppercase tracking-[0.12em] text-(--sf-muted-text)">Price (Ex. VAT)</p>
+                    <div
+                        className="flex flex-wrap items-baseline justify-between gap-4 border-b border-(--sf-border) pb-4">
+                        <p className="text-xs font-semibold uppercase tracking-[0.12em] text-(--sf-muted-text)">Price
+                            (Ex. VAT)</p>
                         <div className="text-right">
-                            <span className="text-2xl font-bold text-(--sf-accent)">R {pricePresentation.price.toFixed(2)}</span>
+                            <span
+                                className="text-2xl font-bold text-(--sf-accent)">R {pricePresentation.price.toFixed(2)}</span>
                             {pricePresentation.originalPrice != null &&
                                 pricePresentation.originalPrice > pricePresentation.price && (
                                     <p className="mt-1 text-sm text-(--sf-muted-text) line-through">
@@ -290,7 +296,8 @@ function ProductDetailCard({
                         <div className="flex items-start justify-between gap-4">
                             <h1 className="text-3xl font-bold text-(--sf-text)">{product.name}</h1>
                             <div className="text-right">
-                                <span className="text-xl font-semibold text-(--sf-text)">R {pricePresentation.price.toFixed(2)}</span>
+                                <span
+                                    className="text-xl font-semibold text-(--sf-text)">R {pricePresentation.price.toFixed(2)}</span>
                                 {pricePresentation.originalPrice != null &&
                                     pricePresentation.originalPrice > pricePresentation.price && (
                                         <p className="mt-1 text-sm text-(--sf-muted-text) line-through">
@@ -306,14 +313,15 @@ function ProductDetailCard({
                 {Object.entries(options).map(([key, values]) => (
                     <div key={key} className="mt-8">
                         <h4 className="text-sm font-bold uppercase tracking-wide text-(--sf-text)">
-                            {key}: <span className="font-normal text-(--sf-muted-text)">{selections[key] || 'Select'}</span>
+                            {key}: <span
+                            className="font-normal text-(--sf-muted-text)">{selections[key] || 'Select'}</span>
                         </h4>
                         <div className="mt-3 flex flex-wrap gap-3">
                             {values.map((value) => (
                                 <button
                                     key={value}
                                     type="button"
-                                    onClick={() => setSelections((prev) => ({ ...prev, [key]: value }))}
+                                    onClick={() => setSelections((prev) => ({...prev, [key]: value}))}
                                     className={`rounded-lg border-2 px-6 py-2 font-medium ${
                                         selections[key] === value
                                             ? 'border-(--sf-accent) bg-(--sf-panel) text-(--sf-accent)'
@@ -358,7 +366,7 @@ function ProductDetailCard({
                                 className="flex w-full items-center justify-between py-4 text-sm font-bold text-(--sf-text)"
                             >
                                 {section}
-                                {openSection === section ? <ChevronUp size={16} /> : <ChevronDown size={16} />}
+                                {openSection === section ? <ChevronUp size={16}/> : <ChevronDown size={16}/>}
                             </button>
                             {openSection === section ? (
                                 <div className="pb-4 text-sm text-(--sf-muted-text)">
@@ -378,7 +386,10 @@ function ProductDetailCard({
 function mapToUiProduct(product: ReturnType<typeof useProduct>['product']): UiProduct | null {
     if (!product?.product) return null;
     const variants = product.variants ?? [];
-    const productImages = variants.flatMap((variant) => variant.images || []).map((img) => ({ id: img.id, imageUrl: img.imageUrl }));
+    const productImages = variants.flatMap((variant) => variant.images || []).map((img) => ({
+        id: img.id,
+        imageUrl: img.imageUrl
+    }));
 
     return {
         id: product.product.id,

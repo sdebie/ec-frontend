@@ -15,49 +15,39 @@ export default function CartView({ placingOrder, onCheckout }: CartViewProps) {
     const { items, hasItems, itemCount, subtotal, updateQuantity, removeItem, clearCart } = useCart();
 
     return (
-        <div className="bg-white min-h-screen">
-            <div className="mx-auto max-w-2xl px-4 pt-16 pb-24 sm:px-6 lg:max-w-7xl lg:px-8">
-                <div className="flex items-end justify-between gap-4">
-                    <div>
-                        <h1 className="text-3xl font-bold tracking-tight text-(--sf-text) sm:text-4xl">
-                            Shopping Cart
-                        </h1>
-
-                        <p className="mt-2 text-sm text-(--sf-muted-text)">
-                            {hasItems
-                                ? `${itemCount} item${itemCount === 1 ? '' : 's'} ready for checkout.`
-                                : 'Review your selected items before checkout.'}
-                        </p>
-                    </div>
-                </div>
-
+        <main className="w-full bg-(--sf-bg)">
+            <section className="mx-auto w-full max-w-7xl px-4 py-6 sm:px-6 sm:py-8 lg:px-8">
                 {!hasItems ? (
                     <EmptyCart onBrowse={() => navigate('/products')} />
                 ) : (
-                    <form
-                        className="mt-12 lg:grid lg:grid-cols-12 lg:items-start lg:gap-x-12 xl:gap-x-16"
-                        onSubmit={(event) => {
-                            event.preventDefault();
-                            onCheckout();
-                        }}
-                    >
-                        <CartItemList
-                            items={items}
-                            onQuantityChange={updateQuantity}
-                            onRemove={removeItem}
-                        />
+                    <div className="rounded-2xl border border-(--sf-border) bg-(--sf-panel) p-5 shadow-sm sm:p-8">
+                        <form
+                            className="lg:grid lg:grid-cols-12 lg:gap-x-12 lg:h-[calc(100vh-14rem)]"
+                            onSubmit={(event) => {
+                                event.preventDefault();
+                                onCheckout();
+                            }}
+                        >
+                            <div className="lg:col-span-7 lg:h-full lg:overflow-y-auto lg:pr-2">
+                                <CartItemList
+                                    items={items}
+                                    onQuantityChange={updateQuantity}
+                                    onRemove={removeItem}
+                                />
+                            </div>
 
-                        <CartSummary
-                            subtotal={subtotal}
-                            hasItems={hasItems}
-                            placingOrder={placingOrder}
-                            onCheckout={onCheckout}
-                            onContinueShopping={() => navigate('/products')}
-                            onClearCart={clearCart}
-                        />
-                    </form>
+                            <CartSummary
+                                subtotal={subtotal}
+                                hasItems={hasItems}
+                                placingOrder={placingOrder}
+                                onCheckout={onCheckout}
+                                onContinueShopping={() => navigate('/products')}
+                                onClearCart={clearCart}
+                            />
+                        </form>
+                    </div>
                 )}
-            </div>
-        </div>
+            </section>
+        </main>
     );
 }

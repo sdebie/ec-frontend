@@ -1,18 +1,17 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 
-
 import { CartView, cartStore, useCart } from '@/features/cart';
 import { SurfaceProvider } from '@/primitives/surface';
 import { apiCreateOrder } from '@/services/graphql/order/OrderService.graphql.ts';
+import { UvhTitleHero } from '@/tenants/uvh/components/UvhTitleHero.tsx';
 import { getVariantId } from '@/utils/storefront/cart.utils.ts';
 
 import type { OrderInput } from '@/types/order.types.ts';
 
-
 function ShoppingCart() {
     const navigate = useNavigate();
-    const { hasItems, items } = useCart();
+    const { hasItems, items, itemCount } = useCart();
     const [placingOrder, setPlacingOrder] = useState(false);
 
     const checkout = async () => {
@@ -40,6 +39,15 @@ function ShoppingCart() {
 
     return (
         <SurfaceProvider surface="storefront">
+            <UvhTitleHero
+                eyebrow="Cart"
+                title="Shopping Cart"
+                description={
+                    hasItems
+                        ? `${itemCount} item${itemCount === 1 ? '' : 's'} ready for checkout.`
+                        : 'Review your selected items before checkout.'
+                }
+            />
             <CartView placingOrder={placingOrder} onCheckout={() => void checkout()} />
         </SurfaceProvider>
     );

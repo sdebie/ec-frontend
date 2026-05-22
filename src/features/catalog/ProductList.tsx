@@ -8,6 +8,7 @@ type ProductListProps = {
     emptyText?: string;
     gridClassName?: string;
     cardClassName?: string;
+    cardSize?: 'default' | 'compact' | 'dense';
     onAddToCart?: (product: CatalogProductListItem) => void;
 };
 
@@ -16,6 +17,7 @@ export function ProductList({
                                 emptyText = 'No products match your filters.',
                                 gridClassName = 'grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3',
                                 cardClassName,
+                                cardSize = 'default',
                                 onAddToCart,
                             }: ProductListProps) {
     if (products.length === 0) {
@@ -28,6 +30,7 @@ export function ProductList({
                 <ProductCard
                     key={product.id}
                     className={cardClassName}
+                    size={cardSize}
                     onAddToCart={onAddToCart}
                     product={product}
                 />

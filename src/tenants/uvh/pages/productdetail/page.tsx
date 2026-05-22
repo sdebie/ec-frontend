@@ -1,23 +1,22 @@
-import {useParams} from 'react-router-dom';
+import { useParams } from 'react-router-dom';
 
-import {useAddToCart} from '@/features/cart/hooks/useAddToCart.ts';
-import {ProductDetail} from '@/features/catalog';
+import { useAddToCart } from '@/features/cart/hooks/useAddToCart.ts';
+import { UvhProductDetail } from '@/tenants/uvh/pages/productdetail/UvhProductDetail.tsx';
 
 export default function UvhProductDetailPage() {
-    const {productId} = useParams();
-    const {createOrder} = useAddToCart();
+    const { productId } = useParams();
+    const { createOrder } = useAddToCart();
 
     if (!productId) {
         return <div className="min-h-screen bg-(--sf-bg) p-8">Product not found.</div>;
     }
 
     return (
-        <ProductDetail
-            layout="uvh"
+        <UvhProductDetail
             productId={String(productId)}
-            onAddToCart={async (variantId, unitPrice) => {
+            onAddToCart={async (variantId, unitPrice, quantity) => {
                 await createOrder({
-                    items: [{quantity: 1, unitPrice, variant: variantId}],
+                    items: [{ quantity, unitPrice, variant: variantId }],
                 });
             }}
         />
