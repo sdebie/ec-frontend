@@ -104,7 +104,7 @@ export function parseIdealForLines(shortDescription: string, description: string
     if (!source) return [];
 
     const lines = source
-        .split(/\n|•|·|–/)
+        .split(/[\n•·–]/)
         .map((line) => line.replace(/^[-*]\s*/, '').trim())
         .filter((line) => line.length > 2 && line.length < 80);
 
