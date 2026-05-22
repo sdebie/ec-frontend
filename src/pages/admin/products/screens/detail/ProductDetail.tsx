@@ -1,11 +1,15 @@
 import {ArrowLeft} from "lucide-react";
 import {useEffect, useState} from "react";
 import {useNavigate, useParams} from "react-router-dom";
+
 import {PageLayout} from '@/components';
 import {IMAGE_BASE_URL} from "@/constants/api.constant.ts";
-import {apiGetProductInformation} from "@/services/graphql/product/product.service.ts";
-import type {ProductInformation} from "@/types/admin/ProductTypes.ts";
 import {useFormatAmount} from "@/hooks/useFormatAmount.ts";
+import {apiGetStoreSettings} from "@/services/graphql/admin/settings/SettingsService.graphql.ts";
+import {apiGetProductInformation} from "@/services/graphql/product/product.service.ts";
+import {calculateVatFromExclusive, parseVatRate} from "@/utils/vat.ts";
+
+import type {ProductInformation} from "@/types/admin/ProductTypes.ts";
 
 const renderValue = (value?: string | number | boolean | null) => {
     if (value === null || value === undefined || value === "") {
@@ -38,6 +42,7 @@ const ProductDetail = () => {
     const [product, setProduct] = useState<ProductInformation | null>(null);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
+    const [vatRatePercent, setVatRatePercent] = useState(15);
 
     useEffect(() => {
         let cancelled = false;
@@ -76,6 +81,29 @@ const ProductDetail = () => {
             cancelled = true;
         };
     }, [id]);
+
+    useEffect(() => {
+        let cancelled = false;
+
+        const loadVatSetting = async () => {
+            try {
+                const settings = await apiGetStoreSettings();
+                const vatSetting = settings.find((setting) => setting.key === "vat_rate_percent");
+                const parsedVatRate = parseVatRate(vatSetting?.value);
+                if (!cancelled) {
+                    setVatRatePercent(parsedVatRate);
+                }
+            } catch {
+                // Keep default VAT if settings fail to load.
+            }
+        };
+
+        loadVatSetting();
+
+        return () => {
+            cancelled = true;
+        };
+    }, []);
 
     const variantImages = (product?.variants ?? []).flatMap(variant => variant.images ?? []);
 
@@ -333,7 +361,14 @@ const ProductDetail = () => {
                                                                                 {renderValue(price.priceType)}
                                                                             </td>
                                                                             <td className="px-3 py-2 text-admin-text">
-                                                                                {typeof price.price === "number" ? formatAmount(price.price) : renderValue(price.price)}
+                                                                                {typeof price.price === "number" ? (
+                                                                                    <div>
+                                                                                        <p>{formatAmount(price.price)} <span className="text-xs text-admin-text-muted">ex VAT</span></p>
+                                                                                        <p className="text-xs text-admin-text-muted">
+                                                                                            {formatAmount(calculateVatFromExclusive(price.price, vatRatePercent).totalIncludingVat)} inc VAT ({vatRatePercent}%)
+                                                                                        </p>
+                                                                                    </div>
+                                                                                ) : renderValue(price.price)}
                                                                             </td>
                                                                             <td className="px-3 py-2 text-admin-text">
                                                                                 {renderValue(price.isActive)}

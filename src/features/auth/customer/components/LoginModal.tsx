@@ -2,11 +2,13 @@ import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
 
 import { loginCustomer, CustomerProfile } from '@/services/CustomerService.ts';
+import { customerTypeStore } from '@/store/customerTypeStore.ts';
 
 interface LoginModalProps {
   isOpen: boolean;
   onClose: () => void;
   onLoginSuccess: (profile: CustomerProfile) => void;
+  onRequestPasswordReset: (email?: string) => void;
   email?: string;
   showEmailField?: boolean;
   title?: string;
@@ -16,6 +18,7 @@ const LoginModal: React.FC<LoginModalProps> = ({
   isOpen,
   onClose,
   onLoginSuccess,
+  onRequestPasswordReset,
   email = '',
   showEmailField = false,
   title = 'Sign In to Your Account',
@@ -25,6 +28,7 @@ const LoginModal: React.FC<LoginModalProps> = ({
   const [loading, setLoading] = useState<boolean>(false);
   const [error, setError] = useState<string | null>(null);
 
+  const normalizedEmail = emailInput.trim();
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError(null);
@@ -32,6 +36,7 @@ const LoginModal: React.FC<LoginModalProps> = ({
 
     try {
       const profile = await loginCustomer(emailInput.trim(), password);
+      customerTypeStore.getState().syncFromProfile(profile);
       setPassword('');
       onLoginSuccess(profile);
       onClose();
@@ -46,84 +51,106 @@ const LoginModal: React.FC<LoginModalProps> = ({
   if (!isOpen) return null;
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50">
-      <div className="bg-white rounded-2xl shadow-xl max-w-md w-full mx-4">
-        {/* Header */}
-        <div className="flex items-center justify-between p-6 border-b">
-          <h2 className="text-lg font-bold text-gray-900">{title}</h2>
-          <button
-            onClick={onClose}
-            className="text-gray-400 hover:text-gray-600 transition-colors"
-            aria-label="Close"
-          >
-            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-6 h-6">
-              <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
-            </svg>
-          </button>
-        </div>
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 px-4">
+      <div className="mx-auto w-full max-w-xl">
+        <div className="rounded-xl border border-(--sf-border) bg-(--sf-panel) p-6 sm:p-8 shadow-sm">
 
-        {/* Form */}
-        <form onSubmit={handleSubmit} className="p-6 space-y-4">
-          {/* Email Field */}
-          {showEmailField && (
+          {/* Header */}
+          <div className="flex items-start justify-between mb-1">
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
-                Email Address
-              </label>
-              <input
-                type="email"
-                value={emailInput}
-                onChange={(e) => setEmailInput(e.target.value)}
-                placeholder="your@email.com"
-                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none transition-colors"
-                required={showEmailField}
-              />
+              <h1 className="text-2xl font-bold text-(--sf-text)">{title}</h1>
+              <p className="mt-2 text-sm text-(--sf-muted-text)">
+                Enter your credentials to sign in to your account.
+              </p>
             </div>
-          )}
-
-          {/* Password Field */}
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">
-              Password
-            </label>
-            <input
-              type="password"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              placeholder="Enter your password"
-              className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none transition-colors"
-              required
-            />
+            <button
+              type="button"
+              onClick={onClose}
+              aria-label="Close"
+              className="ml-4 mt-1 text-(--sf-muted-text) hover:text-(--sf-text) transition-colors"
+            >
+              <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-5 h-5">
+                <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
+              </svg>
+            </button>
           </div>
 
-          {/* Error Message */}
-          {error && (
-            <div className="p-3 bg-red-50 border border-red-200 rounded-lg">
-              <p className="text-sm text-red-700">{error}</p>
+          {/* Form */}
+          <form onSubmit={handleSubmit} className="mt-6 space-y-4">
+
+            {/* Email Field */}
+            {showEmailField && (
+              <div>
+                <label htmlFor="lm-email" className="mb-1 block text-sm font-medium text-(--sf-text)">
+                  Email Address
+                </label>
+                <input
+                  id="lm-email"
+                  type="email"
+                  value={emailInput}
+                  onChange={(e) => setEmailInput(e.target.value)}
+                  placeholder="your@email.com"
+                  className="w-full rounded-lg border border-(--sf-border) bg-(--sf-bg) px-3 py-2 text-(--sf-text) outline-none focus:border-(--sf-accent) focus:ring-1 focus:ring-(--sf-accent)"
+                  required={showEmailField}
+                />
+              </div>
+            )}
+
+            {/* Password Field */}
+            <div>
+              <label htmlFor="lm-password" className="mb-1 block text-sm font-medium text-(--sf-text)">
+                Password
+              </label>
+              <input
+                id="lm-password"
+                type="password"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                placeholder="Enter your password"
+                className="w-full rounded-lg border border-(--sf-border) bg-(--sf-bg) px-3 py-2 text-(--sf-text) outline-none focus:border-(--sf-accent) focus:ring-1 focus:ring-(--sf-accent)"
+                required
+              />
             </div>
-          )}
 
-          {/* Submit Button */}
-          <button
-            type="submit"
-            disabled={loading || (!showEmailField && !emailInput) || !password}
-            className="w-full py-3 bg-blue-600 text-white font-semibold rounded-lg hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
-          >
-            {loading ? 'Signing in...' : 'Sign In'}
-          </button>
+            {/* Error */}
+            {error && (
+              <div className="rounded-lg border border-red-200 bg-red-50 px-3 py-2 text-sm text-red-700">
+                {error}
+              </div>
+            )}
 
-          <Link
-            to="/create-account"
-            onClick={onClose}
-            className="block w-full py-3 border border-blue-600 text-blue-600 font-semibold text-center rounded-lg hover:bg-blue-50 transition-colors"
-          >
-            Create Account
-          </Link>
-        </form>
+            {/* Sign In */}
+            <button
+              type="submit"
+              disabled={loading || (!showEmailField && !emailInput) || !password}
+              className="w-full rounded-lg bg-(--sf-accent) px-5 py-2.5 font-semibold text-(--sf-accent-text) hover:opacity-90 disabled:cursor-not-allowed disabled:opacity-60"
+            >
+              {loading ? 'Signing in...' : 'Sign In'}
+            </button>
+
+            {/* Create Account */}
+            <Link
+              to="/create-account"
+              onClick={onClose}
+              className="block w-full rounded-lg border border-(--sf-border) px-5 py-2.5 text-center font-semibold text-(--sf-text) hover:bg-black/5"
+            >
+              Create Account
+            </Link>
+
+            {/* Reset Password */}
+            <button
+                type="button"
+                onClick={() => onRequestPasswordReset(normalizedEmail || undefined)}
+                className="block w-full text-center text-sm font-medium text-(--sf-accent) hover:underline"
+            >
+              Reset Password
+            </button>
+
+          </form>
+        </div>
       </div>
     </div>
   );
 };
 
 export default LoginModal;
-

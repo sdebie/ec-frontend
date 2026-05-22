@@ -2,7 +2,7 @@ import {getDisplayPriceFromVariantPriceRows} from '@/features/catalog/utils/pric
 import {OrderItemData as OrderItemsData, asVariant} from '@/types/order.types.ts';
 import {getCartItemsStorageKey} from '@/utils/storefront/tenantStorageKeys';
 
-import type {CustomerType} from '@/store/customerTypeStore';
+import type { CustomerType } from '@/constants/enums/CustomerType';
 
 
 export const getCartItemsKey = () => getCartItemsStorageKey();

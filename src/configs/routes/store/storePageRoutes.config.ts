@@ -42,6 +42,13 @@ const storePageOnlyRoutes: PageRoutes = [
         meta: defaultMeta,
     },
     {
+        key: 'resetPassword',
+        path: '/reset-password',
+        component: lazy(() => import('@/tenants/default/pages/resetpassword/ResetPassword.tsx')),
+        authority: [],
+        meta: defaultMeta,
+    },
+    {
         key: 'paymentSuccess',
         path: '/payment-success',
         component: lazy(() => import('@/features/checkout/PaymentSuccess.tsx')),

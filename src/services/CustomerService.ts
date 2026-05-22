@@ -63,6 +63,41 @@ export async function loginCustomer(email: string, password: string): Promise<Cu
   return await res.json();
 }
 
+export async function requestCustomerPasswordResetCode(email: string): Promise<string> {
+  const res = await fetch(`${baseUrl}/api/customers/password-reset/request`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ email })
+  });
+  if (!res.ok) throw new Error(await res.text());
+  return await res.text();
+}
+
+export async function verifyCustomerPasswordResetCode(email: string, code: string): Promise<string> {
+  const res = await fetch(`${baseUrl}/api/customers/password-reset/verify`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ email, code })
+  });
+  if (!res.ok) throw new Error(await res.text());
+  return await res.text();
+}
+
+export async function completeCustomerPasswordReset(
+  email: string,
+  code: string,
+  newPassword: string,
+  confirmPassword: string
+): Promise<string> {
+  const res = await fetch(`${baseUrl}/api/customers/password-reset/complete`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ email, code, newPassword, confirmPassword })
+  });
+  if (!res.ok) throw new Error(await res.text());
+  return await res.text();
+}
+
 export type RegisterOrUpdatePayload = {
   email: string;
   password?: string;

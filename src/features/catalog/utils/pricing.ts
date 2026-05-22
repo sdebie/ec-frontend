@@ -1,4 +1,5 @@
-import type { CustomerType } from '@/store/customerTypeStore';
+import { CustomerType } from '@/constants/enums/CustomerType';
+
 import type { ProductShoppingListItem } from '@/types/admin/ProductTypes';
 
 
@@ -34,7 +35,7 @@ export function getDisplayPrice(
     product: ProductShoppingListItem,
     customerType: CustomerType,
 ): { price: number; originalPrice?: number } {
-    if (customerType === 'wholesaler') {
+    if (customerType === CustomerType.WHOLESALER) {
         const wholesale = product.wholesalePrice?.price ?? 0;
         const wholesaleSale = product.wholesaleSalePrice?.price;
         if (wholesaleSale != null && wholesaleSale > 0 && wholesale > wholesaleSale) {

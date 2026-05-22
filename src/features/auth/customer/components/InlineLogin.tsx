@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 
 import { loginCustomer, CustomerProfile } from '@/services/CustomerService.ts';
+import { customerTypeStore } from '@/store/customerTypeStore.ts';
 
 interface InlineLoginProps {
   email: string;
@@ -26,6 +27,7 @@ const InlineLogin: React.FC<InlineLoginProps> = ({
 
     try {
       const profile = await loginCustomer(email.trim(), password);
+      customerTypeStore.getState().syncFromProfile(profile);
       setPassword('');
       onLoginSuccess(profile);
     } catch (err: any) {

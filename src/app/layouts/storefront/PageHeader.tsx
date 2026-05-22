@@ -1,16 +1,20 @@
+/* eslint-disable import/order */
+import {HardHat, UserIcon} from 'lucide-react';
 import React, {useEffect, useRef, useState} from 'react';
 import {Link, useLocation, useNavigate} from 'react-router-dom';
-
 
 import ImageUploadModal from '@/app/layouts/storefront/ImageUploadModal.tsx';
 import CartIcon from '@/components/shared/icon/CartIcon.tsx';
 import LoginModal from '@/features/auth/customer/components/LoginModal.tsx';
+import ResetPasswordModal from '@/features/auth/customer/components/ResetPasswordModal.tsx';
 import { cartStore } from '@/features/cart';
+import {useIsWholesaler} from '@/store/customerTypeStore.ts';
+
 import {CustomerProfile} from '@/services/CustomerService.ts';
+
 import {NavMenuItem, StorefrontClientConfig} from '@/types/storefront/storefrontTypes.ts';
 
 import styles from './PageHeader.module.css';
-import {TrashIcon, UserIcon} from "lucide-react";
 const AUTH_KEY = 'checkoutIsAuthenticated';
 const EMAIL_KEY = 'checkoutEmail';
 const DESKTOP_QUERY = '(min-width: 1024px)'; // Tailwind lg breakpoint
@@ -33,12 +37,32 @@ const PageHeader: React.FC<PageHeaderProps> = ({ storefrontConfig }) => {
     const [isAdminAuthenticated, setIsAdminAuthenticated] = useState<boolean>(false);
     const [showImageUploadModal, setShowImageUploadModal] = useState<boolean>(false);
     const [showLoginModal, setShowLoginModal] = useState<boolean>(false);
+    const [showResetPasswordModal, setShowResetPasswordModal] = useState<boolean>(false);
+    const [loginModalEmail, setLoginModalEmail] = useState<string>('');
     const [showMobileMenu, setShowMobileMenu] = useState<boolean>(false);
     const [isDesktopViewport, setIsDesktopViewport] = useState<boolean>(() => {
         if (typeof window === 'undefined') return false;
         return window.matchMedia(DESKTOP_QUERY).matches;
     });
+    const isWholesaler = useIsWholesaler();
     const userMenuRef = useRef<HTMLDivElement>(null);
+
+    const renderUserProfileIcon = () => {
+        if (!isWholesaler) {
+            return <UserIcon size={22} />;
+        }
+
+        return (
+            <span className="relative inline-flex h-5.5 w-5.5 items-center justify-center">
+                <UserIcon size={22} />
+                <HardHat
+                    size={10}
+                    className="absolute -top-0.5 right-0 rounded-full bg-(--sf-nav-bg)"
+                    aria-hidden="true"
+                />
+            </span>
+        );
+    };
 
     const menuItems = storefrontConfig.navigation.menuItems ?? [];
     const logo = storefrontConfig.branding.logo;
@@ -125,6 +149,7 @@ const PageHeader: React.FC<PageHeaderProps> = ({ storefrontConfig }) => {
             setIsAuthenticated(false);
             setShowUserMenu(false);
             setShowLoginModal(false);
+                setShowResetPasswordModal(false);
             readValues();
             navigate('/');
         } catch (e) {
@@ -142,6 +167,18 @@ const PageHeader: React.FC<PageHeaderProps> = ({ storefrontConfig }) => {
         }
         setIsAuthenticated(true);
         setShowLoginModal(false);
+        setShowResetPasswordModal(false);
+    };
+
+    const handleRequestPasswordReset = (email?: string) => {
+        setLoginModalEmail(email ?? '');
+        setShowLoginModal(false);
+        setShowResetPasswordModal(true);
+    };
+
+    const handleBackToLogin = () => {
+        setShowResetPasswordModal(false);
+        setShowLoginModal(true);
     };
 
     const renderNavItem = (item: NavMenuItem, options: RenderNavItemOptions = {}) => {
@@ -269,7 +306,7 @@ const PageHeader: React.FC<PageHeaderProps> = ({ storefrontConfig }) => {
                                     aria-expanded={showUserMenu}
                                     onClick={() => setShowUserMenu(!showUserMenu)}
                                 >
-                                    {/* icon */}
+                                    {renderUserProfileIcon()}
                                 </button>
 
                                 {showUserMenu && (
@@ -343,7 +380,16 @@ const PageHeader: React.FC<PageHeaderProps> = ({ storefrontConfig }) => {
                 isOpen={showLoginModal}
                 onClose={() => setShowLoginModal(false)}
                 onLoginSuccess={handleLoginSuccess}
+                onRequestPasswordReset={handleRequestPasswordReset}
+                email={loginModalEmail}
                 showEmailField={true}
+            />
+
+            <ResetPasswordModal
+                isOpen={showResetPasswordModal}
+                onClose={() => setShowResetPasswordModal(false)}
+                initialEmail={loginModalEmail}
+                onBackToLogin={handleBackToLogin}
             />
         </header>
     );

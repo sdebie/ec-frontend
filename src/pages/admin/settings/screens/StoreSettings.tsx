@@ -6,6 +6,9 @@ import {Card} from '@/primitives/card';
 import {apiGetStoreSettings, apiSaveStoreSettings} from "@/services/graphql/admin/settings/SettingsService.graphql.ts";
 import {StoreSetting} from "@/types/admin/SettingsTypes.ts";
 import {cn} from "@/utils/cn.ts";
+import {parseVatRate} from "@/utils/vat.ts";
+
+import VatCalculator from "../components/VatCalculator";
 
 type PaymentMethodConfig = {
     displayName: string;
@@ -188,6 +191,23 @@ const StoreSettings = () => {
                         onChange={(newValue) => handleInputChange(setting.key, newValue)}
                     />
                 );
+            case 'vat_rate_percent': {
+                const vatRatePercent = parseVatRate(setting.value);
+
+                return (
+                    <div key={setting.key} className="col-span-2 space-y-3">
+                        <InputField
+                            {...commonProps}
+                            type="number"
+                            min="0"
+                            step="0.01"
+                            value={setting.value}
+                            onChange={(e) => handleInputChange(setting.key, e.target.value)}
+                        />
+                        <VatCalculator vatRatePercent={vatRatePercent}/>
+                    </div>
+                );
+            }
             default:
                 return (
                     <div key={setting.key} className="space-y-1">
