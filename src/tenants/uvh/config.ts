@@ -65,6 +65,7 @@ export const clientUvhStorefrontConfig: StorefrontClientConfig = {
         variants: {
             home: 'uvh-home',
             products: 'uvh-products',
+            cart: 'uvh-cart',
             contactUs: 'uvh-contact-us',
             aboutUs: 'uvh-about-us',
             termsAndConditions: 'uvh-terms-and-conditions',

@@ -26,9 +26,8 @@ export default function CartSummary({
             <h2 id="summary-heading" className="text-base font-semibold text-(--sf-text)">
                 Order summary
             </h2>
-            <div className="mt-3 h-0.5 w-8 bg-(--sf-accent)" aria-hidden />
 
-            <dl className="mt-5 space-y-3">
+            <dl className="mt-4 space-y-3">
                 <div className="flex items-center justify-between">
                     <dt className="text-sm text-(--sf-muted-text)">Subtotal</dt>
                     <dd className="text-sm font-medium text-(--sf-text)">{currency(subtotal)}</dd>
