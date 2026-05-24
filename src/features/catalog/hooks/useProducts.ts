@@ -21,7 +21,7 @@ const DEFAULT_PAGE_SIZE = 10;
  * product in one shot and paginate client-side so we always know the total
  * page count (the backend has no count endpoint scoped to category).
  */
-const CLIENT_PAGINATION_FETCH_SIZE = 500;
+const CLIENT_PAGINATION_FETCH_SIZE = 10;
 
 function buildFilterRequest(searchTerm: string): FilterRequest {
     const trimmed = searchTerm.trim();
@@ -82,6 +82,7 @@ export function useProducts(query: CatalogProductsQuery = {}): UseProductsResult
     const pageIndex = query.pageIndex ?? 0;
     const pageSize = query.pageSize ?? DEFAULT_PAGE_SIZE;
     const sortBy = query.sortBy ?? 'name';
+    const mode = query.mode ?? 'full';
 
     useEffect(() => {
         let isMounted = true;
@@ -94,8 +95,8 @@ export function useProducts(query: CatalogProductsQuery = {}): UseProductsResult
                 const data = await fetchProductsPage({
                     categoryId: query.categoryId,
                     search: query.search,
-                    pageIndex: 0,
-                    pageSize: CLIENT_PAGINATION_FETCH_SIZE,
+                    pageIndex: mode === 'full' ? 0 : pageIndex,
+                    pageSize: mode === 'full' ? CLIENT_PAGINATION_FETCH_SIZE : pageSize,
                 });
                 if (!isMounted) return;
                 setAllProducts(data);
@@ -112,7 +113,7 @@ export function useProducts(query: CatalogProductsQuery = {}): UseProductsResult
         return () => {
             isMounted = false;
         };
-    }, [query.categoryId, query.search, refreshKey]);
+    }, [query.categoryId, query.search, pageIndex, pageSize, mode, refreshKey]);
 
     const sortedAll = useMemo(() => {
         if (sortBy === 'price-asc' || sortBy === 'price-desc') {
@@ -122,9 +123,12 @@ export function useProducts(query: CatalogProductsQuery = {}): UseProductsResult
     }, [allProducts, sortBy]);
 
     const products = useMemo(() => {
+        if (mode === 'page') {
+            return sortedAll;
+        }
         const start = pageIndex * pageSize;
         return sortedAll.slice(start, start + pageSize);
-    }, [sortedAll, pageIndex, pageSize]);
+    }, [sortedAll, pageIndex, pageSize, mode]);
 
     const refetch = useCallback(() => {
         setRefreshKey((current) => current + 1);
