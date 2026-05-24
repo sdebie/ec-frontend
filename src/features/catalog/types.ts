@@ -14,6 +14,7 @@ export type CatalogProductsQuery = {
     sortBy?: 'name' | 'price-asc' | 'price-desc';
     pageIndex?: number;
     pageSize?: number;
+    mode?: 'full' | 'page';
 };
 
 export type CatalogRequest = {

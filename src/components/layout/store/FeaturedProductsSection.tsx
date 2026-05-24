@@ -16,6 +16,7 @@ export const FeaturedProductsSection = ({props}: Props) => {
         pageIndex: 0,
         pageSize: limit,
         sortBy: 'name',
+        mode: 'page',
     });
     const items = products.slice(0, limit);
 
