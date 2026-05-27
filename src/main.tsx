@@ -2,7 +2,13 @@ import {StrictMode} from 'react'
 import {createRoot} from 'react-dom/client'
 import './index.css'
 import {getCartSessionStorageKey} from '@/utils/storefront/tenantStorageKeys'
+import {env} from '@/lib/env'
 import App from './App.jsx'
+
+// Log storefront configuration on app load
+console.log('[Frontend Bootstrap] VITE_STORE_FRONT:', import.meta.env.VITE_STORE_FRONT ?? 'not set');
+console.log('[Frontend Bootstrap] Resolved storefront tenant:', env.storefrontTenant);
+console.log('[Frontend Bootstrap] Storefront build target:', env.storefrontBuildTarget);
 
 // Ensure a persistent cart session id exists on app load
 function ensureCartSessionId() {
