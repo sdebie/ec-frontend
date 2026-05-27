@@ -8,7 +8,7 @@ export const defaultStorefrontConfig: StorefrontClientConfig = {
     displayName: 'Default Storefront',
     hostnames: ['localhost', '127.0.0.1', 'store.localhost'],
     branding: {
-        name: 'E-Comm Demo',
+        name: 'E-Comm Demo.....',
         tagline: 'Everyday essentials delivered fast.',
         logo: {
             src: '/img/default-logo.jpeg',
