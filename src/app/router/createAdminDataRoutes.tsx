@@ -1,8 +1,11 @@
-import RouteGuard from '@/configs/routes/RouteGuard'
-import {adminRoutingRoutes} from '@/configs/routes/admin/adminPageRoutes.config'
+
 import {flattenRoutes} from '@/app/router/flattenRoutes'
-import type {RouteObject} from '@/types/routes'
+import {adminRoutingRoutes} from '@/configs/routes/admin/adminPageRoutes.config'
+import RouteGuard from '@/configs/routes/RouteGuard'
+
 import type {AppRouterSharedOptions} from './createAppDataRouter'
+import type {RouteObject} from '@/types/routes'
+
 
 interface CreateAdminDataRoutesOptions extends AppRouterSharedOptions {
     hostname: string

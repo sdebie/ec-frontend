@@ -1,11 +1,13 @@
-import {Controller, useForm} from "react-hook-form";
-import {z} from "zod";
 import {zodResolver} from "@hookform/resolvers/zod";
 import {useEffect} from "react";
-import useCreateBrand from "@/pages/admin/brands/hooks/useCreateBrand.ts";
+import {Controller, useForm} from "react-hook-form";
+import {z} from "zod";
+
+import {Button, Dialog, DialogContent, DialogFooter, DialogHeader, Form, FormItem, ImageUpload} from "@/components";
 import {toast} from "@/components/shared/toast";
-import {Button, Dialog, DialogContent, DialogFooter, DialogHeader, Form, FormItem, ImageUpload, Input} from "@/components";
 import {IMAGE_BASE_URL} from "@/constants/api.constant.ts";
+import useCreateBrand from "@/pages/admin/brands/hooks/useCreateBrand.ts";
+import {Input} from "@/primitives/input";
 
 const formSchema = z.object({
     name: z.string().min(2, 'Name must be at least 2 characters'),
@@ -94,6 +96,7 @@ const BrandCreate = ({isDialogOpen, setIsDialogOpen, onSuccess}: BrandCreateProp
                                     invalid={!!errors.name}
                                 >
                                     <Input
+                                        size="lg"
                                         {...field}
                                         placeholder="Brand Name"
                                         className="w-full"
@@ -112,6 +115,7 @@ const BrandCreate = ({isDialogOpen, setIsDialogOpen, onSuccess}: BrandCreateProp
                                     invalid={!!errors.description}
                                 >
                                     <Input
+                                        size="lg"
                                         {...field}
                                         placeholder="Brand Description"
                                         className="w-full"
@@ -130,6 +134,7 @@ const BrandCreate = ({isDialogOpen, setIsDialogOpen, onSuccess}: BrandCreateProp
                                     invalid={!!errors.slug}
                                 >
                                     <Input
+                                        size="lg"
                                         {...field}
                                         placeholder="brand-slug"
                                         className="w-full"

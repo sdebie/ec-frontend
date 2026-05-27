@@ -1,2 +1,0 @@
-export { SfCard } from './SfCard';
-

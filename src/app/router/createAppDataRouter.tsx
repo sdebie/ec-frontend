@@ -1,4 +1,5 @@
 import {createBrowserRouter} from 'react-router-dom'
+
 import {createAdminDataRoutes} from './createAdminDataRoutes'
 import {createStorefrontDataRoutes} from './createStorefrontDataRoutes'
 
@@ -10,8 +11,6 @@ export interface AppRouterSharedOptions {
 
 export interface AppRouterStorefrontOptions {
     isAdminDomain: boolean
-    activeCategory: string
-    setActiveCategory: (value: string) => void
 }
 
 interface CreateAppDataRouterOptions

@@ -1,7 +1,10 @@
-import type {ComponentProps, PropsWithChildren} from 'react'
 import {RouterProvider} from 'react-router-dom'
+import {SettingsInitializationProvider} from './SettingsInitializationProvider'
+import {StorefrontCategoryProvider} from './StorefrontCategoryProvider'
 import {StorefrontProvider} from './StorefrontProvider'
-import type {ResolveStorefrontConfigOptions} from '@/storefront/registry/types'
+
+import type {ResolveStorefrontConfigOptions} from '@/configs/storefront/storefrontRegistryTypes'
+import type {ComponentProps, PropsWithChildren} from 'react'
 
 interface AppProvidersProps extends PropsWithChildren {
     storefrontOptions?: ResolveStorefrontConfigOptions
@@ -13,15 +16,19 @@ interface AppProvidersProps extends PropsWithChildren {
  * Runtime ownership remains in App.tsx for Phase 1A.
  */
 export function AppProviders({
-    children,
-    storefrontOptions,
-    router,
-}: AppProvidersProps) {
+                                 children,
+                                 storefrontOptions,
+                                 router,
+                             }: AppProvidersProps) {
     return (
-        <StorefrontProvider options={storefrontOptions}>
-            <RouterProvider router={router} />
-            {children}
-        </StorefrontProvider>
+        <SettingsInitializationProvider>
+            <StorefrontProvider options={storefrontOptions}>
+                <StorefrontCategoryProvider>
+                    <RouterProvider router={router}/>
+                    {children}
+                </StorefrontCategoryProvider>
+            </StorefrontProvider>
+        </SettingsInitializationProvider>
     )
 }
 

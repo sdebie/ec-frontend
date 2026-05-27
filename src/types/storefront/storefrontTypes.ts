@@ -154,6 +154,11 @@ export interface FooterSocialLink {
 
 export interface FooterConfig {
     description?: string;
+    /** Optional card under the description (e.g. bulk / tender support). Omit to hide. */
+    footerCallout?: {
+        heading: string;
+        body: string;
+    };
     columns?: FooterLinkColumn[];
     socialLinks?: FooterSocialLink[];
     legalLinks?: NavMenuItem[];   // reuses the existing link shape directly
@@ -269,6 +274,7 @@ export type StorefrontSectionConfig =
 
 export interface StorefrontClientConfig {
     id: StorefrontClientId;
+    stickyHeader?: boolean;
     displayName: string;
     hostnames: string[];
     branding: StorefrontBranding;

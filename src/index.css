@@ -1,4 +1,7 @@
 @import "tailwindcss";
+@import "./primitives/surface/tokens.css";
+@import "./tenants/default/theme.css";
+@import "./tenants/uvh/theme.css";
 
 @theme {
     --color-admin-bg: var(--admin-bg);
@@ -21,6 +24,9 @@
 
 @layer base {
     :root {
+        /* Storefront `PageHeader.tsx`: main bar (h-18). Update if header layout changes. */
+        --sf-storefront-header-height: 4.5rem;
+
         /* Light Mode Basics */
         --admin-bg: #f3f4f6; /* gray-100 */
         --admin-panel: #ffffff;

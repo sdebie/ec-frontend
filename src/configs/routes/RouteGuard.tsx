@@ -1,8 +1,12 @@
 import {Navigate} from 'react-router-dom';
-import {hasRequiredAuthority} from '@/utils/authorizationHelper.ts';
+
+
 import AdminLayout from '@/components/layout/admin/AdminLayout.tsx';
 import {AdminThemeProvider} from "@/context/AdminThemeContext.tsx";
+import {hasRequiredAuthority} from '@/utils/authorizationHelper.ts';
+
 import type { RouteObject } from '@/types/routes.ts';
+
 
 interface RouteGuardProps {
     route: RouteObject;

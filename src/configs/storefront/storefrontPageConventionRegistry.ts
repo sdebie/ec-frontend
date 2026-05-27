@@ -1,12 +1,16 @@
 import { lazy } from 'react';
-import type { ComponentType } from 'react';
+import { storefrontPageImports } from 'virtual:storefront-page-map';
+
+import {normalizeDiscoveredStorefrontPageKey} from '@/configs/storefront/storefrontPageKeyNormalization';
+
 import type {
   StorefrontPageComponent,
   StorefrontPageKey,
 } from '@/types/storefront/storefrontPageContracts.ts';
 import type { StorefrontClientId } from '@/types/storefront/storefrontTypes.ts';
-import { storefrontPageImports } from 'virtual:storefront-page-map';
-import {normalizeDiscoveredStorefrontPageKey} from '@/configs/storefront/storefrontPageKeyNormalization';
+import type { ComponentType } from 'react';
+
+
 
 type StorefrontPageLoader = () => Promise<{ default: ComponentType<any> }>;
 

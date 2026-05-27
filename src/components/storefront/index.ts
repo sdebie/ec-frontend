@@ -8,9 +8,6 @@
  * Import from @/components/storefront instead.
  */
 
-export { SfCard } from './card';
-export { SfButton } from './button';
-export { SfInput, SfTextarea } from './input';
-export { SfAccentDivider } from './divider';
-export { SfIconBox } from './icon';
+export { Divider } from '@/primitives/divider';
+export { IconBox } from '@/primitives/icon-box';
 

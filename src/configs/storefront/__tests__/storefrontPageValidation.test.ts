@@ -1,4 +1,7 @@
 import {beforeEach, describe, expect, it, vi} from 'vitest'
+
+import { validateStorefrontPageInfrastructure } from '@/configs/storefront/storefrontPageValidation.ts'
+
 import type {StorefrontPageKey} from '@/types/storefront/storefrontPageKeys.ts'
 
 const {
@@ -13,6 +16,13 @@ const {
     { key: 'cart', path: '/cart', component: vi.fn(), authority: [], meta: {} },
     { key: 'contactUs', path: '/contact-us', component: vi.fn(), authority: [], meta: {} },
     { key: 'aboutUs', path: '/about-us', component: vi.fn(), authority: [], meta: {} },
+    {
+      key: 'wholesaleApplication',
+      path: '/wholesale-application',
+      component: vi.fn(),
+      authority: [],
+      meta: {},
+    },
   ]
 
   const routingRoutes = [
@@ -41,6 +51,7 @@ const {
     accessDenied: vi.fn(),
     contactUs: vi.fn(),
     aboutUs: vi.fn(),
+    wholesaleApplication: vi.fn(),
   }
 
   const variantRegistry: Partial<Record<StorefrontPageKey, Record<string, unknown>>> = {
@@ -107,8 +118,6 @@ vi.mock('@/configs/storefront/storefrontPageRegistry.ts', () => ({
 vi.mock('@/configs/storefront/storefrontRegistry.ts', () => ({
   getStorefrontRegistry: () => mockStorefrontRegistry,
 }))
-
-import { validateStorefrontPageInfrastructure } from '@/configs/storefront/storefrontPageValidation.ts'
 
 function resetMocks() {
   Object.keys(mockStorefrontRegistry).forEach((key) => {

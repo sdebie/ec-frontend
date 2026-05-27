@@ -15,6 +15,15 @@ export const SETTINGS = gql`
                 baseFee
                 estimatedDays
             }
+            countrySettings {
+                countryCode
+                countryName
+                currencyCode
+                locale
+                decimalPlaces
+                isDefault
+                isActive
+            }
         }
     }
 `;
@@ -47,6 +56,20 @@ export const SHIPPING_METHODS = gql`
             active
             baseFee
             estimatedDays
+        }
+    }
+`;
+
+export const COUNTRY_SETTINGS = gql`
+    query CountrySettings {
+        countrySettings {
+            countryCode
+            countryName
+            currencyCode
+            locale
+            decimalPlaces
+            isDefault
+            isActive
         }
     }
 `;

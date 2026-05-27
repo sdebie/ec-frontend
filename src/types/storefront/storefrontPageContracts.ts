@@ -1,6 +1,6 @@
-import type {ComponentType, LazyExoticComponent} from 'react';
-import type {StorefrontClientConfig} from '@/types/storefront/storefrontTypes.ts';
 import type {StorefrontPageKey} from '@/types/storefront/storefrontPageKeys.ts';
+import type {StorefrontClientConfig} from '@/types/storefront/storefrontTypes.ts';
+import type {ComponentType, LazyExoticComponent} from 'react';
 
 export {CANONICAL_STOREFRONT_PAGE_KEYS} from '@/types/storefront/storefrontPageKeys.ts';
 export type {StorefrontPageKey} from '@/types/storefront/storefrontPageKeys.ts';

@@ -1,7 +1,9 @@
-import getServiceEndpoint from "@/utils/HostnameResolver.ts";
-import {FilterRequest, PageRequest} from "@/types/graphql/query.types.ts";
-import {Category} from "@/types/admin/CategoryTypes.ts";
+
 import {GraphQLService} from "@/services/graphql/GraphQLService.ts";
+import {Category} from "@/types/admin/CategoryTypes.ts";
+import {FilterRequest, PageRequest} from "@/types/graphql/query.types.ts";
+import getServiceEndpoint from "@/utils/HostnameResolver.ts";
+
 import {
     ALL_CATEGORY,
     CATEGORY_COUNT,
@@ -11,15 +13,21 @@ import {
     UPDATE_CATEGORY
 } from "./category.queries.ts";
 
+
 const graphQLEndpoint = getServiceEndpoint(8080) + '/api/graphql';
 
-export async function apiGetAllCategories(pageRequest: PageRequest, filterRequest: FilterRequest): Promise<Category[]> {
+export async function apiGetAllCategories(
+    pageRequest: PageRequest,
+    filterRequest: FilterRequest,
+    includeSubCategories = false
+): Promise<Category[]> {
 
     const client = await GraphQLService.getGraphQLClient(graphQLEndpoint);
 
     const result = await client.request<{ allCategories: Category[] }>(ALL_CATEGORY, {
         pageRequest,
         filterRequest,
+        includeSubCategories,
     });
 
     return result.allCategories ?? [];

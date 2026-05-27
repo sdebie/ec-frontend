@@ -1,12 +1,17 @@
-import {Button, Checkbox, Dialog, DialogContent, DialogFooter, DialogHeader, Form, FormItem, Input} from "@/components";
-import {ShippingMethod} from "@/types/admin/SettingsTypes.ts";
-import {z} from "zod";
-import {Controller, useForm} from "react-hook-form";
 import {zodResolver} from "@hookform/resolvers/zod";
-import {useEffect, useState} from "react";
-import useEditShippingMethod from "@/pages/admin/settings/hooks/useEditShippingMethod.ts";
 import {AlertCircle, ChevronDown, ChevronUp} from "lucide-react";
+import {useEffect, useState} from "react";
+import {Controller, useForm} from "react-hook-form";
+import {z} from "zod";
+
+import {Button, Checkbox, Dialog, DialogContent, DialogFooter, DialogHeader, Form, FormItem} from "@/components";
 import {toast} from "@/components/shared/toast";
+import useEditShippingMethod from "@/pages/admin/settings/hooks/useEditShippingMethod.ts";
+import {Input} from "@/primitives/input";
+import {ShippingMethod} from "@/types/admin/SettingsTypes.ts";
+
+
+
 
 type ShippingMethodEditProps = {
     method?: ShippingMethod;
@@ -110,6 +115,7 @@ const ShippingMethodEdit = ({method, isDialogOpen, setIsDialogOpen, onSuccess}: 
                                     invalid={!!errors.name}
                                 >
                                     <Input
+                                        size="lg"
                                         {...field}
                                         placeholder="e.g. Standard Shipping"
                                         className="w-full"
@@ -128,6 +134,7 @@ const ShippingMethodEdit = ({method, isDialogOpen, setIsDialogOpen, onSuccess}: 
                                     invalid={!!errors.baseFee}
                                 >
                                     <Input
+                                        size="lg"
                                         type="number"
                                         min={0}
                                         step={0.01}
@@ -150,6 +157,7 @@ const ShippingMethodEdit = ({method, isDialogOpen, setIsDialogOpen, onSuccess}: 
                                     invalid={!!errors.estimatedDays}
                                 >
                                     <Input
+                                        size="lg"
                                         {...field}
                                         placeholder="e.g. 3-5 business days"
                                         className="w-full"

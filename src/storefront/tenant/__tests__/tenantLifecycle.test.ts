@@ -27,6 +27,7 @@ describe('resetTenantScopedState', () => {
         expect(removeItem).toHaveBeenCalledWith('ec_cart_order_items:uvh')
         expect(removeItem).toHaveBeenCalledWith('cart_session_id:uvh')
         expect(removeItem).toHaveBeenCalledWith('sessionUser:uvh')
+        expect(removeItem).toHaveBeenCalledWith('ec_customer_type:uvh')
         expect(dispatchEvent).toHaveBeenCalledTimes(1)
         const eventArg = dispatchEvent.mock.calls[0][0] as CustomEvent<{tenantId: string}>
         expect(eventArg.type).toBe(STOREFRONT_TENANT_RESET_EVENT)

@@ -1,14 +1,17 @@
-import {useNavigate} from "react-router-dom";
-import {Button, DataTable} from "@/components";
-import {useCallback, useEffect, useMemo, useState} from "react";
 import {ColumnDef} from "@tanstack/react-table";
+import {Eye, LoaderCircle, Plus, RefreshCw, Upload} from "lucide-react";
+import {useCallback, useEffect, useMemo, useState} from "react";
+import {useNavigate} from "react-router-dom";
+
+
+import {Button, DataTable} from "@/components";
 import {
     apiGetProductUploadBatches,
 } from "@/services/graphql/admin/product/ProductImportService.graphql.ts";
-import type {ProductUploadBatch} from "@/types/admin/ProductTypes.ts";
-import {Eye, LoaderCircle, Plus, RefreshCw, Upload} from "lucide-react";
-import {getProductUploadBatchProcessStatus} from "@/services/rest/admin/ProductUploadService.rest.ts";
 import {exportProductsList} from "@/services/rest/admin/ProductExportService.rest.ts";
+import {getProductUploadBatchProcessStatus} from "@/services/rest/admin/ProductUploadService.rest.ts";
+
+import type {ProductUploadBatch} from "@/types/admin/ProductTypes.ts";
 
 const BulkProductUploadList = () => {
 
@@ -138,11 +141,11 @@ const BulkProductUploadList = () => {
                 return (
                     <div className="flex flex-col">
                         <span>{row.status}</span>
-                        {isProcessing && totalRows > 0 && (
-                            <span className="text-xs text-admin-text-muted">
-                                {processedRows} processed / {skippedRows} skipped / {totalRows} total
-                            </span>
-                        )}
+                        {/*{isProcessing && totalRows > 0 && (*/}
+                        {/*    <span className="text-xs text-admin-text-muted">*/}
+                        {/*        {processedRows} processed / {skippedRows} skipped / {totalRows} total*/}
+                        {/*    </span>*/}
+                        {/*)}*/}
                     </div>
                 );
             },

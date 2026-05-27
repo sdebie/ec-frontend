@@ -1,6 +1,7 @@
 import { createPortal } from 'react-dom';
-import { useToastStore } from './toastStore';
+
 import { Toast } from './Toast';
+import { useToastStore } from './toastStore';
 
 /**
  * Renders all active toasts in a fixed top-right portal.

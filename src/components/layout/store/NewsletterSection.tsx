@@ -1,5 +1,6 @@
 import {useId} from 'react';
 import {Link} from 'react-router-dom';
+
 import type {NewsletterSectionProps} from '@/types/storefront/storefrontTypes';
 
 interface Props {

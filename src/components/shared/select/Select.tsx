@@ -1,7 +1,8 @@
-import * as React from 'react';
-import {cn} from '@/utils/cn.ts';
 import {ChevronDown} from 'lucide-react';
+import * as React from 'react';
+
 import {Label} from "@/components";
+import {cn} from '@/utils/cn.ts';
 
 export interface SelectOption {
     value: string;
@@ -31,12 +32,12 @@ export const Select = React.forwardRef<HTMLDivElement, SelectProps>(
             onChange,
             label,
             placeholder = 'Select an option',
-            helperText,
+            helperText: _helperText,
             error,
             disabled,
             required,
             className,
-            fullWidth = true,
+            fullWidth: _fullWidth = true,
             ...props
         },
         ref

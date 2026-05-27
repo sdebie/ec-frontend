@@ -1,23 +1,24 @@
-import * as React from 'react';
 import {Search, Mail, User, MoreVertical, Plus, CheckCircle2, XCircle, AlertTriangle, Info, Download, Upload} from 'lucide-react';
-import {toast} from '@/components/shared/toast';
+import * as React from 'react';
+
 import {
-    AdaptiveCard,
     Button,
-    Input,
+    InputField,
     Menu,
     MenuItem,
     MenuList,
     MenuSection,
     MenuSeparator,
     MenuTrigger,
+    PageLayout,
     Select
 } from "@/components";
-import {PageContainer} from "@/components/layout/shared/PageContainer.tsx";
+import {DataTable} from "@/components/shared/datatable/DataTable.tsx";
 import {Dialog, DialogContent, DialogFooter, DialogHeader} from "@/components/shared/dialog/Dialog.tsx";
 import {Drawer, DrawerContent, DrawerFooter, DrawerHeader} from "@/components/shared/drawer/Drawer.tsx";
-import {DataTable} from "@/components/shared/datatable/DataTable.tsx";
+import {toast} from '@/components/shared/toast';
 import MixedFormControls from "@/pages/shared/demo/MixedFormControls.tsx";
+import {Card} from '@/primitives/card';
 
 const ComponentsDemo = () => {
     const [isDialogOpen, setIsDialogOpen] = React.useState(false);
@@ -66,7 +67,7 @@ const ComponentsDemo = () => {
             cell: () => (
                 <Menu>
                     <MenuTrigger><Button variant="ghost" size="sm"
-                                         leftIcon={<MoreVertical className="w-4 h-4"/>}/></MenuTrigger>
+                                         leftIcon={<MoreVertical className="w-4 h-4"/>}>Actions</Button></MenuTrigger>
                     <MenuList>
                         <MenuItem>Edit User</MenuItem>
                         <MenuItem>View Profile</MenuItem>
@@ -79,7 +80,7 @@ const ComponentsDemo = () => {
     ];
 
     return (
-        <PageContainer
+        <PageLayout
             title="UI Components Sandbox"
             description="Interactive preview of all reusable, theme-aware components."
         >
@@ -90,7 +91,7 @@ const ComponentsDemo = () => {
                     <h2 className="text-xl font-semibold text-admin-text border-b border-admin-border pb-2">Buttons</h2>
 
                     {/* All variants */}
-                    <AdaptiveCard>
+                    <Card>
                         <div className="space-y-3">
                             <p className="text-sm font-medium text-admin-text">Variants — visual hierarchy</p>
                             <p className="text-xs text-admin-text-muted">
@@ -105,14 +106,14 @@ const ComponentsDemo = () => {
                                 <Button variant="secondary">Secondary</Button>
                                 <Button variant="outline">Outline</Button>
                                 <Button variant="ghost">Ghost</Button>
-                                <Button variant="neutral">Neutral</Button>
+                                <Button variant="secondary">Neutral</Button>
                                 <Button variant="plain">Plain</Button>
                             </div>
                         </div>
-                    </AdaptiveCard>
+                    </Card>
 
                     {/* States per variant */}
-                    <AdaptiveCard>
+                    <Card>
                         <div className="space-y-3">
                             <p className="text-sm font-medium text-admin-text">States — disabled & loading</p>
                             <p className="text-xs text-admin-text-muted">
@@ -124,7 +125,7 @@ const ComponentsDemo = () => {
                                 <Button variant="secondary" disabled>Secondary disabled</Button>
                                 <Button variant="outline" disabled>Outline disabled</Button>
                                 <Button variant="ghost" disabled>Ghost disabled</Button>
-                                <Button variant="neutral" disabled>Neutral disabled</Button>
+                                <Button variant="secondary" disabled>Neutral disabled</Button>
                             </div>
                             <div className="flex flex-wrap items-center gap-3">
                                 <Button variant="solid" loading>Saving…</Button>
@@ -132,10 +133,10 @@ const ComponentsDemo = () => {
                                 <Button variant="outline" loading>Exporting…</Button>
                             </div>
                         </div>
-                    </AdaptiveCard>
+                    </Card>
 
                     {/* Sizes */}
-                    <AdaptiveCard>
+                    <Card>
                         <div className="space-y-3">
                             <p className="text-sm font-medium text-admin-text">Sizes</p>
                             <p className="text-xs text-admin-text-muted">
@@ -150,10 +151,10 @@ const ComponentsDemo = () => {
                                 <Button variant="secondary" size="lg">Large</Button>
                             </div>
                         </div>
-                    </AdaptiveCard>
+                    </Card>
 
                     {/* With icons */}
-                    <AdaptiveCard>
+                    <Card>
                         <div className="space-y-3">
                             <p className="text-sm font-medium text-admin-text">With icons</p>
                             <p className="text-xs text-admin-text-muted">
@@ -166,10 +167,10 @@ const ComponentsDemo = () => {
                                 <Button variant="ghost" leftIcon={<Search className="w-4 h-4"/>}>Search</Button>
                             </div>
                         </div>
-                    </AdaptiveCard>
+                    </Card>
 
                     {/* Real-world example: Brands toolbar */}
-                    <AdaptiveCard>
+                    <Card>
                         <div className="space-y-3">
                             <p className="text-sm font-medium text-admin-text">Real-world example — Brands toolbar</p>
                             <p className="text-xs text-admin-text-muted">
@@ -186,30 +187,30 @@ const ComponentsDemo = () => {
                                 </div>
                             </div>
                         </div>
-                    </AdaptiveCard>
+                    </Card>
                 </section>
 
                 {/* Form Inputs & Select */}
-                <AdaptiveCard>
+                <Card>
                     <section className="space-y-4">
                         <h2 className="text-xl font-semibold text-admin-text border-b border-admin-border pb-2">
                             Form Elements
                         </h2>
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
                             <div className="space-y-4">
-                                <Input
+                                <InputField
                                     label="Email Address"
                                     placeholder="Enter your email"
                                     leftIcon={<Mail className="w-4 h-4"/>}
                                     required
                                 />
-                                <Input
+                                <InputField
                                     label="Username"
                                     placeholder="Choose a username"
                                     leftIcon={<User className="w-4 h-4"/>}
                                     helperText="Must be unique across the system."
                                 />
-                                <Input
+                                <InputField
                                     label="Password"
                                     type="password"
                                     error="Password must be at least 8 characters."
@@ -237,7 +238,7 @@ const ComponentsDemo = () => {
                             </div>
                         </div>
                     </section>
-                </AdaptiveCard>
+                </Card>
 
                 {/* Data Table */}
                 <section className="space-y-4">
@@ -263,7 +264,7 @@ const ComponentsDemo = () => {
                     </h2>
 
                     {/* Variants */}
-                    <AdaptiveCard>
+                    <Card>
                         <div className="space-y-3">
                             <p className="text-sm font-medium text-admin-text">Variants</p>
                             <p className="text-xs text-admin-text-muted">
@@ -309,10 +310,10 @@ const ComponentsDemo = () => {
                                 </Button>
                             </div>
                         </div>
-                    </AdaptiveCard>
+                    </Card>
 
                     {/* With title */}
-                    <AdaptiveCard>
+                    <Card>
                         <div className="space-y-3">
                             <p className="text-sm font-medium text-admin-text">With title</p>
                             <p className="text-xs text-admin-text-muted">
@@ -374,10 +375,10 @@ const ComponentsDemo = () => {
                                 </Button>
                             </div>
                         </div>
-                    </AdaptiveCard>
+                    </Card>
 
                     {/* Duration & stacking */}
-                    <AdaptiveCard>
+                    <Card>
                         <div className="space-y-3">
                             <p className="text-sm font-medium text-admin-text">Custom duration & stacking</p>
                             <p className="text-xs text-admin-text-muted">
@@ -425,10 +426,10 @@ const ComponentsDemo = () => {
                                 </Button>
                             </div>
                         </div>
-                    </AdaptiveCard>
+                    </Card>
 
                     {/* Real-world patterns */}
-                    <AdaptiveCard>
+                    <Card>
                         <div className="space-y-3">
                             <p className="text-sm font-medium text-admin-text">Real-world patterns</p>
                             <p className="text-xs text-admin-text-muted">
@@ -485,7 +486,7 @@ const ComponentsDemo = () => {
                                 </Button>
                             </div>
                         </div>
-                    </AdaptiveCard>
+                    </Card>
                 </section>
 
                 {/* Menu, Dialog, Drawer Triggers */}
@@ -530,7 +531,7 @@ const ComponentsDemo = () => {
                         description="Enter the details below to initialize a new project in the system."
                     />
                     <DialogContent className="space-y-4">
-                        <Input label="Project Name" placeholder="e.g. Q4 Marketing Campaign" required/>
+                        <InputField label="Project Name" placeholder="e.g. Q4 Marketing Campaign" required/>
                         <Select
                             label="Visibility"
                             options={[
@@ -576,7 +577,7 @@ const ComponentsDemo = () => {
                 </Drawer>
 
             </div>
-        </PageContainer>
+        </PageLayout>
     );
 }
 

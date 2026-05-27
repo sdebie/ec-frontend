@@ -1,6 +1,7 @@
 import * as React from 'react';
-import {cn} from '@/utils/cn.ts';
+
 import {Label} from '@/components';
+import {cn} from '@/utils/cn.ts';
 
 export interface FormItemProps {
     label?: string;

@@ -1,9 +1,10 @@
-import cookiesStorage from '@/utils/cookiesStorage'
-import appConfig from '@/configs/app.config'
-import { TOKEN_NAME_IN_STORAGE } from '@/constants/api.constant'
 import { create } from 'zustand'
 import { persist, createJSONStorage } from 'zustand/middleware'
+
+import appConfig from '@/configs/app.config'
+import { TOKEN_NAME_IN_STORAGE } from '@/constants/api.constant'
 import {LoginResponse} from '@/types/auth'
+import cookiesStorage from '@/utils/cookiesStorage'
 import {getSessionUserStorageKey} from '@/utils/storefront/tenantStorageKeys'
 
 type Session = {

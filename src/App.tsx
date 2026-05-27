@@ -1,30 +1,24 @@
-import {useCallback} from 'react'
-import {ToastContainer} from '@/components/shared/toast'
+import {useAppComposition} from '@/app/bootstrap/useAppComposition'
 import {AppProviders} from '@/app/providers/AppProviders'
-import {env} from '@/lib/env'
-import {useAdminAuthState} from '@/app/bootstrap/useAdminAuthState'
-import {useStorefrontBootstrap} from '@/app/bootstrap/useStorefrontBootstrap'
-import {useAppRouterFactory} from '@/app/bootstrap/useAppRouterFactory'
+import {ToastContainer} from '@/components/shared/toast'
+import {useCustomerTypeUrlBootstrap} from '@/store/customerTypeStore.ts'
+
+function CustomerTypeBootstrap() {
+    useCustomerTypeUrlBootstrap()
+    return null
+}
 
 function App() {
-    const {isAuthenticated, setAuthenticated} = useAdminAuthState()
-    const handleLogin = useCallback(() => {
-        setAuthenticated()
-    }, [setAuthenticated])
-    const {router, hostname} = useAppRouterFactory({
-        isAuthenticated,
-        onLoginSuccess: handleLogin,
-    })
-    const manifest = useStorefrontBootstrap()
-    const forcedClientId = env.isDev ? env.storefrontTenant : undefined
+    const {router, storefrontOptions, manifestGeneratedAt} = useAppComposition()
 
     return (
-        <AppProviders storefrontOptions={{hostname, forcedClientId}} router={router}>
+        <AppProviders storefrontOptions={storefrontOptions} router={router}>
             {/* Manifest bootstrap seam loaded at app startup for normalization. */}
             <div
-                data-storefront-manifest-generated={manifest.generatedAt}
+                data-storefront-manifest-generated={manifestGeneratedAt}
                 className="hidden"
             />
+            <CustomerTypeBootstrap/>
             <ToastContainer/>
         </AppProviders>
     )

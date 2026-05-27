@@ -1,2 +1,0 @@
-export { SfIconBox } from './SfIconBox';
-

@@ -1,6 +1,7 @@
 import * as React from "react";
-import {cn} from '@/utils/cn.ts';
+
 import {Label} from "@/components";
+import {cn} from '@/utils/cn.ts';
 
 export type TextareaProps = React.TextareaHTMLAttributes<HTMLTextAreaElement> & {
     label?: string;
@@ -10,7 +11,8 @@ export type TextareaProps = React.TextareaHTMLAttributes<HTMLTextAreaElement> & 
 
 export const Textarea = React.forwardRef<HTMLTextAreaElement, TextareaProps>(
     ({className, label, helperText, error, id, required, ...props}, ref) => {
-        const textareaId = id ?? React.useId();
+        const generatedId = React.useId();
+        const textareaId = id ?? generatedId;
         const hasError = !!error;
         return (
             <div className="space-y-1.5">

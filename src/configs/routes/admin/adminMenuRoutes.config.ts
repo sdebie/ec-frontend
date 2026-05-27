@@ -1,4 +1,5 @@
 import {lazy} from 'react'
+
 import type {Routes} from '@/types/routes'
 
 /**
@@ -30,7 +31,7 @@ export const adminMenuRoutes: Routes = [
             section: 'PRODUCT MANAGEMENT',
             pageBackgroundType: 'plain',
             pageContainerType: 'contained',
-            icon: 'package',
+            icon: 'store',
         },
         subMenu: [
             {
@@ -77,6 +78,54 @@ export const adminMenuRoutes: Routes = [
                     pageContainerType: 'contained',
                 },
             },
+            {
+                key: 'admin.productcatagory.list',
+                path: '/admin/productcatagory/list',
+                component: lazy(() => import('@/pages/admin/products/screens/list/ProductCategoryList.tsx')),
+                authority: ['SUPER_ADMIN'],
+                meta: {
+                    label: 'Product Category List',
+                    pageBackgroundType: 'plain',
+                    pageContainerType: 'contained',
+                },
+            },
+            {
+                key: 'admin.productbrand.list',
+                path: '/admin/productbrand/list',
+                component: lazy(() => import('@/pages/admin/products/screens/list/ProductBrandList.tsx')),
+                authority: ['SUPER_ADMIN'],
+                meta: {
+                    label: 'Product Brand List',
+                    pageBackgroundType: 'plain',
+                    pageContainerType: 'contained',
+                },
+            },
+        ],
+    },
+    {
+        key: 'admin.wholesale',
+        path: '/admin/wholesale',
+        component: lazy(() => import('../../../pages/shared/ToDoView.tsx')),
+        authority: ['SUPER_ADMIN', 'VIEWER'],
+        meta: {
+            label: 'Wholesale',
+            section: 'WHOLESALE MANAGEMENT',
+            pageBackgroundType: 'plain',
+            pageContainerType: 'contained',
+            icon: 'package',
+        },
+        subMenu: [
+            {
+                key: 'admin.wholesale.list',
+                path: '/admin/wholesale/list',
+                component: lazy(() => import('@/pages/admin/wholesale/screens/list/WholesaleApplicationList.tsx')),
+                authority: ['SUPER_ADMIN'],
+                meta: {
+                    label: 'Wholesale Applications',
+                    pageBackgroundType: 'plain',
+                    pageContainerType: 'contained',
+                },
+            },
         ],
     },
     {
@@ -89,7 +138,7 @@ export const adminMenuRoutes: Routes = [
             section: 'PRODUCT MANAGEMENT',
             pageBackgroundType: 'plain',
             pageContainerType: 'contained',
-            icon: 'package',
+            icon: 'import',
         },
         subMenu: [
             {
@@ -211,7 +260,7 @@ export const adminMenuRoutes: Routes = [
             section: 'CONFIGURATION',
             pageBackgroundType: 'plain',
             pageContainerType: 'contained',
-            icon: 'settings',
+            icon: 'users',
         },
         subMenu: [
             {

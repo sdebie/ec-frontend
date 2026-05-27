@@ -1,7 +1,10 @@
 import { lazy } from 'react'
-import type { PageRoutes } from '@/types/routes'
+
 import { toPageRoutes } from '../routeHelpers'
+
 import { adminMenuRoutes } from './adminMenuRoutes.config'
+
+import type { PageRoutes } from '@/types/routes'
 
 /**
  * Admin page routes only contain routing metadata.
@@ -32,6 +35,16 @@ const adminPageOnlyRoutes: PageRoutes = [
         key: 'admin.product.detail',
         path: '/admin/product/detail/:id',
         component: lazy(() => import('@/pages/admin/products/screens/detail/ProductDetail')),
+        authority: ['SUPER_ADMIN'],
+        meta: {
+            pageBackgroundType: 'plain',
+            pageContainerType: 'contained',
+        },
+    },
+    {
+        key: 'admin.product.edit',
+        path: '/admin/product/edit/:id',
+        component: lazy(() => import('@/pages/admin/products/screens/edit/ProductEdit')),
         authority: ['SUPER_ADMIN'],
         meta: {
             pageBackgroundType: 'plain',

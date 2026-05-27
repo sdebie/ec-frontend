@@ -8,10 +8,15 @@ export const CANONICAL_STOREFRONT_PAGE_KEYS = [
     'cart',
     'productDetail',
     'checkout',
+    'createAccount',
     'paymentSuccess',
     'accessDenied',
     'contactUs',
     'aboutUs',
+    'wholesaleApplication',
+    'termsAndConditions',
+    'privacyPolicy',
+    'deliveryAndReturnsPolicy',
 ] as const;
 
 export type StorefrontPageKey = (typeof CANONICAL_STOREFRONT_PAGE_KEYS)[number];

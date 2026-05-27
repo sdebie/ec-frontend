@@ -1,22 +1,13 @@
-import {apiGetStoreSettings} from "./graphql/admin/settings/SettingsService.graphql.ts";
-
-// Types mirrored from backend entities
-export type StoreSetting = {
-    key: string;
-    value: string;
-    description?: string | null;
-};
-
-export type ShippingMethod = {
-    id?: string | null;
-    name?: string | null;
-    active?: boolean | null;
-    baseFee?: number | null;
-    estimatedDays?: string | null;
-};
+import {apiGetCountrySettings, apiGetStoreSettings} from "./graphql/admin/settings/SettingsService.graphql.ts";
+import type {CountrySetting, ShippingMethod, StoreSetting} from "@/types/admin/SettingsTypes.ts";
+export type {StoreSetting, ShippingMethod, CountrySetting};
 
 // Payment methods allowed values from settings
 export type PaymentMethodKey = 'IN_STORE' | 'FASTPAY';
+
+export async function fetchCountrySettings(): Promise<CountrySetting[]> {
+    return apiGetCountrySettings();
+}
 
 // Structured config for payment methods (new JSON format)
 export type PaymentMethodInfo = {
@@ -31,7 +22,7 @@ export type PaymentMethodsConfig = Partial<Record<PaymentMethodKey, PaymentMetho
 export async function fetchAllowedPaymentMethods(): Promise<PaymentMethodKey[]> {
     const cfg = await fetchPaymentMethodsConfig();
     const keys = Object.entries(cfg)
-        .filter(([_, info]) => !!info && !!(info as PaymentMethodInfo).enabled)
+        .filter(([_, info]) => !!info && (info as PaymentMethodInfo).enabled)
         .map(([key]) => key as PaymentMethodKey);
     return keys.length ? keys : ['FASTPAY'];
 }
@@ -45,14 +36,14 @@ export async function fetchPaymentMethodsConfig(): Promise<PaymentMethodsConfig>
         let parsed: any = null;
         try {
             parsed = raw ? JSON.parse(raw) : null;
-        } catch (_) {
+        } catch {
             // Attempt to handle CSV-like strings e.g. IN_STORE, FASTPAY
             const trimmed = String(raw || '').trim();
             if (trimmed.includes(',')) {
                 parsed = trimmed
-                    .replace(/^[\[\]]$/g, '')
+                    .replace(/^([\[\]])$/g, '')
                     .split(',')
-                    .map((s: string) => s.replace(/^[\s\"]+|[\s\"]+$/g, ''));
+                    .map((s: string) => s.replace(/^[\s"]+|[\s"]+$/g, ''));
             }
         }
 

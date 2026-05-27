@@ -1,7 +1,10 @@
 import {useState} from "react";
-import type {Staff} from "@/types/admin/StaffTypes.ts";
+
+
 import {apiUpdateStaff} from "@/services/graphql/admin/staff/StaffService.graphql.ts";
 import {extractTechnicalDetails} from "@/utils/graphqlErrorUtils.ts";
+
+import type {Staff} from "@/types/admin/StaffTypes.ts";
 
 const FRIENDLY_ERROR_MSG = "We couldn't save your changes right now. Please try again.";
 

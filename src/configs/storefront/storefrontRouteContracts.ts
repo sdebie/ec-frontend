@@ -1,7 +1,10 @@
-import {lazy} from 'react'
-import type {LazyExoticComponent, ComponentType} from 'react'
-import type {StorefrontPageKey} from '@/types/storefront/storefrontPageKeys'
+import {storeMenuRoutes} from '@/configs/routes/store/storeMenuRoutes.config'
+import {storeRoutingRoutes} from '@/configs/routes/store/storePageRoutes.config'
+
 import type {PageMeta, PageRoute, Route, RouteMeta} from '@/types/routes'
+import type {StorefrontPageKey} from '@/types/storefront/storefrontPageKeys'
+import type {LazyExoticComponent, ComponentType} from 'react'
+
 
 type StorefrontRouteComponent = LazyExoticComponent<ComponentType<any>>
 
@@ -13,81 +16,15 @@ export interface StorefrontRouteContract {
     meta: PageMeta
 }
 
-const defaultMeta: PageMeta = {
-    pageBackgroundType: 'plain',
-    pageContainerType: 'contained',
-}
+const menuRouteKeySet = new Set(storeMenuRoutes.map((route) => route.key))
 
-const shopMeta: PageMeta = {
-    ...defaultMeta,
-    layout: 'shop',
-}
-
-const storefrontRouteContracts: ReadonlyArray<StorefrontRouteContract> = [
-    {
-        key: 'home',
-        path: '/',
-        component: lazy(() => import('@/pages/storefront/default/home/StorefrontHomePage.tsx')),
-        menu: true,
-        meta: defaultMeta,
-    },
-    {
-        key: 'products',
-        path: '/products',
-        component: lazy(() => import('@/pages/storefront/default/products/ProductList.tsx')),
-        menu: true,
-        meta: shopMeta,
-    },
-    {
-        key: 'cart',
-        path: '/cart',
-        component: lazy(() => import('@/pages/storefront/default/shoppingCart/screens/ShoppingCart.tsx')),
-        menu: true,
-        meta: shopMeta,
-    },
-    {
-        key: 'contactUs',
-        path: '/contact-us',
-        component: lazy(() => import('@/pages/storefront/default/contactUs/ContactUs.tsx')),
-        menu: true,
-        meta: defaultMeta,
-    },
-    {
-        key: 'aboutUs',
-        path: '/about-us',
-        component: lazy(() => import('@/pages/storefront/default/aboutus/screens')),
-        menu: true,
-        meta: defaultMeta,
-    },
-    {
-        key: 'productDetail',
-        path: '/product/:productId',
-        component: lazy(() => import('@/pages/storefront/default/products/ProductDetailsPage.tsx')),
-        menu: false,
-        meta: shopMeta,
-    },
-    {
-        key: 'checkout',
-        path: '/checkout',
-        component: lazy(() => import('@/pages/storefront/default/checkout/screens/Checkout.tsx')),
-        menu: false,
-        meta: shopMeta,
-    },
-    {
-        key: 'paymentSuccess',
-        path: '/payment-success',
-        component: lazy(() => import('@/pages/storefront/default/payment/Success.tsx')),
-        menu: false,
-        meta: defaultMeta,
-    },
-    {
-        key: 'accessDenied',
-        path: '/access-denied',
-        component: lazy(() => import('@/pages/shared/AccessDenied')),
-        menu: false,
-        meta: defaultMeta,
-    },
-]
+const storefrontRouteContracts: ReadonlyArray<StorefrontRouteContract> = storeRoutingRoutes.map((route) => ({
+    key: route.key as StorefrontPageKey,
+    path: route.path,
+    component: route.component as StorefrontRouteComponent,
+    menu: menuRouteKeySet.has(route.key),
+    meta: route.meta as PageMeta,
+}))
 
 function toRoute(contract: StorefrontRouteContract): Route {
     return {

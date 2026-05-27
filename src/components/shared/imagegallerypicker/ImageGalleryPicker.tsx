@@ -1,7 +1,9 @@
-import {IMAGE_BASE_URL} from "@/constants/api.constant.ts";
-import {useState, useCallback, useEffect, useRef} from "react";
-import {Input, Button} from "@/components";
 import {Check, Loader} from "lucide-react";
+import {useState, useCallback, useEffect, useRef} from "react";
+
+import {Button} from "@/components";
+import {IMAGE_BASE_URL} from "@/constants/api.constant.ts";
+import {Input} from "@/primitives/input";
 import ImageServiceRest from "@/services/rest/admin/ImageService.rest.ts";
 
 interface ImageGalleryPickerProps {
@@ -28,7 +30,7 @@ export const ImageGalleryPicker = ({
     const [isLoading, setIsLoading] = useState(false);
     const [currentPage, setCurrentPage] = useState(0);
     const [totalCount, setTotalCount] = useState(0);
-    const debounceTimerRef = useRef<NodeJS.Timeout | null>(null);
+    const debounceTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
     const fetchImages = useCallback(async (page: number, search: string) => {
         if (!enablePagination && !search && initialImages.length > 0) {

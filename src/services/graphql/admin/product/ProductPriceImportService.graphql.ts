@@ -1,10 +1,10 @@
-import getServiceEndpoint from "@/utils/HostnameResolver.ts";
-import {GraphQLService} from "@/services/graphql/GraphQLService.ts";
-import {ProductPriceUploadStaged, ProductUploadBatch} from "@/types/admin/ProductTypes.ts";
 import {
 	PRODUCT_PRICE_IMPORT_ROWS,
 	PRODUCT_PRICE_UPLOAD_BATCHES,
 } from "@/services/graphql/admin/product/productPriceImport.queries.ts";
+import {GraphQLService} from "@/services/graphql/GraphQLService.ts";
+import {ProductPriceUploadStaged, ProductUploadBatch} from "@/types/admin/ProductTypes.ts";
+import getServiceEndpoint from "@/utils/HostnameResolver.ts";
 
 const graphQLEndpoint = getServiceEndpoint(8080) + '/api/graphql';
 

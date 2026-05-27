@@ -1,9 +1,12 @@
 import {Link} from 'react-router-dom';
+
 import type {
     CategoryPreviewColumns,
     CategoryPreviewItem,
     CategoryPreviewSectionProps,
 } from '@/types/storefront/storefrontTypes';
+import type {ReactNode} from 'react';
+
 
 interface Props {
     props: CategoryPreviewSectionProps;
@@ -19,7 +22,7 @@ const gridClassByColumns: Record<CategoryPreviewColumns, string> = {
 const CategoryLink = ({item, className, children}: {
     item: CategoryPreviewItem;
     className: string;
-    children: React.ReactNode;
+    children: ReactNode;
 }) => {
     if (item.external) {
         return (

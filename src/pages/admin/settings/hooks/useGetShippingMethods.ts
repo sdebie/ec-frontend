@@ -1,6 +1,7 @@
 import {useCallback, useEffect, useState} from "react";
-import {ShippingMethod} from "@/types/admin/SettingsTypes.ts";
+
 import {apiGetShippingMethods} from "@/services/graphql/admin/settings/SettingsService.graphql.ts";
+import {ShippingMethod} from "@/types/admin/SettingsTypes.ts";
 
 type UseGetShippingMethodsOptions = {
     onError?: (error: unknown) => void;

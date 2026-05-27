@@ -4,6 +4,8 @@ const TENANT_RESET_PREFIXES = [
     'ec_cart_order_items',
     'cart_session_id',
     'sessionUser',
+    /** Customer price tier preference (tenant-scoped; see `customerTypeStore`) */
+    'ec_customer_type',
 ] as const
 
 export const STOREFRONT_TENANT_RESET_EVENT = 'storefront:tenant-reset'

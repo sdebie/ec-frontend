@@ -1,6 +1,8 @@
-import type {ReactNode} from 'react'
-import {listSlotContributions} from '@/storefront/registry/slotRegistry'
+import {listSlotContributions} from '@/configs/storefront/slotRegistry'
+
 import type {StorefrontClientConfig, StorefrontSlotId} from '@/types/storefront/storefrontTypes'
+import type {ReactNode} from 'react'
+
 
 interface StorefrontSlotProps {
     storefrontConfig: StorefrontClientConfig

@@ -1,11 +1,13 @@
+import {zodResolver} from '@hookform/resolvers/zod';
+import {Mail, Package, Zap, Rocket} from 'lucide-react';
 import * as React from 'react';
 import {useForm, Controller} from 'react-hook-form';
-import {zodResolver} from '@hookform/resolvers/zod';
 import {z} from 'zod';
+
 import {
     Form,
     FormItem,
-    Input,
+    InputField,
     Select,
     MultiSelect,
     DatePicker,
@@ -16,9 +18,11 @@ import {
     Segment,
     Upload,
     PresetSegmentItemOption,
-    Button, PageContainer,
+    PageLayout,
+    Button,
 } from '@/components';
-import {Mail, Package, Zap, Rocket} from 'lucide-react';
+import {Input} from '@/primitives/input';
+
 
 // Validation Schema
 const formSchema = z.object({
@@ -138,7 +142,7 @@ const MixedFormControls: React.FC = () => {
     };
 
     return (
-        <PageContainer title={"Mixed Form Controls"}
+        <PageLayout title={"Mixed Form Controls"}
                        description={" Comprehensive form demonstrating all available form components with validation"}>
             <Form onSubmit={handleSubmit(onSubmit)}>
                 {/* Text Inputs */}
@@ -173,7 +177,7 @@ const MixedFormControls: React.FC = () => {
                                 invalid={!!errors.email}
                                 helperText="We'll never share your email"
                             >
-                                <Input
+                                <InputField
                                     {...field}
                                     type="email"
                                     placeholder="john@example.com"
@@ -425,7 +429,7 @@ const MixedFormControls: React.FC = () => {
                     </Button>
                 </div>
             </Form>
-        </PageContainer>
+        </PageLayout>
     );
 };
 

@@ -1,23 +1,21 @@
-import { defineConfig } from 'vite'
-import react from '@vitejs/plugin-react'
 import path from 'path';
+
+import react from '@vitejs/plugin-react'
+import { defineConfig } from 'vite'
 import dynamicImport from 'vite-plugin-dynamic-import'
 function buildStorefrontConfigVirtualModule(): string {
   return `
-const configModules = import.meta.glob('/src/configs/storefront/clients/*StorefrontConfig.ts', { eager: true });
+const configModules = import.meta.glob('/src/tenants/*/config.ts', { eager: true });
 
 const toTenantId = (modulePath) => {
-  const filename = modulePath.split('/').pop() ?? '';
-  if (filename === 'defaultStorefrontConfig.ts') return 'default';
-  const clientMatch = /^client(.+)StorefrontConfig\\.ts$/.exec(filename);
-  if (!clientMatch) return null;
-  const candidate = clientMatch[1];
-  return candidate.charAt(0).toLowerCase() + candidate.slice(1);
+  const match = /^\\/src\\/tenants\\/([^/]+)\\/config\\.ts$/.exec(modulePath);
+  return match ? match[1] : null;
 };
 
 const readDefaultExport = (moduleValue) => {
   if (!moduleValue || typeof moduleValue !== 'object') return undefined;
   if ('defaultStorefrontConfig' in moduleValue) return moduleValue.defaultStorefrontConfig;
+  if ('clientUvhStorefrontConfig' in moduleValue) return moduleValue.clientUvhStorefrontConfig;
   const firstConfig = Object.values(moduleValue).find((value) => value && typeof value === 'object' && 'id' in value);
   return firstConfig;
 };
@@ -46,7 +44,7 @@ export const storefrontConfigImports = allowedTenants
 
 function buildStorefrontPageVirtualModule(): string {
   return `
-const pageModules = import.meta.glob('/src/pages/storefront/*/*/page.tsx');
+const pageModules = import.meta.glob('/src/tenants/*/pages/*/page.tsx');
 
 const normalizeTenantFilter = (rawTenant) => {
   const tenant = (rawTenant ?? '').trim().toLowerCase();
@@ -57,7 +55,7 @@ const normalizeTenantFilter = (rawTenant) => {
 const allowedTenants = normalizeTenantFilter(import.meta.env.VITE_STORE_FRONT);
 
 const toPageImportKey = (modulePath) => {
-  const match = /^\\/src\\/pages\\/storefront\\/([^/]+)\\/([^/]+)\\/page\\.tsx$/.exec(modulePath);
+  const match = /^\\/src\\/tenants\\/([^/]+)\\/pages\\/([^/]+)\\/page\\.tsx$/.exec(modulePath);
   if (!match) return null;
   const [, tenantId, pageKey] = match;
   return { tenantId, pageKey };

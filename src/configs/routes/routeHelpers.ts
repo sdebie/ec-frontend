@@ -1,4 +1,4 @@
-import type { PageMeta, PageRoute, PageRoutes, Route, Routes } from '@/types/routes'
+import type {PageRoute, PageRoutes, Route, RouteMeta, Routes} from '@/types/routes'
 
 /**
  * Filter routes to get only menu-visible routes
@@ -54,7 +54,8 @@ export const flattenRoutes = (routes: Routes): Route[] => {
     ])
 }
 
-const toPageMeta = (meta: Route['meta']): PageMeta => ({
+const toPageMeta = (meta: Route['meta']): RouteMeta => ({
+    layout: meta.layout,
     pageContainerType: meta.pageContainerType,
     pageBackgroundType: meta.pageBackgroundType,
     header: meta.header,

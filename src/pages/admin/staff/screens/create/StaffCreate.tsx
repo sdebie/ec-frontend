@@ -1,9 +1,9 @@
-import {Controller, useForm} from "react-hook-form";
-import {z} from "zod";
 import {zodResolver} from "@hookform/resolvers/zod";
 import {useEffect} from "react";
-import useCreateStaff from "@/pages/admin/staff/hooks/useCreateStaff.ts";
-import {toast} from "@/components/shared/toast";
+import {Controller, useForm} from "react-hook-form";
+import {z} from "zod";
+
+
 import {
     Button,
     Dialog,
@@ -12,11 +12,15 @@ import {
     DialogHeader,
     Form,
     FormItem,
-    Input,
     Select,
     Switcher,
 } from "@/components";
+import {toast} from "@/components/shared/toast";
+import useCreateStaff from "@/pages/admin/staff/hooks/useCreateStaff.ts";
+import {Input} from "@/primitives/input";
+
 import type {StaffRole} from "@/types/admin/StaffTypes.ts";
+
 
 const roleOptions: { value: StaffRole; label: string }[] = [
     {value: "SUPER_ADMIN", label: "Super Admin"},
@@ -114,7 +118,7 @@ const StaffCreate = ({isDialogOpen, setIsDialogOpen, onSuccess}: StaffCreateProp
                                     errorMessage={errors.email?.message}
                                     invalid={!!errors.email}
                                 >
-                                    <Input {...field} type="email" placeholder="name@company.com" className="w-full"/>
+                                    <Input size="lg" {...field} type="email" placeholder="name@company.com" className="w-full"/>
                                 </FormItem>
                             )}
                         />
@@ -128,7 +132,7 @@ const StaffCreate = ({isDialogOpen, setIsDialogOpen, onSuccess}: StaffCreateProp
                                     errorMessage={errors.fullName?.message}
                                     invalid={!!errors.fullName}
                                 >
-                                    <Input {...field} placeholder="Jane Doe" className="w-full"/>
+                                    <Input size="lg" {...field} placeholder="Jane Doe" className="w-full"/>
                                 </FormItem>
                             )}
                         />
@@ -163,7 +167,7 @@ const StaffCreate = ({isDialogOpen, setIsDialogOpen, onSuccess}: StaffCreateProp
                                     errorMessage={errors.temporaryPassword?.message}
                                     invalid={!!errors.temporaryPassword}
                                 >
-                                    <Input {...field} type="password" placeholder="Set temporary password" className="w-full"/>
+                                    <Input size="lg" {...field} type="password" placeholder="Set temporary password" className="w-full"/>
                                 </FormItem>
                             )}
                         />

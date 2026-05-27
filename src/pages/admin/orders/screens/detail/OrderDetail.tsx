@@ -1,9 +1,13 @@
-import { useParams, useNavigate } from "react-router-dom";
-import { PageContainer } from "@/components";
-import useOrderDetail from "@/pages/admin/orders/hooks/useOrderDetail.ts";
-import { OrderStatusDisplay } from "@/constants/enums/OrderStatusDisplay.tsx";
-import { asVariant } from "@/types/order.types.ts";
 import { ArrowLeft } from "lucide-react";
+import { useParams, useNavigate } from "react-router-dom";
+
+
+import {PageLayout} from '@/components';
+import { OrderStatusDisplay } from "@/constants/enums/OrderStatusDisplay.tsx";
+import useOrderDetail from "@/pages/admin/orders/hooks/useOrderDetail.ts";
+import { asVariant } from "@/types/order.types.ts";
+
+import type { ReactNode } from "react";
 
 const rv = (value?: string | number | boolean | null) => {
     if (value === null || value === undefined || value === "") return "N/A";
@@ -11,7 +15,7 @@ const rv = (value?: string | number | boolean | null) => {
     return String(value);
 };
 
-const Section = ({ title, children }: { title: string; children: React.ReactNode }) => (
+const Section = ({ title, children }: { title: string; children: ReactNode }) => (
     <section className="rounded-lg border border-admin-border bg-admin-bg p-6 shadow-sm">
         <h2 className="text-xl font-semibold mb-4">{title}</h2>
         {children}
@@ -31,18 +35,18 @@ const OrderDetail = () => {
     const { order, isLoading, errorMsg } = useOrderDetail(id);
 
     return (
-        <PageContainer>
+        <PageLayout
+            title="Order Detail"
+            action={(
+                <button
+                    onClick={() => navigate(-1)}
+                    className="flex items-center gap-1 text-sm text-admin-text-muted hover:text-admin-text"
+                >
+                    <ArrowLeft size={16} /> Back
+                </button>
+            )}
+        >
             <div className="flex flex-col gap-6">
-                <div className="flex items-center gap-3">
-                    <button
-                        onClick={() => navigate(-1)}
-                        className="flex items-center gap-1 text-sm text-admin-text-muted hover:text-admin-text"
-                    >
-                        <ArrowLeft size={16} /> Back
-                    </button>
-                    <h1 className="text-2xl font-bold">Order Detail</h1>
-                </div>
-
                 {isLoading && <p className="text-sm text-admin-text-muted">Loading order details...</p>}
                 {errorMsg && <p className="text-sm text-red-500">{errorMsg}</p>}
                 {!isLoading && !errorMsg && !order && <p className="text-sm text-admin-text-muted">Order not found.</p>}
@@ -139,7 +143,7 @@ const OrderDetail = () => {
                     </>
                 )}
             </div>
-        </PageContainer>
+        </PageLayout>
     );
 };
 

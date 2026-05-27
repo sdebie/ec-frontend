@@ -1,10 +1,11 @@
-import {useCallback, useState} from 'react';
-import {ShippingMethod} from "@/types/admin/SettingsTypes.ts";
-import {Button, DataTable, toast} from "@/components";
 import {CheckCircle2, PenLine, Plus, TrashIcon, XCircle} from "lucide-react";
-import ShippingMethodCreate from "@/pages/admin/settings/screens/create";
+import {useCallback, useState} from 'react';
+
+import {Button, DataTable, toast} from "@/components";
 import useGetShippingMethods from "@/pages/admin/settings/hooks/useGetShippingMethods.ts";
+import ShippingMethodCreate from "@/pages/admin/settings/screens/create";
 import ShippingMethodEdit from "@/pages/admin/settings/screens/edit";
+import {ShippingMethod} from "@/types/admin/SettingsTypes.ts";
 
 type ShippingSettingsProps = {
     onEdit?: (method: ShippingMethod) => void;

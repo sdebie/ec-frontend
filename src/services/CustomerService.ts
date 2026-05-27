@@ -1,8 +1,11 @@
-import getServiceEndpoint from "../utils/HostnameResolver";
-import {CustomerInformation} from "@/types/order.types.ts";
-import {CartStore} from "../store/CartStore.ts";
 import {gql} from "graphql-request";
+
+import {CustomerInformation} from "@/types/order.types.ts";
+
+import getServiceEndpoint from "../utils/HostnameResolver";
+
 import {GraphQLService} from "./graphql/GraphQLService.ts";
+
 
 // Allow environment variable override for production deployments
 const envGraphQl = (typeof import.meta !== 'undefined' && (import.meta as any).env)
@@ -15,14 +18,23 @@ const graphQlEndpoint = (envGraphQl && envGraphQl.length > 0)
 
 export type CustomerProfile = {
   email: string;
+  status?: 'ACTIVE' | 'DISABLED' | 'PENDING';
   firstName?: string;
   lastName?: string;
   phone?: string;
-  addressLine1?: string;
-  addressLine2?: string;
-  city?: string;
-  province?: string;
-  postalCode?: string;
+  physicalAddressLine1?: string;
+  physicalAddressLine2?: string;
+  physicalSuburb?: string;
+  physicalCity?: string;
+  physicalProvince?: string;
+  physicalPostalCode?: string;
+  postalAddressLine1?: string;
+  postalAddressLine2?: string;
+  postalSuburb?: string;
+  postalCity?: string;
+  postalProvince?: string;
+  postalPostalCode?: string;
+  additionalInfo?: Record<string, unknown>;
   shopperType?: string; // RETURNING | GUEST | undefined
   hasPassword?: boolean;
 };
@@ -51,17 +63,60 @@ export async function loginCustomer(email: string, password: string): Promise<Cu
   return await res.json();
 }
 
+export async function requestCustomerPasswordResetCode(email: string): Promise<string> {
+  const res = await fetch(`${baseUrl}/api/customers/password-reset/request`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ email })
+  });
+  if (!res.ok) throw new Error(await res.text());
+  return await res.text();
+}
+
+export async function verifyCustomerPasswordResetCode(email: string, code: string): Promise<string> {
+  const res = await fetch(`${baseUrl}/api/customers/password-reset/verify`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ email, code })
+  });
+  if (!res.ok) throw new Error(await res.text());
+  return await res.text();
+}
+
+export async function completeCustomerPasswordReset(
+  email: string,
+  code: string,
+  newPassword: string,
+  confirmPassword: string
+): Promise<string> {
+  const res = await fetch(`${baseUrl}/api/customers/password-reset/complete`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ email, code, newPassword, confirmPassword })
+  });
+  if (!res.ok) throw new Error(await res.text());
+  return await res.text();
+}
+
 export type RegisterOrUpdatePayload = {
   email: string;
   password?: string;
   firstName?: string;
   lastName?: string;
   phone?: string;
-  addressLine1?: string;
-  addressLine2?: string;
-  city?: string;
-  province?: string;
-  postalCode?: string;
+  physicalAddressLine1?: string;
+  physicalAddressLine2?: string;
+  physicalSuburb?: string;
+  physicalCity?: string;
+  physicalProvince?: string;
+  physicalPostalCode?: string;
+  postalAddressLine1?: string;
+  postalAddressLine2?: string;
+  postalSuburb?: string;
+  postalCity?: string;
+  postalProvince?: string;
+  postalPostalCode?: string;
+  additionalInfo?: Record<string, unknown>;
 };
 
 export async function registerOrUpdateCustomer(payload: RegisterOrUpdatePayload): Promise<CustomerProfile> {
@@ -76,9 +131,9 @@ export async function registerOrUpdateCustomer(payload: RegisterOrUpdatePayload)
 
 export async function apiUpdateCustomerInformation(
     customer: CustomerInformation,
-    sessionId?: string
+    sessionId: string
 ): Promise<CustomerInformation> {
-  const sid = sessionId || CartStore.getOrderSessionId();
+  const sid = sessionId;
   if (!sid) {
     throw new Error('Missing sessionId to update customer information');
   }
@@ -106,8 +161,7 @@ export async function apiUpdateCustomerInformation(
 // Convenience wrapper returning only CustomerInformation; does not mutate CartStore
 export async function updateCustomerInformation(
     customer: CustomerInformation,
-    sessionId?: string
+    sessionId: string
 ): Promise<CustomerInformation> {
-  const updated = await apiUpdateCustomerInformation(customer, sessionId);
-  return updated;
+  return await apiUpdateCustomerInformation(customer, sessionId);
 }

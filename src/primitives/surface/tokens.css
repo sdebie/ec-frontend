@@ -1,0 +1,48 @@
+/* src/primitives/surface/tokens.css */
+
+/* Admin surface — drives admin app appearance */
+[data-surface='admin'] {
+  --c-bg:            var(--admin-bg);
+  --c-panel:         var(--admin-panel);
+  --c-text:          var(--admin-text);
+  --c-text-muted:    var(--admin-text-muted);
+  --c-border:        var(--admin-border);
+  --c-accent:        var(--primary);
+  --c-accent-hover:  var(--primary-hover);
+  --c-accent-text:   #ffffff;
+  --c-accent-subtle: var(--primary-subtle);
+  --c-ring:          var(--primary);
+  --c-radius:        0.375rem;
+  --c-shadow-sm:     0 1px 2px rgba(0, 0, 0, 0.05);
+}
+
+/* Storefront surface — pulls from --sf-* set by the active tenant theme */
+[data-surface='storefront'] {
+  --c-bg:            var(--sf-bg);
+  --c-panel:         var(--sf-panel, var(--sf-bg, #ffffff));
+  --c-text:          var(--sf-text);
+  --c-text-muted:    var(--sf-muted-text);
+  --c-border:        var(--sf-border);
+  --c-accent:        var(--sf-accent);
+  --c-accent-hover:  var(--sf-accent-hover, var(--sf-accent));
+  --c-accent-text:   var(--sf-accent-text);
+  --c-accent-subtle: var(--sf-accent-subtle, color-mix(in srgb, var(--sf-accent) 20%, transparent));
+  --c-ring:          var(--sf-ring, var(--sf-accent));
+  --c-radius:        var(--sf-radius, 0.5rem);
+  --c-shadow-sm:     var(--sf-shadow-sm, 0 1px 2px rgba(0, 0, 0, 0.05));
+}
+
+/* Wholesaler surface — defined when Phase 9 lands */
+
+/* Density modifiers */
+[data-density='compact'] {
+  --c-control-h-sm: 1.75rem;
+  --c-control-h-md: 2rem;
+  --c-control-h-lg: 2.5rem;
+}
+
+[data-density='comfortable'] {
+  --c-control-h-sm: 2rem;
+  --c-control-h-md: 2.5rem;
+  --c-control-h-lg: 3rem;
+}

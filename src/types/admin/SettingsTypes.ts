@@ -13,7 +13,18 @@ export type ShippingMethod = {
     estimatedDays?: string | null;
 };
 
+export type CountrySetting = {
+    countryCode: string;
+    countryName: string;
+    currencyCode: string;
+    locale: string;
+    decimalPlaces: number;
+    isDefault: boolean;
+    isActive: boolean;
+};
+
 export type Settings = {
     storeSettings?: StoreSetting[]
     shippingMethods?: ShippingMethod[]
+    countrySettings?: CountrySetting[]
 };

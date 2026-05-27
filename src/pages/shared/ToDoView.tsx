@@ -1,4 +1,4 @@
-import {Button} from "@/components/shared/button/Button.tsx";
+import {Button} from '@/primitives/button';
 
 const ToDoView = () => {
 

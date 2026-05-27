@@ -1,7 +1,8 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
+
 import { apiGetAllOrders } from "@/services/graphql/order/OrderService.graphql.ts";
-import { OrderData } from "@/types/order.types.ts";
 import { FilterRequest } from "@/types/graphql/query.types.ts";
+import { OrderData } from "@/types/order.types.ts";
 
 const DEFAULT_PAGE_SIZE = 10;
 

@@ -1,5 +1,5 @@
-import type {CSSProperties, PropsWithChildren} from 'react';
 import type {StorefrontClientConfig} from '@/types/storefront/storefrontTypes';
+import type {CSSProperties, PropsWithChildren} from 'react';
 
 interface StorefrontThemeProviderProps extends PropsWithChildren {
     clientConfig: StorefrontClientConfig;

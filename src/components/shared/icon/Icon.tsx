@@ -1,11 +1,13 @@
 import * as LucideIcons from 'lucide-react';
 import {LucideProps} from 'lucide-react';
 
+import type {FC} from 'react';
+
 interface IconProps extends LucideProps {
     name: string;
 }
 
-const Icon: React.FC<IconProps> = ({name, ...props}) => {
+const Icon: FC<IconProps> = ({name, ...props}) => {
     // Convert kebab-case or snake_case to PascalCase for Lucide icons
     // e.g., 'layout-dashboard' -> 'LayoutDashboard'
     const pascalName = name

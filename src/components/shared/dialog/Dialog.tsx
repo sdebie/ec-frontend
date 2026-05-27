@@ -1,6 +1,7 @@
-import * as React from 'react';
-import {cn} from '@/utils/cn.ts';
 import {X} from 'lucide-react';
+import * as React from 'react';
+
+import {cn} from '@/utils/cn.ts';
 
 interface DialogContextValue {
     onClose: () => void;

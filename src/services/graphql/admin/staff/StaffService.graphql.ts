@@ -1,8 +1,10 @@
-import getServiceEndpoint from "@/utils/HostnameResolver.ts";
-import {Staff} from "@/types/admin/StaffTypes.ts";
+
 import {GraphQLService} from "@/services/graphql/GraphQLService.ts";
-import {CREATE_STAFF, STAFF_BY_ID, STAFF_COUNT, STAFF_LIST, UPDATE_STAFF} from "./staff.queries.ts";
+import {Staff} from "@/types/admin/StaffTypes.ts";
 import {FilterRequest, PageRequest} from "@/types/graphql/query.types.ts";
+import getServiceEndpoint from "@/utils/HostnameResolver.ts";
+
+import {CREATE_STAFF, STAFF_BY_ID, STAFF_COUNT, STAFF_LIST, UPDATE_STAFF} from "./staff.queries.ts";
 
 const graphQLEndpoint = getServiceEndpoint(8080) + '/api/graphql';
 

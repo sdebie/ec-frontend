@@ -1,4 +1,5 @@
 import {describe, expect, it, vi} from 'vitest'
+
 import {createStorefrontDataRoutes} from '@/app/router/createStorefrontDataRoutes'
 
 vi.mock('@/configs/storefront/storefrontRouteContracts', async (importOriginal) => {
@@ -30,8 +31,6 @@ describe('createStorefrontDataRoutes', () => {
     it('returns no storefront routes on admin domain', () => {
         const routes = createStorefrontDataRoutes({
             isAdminDomain: true,
-            activeCategory: 'All',
-            setActiveCategory: vi.fn(),
         })
 
         expect(routes).toEqual([])
@@ -40,8 +39,6 @@ describe('createStorefrontDataRoutes', () => {
     it('does not generate wildcard storefront routes', () => {
         const routes = createStorefrontDataRoutes({
             isAdminDomain: false,
-            activeCategory: 'All',
-            setActiveCategory: vi.fn(),
         })
 
         const layoutGroups = routes[0]?.children ?? []

@@ -1,7 +1,11 @@
-import * as React from 'react';
 import { X, CheckCircle2, XCircle, AlertTriangle, Info } from 'lucide-react';
+import * as React from 'react';
+
 import { cn } from '@/utils/cn';
+
 import { type ToastItem, useToastStore } from './toastStore';
+
+
 
 // ─── Variant configuration ─────────────────────────────────────────────────────
 

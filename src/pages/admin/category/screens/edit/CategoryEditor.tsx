@@ -1,7 +1,8 @@
-import {Category} from "@/types/admin/CategoryTypes.ts";
-import {z} from "zod";
-import useGetCategory from "@/pages/admin/category/hooks/useGetCategory.ts";
+import {zodResolver} from "@hookform/resolvers/zod";
 import {useEffect, useMemo} from "react";
+import {Controller, useForm} from "react-hook-form";
+import {z} from "zod";
+
 import {
     Button, Dialog,
     DialogContent,
@@ -10,15 +11,15 @@ import {
     Form,
     FormItem,
     ImageUpload,
-    Input,
     SearchableSelect,
     toast
 } from "@/components";
-import {Controller, useForm} from "react-hook-form";
-import {zodResolver} from "@hookform/resolvers/zod";
-import useUpdateCategory from "@/pages/admin/category/hooks/useUpdateCategory.ts";
 import {IMAGE_BASE_URL} from "@/constants/api.constant.ts";
 import useAllCategoryOptions from "@/pages/admin/category/hooks/useAllCategoryOptions.ts";
+import useGetCategory from "@/pages/admin/category/hooks/useGetCategory.ts";
+import useUpdateCategory from "@/pages/admin/category/hooks/useUpdateCategory.ts";
+import {Input} from "@/primitives/input";
+import {Category} from "@/types/admin/CategoryTypes.ts";
 
 type CategoryEditorProps = {
     category?: Category;
@@ -147,6 +148,7 @@ const CategoryEditor = ({category, isDialogOpen, setIsDialogOpen, onSuccess}: Ca
                                     invalid={!!errors.name}
                                 >
                                     <Input
+                                        size="lg"
                                         {...field}
                                         placeholder="Category Name"
                                         className="w-full"
@@ -165,6 +167,7 @@ const CategoryEditor = ({category, isDialogOpen, setIsDialogOpen, onSuccess}: Ca
                                     invalid={!!errors.description}
                                 >
                                     <Input
+                                        size="lg"
                                         {...field}
                                         placeholder="Category Description"
                                         className="w-full"
@@ -183,6 +186,7 @@ const CategoryEditor = ({category, isDialogOpen, setIsDialogOpen, onSuccess}: Ca
                                     invalid={!!errors.slug}
                                 >
                                     <Input
+                                        size="lg"
                                         {...field}
                                         placeholder="category-slug"
                                         className="w-full"

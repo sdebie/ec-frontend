@@ -27,6 +27,13 @@ export type VariantData = {
     attributesJson?: string;
     images?: ProductImageData[];
     product?: ProductData;
+    /** Enriched from `variantsByIds` — used for tier-aware cart display. */
+    prices?: Array<{
+        priceType?: string | null;
+        price?: number | null;
+        isActive?: boolean | null;
+        active?: boolean | null;
+    }> | null;
 };
 
 export type ProductImageData = {

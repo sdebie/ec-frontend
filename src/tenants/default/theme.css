@@ -1,0 +1,5 @@
+/**
+ * Phase D placeholder — per-tenant CSS overrides deferred (see REFACTOR_FINDINGS).
+ * Runtime theming remains StorefrontClientConfig.theme + StorefrontThemeProvider.
+ */
+@import "../../primitives/surface/tokens.css";
