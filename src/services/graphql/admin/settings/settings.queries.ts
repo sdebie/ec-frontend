@@ -68,8 +68,8 @@ export const COUNTRY_SETTINGS = gql`
             currencyCode
             locale
             decimalPlaces
-            isDefault
-            isActive
+#            isDefault
+#            isActive
         }
     }
 `;
