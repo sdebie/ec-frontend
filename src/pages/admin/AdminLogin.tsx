@@ -12,6 +12,7 @@ const AdminLogin: React.FC<AdminLoginProps> = ({ onLoginSuccess }) => {
     const [credentials, setCredentials] = useState({ email: '', password: '' });
     const [error, setError] = useState('');
 
+    console.log("Admin Login")
     const handleLogin = async (e: React.FormEvent) => {
         e.preventDefault();
         setError('');
@@ -25,6 +26,7 @@ const AdminLogin: React.FC<AdminLoginProps> = ({ onLoginSuccess }) => {
             };
             localStorage.setItem('admin_user', JSON.stringify(userWithAuthority));
 
+            console.log("Check Reset Password")
             if (data.resetPassword) {
                 console.log('Password reset required. Redirecting to reset password page.');
                 navigate('/admin/reset-password', {replace: true});

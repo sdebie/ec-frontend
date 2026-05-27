@@ -14,7 +14,8 @@ export async function fetchPayfastCheckoutFields(orderId: string, totalAmount: n
     const isLocalHost =
         typeof window !== 'undefined' &&
         (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1');
-    const apiBases = isLocalHost ? ['http://localhost:8080', 'http://127.0.0.1:8080'] : ['https://ecapi.sdebiehome.co.za'];
+    ///const apiBases = isLocalHost ? ['http://localhost:8080', 'http://127.0.0.1:8080'] : ['https://ecapi.sdebiehome.co.za'];
+    const apiBases = isLocalHost ? ['http://localhost:8080', 'http://127.0.0.1:8080'] : ['http://192.168.1.16:8080'];
 
     let lastErr: unknown = null;
     let response: Response | null = null;
