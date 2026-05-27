@@ -120,12 +120,12 @@ export default defineConfig({
     allowedHosts: [
       'localhost',
       '127.0.0.1',
-      'ec.sdebiehome.co.za' // Add your domain here
+      '192.168.1.16' // Add your domain here
     ],
     proxy: {
       // Directs frontend calls to the Docker service name
       '/api': {
-        target: 'http://localhost:8080',
+        target: 'http://ec-backend:8080',
         changeOrigin: true,
         secure: false
       }
