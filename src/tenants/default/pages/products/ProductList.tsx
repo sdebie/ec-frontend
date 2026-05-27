@@ -3,6 +3,7 @@ import React from 'react';
 import { useAddToCart } from '@/features/cart/hooks/useAddToCart.ts';
 import { ProductList as CatalogProductList, useProducts } from '@/features/catalog';
 import { getDisplayPrice } from '@/features/catalog/utils/pricing.ts';
+import { env } from '@/lib/env';
 import { useCustomerType } from '@/store/customerTypeStore.ts';
 
 interface ProductListProps {
@@ -35,7 +36,7 @@ const ProductList: React.FC<ProductListProps> = ({activeCategory}) => {
 
     return (
         <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-            <h1 className="text-2xl font-bold mb-6">Products</h1>
+            <h1 className="text-2xl font-bold mb-6">Products ({env.storefrontTenant ?? 'all'})</h1>
 
             {loading && <div>Loading…</div>}
             {error && <div className="text-(--sf-error)">{error}</div>}
