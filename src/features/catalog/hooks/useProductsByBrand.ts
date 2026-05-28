@@ -21,7 +21,7 @@ type UseProductsByBrandResult = {
     error: string | null;
 };
 
-const DEFAULT_PAGE_SIZE = 10;
+const DEFAULT_PAGE_SIZE = 12;
 
 /**
  * Adapt the leaner `ProductListItem` (brand list) to the richer

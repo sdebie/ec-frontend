@@ -8,7 +8,7 @@ import {
 import type { WholesaleApplicationListItem, WholesaleApplicationStatus } from '@/types/admin/WholesaleCustomerTypes.ts';
 import type { FilterRequest } from '@/types/graphql/query.types.ts';
 
-const DEFAULT_PAGE_SIZE = 10;
+const DEFAULT_PAGE_SIZE = 16;
 
 export default function useWholesaleApplicationList() {
     const [applications, setApplications] = useState<WholesaleApplicationListItem[]>([]);

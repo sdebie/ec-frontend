@@ -4,7 +4,7 @@ import { apiGetAllOrders } from "@/services/graphql/order/OrderService.graphql.t
 import { FilterRequest } from "@/types/graphql/query.types.ts";
 import { OrderData } from "@/types/order.types.ts";
 
-const DEFAULT_PAGE_SIZE = 10;
+const DEFAULT_PAGE_SIZE = 11;
 
 export default function useOrderList() {
     const [orderList, setOrderList] = useState<OrderData[]>([]);

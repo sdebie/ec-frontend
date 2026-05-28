@@ -4,7 +4,7 @@ import {apiGetAllCategories, apiGetCategoryCount} from "@/services/graphql/admin
 import {Category} from "@/types/admin/CategoryTypes.ts";
 import {FilterRequest} from "@/types/graphql/query.types.ts";
 
-const DEFAULT_PAGE_SIZE = 10;
+const DEFAULT_PAGE_SIZE = 13;
 
 export default function useCategoryList() {
 
