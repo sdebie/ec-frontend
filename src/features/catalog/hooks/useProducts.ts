@@ -15,7 +15,7 @@ type UseProductsResult = {
     refetch: () => void;
 };
 
-const DEFAULT_PAGE_SIZE = 10;
+const DEFAULT_PAGE_SIZE = 25;
 /**
  * Fetch ceiling for category / all-products mode. We load every matching
  * product in one shot and paginate client-side so we always know the total
