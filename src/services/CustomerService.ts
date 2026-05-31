@@ -63,6 +63,16 @@ export async function loginCustomer(email: string, password: string): Promise<Cu
   return await res.json();
 }
 
+export async function loginCustomerWithGoogle(idToken: string): Promise<CustomerProfile> {
+  const res = await fetch(`${baseUrl}/api/customers/login/google`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ idToken })
+  });
+  if (!res.ok) throw new Error(await res.text());
+  return await res.json();
+}
+
 export async function requestCustomerPasswordResetCode(email: string): Promise<string> {
   const res = await fetch(`${baseUrl}/api/customers/password-reset/request`, {
     method: 'POST',

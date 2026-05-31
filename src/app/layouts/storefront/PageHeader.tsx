@@ -8,7 +8,7 @@ import CartIcon from '@/components/shared/icon/CartIcon.tsx';
 import LoginModal from '@/features/auth/customer/components/LoginModal.tsx';
 import ResetPasswordModal from '@/features/auth/customer/components/ResetPasswordModal.tsx';
 import { cartStore } from '@/features/cart';
-import {useIsWholesaler} from '@/store/customerTypeStore.ts';
+import {customerTypeStore, useIsWholesaler} from '@/store/customerTypeStore.ts';
 
 import {CustomerProfile} from '@/services/CustomerService.ts';
 
@@ -46,6 +46,8 @@ const PageHeader: React.FC<PageHeaderProps> = ({ storefrontConfig }) => {
     });
     const isWholesaler = useIsWholesaler();
     const userMenuRef = useRef<HTMLDivElement>(null);
+
+    console.log("HEADER is Wholesaler " + isWholesaler)
 
     const renderUserProfileIcon = () => {
         if (!isWholesaler) {
@@ -149,7 +151,8 @@ const PageHeader: React.FC<PageHeaderProps> = ({ storefrontConfig }) => {
             setIsAuthenticated(false);
             setShowUserMenu(false);
             setShowLoginModal(false);
-                setShowResetPasswordModal(false);
+            setShowResetPasswordModal(false);
+            customerTypeStore.getState().resetToRetail(); // Reset customer type to retail
             readValues();
             navigate('/');
         } catch (e) {
@@ -282,7 +285,7 @@ const PageHeader: React.FC<PageHeaderProps> = ({ storefrontConfig }) => {
                         <CartIcon
                             className={`transition-colors ${styles.iconButton} text-(--sf-nav-icon-text)`}
                             size={22}
-                            onClick={() => navigate('/cart')}
+                            onClick={() => navigate('/')}
                         />
 
                         {!isAuthenticated && (

@@ -1,13 +1,12 @@
 import {useCallback, useRef} from 'react';
 import {Link} from 'react-router-dom';
-
-
 import {IMAGE_BASE_URL} from '@/constants/api.constant.ts';
 import {getDisplayPrice} from '@/features/catalog/utils/pricing.ts';
 import {Card} from '@/primitives/card';
-import {useCustomerType} from '@/store/customerTypeStore.ts';
+import {useCustomerType, useIsWholesaler} from '@/store/customerTypeStore.ts';
 
 import type {ProductShoppingListItem} from '@/types/admin/ProductTypes.ts';
+import formatAmount from "@/utils/formatAmount.ts";
 
 const formatZar = (value: number): string =>
     new Intl.NumberFormat('en-ZA', {
@@ -57,6 +56,9 @@ export type UvhFeaturedBestSellersProps = {
 
 export function UvhFeaturedBestSellers({products, loading, error}: UvhFeaturedBestSellersProps) {
     const customerType = useCustomerType();
+    const isWholesaler = useIsWholesaler();
+    console.log("Type " + customerType + " is Wholesaler " + isWholesaler)
+
     const scrollerRef = useRef<HTMLDivElement>(null);
 
     const scrollByDirection = useCallback((dir: -1 | 1) => {
@@ -125,7 +127,7 @@ export function UvhFeaturedBestSellers({products, loading, error}: UvhFeaturedBe
                                 const priceInfo = getDisplayPrice(product, customerType);
                                 const wholesale = product.wholesaleSalePrice?.price ?? product.wholesalePrice?.price;
                                 const showWholesaleHint =
-                                    customerType === 'retail' && wholesale != null && wholesale > 0;
+                                    isWholesaler && wholesale != null && wholesale > 0;
                                 const imgPath = pickFeaturedImage(product);
                                 const imageUrl = imgPath ? `${IMAGE_BASE_URL}${imgPath}` : undefined;
                                 const productTo = `/product/${product.id}`;
@@ -194,8 +196,17 @@ export function UvhFeaturedBestSellers({products, loading, error}: UvhFeaturedBe
                                                     {product.name}
                                                 </Link>
                                                 <div>
+                                                    {showWholesaleHint && (
+                                                        <p className="mt-0.5 text-xs text-zinc-800">
+                                                            {/*<br />*/}
+                                                            {/*showWholesaleHint: {String(showWholesaleHint)}*/}
+                                                            {/*<br />*/}
+                                                            {/*isWholesaler: {String(isWholesaler)}*/}
+                                                            Wholesale
+                                                        </p>
+                                                    )}
                                                     <p className="text-sm font-bold text-(--sf-accent)">
-                                                        {formatZar(priceInfo.price)}
+                                                        {formatAmount(priceInfo.price)}
                                                         <span className="ml-1 text-xs font-normal text-zinc-500">
                                                             Ex. Vat
                                                         </span>
@@ -203,14 +214,9 @@ export function UvhFeaturedBestSellers({products, loading, error}: UvhFeaturedBe
                                                     {priceInfo.originalPrice != null &&
                                                         priceInfo.originalPrice > priceInfo.price && (
                                                             <p className="mt-0.5 text-xs text-zinc-500 line-through">
-                                                                {formatZar(priceInfo.originalPrice)}
+                                                                {formatAmount(priceInfo.originalPrice)}
                                                             </p>
                                                         )}
-                                                    {showWholesaleHint && (
-                                                        <p className="mt-0.5 text-xs text-zinc-800">
-                                                            Wholesale: {formatZar(wholesale ?? 0)}
-                                                        </p>
-                                                    )}
                                                 </div>
                                                 <Link
                                                     to={productTo}

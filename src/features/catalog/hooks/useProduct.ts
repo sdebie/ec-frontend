@@ -19,7 +19,9 @@ export function useProduct(productId?: string): UseProductResult {
     useEffect(() => {
         let isCancelled = false;
         const run = async () => {
+            let startTime: number;
             try {
+                startTime = performance.now(); // Record start time
                 setLoading(true);
                 setError(null);
                 if (!productId || productId.length < 8) {
@@ -34,7 +36,12 @@ export function useProduct(productId?: string): UseProductResult {
                     setProduct(null);
                 }
             } finally {
-                if (!isCancelled) setLoading(false);
+                if (!isCancelled) {
+                    setLoading(false);
+                    const endTime = performance.now(); // Record end time
+                    const duration = endTime - startTime; // Calculate duration
+                    console.log(`Fetching products done in ${duration.toFixed(2)} ms`); // Log duration
+                }
             }
         };
 
