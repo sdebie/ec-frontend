@@ -17,10 +17,12 @@ type UvhCtaSectionProps = {
     ctaClassName?: string;
     /** When true, renders the dark gradient band matching Trust & Reassurance */
     dark?: boolean;
+    /** When true, reduces vertical padding */
+    compact?: boolean;
 };
 
 /** CTA band — light by default; pass `dark` to match the Trust & Reassurance gradient style. */
-export function UvhCtaSection({eyebrow, title, description, cta, secondaryCta, id, ctaClassName, dark}: UvhCtaSectionProps) {
+export function UvhCtaSection({eyebrow, title, description, cta, secondaryCta, id, ctaClassName, dark, compact}: UvhCtaSectionProps) {
     const headingId = id ?? `uvh-cta-${title.toLowerCase().replace(/\s+/g, '-')}`;
 
     const primaryCls = cn(
@@ -34,7 +36,7 @@ export function UvhCtaSection({eyebrow, title, description, cta, secondaryCta, i
     return (
         <section
             className={cn(
-                'w-full py-7 sm:py-9',
+                cn('w-full', compact ? 'py-4 sm:py-5' : 'py-7 sm:py-9'),
                 dark ? 'uvh-dark-section-gradient' : 'border-t border-(--sf-border) bg-(--sf-bg)',
             )}
             aria-labelledby={headingId}

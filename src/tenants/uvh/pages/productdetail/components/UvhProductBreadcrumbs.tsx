@@ -1,5 +1,5 @@
-import { ChevronRight } from 'lucide-react';
-import { Link } from 'react-router-dom';
+import {ChevronRight} from 'lucide-react';
+import {Link} from 'react-router-dom';
 
 type UvhProductBreadcrumbsProps = {
     categoryName: string;
@@ -7,14 +7,11 @@ type UvhProductBreadcrumbsProps = {
     dark?: boolean;
 };
 
-export function UvhProductBreadcrumbs({ categoryName, productName, dark }: UvhProductBreadcrumbsProps) {
+export function UvhProductBreadcrumbs({categoryName, dark}: UvhProductBreadcrumbsProps) {
     const linkCls = dark
         ? 'hover:text-(--sf-accent) hover:underline transition-colors text-white/60'
         : 'hover:text-(--sf-accent) hover:underline transition-colors';
     const separatorCls = dark ? 'text-white/40' : '';
-    const currentCls = dark
-        ? 'font-medium text-white/90 truncate max-w-[16rem] inline-block align-bottom'
-        : 'font-medium text-(--sf-text) truncate max-w-[16rem] inline-block align-bottom';
 
     return (
         <nav aria-label="Breadcrumb" className={dark ? 'mb-0' : 'border-b border-(--sf-border) bg-(--sf-bg) py-2.5'}>
@@ -23,16 +20,17 @@ export function UvhProductBreadcrumbs({ categoryName, productName, dark }: UvhPr
                     <Link className={linkCls} to="/">Home</Link>
                 </li>
                 <li aria-hidden className={`flex items-center ${separatorCls}`}>
-                    <ChevronRight className="h-3 w-3" />
+                    <ChevronRight className="h-3 w-3"/>
                 </li>
                 <li>
                     <Link className={linkCls} to="/products">Products</Link>
                 </li>
                 <li aria-hidden className={`flex items-center ${separatorCls}`}>
-                    <ChevronRight className="h-3 w-3" />
+                    <ChevronRight className="h-3 w-3"/>
                 </li>
                 <li>
-                    <Link aria-current="page" className={linkCls} to={`/products?category=${encodeURIComponent(categoryName)}`}>
+                    <Link aria-current="page" className={linkCls}
+                          to={`/products?category=${encodeURIComponent(categoryName)}`}>
                         {categoryName}
                     </Link>
                 </li>

@@ -15,10 +15,10 @@ export function UvhProductRelated({ products, loading }: UvhProductRelatedProps)
     if (!loading && products.length === 0) return null;
 
     return (
-        <section className="mt-12 border-t border-(--sf-border) pt-10">
+        <section className="mt-8">
             <div className="flex flex-wrap items-end justify-between gap-4">
                 <div>
-                    <UvhSectionHeading>You may also like</UvhSectionHeading>
+                    <UvhSectionHeading eyebrow="You May Also Like">Related Products</UvhSectionHeading>
                 </div>
                 <Link
                     to="/products"
