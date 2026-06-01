@@ -133,11 +133,11 @@ export const ImageGalleryPicker = ({
                                 type="button"
                             >
                                 <img
-                                    src={`${IMAGE_BASE_URL}thumbnails/${filename}`}
+                                    src={`${IMAGE_BASE_URL}thumbnails/${filename}`.replace('//', '/')}
                                     className="w-full h-full object-cover"
                                     alt={filename}
                                     onError={(e) => {
-                                        (e.target as HTMLImageElement).src = `${IMAGE_BASE_URL}${filename}`;
+                                        (e.target as HTMLImageElement).src = `${IMAGE_BASE_URL}${filename}`.replace('//', '/');
                                     }}
                                 />
                                 {selectedImageId === filename && (

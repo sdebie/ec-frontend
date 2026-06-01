@@ -179,7 +179,7 @@ const BrandEditor = ({brand, isDialogOpen, setIsDialogOpen, onSuccess}: BrandEdi
                                 >
                                     <ImageUpload
                                         type="brand"
-                                        onImageUpload={(fileName) => field.onChange(`${IMAGE_BASE_URL}${fileName}`)}
+                                        onImageUpload={(fileName) => field.onChange(`${IMAGE_BASE_URL}${fileName}`.replace('//', '/'))}
                                         currentImageUrl={field.value || undefined}
                                     />
                                 </FormItem>

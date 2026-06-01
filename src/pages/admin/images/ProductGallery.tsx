@@ -63,7 +63,7 @@ const ProductGallery = () => {
                     <Card className="p-0 overflow-hidden">
                         <div className="w-full h-120 flex items-center justify-center relative">
                             <img
-                                src={`${IMAGE_BASE_URL}${selectedImage}`}
+                                src={`${IMAGE_BASE_URL}${selectedImage}`.replace('//', '/')}
                                 className="max-w-full max-h-full object-contain p-4"
                                 alt="Preview"
                             />
@@ -91,11 +91,11 @@ const ProductGallery = () => {
                                 }`}
                             >
                                 <img
-                                    src={`${IMAGE_BASE_URL}thumbnails/${filename}`}
+                                    src={`${IMAGE_BASE_URL}thumbnails/${filename}`.replace('//', '/')}
                                     className="w-full h-full object-cover"
                                     alt={filename}
                                     onError={(e) => {
-                                        (e.target as HTMLImageElement).src = `${IMAGE_BASE_URL}${filename}`;
+                                        (e.target as HTMLImageElement).src = `${IMAGE_BASE_URL}${filename}`.replace('//', '/');
                                     }}
                                 />
                                 <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 flex items-end p-1 transition">
