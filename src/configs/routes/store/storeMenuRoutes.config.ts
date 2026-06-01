@@ -26,7 +26,7 @@ export const storeMenuRoutes: Routes = [
     {
         key: 'products',
         path: '/products',
-        component: lazy(() => import('@/tenants/default/pages/products/ProductList.tsx')),
+        component: lazy(() => import('@/tenants/default/pages/products/DefaultProductListPage.tsx')),
         authority: [],
         meta: shopMeta,
     },

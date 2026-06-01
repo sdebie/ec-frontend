@@ -1,5 +1,5 @@
-import { ChevronLeft, ChevronRight, ZoomIn } from 'lucide-react';
-import { useCallback, useEffect, useState } from 'react';
+import { ZoomIn } from 'lucide-react';
+import { useEffect, useState } from 'react';
 
 import ProductImage from '@/components/shared/imageupload/ProductImage.tsx';
 import { IMAGE_BASE_URL } from '@/constants/api.constant.ts';
@@ -17,16 +17,6 @@ export function UvhProductGallery({ productName, images }: UvhProductGalleryProp
 
     const activeImage = galleryImages[activeIndex]?.imageUrl;
 
-    const goPrev = useCallback(() => {
-        if (galleryImages.length === 0) return;
-        setActiveIndex((index) => (index - 1 + galleryImages.length) % galleryImages.length);
-    }, [galleryImages.length]);
-
-    const goNext = useCallback(() => {
-        if (galleryImages.length === 0) return;
-        setActiveIndex((index) => (index + 1) % galleryImages.length);
-    }, [galleryImages.length]);
-
     useEffect(() => {
         setActiveIndex(0);
     }, [images]);
@@ -41,13 +31,41 @@ export function UvhProductGallery({ productName, images }: UvhProductGalleryProp
     }, [zoomOpen]);
 
     return (
-        <div className="space-y-4">
-            <div className="relative h-72 overflow-hidden rounded-xl border border-(--sf-border) bg-(--sf-bg) sm:h-80 lg:h-96">
+        <div className="flex gap-3">
+            {/* Vertical thumbnail strip */}
+            {galleryImages.length > 1 ? (
+                <div className="flex flex-col gap-2">
+                    {galleryImages.map((image, index) => (
+                        <button
+                            key={image.id}
+                            type="button"
+                            aria-label={`View image ${index + 1}`}
+                            aria-current={index === activeIndex ? 'true' : undefined}
+                            onClick={() => setActiveIndex(index)}
+                            className={cn(
+                                'h-16 w-16 shrink-0 overflow-hidden rounded-lg border-2 bg-(--sf-bg) transition',
+                                index === activeIndex
+                                    ? 'border-(--sf-accent)'
+                                    : 'border-(--sf-border) hover:border-(--sf-accent)/60',
+                            )}
+                        >
+                            <ProductImage
+                                fileName={image.imageUrl}
+                                alt={`${productName} thumbnail ${index + 1}`}
+                                className="h-full w-full object-cover"
+                            />
+                        </button>
+                    ))}
+                </div>
+            ) : null}
+
+            {/* Main image */}
+            <div className="relative min-w-0 flex-1 overflow-hidden rounded-xl border border-(--sf-border) bg-(--sf-bg) aspect-square max-h-[480px]">
                 {activeImage ? (
                     <ProductImage
                         fileName={activeImage}
                         alt={productName}
-                        className="h-full w-full object-contain p-3"
+                        className="h-full w-full object-contain p-6"
                     />
                 ) : (
                     <div className="flex h-full items-center justify-center text-sm text-(--sf-muted-text)">
@@ -67,52 +85,7 @@ export function UvhProductGallery({ productName, images }: UvhProductGalleryProp
                 ) : null}
             </div>
 
-            {galleryImages.length > 1 ? (
-                <div className="flex items-center gap-2">
-                    <button
-                        type="button"
-                        aria-label="Previous image"
-                        className="shrink-0 rounded-lg border border-(--sf-border) p-2 text-(--sf-muted-text) transition hover:border-(--sf-accent) hover:text-(--sf-accent)"
-                        onClick={goPrev}
-                    >
-                        <ChevronLeft className="h-4 w-4" />
-                    </button>
-
-                    <div className="flex min-w-0 flex-1 gap-2 overflow-x-auto pb-1">
-                        {galleryImages.map((image, index) => (
-                            <button
-                                key={image.id}
-                                type="button"
-                                aria-label={`View image ${index + 1}`}
-                                aria-current={index === activeIndex ? 'true' : undefined}
-                                onClick={() => setActiveIndex(index)}
-                                className={cn(
-                                    'h-16 w-16 shrink-0 overflow-hidden rounded-lg border-2 bg-(--sf-bg) transition',
-                                    index === activeIndex
-                                        ? 'border-(--sf-accent)'
-                                        : 'border-(--sf-border) hover:border-(--sf-accent)/60',
-                                )}
-                            >
-                                <ProductImage
-                                    fileName={image.imageUrl}
-                                    alt={`${productName} thumbnail ${index + 1}`}
-                                    className="h-full w-full object-cover"
-                                />
-                            </button>
-                        ))}
-                    </div>
-
-                    <button
-                        type="button"
-                        aria-label="Next image"
-                        className="shrink-0 rounded-lg border border-(--sf-border) p-2 text-(--sf-muted-text) transition hover:border-(--sf-accent) hover:text-(--sf-accent)"
-                        onClick={goNext}
-                    >
-                        <ChevronRight className="h-4 w-4" />
-                    </button>
-                </div>
-            ) : null}
-
+            {/* Zoom modal */}
             {zoomOpen && activeImage ? (
                 <div
                     className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 p-4"

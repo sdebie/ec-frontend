@@ -1,10 +1,8 @@
 import React from 'react';
 
 import { CustomerType } from '@/constants/enums/CustomerType.ts';
-// eslint-disable-next-line import/no-restricted-paths -- Deferred: checkout embeds customer auth UI; extract shared composition or move login shell when auth/checkout boundaries are reworked (REFACTOR_FINDINGS).
-import InlineLogin from '@/features/auth/customer/components/InlineLogin.tsx';
-import { CustomerProfile } from '@/services/CustomerService.ts';
 import {CustomerStatus} from "@/constants/enums/CustomerStatus.ts";
+import type { CustomerProfile } from '@/services/CustomerService.ts';
 
 export type LookupState = 'idle' | 'loading' | 'found' | 'not_found' | 'error';
 
@@ -19,7 +17,7 @@ type Props = {
     isAuthenticated: boolean;
     returningChoice: 'login' | 'guest' | null;
     setReturningChoice: (value: 'login' | 'guest' | null) => void;
-    handleLogin: (profile: CustomerProfile) => void;
+    loginSlot?: React.ReactNode;
 };
 
 const ContactInfoSection: React.FC<Props> = ({
@@ -33,7 +31,7 @@ const ContactInfoSection: React.FC<Props> = ({
     isAuthenticated,
     returningChoice,
     setReturningChoice,
-    handleLogin,
+    loginSlot,
 }) => {
     const showReturningBlock =
         !!customer &&
@@ -144,9 +142,9 @@ const ContactInfoSection: React.FC<Props> = ({
                                     </button>
                                 </div>
 
-                                {returningChoice === 'login' && (
+                                {returningChoice === 'login' && loginSlot && (
                                     <div className="mt-3">
-                                        <InlineLogin email={email} onLoginSuccess={handleLogin} compact={true} showLabel={true} />
+                                        {loginSlot}
                                     </div>
                                 )}
 

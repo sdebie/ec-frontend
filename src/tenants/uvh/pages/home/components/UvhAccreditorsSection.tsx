@@ -1,4 +1,5 @@
-import {uvhHomeContent} from '@/tenants/uvh/content/uvhContent.ts';
+import {uvhHomeContent} from '@/tenants/uvh/config';
+import {UvhSectionHeading} from '@/tenants/uvh/components/UvhSectionHeading';
 
 export function UvhAccreditorsSection() {
     const {heading, items} = uvhHomeContent.accreditorsSection;
@@ -9,18 +10,7 @@ export function UvhAccreditorsSection() {
             aria-labelledby="uvh-accreditors-heading"
         >
             <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-                <h2
-                    id="uvh-accreditors-heading"
-                    className="text-xl font-bold tracking-tight text-zinc-900 sm:text-2xl"
-                >
-                    <span className="relative inline-block">
-                        {heading}
-                        <span
-                            className="absolute -bottom-1 left-0 block h-0.5 w-[1.15em] rounded-full bg-(--sf-accent)"
-                            aria-hidden
-                        />
-                    </span>
-                </h2>
+                <UvhSectionHeading id="uvh-accreditors-heading">{heading}</UvhSectionHeading>
 
                 <ul className="mt-6 grid list-none grid-cols-1 gap-6 sm:grid-cols-3 sm:items-center sm:justify-items-center sm:gap-5">
                     {items.map((item) => (

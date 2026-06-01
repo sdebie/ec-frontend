@@ -30,8 +30,8 @@ const InlineLogin: React.FC<InlineLoginProps> = ({
       customerTypeStore.getState().syncFromProfile(profile);
       setPassword('');
       onLoginSuccess(profile);
-    } catch (err: any) {
-      const errorMsg = typeof err?.message === 'string' ? err.message : 'Login failed. Please check your password.';
+    } catch (err: unknown) {
+      const errorMsg = err instanceof Error ? err.message : 'Login failed. Please check your password.';
       setError(errorMsg);
     } finally {
       setLoading(false);

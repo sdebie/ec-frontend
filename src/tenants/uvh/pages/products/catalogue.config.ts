@@ -48,12 +48,12 @@ export const UVH_CATALOGUE_SORT_OPTIONS = [
     {value: 'price-desc' as const, label: 'Price: High to Low'},
 ];
 
-/** Default page size below xl (mobile/tablet/desktop). */
-export const UVH_CATALOGUE_PAGE_SIZE = 20;
+export const UVH_CATALOGUE_PAGE_SIZE = 15;
+export const UVH_CATALOGUE_PAGE_SIZE_OPTIONS = [15, 30, 60] as const;
 
-/** xl breakpoint: 5 columns × 4 rows. */
+/** xl breakpoint: 5 columns × 3 rows. */
 export const UVH_CATALOGUE_XL_COLUMNS = 5;
-export const UVH_CATALOGUE_XL_ROW_COUNT = 4;
+export const UVH_CATALOGUE_XL_ROW_COUNT = 3;
 export const UVH_CATALOGUE_XL_PAGE_SIZE = UVH_CATALOGUE_XL_COLUMNS * UVH_CATALOGUE_XL_ROW_COUNT;
 
 export const UVH_CATALOGUE_GRID_CLASS =

@@ -63,6 +63,17 @@
     background-color: rgba(255, 255, 255, 0.08);
 }
 
+.drawerNavLink {
+    text-decoration: none;
+    border-radius: 9999px;
+    transition: color 0.2s ease, background-color 0.2s ease;
+}
+
+.drawerNavLink:hover {
+    color: var(--sf-nav-text-hover);
+    background-color: color-mix(in srgb, var(--sf-nav-text-hover) 12%, transparent);
+}
+
 .userMenu {
     border: 1px solid var(--sf-nav-border);
     box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);

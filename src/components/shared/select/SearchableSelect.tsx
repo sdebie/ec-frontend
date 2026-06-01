@@ -438,15 +438,15 @@ export const SearchableSelect = React.forwardRef<HTMLDivElement, SearchableSelec
                     onKeyDown={handleTriggerKeyDown}
                     ref={triggerRef}
                     className={cn(
-                        'flex h-10 w-full items-center justify-between rounded-md border border-admin-border bg-admin-panel px-3 py-2 text-sm text-admin-text transition-all duration-200',
-                        'focus:outline-none focus:border-admin-text/30 focus:bg-admin-panel/80',
+                        'flex h-10 w-full items-center justify-between rounded-md border border-(--c-border) bg-(--c-panel) px-3 py-2 text-sm text-(--c-text) transition-all duration-200',
+                        'focus:outline-none focus:border-(--c-text)/30 focus:bg-(--c-panel)/80',
                         isOpen && 'border-primary/30 bg-primary/5 shadow-sm ring-1 ring-primary/10',
-                        'disabled:cursor-not-allowed disabled:opacity-50 disabled:bg-admin-bg'
+                        'disabled:cursor-not-allowed disabled:opacity-50 disabled:bg-(--c-bg)'
                     )}
                     aria-haspopup="listbox"
                     aria-expanded={isOpen}
                 >
-                    <span className={cn('truncate', !selectedOption && 'text-admin-text-muted')}>
+                    <span className={cn('truncate', !selectedOption && 'text-(--c-text-muted)')}>
                         {selectedOption ? selectedOption.label : placeholder}
                     </span>
                     <span className="ml-2 flex items-center gap-1">
@@ -455,7 +455,7 @@ export const SearchableSelect = React.forwardRef<HTMLDivElement, SearchableSelec
                                 role="button"
                                 aria-label={clearAriaLabel}
                                 tabIndex={0}
-                                className="rounded p-0.5 text-admin-text-muted hover:text-admin-text hover:bg-admin-sidebar-hover"
+                                className="rounded p-0.5 text-(--c-text-muted) hover:text-(--c-text) hover:bg-(--c-surface-hover)"
                                 onClick={(event) => {
                                     event.stopPropagation();
                                     onChange?.('');
@@ -480,7 +480,7 @@ export const SearchableSelect = React.forwardRef<HTMLDivElement, SearchableSelec
                         ? createPortal(
                             <div
                                 ref={menuRef}
-                                className="z-100 rounded-md border border-admin-border bg-admin-panel p-2 shadow-md"
+                                className="z-100 rounded-md border border-(--c-border) bg-(--c-panel) p-2 shadow-md"
                                 style={{
                                     position: 'fixed',
                                     top: portalPosition.top,
@@ -493,7 +493,7 @@ export const SearchableSelect = React.forwardRef<HTMLDivElement, SearchableSelec
                                 onClick={(event) => event.stopPropagation()}
                             >
                                 <div className="mb-2 relative">
-                                    <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-admin-text-muted pointer-events-none" />
+                                    <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-(--c-text-muted) pointer-events-none" />
                                     <input
                                         ref={searchInputRef}
                                         type="text"
@@ -502,9 +502,9 @@ export const SearchableSelect = React.forwardRef<HTMLDivElement, SearchableSelec
                                         onKeyDown={handleMenuKeyDown}
                                         placeholder={searchPlaceholder}
                                         className={cn(
-                                            'flex h-10 w-full rounded-md border border-admin-border/40 bg-admin-panel/30 pl-9 pr-9 py-2 text-sm text-admin-text transition-colors duration-150',
-                                            'placeholder:text-admin-text-muted/60',
-                                            'focus:outline-none focus:border-admin-border/70 focus:bg-admin-panel/50',
+                                            'flex h-10 w-full rounded-md border border-(--c-border)/40 bg-(--c-panel)/30 pl-9 pr-9 py-2 text-sm text-(--c-text) transition-colors duration-150',
+                                            'placeholder:text-(--c-text-muted)/60',
+                                            'focus:outline-none focus:border-(--c-border)/70 focus:bg-(--c-panel)/50',
                                         )}
                                     />
                                     {query && (
@@ -514,7 +514,7 @@ export const SearchableSelect = React.forwardRef<HTMLDivElement, SearchableSelec
                                                 setQuery('');
                                                 searchInputRef.current?.focus();
                                             }}
-                                            className="absolute right-3 top-1/2 -translate-y-1/2 rounded p-0.5 text-admin-text-muted hover:text-admin-text hover:bg-admin-sidebar-hover transition-colors duration-150"
+                                            className="absolute right-3 top-1/2 -translate-y-1/2 rounded p-0.5 text-(--c-text-muted) hover:text-(--c-text) hover:bg-(--c-surface-hover) transition-colors duration-150"
                                             aria-label="Clear search"
                                             tabIndex={-1}
                                         >
@@ -531,7 +531,7 @@ export const SearchableSelect = React.forwardRef<HTMLDivElement, SearchableSelec
                                 >
                                     {filteredOptions.length === 0 ? (
                                         <div
-                                            className="px-3 py-6 text-center text-sm text-admin-text-muted">{emptyText}</div>
+                                            className="px-3 py-6 text-center text-sm text-(--c-text-muted)">{emptyText}</div>
                                     ) : (
                                         <ul role="listbox" className="">
                                             {filteredOptions.map((option, index) => {
@@ -547,10 +547,10 @@ export const SearchableSelect = React.forwardRef<HTMLDivElement, SearchableSelec
                                                         className={cn(
                                                             'flex cursor-pointer items-center justify-between px-3 py-2 text-sm transition-colors rounded-sm',
                                                             option.disabled
-                                                                ? 'cursor-not-allowed text-admin-text-muted opacity-60'
-                                                                : 'text-admin-text',
-                                                            isHighlighted && !option.disabled && 'bg-admin-sidebar-hover',
-                                                            isSelected && !isHighlighted && 'text-admin-text'
+                                                                ? 'cursor-not-allowed text-(--c-text-muted) opacity-60'
+                                                                : 'text-(--c-text)',
+                                                            isHighlighted && !option.disabled && 'bg-(--c-surface-hover)',
+                                                            isSelected && !isHighlighted && 'text-(--c-text)'
                                                         )}
                                                         onMouseEnter={() => {
                                                             setHighlightedIndex(index);
@@ -577,13 +577,13 @@ export const SearchableSelect = React.forwardRef<HTMLDivElement, SearchableSelec
                             <div
                                 ref={menuRef}
                                 className={cn(
-                                    'absolute z-100 w-full rounded-md border border-admin-border bg-admin-panel p-2 shadow-md',
+                                    'absolute z-100 w-full rounded-md border border-(--c-border) bg-(--c-panel) p-2 shadow-md',
                                     menuPlacement === 'top' ? 'bottom-full mb-1' : 'top-full mt-1'
                                 )}
                                 onClick={(event) => event.stopPropagation()}
                             >
                                 <div className="mb-2 relative">
-                                    <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-admin-text-muted pointer-events-none" />
+                                    <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-(--c-text-muted) pointer-events-none" />
                                     <input
                                         ref={searchInputRef}
                                         type="text"
@@ -592,9 +592,9 @@ export const SearchableSelect = React.forwardRef<HTMLDivElement, SearchableSelec
                                         onKeyDown={handleMenuKeyDown}
                                         placeholder={searchPlaceholder}
                                         className={cn(
-                                            'flex h-10 w-full rounded-md border border-admin-border/40 bg-admin-panel/30 pl-9 pr-9 py-2 text-sm text-admin-text transition-colors duration-150',
-                                            'placeholder:text-admin-text-muted/60',
-                                            'focus:outline-none focus:border-admin-border/70 focus:bg-admin-panel/50',
+                                            'flex h-10 w-full rounded-md border border-(--c-border)/40 bg-(--c-panel)/30 pl-9 pr-9 py-2 text-sm text-(--c-text) transition-colors duration-150',
+                                            'placeholder:text-(--c-text-muted)/60',
+                                            'focus:outline-none focus:border-(--c-border)/70 focus:bg-(--c-panel)/50',
                                         )}
                                     />
                                     {query && (
@@ -604,7 +604,7 @@ export const SearchableSelect = React.forwardRef<HTMLDivElement, SearchableSelec
                                                 setQuery('');
                                                 searchInputRef.current?.focus();
                                             }}
-                                            className="absolute right-3 top-1/2 -translate-y-1/2 rounded p-0.5 text-admin-text-muted hover:text-admin-text hover:bg-admin-sidebar-hover transition-colors duration-150"
+                                            className="absolute right-3 top-1/2 -translate-y-1/2 rounded p-0.5 text-(--c-text-muted) hover:text-(--c-text) hover:bg-(--c-surface-hover) transition-colors duration-150"
                                             aria-label="Clear search"
                                             tabIndex={-1}
                                         >
@@ -621,7 +621,7 @@ export const SearchableSelect = React.forwardRef<HTMLDivElement, SearchableSelec
                                 >
                                     {filteredOptions.length === 0 ? (
                                         <div
-                                            className="px-3 py-6 text-center text-sm text-admin-text-muted">{emptyText}</div>
+                                            className="px-3 py-6 text-center text-sm text-(--c-text-muted)">{emptyText}</div>
                                     ) : (
                                         <ul role="listbox" className="">
                                             {filteredOptions.map((option, index) => {
@@ -637,10 +637,10 @@ export const SearchableSelect = React.forwardRef<HTMLDivElement, SearchableSelec
                                                         className={cn(
                                                             'flex cursor-pointer items-center justify-between px-3 py-2 text-sm transition-colors rounded-sm',
                                                             option.disabled
-                                                                ? 'cursor-not-allowed text-admin-text-muted opacity-60'
-                                                                : 'text-admin-text',
-                                                            isHighlighted && !option.disabled && 'bg-admin-sidebar-hover',
-                                                            isSelected && !isHighlighted && 'text-admin-text'
+                                                                ? 'cursor-not-allowed text-(--c-text-muted) opacity-60'
+                                                                : 'text-(--c-text)',
+                                                            isHighlighted && !option.disabled && 'bg-(--c-surface-hover)',
+                                                            isSelected && !isHighlighted && 'text-(--c-text)'
                                                         )}
                                                         onMouseEnter={() => {
                                                             setHighlightedIndex(index);

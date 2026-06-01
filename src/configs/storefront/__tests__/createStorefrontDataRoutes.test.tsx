@@ -31,6 +31,7 @@ describe('createStorefrontDataRoutes', () => {
     it('returns no storefront routes on admin domain', () => {
         const routes = createStorefrontDataRoutes({
             isAdminDomain: true,
+            hostname: 'localhost',
         })
 
         expect(routes).toEqual([])
@@ -39,6 +40,7 @@ describe('createStorefrontDataRoutes', () => {
     it('does not generate wildcard storefront routes', () => {
         const routes = createStorefrontDataRoutes({
             isAdminDomain: false,
+            hostname: 'localhost',
         })
 
         const layoutGroups = routes[0]?.children ?? []

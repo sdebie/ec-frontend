@@ -47,7 +47,7 @@ export function PageBackButton({ label = 'Back', className, onClick }: PageBackB
             onClick={handleClick}
             className={cn(
                 "inline-flex items-center gap-2 text-sm font-medium",
-                "text-admin-text-muted hover:text-admin-text",
+                "text-(--c-text-muted) hover:text-(--c-text)",
                 "transition-colors duration-150",
                 "focus:outline-none focus:ring-2 focus:ring-primary/50 rounded-md px-2 py-1 -ml-2",
                 className

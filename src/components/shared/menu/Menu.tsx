@@ -119,7 +119,7 @@ export function MenuList({children, className, position = 'bottom-right'}: {
             ref={ref}
             role="menu"
             className={cn(
-                'absolute z-50 w-56 min-w-48 rounded-md shadow-lg bg-admin-panel border border-admin-border py-1 ring-1 ring-black ring-opacity-5 outline-none',
+                'absolute z-50 w-56 min-w-48 rounded-md shadow-lg bg-(--c-panel) border border-(--c-border) py-1 ring-1 ring-black ring-opacity-5 outline-none',
                 positionClasses[position],
                 className
             )}
@@ -153,9 +153,9 @@ export function MenuItem({
                 setIsOpen(false);
             }}
             className={cn(
-                'w-full text-left px-4 py-2 text-sm text-admin-text transition-colors flex items-center',
-                !disabled && 'hover:bg-admin-sidebar-hover focus:bg-admin-sidebar-hover outline-none hover:text-primary',
-                disabled && 'opacity-50 cursor-not-allowed text-admin-text-muted',
+                'w-full text-left px-4 py-2 text-sm text-(--c-text) transition-colors flex items-center',
+                !disabled && 'hover:bg-(--c-surface-hover) focus:bg-(--c-surface-hover) outline-none hover:text-primary',
+                disabled && 'opacity-50 cursor-not-allowed text-(--c-text-muted)',
                 className
             )}
         >
@@ -165,13 +165,13 @@ export function MenuItem({
 }
 
 export function MenuSeparator() {
-    return <div className="h-px w-full bg-admin-border my-1" role="none"/>;
+    return <div className="h-px w-full bg-(--c-border) my-1" role="none"/>;
 }
 
 export function MenuLabel({children, className}: { children: React.ReactNode, className?: string }) {
     return (
         <div
-            className={cn("px-4 py-1.5 text-xs font-semibold text-admin-text-muted uppercase tracking-wider", className)}
+            className={cn("px-4 py-1.5 text-xs font-semibold text-(--c-text-muted) uppercase tracking-wider", className)}
             role="none">
             {children}
         </div>

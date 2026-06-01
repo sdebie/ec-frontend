@@ -1,7 +1,7 @@
 import { useMemo } from 'react';
 
 import { useProducts, useTopBestSellers } from '@/features/catalog';
-import {uvhHomeContent} from '@/tenants/uvh/content/uvhContent.ts';
+import {uvhHomeContent} from '@/tenants/uvh/config';
 import {
     FROSTED_CARD,
     UvhGradientTrustBand,
@@ -10,10 +10,9 @@ import {UvhAccreditorsSection} from "@/tenants/uvh/pages/home/components/UvhAccr
 import {UvhBrandsSection} from '@/tenants/uvh/pages/home/components/UvhBrandsSection.tsx';
 import {UvhCustomerReviewsSection} from "@/tenants/uvh/pages/home/components/UvhCustomerReviewsSection.tsx";
 import {UvhFeaturedBestSellers} from '@/tenants/uvh/pages/home/components/UvhFeaturedBestSellers.tsx';
-import {UvhGetQuoteCta} from '@/tenants/uvh/pages/home/components/UvhGetQuoteCta.tsx';
+import {UvhCtaSection} from '@/tenants/uvh/components/UvhCtaSection.tsx';
 import {UvhHoldingHero} from '@/tenants/uvh/pages/home/components/UvhHoldingHero.tsx';
 import {UvhHomeCategoryShowcases} from '@/tenants/uvh/pages/home/components/UvhHomeCategoryShowcases.tsx';
-import {UvhWholesaleCta} from "@/tenants/uvh/pages/home/components/UvhWholesaleCta.tsx";
 
 const UvhHomePage = () => {
     const { products: bestSellers, loading: bestSellerLoading, error: bestSellerError } = useTopBestSellers();
@@ -55,11 +54,23 @@ const UvhHomePage = () => {
 
             <UvhBrandsSection/>
 
-            <UvhGetQuoteCta/>
+            <UvhCtaSection
+                eyebrow={uvhHomeContent.getQuoteCta.overline}
+                title={uvhHomeContent.getQuoteCta.title}
+                description={uvhHomeContent.getQuoteCta.description}
+                cta={uvhHomeContent.getQuoteCta.cta}
+                id="uvh-get-quote-heading"
+            />
 
             <UvhHomeCategoryShowcases/>
 
-            <UvhWholesaleCta/>
+            <UvhCtaSection
+                eyebrow={uvhHomeContent.wholesaleCta.overline}
+                title={uvhHomeContent.wholesaleCta.title}
+                description={uvhHomeContent.wholesaleCta.description}
+                cta={uvhHomeContent.wholesaleCta.cta}
+                id="uvh-wholesale-heading"
+            />
 
             <UvhAccreditorsSection/>
 

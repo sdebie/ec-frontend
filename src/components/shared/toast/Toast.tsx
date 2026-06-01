@@ -44,11 +44,29 @@ const VARIANT_CONFIG: Record<ToastItem['variant'], VariantConfig> = {
     },
 };
 
+// ─── Slide-in direction ────────────────────────────────────────────────────────
+
+/** Direction the toast slides in from. Derived from position by ToastContainer. */
+export type ToastSlideFrom = 'top' | 'bottom' | 'left' | 'right';
+
+const SLIDE_MAP: Record<ToastSlideFrom, { hidden: string; visible: string }> = {
+    top:    { hidden: '-translate-y-2 opacity-0', visible: 'translate-y-0 opacity-100' },
+    bottom: { hidden:  'translate-y-2 opacity-0', visible: 'translate-y-0 opacity-100' },
+    left:   { hidden: '-translate-x-4 opacity-0', visible: 'translate-x-0 opacity-100' },
+    right:  { hidden:  'translate-x-4 opacity-0', visible: 'translate-x-0 opacity-100' },
+};
+
 // ─── Toast item component ──────────────────────────────────────────────────────
 
-export function Toast({ id, variant, title, message, duration }: ToastItem) {
+type ToastProps = ToastItem & {
+    /** Controls enter/exit animation direction. Provided by ToastContainer. */
+    slideFrom?: ToastSlideFrom;
+};
+
+export function Toast({ id, variant, title, message, duration, slideFrom = 'bottom' }: ToastProps) {
     const remove = useToastStore((s) => s.remove);
     const { Icon, iconClass, accentClass, ariaLive } = VARIANT_CONFIG[variant];
+    const slide = SLIDE_MAP[slideFrom];
 
     // Track enter/exit visibility for the CSS transition
     const [isVisible, setIsVisible] = React.useState(false);
@@ -90,13 +108,12 @@ export function Toast({ id, variant, title, message, duration }: ToastItem) {
             aria-atomic="true"
             onKeyDown={handleKeyDown}
             className={cn(
-                // Base card — mirrors the admin portal panel/card style
-                'relative flex items-start w-80 rounded-xl border border-admin-border bg-admin-panel shadow-xl overflow-hidden',
-                // Smooth enter (slide-in from right) + exit (slide-out to right)
+                // Explicit solid colors — toast renders in a portal outside any
+                // SurfaceProvider, so --c-* tokens are undefined at document.body.
+                'relative flex items-start w-80 rounded-xl border border-gray-200 bg-white shadow-xl overflow-hidden',
+                // Smooth enter/exit — direction set by slideFrom prop
                 'transition-all duration-300 ease-in-out will-change-transform',
-                isVisible
-                    ? 'translate-x-0 opacity-100'
-                    : 'translate-x-full opacity-0',
+                isVisible ? slide.visible : slide.hidden,
             )}
         >
             {/* Coloured left accent strip — communicates variant at a glance */}
@@ -115,14 +132,14 @@ export function Toast({ id, variant, title, message, duration }: ToastItem) {
                 {/* Title + message */}
                 <div className="flex-1 min-w-0">
                     {title && (
-                        <p className="text-sm font-semibold leading-tight text-admin-text mb-0.5">
+                        <p className="text-sm font-semibold leading-tight text-gray-900 mb-0.5">
                             {title}
                         </p>
                     )}
                     <p
                         className={cn(
                             'text-sm leading-snug',
-                            title ? 'text-admin-text-muted' : 'text-admin-text',
+                            title ? 'text-gray-500' : 'text-gray-900',
                         )}
                     >
                         {message}
@@ -136,9 +153,9 @@ export function Toast({ id, variant, title, message, duration }: ToastItem) {
                     className={cn(
                         'shrink-0 -mt-0.5 -mr-1 rounded-md p-1.5',
                         'opacity-60 transition-opacity hover:opacity-100',
-                        'hover:bg-admin-sidebar-hover text-admin-text',
-                        'focus:outline-none focus:ring-2 focus:ring-primary',
-                        'focus:ring-offset-1 focus:ring-offset-admin-panel',
+                        'hover:bg-gray-100 text-gray-500',
+                        'focus:outline-none focus:ring-2 focus:ring-gray-400',
+                        'focus:ring-offset-1 focus:ring-offset-white',
                     )}
                     aria-label="Dismiss notification"
                 >

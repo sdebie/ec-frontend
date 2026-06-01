@@ -13,11 +13,10 @@ export default function DefaultProductDetailPage() {
 
     return (
         <ProductDetail
-            layout="default"
             productId={String(productId)}
-            onAddToCart={async (variantId, unitPrice) => {
+            onAddToCart={async (variantId, unitPrice, productName) => {
                 await createOrder({
-                    items: [{quantity: 1, unitPrice, variant: variantId}],
+                    items: [{quantity: 1, unitPrice, variant: variantId, productName}],
                 });
             }}
         />

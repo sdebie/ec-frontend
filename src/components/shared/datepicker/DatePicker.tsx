@@ -27,16 +27,16 @@ export const DatePicker = React.forwardRef<HTMLInputElement, DatePickerProps>(
           disabled={disabled}
           placeholder={placeholder}
           className={cn(
-            'flex h-10 w-full rounded-md border-2 border-admin-border bg-admin-panel px-3 py-2 text-sm text-admin-text transition-colors pr-10',
-            'placeholder:text-admin-text-muted',
-            'focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent focus:ring-offset-1 focus:ring-offset-admin-bg',
-            'disabled:cursor-not-allowed disabled:opacity-50 disabled:bg-admin-bg',
+            'flex h-10 w-full rounded-md border-2 border-(--c-border) bg-(--c-panel) px-3 py-2 text-sm text-(--c-text) transition-colors pr-10',
+            'placeholder:text-(--c-text-muted)',
+            'focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent focus:ring-offset-1 focus:ring-offset-(--c-bg)',
+            'disabled:cursor-not-allowed disabled:opacity-50 disabled:bg-(--c-bg)',
             '[&::-webkit-calendar-picker-indicator]:opacity-0',
             className
           )}
           {...props}
         />
-        <div className="absolute right-3 top-1/2 -translate-y-1/2 text-admin-text-muted pointer-events-none">
+        <div className="absolute right-3 top-1/2 -translate-y-1/2 text-(--c-text-muted) pointer-events-none">
           <Calendar className="w-4 h-4" />
         </div>
       </div>

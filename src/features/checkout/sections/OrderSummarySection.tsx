@@ -33,7 +33,7 @@ const OrderSummarySection: React.FC<Props> = ({
         <Card as="section" elevation="sm" padded={false} className="p-6">
             <div className="mb-4 flex items-center gap-2">
                 <ShoppingBag className="h-5 w-5 text-(--sf-muted-text)" />
-                <h2 className="text-base font-semibold text-(--sf-text)">Order summary</h2>
+                <h2 className="text-base font-semibold text-(--sf-text)">Order Summary</h2>
                 <span className="ml-auto text-xs text-(--sf-muted-text)">#{order?.id || '-'}</span>
             </div>
 

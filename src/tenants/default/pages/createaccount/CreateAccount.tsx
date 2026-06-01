@@ -108,8 +108,8 @@ const CreateAccount: React.FC = () => {
 
             setSuccess(true);
             setTimeout(() => navigate('/checkout'), 1200);
-        } catch (err: any) {
-            const message = typeof err?.message === 'string' ? err.message : 'Could not create account. Please try again.';
+        } catch (err: unknown) {
+            const message = err instanceof Error ? err.message : 'Could not create account. Please try again.';
             setError(message);
         } finally {
             setIsSubmitting(false);

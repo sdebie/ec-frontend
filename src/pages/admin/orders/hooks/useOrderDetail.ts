@@ -19,8 +19,8 @@ export default function useOrderDetail(orderId?: string) {
             try {
                 const result = await apiGetOrderDetail(orderId);
                 if (!cancelled) setOrder(result);
-            } catch (e: any) {
-                if (!cancelled) setErrorMsg(e?.message ?? "Failed to load order detail");
+            } catch (e: unknown) {
+                if (!cancelled) setErrorMsg(e instanceof Error ? e.message : "Failed to load order detail");
             } finally {
                 if (!cancelled) setIsLoading(false);
             }

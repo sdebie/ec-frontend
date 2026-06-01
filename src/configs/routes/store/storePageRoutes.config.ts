@@ -30,7 +30,7 @@ const storePageOnlyRoutes: PageRoutes = [
     {
         key: 'checkout',
         path: '/checkout',
-        component: lazy(() => import('@/tenants/default/pages/checkout/screens/Checkout.tsx')),
+        component: lazy(() => import('@/tenants/default/pages/checkout/screens/DefaultCheckoutPage.tsx')),
         authority: [],
         meta: shopMeta,
     },

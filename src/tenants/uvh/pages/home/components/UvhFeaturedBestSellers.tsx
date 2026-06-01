@@ -4,6 +4,7 @@ import {IMAGE_BASE_URL} from '@/constants/api.constant.ts';
 import {getDisplayPrice} from '@/features/catalog/utils/pricing.ts';
 import {Card} from '@/primitives/card';
 import {useCustomerType, useIsWholesaler} from '@/store/customerTypeStore.ts';
+import {UvhSectionHeading} from '@/tenants/uvh/components/UvhSectionHeading';
 
 import type {ProductShoppingListItem} from '@/types/admin/ProductTypes.ts';
 import formatAmount from "@/utils/formatAmount.ts";
@@ -74,16 +75,7 @@ export function UvhFeaturedBestSellers({products, loading, error}: UvhFeaturedBe
             aria-label="Featured and best selling products"
         >
             <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-                <h2 className="text-xl font-bold tracking-tight text-zinc-900 sm:text-2xl">
-                    <span className="relative inline-block">
-                        Featured
-                        <span
-                            className="absolute -bottom-1 left-0 block h-1 w-[1.15em] rounded-full bg-(--sf-accent)"
-                            aria-hidden
-                        />
-                    </span>
-                    <span className="text-zinc-900"> / Best Sellers</span>
-                </h2>
+                <UvhSectionHeading>Best Sellers</UvhSectionHeading>
 
                 {loading && (
                     <Card elevation="none" padded={false} className="mt-8 p-8 text-sm text-(--sf-muted-text)">

@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 
-import { apiGetAllBrands } from '@/services/graphql/admin/brand/BrandService.graphql.ts';
+import { apiGetAllBrands } from '@/services/graphql/brand/brand.service.ts';
 
 import type { CatalogBrand } from '@/features/catalog/types.ts';
 

@@ -51,8 +51,8 @@ export default function ResetPasswordModal({
             setCodeSent(true);
             setCodeVerified(false);
             setSuccess('If the account exists, a 6-digit reset code has been sent.');
-        } catch (err: any) {
-            const message = typeof err?.message === 'string' ? err.message : 'Could not request reset code.';
+        } catch (err: unknown) {
+            const message = err instanceof Error ? err.message : 'Could not request reset code.';
             setError(message);
         } finally {
             setLoadingRequest(false);
@@ -73,8 +73,8 @@ export default function ResetPasswordModal({
             await verifyCustomerPasswordResetCode(email.trim(), code.trim());
             setCodeVerified(true);
             setSuccess('Code verified. You can now set a new password.');
-        } catch (err: any) {
-            const message = typeof err?.message === 'string' ? err.message : 'Could not verify code.';
+        } catch (err: unknown) {
+            const message = err instanceof Error ? err.message : 'Could not verify code.';
             setError(message);
         } finally {
             setLoadingVerify(false);
@@ -113,8 +113,8 @@ export default function ResetPasswordModal({
                     onClose();
                 }
             }, 1000);
-        } catch (err: any) {
-            const message = typeof err?.message === 'string' ? err.message : 'Could not reset password.';
+        } catch (err: unknown) {
+            const message = err instanceof Error ? err.message : 'Could not reset password.';
             setError(message);
         } finally {
             setLoadingReset(false);

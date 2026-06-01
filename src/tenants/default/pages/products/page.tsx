@@ -1,4 +1,3 @@
-import ProductList from '@/tenants/default/pages/products/ProductList.tsx'
+import DefaultProductListPage from '@/tenants/default/pages/products/DefaultProductListPage.tsx'
 
-export default ProductList
-
+export default DefaultProductListPage

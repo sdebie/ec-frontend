@@ -57,8 +57,8 @@ export const Radio = React.forwardRef<HTMLDivElement, RadioProps>(
                 />
                 <div
                   className={cn(
-                    'w-5 h-5 rounded-full border-2 border-admin-border bg-admin-panel transition-colors cursor-pointer',
-                    'peer-focus:ring-2 peer-focus:ring-primary peer-focus:ring-offset-1 peer-focus:ring-offset-admin-bg',
+                    'w-5 h-5 rounded-full border-2 border-(--c-border) bg-(--c-panel) transition-colors cursor-pointer',
+                    'peer-focus:ring-2 peer-focus:ring-primary peer-focus:ring-offset-1 peer-focus:ring-offset-(--c-bg)',
                     'peer-disabled:cursor-not-allowed peer-disabled:opacity-50',
                     'flex items-center justify-center'
                   )}
@@ -71,7 +71,7 @@ export const Radio = React.forwardRef<HTMLDivElement, RadioProps>(
               <label
                 htmlFor={optionId}
                 className={cn(
-                  'text-sm text-admin-text cursor-pointer select-none',
+                  'text-sm text-(--c-text) cursor-pointer select-none',
                   isDisabled && 'cursor-not-allowed opacity-50'
                 )}
               >

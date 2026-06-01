@@ -1,6 +1,6 @@
 import { storefrontConfigImports } from 'virtual:storefront-config-map';
 
-import {defaultStorefrontConfig} from '@/tenants/default/config';
+import {storefrontConfig} from '@/tenants/default/config';
 
 import type {StorefrontClientConfig} from '@/types/storefront/storefrontTypes';
 
@@ -8,7 +8,7 @@ import type {StorefrontClientConfig} from '@/types/storefront/storefrontTypes';
 type StorefrontRegistryRecord = Record<string, StorefrontClientConfig>
 
 const fallbackStorefrontRegistry: StorefrontRegistryRecord = {
-    default: defaultStorefrontConfig,
+    default: storefrontConfig,
 };
 
 const virtualRegistry = storefrontConfigImports as Partial<StorefrontRegistryRecord>;

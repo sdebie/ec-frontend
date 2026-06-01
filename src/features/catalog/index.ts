@@ -3,8 +3,7 @@ export { ProductList } from '@/features/catalog/ProductList.tsx';
 export { ProductDetail } from '@/features/catalog/ProductDetail.tsx';
 
 export { useProducts } from '@/features/catalog/hooks/useProducts.ts';
-export { useProductsByBrand } from '@/features/catalog/hooks/useProductsByBrand.ts';
-export { useProduct } from '@/features/catalog/hooks/useProduct.ts';
+export { useProductDetail } from '@/features/catalog/hooks/useProductDetail.ts';
 export { useCategories } from '@/features/catalog/hooks/useCategories.ts';
 export { useBrands } from '@/features/catalog/hooks/useBrands.ts';
 export { useTopBestSellers } from '@/features/catalog/hooks/useTopBestSellers.ts';

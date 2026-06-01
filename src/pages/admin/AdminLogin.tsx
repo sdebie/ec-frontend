@@ -35,9 +35,11 @@ const AdminLogin: React.FC<AdminLoginProps> = ({ onLoginSuccess }) => {
 
             // 3. Trigger the callback to update global app state
             onLoginSuccess();
-        } catch (err: any) {
-            const message = err?.response?.data;
-            setError(typeof message === 'string' ? message : 'Invalid credentials or unauthorized access');
+        } catch (err: unknown) {
+            const responseData = err && typeof err === 'object' && 'response' in err
+                ? (err as { response?: { data?: unknown } }).response?.data
+                : undefined;
+            setError(typeof responseData === 'string' ? responseData : 'Invalid credentials or unauthorized access');
         }
     };
 

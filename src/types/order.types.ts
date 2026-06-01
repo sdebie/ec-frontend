@@ -18,6 +18,8 @@ export type OrderItemData = {
     quantity?: number;
     /** Pre-enrichment: variant ID string. Post-enrichment: populated VariantData object. */
     variant?: VariantData | string;
+    /** Product name captured at add-to-cart time — used as display fallback in CartItemRow. */
+    productName?: string;
 };
 
 export type VariantData = {

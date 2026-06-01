@@ -2,7 +2,7 @@ import {Outlet} from 'react-router-dom'
 
 
 import PageHeader from '@/app/layouts/storefront/PageHeader.tsx'
-import Footer from '@/components/layout/store/Footer.tsx'
+import Footer from '@/components/storefront/sections/Footer.tsx'
 import {StorefrontSlot} from '@/components/storefront/slots/StorefrontSlot.tsx'
 import {StorefrontThemeProvider} from '@/context/StorefrontThemeProvider.tsx'
 import {SurfaceProvider} from '@/primitives/surface'
@@ -22,6 +22,7 @@ export function StorefrontShell({
             <SurfaceProvider surface="storefront">
                 <StorefrontSlot storefrontConfig={storefrontConfig} slotId="layout.header"/>
                 <PageHeader storefrontConfig={storefrontConfig}/>
+                <StorefrontSlot storefrontConfig={storefrontConfig} slotId="layout.below-header"/>
                 <StorefrontSlot storefrontConfig={storefrontConfig} slotId="store.nav"/>
                 <main className="flex-1">{children ?? <Outlet/>}</main>
                 <StorefrontSlot storefrontConfig={storefrontConfig} slotId="layout.footer"/>

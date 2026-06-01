@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 
-import { apiGetStoreSettings } from '@/services/graphql/admin/settings/SettingsService.graphql.ts';
+import { apiGetStoreSettings } from '@/services/StoreSettings.ts';
 
 export type UvhDetailFeature = { id: string; label: string };
 export type UvhDetailTrustBadge = { id: string; label: string };

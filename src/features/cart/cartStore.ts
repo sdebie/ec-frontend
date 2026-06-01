@@ -1,3 +1,4 @@
+import { createStore } from 'zustand/vanilla';
 
 import { STOREFRONT_TENANT_RESET_EVENT } from '@/storefront/tenant/tenantLifecycle';
 import {
@@ -7,110 +8,91 @@ import {
 
 import type { OrderData, OrderItemData } from '@/types/order.types.ts';
 
-type Listener = () => void;
-
 function calcCount(items?: OrderItemData[]): number {
     if (!Array.isArray(items)) return 0;
     return items.reduce((sum, item) => sum + Number(item.quantity || 0), 0);
 }
 
-class CartStoreImpl {
-    private listeners: Set<Listener> = new Set();
-    private itemCount = 0;
-    private orderSessionId: string | null = null;
+function generateUuid(): string {
+    try {
+        if (typeof window !== 'undefined' && window.crypto?.randomUUID) {
+            return window.crypto.randomUUID();
+        }
+    } catch {
+        // ignore randomUUID failures and fallback
+    }
+    return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, (char) => {
+        const random = (Math.random() * 16) | 0;
+        const value = char === 'x' ? random : (random & 0x3) | 0x8;
+        return value.toString(16);
+    });
+}
 
-    constructor() {
-        try {
-            const raw = localStorage.getItem(getCartItemsStorageKey());
-            if (raw) {
-                const items: OrderItemData[] = JSON.parse(raw);
-                this.itemCount = calcCount(items);
+interface CartState {
+    itemCount: number;
+    orderSessionId: string | null;
+}
+
+function readInitialState(): CartState {
+    try {
+        const raw = localStorage.getItem(getCartItemsStorageKey());
+        const itemCount = raw ? calcCount(JSON.parse(raw) as OrderItemData[]) : 0;
+        const orderSessionId = localStorage.getItem(getCartSessionStorageKey()) || null;
+        return { itemCount, orderSessionId };
+    } catch {
+        return { itemCount: 0, orderSessionId: null };
+    }
+}
+
+const _store = createStore<CartState>()(() => readInitialState());
+
+if (typeof window !== 'undefined') {
+    window.addEventListener('storage', (event) => {
+        if (event.key === getCartItemsStorageKey()) {
+            try {
+                const items = event.newValue ? (JSON.parse(event.newValue) as OrderItemData[]) : [];
+                _store.setState({ itemCount: calcCount(items) });
+            } catch {
+                // ignore storage parse failures
             }
-            this.orderSessionId = localStorage.getItem(getCartSessionStorageKey()) || null;
-        } catch {
-            this.itemCount = 0;
-            this.orderSessionId = null;
         }
-
-        if (typeof window !== 'undefined') {
-            window.addEventListener('storage', (event) => {
-                if (event.key === getCartItemsStorageKey()) {
-                    try {
-                        const items = event.newValue ? (JSON.parse(event.newValue) as OrderItemData[]) : [];
-                        this.itemCount = calcCount(items);
-                        this.emit();
-                    } catch {
-                        // ignore storage parse failures
-                    }
-                }
-                if (event.key === getCartSessionStorageKey()) {
-                    this.orderSessionId = event.newValue || null;
-                    this.emit();
-                }
-            });
-
-            window.addEventListener(STOREFRONT_TENANT_RESET_EVENT, () => {
-                this.itemCount = 0;
-                this.orderSessionId = null;
-                this.emit();
-            });
+        if (event.key === getCartSessionStorageKey()) {
+            _store.setState({ orderSessionId: event.newValue || null });
         }
-    }
+    });
 
-    private generateUuid(): string {
-        try {
-            if (typeof window !== 'undefined' && window.crypto?.randomUUID) {
-                return window.crypto.randomUUID();
-            }
-        } catch {
-            // ignore randomUUID failures and fallback
-        }
+    window.addEventListener(STOREFRONT_TENANT_RESET_EVENT, () => {
+        _store.setState({ itemCount: 0, orderSessionId: null });
+    });
+}
 
-        return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, (char) => {
-            const random = (Math.random() * 16) | 0;
-            const value = char === 'x' ? random : (random & 0x3) | 0x8;
-            return value.toString(16);
-        });
-    }
-
-    subscribe(listener: Listener): () => void {
-        this.listeners.add(listener);
-        return () => this.listeners.delete(listener);
-    }
+export const cartStore = {
+    subscribe(listener: () => void): () => void {
+        return _store.subscribe(() => listener());
+    },
 
     emit() {
-        this.listeners.forEach((listener) => {
-            try {
-                listener();
-            } catch {
-                // ignore listener errors
-            }
-        });
-    }
+        _store.setState({});
+    },
 
     getItemCount(): number {
-        return this.itemCount;
-    }
+        return _store.getState().itemCount;
+    },
 
     getOrderSessionId(): string | null {
-        return this.orderSessionId;
-    }
+        return _store.getState().orderSessionId;
+    },
 
     setFromOrder(order: OrderData | null | undefined) {
         const items = order?.items ?? [];
-        this.itemCount = calcCount(items);
         try {
             localStorage.setItem(getCartItemsStorageKey(), JSON.stringify(items));
         } catch {
             // ignore storage write failures
         }
-        this.emit();
-    }
+        _store.setState({ itemCount: calcCount(items) });
+    },
 
-    /**
-     * Merge incoming line items into persisted cart + store (local-only; no network).
-     * Same semantics as the former OrderService.addToCart helper — suitable for useAddToCart.
-     */
     mergeItems(order: OrderData): OrderData {
         const cartItemsKey = getCartItemsStorageKey();
         const incoming: OrderItemData[] = Array.isArray(order?.items) ? order.items : [];
@@ -163,43 +145,36 @@ class CartStoreImpl {
         }
 
         const localOrder: OrderData = { ...(order ?? {}), items: merged };
-        this.setFromOrder(localOrder);
+        _store.setState({ itemCount: calcCount(merged) });
         return localOrder;
-    }
+    },
 
     setItems(items: OrderItemData[]) {
-        this.itemCount = calcCount(items);
         try {
             localStorage.setItem(getCartItemsStorageKey(), JSON.stringify(items));
         } catch {
             // ignore storage write failures
         }
-        this.emit();
-    }
+        _store.setState({ itemCount: calcCount(items) });
+    },
 
     clear() {
-        this.itemCount = 0;
-        this.orderSessionId = null;
         try {
             localStorage.removeItem(getCartItemsStorageKey());
         } catch {
             // ignore storage failures
         }
-        this.emit();
-    }
+        _store.setState({ itemCount: 0, orderSessionId: null });
+    },
 
     resetAndNewSession() {
-        this.itemCount = 0;
-        const newId = this.generateUuid();
-        this.orderSessionId = newId;
+        const newId = generateUuid();
         try {
             localStorage.removeItem(getCartItemsStorageKey());
             localStorage.setItem(getCartSessionStorageKey(), newId);
         } catch {
             // ignore storage failures
         }
-        this.emit();
-    }
-}
-
-export const cartStore = new CartStoreImpl();
+        _store.setState({ itemCount: 0, orderSessionId: newId });
+    },
+};

@@ -1,4 +1,5 @@
 import { Button } from '@/primitives/button';
+import { UvhSectionHeading } from '@/tenants/uvh/components/UvhSectionHeading';
 import { currency } from '@/utils/storefront/cart.utils.ts';
 
 type CartSummaryProps = {
@@ -21,13 +22,11 @@ export default function CartSummary({
     return (
         <section
             aria-labelledby="summary-heading"
-            className="mt-8 rounded-2xl border border-(--sf-border) bg-(--sf-bg) p-6 lg:col-span-5 lg:mt-0 lg:self-start"
+            className="flex flex-col rounded-2xl border border-(--sf-border) bg-(--sf-panel) p-6 shadow-sm lg:col-span-5 lg:self-start lg:sticky lg:top-4"
         >
-            <h2 id="summary-heading" className="text-base font-semibold text-(--sf-text)">
-                Order summary
-            </h2>
+            <UvhSectionHeading id="summary-heading">Order Summary</UvhSectionHeading>
 
-            <dl className="mt-4 space-y-3">
+            <dl className="mt-5 space-y-3">
                 <div className="flex items-center justify-between">
                     <dt className="text-sm text-(--sf-muted-text)">Subtotal</dt>
                     <dd className="text-sm font-medium text-(--sf-text)">{currency(subtotal)}</dd>
@@ -43,9 +42,9 @@ export default function CartSummary({
                     <dd className="text-sm font-medium text-(--sf-text)">Calculated at checkout</dd>
                 </div>
 
-                <div className="flex items-center justify-between border-t border-(--sf-border) pt-3">
-                    <dt className="text-sm font-semibold text-(--sf-text)">Order total</dt>
-                    <dd className="text-sm font-semibold text-(--sf-text)">{currency(subtotal)}</dd>
+                <div className="flex items-center justify-between rounded-xl bg-(--sf-accent)/5 px-4 py-3 border-t border-(--sf-border) mt-4">
+                    <dt className="text-base font-bold text-(--sf-text)">Order total</dt>
+                    <dd className="text-base font-bold text-(--sf-accent)">{currency(subtotal)}</dd>
                 </div>
             </dl>
 
@@ -65,23 +64,22 @@ export default function CartSummary({
                     type="button"
                     variant="outline"
                     fullWidth
-                    size="lg"
+                    size="md"
                     onClick={onContinueShopping}
                 >
                     Continue Shopping
                 </Button>
+            </div>
 
-                <Button
+            <div className="mt-4 border-t border-(--sf-border) pt-4">
+                <button
                     type="button"
-                    variant="outline"
-                    fullWidth
-                    size="lg"
                     disabled={!hasItems}
-                    className="border-(--sf-error) text-(--sf-error) hover:bg-(--sf-error)/5"
+                    className="w-full text-center text-xs text-(--sf-muted-text) hover:text-(--sf-error) disabled:opacity-40 transition-colors"
                     onClick={onClearCart}
                 >
-                    Clear Cart & New Session
-                </Button>
+                    Clear cart &amp; start new session
+                </button>
             </div>
         </section>
     );

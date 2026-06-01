@@ -95,10 +95,10 @@ export const Upload = React.forwardRef<HTMLInputElement, UploadProps>(
           onDrop={handleDrop}
           onClick={handleClick}
           className={cn(
-            'relative flex flex-col items-center justify-center rounded-lg border-2 border-dashed border-admin-border bg-admin-panel px-6 py-8 text-center transition-colors cursor-pointer',
+            'relative flex flex-col items-center justify-center rounded-lg border-2 border-dashed border-(--c-border) bg-(--c-panel) px-6 py-8 text-center transition-colors cursor-pointer',
             dragActive && 'border-primary bg-primary-subtle',
             disabled && 'opacity-50 cursor-not-allowed',
-            'hover:border-primary hover:bg-admin-bg'
+            'hover:border-primary hover:bg-(--c-bg)'
           )}
         >
           <input
@@ -111,11 +111,11 @@ export const Upload = React.forwardRef<HTMLInputElement, UploadProps>(
             className="sr-only"
             {...props}
           />
-          <UploadIcon className="w-10 h-10 text-admin-text-muted mb-3" />
-          <p className="text-sm text-admin-text mb-1">
+          <UploadIcon className="w-10 h-10 text-(--c-text-muted) mb-3" />
+          <p className="text-sm text-(--c-text) mb-1">
             <span className="font-medium text-primary">Click to upload</span> or drag and drop
           </p>
-          <p className="text-xs text-admin-text-muted">
+          <p className="text-xs text-(--c-text-muted)">
             {accept || 'Any file type'} (Max {maxSize}MB)
           </p>
         </div>
@@ -127,13 +127,13 @@ export const Upload = React.forwardRef<HTMLInputElement, UploadProps>(
             {files.map((file, index) => (
               <div
                 key={`${file.name}-${index}`}
-                className="flex items-center justify-between rounded-md border border-admin-border bg-admin-panel px-3 py-2"
+                className="flex items-center justify-between rounded-md border border-(--c-border) bg-(--c-panel) px-3 py-2"
               >
                 <div className="flex items-center gap-2 min-w-0">
-                  <UploadIcon className="w-4 h-4 text-admin-text-muted shrink-0" />
+                  <UploadIcon className="w-4 h-4 text-(--c-text-muted) shrink-0" />
                   <div className="min-w-0">
-                    <p className="text-sm text-admin-text truncate">{file.name}</p>
-                    <p className="text-xs text-admin-text-muted">
+                    <p className="text-sm text-(--c-text) truncate">{file.name}</p>
+                    <p className="text-xs text-(--c-text-muted)">
                       {(file.size / 1024 / 1024).toFixed(2)} MB
                     </p>
                   </div>
@@ -145,7 +145,7 @@ export const Upload = React.forwardRef<HTMLInputElement, UploadProps>(
                       e.stopPropagation();
                       handleRemove(index);
                     }}
-                    className="ml-2 p-1 text-admin-text-muted hover:text-red-500 transition-colors shrink-0"
+                    className="ml-2 p-1 text-(--c-text-muted) hover:text-red-500 transition-colors shrink-0"
                   >
                     <X className="w-4 h-4" />
                   </button>

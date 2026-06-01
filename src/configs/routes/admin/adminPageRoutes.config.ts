@@ -34,7 +34,7 @@ const adminPageOnlyRoutes: PageRoutes = [
     {
         key: 'admin.product.detail',
         path: '/admin/product/detail/:id',
-        component: lazy(() => import('@/pages/admin/products/screens/detail/ProductDetail')),
+        component: lazy(() => import('@/pages/admin/products/screens/detail/AdminProductDetail')),
         authority: ['SUPER_ADMIN'],
         meta: {
             pageBackgroundType: 'plain',

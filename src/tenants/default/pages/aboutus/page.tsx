@@ -1,13 +1,13 @@
 import { Link } from 'react-router-dom';
 
-import { AboutSection } from '@/tenants/default/sections/AboutSection';
-import { ContentSection } from '@/tenants/default/sections/ContentSection';
-import { HeroSection } from '@/tenants/default/sections/HeroSection';
+import { AboutSection } from '@/components/shared/sections/AboutSection';
+import { ContentSection } from '@/components/shared/sections/ContentSection';
+import { PageHeaderSection } from '@/components/shared/sections/PageHeaderSection';
 
 export default function DefaultAboutPage() {
   return (
     <main className="mx-auto flex w-full max-w-6xl flex-col gap-6 px-4 py-8">
-      <HeroSection
+      <PageHeaderSection
         title="Built for modern ecommerce teams"
         subtitle="A tenant-ready storefront foundation with configurable branding, navigation, and page overrides."
         actions={

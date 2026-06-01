@@ -34,8 +34,8 @@ export const Checkbox = React.forwardRef<HTMLInputElement, CheckboxProps>(
           />
           <div
             className={cn(
-              'w-5 h-5 rounded border-2 border-admin-border bg-admin-panel transition-colors',
-              'peer-focus:ring-2 peer-focus:ring-primary peer-focus:ring-offset-1 peer-focus:ring-offset-admin-bg',
+              'w-5 h-5 rounded border-2 border-(--c-border) bg-(--c-panel) transition-colors',
+              'peer-focus:ring-2 peer-focus:ring-primary peer-focus:ring-offset-1 peer-focus:ring-offset-(--c-bg)',
               'peer-checked:bg-primary peer-checked:border-primary',
               'peer-disabled:cursor-not-allowed peer-disabled:opacity-50',
               'flex items-center justify-center pointer-events-none'
@@ -48,7 +48,7 @@ export const Checkbox = React.forwardRef<HTMLInputElement, CheckboxProps>(
           <label
             htmlFor={generatedId}
             className={cn(
-              'text-sm text-admin-text cursor-pointer select-none',
+              'text-sm text-(--c-text) cursor-pointer select-none',
               disabled && 'cursor-not-allowed opacity-50'
             )}
           >

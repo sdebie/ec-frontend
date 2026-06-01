@@ -1,4 +1,4 @@
-import type {CountrySetting} from "@/types/admin/SettingsTypes.ts";
+import type {CountrySetting} from '@/types/shared/SettingsTypes.ts';
 
 export type MoneyFormatOptions = {
     currencyCode?: string;

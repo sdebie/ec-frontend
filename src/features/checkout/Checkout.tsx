@@ -1,4 +1,5 @@
 
+import InlineLogin from '@/features/auth/customer/components/InlineLogin.tsx';
 import CheckoutSubmitBar from '@/features/checkout/components/CheckoutSubmitBar.tsx';
 import SaveConfirmModal from '@/features/checkout/components/SaveConfirmModal.tsx';
 import { useCheckoutFlow } from '@/features/checkout/hooks/useCheckoutFlow.ts';
@@ -31,7 +32,14 @@ export function Checkout({ onInStoreOrder, onPaymentSuccess }: CheckoutProps) {
                             isAuthenticated={flow.isAuthenticated}
                             returningChoice={flow.returningChoice}
                             setReturningChoice={flow.setReturningChoice}
-                            handleLogin={flow.handleLogin}
+                            loginSlot={
+                                <InlineLogin
+                                    email={flow.email}
+                                    onLoginSuccess={flow.handleLogin}
+                                    compact={true}
+                                    showLabel={true}
+                                />
+                            }
                         />
 
                         <ShippingMethodSection

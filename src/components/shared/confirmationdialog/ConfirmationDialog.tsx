@@ -207,7 +207,7 @@ export function ConfirmationDialog({
 
                     {/* Body copy */}
                     {message != null && (
-                        <p className="text-sm text-admin-text-muted leading-relaxed self-center">
+                        <p className="text-sm text-(--c-text-muted) leading-relaxed self-center">
                             {message}
                         </p>
                     )}

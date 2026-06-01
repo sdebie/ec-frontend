@@ -3,7 +3,7 @@ import {useMemo} from 'react';
 import {UvhCatalogueActiveFilters} from '@/tenants/uvh/pages/products/components/UvhCatalogueActiveFilters.tsx';
 import {UvhCatalogueHero} from '@/tenants/uvh/pages/products/components/UvhCatalogueHero.tsx';
 import {UvhCatalogueMobileFilters} from '@/tenants/uvh/pages/products/components/UvhCatalogueMobileFilters.tsx';
-import {UvhCatalogueResults} from '@/tenants/uvh/pages/products/components/UvhCatalogueResults.tsx';
+import {UvhCatalogueGrid} from '@/tenants/uvh/pages/products/components/UvhCatalogueGrid.tsx';
 import {UvhCatalogueSidebar} from '@/tenants/uvh/pages/products/components/UvhCatalogueSidebar.tsx';
 import {UvhCatalogueToolbar} from '@/tenants/uvh/pages/products/components/UvhCatalogueToolbar.tsx';
 import {useUvhProductCatalogue} from '@/tenants/uvh/pages/products/useUvhProductCatalogue.ts';
@@ -87,14 +87,17 @@ const UvhProductCatalogue = () => {
                             onClearAll={catalogue.actions.clearFilters}
                         />
 
-                        <UvhCatalogueResults
+                        <UvhCatalogueGrid
                             products={catalogue.products}
                             loading={catalogue.loading}
                             error={catalogue.error}
                             pageIndex={catalogue.filters.pageIndex}
                             pageCount={catalogue.pageCount}
+                            pageSize={catalogue.pageSize}
+                            totalCount={catalogue.totalCount}
                             hasNextPage={catalogue.hasNextPage}
                             onPageChange={catalogue.actions.setPageIndex}
+                            onPageSizeChange={catalogue.actions.setPageSize}
                         />
                     </div>
                 </div>

@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useMemo, useState } from 'react';
 
-import { apiGetAllCategories, apiGetCategoryCount } from '@/services/graphql/admin/category/CategoryService.graphql.ts';
+import { apiGetAllCategories, apiGetCategoryCount } from '@/services/graphql/category/category.service.ts';
 
 import type { CatalogCategory } from '@/features/catalog/types.ts';
 import type { FilterRequest } from '@/types/graphql/query.types.ts';

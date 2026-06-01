@@ -5,7 +5,6 @@ import {normalizeDiscoveredStorefrontPageKey} from '@/configs/storefront/storefr
 
 import type {
   StorefrontPageComponent,
-  StorefrontPageKey,
 } from '@/types/storefront/storefrontPageContracts.ts';
 import type { StorefrontClientId } from '@/types/storefront/storefrontTypes.ts';
 import type { ComponentType } from 'react';
@@ -41,7 +40,7 @@ const normalizedConventionPageRegistry = Object.entries(conventionPageRegistry).
 
 export function resolveStorefrontConventionPage(
   tenantId: StorefrontClientId,
-  pageKey: StorefrontPageKey,
+  pageKey: string,
 ): StorefrontPageComponent | undefined {
   const tenantKey = `${tenantId}/${pageKey}`;
   const defaultKey = `default/${pageKey}`;

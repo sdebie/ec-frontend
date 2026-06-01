@@ -44,8 +44,8 @@ const LoginModal: React.FC<LoginModalProps> = ({
       setPassword('');
       onLoginSuccess(profile);
       onClose();
-    } catch (err: any) {
-      const errorMsg = typeof err?.message === 'string' ? err.message : 'Login failed. Please check your credentials.';
+    } catch (err: unknown) {
+      const errorMsg = err instanceof Error ? err.message : 'Login failed. Please check your credentials.';
       setError(errorMsg);
     } finally {
       setLoading(false);

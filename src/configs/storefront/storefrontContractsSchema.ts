@@ -2,7 +2,7 @@ import {z} from 'zod'
 
 import type {StorefrontCmsPageDefinition, StorefrontSlotContribution} from '@/types/storefront/storefrontTypes'
 
-const slotIdSchema = z.enum(['layout.header', 'layout.footer', 'store.nav', 'home.hero'])
+const slotIdSchema = z.string().min(1)
 
 const slotContributionSchema = z
     .object({

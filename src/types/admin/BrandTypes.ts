@@ -1,7 +1,1 @@
-export type Brand = {
-    id: string;
-    name: string;
-    description?: string | null;
-    slug?: string | null;
-    logoUrl?: string | null;
-};
+export type { Brand } from '@/types/shared/BrandTypes.ts';

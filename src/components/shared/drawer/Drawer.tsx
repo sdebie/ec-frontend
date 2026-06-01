@@ -71,7 +71,7 @@ export function Drawer({ open, onClose, children, position = 'right', className,
         role="dialog" 
         aria-modal="true"
         className={cn(
-          'fixed top-0 bottom-0 z-100 flex flex-col w-full h-full bg-admin-panel border-admin-border shadow-2xl overflow-hidden',
+          'fixed top-0 bottom-0 z-100 flex flex-col w-full h-full bg-(--c-panel) border-(--c-border) shadow-2xl overflow-hidden',
           sizes[size],
           positionStyles[position],
           className
@@ -95,12 +95,12 @@ export function DrawerHeader({
   const { onClose, position } = useDrawer();
 
   return (
-    <div className={cn('flex flex-col space-y-1 p-6 border-b border-admin-border relative', className)}>
-      <div className="text-lg font-semibold tracking-tight text-admin-text pr-10">
+    <div className={cn('flex flex-col space-y-1 p-6 border-b border-(--c-border) relative', className)}>
+      <div className="text-lg font-semibold tracking-tight text-(--c-text) pr-10">
         {title}
       </div>
       {description && (
-        <div className="text-sm text-admin-text-muted pr-10">
+        <div className="text-sm text-(--c-text-muted) pr-10">
           {description}
         </div>
       )}
@@ -108,7 +108,7 @@ export function DrawerHeader({
         type="button"
         onClick={onClose}
         className={cn(
-          "absolute top-6 rounded-md p-1.5 opacity-70 transition-opacity hover:opacity-100 hover:bg-admin-sidebar-hover text-admin-text focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-1 focus:ring-offset-admin-panel",
+          "absolute top-6 rounded-md p-1.5 opacity-70 transition-opacity hover:opacity-100 hover:bg-(--c-surface-hover) text-(--c-text) focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-1 focus:ring-offset-(--c-panel)",
           position === 'right' ? 'right-4' : 'right-4'
         )}
       >
@@ -129,7 +129,7 @@ export function DrawerContent({ className, children }: { className?: string; chi
 
 export function DrawerFooter({ className, children }: { className?: string; children: React.ReactNode }) {
   return (
-    <div className={cn('mt-auto flex items-center justify-end space-x-2 p-6 border-t border-admin-border bg-admin-sidebar-bg', className)}>
+    <div className={cn('mt-auto flex items-center justify-end space-x-2 p-6 border-t border-(--c-border) bg-(--c-panel)', className)}>
       {children}
     </div>
   );

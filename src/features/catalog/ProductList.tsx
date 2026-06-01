@@ -8,8 +8,9 @@ type ProductListProps = {
     emptyText?: string;
     gridClassName?: string;
     cardClassName?: string;
-    cardSize?: 'default' | 'compact' | 'dense';
-    onAddToCart?: (product: CatalogProductListItem) => void;
+    badge?: string;
+    showCart?: boolean;
+    showSave?: boolean;
 };
 
 export function ProductList({
@@ -17,8 +18,9 @@ export function ProductList({
                                 emptyText = 'No products match your filters.',
                                 gridClassName = 'grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3',
                                 cardClassName,
-                                cardSize = 'default',
-                                onAddToCart,
+                                badge,
+                                showCart,
+                                showSave,
                             }: ProductListProps) {
     if (products.length === 0) {
         return <p className="text-sm text-(--sf-muted-text)">{emptyText}</p>;
@@ -30,8 +32,9 @@ export function ProductList({
                 <ProductCard
                     key={product.id}
                     className={cardClassName}
-                    size={cardSize}
-                    onAddToCart={onAddToCart}
+                    badge={badge}
+                    showCart={showCart}
+                    showSave={showSave}
                     product={product}
                 />
             ))}

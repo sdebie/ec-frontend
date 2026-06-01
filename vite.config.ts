@@ -14,10 +14,8 @@ const toTenantId = (modulePath) => {
 
 const readDefaultExport = (moduleValue) => {
   if (!moduleValue || typeof moduleValue !== 'object') return undefined;
-  if ('defaultStorefrontConfig' in moduleValue) return moduleValue.defaultStorefrontConfig;
-  if ('clientUvhStorefrontConfig' in moduleValue) return moduleValue.clientUvhStorefrontConfig;
-  const firstConfig = Object.values(moduleValue).find((value) => value && typeof value === 'object' && 'id' in value);
-  return firstConfig;
+  if ('storefrontConfig' in moduleValue) return moduleValue.storefrontConfig;
+  return undefined;
 };
 
 const resolvedConfigImports = Object.entries(configModules).reduce((registry, [modulePath, moduleValue]) => {

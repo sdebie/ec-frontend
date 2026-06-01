@@ -1,6 +1,6 @@
 import { useMemo } from 'react';
 
-import { useProduct, useProducts } from '@/features/catalog';
+import { useProductDetail, useProducts } from '@/features/catalog';
 import { mapUvhProductDetail } from '@/tenants/uvh/pages/productdetail/mapUvhProductDetail.ts';
 import { useUvhProductDetailConfig } from '@/tenants/uvh/pages/productdetail/useUvhProductDetailConfig.ts';
 
@@ -20,7 +20,7 @@ type UseUvhProductDetailResult = {
 };
 
 export function useUvhProductDetail(productId?: string): UseUvhProductDetailResult {
-    const { product: rawProduct, loading, error } = useProduct(productId);
+    const { product: rawProduct, loading, error } = useProductDetail(productId);
     const product = useMemo(() => mapUvhProductDetail(rawProduct), [rawProduct]);
     const categoryId = product?.categoryId ?? null;
     const config = useUvhProductDetailConfig();

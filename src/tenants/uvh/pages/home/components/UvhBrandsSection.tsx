@@ -3,6 +3,7 @@ import {useState} from "react";
 import {IMAGE_BASE_URL} from "@/constants/api.constant.ts";
 import { useBrands } from '@/features/catalog';
 import {Card} from '@/primitives/card';
+import {UvhSectionHeading} from '@/tenants/uvh/components/UvhSectionHeading';
 
 const resolveBrandLogoSrc = (logoUrl?: string | null): string | null => {
     const cleanLogoUrl = logoUrl?.trim();
@@ -19,8 +20,7 @@ export function UvhBrandsSection() {
     return (
         <section className="mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:px-6">
             <div className="mb-5">
-                <h2 className="text-2xl font-semibold text-(--sf-text)">Brands</h2>
-                <span className="mt-3 block h-1 w-18 rounded bg-(--sf-accent)"/>
+                <UvhSectionHeading>Brands</UvhSectionHeading>
             </div>
             <div className="grid grid-cols-4 gap-2 lg:grid-cols-4 xl:grid-cols-6">
                 {brandsLoading && (
@@ -42,7 +42,7 @@ export function UvhBrandsSection() {
                     </Card>
                 )}
 
-                {!brandsLoading && brands.map((brand) => {
+                {!brandsLoading && brands.filter((brand) => brand.name && brand.name.toLowerCase() !== 'undefined').map((brand) => {
                     const logoSrc = resolveBrandLogoSrc(brand.logoUrl);
                     const showLogo = !!logoSrc && !brokenBrandLogos[brand.id];
 

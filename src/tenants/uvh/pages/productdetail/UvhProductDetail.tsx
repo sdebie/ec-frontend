@@ -1,17 +1,19 @@
+import { FileText } from 'lucide-react';
 import { useState } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 
 import { UvhProductBreadcrumbs } from '@/tenants/uvh/pages/productdetail/components/UvhProductBreadcrumbs.tsx';
 import { UvhProductGallery } from '@/tenants/uvh/pages/productdetail/components/UvhProductGallery.tsx';
 import { UvhProductInfoPanel } from '@/tenants/uvh/pages/productdetail/components/UvhProductInfoPanel.tsx';
 import { UvhProductRelated } from '@/tenants/uvh/pages/productdetail/components/UvhProductRelated.tsx';
+import { parseIdealForLines } from '@/tenants/uvh/pages/productdetail/mapUvhProductDetail.ts';
 import { useUvhProductDetail } from '@/tenants/uvh/pages/productdetail/useUvhProductDetail.ts';
 
 import type { UvhDetailVariant } from '@/tenants/uvh/pages/productdetail/mapUvhProductDetail.ts';
 
 type UvhProductDetailProps = {
     productId: string;
-    onAddToCart: (variantId: string, unitPrice: number, quantity: number) => Promise<void> | void;
+    onAddToCart: (variantId: string, unitPrice: number, quantity: number, productName: string) => Promise<void> | void;
 };
 
 function UvhProductDetailSkeleton() {
@@ -35,8 +37,9 @@ function UvhProductDetailSkeleton() {
 }
 
 export function UvhProductDetail({ productId, onAddToCart }: UvhProductDetailProps) {
-    const { product, relatedProducts, config, loading, relatedLoading, error } = useUvhProductDetail(productId);
+    const { product, relatedProducts, loading, relatedLoading, error } = useUvhProductDetail(productId);
     const [activeVariant, setActiveVariant] = useState<UvhDetailVariant | undefined>();
+    const navigate = useNavigate();
 
     if (loading) return <UvhProductDetailSkeleton />;
 
@@ -66,26 +69,56 @@ export function UvhProductDetail({ productId, onAddToCart }: UvhProductDetailPro
         );
     }
 
+    const featureLines = parseIdealForLines(product.shortDescription, product.description);
+
     return (
         <main className="min-h-screen w-full bg-(--sf-bg)">
             <UvhProductBreadcrumbs categoryName={product.categoryName} productName={product.name} />
 
             <section className="mx-auto w-full max-w-7xl px-4 py-6 sm:px-6 sm:py-8 lg:px-8">
-                <div className="rounded-2xl border border-(--sf-border) bg-(--sf-panel) p-5 shadow-sm sm:p-8">
-                    <div className="grid gap-8 lg:items-start lg:gap-12 lg:grid-cols-[minmax(0,2fr)_minmax(0,3fr)]">
+                {/* Main product card */}
+                <div className="rounded-2xl bg-(--sf-panel) shadow-sm ring-1 ring-(--sf-border) p-4 sm:p-6 lg:p-8">
+                    <div className="grid gap-6 md:items-start md:grid-cols-[minmax(0,1fr)_minmax(0,1fr)] md:gap-8 lg:grid-cols-[minmax(0,3fr)_minmax(0,2fr)] lg:gap-10">
+                        {/* Left column: gallery */}
                         <UvhProductGallery productName={product.name} images={product.productImages} />
-                        <UvhProductInfoPanel
-                            product={product}
-                            activeVariant={activeVariant}
-                            config={config}
-                            onAddToCart={onAddToCart}
-                            onActiveVariantChange={setActiveVariant}
-                        />
+
+                        {/* Right column: purchase panel + accordions — sticky on desktop */}
+                        <div className="md:sticky md:top-20 md:max-h-[calc(100vh-5rem)] md:overflow-y-auto">
+                            <UvhProductInfoPanel
+                                product={product}
+                                activeVariant={activeVariant}
+                                featureLines={featureLines}
+                                onAddToCart={(variantId, unitPrice, quantity) =>
+                                    onAddToCart(variantId, unitPrice, quantity, product.name)
+                                }
+                                onActiveVariantChange={setActiveVariant}
+                            />
+                        </div>
                     </div>
                 </div>
 
                 <UvhProductRelated products={relatedProducts} loading={relatedLoading} />
             </section>
+
+            {/* Bulk / quote CTA banner */}
+            <div className="bg-(--sf-nav-bg)">
+                <div className="mx-auto flex max-w-7xl flex-col items-center gap-4 px-4 py-8 text-center sm:flex-row sm:justify-between sm:text-left sm:px-6 lg:px-8">
+                    <p className="text-sm font-medium text-white sm:text-base">
+                        Need a large quantity? Get a customised quote for bulk orders.
+                    </p>
+                    <button
+                        type="button"
+                        className="inline-flex shrink-0 items-center gap-2 rounded-lg border border-white/30 px-5 py-2 text-sm font-semibold text-white transition hover:bg-white/10"
+                        onClick={() => {
+                            const subject = encodeURIComponent(`Bulk quote request: ${product.name}`);
+                            void navigate(`/contact-us?subject=${subject}`);
+                        }}
+                    >
+                        <FileText className="h-4 w-4" />
+                        Request a quote
+                    </button>
+                </div>
+            </div>
         </main>
     );
 }

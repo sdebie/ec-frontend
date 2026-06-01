@@ -107,11 +107,11 @@ export const Select = React.forwardRef<HTMLDivElement, SelectProps>(
                         disabled={disabled}
                         onClick={() => !disabled && setIsOpen((prev) => !prev)}
                         className={cn(
-                            'flex h-10 w-full items-center justify-between rounded-md border-2 border-admin-border bg-admin-panel px-3 py-2 text-sm text-admin-text transition-colors',
-                            'focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent focus:ring-offset-1 focus:ring-offset-admin-bg',
-                            'disabled:cursor-not-allowed disabled:opacity-50 disabled:bg-admin-bg',
+                            'flex h-10 w-full items-center justify-between rounded-md border-2 border-(--c-border) bg-(--c-panel) px-3 py-2 text-sm text-(--c-text) transition-colors',
+                            'focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent focus:ring-offset-1 focus:ring-offset-(--c-bg)',
+                            'disabled:cursor-not-allowed disabled:opacity-50 disabled:bg-(--c-bg)',
                             hasError && 'border-red-500 focus:ring-red-500',
-                            !selectedOption && 'text-admin-text-muted'
+                            !selectedOption && 'text-(--c-text-muted)'
                         )}
                         aria-haspopup="listbox"
                         aria-expanded={isOpen}
@@ -124,7 +124,7 @@ export const Select = React.forwardRef<HTMLDivElement, SelectProps>(
 
                     {isOpen && (
                         <div
-                            className="absolute z-100 mt-1 max-h-60 w-full overflow-auto rounded-md border border-admin-border bg-admin-panel py-1 shadow-md text-sm">
+                            className="absolute z-100 mt-1 max-h-60 w-full overflow-auto rounded-md border border-(--c-border) bg-(--c-panel) py-1 shadow-md text-sm">
                             <ul role="listbox" className="outline-none">
                                 {options.map((option) => (
                                     <li
@@ -135,8 +135,8 @@ export const Select = React.forwardRef<HTMLDivElement, SelectProps>(
                                         className={cn(
                                             'relative flex w-full cursor-pointer select-none items-center py-2 px-3 outline-none',
                                             option.disabled
-                                                ? 'opacity-50 cursor-not-allowed text-admin-text-muted'
-                                                : 'text-admin-text hover:bg-admin-sidebar-hover focus:bg-admin-sidebar-hover',
+                                                ? 'opacity-50 cursor-not-allowed text-(--c-text-muted)'
+                                                : 'text-(--c-text) hover:bg-(--c-surface-hover) focus:bg-(--c-surface-hover)',
                                             value === option.value && 'bg-primary-subtle text-primary font-medium'
                                         )}
                                     >
@@ -144,7 +144,7 @@ export const Select = React.forwardRef<HTMLDivElement, SelectProps>(
                                     </li>
                                 ))}
                                 {options.length === 0 && (
-                                    <li className="py-2 px-3 text-admin-text-muted text-center cursor-default">
+                                    <li className="py-2 px-3 text-(--c-text-muted) text-center cursor-default">
                                         No options available
                                     </li>
                                 )}

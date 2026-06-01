@@ -14,9 +14,9 @@ export default function UvhProductDetailPage() {
     return (
         <UvhProductDetail
             productId={String(productId)}
-            onAddToCart={async (variantId, unitPrice, quantity) => {
+            onAddToCart={async (variantId, unitPrice, quantity, productName) => {
                 await createOrder({
-                    items: [{ quantity, unitPrice, variant: variantId }],
+                    items: [{ quantity, unitPrice, variant: variantId, productName }],
                 });
             }}
         />

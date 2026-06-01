@@ -200,11 +200,11 @@ export function UvhProductPurchasePanel({
                 </div>
             </div>
 
-            <div className="mt-6 flex gap-3">
+            <div className="mt-6 grid grid-cols-2 gap-2">
                 <Button
                     type="button"
                     fullWidth
-                    size="lg"
+                    size="md"
                     disabled={!inStock || !allOptionsSelected || adding}
                     loading={adding}
                     leftIcon={!inStock ? <Bell className="h-4 w-4"/> : <ShoppingCart className="h-4 w-4"/>}
@@ -224,7 +224,7 @@ export function UvhProductPurchasePanel({
                     type="button"
                     variant="outline"
                     fullWidth
-                    size="lg"
+                    size="md"
                     leftIcon={<FileText className="h-4 w-4"/>}
                     className="border-(--sf-accent) text-(--sf-accent) hover:bg-(--sf-accent)/5"
                     onClick={() => {

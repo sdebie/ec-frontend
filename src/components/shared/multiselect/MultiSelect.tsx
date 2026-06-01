@@ -114,9 +114,9 @@ export const MultiSelect = React.forwardRef<HTMLDivElement, MultiSelectProps>(
             disabled={disabled}
             onClick={() => !disabled && setIsOpen((prev) => !prev)}
             className={cn(
-              'flex min-h-10 w-full items-center justify-between rounded-md border-2 border-admin-border bg-admin-panel px-3 py-2 text-sm text-admin-text transition-colors',
-              'focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent focus:ring-offset-1 focus:ring-offset-admin-bg',
-              'disabled:cursor-not-allowed disabled:opacity-50 disabled:bg-admin-bg',
+              'flex min-h-10 w-full items-center justify-between rounded-md border-2 border-(--c-border) bg-(--c-panel) px-3 py-2 text-sm text-(--c-text) transition-colors',
+              'focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent focus:ring-offset-1 focus:ring-offset-(--c-bg)',
+              'disabled:cursor-not-allowed disabled:opacity-50 disabled:bg-(--c-bg)',
               hasError && 'border-red-500 focus:ring-red-500'
             )}
             aria-haspopup="listbox"
@@ -142,14 +142,14 @@ export const MultiSelect = React.forwardRef<HTMLDivElement, MultiSelectProps>(
                   </span>
                 ))
               ) : (
-                <span className="text-admin-text-muted">{placeholder}</span>
+                <span className="text-(--c-text-muted)">{placeholder}</span>
               )}
             </div>
             <ChevronDown className={cn('h-4 w-4 opacity-50 transition-transform ml-2 shrink-0', isOpen && 'rotate-180')} />
           </button>
 
           {isOpen && (
-            <div className="absolute z-100 mt-1 max-h-60 w-full overflow-auto rounded-md border border-admin-border bg-admin-panel py-1 shadow-md text-sm">
+            <div className="absolute z-100 mt-1 max-h-60 w-full overflow-auto rounded-md border border-(--c-border) bg-(--c-panel) py-1 shadow-md text-sm">
               <ul role="listbox" className="outline-none">
                 {options.map((option) => {
                   const isSelected = value.includes(option.value);
@@ -164,8 +164,8 @@ export const MultiSelect = React.forwardRef<HTMLDivElement, MultiSelectProps>(
                       className={cn(
                         'relative flex w-full cursor-pointer select-none items-center justify-between py-2 px-3 outline-none',
                         isDisabled
-                          ? 'opacity-50 cursor-not-allowed text-admin-text-muted'
-                          : 'text-admin-text hover:bg-admin-sidebar-hover focus:bg-admin-sidebar-hover',
+                          ? 'opacity-50 cursor-not-allowed text-(--c-text-muted)'
+                          : 'text-(--c-text) hover:bg-(--c-surface-hover) focus:bg-(--c-surface-hover)',
                         isSelected && 'bg-primary-subtle text-primary font-medium'
                       )}
                     >
@@ -175,7 +175,7 @@ export const MultiSelect = React.forwardRef<HTMLDivElement, MultiSelectProps>(
                   );
                 })}
                 {options.length === 0 && (
-                  <li className="py-2 px-3 text-admin-text-muted text-center cursor-default">
+                  <li className="py-2 px-3 text-(--c-text-muted) text-center cursor-default">
                     No options available
                   </li>
                 )}
@@ -184,7 +184,7 @@ export const MultiSelect = React.forwardRef<HTMLDivElement, MultiSelectProps>(
           )}
         </div>
         {hasError && error && <p className="text-sm text-red-500 mt-1">{error}</p>}
-        {!hasError && helperText && <p className="text-sm text-admin-text-muted mt-1">{helperText}</p>}
+        {!hasError && helperText && <p className="text-sm text-(--c-text-muted) mt-1">{helperText}</p>}
       </>
     );
   }

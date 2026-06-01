@@ -1,4 +1,3 @@
-import type {StorefrontPageKey} from '@/types/storefront/storefrontPageKeys.ts';
 import type {StorefrontClientConfig} from '@/types/storefront/storefrontTypes.ts';
 import type {ComponentType, LazyExoticComponent} from 'react';
 
@@ -9,9 +8,10 @@ export type StorefrontPageComponent = LazyExoticComponent<ComponentType<Record<s
 
 /**
  * Minimal resolver input contract for Phase 1 (transparent mode).
+ * routeKey is string (not StorefrontPageKey) to allow tenant-extra routes with non-canonical keys.
  */
 export interface StorefrontPageResolverInput {
-    routeKey: StorefrontPageKey;
+    routeKey: string;
     routeComponent: StorefrontPageComponent;
     storefrontConfig: StorefrontClientConfig;
 }
@@ -22,7 +22,7 @@ export interface StorefrontPageResolverInput {
  */
 export interface StorefrontPageResolverResult {
     component: StorefrontPageComponent;
-    pageKey: StorefrontPageKey;
+    pageKey: string;
     // resolvedVariant: 'default';
     resolvedVariant: string; // 'default' or a registered variant id
     fallbackApplied: boolean;

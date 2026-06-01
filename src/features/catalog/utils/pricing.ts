@@ -1,6 +1,6 @@
 import { CustomerType } from '@/constants/enums/CustomerType';
 
-import type { ProductShoppingListItem } from '@/types/admin/ProductTypes';
+import type { ProductShoppingListItem } from '@/types/shared/ProductTypes';
 
 
 export type VariantPriceRow = {
