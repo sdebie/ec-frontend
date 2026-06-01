@@ -1,7 +1,7 @@
 import path from 'path';
 
 import react from '@vitejs/plugin-react'
-import { defineConfig } from 'vite'
+import { defineConfig, loadEnv } from 'vite'
 import dynamicImport from 'vite-plugin-dynamic-import'
 function buildStorefrontConfigVirtualModule(): string {
   return `
@@ -97,45 +97,50 @@ const storefrontVirtualModules = () => {
   };
 };
 
-export default defineConfig({
-  plugins: [storefrontVirtualModules(), react(), dynamicImport()],
-  assetsInclude: ['**/*.md'],
-  optimizeDeps: {
-    include: [
-      'react-hook-form',
-      'zod',
-      '@hookform/resolvers',
-      '@hookform/resolvers/zod'
-    ]
-  },
-  resolve: {
-    alias: {
-      '@': path.join(__dirname, 'src'),
+export default defineConfig(({ mode }) => {
+  const env = loadEnv(mode, process.cwd(), '');
+  const proxyTarget = env.VITE_PROXY_TARGET || 'http://localhost:8080';
+
+  return {
+    plugins: [storefrontVirtualModules(), react(), dynamicImport()],
+    assetsInclude: ['**/*.md'],
+    optimizeDeps: {
+      include: [
+        'react-hook-form',
+        'zod',
+        '@hookform/resolvers',
+        '@hookform/resolvers/zod'
+      ]
     },
-  },
-  server: {
-    host: true, // Crucial: Allows access from outside the container
-    port: 3000,
-    strictPort: true,
-    allowedHosts: [
-      'localhost',
-      '127.0.0.1',
-      '192.168.1.16' // Add your domain here
-    ],
-    proxy: {
-      // Directs frontend calls to the Docker service name
-      '/api': {
-        target: 'http://ec-backend:8080',
-        changeOrigin: true,
-        secure: false
+    resolve: {
+      alias: {
+        '@': path.join(__dirname, 'src'),
+      },
+    },
+    server: {
+      host: true, // Crucial: Allows access from outside the container
+      port: 3000,
+      strictPort: true,
+      allowedHosts: [
+        'localhost',
+        '127.0.0.1',
+        '192.168.1.16' // Add your domain here
+      ],
+      proxy: {
+        // Directs frontend calls to the backend service
+        '/api': {
+          target: proxyTarget,
+          changeOrigin: true,
+          secure: false
+        }
+      },
+      watch: {
+        usePolling: true, // Necessary for file changes to sync on Proxmox/VMs
       }
     },
-    watch: {
-      usePolling: true, // Necessary for file changes to sync on Proxmox/VMs
+    build: {
+      outDir: 'build',
+      sourcemap: false // Disable source maps for production builds to avoid DevTools errors
     }
-  },
-  build: {
-    outDir: 'build',
-    sourcemap: false // Disable source maps for production builds to avoid DevTools errors
   }
 })
