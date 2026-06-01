@@ -11,8 +11,7 @@ import ResetPasswordModal from '@/features/auth/customer/components/ResetPasswor
 import {cartStore} from '@/features/cart';
 import {CustomerProfile} from '@/services/CustomerService.ts';
 import {customerTypeStore, useIsWholesaler} from '@/store/customerTypeStore.ts';
-import {NavMenuItem, StorefrontClientConfig} from '@/types/storefront/storefrontTypes.ts';
-
+import {StorefrontClientConfig} from '@/types/storefront/storefrontTypes.ts';
 import styles from './PageHeader.module.css';
 
 const AUTH_KEY = 'checkoutIsAuthenticated';

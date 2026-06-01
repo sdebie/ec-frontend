@@ -10,7 +10,7 @@ type Props = {
 };
 
 export function GeneralTab({data, onSave, registerSave}: Props) {
-    const {control, handleSubmit, reset, formState: {isDirty, isSubmitting}} = useForm<StorefrontConfigSection>({
+    const {control, handleSubmit, reset} = useForm<StorefrontConfigSection>({
         defaultValues: data,
     });
 

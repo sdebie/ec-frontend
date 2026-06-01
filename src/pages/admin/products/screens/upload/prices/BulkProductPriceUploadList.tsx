@@ -130,10 +130,10 @@ const BulkProductUploadList = () => {
             enableSorting: true,
             cell: (props) => {
                 const row = props.row.original;
-                const isProcessing = row.status === 'PROCESSING';
-                const processedRows = row.processedRows ?? 0;
-                const skippedRows = row.skippedRows ?? 0;
-                const totalRows = row.totalRows ?? 0;
+                // const isProcessing = row.status === 'PROCESSING';
+                // const processedRows = row.processedRows ?? 0;
+                // const skippedRows = row.skippedRows ?? 0;
+                // const totalRows = row.totalRows ?? 0;
 
                 return (
                     <div className="flex flex-col">
