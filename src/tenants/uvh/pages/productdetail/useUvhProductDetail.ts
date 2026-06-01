@@ -1,12 +1,10 @@
-import { useMemo } from 'react';
-
-import { useProductDetail, useProducts } from '@/features/catalog';
-import { mapUvhProductDetail } from '@/tenants/uvh/pages/productdetail/mapUvhProductDetail.ts';
-import { useUvhProductDetailConfig } from '@/tenants/uvh/pages/productdetail/useUvhProductDetailConfig.ts';
-
-import type { CatalogProductListItem } from '@/features/catalog/types.ts';
-import type { UvhDetailProduct } from '@/tenants/uvh/pages/productdetail/mapUvhProductDetail.ts';
-import type { UvhProductDetailConfig } from '@/tenants/uvh/pages/productdetail/useUvhProductDetailConfig.ts';
+import {useMemo} from 'react';
+import {useProductDetail, useProducts} from '@/features/catalog';
+import type {UvhDetailProduct} from '@/tenants/uvh/pages/productdetail/mapUvhProductDetail.ts';
+import {mapUvhProductDetail} from '@/tenants/uvh/pages/productdetail/mapUvhProductDetail.ts';
+import type {UvhProductDetailConfig} from '@/tenants/uvh/pages/productdetail/useUvhProductDetailConfig.ts';
+import {useUvhProductDetailConfig} from '@/tenants/uvh/pages/productdetail/useUvhProductDetailConfig.ts';
+import type {CatalogProductListItem} from '@/features/catalog/types.ts';
 
 const RELATED_PAGE_SIZE = 12;
 
@@ -20,12 +18,12 @@ type UseUvhProductDetailResult = {
 };
 
 export function useUvhProductDetail(productId?: string): UseUvhProductDetailResult {
-    const { product: rawProduct, loading, error } = useProductDetail(productId);
+    const {product: rawProduct, loading, error} = useProductDetail(productId);
     const product = useMemo(() => mapUvhProductDetail(rawProduct), [rawProduct]);
     const categoryId = product?.categoryId ?? null;
     const config = useUvhProductDetailConfig();
 
-    const { products: categoryProducts, loading: relatedLoading } = useProducts({
+    const {products: categoryProducts, loading: relatedLoading} = useProducts({
         categoryId,
         pageSize: RELATED_PAGE_SIZE,
     });

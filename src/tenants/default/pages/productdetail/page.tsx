@@ -1,5 +1,4 @@
 import {useParams} from 'react-router-dom';
-
 import {useAddToCart} from '@/features/cart/hooks/useAddToCart.ts';
 import {ProductDetail} from '@/features/catalog';
 

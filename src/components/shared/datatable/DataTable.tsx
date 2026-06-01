@@ -1,24 +1,17 @@
 import {
     ColumnDef,
+    ColumnFiltersState,
     flexRender,
     getCoreRowModel,
     getFilteredRowModel,
     getPaginationRowModel,
     getSortedRowModel,
-    SortingState,
-    ColumnFiltersState,
     PaginationState,
+    SortingState,
     useReactTable,
 } from "@tanstack/react-table";
-import {
-    ChevronLeft,
-    ChevronRight,
-    ArrowUpDown,
-    ArrowUp,
-    ArrowDown,
-} from "lucide-react";
+import {ArrowDown, ArrowUp, ArrowUpDown, ChevronLeft, ChevronRight,} from "lucide-react";
 import * as React from "react";
-
 import {Input} from '@/primitives/input';
 import {cn} from "@/utils/cn";
 

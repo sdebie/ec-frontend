@@ -7,7 +7,6 @@ import {
 import {getStorefrontRegistry} from '@/configs/storefront/storefrontRegistry.ts';
 import {listStorefrontRouteContracts} from '@/configs/storefront/storefrontRouteContracts.ts';
 import {CANONICAL_STOREFRONT_PAGE_KEYS} from '@/types/storefront/storefrontPageKeys.ts';
-
 import type {StorefrontPageKey} from '@/types/storefront/storefrontPageContracts.ts';
 
 const normalizePath = (value: string): string => {

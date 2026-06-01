@@ -1,7 +1,5 @@
-import { CustomerType } from '@/constants/enums/CustomerType';
-
-import type { ProductShoppingListItem } from '@/types/shared/ProductTypes';
-
+import {CustomerType} from '@/constants/enums/CustomerType';
+import type {ProductShoppingListItem} from '@/types/shared/ProductTypes';
 
 export type VariantPriceRow = {
     priceType?: string | null;
@@ -39,17 +37,17 @@ export function getDisplayPrice(
         const wholesale = product.wholesalePrice?.price ?? 0;
         const wholesaleSale = product.wholesaleSalePrice?.price;
         if (wholesaleSale != null && wholesaleSale > 0 && wholesale > wholesaleSale) {
-            return { price: wholesaleSale, originalPrice: wholesale };
+            return {price: wholesaleSale, originalPrice: wholesale};
         }
-        return { price: wholesale };
+        return {price: wholesale};
     }
 
     const retail = product.retailPrice?.price ?? 0;
     const retailSale = product.retailSalePrice?.price;
     if (retailSale != null && retailSale > 0 && retail > retailSale) {
-        return { price: retailSale, originalPrice: retail };
+        return {price: retailSale, originalPrice: retail};
     }
-    return { price: retail };
+    return {price: retail};
 }
 
 export type VariantTierNumbers = {
@@ -66,12 +64,12 @@ export function getDisplayPriceForVariantTiers(
     const pseudo: ProductShoppingListItem = {
         id: 'variant-tier',
         name: '',
-        retailPrice: { id: '', price: tiers.retailPrice },
+        retailPrice: {id: '', price: tiers.retailPrice},
         retailSalePrice:
-            tiers.retailSalePrice != null ? { id: '', price: tiers.retailSalePrice } : null,
-        wholesalePrice: { id: '', price: tiers.wholesalePrice },
+            tiers.retailSalePrice != null ? {id: '', price: tiers.retailSalePrice} : null,
+        wholesalePrice: {id: '', price: tiers.wholesalePrice},
         wholesaleSalePrice:
-            tiers.wholesaleSalePrice != null ? { id: '', price: tiers.wholesaleSalePrice } : null,
+            tiers.wholesaleSalePrice != null ? {id: '', price: tiers.wholesaleSalePrice} : null,
     };
     return getDisplayPrice(pseudo, customerType);
 }

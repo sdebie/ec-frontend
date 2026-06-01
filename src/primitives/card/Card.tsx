@@ -1,5 +1,4 @@
 import * as React from 'react';
-
 import {cn} from '@/utils/cn.ts';
 
 type CardElement = 'div' | 'section' | 'article' | 'aside' | 'main' | 'header' | 'footer';

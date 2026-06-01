@@ -1,7 +1,6 @@
 import {Check, ChevronDown, Search, X} from 'lucide-react';
 import * as React from 'react';
 import {createPortal} from 'react-dom';
-
 import {cn} from '@/utils/cn.ts';
 
 export interface SearchableSelectOption {
@@ -493,7 +492,8 @@ export const SearchableSelect = React.forwardRef<HTMLDivElement, SearchableSelec
                                 onClick={(event) => event.stopPropagation()}
                             >
                                 <div className="mb-2 relative">
-                                    <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-(--c-text-muted) pointer-events-none" />
+                                    <Search
+                                        className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-(--c-text-muted) pointer-events-none"/>
                                     <input
                                         ref={searchInputRef}
                                         type="text"
@@ -518,7 +518,7 @@ export const SearchableSelect = React.forwardRef<HTMLDivElement, SearchableSelec
                                             aria-label="Clear search"
                                             tabIndex={-1}
                                         >
-                                            <X className="h-4 w-4" />
+                                            <X className="h-4 w-4"/>
                                         </button>
                                     )}
                                 </div>
@@ -563,7 +563,8 @@ export const SearchableSelect = React.forwardRef<HTMLDivElement, SearchableSelec
                                                         onClick={() => selectOption(option)}
                                                     >
                                                         <span className="truncate">{option.label}</span>
-                                                        {isSelected && <Check className="ml-2 h-4 w-4 shrink-0 text-primary"/>}
+                                                        {isSelected &&
+                                                            <Check className="ml-2 h-4 w-4 shrink-0 text-primary"/>}
                                                     </li>
                                                 );
                                             })}
@@ -583,7 +584,8 @@ export const SearchableSelect = React.forwardRef<HTMLDivElement, SearchableSelec
                                 onClick={(event) => event.stopPropagation()}
                             >
                                 <div className="mb-2 relative">
-                                    <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-(--c-text-muted) pointer-events-none" />
+                                    <Search
+                                        className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-(--c-text-muted) pointer-events-none"/>
                                     <input
                                         ref={searchInputRef}
                                         type="text"
@@ -608,7 +610,7 @@ export const SearchableSelect = React.forwardRef<HTMLDivElement, SearchableSelec
                                             aria-label="Clear search"
                                             tabIndex={-1}
                                         >
-                                            <X className="h-4 w-4" />
+                                            <X className="h-4 w-4"/>
                                         </button>
                                     )}
                                 </div>
@@ -653,7 +655,8 @@ export const SearchableSelect = React.forwardRef<HTMLDivElement, SearchableSelec
                                                         onClick={() => selectOption(option)}
                                                     >
                                                         <span className="truncate">{option.label}</span>
-                                                        {isSelected && <Check className="ml-2 h-4 w-4 shrink-0 text-primary"/>}
+                                                        {isSelected &&
+                                                            <Check className="ml-2 h-4 w-4 shrink-0 text-primary"/>}
                                                     </li>
                                                 );
                                             })}

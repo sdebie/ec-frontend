@@ -1,7 +1,6 @@
 import {useState} from "react";
-
 import {IMAGE_BASE_URL} from "@/constants/api.constant.ts";
-import { useBrands } from '@/features/catalog';
+import {useBrands} from '@/features/catalog';
 import {Card} from '@/primitives/card';
 import {UvhSectionHeading} from '@/tenants/uvh/components/UvhSectionHeading';
 
@@ -14,7 +13,7 @@ const resolveBrandLogoSrc = (logoUrl?: string | null): string | null => {
 
 
 export function UvhBrandsSection() {
-    const { brands, loading: brandsLoading } = useBrands(30);
+    const {brands, loading: brandsLoading} = useBrands(30);
     const [brokenBrandLogos, setBrokenBrandLogos] = useState<Record<string, boolean>>({});
 
     return (

@@ -1,12 +1,10 @@
-import { useCallback, useEffect, useMemo, useState } from 'react';
-
+import {useCallback, useEffect, useMemo, useState} from 'react';
 import {
     apiGetAllWholesaleApplications,
     apiGetWholesaleApplicationCount,
 } from '@/services/graphql/storefront/wholesaleCustomer/WholesaleCustomerService.graphql.ts';
-
-import type { WholesaleApplicationListItem, WholesaleApplicationStatus } from '@/types/admin/WholesaleCustomerTypes.ts';
-import type { FilterRequest } from '@/types/graphql/query.types.ts';
+import type {WholesaleApplicationListItem, WholesaleApplicationStatus} from '@/types/admin/WholesaleCustomerTypes.ts';
+import type {FilterRequest} from '@/types/graphql/query.types.ts';
 
 const DEFAULT_PAGE_SIZE = 16;
 
@@ -25,22 +23,22 @@ export default function useWholesaleApplicationList() {
 
         return {
             filters: [
-                ...(statusFilter ? [{ key: 'status', operator: 'EQUALS' as const, value: statusFilter }] : []),
+                ...(statusFilter ? [{key: 'status', operator: 'EQUALS' as const, value: statusFilter}] : []),
             ],
             filterGroups: trimmedSearch
                 ? [
                     {
                         operator: 'OR',
                         filters: [
-                            { key: 'accountEmail', operator: 'ILIKE', value: trimmedSearch },
-                            { key: 'firstName', operator: 'ILIKE', value: trimmedSearch },
-                            { key: 'lastName', operator: 'ILIKE', value: trimmedSearch },
-                            { key: 'companyName', operator: 'ILIKE', value: trimmedSearch },
+                            {key: 'accountEmail', operator: 'ILIKE', value: trimmedSearch},
+                            {key: 'firstName', operator: 'ILIKE', value: trimmedSearch},
+                            {key: 'lastName', operator: 'ILIKE', value: trimmedSearch},
+                            {key: 'companyName', operator: 'ILIKE', value: trimmedSearch},
                         ],
                     },
                 ]
                 : [],
-            sort: [{ field: 'createdAt', direction: 'DESC' }],
+            sort: [{field: 'createdAt', direction: 'DESC'}],
         };
     }, [searchTerm, statusFilter]);
 
@@ -53,7 +51,7 @@ export default function useWholesaleApplicationList() {
                 setErrorMsg('');
 
                 const [page, count] = await Promise.all([
-                    apiGetAllWholesaleApplications({ pageIndex, pageSize }, filterRequest),
+                    apiGetAllWholesaleApplications({pageIndex, pageSize}, filterRequest),
                     apiGetWholesaleApplicationCount(filterRequest),
                 ]);
 

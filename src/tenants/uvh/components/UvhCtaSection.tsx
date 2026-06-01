@@ -1,11 +1,10 @@
 import {Link} from 'react-router-dom';
-
 import {Container} from '@/primitives/container/Container';
 import {cn} from '@/utils/cn';
 import {UvhDarkSectionHeading} from '@/tenants/uvh/components/UvhDarkSectionHeading';
 import {UvhSectionHeading} from '@/tenants/uvh/components/UvhSectionHeading';
 
-type CtaLink = {label: string; to: string};
+type CtaLink = { label: string; to: string };
 
 type UvhCtaSectionProps = {
     eyebrow: string;
@@ -22,7 +21,17 @@ type UvhCtaSectionProps = {
 };
 
 /** CTA band — light by default; pass `dark` to match the Trust & Reassurance gradient style. */
-export function UvhCtaSection({eyebrow, title, description, cta, secondaryCta, id, ctaClassName, dark, compact}: UvhCtaSectionProps) {
+export function UvhCtaSection({
+                                  eyebrow,
+                                  title,
+                                  description,
+                                  cta,
+                                  secondaryCta,
+                                  id,
+                                  ctaClassName,
+                                  dark,
+                                  compact
+                              }: UvhCtaSectionProps) {
     const headingId = id ?? `uvh-cta-${title.toLowerCase().replace(/\s+/g, '-')}`;
 
     const primaryCls = cn(
@@ -46,7 +55,7 @@ export function UvhCtaSection({eyebrow, title, description, cta, secondaryCta, i
                     <div className="flex min-w-0 flex-1 flex-col gap-2">
                         <header className="max-w-2xl">
                             {dark ? (
-                                <UvhDarkSectionHeading eyebrow={eyebrow} title={title} id={headingId} />
+                                <UvhDarkSectionHeading eyebrow={eyebrow} title={title} id={headingId}/>
                             ) : (
                                 <UvhSectionHeading eyebrow={eyebrow} id={headingId}>
                                     {title}

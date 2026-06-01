@@ -20,7 +20,6 @@ import {toast} from "@/components/shared/toast";
 import useGetStaff from "@/pages/admin/staff/hooks/useGetStaff.ts";
 import useUpdateStaff from "@/pages/admin/staff/hooks/useUpdateStaff.ts";
 import {Input} from "@/primitives/input";
-
 import type {Staff, StaffRole} from "@/types/admin/StaffTypes.ts";
 
 type StaffEditProps = {
@@ -134,7 +133,8 @@ const StaffEdit = ({staff, isDialogOpen, setIsDialogOpen, onSuccess}: StaffEditP
                                     errorMessage={errors.email?.message}
                                     invalid={!!errors.email}
                                 >
-                                    <Input size="lg" {...field} type="email" placeholder="name@company.com" className="w-full"/>
+                                    <Input size="lg" {...field} type="email" placeholder="name@company.com"
+                                           className="w-full"/>
                                 </FormItem>
                             )}
                         />
@@ -178,8 +178,10 @@ const StaffEdit = ({staff, isDialogOpen, setIsDialogOpen, onSuccess}: StaffEditP
                             control={control}
                             render={({field}) => (
                                 <FormItem label="Active">
-                                    <div className="flex items-center justify-between rounded-md border border-admin-border px-3 py-2">
-                                        <span className="text-sm text-admin-text">Allow this staff user to sign in</span>
+                                    <div
+                                        className="flex items-center justify-between rounded-md border border-admin-border px-3 py-2">
+                                        <span
+                                            className="text-sm text-admin-text">Allow this staff user to sign in</span>
                                         <Switcher checked={field.value} onChange={field.onChange}/>
                                     </div>
                                 </FormItem>
@@ -191,7 +193,8 @@ const StaffEdit = ({staff, isDialogOpen, setIsDialogOpen, onSuccess}: StaffEditP
                             control={control}
                             render={({field}) => (
                                 <FormItem label="Force Password Reset">
-                                    <div className="flex items-center justify-between rounded-md border border-admin-border px-3 py-2">
+                                    <div
+                                        className="flex items-center justify-between rounded-md border border-admin-border px-3 py-2">
                                         <span className="text-sm text-admin-text">Require user to change password on next login</span>
                                         <Switcher checked={field.value} onChange={field.onChange}/>
                                     </div>

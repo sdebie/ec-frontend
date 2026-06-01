@@ -2,13 +2,10 @@ import {ColumnDef} from "@tanstack/react-table";
 import {PenLine, Plus, Upload} from "lucide-react";
 import {useMemo} from "react";
 import {useNavigate} from "react-router-dom";
-
-
 import {Button} from "@/components";
 import {DataTable} from "@/components/shared/datatable/DataTable.tsx";
 import {IMAGE_THUMBNAIL_URL} from "@/constants/api.constant.ts";
 import useProductList from "@/pages/admin/products/hooks/useProductList.ts";
-
 import type {ProductListItem} from "@/types/admin/ProductTypes.ts";
 
 const AdminProductList = () => {
@@ -31,9 +28,10 @@ const AdminProductList = () => {
 
     function handleCreate() {
     }
+
     function handleEdit(productItem: ProductListItem) {
         console.log("Edit product:", productItem)
-        navigate('/admin/product/detail/'+productItem.id)
+        navigate('/admin/product/detail/' + productItem.id)
     }
 
     const columns: ColumnDef<ProductListItem>[] = useMemo(() => [
@@ -125,7 +123,7 @@ const AdminProductList = () => {
                                 window.alert("Failed to export products. Please try again.");
                             })}
                             disabled={isExporting}
-                            >
+                        >
                             {isExporting ? "Exporting..." : "Export Products"}
 
                         </Button>

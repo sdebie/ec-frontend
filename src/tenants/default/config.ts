@@ -1,7 +1,5 @@
 import {defaultHomeSections} from '@/tenants/default/sections/defaultHomeSections';
-
 import type {StorefrontClientConfig} from '@/types/storefront/storefrontTypes';
-
 
 export const storefrontConfig: StorefrontClientConfig = {
     id: 'default',

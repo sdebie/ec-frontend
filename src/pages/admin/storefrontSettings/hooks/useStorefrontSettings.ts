@@ -1,5 +1,4 @@
 import {useEffect, useState} from 'react';
-
 import {apiGetStoreSettings, apiUpdateSetting} from '@/services/graphql/admin/settings/SettingsService.graphql.ts';
 import {
     STOREFRONT_SETTING_KEYS,

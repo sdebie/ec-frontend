@@ -1,3 +1,4 @@
+import type {LucideIcon} from 'lucide-react';
 import {
     BadgeCheck,
     CircleDollarSign,
@@ -11,14 +12,11 @@ import {
     Warehouse,
 } from 'lucide-react';
 import {Link} from 'react-router-dom';
-
 import {Card} from '@/primitives/card/Card';
 import {Container} from '@/primitives/container/Container';
 import {UvhSectionHeading} from '@/tenants/uvh/components/UvhSectionHeading';
 import {FROSTED_CARD, UvhGradientTrustBand} from '@/tenants/uvh/components/UvhGradientTrustBand.tsx';
 import {uvhAboutContent} from '@/tenants/uvh/config';
-
-import type {LucideIcon} from 'lucide-react';
 
 const COMPETITIVE_ICONS: LucideIcon[] = [
     BadgeCheck,
@@ -48,7 +46,8 @@ export function UvhAboutValuePropositionsSection() {
                         return (
                             <article key={item.id} className={FROSTED_CARD}>
                                 <div className="flex items-center gap-2 sm:gap-2.5">
-                                    <Icon aria-hidden className="size-5 shrink-0 text-(--sf-accent)" strokeWidth={1.65} />
+                                    <Icon aria-hidden className="size-5 shrink-0 text-(--sf-accent)"
+                                          strokeWidth={1.65}/>
                                     <h3 className="text-sm font-bold text-white sm:text-base">{item.title}</h3>
                                 </div>
                                 <p className="mt-2 text-xs leading-relaxed text-white/80 sm:text-sm">{item.body}</p>
@@ -86,9 +85,11 @@ export function UvhAboutValuePropositionsSection() {
                         {whatMakesUsDifferent.items.map((item, index) => {
                             const Icon = DIFFERENTIATOR_ICONS[index] ?? Handshake;
                             return (
-                                <Card key={item.id} as="article" className="flex h-full flex-col gap-2 p-4 sm:p-5" elevation="sm" padded={false}>
+                                <Card key={item.id} as="article" className="flex h-full flex-col gap-2 p-4 sm:p-5"
+                                      elevation="sm" padded={false}>
                                     <div className="flex items-center gap-2 sm:gap-2.5">
-                                        <Icon aria-hidden className="size-5 shrink-0 text-(--sf-accent)" strokeWidth={1.65} />
+                                        <Icon aria-hidden className="size-5 shrink-0 text-(--sf-accent)"
+                                              strokeWidth={1.65}/>
                                         <h3 className="text-sm font-bold text-(--c-text) sm:text-base">{item.title}</h3>
                                     </div>
                                     <p className="mt-2 text-xs leading-relaxed text-(--c-text-muted) sm:text-sm">{item.body}</p>
@@ -122,7 +123,8 @@ export function UvhAboutValuePropositionsSection() {
                 title={leadershipTeam.title}
                 id="uvh-leadership-heading"
             >
-                <div className="mt-5 flex w-full items-start gap-4 rounded-xl border border-white/12 bg-white/6 p-5 shadow-[0_12px_28px_rgba(0,0,0,0.25)] backdrop-blur-[1px] sm:p-6">
+                <div
+                    className="mt-5 flex w-full items-start gap-4 rounded-xl border border-white/12 bg-white/6 p-5 shadow-[0_12px_28px_rgba(0,0,0,0.25)] backdrop-blur-[1px] sm:p-6">
                     <Users
                         aria-hidden
                         className="mt-0.5 size-8 shrink-0 text-(--sf-accent)"

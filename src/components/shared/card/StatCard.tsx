@@ -1,7 +1,5 @@
 import {cn} from "@/utils/cn.ts";
-
 import type {ReactNode} from 'react';
-
 
 interface StatCardProps {
     title: string;

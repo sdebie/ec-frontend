@@ -1,6 +1,5 @@
 import {Check, Loader} from "lucide-react";
-import {useState, useCallback, useEffect, useRef} from "react";
-
+import {useCallback, useEffect, useRef, useState} from "react";
 import {Button} from "@/components";
 import {IMAGE_BASE_URL} from "@/constants/api.constant.ts";
 import {Input} from "@/primitives/input";

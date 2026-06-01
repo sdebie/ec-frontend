@@ -1,11 +1,8 @@
 import {describe, expect, it, vi} from 'vitest';
-
 import {resolveStorefrontPageCore} from '@/configs/storefront/resolveStorefrontPageCore';
 import {storefrontPageRegistry} from '@/configs/storefront/storefrontPageRegistry.ts';
-
 import type {StorefrontPageComponent, StorefrontPageKey} from '@/types/storefront/storefrontPageContracts.ts';
 import type {StorefrontClientConfig} from '@/types/storefront/storefrontTypes.ts';
-
 
 const mockStorefrontConfig: StorefrontClientConfig = {
     id: 'default',

@@ -1,8 +1,7 @@
 import React from 'react';
-
-import { CustomerType } from '@/constants/enums/CustomerType.ts';
+import {CustomerType} from '@/constants/enums/CustomerType.ts';
 import {CustomerStatus} from "@/constants/enums/CustomerStatus.ts";
-import type { CustomerProfile } from '@/services/CustomerService.ts';
+import type {CustomerProfile} from '@/services/CustomerService.ts';
 
 export type LookupState = 'idle' | 'loading' | 'found' | 'not_found' | 'error';
 
@@ -21,18 +20,18 @@ type Props = {
 };
 
 const ContactInfoSection: React.FC<Props> = ({
-    email,
-    setEmail,
-    emailValid,
-    emailTouched,
-    setEmailTouched,
-    lookupState,
-    customer,
-    isAuthenticated,
-    returningChoice,
-    setReturningChoice,
-    loginSlot,
-}) => {
+                                                 email,
+                                                 setEmail,
+                                                 emailValid,
+                                                 emailTouched,
+                                                 setEmailTouched,
+                                                 lookupState,
+                                                 customer,
+                                                 isAuthenticated,
+                                                 returningChoice,
+                                                 setReturningChoice,
+                                                 loginSlot,
+                                             }) => {
     const showReturningBlock =
         !!customer &&
         !!customer.hasPassword &&
@@ -77,7 +76,8 @@ const ContactInfoSection: React.FC<Props> = ({
                         {emailValid && (
                             <div className="mt-1 text-xs">
                                 {isAuthenticated ? (
-                                    <span className="inline-flex rounded-md border border-green-200 bg-green-50 px-2 py-1 text-green-700">
+                                    <span
+                                        className="inline-flex rounded-md border border-green-200 bg-green-50 px-2 py-1 text-green-700">
                                         Welcome back{customer?.firstName ? `, ${customer.firstName}` : ''}.
                                     </span>
                                 ) : (
@@ -87,23 +87,27 @@ const ContactInfoSection: React.FC<Props> = ({
                                         )}
                                         {lookupState === 'found' &&
                                             customer?.status?.toUpperCase() !== CustomerStatus.ACTIVE.toUpperCase() && (
-                                                <span className="inline-flex rounded-md border border-blue-200 bg-blue-50 px-2 py-1 text-blue-700">
+                                                <span
+                                                    className="inline-flex rounded-md border border-blue-200 bg-blue-50 px-2 py-1 text-blue-700">
                                                     Account not active for {customer.email} - continuing as guest
                                                 </span>
                                             )}
                                         {lookupState === 'found' &&
                                             customer?.shopperType?.toUpperCase() === CustomerType.GUEST.toUpperCase() && (
-                                                <span className="inline-flex rounded-md border border-blue-200 bg-blue-50 px-2 py-1 text-blue-700">
+                                                <span
+                                                    className="inline-flex rounded-md border border-blue-200 bg-blue-50 px-2 py-1 text-blue-700">
                                                     Continuing as guest
                                                 </span>
                                             )}
                                         {lookupState === 'not_found' && (
-                                            <span className="inline-flex rounded-md border border-green-200 bg-green-50 px-2 py-1 text-green-700">
+                                            <span
+                                                className="inline-flex rounded-md border border-green-200 bg-green-50 px-2 py-1 text-green-700">
                                                 No account found - continuing as guest
                                             </span>
                                         )}
                                         {lookupState === 'error' && (
-                                            <span className="inline-flex rounded-md border border-yellow-200 bg-yellow-50 px-2 py-1 text-yellow-700">
+                                            <span
+                                                className="inline-flex rounded-md border border-yellow-200 bg-yellow-50 px-2 py-1 text-yellow-700">
                                                 Could not check account right now.
                                             </span>
                                         )}
@@ -115,7 +119,8 @@ const ContactInfoSection: React.FC<Props> = ({
                         {showReturningBlock && (
                             <div className="mt-4 rounded-xl border border-blue-100 bg-blue-50 p-4">
                                 <p className="text-sm font-medium text-blue-900">
-                                    Welcome back! We found an account for {customer?.email}. Choose how you want to continue.
+                                    Welcome back! We found an account for {customer?.email}. Choose how you want to
+                                    continue.
                                 </p>
                                 <div className="mt-3 flex flex-wrap gap-2">
                                     <button
@@ -150,7 +155,8 @@ const ContactInfoSection: React.FC<Props> = ({
 
                                 {returningChoice === 'guest' && (
                                     <p className="mt-2 text-xs text-blue-800">
-                                        You can proceed without signing in. Saved addresses are not auto-filled as guest.
+                                        You can proceed without signing in. Saved addresses are not auto-filled as
+                                        guest.
                                     </p>
                                 )}
                             </div>

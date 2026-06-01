@@ -1,11 +1,8 @@
-import { createPortal } from 'react-dom';
-
-import { cn } from '@/utils/cn';
-
-import { Toast } from './Toast';
-import { useToastStore, type ToastPosition } from './toastStore';
-
-import type { ToastSlideFrom } from './Toast';
+import {createPortal} from 'react-dom';
+import {cn} from '@/utils/cn';
+import type {ToastSlideFrom} from './Toast';
+import {Toast} from './Toast';
+import {type ToastPosition, useToastStore} from './toastStore';
 
 // ─── Position → CSS classes ────────────────────────────────────────────────────
 
@@ -15,12 +12,12 @@ import type { ToastSlideFrom } from './Toast';
  * pixel-perfect centred regardless of viewport width.
  */
 const POSITION_CLASSES: Record<ToastPosition, string> = {
-    'top-left':      'top-4 left-4',
-    'top-center':    'top-4 left-1/2 -translate-x-1/2',
-    'top-right':     'top-4 right-4',
-    'bottom-left':   'bottom-4 left-4',
+    'top-left': 'top-4 left-4',
+    'top-center': 'top-4 left-1/2 -translate-x-1/2',
+    'top-right': 'top-4 right-4',
+    'bottom-left': 'bottom-4 left-4',
     'bottom-center': 'bottom-4 left-1/2 -translate-x-1/2',
-    'bottom-right':  'bottom-4 right-4',
+    'bottom-right': 'bottom-4 right-4',
 };
 
 /**
@@ -28,12 +25,12 @@ const POSITION_CLASSES: Record<ToastPosition, string> = {
  * bottom positions from below, left/right edges from their respective side.
  */
 const SLIDE_FROM: Record<ToastPosition, ToastSlideFrom> = {
-    'top-left':      'top',
-    'top-center':    'top',
-    'top-right':     'top',
-    'bottom-left':   'bottom',
+    'top-left': 'top',
+    'top-center': 'top',
+    'top-right': 'top',
+    'bottom-left': 'bottom',
     'bottom-center': 'bottom',
-    'bottom-right':  'bottom',
+    'bottom-right': 'bottom',
 };
 
 // ─── Component ─────────────────────────────────────────────────────────────────
@@ -62,7 +59,7 @@ type ToastContainerProps = {
  *  - top-* positions: newest toast appears at the top of the stack.
  *  - bottom-* positions: newest toast appears at the bottom of the stack.
  */
-export function ToastContainer({ position = 'top-center' }: ToastContainerProps) {
+export function ToastContainer({position = 'top-center'}: ToastContainerProps) {
     const toasts = useToastStore((s) => s.toasts);
     const slideFrom = SLIDE_FROM[position];
 
@@ -82,7 +79,7 @@ export function ToastContainer({ position = 'top-center' }: ToastContainerProps)
         >
             {displayToasts.map((item) => (
                 <div key={item.id} className="pointer-events-auto">
-                    <Toast {...item} slideFrom={slideFrom} />
+                    <Toast {...item} slideFrom={slideFrom}/>
                 </div>
             ))}
         </div>,

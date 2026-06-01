@@ -3,15 +3,11 @@ import {AlertCircle, ChevronDown, ChevronUp} from "lucide-react";
 import {useEffect, useState} from "react";
 import {Controller, useForm} from "react-hook-form";
 import {z} from "zod";
-
 import {Button, Checkbox, Dialog, DialogContent, DialogFooter, DialogHeader, Form, FormItem} from "@/components";
 import {toast} from "@/components/shared/toast";
 import useEditShippingMethod from "@/pages/admin/settings/hooks/useEditShippingMethod.ts";
 import {Input} from "@/primitives/input";
 import {ShippingMethod} from "@/types/admin/SettingsTypes.ts";
-
-
-
 
 type ShippingMethodEditProps = {
     method?: ShippingMethod;

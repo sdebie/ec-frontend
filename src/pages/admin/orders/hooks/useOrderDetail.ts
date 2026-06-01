@@ -1,7 +1,6 @@
-import { useEffect, useState } from "react";
-
-import { apiGetOrderDetail } from "@/services/graphql/order/OrderService.graphql.ts";
-import { OrderDetailData } from "@/types/order.types.ts";
+import {useEffect, useState} from "react";
+import {apiGetOrderDetail} from "@/services/graphql/order/OrderService.graphql.ts";
+import {OrderDetailData} from "@/types/order.types.ts";
 
 export default function useOrderDetail(orderId?: string) {
     const [order, setOrder] = useState<OrderDetailData | null>(null);
@@ -33,6 +32,6 @@ export default function useOrderDetail(orderId?: string) {
         };
     }, [orderId]);
 
-    return { order, isLoading, errorMsg };
+    return {order, isLoading, errorMsg};
 }
 

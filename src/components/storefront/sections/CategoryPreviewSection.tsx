@@ -1,12 +1,10 @@
 import {Link} from 'react-router-dom';
-
 import type {
     CategoryPreviewColumns,
     CategoryPreviewItem,
     CategoryPreviewSectionProps,
 } from '@/types/storefront/storefrontTypes';
 import type {ReactNode} from 'react';
-
 
 interface Props {
     props: CategoryPreviewSectionProps;

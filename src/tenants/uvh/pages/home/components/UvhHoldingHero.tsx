@@ -1,7 +1,6 @@
-import {MapPin, Package, ShieldCheck, Truck, type LucideIcon} from 'lucide-react';
-
-import {uvhHomeContent} from '@/tenants/uvh/config';
+import {type LucideIcon, MapPin, Package, ShieldCheck, Truck} from 'lucide-react';
 import type {UvhHeroStatIcon} from '@/tenants/uvh/config';
+import {uvhHomeContent} from '@/tenants/uvh/config';
 
 const STAT_ICONS: Record<UvhHeroStatIcon, LucideIcon> = {
     package: Package,
@@ -88,7 +87,8 @@ export function UvhHoldingHero() {
                                         loading="lazy"
                                         className="h-25 w-auto sm:h-25 lg:h-25"
                                     />
-                                    <span className="mt-1.5 text-[10px] font-bold uppercase leading-tight tracking-wide text-neutral-950 sm:text-[11px]">
+                                    <span
+                                        className="mt-1.5 text-[10px] font-bold uppercase leading-tight tracking-wide text-neutral-950 sm:text-[11px]">
                                         {service.label}
                                     </span>
                                 </li>

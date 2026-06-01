@@ -1,9 +1,8 @@
-import { CheckCircle2 } from 'lucide-react';
-
-import { UvhProductAccordion } from '@/tenants/uvh/pages/productdetail/components/UvhProductAccordion.tsx';
-import { UvhProductPurchasePanel } from '@/tenants/uvh/pages/productdetail/components/UvhProductPurchasePanel.tsx';
-import { buildSpecificationRows } from '@/tenants/uvh/pages/productdetail/mapUvhProductDetail.ts';
-import type { UvhDetailProduct, UvhDetailVariant } from '@/tenants/uvh/pages/productdetail/mapUvhProductDetail.ts';
+import {CheckCircle2} from 'lucide-react';
+import {UvhProductAccordion} from '@/tenants/uvh/pages/productdetail/components/UvhProductAccordion.tsx';
+import {UvhProductPurchasePanel} from '@/tenants/uvh/pages/productdetail/components/UvhProductPurchasePanel.tsx';
+import type {UvhDetailProduct, UvhDetailVariant} from '@/tenants/uvh/pages/productdetail/mapUvhProductDetail.ts';
+import {buildSpecificationRows} from '@/tenants/uvh/pages/productdetail/mapUvhProductDetail.ts';
 
 type UvhProductInfoPanelProps = {
     product: UvhDetailProduct;
@@ -14,12 +13,12 @@ type UvhProductInfoPanelProps = {
 };
 
 export function UvhProductInfoPanel({
-    product,
-    activeVariant,
-    featureLines = [],
-    onAddToCart,
-    onActiveVariantChange,
-}: UvhProductInfoPanelProps) {
+                                        product,
+                                        activeVariant,
+                                        featureLines = [],
+                                        onAddToCart,
+                                        onActiveVariantChange,
+                                    }: UvhProductInfoPanelProps) {
     const specRows = buildSpecificationRows(activeVariant, product.name);
     const description = product.description || product.shortDescription;
 
@@ -44,20 +43,20 @@ export function UvhProductInfoPanel({
                     {specRows.length > 0 ? (
                         <table className="w-full border-collapse text-sm">
                             <tbody>
-                                {specRows.map((row, index) => (
-                                    <tr
-                                        key={`${row.label}-${row.value}`}
-                                        className={index % 2 === 0 ? 'bg-(--sf-surface-muted)' : ''}
+                            {specRows.map((row, index) => (
+                                <tr
+                                    key={`${row.label}-${row.value}`}
+                                    className={index % 2 === 0 ? 'bg-(--sf-surface-muted)' : ''}
+                                >
+                                    <th
+                                        scope="row"
+                                        className="w-2/5 px-3 py-2.5 text-left text-xs font-semibold text-(--sf-text)"
                                     >
-                                        <th
-                                            scope="row"
-                                            className="w-2/5 px-3 py-2.5 text-left text-xs font-semibold text-(--sf-text)"
-                                        >
-                                            {row.label}
-                                        </th>
-                                        <td className="px-3 py-2.5 text-xs text-(--sf-muted-text)">{row.value}</td>
-                                    </tr>
-                                ))}
+                                        {row.label}
+                                    </th>
+                                    <td className="px-3 py-2.5 text-xs text-(--sf-muted-text)">{row.value}</td>
+                                </tr>
+                            ))}
                             </tbody>
                         </table>
                     ) : (
@@ -65,7 +64,7 @@ export function UvhProductInfoPanel({
                     )}
                 </UvhProductAccordion>
 
-                <div className="border-t border-(--sf-border)" />
+                <div className="border-t border-(--sf-border)"/>
             </div>
 
             {featureLines.length > 0 && (
@@ -75,7 +74,7 @@ export function UvhProductInfoPanel({
                             key={line}
                             className="flex items-start gap-2 rounded-lg border border-(--sf-border) bg-(--sf-panel) p-3"
                         >
-                            <CheckCircle2 className="mt-0.5 h-4 w-4 shrink-0 text-(--sf-accent)" aria-hidden />
+                            <CheckCircle2 className="mt-0.5 h-4 w-4 shrink-0 text-(--sf-accent)" aria-hidden/>
                             <p className="text-xs leading-relaxed text-(--sf-text)">{line}</p>
                         </div>
                     ))}

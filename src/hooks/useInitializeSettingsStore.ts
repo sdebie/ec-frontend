@@ -1,20 +1,24 @@
-import { useEffect } from 'react';
-import { useSettingsStore } from '@/store/settingsStore';
-import { fetchCountrySettings } from '@/services/StoreSettings';
+import {useEffect} from 'react';
+import {useQuery} from '@tanstack/react-query';
+import {fetchCountrySettings} from '@/services/StoreSettings';
+import {useSettingsStore} from '@/store/settingsStore';
 
 export function useInitializeSettingsStore() {
-    useEffect(() => {
-        const initializeSettings = async () => {
-            try {
-                const settings = await fetchCountrySettings();
-                useSettingsStore.getState().initializeSettings(settings);
-            } catch (error) {
-                console.warn('Failed to load country settings on app startup', error);
-                // App will use defaults from formatAmount utility
-            }
-        };
+    const {data} = useQuery({
+        queryKey: ['countrySettings'],
+        queryFn: fetchCountrySettings,
+        // Country settings are session-stable — no need to refetch on focus.
+        staleTime: Infinity,
+        retry: false,
+    });
 
-        initializeSettings();
-    }, []);
+    useEffect(() => {
+        if (!data) return;
+        try {
+            useSettingsStore.getState().initializeSettings(data);
+        } catch (error) {
+            console.warn('Failed to initialize settings store', error);
+        }
+    }, [data]);
 }
 

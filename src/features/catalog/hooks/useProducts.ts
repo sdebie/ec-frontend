@@ -1,7 +1,6 @@
-import {useCallback, useEffect, useMemo, useState} from 'react';
-
+import {useMemo} from 'react';
+import {useQuery} from '@tanstack/react-query';
 import {apiGetProductCount, apiGetShoppingProductsList} from '@/services/graphql/product/product.service.ts';
-
 import type {CatalogProductListItem, CatalogProductsQuery} from '@/features/catalog/types.ts';
 import type {Filter, FilterRequest} from '@/types/graphql/query.types.ts';
 
@@ -70,70 +69,46 @@ export async function fetchProductsPage(params: {
 }
 
 export function useProducts(query: CatalogProductsQuery = {}): UseProductsResult {
-    const [products, setProducts] = useState<CatalogProductListItem[]>([]);
-    const [totalCount, setTotalCount] = useState(0);
-    const [loading, setLoading] = useState(true);
-    const [error, setError] = useState<string | null>(null);
-    const [refreshKey, setRefreshKey] = useState(0);
-
     const pageIndex = query.pageIndex ?? 0;
     const pageSize = query.pageSize ?? 25;
     const sortBy = query.sortBy ?? 'name';
 
-    useEffect(() => {
-        let isMounted = true;
-        const run = async () => {
-            try {
-                setLoading(true);
-                setError(null);
+    const rq = useQuery({
+        queryKey: ['products', query.categoryId, query.brandId, query.search, pageIndex, pageSize],
+        queryFn: async () => {
+            const filterRequest = buildFilterRequest(query.search ?? '', query.brandId);
+            const [pageData, count] = await Promise.all([
+                apiGetShoppingProductsList(
+                    query.categoryId ?? null,
+                    {pageIndex, pageSize},
+                    filterRequest,
+                ).then((data) => (Array.isArray(data) ? data : [])),
+                apiGetProductCount(filterRequest, query.categoryId ?? null, query.brandId ?? null).catch(
+                    () => null,
+                ),
+            ]);
+            return {products: pageData, totalCount: count ?? 0};
+        },
+    });
 
-                const filterRequest = buildFilterRequest(query.search ?? '', query.brandId);
+    const rawProducts = rq.data?.products ?? [];
+    const totalCount = rq.data?.totalCount ?? 0;
 
-                const [pageData, count] = await Promise.all([
-                    apiGetShoppingProductsList(
-                        query.categoryId ?? null,
-                        {pageIndex, pageSize},
-                        filterRequest,
-                    ).then(data => Array.isArray(data) ? data : []),
-                    apiGetProductCount(filterRequest, query.categoryId ?? null, query.brandId ?? null).catch(() => null),
-                ]);
-
-                if (!isMounted) return;
-                setProducts(pageData);
-                setTotalCount(count ?? 0);
-            } catch (err) {
-                if (!isMounted) return;
-                setError(err instanceof Error ? err.message : 'Failed to load products.');
-                setProducts([]);
-                setTotalCount(0);
-            } finally {
-                if (isMounted) setLoading(false);
-            }
-        };
-
-        void run();
-        return () => {
-            isMounted = false;
-        };
-    }, [query.categoryId, query.brandId, query.search, pageIndex, pageSize, refreshKey]);
-
+    // Price sorting is client-side — not part of the query key so the cached
+    // dataset is reused and only the derived order changes.
     const sortedProducts = useMemo(() => {
         if (sortBy === 'price-asc' || sortBy === 'price-desc') {
-            return sortByPrice(products, sortBy);
+            return sortByPrice(rawProducts, sortBy);
         }
-        return products;
-    }, [products, sortBy]);
-
-    const refetch = useCallback(() => {
-        setRefreshKey(k => k + 1);
-    }, []);
+        return rawProducts;
+    }, [rawProducts, sortBy]);
 
     return {
         products: sortedProducts,
-        hasNextPage: pageIndex * pageSize + products.length < totalCount,
+        hasNextPage: pageIndex * pageSize + rawProducts.length < totalCount,
         totalCount,
-        loading,
-        error,
-        refetch,
+        loading: rq.isPending,
+        error: rq.isError ? (rq.error?.message ?? 'Failed to load products.') : null,
+        refetch: rq.refetch,
     };
 }

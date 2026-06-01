@@ -1,17 +1,16 @@
-import { ColumnDef } from "@tanstack/react-table";
-import { useEffect, useMemo, useState } from "react";
-import { useNavigate, useParams } from "react-router-dom";
+import {ColumnDef} from "@tanstack/react-table";
+import {useEffect, useMemo, useState} from "react";
+import {useNavigate, useParams} from "react-router-dom";
 
 
-import { Button, DataTable } from "@/components";
-import { getProductImportValidationStatus } from "@/constants/enums/ProductImportValidationStatus.ts";
+import {Button, DataTable} from "@/components";
+import {getProductImportValidationStatus} from "@/constants/enums/ProductImportValidationStatus.ts";
 import {apiGetProductPriceImportRows} from "@/services/graphql/admin/product/ProductPriceImportService.graphql.ts";
 import {processProductPriceUploadBatch} from "@/services/rest/admin/ProductPriceUploadService.rest.ts";
-
 import type {ProductPriceUploadStaged} from "@/types/admin/ProductTypes.ts";
 
 const ProductImportReview = () => {
-    const { batchId } = useParams();
+    const {batchId} = useParams();
     const navigate = useNavigate();
 
     const [stagedData, setStagedData] = useState<ProductPriceUploadStaged[]>([]);
@@ -55,7 +54,7 @@ const ProductImportReview = () => {
         try {
             setIsApproving(true);
             await processProductPriceUploadBatch(batchId);
-            navigate("/admin/imports/products/price/list", { replace: true });
+            navigate("/admin/imports/products/price/list", {replace: true});
         } catch (error) {
             console.error("Failed to start product upload batch processing:", error);
         } finally {
@@ -83,7 +82,9 @@ const ProductImportReview = () => {
         },
         {
             id: "retailPrice",
-            header: () => <div>Retail<br /><div className={"text-[10px]"}>Price</div></div>,
+            header: () => <div>Retail<br/>
+                <div className={"text-[10px]"}>Price</div>
+            </div>,
             enableSorting: false,
             cell: (props) => {
                 const row = props.row.original;
@@ -103,7 +104,9 @@ const ProductImportReview = () => {
         },
         {
             id: "wholesalePrice",
-            header: () => <div>Wholesale<br /><div className={"text-[10px]"}>Price</div></div>,
+            header: () => <div>Wholesale<br/>
+                <div className={"text-[10px]"}>Price</div>
+            </div>,
             enableSorting: false,
             cell: (props) => {
                 const row = props.row.original;
@@ -178,7 +181,8 @@ const ProductImportReview = () => {
                         <Button onClick={() => navigate(-1)} className="bg-slate-700">
                             Cancel
                         </Button>
-                        <Button onClick={handleApprove} className="bg-green-600 font-bold" disabled={isApproving || !batchId}>
+                        <Button onClick={handleApprove} className="bg-green-600 font-bold"
+                                disabled={isApproving || !batchId}>
                             {isApproving ? "Starting..." : "Apply All Changes"}
                         </Button>
                     </div>

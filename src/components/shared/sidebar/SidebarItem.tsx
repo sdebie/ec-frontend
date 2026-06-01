@@ -1,12 +1,8 @@
 import {NavLink} from 'react-router-dom';
-
 import {cn} from '@/utils/cn.ts';
-
 import {SidebarItemContent} from './SidebarItemContent';
 import {SidebarSubMenu} from './SidebarSubMenu';
-
 import type {Route} from '@/types/routes';
-
 
 interface SidebarItemProps {
     route: Route;

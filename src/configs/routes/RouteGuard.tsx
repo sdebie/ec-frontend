@@ -1,12 +1,10 @@
 import {Suspense} from 'react';
 import {Navigate} from 'react-router-dom';
-
 import AdminLayout from '@/components/layout/admin/AdminLayout.tsx';
 import {RouteErrorBoundary} from '@/components/shared/error-boundary/RouteErrorBoundary';
 import {PageLoadingSpinner} from '@/components/shared/spinner/PageLoadingSpinner';
 import {AdminThemeProvider} from "@/context/AdminThemeContext.tsx";
 import {hasRequiredAuthority} from '@/utils/authorizationHelper.ts';
-
 import type { RouteObject } from '@/types/routes.ts';
 
 

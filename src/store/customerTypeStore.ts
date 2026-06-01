@@ -1,7 +1,6 @@
 import {useEffect} from 'react';
 import {create} from 'zustand';
 import {createJSONStorage, persist} from 'zustand/middleware';
-
 import {CustomerType} from '@/constants/enums/CustomerType';
 import {STOREFRONT_TENANT_RESET_EVENT} from '@/storefront/tenant/tenantLifecycle';
 import {getTenantStorageKey} from '@/utils/storefront/tenantStorageKeys';

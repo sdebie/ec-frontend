@@ -1,10 +1,8 @@
 import {Search} from 'lucide-react';
 import type {ReactNode} from 'react';
-
 import {Input} from '@/primitives/input';
 import {UVH_CATALOGUE_FILTER_LIST_CLASS} from '@/tenants/uvh/pages/products/catalogue.config.ts';
 import {cn} from '@/utils/cn.ts';
-
 import type {CatalogBrand, CatalogCategory} from '@/features/catalog/types.ts';
 
 type UvhCatalogueSidebarProps = {
@@ -24,20 +22,20 @@ type UvhCatalogueSidebarProps = {
 };
 
 export function UvhCatalogueSidebar({
-    categories,
-    categoriesLoading,
-    selectedCategoryId,
-    onCategorySelect,
-    categorySearch,
-    onCategorySearchChange,
-    brands,
-    brandsLoading,
-    selectedBrandId,
-    onBrandSelect,
-    brandSearch,
-    onBrandSearchChange,
-    className,
-}: UvhCatalogueSidebarProps) {
+                                        categories,
+                                        categoriesLoading,
+                                        selectedCategoryId,
+                                        onCategorySelect,
+                                        categorySearch,
+                                        onCategorySearchChange,
+                                        brands,
+                                        brandsLoading,
+                                        selectedBrandId,
+                                        onBrandSelect,
+                                        brandSearch,
+                                        onBrandSearchChange,
+                                        className,
+                                    }: UvhCatalogueSidebarProps) {
     return (
         <aside className={className} aria-label="Product filters">
             <div className="space-y-6">
@@ -95,7 +93,7 @@ export function UvhCatalogueSidebar({
     );
 }
 
-function FilterSection({title, children}: {title: string; children: ReactNode}) {
+function FilterSection({title, children}: { title: string; children: ReactNode }) {
     return (
         <section className="rounded-2xl border border-(--sf-border) bg-(--sf-panel) p-4 shadow-sm">
             <h2 className="text-sm font-bold text-(--sf-text)">{title}</h2>
@@ -105,11 +103,11 @@ function FilterSection({title, children}: {title: string; children: ReactNode}) 
 }
 
 function SearchField({
-    value,
-    onChange,
-    placeholder,
-    ariaLabel,
-}: {
+                         value,
+                         onChange,
+                         placeholder,
+                         ariaLabel,
+                     }: {
     value: string;
     onChange: (value: string) => void;
     placeholder: string;
@@ -142,12 +140,12 @@ type RadioFilterItem = {
 };
 
 function RadioFilterList({
-    name,
-    allLabel,
-    allSelected,
-    onSelectAll,
-    items,
-}: {
+                             name,
+                             allLabel,
+                             allSelected,
+                             onSelectAll,
+                             items,
+                         }: {
     name: string;
     allLabel: string;
     allSelected: boolean;

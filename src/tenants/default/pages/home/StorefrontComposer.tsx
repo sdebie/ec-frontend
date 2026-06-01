@@ -1,7 +1,5 @@
 import {storefrontSectionRegistry} from "@/configs/storefront/storefrontSectionRegistry.ts";
-
 import type {StorefrontSectionConfig} from '@/types/storefront/storefrontTypes';
-
 
 // import {storefrontSectionRegistry} from '@/storefront/sections/registry';
 

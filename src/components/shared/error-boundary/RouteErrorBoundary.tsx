@@ -1,6 +1,5 @@
-import { Component } from 'react';
-
-import type { ErrorInfo, PropsWithChildren, ReactNode } from 'react';
+import type {ErrorInfo, PropsWithChildren, ReactNode} from 'react';
+import {Component} from 'react';
 
 type State = { error: Error | null };
 
@@ -27,20 +26,20 @@ type RouteErrorBoundaryProps = PropsWithChildren<{
  * route recovery use the "Try again" button which calls setState({ error: null }).
  */
 export class RouteErrorBoundary extends Component<RouteErrorBoundaryProps, State> {
-    state: State = { error: null };
+    state: State = {error: null};
 
     static getDerivedStateFromError(error: Error): State {
-        return { error };
+        return {error};
     }
 
     componentDidCatch(error: Error, info: ErrorInfo) {
         console.error('[RouteErrorBoundary]', error.message, info.componentStack);
     }
 
-    reset = () => this.setState({ error: null });
+    reset = () => this.setState({error: null});
 
     render(): ReactNode {
-        const { error } = this.state;
+        const {error} = this.state;
         if (error) {
             return (
                 <RouteErrorFallback
@@ -57,10 +56,10 @@ export class RouteErrorBoundary extends Component<RouteErrorBoundaryProps, State
 // ─────────────────────────────────────────────────────────────────────────────
 
 function RouteErrorFallback({
-    error,
-    onReset,
-    homeUrl,
-}: {
+                                error,
+                                onReset,
+                                homeUrl,
+                            }: {
     error: Error;
     onReset: () => void;
     homeUrl: string;
@@ -91,7 +90,7 @@ function RouteErrorFallback({
                         strokeWidth={2}
                         stroke="currentColor"
                         className="h-7 w-7"
-                        style={{ color: 'var(--c-accent, #ef4444)' }}
+                        style={{color: 'var(--c-accent, #ef4444)'}}
                         aria-hidden="true"
                     >
                         <path
@@ -104,13 +103,13 @@ function RouteErrorFallback({
 
                 <h2
                     className="mb-2 text-xl font-semibold"
-                    style={{ color: 'var(--c-text, #111827)' }}
+                    style={{color: 'var(--c-text, #111827)'}}
                 >
                     Something went wrong
                 </h2>
                 <p
                     className="mb-6 text-sm leading-relaxed"
-                    style={{ color: 'var(--c-text-muted, #6b7280)' }}
+                    style={{color: 'var(--c-text-muted, #6b7280)'}}
                 >
                     This page hit an unexpected error. You can try again or go back to
                     the home page.

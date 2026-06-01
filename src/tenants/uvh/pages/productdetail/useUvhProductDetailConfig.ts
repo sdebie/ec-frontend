@@ -1,6 +1,5 @@
-import { useEffect, useState } from 'react';
-
-import { apiGetStoreSettings } from '@/services/StoreSettings.ts';
+import {useEffect, useState} from 'react';
+import {apiGetStoreSettings} from '@/services/StoreSettings.ts';
 
 export type UvhDetailFeature = { id: string; label: string };
 export type UvhDetailTrustBadge = { id: string; label: string };
@@ -15,15 +14,15 @@ export type UvhProductDetailConfig = {
 
 const FALLBACK: UvhProductDetailConfig = {
     features: [
-        { id: 'durable', label: 'Durable & Reliable' },
-        { id: 'seal', label: 'Secure Seal' },
-        { id: 'bulk', label: 'Bulk Packs Available' },
+        {id: 'durable', label: 'Durable & Reliable'},
+        {id: 'seal', label: 'Secure Seal'},
+        {id: 'bulk', label: 'Bulk Packs Available'},
     ],
     trustBadges: [
-        { id: 'delivery', label: 'Nationwide Delivery' },
-        { id: 'bulk-pricing', label: 'Bulk Pricing Available' },
-        { id: 'vat', label: 'VAT Registered Supplier' },
-        { id: 'support', label: 'Expert Support & Advice' },
+        {id: 'delivery', label: 'Nationwide Delivery'},
+        {id: 'bulk-pricing', label: 'Bulk Pricing Available'},
+        {id: 'vat', label: 'VAT Registered Supplier'},
+        {id: 'support', label: 'Expert Support & Advice'},
     ],
     shippingCopy: [
         'Orders are dispatched from our warehouse once payment is confirmed.',
@@ -78,7 +77,9 @@ export function useUvhProductDetailConfig(): UvhProductDetailConfig {
         };
 
         void load();
-        return () => { cancelled = true; };
+        return () => {
+            cancelled = true;
+        };
     }, []);
 
     return config;

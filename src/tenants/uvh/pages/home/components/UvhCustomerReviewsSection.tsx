@@ -1,11 +1,10 @@
 import {Star} from 'lucide-react';
 import {useCallback, useRef} from 'react';
-
 import {UvhDarkSectionHeading} from '@/tenants/uvh/components/UvhDarkSectionHeading.tsx';
 import {UVH_CUSTOMER_REVIEWS_SECTION_BG} from '@/tenants/uvh/components/UvhGradientTrustBand.tsx';
 import {uvhHomeContent} from '@/tenants/uvh/config';
 
-function ChevronLeft({className}: {className?: string}) {
+function ChevronLeft({className}: { className?: string }) {
     return (
         <svg className={className} viewBox="0 0 24 24" fill="none" stroke="currentColor" aria-hidden>
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7"/>
@@ -13,7 +12,7 @@ function ChevronLeft({className}: {className?: string}) {
     );
 }
 
-function ChevronRight({className}: {className?: string}) {
+function ChevronRight({className}: { className?: string }) {
     return (
         <svg className={className} viewBox="0 0 24 24" fill="none" stroke="currentColor" aria-hidden>
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7"/>

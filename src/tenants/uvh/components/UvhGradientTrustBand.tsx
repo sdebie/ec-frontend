@@ -1,5 +1,4 @@
 import type {ReactNode} from 'react';
-
 import {cn} from '@/utils/cn.ts';
 import {UvhDarkSectionHeading} from '@/tenants/uvh/components/UvhDarkSectionHeading.tsx';
 
@@ -48,7 +47,7 @@ export function UvhGradientTrustBand({
                                      }: UvhGradientTrustBandProps) {
     const inner = (
         <>
-            <UvhDarkSectionHeading eyebrow={eyebrow} title={title} id={id} />
+            <UvhDarkSectionHeading eyebrow={eyebrow} title={title} id={id}/>
             {intro ? (
                 <p className="mt-2 max-w-2xl text-sm text-white/80">{intro}</p>
             ) : null}

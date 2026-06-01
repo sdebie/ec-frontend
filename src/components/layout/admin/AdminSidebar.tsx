@@ -1,13 +1,9 @@
-import {useMemo, useState, useEffect} from 'react';
-
-
-import {SidebarSection} from '@/components';
-import {SidebarItem} from '@/components';
+import {useEffect, useMemo, useState} from 'react';
+import {SidebarItem, SidebarSection} from '@/components';
 import {adminMenuRoutes} from '@/configs/routes/admin/adminMenuRoutes.config.ts';
 import {hasRequiredAuthority} from '@/utils/authorizationHelper.ts';
 import {cn} from '@/utils/cn.ts';
 import {isRouteVisibleInSidebar} from '@/utils/sidebarVisibility.ts';
-
 import type {Route} from '@/types/routes';
 
 

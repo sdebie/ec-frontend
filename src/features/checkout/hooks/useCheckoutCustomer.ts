@@ -1,14 +1,10 @@
-import { useEffect, useMemo, useState } from 'react';
+import {useCallback, useEffect, useMemo, useState} from 'react';
 
-import {
-    CHECKOUT_AUTH_STORAGE_KEY,
-} from '@/features/checkout/utils/checkout.helpers.ts';
-import {
-    lookupCustomer,
-    registerOrUpdateCustomer,
-    type CustomerProfile,
-} from '@/services/CustomerService.ts';
-import { cartStore } from '@/store/storefrontCartStore.ts';
+import {useQuery} from '@tanstack/react-query';
+
+import {CHECKOUT_AUTH_STORAGE_KEY} from '@/features/checkout/utils/checkout.helpers.ts';
+import {type CustomerProfile, lookupCustomer, registerOrUpdateCustomer} from '@/services/CustomerService.ts';
+import {cartStore} from '@/store/storefrontCartStore.ts';
 
 export type CheckoutAddress = {
     street: string;
@@ -70,15 +66,13 @@ type UseCheckoutCustomerInput = {
  *  - Handles new-account registration and address-update write-back.
  */
 export function useCheckoutCustomer({
-    email,
-    emailValid,
-    onLoginPersist,
-}: UseCheckoutCustomerInput): CheckoutCustomerState {
-    const [customer, setCustomer] = useState<CustomerProfile | null>(null);
+                                        email,
+                                        emailValid,
+                                        onLoginPersist,
+                                    }: UseCheckoutCustomerInput): CheckoutCustomerState {
     const [isAuthenticated, setIsAuthenticated] = useState(false);
-    const [lookupState, setLookupState] = useState<'idle' | 'loading' | 'found' | 'not_found' | 'error'>('idle');
     const [returningChoice, setReturningChoice] = useState<'login' | 'guest' | null>(null);
-    const [address, setAddress] = useState<CheckoutAddress>({ street: '', city: '', postalCode: '', province: '' });
+    const [address, setAddress] = useState<CheckoutAddress>({street: '', city: '', postalCode: '', province: ''});
     const [initialAccountAddress, setInitialAccountAddress] = useState<CheckoutAddress | null>(null);
     const [updateAccountAddress, setUpdateAccountAddress] = useState(false);
     const [saveDetails, setSaveDetails] = useState(false);
@@ -91,12 +85,10 @@ export function useCheckoutCustomer({
             if (window.localStorage.getItem(CHECKOUT_AUTH_STORAGE_KEY) === 'true') {
                 setIsAuthenticated(true);
             }
-        } catch {
-            /* ignore */
-        }
+        } catch { /* ignore */ }
     }, []);
 
-    const prefillAddressFromProfile = (p: CustomerProfile) => {
+    const prefillAddressFromProfile = useCallback((p: CustomerProfile) => {
         const next: CheckoutAddress = {
             street: p.physicalAddressLine1 || p.postalAddressLine1 || '',
             city: p.physicalCity || p.postalCity || '',
@@ -110,39 +102,36 @@ export function useCheckoutCustomer({
             province: next.province || prev.province,
         }));
         setInitialAccountAddress(next);
-    };
+    }, []);
 
-    // Customer lookup — re-runs whenever email validity or auth state changes
+    // Customer lookup — keyed on email, runs only when email is valid.
+    const lookupQuery = useQuery({
+        queryKey: ['customerLookup', email],
+        queryFn: () => lookupCustomer(email.trim()),
+        enabled: emailValid,
+        staleTime: 1000 * 60 * 2,
+    });
+
+    // Reset returningChoice when email changes / becomes invalid
     useEffect(() => {
-        let cancelled = false;
-        const run = async () => {
-            if (!emailValid) {
-                setCustomer(null);
-                setReturningChoice(null);
-                setLookupState('idle');
-                return;
-            }
-            setLookupState('loading');
-            try {
-                const profile = await lookupCustomer(email.trim());
-                if (cancelled) return;
-                setCustomer(profile);
-                setLookupState(profile ? 'found' : 'not_found');
-                setReturningChoice(null);
-                if (profile && isAuthenticated) prefillAddressFromProfile(profile);
-            } catch (e) {
-                if (!cancelled) {
-                    console.warn('Customer lookup failed', e);
-                    setCustomer(null);
-                    setLookupState('error');
-                }
-            }
-        };
-        void run();
-        return () => {
-            cancelled = true;
-        };
-    }, [emailValid, email, isAuthenticated]);
+        if (!emailValid) setReturningChoice(null);
+    }, [emailValid]);
+
+    // Prefill address when an authenticated user's profile arrives
+    useEffect(() => {
+        const profile = lookupQuery.data;
+        if (profile && isAuthenticated) prefillAddressFromProfile(profile);
+    }, [lookupQuery.data, isAuthenticated, prefillAddressFromProfile]);
+
+    const customer = lookupQuery.data ?? null;
+
+    const lookupState = useMemo((): CheckoutCustomerState['lookupState'] => {
+        if (!emailValid) return 'idle';
+        if (lookupQuery.isFetching) return 'loading';
+        if (lookupQuery.isError) return 'error';
+        if (lookupQuery.isSuccess) return lookupQuery.data ? 'found' : 'not_found';
+        return 'idle';
+    }, [emailValid, lookupQuery.isFetching, lookupQuery.isError, lookupQuery.isSuccess, lookupQuery.data]);
 
     const isAccountAddressEdited = useMemo(() => {
         if (!isAuthenticated || !initialAccountAddress) return false;
@@ -167,10 +156,13 @@ export function useCheckoutCustomer({
         setIsAuthenticated(true);
         prefillAddressFromProfile(profile);
         onLoginPersist(email);
-        try { cartStore.emit(); } catch { /* ignore */ }
+        try {
+            cartStore.emit();
+        } catch { /* ignore */
+        }
     };
 
-    const registerIfChosen = async ({ needsShippingAddress }: { needsShippingAddress: boolean }) => {
+    const registerIfChosen = async ({needsShippingAddress}: { needsShippingAddress: boolean }) => {
         if (!(needsShippingAddress && saveDetails)) return;
         if (!registerPassword || registerPassword.length < 6) {
             throw new Error('Please provide a password of at least 6 characters to save your details.');
@@ -193,9 +185,9 @@ export function useCheckoutCustomer({
     };
 
     const updateAddressIfRequired = async ({
-        needsShippingAddress,
-        email: currentEmail,
-    }: {
+                                               needsShippingAddress,
+                                               email: currentEmail,
+                                           }: {
         needsShippingAddress: boolean;
         email: string;
     }) => {
@@ -212,7 +204,7 @@ export function useCheckoutCustomer({
             postalProvince: address.province,
         });
         // Only reached on success — commit the new address as the baseline
-        setInitialAccountAddress({ ...address });
+        setInitialAccountAddress({...address});
         setUpdateAccountAddress(false);
     };
 

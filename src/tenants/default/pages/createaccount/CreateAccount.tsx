@@ -1,7 +1,6 @@
-import React, { useState } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
-
-import { registerOrUpdateCustomer } from '@/services/CustomerService.ts';
+import React, {useState} from 'react';
+import {Link, useNavigate} from 'react-router-dom';
+import {registerOrUpdateCustomer} from '@/services/CustomerService.ts';
 
 type CreateAccountForm = {
     email: string;
@@ -48,10 +47,10 @@ function getPasswordStrength(password: string): {
     if (/[0-9]/.test(password)) score += 1;
     if (/[^A-Za-z0-9]/.test(password)) score += 1;
 
-    if (score <= 1) return { score, label: 'Weak', colorClass: 'bg-red-500', valid: false };
-    if (score === 2) return { score, label: 'Fair', colorClass: 'bg-yellow-500', valid: false };
-    if (score === 3) return { score, label: 'Good', colorClass: 'bg-blue-500', valid: true };
-    return { score, label: 'Strong', colorClass: 'bg-green-600', valid: true };
+    if (score <= 1) return {score, label: 'Weak', colorClass: 'bg-red-500', valid: false};
+    if (score === 2) return {score, label: 'Fair', colorClass: 'bg-yellow-500', valid: false};
+    if (score === 3) return {score, label: 'Good', colorClass: 'bg-blue-500', valid: true};
+    return {score, label: 'Strong', colorClass: 'bg-green-600', valid: true};
 }
 
 const CreateAccount: React.FC = () => {
@@ -63,7 +62,7 @@ const CreateAccount: React.FC = () => {
     const passwordStrength = getPasswordStrength(form.password);
 
     const updateField = <K extends keyof CreateAccountForm>(field: K, value: CreateAccountForm[K]) => {
-        setForm((prev) => ({ ...prev, [field]: value }));
+        setForm((prev) => ({...prev, [field]: value}));
     };
 
     const handleSubmit = async (event: React.FormEvent) => {
@@ -129,7 +128,8 @@ const CreateAccount: React.FC = () => {
                 <form onSubmit={handleSubmit} className="space-y-4">
                     <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
                         <div className="sm:col-span-1">
-                            <label htmlFor="email" className="mb-1 block text-sm font-medium text-(--sf-text)">Email</label>
+                            <label htmlFor="email"
+                                   className="mb-1 block text-sm font-medium text-(--sf-text)">Email</label>
                             <input
                                 id="email"
                                 type="email"
@@ -141,7 +141,8 @@ const CreateAccount: React.FC = () => {
                         </div>
 
                         <div className="sm:col-span-1">
-                            <label htmlFor="confirmEmail" className="mb-1 block text-sm font-medium text-(--sf-text)">Verify Email</label>
+                            <label htmlFor="confirmEmail" className="mb-1 block text-sm font-medium text-(--sf-text)">Verify
+                                Email</label>
                             <input
                                 id="confirmEmail"
                                 type="email"
@@ -153,7 +154,8 @@ const CreateAccount: React.FC = () => {
                         </div>
 
                         <div className="sm:col-span-1">
-                            <label htmlFor="firstName" className="mb-1 block text-sm font-medium text-(--sf-text)">First Name</label>
+                            <label htmlFor="firstName" className="mb-1 block text-sm font-medium text-(--sf-text)">First
+                                Name</label>
                             <input
                                 id="firstName"
                                 value={form.firstName}
@@ -164,7 +166,8 @@ const CreateAccount: React.FC = () => {
                         </div>
 
                         <div className="sm:col-span-1">
-                            <label htmlFor="password" className="mb-1 block text-sm font-medium text-(--sf-text)">Password</label>
+                            <label htmlFor="password"
+                                   className="mb-1 block text-sm font-medium text-(--sf-text)">Password</label>
                             <input
                                 id="password"
                                 type="password"
@@ -179,18 +182,20 @@ const CreateAccount: React.FC = () => {
                                     <div className="h-1.5 w-full rounded bg-gray-200">
                                         <div
                                             className={`h-1.5 rounded transition-all ${passwordStrength.colorClass}`}
-                                            style={{ width: `${Math.max(20, passwordStrength.score * 20)}%` }}
+                                            style={{width: `${Math.max(20, passwordStrength.score * 20)}%`}}
                                         />
                                     </div>
                                     <p className="text-xs text-(--sf-muted-text)">
-                                        Strength: <span className="font-semibold text-(--sf-text)">{passwordStrength.label}</span>
+                                        Strength: <span
+                                        className="font-semibold text-(--sf-text)">{passwordStrength.label}</span>
                                     </p>
                                 </div>
                             )}
                         </div>
 
                         <div className="sm:col-span-1">
-                            <label htmlFor="confirmPassword" className="mb-1 block text-sm font-medium text-(--sf-text)">Confirm Password</label>
+                            <label htmlFor="confirmPassword"
+                                   className="mb-1 block text-sm font-medium text-(--sf-text)">Confirm Password</label>
                             <input
                                 id="confirmPassword"
                                 type="password"
@@ -203,7 +208,8 @@ const CreateAccount: React.FC = () => {
                         </div>
 
                         <div className="sm:col-span-1">
-                            <label htmlFor="lastName" className="mb-1 block text-sm font-medium text-(--sf-text)">Last Name</label>
+                            <label htmlFor="lastName" className="mb-1 block text-sm font-medium text-(--sf-text)">Last
+                                Name</label>
                             <input
                                 id="lastName"
                                 value={form.lastName}
@@ -214,7 +220,8 @@ const CreateAccount: React.FC = () => {
                         </div>
 
                         <div className="sm:col-span-2">
-                            <label htmlFor="phone" className="mb-1 block text-sm font-medium text-(--sf-text)">Phone</label>
+                            <label htmlFor="phone"
+                                   className="mb-1 block text-sm font-medium text-(--sf-text)">Phone</label>
                             <input
                                 id="phone"
                                 value={form.phone}
@@ -225,7 +232,8 @@ const CreateAccount: React.FC = () => {
                         </div>
 
                         <div className="sm:col-span-2">
-                            <label htmlFor="addressLine1" className="mb-1 block text-sm font-medium text-(--sf-text)">Address Line 1</label>
+                            <label htmlFor="addressLine1" className="mb-1 block text-sm font-medium text-(--sf-text)">Address
+                                Line 1</label>
                             <input
                                 id="addressLine1"
                                 value={form.addressLine1}
@@ -236,7 +244,8 @@ const CreateAccount: React.FC = () => {
                         </div>
 
                         <div className="sm:col-span-2">
-                            <label htmlFor="addressLine2" className="mb-1 block text-sm font-medium text-(--sf-text)">Address Line 2</label>
+                            <label htmlFor="addressLine2" className="mb-1 block text-sm font-medium text-(--sf-text)">Address
+                                Line 2</label>
                             <input
                                 id="addressLine2"
                                 value={form.addressLine2}
@@ -246,7 +255,8 @@ const CreateAccount: React.FC = () => {
                         </div>
 
                         <div>
-                            <label htmlFor="city" className="mb-1 block text-sm font-medium text-(--sf-text)">City</label>
+                            <label htmlFor="city"
+                                   className="mb-1 block text-sm font-medium text-(--sf-text)">City</label>
                             <input
                                 id="city"
                                 value={form.city}
@@ -257,7 +267,8 @@ const CreateAccount: React.FC = () => {
                         </div>
 
                         <div>
-                            <label htmlFor="province" className="mb-1 block text-sm font-medium text-(--sf-text)">Province</label>
+                            <label htmlFor="province"
+                                   className="mb-1 block text-sm font-medium text-(--sf-text)">Province</label>
                             <input
                                 id="province"
                                 value={form.province}
@@ -268,7 +279,8 @@ const CreateAccount: React.FC = () => {
                         </div>
 
                         <div className="sm:col-span-2">
-                            <label htmlFor="postalCode" className="mb-1 block text-sm font-medium text-(--sf-text)">Postal Code</label>
+                            <label htmlFor="postalCode" className="mb-1 block text-sm font-medium text-(--sf-text)">Postal
+                                Code</label>
                             <input
                                 id="postalCode"
                                 value={form.postalCode}
@@ -296,7 +308,8 @@ const CreateAccount: React.FC = () => {
                     )}
 
                     {success && (
-                        <div className="rounded-lg border border-green-200 bg-green-50 px-3 py-2 text-sm text-green-700">
+                        <div
+                            className="rounded-lg border border-green-200 bg-green-50 px-3 py-2 text-sm text-green-700">
                             Account created. Redirecting you to checkout.
                         </div>
                     )}

@@ -1,5 +1,7 @@
 import {useEffect, useMemo, useState} from 'react';
 
+import {useQuery} from '@tanstack/react-query';
+
 import {
     CHECKOUT_AUTH_STORAGE_KEY,
     CHECKOUT_EMAIL_STORAGE_KEY,
@@ -44,21 +46,8 @@ export type CheckoutSessionState = {
 export function useCheckoutSession(): CheckoutSessionState {
     const [email, setEmail] = useState('');
     const [emailTouched, setEmailTouched] = useState(false);
-    const [order, setOrder] = useState<OrderData | null>(null);
-    const [loading, setLoading] = useState(false);
-    const [error, setError] = useState<string | null>(null);
 
-    // Restore email from localStorage on mount (isAuthenticated is owned by useCheckoutCustomer)
-    useEffect(() => {
-        try {
-            const saved = window.localStorage.getItem(CHECKOUT_EMAIL_STORAGE_KEY) || '';
-            if (saved) setEmail(saved);
-        } catch {
-            /* ignore — SSR or private-mode restrictions */
-        }
-    }, []);
-
-    // Parse URL params once — these never change during the session
+    // URL params are parsed once — they never change during a checkout session.
     const {sessionId, orderId} = useMemo(() => {
         const params = new URLSearchParams(window.location.search);
         return {
@@ -67,37 +56,43 @@ export function useCheckoutSession(): CheckoutSessionState {
         };
     }, []);
 
-    // Hydrate the order from the API on mount
+    // Restore email from localStorage on mount
     useEffect(() => {
-        const load = async () => {
-            const sid = resolveCheckoutSessionId(sessionId);
-            setLoading(true);
-            setError(null);
-            try {
-                let data: OrderData | null = null;
-                if (sid) {
-                    data = (await apiOrderBySessionId(sid)) ?? null;
-                } else if (orderId) {
-                    const idParam = String(orderId);
-                    if (idParam.length < 8) throw new Error('Invalid orderId in URL.');
-                    data = await apiOrderById(idParam);
-                } else {
-                    throw new Error('Missing sessionId or orderId in URL.');
-                }
+        try {
+            const saved = window.localStorage.getItem(CHECKOUT_EMAIL_STORAGE_KEY) || '';
+            if (saved) setEmail(saved);
+        } catch { /* ignore — SSR or private-mode restrictions */ }
+    }, []);
 
-                setOrder(data);
-                const orderEmail = data?.customer?.email?.trim();
-                if (orderEmail) setEmail(orderEmail);
-                cartStore.setFromOrder(data ?? null);
-            } catch (e: unknown) {
-                console.error('Failed to fetch order', e);
-                setError(e instanceof Error ? e.message : 'Failed to fetch order');
-            } finally {
-                setLoading(false);
+    // Order fetch — React Query caches per session/order ID.
+    // staleTime: Infinity because an order's items/total don't change during checkout.
+    const orderQuery = useQuery({
+        queryKey: ['checkoutOrder', sessionId ?? '', orderId ?? ''],
+        queryFn: async (): Promise<OrderData | null> => {
+            const sid = resolveCheckoutSessionId(sessionId);
+            if (sid) {
+                return (await apiOrderBySessionId(sid)) ?? null;
             }
-        };
-        void load();
-    }, [sessionId, orderId]);
+            if (orderId) {
+                const idParam = String(orderId);
+                if (idParam.length < 8) throw new Error('Invalid orderId in URL.');
+                return await apiOrderById(idParam);
+            }
+            throw new Error('Missing sessionId or orderId in URL.');
+        },
+        enabled: !!(sessionId || orderId),
+        staleTime: Infinity,
+        retry: 1,
+    });
+
+    // Side effects when the order data first arrives
+    useEffect(() => {
+        const data = orderQuery.data;
+        if (!data) return;
+        const orderEmail = data.customer?.email?.trim();
+        if (orderEmail) setEmail(orderEmail);
+        try { cartStore.setFromOrder(data); } catch { /* ignore */ }
+    }, [orderQuery.data]);
 
     const emailValid = useMemo(
         () => !!email && /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email),
@@ -105,11 +100,11 @@ export function useCheckoutSession(): CheckoutSessionState {
     );
 
     const itemsTotal = useMemo(() => {
-        return (order?.items ?? []).reduce(
+        return (orderQuery.data?.items ?? []).reduce(
             (sum, it) => sum + Number(it.unitPrice || 0) * Number(it.quantity || 0),
             0,
         );
-    }, [order]);
+    }, [orderQuery.data]);
 
     const persistEmailSession = (emailToSave: string) => {
         try {
@@ -142,9 +137,11 @@ export function useCheckoutSession(): CheckoutSessionState {
         setEmailTouched,
         emailValid,
         sessionId,
-        order,
-        loading,
-        error,
+        order: orderQuery.data ?? null,
+        loading: orderQuery.isPending && orderQuery.fetchStatus !== 'idle',
+        error: orderQuery.isError
+            ? (orderQuery.error instanceof Error ? orderQuery.error.message : 'Failed to fetch order')
+            : null,
         itemsTotal,
         persistEmailSession,
         clearEmailSession,

@@ -1,9 +1,6 @@
-import { storefrontConfigImports } from 'virtual:storefront-config-map';
-
+import {storefrontConfigImports} from 'virtual:storefront-config-map';
 import {storefrontConfig} from '@/tenants/default/config';
-
 import type {StorefrontClientConfig} from '@/types/storefront/storefrontTypes';
-
 
 type StorefrontRegistryRecord = Record<string, StorefrontClientConfig>
 

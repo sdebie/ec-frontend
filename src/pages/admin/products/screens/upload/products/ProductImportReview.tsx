@@ -1,19 +1,18 @@
-import { ColumnDef } from "@tanstack/react-table";
+import {ColumnDef} from "@tanstack/react-table";
 import {Eye} from "lucide-react";
-import { useEffect, useMemo, useState } from "react";
-import { useNavigate, useParams } from "react-router-dom";
+import {useEffect, useMemo, useState} from "react";
+import {useNavigate, useParams} from "react-router-dom";
 
 
-import { Button, DataTable } from "@/components";
-import { getProductImportValidationStatus } from "@/constants/enums/ProductImportValidationStatus.ts";
+import {Button, DataTable} from "@/components";
+import {getProductImportValidationStatus} from "@/constants/enums/ProductImportValidationStatus.ts";
 import ProductImportRowDetailDialog from "@/pages/admin/products/screens/comonents/ProductImportRowDetailDialog.tsx";
-import { apiGetProductImportRows } from "@/services/graphql/admin/product/ProductImportService.graphql.ts";
+import {apiGetProductImportRows} from "@/services/graphql/admin/product/ProductImportService.graphql.ts";
 import {processProductUploadBatch} from "@/services/rest/admin/ProductUploadService.rest.ts";
-
-import type { ProductUploadStaged } from "@/types/admin/ProductTypes.ts";
+import type {ProductUploadStaged} from "@/types/admin/ProductTypes.ts";
 
 const ProductImportReview = () => {
-    const { batchId } = useParams();
+    const {batchId} = useParams();
     const navigate = useNavigate();
 
     const [stagedData, setStagedData] = useState<ProductUploadStaged[]>([]);
@@ -51,7 +50,7 @@ const ProductImportReview = () => {
         try {
             setIsApproving(true);
             await processProductUploadBatch(batchId);
-            navigate("/admin/imports/products/list", { replace: true });
+            navigate("/admin/imports/products/list", {replace: true});
         } catch (error) {
             console.error("Failed to start product upload batch processing:", error);
         } finally {
@@ -180,7 +179,8 @@ const ProductImportReview = () => {
                         <Button onClick={() => navigate(-1)} className="bg-slate-700">
                             Cancel
                         </Button>
-                        <Button onClick={handleApprove} className="bg-green-600 font-bold" disabled={isApproving || !batchId}>
+                        <Button onClick={handleApprove} className="bg-green-600 font-bold"
+                                disabled={isApproving || !batchId}>
                             {isApproving ? "Starting..." : "Apply All Changes"}
                         </Button>
                     </div>

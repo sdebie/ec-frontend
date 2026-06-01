@@ -1,13 +1,11 @@
-import { useMemo, useState } from 'react';
-
-import { useCheckoutCustomer } from '@/features/checkout/hooks/useCheckoutCustomer.ts';
-import { useCheckoutSession } from '@/features/checkout/hooks/useCheckoutSession.ts';
-import { useCheckoutSubmit } from '@/features/checkout/hooks/useCheckoutSubmit.ts';
-import { usePaymentMethodsConfig } from '@/features/checkout/hooks/usePaymentMethodsConfig.ts';
-import { useShippingMethods } from '@/features/checkout/hooks/useShippingMethods.ts';
-import { isInStorePickup } from '@/features/checkout/utils/checkout.helpers.ts';
-
-import type { CheckoutTenantCallbacks } from '@/features/checkout/types.ts';
+import {useMemo, useState} from 'react';
+import {useCheckoutCustomer} from '@/features/checkout/hooks/useCheckoutCustomer.ts';
+import {useCheckoutSession} from '@/features/checkout/hooks/useCheckoutSession.ts';
+import {useCheckoutSubmit} from '@/features/checkout/hooks/useCheckoutSubmit.ts';
+import {usePaymentMethodsConfig} from '@/features/checkout/hooks/usePaymentMethodsConfig.ts';
+import {useShippingMethods} from '@/features/checkout/hooks/useShippingMethods.ts';
+import {isInStorePickup} from '@/features/checkout/utils/checkout.helpers.ts';
+import type {CheckoutTenantCallbacks} from '@/features/checkout/types.ts';
 
 /**
  * Composes the three focused checkout hooks into the single public API consumed by
@@ -21,8 +19,8 @@ import type { CheckoutTenantCallbacks } from '@/features/checkout/types.ts';
  * they depend on both shipping methods (external) and selected method (local state).
  */
 export function useCheckoutFlow(callbacks: CheckoutTenantCallbacks) {
-    const { shippingMethods } = useShippingMethods();
-    const { paymentConfig, enabledPayments, selectedPayment, setSelectedPayment } = usePaymentMethodsConfig();
+    const {shippingMethods} = useShippingMethods();
+    const {paymentConfig, enabledPayments, selectedPayment, setSelectedPayment} = usePaymentMethodsConfig();
     const [selectedMethodId, setSelectedMethodId] = useState<string | null>(null);
 
     const session = useCheckoutSession();

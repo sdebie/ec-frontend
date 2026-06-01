@@ -1,7 +1,5 @@
 import {IMAGE_BASE_URL} from "@/constants/api.constant.ts";
-
 import type {FC} from 'react';
-
 
 interface ProductImageProps {
     fileName: string;

@@ -1,6 +1,5 @@
 import {type ReactNode, useCallback, useRef, useState} from 'react';
 import {Compass, FileText, LayoutGrid, Paintbrush, Palette, Settings, Store} from 'lucide-react';
-
 import {Segment} from '@/components';
 import {Button} from '@/primitives/button';
 import {Card} from '@/primitives/card';
@@ -29,8 +28,11 @@ const StorefrontSettingsPage = () => {
     const [activeTab, setActiveTab] = useState<TabValue>('general');
     const {settings, error, saveSection} = useStorefrontSettings();
 
-    const saveFnRef = useRef<() => void>(() => {});
-    const registerSave = useCallback((fn: () => void) => { saveFnRef.current = fn; }, []);
+    const saveFnRef = useRef<() => void>(() => {
+    });
+    const registerSave = useCallback((fn: () => void) => {
+        saveFnRef.current = fn;
+    }, []);
 
     return (
         <section className="space-y-4">

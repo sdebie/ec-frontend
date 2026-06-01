@@ -1,4 +1,3 @@
-/* eslint-disable import/order */
 import {HardHat, UserIcon, X} from 'lucide-react';
 import React, {useEffect, useRef, useState} from 'react';
 import {createPortal} from 'react-dom';
@@ -6,16 +5,16 @@ import {Link, useLocation, useNavigate} from 'react-router-dom';
 
 import ImageUploadModal from '@/app/layouts/storefront/ImageUploadModal.tsx';
 import CartIcon from '@/components/shared/icon/CartIcon.tsx';
+import {StorefrontNavLink} from '@/components/shared/navigation';
 import LoginModal from '@/features/auth/customer/components/LoginModal.tsx';
 import ResetPasswordModal from '@/features/auth/customer/components/ResetPasswordModal.tsx';
-import { cartStore } from '@/features/cart';
-import {customerTypeStore, useIsWholesaler} from '@/store/customerTypeStore.ts';
-
+import {cartStore} from '@/features/cart';
 import {CustomerProfile} from '@/services/CustomerService.ts';
-
+import {customerTypeStore, useIsWholesaler} from '@/store/customerTypeStore.ts';
 import {NavMenuItem, StorefrontClientConfig} from '@/types/storefront/storefrontTypes.ts';
 
 import styles from './PageHeader.module.css';
+
 const AUTH_KEY = 'checkoutIsAuthenticated';
 const EMAIL_KEY = 'checkoutEmail';
 const DESKTOP_QUERY = '(min-width: 768px)'; // Tailwind md breakpoint
@@ -24,12 +23,8 @@ interface PageHeaderProps {
     storefrontConfig: StorefrontClientConfig;
 }
 
-interface RenderNavItemOptions {
-    className?: string;
-    onClick?: () => void;
-}
 
-const PageHeader: React.FC<PageHeaderProps> = ({ storefrontConfig }) => {
+const PageHeader: React.FC<PageHeaderProps> = ({storefrontConfig}) => {
     const navigate = useNavigate();
     const location = useLocation();
 
@@ -48,16 +43,15 @@ const PageHeader: React.FC<PageHeaderProps> = ({ storefrontConfig }) => {
     const isWholesaler = useIsWholesaler();
     const userMenuRef = useRef<HTMLDivElement>(null);
 
-    console.log("HEADER is Wholesaler " + isWholesaler)
 
     const renderUserProfileIcon = () => {
         if (!isWholesaler) {
-            return <UserIcon size={22} />;
+            return <UserIcon size={22}/>;
         }
 
         return (
             <span className="relative inline-flex h-5.5 w-5.5 items-center justify-center">
-                <UserIcon size={22} />
+                <UserIcon size={22}/>
                 <HardHat
                     size={10}
                     className="absolute -top-0.5 right-0 rounded-full bg-(--sf-nav-bg)"
@@ -185,60 +179,6 @@ const PageHeader: React.FC<PageHeaderProps> = ({ storefrontConfig }) => {
         setShowLoginModal(true);
     };
 
-    const renderNavItem = (item: NavMenuItem, options: RenderNavItemOptions = {}) => {
-        const {className = styles.navLink, onClick} = options;
-
-        if (item.external) {
-            return (
-                <a
-                    key={item.id}
-                    href={item.to}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className={className}
-                    onClick={onClick}
-                >
-                    {item.label}
-                </a>
-            );
-        }
-
-        if (/^https?:\/\//i.test(item.to) && typeof window !== 'undefined') {
-            try {
-                const url = new URL(item.to);
-                if (url.origin === window.location.origin) {
-                    return (
-                        <Link
-                            key={item.id}
-                            to={`${url.pathname}${url.search}${url.hash}`}
-                            className={className}
-                            onClick={onClick}
-                        >
-                            {item.label}
-                        </Link>
-                    );
-                }
-            } catch {
-                // fall through to plain anchor
-            }
-            return (
-                <a key={item.id} href={item.to} className={className} onClick={onClick}>
-                    {item.label}
-                </a>
-            );
-        }
-
-        return (
-            <Link
-                key={item.id}
-                to={item.to}
-                className={className}
-                onClick={onClick}
-            >
-                {item.label}
-            </Link>
-        );
-    };
 
     return (
         <header
@@ -269,7 +209,16 @@ const PageHeader: React.FC<PageHeaderProps> = ({ storefrontConfig }) => {
                         aria-label="Primary"
                         className={`hidden md:flex items-center justify-center gap-5 ${styles.navMenu}`}
                     >
-                        {menuItems.map((item) => renderNavItem(item))}
+                        {menuItems.map((item) => (
+                            <StorefrontNavLink
+                                key={item.id}
+                                to={item.to}
+                                external={item.external}
+                                className={styles.navLink}
+                            >
+                                {item.label}
+                            </StorefrontNavLink>
+                        ))}
                     </nav>
 
                     <div className="flex items-center justify-end gap-1 sm:gap-2">
@@ -366,7 +315,8 @@ const PageHeader: React.FC<PageHeaderProps> = ({ storefrontConfig }) => {
                             style={{backgroundColor: 'var(--sf-nav-bg)'}}
                             className={`fixed inset-y-0 right-0 z-50 flex w-72 flex-col shadow-xl transition-transform duration-300 ease-in-out ${showMobileMenu ? 'translate-x-0' : 'translate-x-full'}`}
                         >
-                            <div className="flex items-center justify-between border-b border-(--sf-nav-border) px-4 py-3">
+                            <div
+                                className="flex items-center justify-between border-b border-(--sf-nav-border) px-4 py-3">
                                 <span className="text-sm font-semibold text-(--sf-nav-text)">Menu</span>
                                 <button
                                     type="button"
@@ -374,16 +324,21 @@ const PageHeader: React.FC<PageHeaderProps> = ({ storefrontConfig }) => {
                                     aria-label="Close navigation menu"
                                     onClick={() => setShowMobileMenu(false)}
                                 >
-                                    <X size={22} />
+                                    <X size={22}/>
                                 </button>
                             </div>
                             <nav aria-label="Mobile primary" className="flex flex-col gap-1 overflow-y-auto p-4">
-                                {menuItems.map((item) =>
-                                    renderNavItem(item, {
-                                        className: `block rounded-md px-3 py-2.5 text-sm font-medium text-(--sf-nav-text) transition-colors ${styles.drawerNavLink}`,
-                                        onClick: () => setShowMobileMenu(false),
-                                    })
-                                )}
+                                {menuItems.map((item) => (
+                                    <StorefrontNavLink
+                                        key={item.id}
+                                        to={item.to}
+                                        external={item.external}
+                                        className={`block rounded-md px-3 py-2.5 text-sm font-medium text-(--sf-nav-text) transition-colors ${styles.drawerNavLink}`}
+                                        onClick={() => setShowMobileMenu(false)}
+                                    >
+                                        {item.label}
+                                    </StorefrontNavLink>
+                                ))}
                             </nav>
                         </div>
                     </>,

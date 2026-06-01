@@ -1,14 +1,9 @@
-import { X, CheckCircle2, XCircle, AlertTriangle, Info } from 'lucide-react';
+import {AlertTriangle, CheckCircle2, Info, X, XCircle} from 'lucide-react';
 import * as React from 'react';
-
-import { cn } from '@/utils/cn';
-
-import { type ToastItem, useToastStore } from './toastStore';
-
-
+import {cn} from '@/utils/cn';
+import {type ToastItem, useToastStore} from './toastStore';
 
 // ─── Variant configuration ─────────────────────────────────────────────────────
-
 type VariantConfig = {
     Icon: React.ElementType;
     iconClass: string;
@@ -50,10 +45,10 @@ const VARIANT_CONFIG: Record<ToastItem['variant'], VariantConfig> = {
 export type ToastSlideFrom = 'top' | 'bottom' | 'left' | 'right';
 
 const SLIDE_MAP: Record<ToastSlideFrom, { hidden: string; visible: string }> = {
-    top:    { hidden: '-translate-y-2 opacity-0', visible: 'translate-y-0 opacity-100' },
-    bottom: { hidden:  'translate-y-2 opacity-0', visible: 'translate-y-0 opacity-100' },
-    left:   { hidden: '-translate-x-4 opacity-0', visible: 'translate-x-0 opacity-100' },
-    right:  { hidden:  'translate-x-4 opacity-0', visible: 'translate-x-0 opacity-100' },
+    top: {hidden: '-translate-y-2 opacity-0', visible: 'translate-y-0 opacity-100'},
+    bottom: {hidden: 'translate-y-2 opacity-0', visible: 'translate-y-0 opacity-100'},
+    left: {hidden: '-translate-x-4 opacity-0', visible: 'translate-x-0 opacity-100'},
+    right: {hidden: 'translate-x-4 opacity-0', visible: 'translate-x-0 opacity-100'},
 };
 
 // ─── Toast item component ──────────────────────────────────────────────────────
@@ -63,9 +58,9 @@ type ToastProps = ToastItem & {
     slideFrom?: ToastSlideFrom;
 };
 
-export function Toast({ id, variant, title, message, duration, slideFrom = 'bottom' }: ToastProps) {
+export function Toast({id, variant, title, message, duration, slideFrom = 'bottom'}: ToastProps) {
     const remove = useToastStore((s) => s.remove);
-    const { Icon, iconClass, accentClass, ariaLive } = VARIANT_CONFIG[variant];
+    const {Icon, iconClass, accentClass, ariaLive} = VARIANT_CONFIG[variant];
     const slide = SLIDE_MAP[slideFrom];
 
     // Track enter/exit visibility for the CSS transition
@@ -126,7 +121,7 @@ export function Toast({ id, variant, title, message, duration, slideFrom = 'bott
             <div className="flex items-start gap-3 px-4 py-3.5 pl-5 w-full min-w-0">
                 {/* Variant icon */}
                 <div className={cn('mt-0.5 shrink-0', iconClass)} aria-hidden="true">
-                    <Icon className="h-5 w-5" />
+                    <Icon className="h-5 w-5"/>
                 </div>
 
                 {/* Title + message */}
@@ -159,7 +154,7 @@ export function Toast({ id, variant, title, message, duration, slideFrom = 'bott
                     )}
                     aria-label="Dismiss notification"
                 >
-                    <X className="h-3.5 w-3.5" />
+                    <X className="h-3.5 w-3.5"/>
                 </button>
             </div>
         </div>

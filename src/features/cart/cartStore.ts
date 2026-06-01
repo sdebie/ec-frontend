@@ -1,12 +1,7 @@
-import { createStore } from 'zustand/vanilla';
-
-import { STOREFRONT_TENANT_RESET_EVENT } from '@/storefront/tenant/tenantLifecycle';
-import {
-    getCartItemsStorageKey,
-    getCartSessionStorageKey,
-} from '@/utils/storefront/tenantStorageKeys';
-
-import type { OrderData, OrderItemData } from '@/types/order.types.ts';
+import {createStore} from 'zustand/vanilla';
+import {STOREFRONT_TENANT_RESET_EVENT} from '@/storefront/tenant/tenantLifecycle';
+import {getCartItemsStorageKey, getCartSessionStorageKey,} from '@/utils/storefront/tenantStorageKeys';
+import type {OrderData, OrderItemData} from '@/types/order.types.ts';
 
 function calcCount(items?: OrderItemData[]): number {
     if (!Array.isArray(items)) return 0;
@@ -38,9 +33,9 @@ function readInitialState(): CartState {
         const raw = localStorage.getItem(getCartItemsStorageKey());
         const itemCount = raw ? calcCount(JSON.parse(raw) as OrderItemData[]) : 0;
         const orderSessionId = localStorage.getItem(getCartSessionStorageKey()) || null;
-        return { itemCount, orderSessionId };
+        return {itemCount, orderSessionId};
     } catch {
-        return { itemCount: 0, orderSessionId: null };
+        return {itemCount: 0, orderSessionId: null};
     }
 }
 
@@ -51,18 +46,18 @@ if (typeof window !== 'undefined') {
         if (event.key === getCartItemsStorageKey()) {
             try {
                 const items = event.newValue ? (JSON.parse(event.newValue) as OrderItemData[]) : [];
-                _store.setState({ itemCount: calcCount(items) });
+                _store.setState({itemCount: calcCount(items)});
             } catch {
                 // ignore storage parse failures
             }
         }
         if (event.key === getCartSessionStorageKey()) {
-            _store.setState({ orderSessionId: event.newValue || null });
+            _store.setState({orderSessionId: event.newValue || null});
         }
     });
 
     window.addEventListener(STOREFRONT_TENANT_RESET_EVENT, () => {
-        _store.setState({ itemCount: 0, orderSessionId: null });
+        _store.setState({itemCount: 0, orderSessionId: null});
     });
 }
 
@@ -90,7 +85,7 @@ export const cartStore = {
         } catch {
             // ignore storage write failures
         }
-        _store.setState({ itemCount: calcCount(items) });
+        _store.setState({itemCount: calcCount(items)});
     },
 
     mergeItems(order: OrderData): OrderData {
@@ -112,7 +107,7 @@ export const cartStore = {
                 typeof inc.variant === 'string' ? inc.variant : (inc.variant as { id?: string } | null)?.id;
 
             if (vid == null) {
-                merged.push({ ...inc });
+                merged.push({...inc});
                 continue;
             }
 
@@ -132,7 +127,7 @@ export const cartStore = {
                         typeof inc.variant === 'object' && inc.variant !== null ? inc.variant : prev.variant,
                 };
             } else {
-                merged.push({ ...inc });
+                merged.push({...inc});
             }
         }
 
@@ -144,8 +139,8 @@ export const cartStore = {
             // ignore
         }
 
-        const localOrder: OrderData = { ...(order ?? {}), items: merged };
-        _store.setState({ itemCount: calcCount(merged) });
+        const localOrder: OrderData = {...(order ?? {}), items: merged};
+        _store.setState({itemCount: calcCount(merged)});
         return localOrder;
     },
 
@@ -155,7 +150,7 @@ export const cartStore = {
         } catch {
             // ignore storage write failures
         }
-        _store.setState({ itemCount: calcCount(items) });
+        _store.setState({itemCount: calcCount(items)});
     },
 
     clear() {
@@ -164,7 +159,7 @@ export const cartStore = {
         } catch {
             // ignore storage failures
         }
-        _store.setState({ itemCount: 0, orderSessionId: null });
+        _store.setState({itemCount: 0, orderSessionId: null});
     },
 
     resetAndNewSession() {
@@ -175,6 +170,6 @@ export const cartStore = {
         } catch {
             // ignore storage failures
         }
-        _store.setState({ itemCount: 0, orderSessionId: newId });
+        _store.setState({itemCount: 0, orderSessionId: newId});
     },
 };

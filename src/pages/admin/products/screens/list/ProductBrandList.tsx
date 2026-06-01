@@ -2,17 +2,13 @@ import {ColumnDef} from "@tanstack/react-table";
 import {PenLine} from "lucide-react";
 import {useEffect, useMemo, useState} from "react";
 import {useNavigate} from "react-router-dom";
-
-
 import {Button, Select} from "@/components";
 import {DataTable} from "@/components/shared/datatable/DataTable.tsx";
 import {IMAGE_THUMBNAIL_URL} from "@/constants/api.constant.ts";
 import {apiGetAllBrands} from "@/services/graphql/admin/brand/BrandService.graphql.ts";
 import {apiGetProductListByBrand} from "@/services/graphql/product/product.service.ts";
-
 import type {Brand} from "@/types/admin/BrandTypes.ts";
 import type {ProductListItem} from "@/types/admin/ProductTypes.ts";
-
 
 const BRAND_PAGE_SIZE = 500;
 const PRODUCTS_PAGE_SIZE = 500;
@@ -126,7 +122,7 @@ const ProductBrandList = () => {
                         className="h-10 w-10 rounded object-cover"
                     />
                 ) : (
-                    <div className="h-10 w-10 rounded bg-gray-100" />
+                    <div className="h-10 w-10 rounded bg-gray-100"/>
                 ),
         },
         {

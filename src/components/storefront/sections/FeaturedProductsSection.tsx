@@ -1,9 +1,6 @@
 import {Link} from 'react-router-dom';
-
-import { useProducts } from '@/features/catalog';
-
+import {useProducts} from '@/features/catalog';
 import type {FeaturedProductsSectionProps} from '@/types/storefront/storefrontTypes';
-
 
 interface Props {
     props: FeaturedProductsSectionProps;
@@ -11,7 +8,7 @@ interface Props {
 
 export const FeaturedProductsSection = ({props}: Props) => {
     const limit = props.limit && props.limit > 0 ? props.limit : 6;
-    const { products, loading, error } = useProducts({
+    const {products, loading, error} = useProducts({
         categoryId: props.category || null,
         pageIndex: 0,
         pageSize: limit,

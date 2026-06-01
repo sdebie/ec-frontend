@@ -1,7 +1,6 @@
-import React, { useEffect, useRef, useState } from 'react';
-
-import { Button, Select } from "@/components";
-import { Dialog, DialogContent, DialogFooter, DialogHeader } from "@/components/shared/dialog/Dialog.tsx";
+import React, {useEffect, useRef, useState} from 'react';
+import {Button, Select} from "@/components";
+import {Dialog, DialogContent, DialogFooter, DialogHeader} from "@/components/shared/dialog/Dialog.tsx";
 import ImageServiceRest from "@/services/rest/admin/ImageService.rest.ts";
 
 const UPLOAD_BATCH_SIZE = 100;
@@ -40,7 +39,7 @@ const BulkImageUploader = () => {
     }, []);
 
     const destinationOptions = [
-        { value: '', label: 'Storage root' },
+        {value: '', label: 'Storage root'},
         ...destinationDirectories.map((directory) => ({
             value: directory,
             label: directory,
@@ -127,7 +126,8 @@ const BulkImageUploader = () => {
                 </p>
                 {!isLoadingDirectories && destinationDirectories.length === 0 && (
                     <p className="text-admin-text-muted text-xs mt-2">
-                        No subdirectories were found yet. Selecting Storage root will upload directly into the configured image storage path.
+                        No subdirectories were found yet. Selecting Storage root will upload directly into the
+                        configured image storage path.
                     </p>
                 )}
             </div>
@@ -140,7 +140,7 @@ const BulkImageUploader = () => {
                     multiple
                     className="hidden"
                     onChange={handleFolderSelect}
-                    {...({ webkitdirectory: '', directory: '' } as any)}
+                    {...({webkitdirectory: '', directory: ''} as any)}
                 />
                 <Button variant="solid" onClick={() => setIsPreConfirmOpen(true)}>
                     Select Images Folder
@@ -155,8 +155,10 @@ const BulkImageUploader = () => {
                     description={`You are about to select a folder for bulk image upload into ${selectedDirectoryLabel}.`}
                 />
                 <DialogContent className="space-y-4">
-                    <p className="text-admin-text-muted">Your browser will ask for permission to access the folder contents. This is a standard security measure.</p>
-                    <div className="rounded border border-admin-border bg-admin-bg px-3 py-2 text-sm text-admin-text-muted">
+                    <p className="text-admin-text-muted">Your browser will ask for permission to access the folder
+                        contents. This is a standard security measure.</p>
+                    <div
+                        className="rounded border border-admin-border bg-admin-bg px-3 py-2 text-sm text-admin-text-muted">
                         Destination: <span className="font-medium text-admin-text">{selectedDirectoryLabel}</span>
                     </div>
                 </DialogContent>
@@ -175,10 +177,12 @@ const BulkImageUploader = () => {
                     description={`${selectedFiles.length} images found in folder for ${selectedDirectoryLabel}.`}
                 />
                 <DialogContent className="space-y-4">
-                    <div className="rounded border border-admin-border bg-admin-bg px-3 py-2 text-sm text-admin-text-muted">
+                    <div
+                        className="rounded border border-admin-border bg-admin-bg px-3 py-2 text-sm text-admin-text-muted">
                         Destination: <span className="font-medium text-admin-text">{selectedDirectoryLabel}</span>
                     </div>
-                    <div className="grid grid-cols-2 gap-2 text-xs bg-admin-bg p-3 rounded border border-admin-border max-h-60 overflow-y-auto">
+                    <div
+                        className="grid grid-cols-2 gap-2 text-xs bg-admin-bg p-3 rounded border border-admin-border max-h-60 overflow-y-auto">
                         {selectedFiles.map((file, idx) => (
                             <div key={idx} className="truncate text-admin-text-muted">📄 {file.name}</div>
                         ))}

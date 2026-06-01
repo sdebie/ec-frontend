@@ -1,6 +1,5 @@
 import * as LucideIcons from 'lucide-react';
 import {LucideProps} from 'lucide-react';
-
 import type {FC} from 'react';
 
 interface IconProps extends LucideProps {

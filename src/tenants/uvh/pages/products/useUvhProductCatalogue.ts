@@ -1,15 +1,13 @@
 import {useCallback, useEffect, useMemo, useRef, useState} from 'react';
 import {useSearchParams} from 'react-router-dom';
-
 import {useBrands, useCategories, useProducts} from '@/features/catalog';
 import {resolveRootCategoryId} from '@/tenants/uvh/pages/home/resolveUvhShowcaseCategoryId.ts';
+import type {UvhCatalogueQuickCategory} from '@/tenants/uvh/pages/products/catalogue.config.ts';
 import {
     UVH_CATALOGUE_PAGE_SIZE,
     UVH_CATALOGUE_QUICK_CATEGORIES,
 } from '@/tenants/uvh/pages/products/catalogue.config.ts';
-
 import type {CatalogBrand, CatalogCategory, CatalogProductListItem} from '@/features/catalog/types.ts';
-import type {UvhCatalogueQuickCategory} from '@/tenants/uvh/pages/products/catalogue.config.ts';
 
 const SEARCH_DEBOUNCE_MS = 350;
 

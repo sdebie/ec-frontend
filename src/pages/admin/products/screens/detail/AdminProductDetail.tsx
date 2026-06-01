@@ -1,14 +1,12 @@
 import {ArrowLeft} from "lucide-react";
 import {useEffect, useState} from "react";
 import {useNavigate, useParams} from "react-router-dom";
-
 import {PageLayout} from '@/components';
 import {IMAGE_BASE_URL} from "@/constants/api.constant.ts";
 import {useFormatAmount} from "@/hooks/useFormatAmount.ts";
 import {apiGetStoreSettings} from "@/services/graphql/admin/settings/SettingsService.graphql.ts";
 import {apiGetProductInformation} from "@/services/graphql/product/product.service.ts";
 import {calculateVatFromExclusive, parseVatRate} from "@/utils/vat.ts";
-
 import type {ProductInformation} from "@/types/admin/ProductTypes.ts";
 
 const renderValue = (value?: string | number | boolean | null) => {
@@ -176,7 +174,8 @@ const AdminProductDetail = () => {
                                     {product.product?.categories && product.product.categories.length > 0 ? (
                                         <div className="grid gap-2 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-4">
                                             {product.product.categories.map((category) => (
-                                                <div key={category.id} className="rounded border border-admin-border bg-admin-bg p-3">
+                                                <div key={category.id}
+                                                     className="rounded border border-admin-border bg-admin-bg p-3">
                                                     <p className="text-sm font-medium text-admin-text">
                                                         {renderValue(category.name)}
                                                     </p>
@@ -356,16 +355,21 @@ const AdminProductDetail = () => {
                                                                     </thead>
                                                                     <tbody>
                                                                     {variant.prices.map((price) => (
-                                                                        <tr key={price.id} className="border-b border-admin-border last:border-b-0">
+                                                                        <tr key={price.id}
+                                                                            className="border-b border-admin-border last:border-b-0">
                                                                             <td className="px-3 py-2 text-admin-text">
                                                                                 {renderValue(price.priceType)}
                                                                             </td>
                                                                             <td className="px-3 py-2 text-admin-text">
                                                                                 {typeof price.price === "number" ? (
                                                                                     <div>
-                                                                                        <p>{formatAmount(price.price)} <span className="text-xs text-admin-text-muted">ex VAT</span></p>
+                                                                                        <p>{formatAmount(price.price)}
+                                                                                            <span
+                                                                                                className="text-xs text-admin-text-muted">ex VAT</span>
+                                                                                        </p>
                                                                                         <p className="text-xs text-admin-text-muted">
-                                                                                            {formatAmount(calculateVatFromExclusive(price.price, vatRatePercent).totalIncludingVat)} inc VAT ({vatRatePercent}%)
+                                                                                            {formatAmount(calculateVatFromExclusive(price.price, vatRatePercent).totalIncludingVat)} inc
+                                                                                            VAT ({vatRatePercent}%)
                                                                                         </p>
                                                                                     </div>
                                                                                 ) : renderValue(price.price)}

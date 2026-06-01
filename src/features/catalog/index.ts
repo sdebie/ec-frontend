@@ -1,3 +1,5 @@
+export { CataloguePageLayout } from '@/features/catalog/CataloguePageLayout.tsx';
+export { CataloguePagination } from '@/features/catalog/CataloguePagination.tsx';
 export { ProductCard } from '@/features/catalog/ProductCard.tsx';
 export { ProductList } from '@/features/catalog/ProductList.tsx';
 export { ProductDetail } from '@/features/catalog/ProductDetail.tsx';

@@ -2,13 +2,10 @@ import {ColumnDef} from "@tanstack/react-table";
 import {Eye, LoaderCircle, Plus, RefreshCw, Upload} from "lucide-react";
 import {useCallback, useEffect, useMemo, useState} from "react";
 import {useNavigate} from "react-router-dom";
-
-
 import {Button, DataTable} from "@/components";
 import {apiGetProductPriceUploadBatches} from "@/services/graphql/admin/product/ProductPriceImportService.graphql.ts";
 import {exportProductsPrice} from "@/services/rest/admin/ProductExportService.rest.ts";
 import {getProductPriceUploadBatchProcessStatus} from "@/services/rest/admin/ProductPriceUploadService.rest.ts";
-
 import type {ProductUploadBatch} from "@/types/admin/ProductTypes.ts";
 
 const BulkProductUploadList = () => {
@@ -114,7 +111,9 @@ const BulkProductUploadList = () => {
         {
             id: 'validationErrorCount',
             accessorKey: 'validationErrorCount',
-            header: () => <div>Validation<br /><div className={"text-[10px]"}>Errors</div></div>,
+            header: () => <div>Validation<br/>
+                <div className={"text-[10px]"}>Errors</div>
+            </div>,
             enableSorting: true,
             cell: (props) => props.row.original.validationErrorCount ?? 0,
         },
@@ -161,7 +160,8 @@ const BulkProductUploadList = () => {
                         <Button variant="solid" size={"sm"} onClick={() => handleDetail(row)}>
                             <Eye size={12}/>
                         </Button>
-                        <Button variant="solid" size={"sm"} onClick={() => handleRefreshStatus(row)} disabled={isRefreshing}>
+                        <Button variant="solid" size={"sm"} onClick={() => handleRefreshStatus(row)}
+                                disabled={isRefreshing}>
                             {isRefreshing ? <LoaderCircle size={12} className="animate-spin"/> : <RefreshCw size={12}/>}
                         </Button>
                     </div>
@@ -170,9 +170,9 @@ const BulkProductUploadList = () => {
         }
     ], [refreshingBatchIds]);
 
-     const bulkUpload = async () => {
-         navigate("/admin/imports/products/price/bulk-upload");
-     };
+    const bulkUpload = async () => {
+        navigate("/admin/imports/products/price/bulk-upload");
+    };
 
     return (
         <div>

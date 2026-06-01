@@ -18,9 +18,7 @@ import {
 import {toast} from "@/components/shared/toast";
 import useCreateStaff from "@/pages/admin/staff/hooks/useCreateStaff.ts";
 import {Input} from "@/primitives/input";
-
 import type {StaffRole} from "@/types/admin/StaffTypes.ts";
-
 
 const roleOptions: { value: StaffRole; label: string }[] = [
     {value: "SUPER_ADMIN", label: "Super Admin"},
@@ -118,7 +116,8 @@ const StaffCreate = ({isDialogOpen, setIsDialogOpen, onSuccess}: StaffCreateProp
                                     errorMessage={errors.email?.message}
                                     invalid={!!errors.email}
                                 >
-                                    <Input size="lg" {...field} type="email" placeholder="name@company.com" className="w-full"/>
+                                    <Input size="lg" {...field} type="email" placeholder="name@company.com"
+                                           className="w-full"/>
                                 </FormItem>
                             )}
                         />
@@ -167,7 +166,8 @@ const StaffCreate = ({isDialogOpen, setIsDialogOpen, onSuccess}: StaffCreateProp
                                     errorMessage={errors.temporaryPassword?.message}
                                     invalid={!!errors.temporaryPassword}
                                 >
-                                    <Input size="lg" {...field} type="password" placeholder="Set temporary password" className="w-full"/>
+                                    <Input size="lg" {...field} type="password" placeholder="Set temporary password"
+                                           className="w-full"/>
                                 </FormItem>
                             )}
                         />
@@ -177,8 +177,10 @@ const StaffCreate = ({isDialogOpen, setIsDialogOpen, onSuccess}: StaffCreateProp
                             control={control}
                             render={({field}) => (
                                 <FormItem label="Active">
-                                    <div className="flex items-center justify-between rounded-md border border-admin-border px-3 py-2">
-                                        <span className="text-sm text-admin-text">Allow this staff user to sign in</span>
+                                    <div
+                                        className="flex items-center justify-between rounded-md border border-admin-border px-3 py-2">
+                                        <span
+                                            className="text-sm text-admin-text">Allow this staff user to sign in</span>
                                         <Switcher checked={field.value} onChange={field.onChange}/>
                                     </div>
                                 </FormItem>

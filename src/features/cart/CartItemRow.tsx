@@ -1,18 +1,11 @@
-import { ChevronDown, ShoppingBag, Trash2 } from 'lucide-react';
-import { useMemo } from 'react';
-
-
+import {ChevronDown, ShoppingBag, Trash2} from 'lucide-react';
+import {useMemo} from 'react';
 import ProductImage from '@/components/shared/imageupload/ProductImage.tsx';
-import { useCustomerType } from '@/store/customerTypeStore.ts';
-import { asVariant } from '@/types/order.types.ts';
-import { formatAttributes } from '@/utils/formatAttributes.ts';
-import {
-    currency,
-    getCartLineDisplayUnit,
-    getQuantityOptions,
-} from '@/utils/storefront/cart.utils.ts';
-
-import type { CartItem } from '@/features/cart/types.ts';
+import {useCustomerType} from '@/store/customerTypeStore.ts';
+import {asVariant} from '@/types/order.types.ts';
+import {formatAttributes} from '@/utils/formatAttributes.ts';
+import {currency, getCartLineDisplayUnit, getQuantityOptions,} from '@/utils/storefront/cart.utils.ts';
+import type {CartItem} from '@/features/cart/types.ts';
 
 type CartItemRowProps = {
     item: CartItem;
@@ -21,7 +14,7 @@ type CartItemRowProps = {
     onRemove: (index: number) => void;
 };
 
-export default function CartItemRow({ item, index, onQuantityChange, onRemove }: CartItemRowProps) {
+export default function CartItemRow({item, index, onQuantityChange, onRemove}: CartItemRowProps) {
     const customerType = useCustomerType();
     const quantity = Math.max(1, Number(item.quantity || 1));
     const quantityOptions = getQuantityOptions(quantity);
@@ -48,7 +41,8 @@ export default function CartItemRow({ item, index, onQuantityChange, onRemove }:
             {/* Top row: thumbnail + info + controls */}
             <div className="flex items-center gap-4">
                 <div className="shrink-0">
-                    <div className="flex size-20 items-center justify-center rounded-xl border border-(--sf-border) bg-(--sf-surface-muted) sm:size-24">
+                    <div
+                        className="flex size-20 items-center justify-center rounded-xl border border-(--sf-border) bg-(--sf-surface-muted) sm:size-24">
                         {thumbnailFileName ? (
                             <ProductImage
                                 fileName={thumbnailFileName}
@@ -56,7 +50,7 @@ export default function CartItemRow({ item, index, onQuantityChange, onRemove }:
                                 className="rounded-xl object-contain p-1"
                             />
                         ) : (
-                            <ShoppingBag className="h-8 w-8 text-(--sf-muted-text)" />
+                            <ShoppingBag className="h-8 w-8 text-(--sf-muted-text)"/>
                         )}
                     </div>
                 </div>
@@ -69,7 +63,8 @@ export default function CartItemRow({ item, index, onQuantityChange, onRemove }:
                         <p className="mt-1 text-xs text-(--sf-muted-text)">
                             {formatAttributes(variant?.attributesJson) ?? 'Standard item'}
                         </p>
-                        <p className="mt-2 text-sm font-medium text-(--sf-text)">{currency(displayUnit)} <span className="font-normal text-(--sf-muted-text)">each</span></p>
+                        <p className="mt-2 text-sm font-medium text-(--sf-text)">{currency(displayUnit)} <span
+                            className="font-normal text-(--sf-muted-text)">each</span></p>
                     </div>
 
                     <div className="flex shrink-0 items-center gap-2">
@@ -101,7 +96,7 @@ export default function CartItemRow({ item, index, onQuantityChange, onRemove }:
                             className="p-1.5 text-(--sf-muted-text) hover:text-(--sf-error) transition-colors"
                         >
                             <span className="sr-only">Remove</span>
-                            <Trash2 aria-hidden="true" className="h-4 w-4" />
+                            <Trash2 aria-hidden="true" className="h-4 w-4"/>
                         </button>
                     </div>
                 </div>

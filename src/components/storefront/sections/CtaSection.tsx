@@ -1,5 +1,4 @@
 import {Link} from 'react-router-dom';
-
 import type {CtaSectionProps} from '@/types/storefront/storefrontTypes';
 
 interface Props {

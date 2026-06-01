@@ -1,13 +1,10 @@
-import { describe, expect, it } from 'vitest';
-
-import { CustomerType } from '@/constants/enums/CustomerType.ts';
-import { getDisplayPrice } from '@/features/catalog/utils/pricing.ts';
-
-import type { ProductShoppingListItem } from '@/types/shared/ProductTypes.ts';
-
+import {describe, expect, it} from 'vitest';
+import {CustomerType} from '@/constants/enums/CustomerType.ts';
+import {getDisplayPrice} from '@/features/catalog/utils/pricing.ts';
+import type {ProductShoppingListItem} from '@/types/shared/ProductTypes.ts';
 
 function vp(price: number) {
-    return { id: 'p', price };
+    return {id: 'p', price};
 }
 
 describe('getDisplayPrice', () => {

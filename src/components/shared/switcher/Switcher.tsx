@@ -1,5 +1,4 @@
 import {InputHTMLAttributes, Ref, useId} from 'react';
-
 import {cn} from '@/utils/cn.ts';
 
 export interface SwitcherProps extends Omit<InputHTMLAttributes<HTMLInputElement>, 'onChange'> {

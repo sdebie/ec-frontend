@@ -1,5 +1,4 @@
 import {Globe2, History, ShieldCheck} from 'lucide-react';
-
 import {FROSTED_CARD} from '@/tenants/uvh/components/UvhGradientTrustBand.tsx';
 import {UvhCtaSection} from '@/tenants/uvh/components/UvhCtaSection.tsx';
 import {UvhTitleHero} from '@/tenants/uvh/components/UvhTitleHero.tsx';
@@ -28,8 +27,9 @@ const UvhAboutUs = () => {
                             return (
                                 <article key={item.title} className={FROSTED_CARD}>
                                     <div className="flex items-center gap-2.5">
-                                        <span className="flex size-8 shrink-0 items-center justify-center rounded-full bg-(--sf-accent) text-(--sf-accent-text)">
-                                            <Icon aria-hidden className="size-4" strokeWidth={1.75} />
+                                        <span
+                                            className="flex size-8 shrink-0 items-center justify-center rounded-full bg-(--sf-accent) text-(--sf-accent-text)">
+                                            <Icon aria-hidden className="size-4" strokeWidth={1.75}/>
                                         </span>
                                         <h3 className="text-base font-bold text-white">{item.title}</h3>
                                     </div>
@@ -42,13 +42,13 @@ const UvhAboutUs = () => {
                 }
             />
 
-            <UvhCompanyOverviewSection />
+            <UvhCompanyOverviewSection/>
 
-            <UvhCoreCategoriesSection />
+            <UvhCoreCategoriesSection/>
 
-            <UvhProductsServicesSection />
+            <UvhProductsServicesSection/>
 
-            <UvhAboutValuePropositionsSection />
+            <UvhAboutValuePropositionsSection/>
 
             <UvhCtaSection
                 eyebrow="Get in touch"

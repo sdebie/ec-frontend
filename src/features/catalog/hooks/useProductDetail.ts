@@ -1,4 +1,4 @@
-import {useEffect, useState} from 'react';
+import {useQuery} from '@tanstack/react-query';
 import {fetchProductAndVariants} from '@/services/graphql/product/product.service.ts';
 import type {CatalogProductInformation} from '@/features/catalog/types.ts';
 
@@ -8,38 +8,21 @@ type UseProductDetailResult = {
     error: string | null;
 };
 
+const isValidId = (id?: string): id is string => !!id && id.length >= 8;
+
 export function useProductDetail(productId?: string): UseProductDetailResult {
-    const [product, setProduct] = useState<CatalogProductInformation | null>(null);
-    const [loading, setLoading] = useState(true);
-    const [error, setError] = useState<string | null>(null);
+    const query = useQuery({
+        queryKey: ['productDetail', productId],
+        queryFn: () => fetchProductAndVariants(productId!),
+        // Skip the request entirely when the ID is absent or obviously invalid.
+        enabled: isValidId(productId),
+    });
 
-    useEffect(() => {
-        let isCancelled = false;
-        const run = async () => {
-            try {
-                setLoading(true);
-                setError(null);
-                if (!productId || productId.length < 8) {
-                    throw new Error('Invalid product id');
-                }
-                const result = await fetchProductAndVariants(productId);
-                if (isCancelled) return;
-                setProduct(result);
-            } catch (err) {
-                if (!isCancelled) {
-                    setError(err instanceof Error ? err.message : 'Failed to load product');
-                    setProduct(null);
-                }
-            } finally {
-                if (!isCancelled) setLoading(false);
-            }
-        };
-
-        void run();
-        return () => {
-            isCancelled = true;
-        };
-    }, [productId]);
-
-    return {product, loading, error};
+    return {
+        product: query.data ?? null,
+        // When `enabled` is false, isPending is true but fetchStatus is 'idle'.
+        // Treat that as not-loading so callers don't show a spinner for an invalid ID.
+        loading: query.isPending && query.fetchStatus !== 'idle',
+        error: query.isError ? (query.error?.message ?? 'Failed to load product') : null,
+    };
 }

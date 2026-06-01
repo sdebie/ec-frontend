@@ -1,5 +1,6 @@
 import {useState} from 'react';
 
+import {useMutation} from '@tanstack/react-query';
 import {OrderStatus} from '@/constants/enums/OrderStatus.ts';
 import {
     fetchPayfastCheckoutFields,
@@ -84,12 +85,11 @@ export function useCheckoutSubmit({
                                       selectedMethodId,
                                       callbacks,
                                   }: UseCheckoutSubmitInput): CheckoutSubmitState {
-    const [isProcessing, setIsProcessing] = useState(false);
     const [showSaveConfirm, setShowSaveConfirm] = useState(false);
 
     // ── Shared pre-submit steps ──────────────────────────────────────────────
 
-    /** Run registration + address update. Returns false if an error was handled. */
+    /** Run registration + address update. Returns false if an error was shown. */
     const runPreSubmitSteps = async (): Promise<boolean> => {
         try {
             await registerIfChosen({needsShippingAddress});
@@ -106,11 +106,10 @@ export function useCheckoutSubmit({
         return true;
     };
 
-    // ── In-store path ────────────────────────────────────────────────────────
+    // ── In-store mutation ────────────────────────────────────────────────────
 
-    const proceedInStoreCheckout = async () => {
-        setIsProcessing(true);
-        try {
+    const inStoreMutation = useMutation({
+        mutationFn: async () => {
             if (!(await runPreSubmitSteps())) return;
 
             const sid = resolveCheckoutSessionId(sessionId);
@@ -130,13 +129,14 @@ export function useCheckoutSubmit({
             clearEmailSession();
             alert('Your order will be reserved for in-store payment. You can complete payment when you collect your items.');
             callbacks.onInStoreOrder();
-        } catch (e) {
+        },
+        onError: (e) => {
             console.error('[In-Store] Failed to update customer information:', e);
             alert('Could not save your email address to the order. Please try again.');
-        } finally {
-            setIsProcessing(false);
-        }
-    };
+        },
+    });
+
+    const proceedInStoreCheckout = () => { inStoreMutation.mutate(); };
 
     const handleInStoreCheckout = async () => {
         if (!emailValid) {
@@ -149,26 +149,13 @@ export function useCheckoutSubmit({
             setShowSaveConfirm(true);
             return;
         }
-        await proceedInStoreCheckout();
+        inStoreMutation.mutate();
     };
 
-    // ── PayFast path ─────────────────────────────────────────────────────────
+    // ── PayFast mutation ─────────────────────────────────────────────────────
 
-    const handlePayFastCheckout = async () => {
-        if (!emailValid) {
-            setEmailTouched(true);
-            alert('Please enter a valid email address before continuing.');
-            return;
-        }
-        if (needsShippingAddress && customer?.hasPassword && returningChoice === 'login' && !isAuthenticated) {
-            alert('Please sign in to use your saved address or choose "Continue as guest".');
-            return;
-        }
-
-        if (!(await runPreSubmitSteps())) return;
-
-        setIsProcessing(true);
-        try {
+    const payFastMutation = useMutation({
+        mutationFn: async () => {
             const sid = resolveCheckoutSessionId(sessionId);
             if (!sid) {
                 alert('Missing checkout session. Please return from the cart and try again.');
@@ -195,12 +182,27 @@ export function useCheckoutSubmit({
                 console.error('[PayFast] Checkout initiation failed:', e);
                 alert('Could not initiate payment. Please try again.');
             }
-        } catch (e) {
+        },
+        onError: (e) => {
             console.error('[PayFast] Unexpected error:', e);
             alert('Could not initiate payment. Please try again.');
-        } finally {
-            setIsProcessing(false);
+        },
+    });
+
+    const handlePayFastCheckout = async () => {
+        if (!emailValid) {
+            setEmailTouched(true);
+            alert('Please enter a valid email address before continuing.');
+            return;
         }
+        if (needsShippingAddress && customer?.hasPassword && returningChoice === 'login' && !isAuthenticated) {
+            alert('Please sign in to use your saved address or choose "Continue as guest".');
+            return;
+        }
+        // Pre-submit validation (registration/address) runs before mutate() so
+        // failures abort the flow cleanly before the spinner starts.
+        if (!(await runPreSubmitSteps())) return;
+        payFastMutation.mutate();
     };
 
     // ── Submit guard ─────────────────────────────────────────────────────────
@@ -216,7 +218,7 @@ export function useCheckoutSubmit({
             (!registerPassword || registerPassword.length < 6 || registerPassword !== registerPasswordConfirm));
 
     return {
-        isProcessing,
+        isProcessing: inStoreMutation.isPending || payFastMutation.isPending,
         showSaveConfirm,
         setShowSaveConfirm,
         submitDisabled,

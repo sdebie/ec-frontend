@@ -1,7 +1,5 @@
 import {ProductCard} from '@/features/catalog/ProductCard.tsx';
-
 import type {CatalogProductListItem} from '@/features/catalog/types.ts';
-
 
 type ProductListProps = {
     products: CatalogProductListItem[];

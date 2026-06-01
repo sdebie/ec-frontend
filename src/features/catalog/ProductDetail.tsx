@@ -1,7 +1,6 @@
 import {ChevronDown, ChevronUp} from 'lucide-react';
 import {useMemo, useState} from 'react';
 import {Link, useNavigate} from 'react-router-dom';
-
 import ProductImage from '@/components/shared/imageupload/ProductImage.tsx';
 import {useProductDetail} from '@/features/catalog/hooks/useProductDetail.ts';
 import {getDisplayPriceForVariantTiers, pickVariantPriceByType,} from '@/features/catalog/utils/pricing.ts';

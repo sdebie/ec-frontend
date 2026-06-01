@@ -1,14 +1,13 @@
 import type {ReactNode} from 'react';
-
-import { Card } from "@/primitives/card/Card";
-import { Container } from "@/primitives/container/Container";
-import { IconBox } from "@/primitives/icon-box/IconBox";
-import { uvhAboutContent } from "@/tenants/uvh/config";
-import { Globe2, History, LucideIcon, ShieldCheck } from "lucide-react";
+import {Card} from "@/primitives/card/Card";
+import {Container} from "@/primitives/container/Container";
+import {IconBox} from "@/primitives/icon-box/IconBox";
+import {uvhAboutContent} from "@/tenants/uvh/config";
+import {Globe2, History, LucideIcon, ShieldCheck} from "lucide-react";
 
 const HIGHLIGHT_ICONS: LucideIcon[] = [History, Globe2, ShieldCheck];
 
-export function UvhAboutHighlightCards({intro}: {intro?: ReactNode}) {
+export function UvhAboutHighlightCards({intro}: { intro?: ReactNode }) {
     return (
         <section
             aria-label="UVH service highlights"
@@ -28,8 +27,9 @@ export function UvhAboutHighlightCards({intro}: {intro?: ReactNode}) {
                                 elevation="sm"
                             >
                                 <div className="flex items-center gap-2.5">
-                                    <IconBox className="size-8 shrink-0 rounded-full border-0 bg-(--sf-accent) text-(--sf-accent-text)">
-                                        <Icon aria-hidden className="size-4" strokeWidth={1.75} />
+                                    <IconBox
+                                        className="size-8 shrink-0 rounded-full border-0 bg-(--sf-accent) text-(--sf-accent-text)">
+                                        <Icon aria-hidden className="size-4" strokeWidth={1.75}/>
                                     </IconBox>
                                     <h3 className="text-base font-bold tracking-tight text-(--c-text)">
                                         {item.title}

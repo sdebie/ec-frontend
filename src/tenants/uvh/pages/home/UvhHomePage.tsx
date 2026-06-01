@@ -1,11 +1,7 @@
-import { useMemo } from 'react';
-
-import { useProducts, useTopBestSellers } from '@/features/catalog';
+import {useMemo} from 'react';
+import {useProducts, useTopBestSellers} from '@/features/catalog';
 import {uvhHomeContent} from '@/tenants/uvh/config';
-import {
-    FROSTED_CARD,
-    UvhGradientTrustBand,
-} from '@/tenants/uvh/components/UvhGradientTrustBand.tsx';
+import {FROSTED_CARD, UvhGradientTrustBand,} from '@/tenants/uvh/components/UvhGradientTrustBand.tsx';
 import {UvhAccreditorsSection} from "@/tenants/uvh/pages/home/components/UvhAccreditorsSection.tsx";
 import {UvhBrandsSection} from '@/tenants/uvh/pages/home/components/UvhBrandsSection.tsx';
 import {UvhCustomerReviewsSection} from "@/tenants/uvh/pages/home/components/UvhCustomerReviewsSection.tsx";
@@ -15,8 +11,8 @@ import {UvhHoldingHero} from '@/tenants/uvh/pages/home/components/UvhHoldingHero
 import {UvhHomeCategoryShowcases} from '@/tenants/uvh/pages/home/components/UvhHomeCategoryShowcases.tsx';
 
 const UvhHomePage = () => {
-    const { products: bestSellers, loading: bestSellerLoading, error: bestSellerError } = useTopBestSellers();
-    const { products: featuredProducts, loading: featuredLoading, error: featuredError } = useProducts({
+    const {products: bestSellers, loading: bestSellerLoading, error: bestSellerError} = useTopBestSellers();
+    const {products: featuredProducts, loading: featuredLoading, error: featuredError} = useProducts({
         pageIndex: 0,
         pageSize: 24,
         sortBy: 'name',

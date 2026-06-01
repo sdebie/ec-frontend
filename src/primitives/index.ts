@@ -24,3 +24,6 @@ export { Divider } from './divider';
 export type { DividerProps } from './divider';
 
 export { IconBox } from './icon-box';
+
+export { AppShell } from './app-shell';
+export type { AppShellProps } from './app-shell';
