@@ -1,4 +1,4 @@
-import {IconType} from "react-icons";
+import type {LucideIcon} from "lucide-react";
 
 export enum OrderStatus {
     CREATED = "CREATED",
@@ -16,7 +16,7 @@ type Option = {
     label: string,
     value: OrderStatus,
     colorClass: string
-    icon?: IconType;
+    icon?: LucideIcon;
 }
 
 export const OrderStatusOptions: Option[] = [

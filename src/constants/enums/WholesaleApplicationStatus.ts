@@ -1,4 +1,4 @@
-import {IconType} from "react-icons";
+import type {LucideIcon} from "lucide-react";
 
 export enum WholesaleApplicationStatus {
     PENDING = "PENDING",
@@ -11,7 +11,7 @@ type Option = {
     label: string,
     value: WholesaleApplicationStatus,
     colorClass: string
-    icon?: IconType;
+    icon?: LucideIcon;
 }
 
 export const WholesaleApplicationStatusOptions: Option[] = [

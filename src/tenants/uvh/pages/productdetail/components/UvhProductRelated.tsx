@@ -32,7 +32,7 @@ export function UvhProductRelated({ products, loading }: UvhProductRelatedProps)
             {loading ? (
                 <p className="mt-6 text-sm text-(--sf-muted-text)">Loading recommendations…</p>
             ) : (
-                <div className="mt-6 flex gap-4 overflow-x-auto pb-2 snap-x snap-mandatory [-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:[display:none]">
+                <div className="mt-6 flex gap-4 overflow-x-auto pb-2 snap-x snap-mandatory [-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
                     {products.map((item) => (
                         <ProductCard
                             key={item.id}

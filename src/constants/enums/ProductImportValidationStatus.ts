@@ -1,4 +1,4 @@
-import {IconType} from "react-icons";
+import type {LucideIcon} from "lucide-react";
 
 export enum ProductImportValidationStatus {
     VALID = "VALID",
@@ -9,7 +9,7 @@ type Option = {
     label: string,
     value: ProductImportValidationStatus,
     colorClass: string
-    icon?: IconType;
+    icon?: LucideIcon;
 }
 
 export const ProductImportValidationStatusOptions: Option[] = [

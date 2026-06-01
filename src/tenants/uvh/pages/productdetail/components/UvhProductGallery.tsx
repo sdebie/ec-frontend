@@ -18,7 +18,7 @@ export function UvhProductGallery({productName, images}: UvhProductGalleryProps)
     }, [images]);
 
     return (
-        <div className="relative min-w-0 overflow-hidden rounded-xl border border-(--sf-border) bg-(--sf-bg) aspect-square max-h-[480px]">
+        <div className="relative min-w-0 overflow-hidden rounded-xl border border-(--sf-border) bg-(--sf-bg) aspect-square max-h-120">
             {activeImage ? (
                 <ProductImage
                     fileName={activeImage}
