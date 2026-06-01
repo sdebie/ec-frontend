@@ -20,7 +20,7 @@ export function UvhBrandsSection() {
     return (
         <section className="mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:px-6">
             <div className="mb-5">
-                <UvhSectionHeading>Brands</UvhSectionHeading>
+                <UvhSectionHeading eyebrow="Trusted Partners">Brands</UvhSectionHeading>
             </div>
             <div className="grid grid-cols-4 gap-2 lg:grid-cols-4 xl:grid-cols-6">
                 {brandsLoading && (

@@ -16,7 +16,7 @@ export function UvhCompanyOverviewSection() {
         >
             <Container className="px-4 sm:px-6 lg:px-8" padded={false} size="lg">
                 <header className="max-w-2xl">
-                    <UvhSectionHeading id="uvh-company-overview-heading" eyebrow={companyOverview.eyebrow}>
+                    <UvhSectionHeading id="uvh-company-overview-heading" eyebrow={companyOverview.eyebrow} >
                         {companyOverview.title}
                     </UvhSectionHeading>
                 </header>

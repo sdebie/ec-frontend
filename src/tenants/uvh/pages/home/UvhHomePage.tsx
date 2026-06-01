@@ -55,26 +55,20 @@ const UvhHomePage = () => {
             <UvhBrandsSection/>
 
             <UvhCtaSection
-                eyebrow={uvhHomeContent.getQuoteCta.overline}
-                title={uvhHomeContent.getQuoteCta.title}
-                description={uvhHomeContent.getQuoteCta.description}
+                eyebrow={uvhHomeContent.wholesaleCta.overline}
+                title="Need a Quote or Buying in Bulk?"
+                description="Send us your requirements and our team will provide competitive pricing, bulk order support, and wholesale account options."
                 cta={uvhHomeContent.getQuoteCta.cta}
-                id="uvh-get-quote-heading"
+                secondaryCta={uvhHomeContent.wholesaleCta.cta}
+                id="uvh-combined-cta-heading"
+                dark
             />
 
             <UvhHomeCategoryShowcases/>
 
-            <UvhCtaSection
-                eyebrow={uvhHomeContent.wholesaleCta.overline}
-                title={uvhHomeContent.wholesaleCta.title}
-                description={uvhHomeContent.wholesaleCta.description}
-                cta={uvhHomeContent.wholesaleCta.cta}
-                id="uvh-wholesale-heading"
-            />
+            <UvhCustomerReviewsSection/>
 
             <UvhAccreditorsSection/>
-
-            <UvhCustomerReviewsSection/>
         </div>
     );
 };

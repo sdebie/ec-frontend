@@ -1,19 +1,18 @@
-import { useState } from 'react';
+import {useState} from 'react';
 
-import { OrderStatus } from '@/constants/enums/OrderStatus.ts';
+import {OrderStatus} from '@/constants/enums/OrderStatus.ts';
 import {
     fetchPayfastCheckoutFields,
     PAYFAST_SANDBOX_GATEWAY_URL,
     submitPayfastRedirectForm,
 } from '@/features/checkout/services/checkout.api.ts';
-import { resolveCheckoutSessionId } from '@/features/checkout/utils/checkout.helpers.ts';
-import { updateCustomerInformation } from '@/services/CustomerService.ts';
-import { apiUpdateOrderStatus } from '@/services/graphql/order/OrderService.graphql.ts';
-
-import type { CheckoutAddress, CheckoutCustomerState } from './useCheckoutCustomer.ts';
-import type { CheckoutTenantCallbacks } from '../types.ts';
-import type { PaymentMethodKey } from '@/services/StoreSettings.ts';
-import type { OrderData } from '@/types/order.types.ts';
+import {resolveCheckoutSessionId} from '@/features/checkout/utils/checkout.helpers.ts';
+import {updateCustomerInformation} from '@/services/CustomerService.ts';
+import {apiUpdateOrderStatus} from '@/services/graphql/order/OrderService.graphql.ts';
+import type {CheckoutAddress, CheckoutCustomerState} from '@/features/checkout';
+import type {CheckoutTenantCallbacks} from '../types.ts';
+import type {PaymentMethodKey} from '@/services/StoreSettings.ts';
+import type {OrderData} from '@/types/order.types.ts';
 
 type UseCheckoutSubmitInput = {
     // ── Session ─────────────────────────────────────────────────────────────
@@ -65,26 +64,26 @@ export type CheckoutSubmitState = {
  *  - Clears the session and notifies the tenant via callbacks on success.
  */
 export function useCheckoutSubmit({
-    email,
-    emailValid,
-    setEmailTouched,
-    sessionId,
-    order,
-    clearEmailSession,
-    needsShippingAddress,
-    customer,
-    isAuthenticated,
-    returningChoice,
-    saveDetails,
-    registerPassword,
-    registerPasswordConfirm,
-    address,
-    registerIfChosen,
-    updateAddressIfRequired,
-    selectedPayment,
-    selectedMethodId,
-    callbacks,
-}: UseCheckoutSubmitInput): CheckoutSubmitState {
+                                      email,
+                                      emailValid,
+                                      setEmailTouched,
+                                      sessionId,
+                                      order,
+                                      clearEmailSession,
+                                      needsShippingAddress,
+                                      customer,
+                                      isAuthenticated,
+                                      returningChoice,
+                                      saveDetails,
+                                      registerPassword,
+                                      registerPasswordConfirm,
+                                      address,
+                                      registerIfChosen,
+                                      updateAddressIfRequired,
+                                      selectedPayment,
+                                      selectedMethodId,
+                                      callbacks,
+                                  }: UseCheckoutSubmitInput): CheckoutSubmitState {
     const [isProcessing, setIsProcessing] = useState(false);
     const [showSaveConfirm, setShowSaveConfirm] = useState(false);
 
@@ -93,13 +92,13 @@ export function useCheckoutSubmit({
     /** Run registration + address update. Returns false if an error was handled. */
     const runPreSubmitSteps = async (): Promise<boolean> => {
         try {
-            await registerIfChosen({ needsShippingAddress });
+            await registerIfChosen({needsShippingAddress});
         } catch (e: unknown) {
             alert(e instanceof Error ? e.message : 'Please check your details.');
             return false;
         }
         try {
-            await updateAddressIfRequired({ needsShippingAddress, email });
+            await updateAddressIfRequired({needsShippingAddress, email});
         } catch (e: unknown) {
             alert(e instanceof Error ? e.message : 'Could not update your account address.');
             return false;
@@ -120,7 +119,7 @@ export function useCheckoutSubmit({
                 return;
             }
 
-            await updateCustomerInformation({ email }, sid);
+            await updateCustomerInformation({email}, sid);
 
             try {
                 await apiUpdateOrderStatus(OrderStatus.IN_STORE_PAYMENT, sid);
@@ -177,7 +176,7 @@ export function useCheckoutSubmit({
             }
 
             try {
-                await updateCustomerInformation({ email }, sid);
+                await updateCustomerInformation({email}, sid);
             } catch (e) {
                 console.error('[PayFast] Failed to update customer information:', e);
                 alert('Could not save your email address to the order. Please try again.');

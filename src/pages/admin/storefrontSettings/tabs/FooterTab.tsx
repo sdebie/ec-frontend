@@ -1,6 +1,5 @@
 import {Plus, Trash2} from 'lucide-react';
 import {useEffect, useRef, useState} from 'react';
-
 import {InputField, Switcher, Textarea, toast} from '@/components';
 import {Button} from '@/primitives/button';
 import {Card} from '@/primitives/card';
@@ -37,17 +36,13 @@ const newLegal = (): StorefrontLegalLinkItem => ({
 
 export function FooterTab({data, onSave, registerSave}: Props) {
     const [footer, setFooter] = useState<StorefrontFooterSection>(data);
-    const [isSaving, setIsSaving] = useState(false);
-    const [isDirty, setIsDirty] = useState(false);
 
     useEffect(() => {
         setFooter(data);
-        setIsDirty(false);
     }, [data]);
 
     const patch = (partial: Partial<StorefrontFooterSection>) => {
         setFooter(prev => ({...prev, ...partial}));
-        setIsDirty(true);
     };
 
     // Column helpers
@@ -93,20 +88,22 @@ export function FooterTab({data, onSave, registerSave}: Props) {
         patch({legalLinks: footer.legalLinks.map(l => l.id === id ? {...l, ...p} : l)});
 
     const save = async () => {
-        setIsSaving(true);
         const ok = await onSave(STOREFRONT_SETTING_KEYS.FOOTER, footer);
         if (ok) {
-            setIsDirty(false);
             toast.success('Footer saved');
         } else {
             toast.error('Failed to save footer');
         }
-        setIsSaving(false);
     };
 
-    const saveFnRef = useRef<() => void>(() => {});
-    saveFnRef.current = () => { void save(); };
-    useEffect(() => { registerSave?.(() => saveFnRef.current()); }, [registerSave]);
+    const saveFnRef = useRef<() => void>(() => {
+    });
+    saveFnRef.current = () => {
+        void save();
+    };
+    useEffect(() => {
+        registerSave?.(() => saveFnRef.current());
+    }, [registerSave]);
 
     return (
         <div className="space-y-6">

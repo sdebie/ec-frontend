@@ -1,14 +1,13 @@
-import { useEffect, useMemo, useState } from 'react';
+import {useEffect, useMemo, useState} from 'react';
 
 import {
     CHECKOUT_AUTH_STORAGE_KEY,
     CHECKOUT_EMAIL_STORAGE_KEY,
     resolveCheckoutSessionId,
 } from '@/features/checkout/utils/checkout.helpers.ts';
-import { apiOrderById, apiOrderBySessionId } from '@/services/graphql/order/OrderService.graphql.ts';
-import { cartStore } from '@/store/storefrontCartStore.ts';
-
-import type { OrderData } from '@/types/order.types.ts';
+import {apiOrderById, apiOrderBySessionId} from '@/services/graphql/order/OrderService.graphql.ts';
+import {cartStore} from '@/store/storefrontCartStore.ts';
+import type {OrderData} from '@/types/order.types.ts';
 
 export type CheckoutSessionState = {
     email: string;
@@ -60,7 +59,7 @@ export function useCheckoutSession(): CheckoutSessionState {
     }, []);
 
     // Parse URL params once — these never change during the session
-    const { sessionId, orderId } = useMemo(() => {
+    const {sessionId, orderId} = useMemo(() => {
         const params = new URLSearchParams(window.location.search);
         return {
             sessionId: params.get('sessionId') ?? undefined,

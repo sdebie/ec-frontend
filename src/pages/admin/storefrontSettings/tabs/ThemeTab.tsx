@@ -1,8 +1,6 @@
 import {useEffect, useRef} from 'react';
 import {Controller, useForm} from 'react-hook-form';
-
 import {Form, FormItem, InputField, toast} from '@/components';
-import {Button} from '@/primitives/button';
 import {Card} from '@/primitives/card';
 import {STOREFRONT_SETTING_KEYS, StorefrontThemeSection} from '@/types/admin/StorefrontSettingsTypes';
 
@@ -41,13 +39,18 @@ type Props = {
 };
 
 export function ThemeTab({data, onSave, registerSave}: Props) {
-    const {control, handleSubmit, reset, watch, formState: {isDirty, isSubmitting}} = useForm<StorefrontThemeSection>({
+    const {control, handleSubmit, reset, watch} = useForm<StorefrontThemeSection>({
         defaultValues: data,
     });
 
-    const saveFnRef = useRef<() => void>(() => {});
-    saveFnRef.current = () => { void handleSubmit(onSubmit)(); };
-    useEffect(() => { registerSave?.(() => saveFnRef.current()); }, [registerSave]);
+    const saveFnRef = useRef<() => void>(() => {
+    });
+    saveFnRef.current = () => {
+        void handleSubmit(onSubmit)();
+    };
+    useEffect(() => {
+        registerSave?.(() => saveFnRef.current());
+    }, [registerSave]);
 
     useEffect(() => {
         reset(data);
@@ -77,7 +80,10 @@ export function ThemeTab({data, onSave, registerSave}: Props) {
                     >
                         <div
                             className="px-4 py-3 flex items-center gap-4"
-                            style={{background: watched.navBackground || watched.background, borderBottom: `1px solid ${watched.navBorder || watched.border}`}}
+                            style={{
+                                background: watched.navBackground || watched.background,
+                                borderBottom: `1px solid ${watched.navBorder || watched.border}`
+                            }}
                         >
                             <div className="w-6 h-6 rounded" style={{background: watched.accent}}/>
                             <span className="text-sm font-medium" style={{color: watched.navText || watched.text}}>

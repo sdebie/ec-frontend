@@ -15,9 +15,9 @@ type UvhDarkSectionHeadingProps = {
 export function UvhDarkSectionHeading({eyebrow, title, id, titleClassName}: UvhDarkSectionHeadingProps) {
     return (
         <header>
-            <p className="text-xs font-semibold uppercase tracking-[0.14em] text-white/75">
+            <p className="text-xs font-bold uppercase tracking-[0.14em] text-white/80">
                 <span
-                    className="mr-2 inline-block h-0.5 w-6 align-middle bg-(--sf-accent)"
+                    className="mr-2 inline-block h-0.5 w-4 align-middle bg-(--sf-accent)"
                     aria-hidden
                 />
                 {eyebrow}

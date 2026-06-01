@@ -1,6 +1,5 @@
 import {ChevronDown, ChevronUp} from 'lucide-react';
 import {useEffect, useRef, useState} from 'react';
-
 import {Switcher, Textarea, toast} from '@/components';
 import {Button} from '@/primitives/button';
 import {Card} from '@/primitives/card';
@@ -26,24 +25,19 @@ const SECTION_LABELS: Record<string, string> = {
 export function HomeSectionsTab({data, onSave, registerSave}: Props) {
     const [sections, setSections] = useState<StorefrontHomeSectionItem[]>(data);
     const [expanded, setExpanded] = useState<string | null>(null);
-    const [isSaving, setIsSaving] = useState(false);
-    const [isDirty, setIsDirty] = useState(false);
 
     useEffect(() => {
         setSections(data);
-        setIsDirty(false);
     }, [data]);
 
     const toggleEnabled = (id: string, enabled: boolean) => {
         setSections(prev => prev.map(s => s.id === id ? {...s, enabled} : s));
-        setIsDirty(true);
     };
 
     const updateProps = (id: string, json: string) => {
         try {
             const parsed = JSON.parse(json);
             setSections(prev => prev.map(s => s.id === id ? {...s, props: parsed} : s));
-            setIsDirty(true);
         } catch {
             // keep invalid json in the textarea without crashing
         }
@@ -54,7 +48,6 @@ export function HomeSectionsTab({data, onSave, registerSave}: Props) {
         const next = [...sections];
         [next[index - 1], next[index]] = [next[index], next[index - 1]];
         setSections(next.map((s, i) => ({...s, sortOrder: i})));
-        setIsDirty(true);
     };
 
     const moveDown = (index: number) => {
@@ -62,30 +55,32 @@ export function HomeSectionsTab({data, onSave, registerSave}: Props) {
         const next = [...sections];
         [next[index], next[index + 1]] = [next[index + 1], next[index]];
         setSections(next.map((s, i) => ({...s, sortOrder: i})));
-        setIsDirty(true);
     };
 
     const save = async () => {
-        setIsSaving(true);
         const ok = await onSave(STOREFRONT_SETTING_KEYS.HOME_SECTIONS, sections);
         if (ok) {
-            setIsDirty(false);
             toast.success('Home sections saved');
         } else {
             toast.error('Failed to save home sections');
         }
-        setIsSaving(false);
     };
 
-    const saveFnRef = useRef<() => void>(() => {});
-    saveFnRef.current = () => { void save(); };
-    useEffect(() => { registerSave?.(() => saveFnRef.current()); }, [registerSave]);
+    const saveFnRef = useRef<() => void>(() => {
+    });
+    saveFnRef.current = () => {
+        void save();
+    };
+    useEffect(() => {
+        registerSave?.(() => saveFnRef.current());
+    }, [registerSave]);
 
     if (sections.length === 0) {
         return (
             <Card>
                 <p className="text-sm text-admin-text-muted py-8 text-center">
-                    No home sections configured. Home sections are defined in the tenant's TypeScript config and seeded here on first deploy.
+                    No home sections configured. Home sections are defined in the tenant's TypeScript config and seeded
+                    here on first deploy.
                 </p>
             </Card>
         );

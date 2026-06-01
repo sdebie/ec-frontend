@@ -1,5 +1,4 @@
 import {useEffect, useState} from 'react';
-
 import {OrderStatus} from '@/constants/enums/OrderStatus.ts';
 import {apiOrderById, apiOrderBySessionId} from '@/services/graphql/order/OrderService.graphql.ts';
 import type {OrderData} from '@/types/order.types.ts';
@@ -57,6 +56,6 @@ export function PaymentSuccess() {
             </h1>
         </div>
     );
-};
+}
 
 export default PaymentSuccess;

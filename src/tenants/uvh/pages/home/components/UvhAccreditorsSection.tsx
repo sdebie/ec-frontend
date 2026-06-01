@@ -10,7 +10,7 @@ export function UvhAccreditorsSection() {
             aria-labelledby="uvh-accreditors-heading"
         >
             <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-                <UvhSectionHeading id="uvh-accreditors-heading">{heading}</UvhSectionHeading>
+                <UvhSectionHeading id="uvh-accreditors-heading" eyebrow="Certified & Compliant">{heading}</UvhSectionHeading>
 
                 <ul className="mt-6 grid list-none grid-cols-1 gap-6 sm:grid-cols-3 sm:items-center sm:justify-items-center sm:gap-5">
                     {items.map((item) => (

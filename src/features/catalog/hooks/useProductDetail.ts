@@ -1,9 +1,6 @@
-import { useEffect, useState } from 'react';
-
-import { fetchProductAndVariants } from '@/services/graphql/product/product.service.ts';
-
-import type { CatalogProductInformation } from '@/features/catalog/types.ts';
-
+import {useEffect, useState} from 'react';
+import {fetchProductAndVariants} from '@/services/graphql/product/product.service.ts';
+import type {CatalogProductInformation} from '@/features/catalog/types.ts';
 
 type UseProductDetailResult = {
     product: CatalogProductInformation | null;
@@ -44,5 +41,5 @@ export function useProductDetail(productId?: string): UseProductDetailResult {
         };
     }, [productId]);
 
-    return { product, loading, error };
+    return {product, loading, error};
 }

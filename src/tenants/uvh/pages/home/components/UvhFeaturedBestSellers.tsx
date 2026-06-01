@@ -5,16 +5,8 @@ import {getDisplayPrice} from '@/features/catalog/utils/pricing.ts';
 import {Card} from '@/primitives/card';
 import {useCustomerType, useIsWholesaler} from '@/store/customerTypeStore.ts';
 import {UvhSectionHeading} from '@/tenants/uvh/components/UvhSectionHeading';
-
 import type {ProductShoppingListItem} from '@/types/admin/ProductTypes.ts';
 import formatAmount from "@/utils/formatAmount.ts";
-
-const formatZar = (value: number): string =>
-    new Intl.NumberFormat('en-ZA', {
-        style: 'currency',
-        currency: 'ZAR',
-        minimumFractionDigits: 2,
-    }).format(value);
 
 const pickFeaturedImage = (product: ProductShoppingListItem): string | undefined => {
     return product.images?.find((img) => img.isFeatured)?.imageUrl ?? product.images?.[0]?.imageUrl;
@@ -75,7 +67,7 @@ export function UvhFeaturedBestSellers({products, loading, error}: UvhFeaturedBe
             aria-label="Featured and best selling products"
         >
             <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-                <UvhSectionHeading>Best Sellers</UvhSectionHeading>
+                <UvhSectionHeading eyebrow="Top Picks">Best Sellers</UvhSectionHeading>
 
                 {loading && (
                     <Card elevation="none" padded={false} className="mt-8 p-8 text-sm text-(--sf-muted-text)">

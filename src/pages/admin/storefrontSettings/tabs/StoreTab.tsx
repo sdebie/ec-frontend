@@ -1,5 +1,4 @@
 import {useEffect, useRef, useState} from 'react';
-
 import {Dialog, DialogContent, DialogFooter, DialogHeader, InputField, Select, Switcher, toast} from '@/components';
 import {Button} from '@/primitives/button';
 import {apiGetStoreSettings, apiSaveStoreSettings} from '@/services/graphql/admin/settings/SettingsService.graphql.ts';
@@ -16,9 +15,8 @@ type PaymentMethodConfig = {
 
 type PaymentMethodsAllowed = Record<string, PaymentMethodConfig>;
 
-export function StoreTab({registerSave}: {registerSave?: (fn: () => void) => void} = {}) {
+export function StoreTab({registerSave}: { registerSave?: (fn: () => void) => void } = {}) {
     const [storeSettings, setStoreSettings] = useState<StoreSetting[]>([]);
-    const [isSaving, setIsSaving] = useState(false);
 
     const [isAddPaymentMethodOpen, setIsAddPaymentMethodOpen] = useState(false);
     const [newMethodName, setNewMethodName] = useState('');
@@ -57,7 +55,6 @@ export function StoreTab({registerSave}: {registerSave?: (fn: () => void) => voi
     };
 
     const handleSave = async () => {
-        setIsSaving(true);
         try {
             const updated = await apiSaveStoreSettings(storeSettings);
             setStoreSettings(updated.filter(s => !s.key.startsWith('storefront.')));
@@ -66,14 +63,17 @@ export function StoreTab({registerSave}: {registerSave?: (fn: () => void) => voi
         } catch (error) {
             console.error('Failed to save settings:', error);
             toast.error('Failed to save settings');
-        } finally {
-            setIsSaving(false);
         }
     };
 
-    const saveFnRef = useRef<() => void>(() => {});
-    saveFnRef.current = () => { void handleSave(); };
-    useEffect(() => { registerSave?.(() => saveFnRef.current()); }, [registerSave]);
+    const saveFnRef = useRef<() => void>(() => {
+    });
+    saveFnRef.current = () => {
+        void handleSave();
+    };
+    useEffect(() => {
+        registerSave?.(() => saveFnRef.current());
+    }, [registerSave]);
 
     const handleAddPaymentMethod = () => {
         if (!newMethodName.trim()) {
@@ -243,10 +243,12 @@ export function StoreTab({registerSave}: {registerSave?: (fn: () => void) => voi
                             onChange={(e) => setNewMethodDescription(e.target.value)}
                         />
                     </div>
-                    <div className="flex items-center justify-between p-3 border border-admin-border rounded-lg bg-admin-sidebar">
+                    <div
+                        className="flex items-center justify-between p-3 border border-admin-border rounded-lg bg-admin-sidebar">
                         <div className="space-y-0.5">
                             <p className="text-sm font-medium text-admin-text">Enabled</p>
-                            <p className="text-xs text-admin-text-muted">Make this payment method available at checkout</p>
+                            <p className="text-xs text-admin-text-muted">Make this payment method available at
+                                checkout</p>
                         </div>
                         <Switcher checked={newMethodEnabled} onChange={setNewMethodEnabled}/>
                     </div>
