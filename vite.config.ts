@@ -132,6 +132,11 @@ export default defineConfig(({ mode }) => {
           target: proxyTarget,
           changeOrigin: true,
           secure: false
+        },
+        '/static': {
+          target: proxyTarget,
+          changeOrigin: true,
+          secure: false
         }
       },
       watch: {
