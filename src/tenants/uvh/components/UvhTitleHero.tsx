@@ -74,7 +74,7 @@ export function UvhTitleHero({
                         </div>
                         <h1 className={titleClassName}>{title}</h1>
                         {description ? <p className={descriptionClassName}>{description}</p> : null}
-                        {afterDescription ? <div className="mt-5">{afterDescription}</div> : null}
+                        {afterDescription ? <div className="mt-2">{afterDescription}</div> : null}
                     </div>
                 </div>
                 {rightSlot ? <div className="hidden shrink-0 lg:flex lg:flex-row lg:flex-wrap lg:gap-3">{rightSlot}</div> : null}

@@ -2,6 +2,7 @@ import { FileText } from 'lucide-react';
 import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 
+import { UvhTitleHero } from '@/tenants/uvh/components/UvhTitleHero.tsx';
 import { UvhProductBreadcrumbs } from '@/tenants/uvh/pages/productdetail/components/UvhProductBreadcrumbs.tsx';
 import { UvhProductGallery } from '@/tenants/uvh/pages/productdetail/components/UvhProductGallery.tsx';
 import { UvhProductInfoPanel } from '@/tenants/uvh/pages/productdetail/components/UvhProductInfoPanel.tsx';
@@ -73,7 +74,13 @@ export function UvhProductDetail({ productId, onAddToCart }: UvhProductDetailPro
 
     return (
         <main className="min-h-screen w-full bg-(--sf-bg)">
-            <UvhProductBreadcrumbs categoryName={product.categoryName} productName={product.name} />
+            <UvhTitleHero
+                eyebrow={product.categoryName ?? 'Product'}
+                title={product.name}
+                contentWidth="wide"
+                className="py-3 sm:py-4"
+                afterDescription={<UvhProductBreadcrumbs categoryName={product.categoryName} productName={product.name} dark />}
+            />
 
             <section className="mx-auto w-full max-w-7xl px-4 py-6 sm:px-6 sm:py-8 lg:px-8">
                 {/* Main product card */}
