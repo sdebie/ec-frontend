@@ -4,6 +4,7 @@ import './index.css'
 import {getCartSessionStorageKey} from '@/utils/storefront/tenantStorageKeys'
 import {env} from '@/lib/env'
 import App from './App.jsx'
+import {fetchSystemSettings} from './settings' // Import fetchSystemSettings
 
 // Log storefront configuration on app load
 console.log('[Frontend Bootstrap] VITE_STORE_FRONT:', import.meta.env.VITE_STORE_FRONT ?? 'not set');
@@ -37,11 +38,25 @@ function ensureCartSessionId() {
 
 ensureCartSessionId();
 
-const rootElement = document.getElementById('root');
-if (rootElement) {
-    createRoot(rootElement).render(
-        <StrictMode>
-            <App/>
-        </StrictMode>,
-    )
+// Fetch system settings and then render the app
+async function initializeApp() {
+    try {
+        await fetchSystemSettings();
+        console.log('[Frontend Bootstrap] System settings loaded.');
+    } catch (error) {
+        console.error('[Frontend Bootstrap] Failed to load system settings:', error);
+        // Depending on your application's needs, you might want to show an error message
+        // or handle this more gracefully (e.g., retry, use default values).
+    }
+
+    const rootElement = document.getElementById('root');
+    if (rootElement) {
+        createRoot(rootElement).render(
+            <StrictMode>
+                <App/>
+            </StrictMode>,
+        )
+    }
 }
+
+initializeApp();

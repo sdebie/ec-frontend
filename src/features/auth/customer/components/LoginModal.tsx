@@ -15,7 +15,7 @@ interface LoginModalProps {
 }
 
 // IMPORTANT: Replace with your actual Google Client ID
-const GOOGLE_CLIENT_ID = 'YOUR_GOOGLE_CLIENT_ID';
+const GOOGLE_CLIENT_ID = '5598643375-sooimltbseub586f1pucut2fut95dnbl.apps.googleusercontent.com';
 
 const LoginModal: React.FC<LoginModalProps> = ({
                                                    isOpen,
@@ -77,11 +77,11 @@ const LoginModal: React.FC<LoginModalProps> = ({
 
     if (!isOpen) return null;
 
-    return (
-        <GoogleOAuthProvider clientId={GOOGLE_CLIENT_ID}>
-            <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 px-4">
-                <div className="mx-auto w-full max-w-xl">
-                    <div className="rounded-xl border border-(--sf-border) bg-(--sf-panel) p-6 sm:p-8 shadow-sm">
+  return (
+    <GoogleOAuthProvider clientId={'5598643375-sooimltbseub586f1pucut2fut95dnbl.apps.googleusercontent.com'}>
+      <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 px-4">
+        <div className="mx-auto w-full max-w-xl">
+          <div className="rounded-xl border border-(--sf-border) bg-(--sf-panel) p-6 sm:p-8 shadow-sm">
 
                         {/* Header */}
                         <div className="flex items-start justify-between mb-1">

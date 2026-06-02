@@ -1,6 +1,8 @@
 import React from 'react';
-import {CustomerType} from '@/constants/enums/CustomerType.ts';
+
 import {CustomerStatus} from "@/constants/enums/CustomerStatus.ts";
+import {CustomerType} from '@/constants/enums/CustomerType.ts';
+
 import type {CustomerProfile} from '@/services/CustomerService.ts';
 
 export type LookupState = 'idle' | 'loading' | 'found' | 'not_found' | 'error';
@@ -46,8 +48,12 @@ const ContactInfoSection: React.FC<Props> = ({
             <div>
                 <h2 className="text-lg font-medium text-(--sf-text)">Contact information</h2>
                 <div className="mt-4">
-                    <label htmlFor="email-address" className="block text-sm/6 font-medium text-(--sf-text)">
-                        Email address
+                    <label
+                        htmlFor="email-address"
+                        className="block text-sm/6 font-medium text-(--sf-text)"
+                        title="Email address is a required field"
+                    >
+                        Email address <span className="text-red-500">*</span> {/* Added asterisk here */}
                     </label>
                     <div className="mt-2">
                         <input
@@ -89,7 +95,7 @@ const ContactInfoSection: React.FC<Props> = ({
                                             customer?.status?.toUpperCase() !== CustomerStatus.ACTIVE.toUpperCase() && (
                                                 <span
                                                     className="inline-flex rounded-md border border-blue-200 bg-blue-50 px-2 py-1 text-blue-700">
-                                                    Account not active for {customer.email} - continuing as guest
+                                                    Account not active for {customer?.email} - continuing as guest
                                                 </span>
                                             )}
                                         {lookupState === 'found' &&

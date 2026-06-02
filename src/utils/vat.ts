@@ -1,3 +1,5 @@
+import { getSystemSettings } from '../settings';
+
 export type VatCalculation = {
     baseAmount: number;
     vatRatePercent: number;
@@ -17,9 +19,21 @@ export function parseVatRate(value?: string | number | null): number {
     return numeric;
 }
 
-export function calculateVatFromExclusive(baseAmount: number, vatRatePercent: number): VatCalculation {
+export function calculateVatFromExclusive(baseAmount: number, vatRatePercent?: number | null): VatCalculation {
     const safeBaseAmount = Number.isFinite(baseAmount) && baseAmount > 0 ? baseAmount : 0;
-    const safeVatRate = parseVatRate(vatRatePercent);
+    
+    let actualVatRatePercent = vatRatePercent;
+    if (actualVatRatePercent === undefined || actualVatRatePercent === null) {
+        const settings = getSystemSettings();
+        if (settings) {
+            actualVatRatePercent = settings.vatPercentage * 100; // Convert decimal to percentage
+        } else {
+            console.warn("System settings not loaded, using default VAT rate of 0.");
+            actualVatRatePercent = 0;
+        }
+    }
+
+    const safeVatRate = parseVatRate(actualVatRatePercent);
     const vatAmount = roundCurrency((safeBaseAmount * safeVatRate) / 100);
 
     return {
@@ -29,4 +43,3 @@ export function calculateVatFromExclusive(baseAmount: number, vatRatePercent: nu
         totalIncludingVat: roundCurrency(safeBaseAmount + vatAmount),
     };
 }
-

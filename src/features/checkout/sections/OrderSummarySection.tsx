@@ -6,6 +6,8 @@ import {Card} from '@/primitives/card';
 import type {OrderData} from '@/types/order.types.ts';
 import {asVariant} from '@/types/order.types.ts';
 import type {ShippingMethod} from '@/services/StoreSettings.ts';
+// import {calculateVatFromExclusive} from "@/utils/vat.ts"; // No longer needed here
+import formatAmount from "@/utils/formatAmount.ts";
 
 type Props = {
     order: OrderData | null;
@@ -14,6 +16,7 @@ type Props = {
     itemsTotal: number;
     selectedShipping: ShippingMethod | null;
     shippingFee: number;
+    vatAmount: number; // Add vatAmount to props
     grandTotal: number;
 };
 
@@ -24,6 +27,7 @@ const OrderSummarySection: React.FC<Props> = ({
                                                   itemsTotal,
                                                   selectedShipping,
                                                   shippingFee,
+                                                  vatAmount, // Destructure vatAmount
                                                   grandTotal,
                                               }) => {
     return (
@@ -60,6 +64,12 @@ const OrderSummarySection: React.FC<Props> = ({
                                 Shipping{selectedShipping?.name ? ` (${selectedShipping.name})` : ''}
                             </dt>
                             <dd className="font-medium text-(--sf-text)">{formatCurrency(shippingFee)}</dd>
+                        </div>
+                        <div className="flex items-center justify-between">
+                            <dt className="text-(--sf-muted-text)">
+                                VAT
+                            </dt>
+                            <dd className="font-medium text-(--sf-text)">{formatAmount(vatAmount)}</dd>
                         </div>
                         <div
                             className="flex items-center justify-between border-t border-(--sf-border) pt-3 text-base font-semibold">

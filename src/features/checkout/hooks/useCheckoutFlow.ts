@@ -6,6 +6,7 @@ import {usePaymentMethodsConfig} from '@/features/checkout/hooks/usePaymentMetho
 import {useShippingMethods} from '@/features/checkout/hooks/useShippingMethods.ts';
 import {isInStorePickup} from '@/features/checkout/utils/checkout.helpers.ts';
 import type {CheckoutTenantCallbacks} from '@/features/checkout/types.ts';
+import {calculateVatFromExclusive} from "@/utils/vat.ts"; // Import calculateVatFromExclusive
 
 /**
  * Composes the three focused checkout hooks into the single public API consumed by
@@ -43,7 +44,8 @@ export function useCheckoutFlow(callbacks: CheckoutTenantCallbacks) {
     );
 
     const shippingFee = useMemo(() => Number(selectedShipping?.baseFee ?? 0), [selectedShipping]);
-    const grandTotal = useMemo(() => session.itemsTotal + shippingFee, [session.itemsTotal, shippingFee]);
+    const vatAmount = useMemo(() => calculateVatFromExclusive(session.itemsTotal).vatAmount, [session.itemsTotal]); // Calculate VAT based on itemsTotal
+    const grandTotal = useMemo(() => session.itemsTotal + shippingFee + vatAmount, [session.itemsTotal, shippingFee, vatAmount]); // Include VAT in grandTotal
 
     const submit = useCheckoutSubmit({
         // Session
@@ -79,6 +81,8 @@ export function useCheckoutFlow(callbacks: CheckoutTenantCallbacks) {
         needsShippingAddress,
         selectedShipping,
         shippingFee,
+        // VAT
+        vatAmount, // Export vatAmount
         grandTotal,
         // Payment
         paymentConfig,

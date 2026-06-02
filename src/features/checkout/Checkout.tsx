@@ -75,6 +75,7 @@ export function Checkout({onInStoreOrder, onPaymentSuccess}: CheckoutProps) {
                             itemsTotal={flow.itemsTotal}
                             selectedShipping={flow.selectedShipping}
                             shippingFee={flow.shippingFee}
+                            vatAmount={flow.vatAmount}
                             grandTotal={flow.grandTotal}
                         />
                         <CheckoutSubmitBar

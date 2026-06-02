@@ -60,7 +60,7 @@ const ShippingMethodSection: React.FC<Props> = ({
     }, [selectedMethodId, shippingMethods, setSelectedMethodId]);
 
     return (
-        <div className="mt-8 border-t border-(--sf-border) pt-8">
+        <div className="mt-1 border-t border-(--sf-border) pt-2">
             <h2 className="text-lg font-medium text-(--sf-text)">Shipping information</h2>
             <div className="mt-5 space-y-3">
                 {shippingMethods.map((method) => (
