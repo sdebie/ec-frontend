@@ -121,7 +121,8 @@ export default defineConfig(({ mode }) => {
       allowedHosts: [
         'localhost',
         '127.0.0.1',
-        '192.168.1.16' // Add your domain here
+        '192.168.1.16',
+        'ec.sdebiehome.co.za'// Add your domain here
       ],
       proxy: {
         // Directs frontend calls to the backend service
