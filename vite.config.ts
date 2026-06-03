@@ -96,7 +96,8 @@ const storefrontVirtualModules = () => {
 
 export default defineConfig(({ mode }) => {
   const env = loadEnv(mode, process.cwd(), '');
-  const proxyTarget = env.VITE_PROXY_TARGET || 'http://localhost:8080';
+  //const proxyTarget = env.VITE_PROXY_TARGET || 'http://localhost:8080';
+  const proxyTarget = 'https://ecapi.sdebiehome.co.za';
 
   return {
     plugins: [storefrontVirtualModules(), react(), dynamicImport()],
