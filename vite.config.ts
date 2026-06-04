@@ -94,10 +94,13 @@ const storefrontVirtualModules = () => {
   };
 };
 
+
 export default defineConfig(({ mode }) => {
+  // Load environment variables from the current system context
   const env = loadEnv(mode, process.cwd(), '');
-  const proxyTarget = env.VITE_PROXY_TARGET || 'http://localhost:8080';
-  //const proxyTarget = 'https://ecapi.sdebiehome.co.za';
+
+  // 🚀 FIX: Ensure it handles internal container routing cleanly, defaulting to your docker service container name
+  const proxyTarget = env.VITE_PROXY_TARGET || 'http://ec-backend:8080';
 
   return {
     plugins: [storefrontVirtualModules(), react(), dynamicImport()],
@@ -116,17 +119,17 @@ export default defineConfig(({ mode }) => {
       },
     },
     server: {
-      host: true, // Crucial: Allows access from outside the container
+      host: true,
       port: 3000,
       strictPort: true,
       allowedHosts: [
         'localhost',
         '127.0.0.1',
         '192.168.1.16',
-        'ec.sdebiehome.co.za'// Add your domain here
+        'ec.sdebiehome.co.za',     // Frontend domain
+        'ecapi.sdebiehome.co.za'   // Backend API domain
       ],
       proxy: {
-        // Directs frontend calls to the backend service
         '/api': {
           target: proxyTarget,
           changeOrigin: true,
@@ -139,12 +142,67 @@ export default defineConfig(({ mode }) => {
         }
       },
       watch: {
-        usePolling: true, // Necessary for file changes to sync on Proxmox/VMs
+        usePolling: true,
       }
     },
     build: {
       outDir: 'build',
-      sourcemap: false // Disable source maps for production builds to avoid DevTools errors
+      sourcemap: false
     }
   }
 })
+
+// export default defineConfig(({ mode }) => {
+//   const env = loadEnv(mode, process.cwd(), '');
+//   const proxyTarget = env.VITE_PROXY_TARGET || 'http://localhost:8080';
+//   //const proxyTarget = 'https://ecapi.sdebiehome.co.za';
+//
+//   return {
+//     plugins: [storefrontVirtualModules(), react(), dynamicImport()],
+//     assetsInclude: ['**/*.md'],
+//     optimizeDeps: {
+//       include: [
+//         'react-hook-form',
+//         'zod',
+//         '@hookform/resolvers',
+//         '@hookform/resolvers/zod'
+//       ]
+//     },
+//     resolve: {
+//       alias: {
+//         '@': path.join(__dirname, 'src'),
+//       },
+//     },
+//     server: {
+//       host: true, // Crucial: Allows access from outside the container
+//       port: 3000,
+//       strictPort: true,
+//       allowedHosts: [
+//         'localhost',
+//         '127.0.0.1',
+//         '192.168.1.16',
+//         'ec.sdebiehome.co.za'// Add your domain here
+//       ],
+//       proxy: {
+//         // Directs frontend calls to the backend service
+//         '/api': {
+//           target: proxyTarget,
+//           changeOrigin: true,
+//           secure: false
+//         },
+//         '/static': {
+//           target: proxyTarget,
+//           changeOrigin: true,
+//           secure: false
+//         }
+//       },
+//       watch: {
+//         usePolling: true, // Necessary for file changes to sync on Proxmox/VMs
+//       }
+//     },
+//     build: {
+//       outDir: 'build',
+//       sourcemap: false // Disable source maps for production builds to avoid DevTools errors
+//     }
+//   }
+// })
