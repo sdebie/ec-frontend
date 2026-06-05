@@ -19,9 +19,11 @@ export function getServiceEndpoint(devPort: number) {
 
 		// In local development, explicitly target the backend devPort on same host
 		if (AppConfig.devMode && isLocal) {
+			console.log("HOST:: DEV Endpoint :" + `${protocol}//${hostname}:${devPort}`);
 			return `${protocol}//${hostname}:${devPort}`;
 		}
 
+		console.log("HOST:: Endpoint :" + `${protocol}//${hostname}`);
 		// In production or non-local hosts, assume same-origin without forcing a port
 		return `${protocol}//${hostname}`;
 	} else {

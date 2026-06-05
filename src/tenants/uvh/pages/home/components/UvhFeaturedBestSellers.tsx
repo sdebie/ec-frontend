@@ -22,7 +22,6 @@ export type UvhFeaturedBestSellersProps = {
 export function UvhFeaturedBestSellers({products, loading, error}: UvhFeaturedBestSellersProps) {
     const customerType = useCustomerType();
     const isWholesaler = useIsWholesaler();
-    console.log("Type " + customerType + " is Wholesaler " + isWholesaler)
 
     const scrollerRef = useRef<HTMLDivElement>(null);
 
