@@ -3,7 +3,8 @@ import {CustomerInformation} from "@/types/order.types.ts";
 import getServiceEndpoint from "../utils/HostnameResolver";
 import {GraphQLService} from "./graphql/GraphQLService.ts";
 
-const graphQlEndpoint = (import.meta.env.VITE_API_BASE_URL || '') || getServiceEndpoint(8080) + '/api/graphql';
+//const graphQlEndpoint = (import.meta.env.VITE_API_BASE_URL || '') || getServiceEndpoint(8080) + '/api/graphql';
+const graphQlEndpoint = getServiceEndpoint(8080) + '/api/graphql';
 
 export type CustomerProfile = {
     email: string;
@@ -28,7 +29,9 @@ export type CustomerProfile = {
     hasPassword?: boolean;
 };
 
-const baseUrl = (import.meta.env.VITE_API_BASE_URL || '').replace(/\/?$/, '') || getServiceEndpoint(8080);
+//const baseUrl = (import.meta.env.VITE_API_BASE_URL || '').replace(/\/?$/, '') || getServiceEndpoint(8080);
+const baseUrl = getServiceEndpoint(8080);
+
 
 export async function lookupCustomer(email: string): Promise<CustomerProfile | null> {
     const res = await fetch(`${baseUrl}/api/customers/lookup?email=${encodeURIComponent(email)}`);

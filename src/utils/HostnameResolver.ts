@@ -13,17 +13,19 @@ export function getHostname() {
 export function getServiceEndpoint(devPort: number) {
 	const isWeb = typeof window !== 'undefined' && window.location;
 
-	const apiUrl = (import.meta.env.VITE_API_URL as string | undefined)?.trim();
-	console.log("HOST:: Check HTTPS Endpoint :" + apiUrl);
-	if (apiUrl && /^https?:\/\//.test(apiUrl)) {
-		console.log("HOST:: HTTPS Endpoint :" + apiUrl.replace(/\/$/, ''));
-		return apiUrl.replace(/\/$/, '');
+	const { protocol, hostname } = window.location;
+	const isLocal = hostname === 'localhost' || hostname === '127.0.0.1' || /^192\.168\./.test(hostname);
+
+	if (!isLocal) {
+		const apiUrl = (import.meta.env.VITE_API_URL as string | undefined)?.trim();
+		console.log("HOST:: Check HTTPS Endpoint :" + apiUrl);
+		if (apiUrl && /^https?:\/\//.test(apiUrl)) {
+			console.log("HOST:: HTTPS Endpoint :" + apiUrl.replace(/\/$/, ''));
+			return apiUrl.replace(/\/$/, '');
+		}
 	}
 
 	if (isWeb) {
-		const { protocol, hostname } = window.location;
-		const isLocal = hostname === 'localhost' || hostname === '127.0.0.1' || /^192\.168\./.test(hostname);
-
 		// In local development, explicitly target the backend devPort on same host
 		if (AppConfig.devMode && isLocal) {
 			console.log("HOST:: DEV Endpoint :" + `${protocol}//${hostname}:${devPort}`);
