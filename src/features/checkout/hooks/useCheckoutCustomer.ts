@@ -108,7 +108,7 @@ export function useCheckoutCustomer({
     const lookupQuery = useQuery({
         queryKey: ['customerLookup', email],
         queryFn: () => lookupCustomer(email.trim()),
-        enabled: emailValid,
+        enabled: true,
         staleTime: 1000 * 60 * 2,
     });
 
