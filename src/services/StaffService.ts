@@ -1,29 +1,36 @@
 import {LoginRequest, LoginResponse, ResetPasswordRequest} from '../types/auth';
-import ApiService from './rest/RestApiService.ts';
+import getServiceEndpoint from "../utils/HostnameResolver";
+
+const baseUrl = getServiceEndpoint(8080) || '/api';
 
 const StaffService = {
-    login: (data: LoginRequest) => {
-        return ApiService.fetchDataWithAxios<LoginResponse, LoginRequest>({
-            url: '/admin/auth/login',
+    login: async (data: LoginRequest): Promise<LoginResponse> => {
+        const res = await fetch(`${baseUrl}/admin/auth/login`, {
             method: 'POST',
-            data,
+            headers: {'Content-Type': 'application/json'},
+            body: JSON.stringify(data)
         });
+        if (!res.ok) throw new Error(await res.text());
+        return await res.json();
     },
 
-    adminLogin: (data: LoginRequest) => {
-        return ApiService.fetchDataWithAxios<LoginResponse, LoginRequest>({
-            url: '/admin/auth/login',
+    adminLogin: async (data: LoginRequest): Promise<LoginResponse> => {
+        const res = await fetch(`${baseUrl}/admin/auth/login`, {
             method: 'POST',
-            data,
+            headers: {'Content-Type': 'application/json'},
+            body: JSON.stringify(data)
         });
+        if (!res.ok) throw new Error(await res.text());
+        return await res.json();
     },
 
-    resetPassword: (data: ResetPasswordRequest) => {
-        return ApiService.fetchDataWithAxios<void, ResetPasswordRequest>({
-            url: '/admin/auth/reset-password',
+    resetPassword: async (data: ResetPasswordRequest): Promise<void> => {
+        const res = await fetch(`${baseUrl}/admin/auth/reset-password`, {
             method: 'POST',
-            data,
+            headers: {'Content-Type': 'application/json'},
+            body: JSON.stringify(data)
         });
+        if (!res.ok) throw new Error(await res.text());
     },
 };
 

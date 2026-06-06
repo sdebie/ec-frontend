@@ -1,3 +1,5 @@
+import getServiceEndpoint from "@/utils/HostnameResolver.ts";
+
 /** PayFast hosted gateway (sandbox). Production URL differs per merchant setup. */
 export const PAYFAST_SANDBOX_GATEWAY_URL = 'https://sandbox.payfast.co.za/eng/process';
 
@@ -11,47 +13,29 @@ export type PayfastFormField = {
  * POST /api/payments/checkout — PayFast form fields for redirect (checkout feature only).
  */
 export async function fetchPayfastCheckoutFields(orderId: string, totalAmount: number): Promise<PayfastFormField[]> {
-    const isLocalHost =
-        typeof window !== 'undefined' &&
-        (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1');
-    ///const apiBases = isLocalHost ? ['http://localhost:8080', 'http://127.0.0.1:8080'] : ['https://ecapi.sdebiehome.co.za'];
-    const apiBases = isLocalHost ? ['http://localhost:8080', 'http://127.0.0.1:8080'] : ['http://192.168.1.16:8080'];
-
-    let lastErr: unknown = null;
-    let response: Response | null = null;
-
-    for (const base of apiBases) {
-        try {
-            const body = new URLSearchParams({
-                id: String(orderId),
-                totalAmount: Number(totalAmount).toFixed(2),
-            });
-
-            response = await fetch(`${base}/api/payments/checkout`, {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-                body: body.toString(),
-            });
-
-            if (!response.ok) {
-                const txt = await response.text().catch(() => '');
-                throw new Error(`HTTP ${response.status} ${response.statusText} ${txt}`);
-            }
-
-            break;
-        } catch (e) {
-            lastErr = e;
-            response = null;
-        }
-    }
-
-    if (!response) throw lastErr ?? new Error('No response from any API base');
-
+    const baseUrl = getServiceEndpoint(8080) || '/api';
+    
     try {
+        const body = new URLSearchParams({
+            id: String(orderId),
+            totalAmount: Number(totalAmount).toFixed(2),
+        });
+
+        const response = await fetch(`${baseUrl}/payments/checkout`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+            body: body.toString(),
+        });
+
+        if (!response.ok) {
+            const txt = await response.text().catch(() => '');
+            throw new Error(`HTTP ${response.status} ${response.statusText} ${txt}`);
+        }
+
         return (await response.json()) as PayfastFormField[];
-    } catch {
-        const txt = await response.text().catch(() => '');
-        throw new Error('Failed to parse JSON for /api/payments/checkout. Body: ' + txt);
+    } catch (e) {
+        console.error('Failed to fetch Payfast checkout fields:', e);
+        throw e;
     }
 }
 
