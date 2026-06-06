@@ -5,7 +5,7 @@ const baseUrl = getServiceEndpoint(8080) || '/api';
 
 const StaffService = {
     login: async (data: LoginRequest): Promise<LoginResponse> => {
-        const res = await fetch(`${baseUrl}/admin/auth/login`, {
+        const res = await fetch(`${baseUrl}/api/admin/auth/login`, {
             method: 'POST',
             headers: {'Content-Type': 'application/json'},
             body: JSON.stringify(data)
@@ -15,7 +15,7 @@ const StaffService = {
     },
 
     adminLogin: async (data: LoginRequest): Promise<LoginResponse> => {
-        const res = await fetch(`${baseUrl}/admin/auth/login`, {
+        const res = await fetch(`${baseUrl}/api/admin/auth/login`, {
             method: 'POST',
             headers: {'Content-Type': 'application/json'},
             body: JSON.stringify(data)
@@ -25,7 +25,7 @@ const StaffService = {
     },
 
     resetPassword: async (data: ResetPasswordRequest): Promise<void> => {
-        const res = await fetch(`${baseUrl}/admin/auth/reset-password`, {
+        const res = await fetch(`${baseUrl}/api/admin/auth/reset-password`, {
             method: 'POST',
             headers: {'Content-Type': 'application/json'},
             body: JSON.stringify(data)
