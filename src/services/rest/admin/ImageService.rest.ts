@@ -27,7 +27,7 @@ const ImageServiceRest = {
     const formData = new FormData();
     formData.append('file', file);
 
-    const res = await fetch(`${baseUrl}/admin/images/upload`, {
+    const res = await fetch(`${baseUrl}/api/admin/images/upload`, {
       method: 'POST',
       body: formData,
     });
@@ -39,7 +39,7 @@ const ImageServiceRest = {
     const formData = new FormData();
     formData.append('file', file);
 
-    const res = await fetch(`${baseUrl}/admin/images/upload/product-variant/${productVariantId}`, {
+    const res = await fetch(`${baseUrl}/api/admin/images/upload/product-variant/${productVariantId}`, {
       method: 'POST',
       body: formData,
     });
@@ -51,7 +51,7 @@ const ImageServiceRest = {
     const formData = new FormData();
     formData.append('file', file);
 
-    const res = await fetch(`${baseUrl}/admin/images/upload/category`, {
+    const res = await fetch(`${baseUrl}/api/admin/images/upload/category`, {
       method: 'POST',
       body: formData,
     });
@@ -63,7 +63,7 @@ const ImageServiceRest = {
     const formData = new FormData();
     formData.append('file', file);
 
-    const res = await fetch(`${baseUrl}/admin/images/upload/brand`, {
+    const res = await fetch(`${baseUrl}/api/admin/images/upload/brand`, {
       method: 'POST',
       body: formData,
     });
@@ -76,7 +76,7 @@ const ImageServiceRest = {
     files.forEach(file => formData.append('images', file));
     formData.append('destinationDirectory', options?.destinationDirectory?.trim() ?? '');
 
-    const res = await fetch(`${baseUrl}/admin/images/bulk-upload`, {
+    const res = await fetch(`${baseUrl}/api/admin/images/bulk-upload`, {
       method: 'POST',
       body: formData,
     });
@@ -85,7 +85,7 @@ const ImageServiceRest = {
   },
 
   fetchImageDirectories: async (): Promise<string[]> => {
-    const res = await fetch(`${baseUrl}/admin/images/directories`, {
+    const res = await fetch(`${baseUrl}/api/admin/images/directories`, {
       method: 'GET',
     });
     if (!res.ok) throw new Error(await res.text());
@@ -93,7 +93,7 @@ const ImageServiceRest = {
   },
 
   fetchImageFilenames: async (): Promise<string[]> => {
-    const res = await fetch(`${baseUrl}/admin/images/image-list`, {
+    const res = await fetch(`${baseUrl}/api/admin/images/image-list`, {
       method: 'GET',
     });
     if (!res.ok) throw new Error(await res.text());
@@ -110,7 +110,7 @@ const ImageServiceRest = {
       pageSize: pageSize.toString(),
       search,
     });
-    const res = await fetch(`${baseUrl}/admin/images/image-list/paginated?${params}`, {
+    const res = await fetch(`${baseUrl}/api/admin/images/image-list/paginated?${params}`, {
       method: 'GET',
     });
     if (!res.ok) throw new Error(await res.text());
