@@ -15,7 +15,7 @@ import {
     ImageUpload
 } from "@/components";
 import {toast} from "@/components/shared/toast";
-import {IMAGE_BASE_URL} from "@/constants/api.constant.ts";
+import {IMAGE_BASE_URL, IMAGE_THUMBNAIL_URL} from "@/constants/api.constant.ts";
 import useGetBrand from "@/pages/admin/brands/hooks/useGetBrand.ts";
 import useUpdateBrand from "@/pages/admin/brands/hooks/useUpdateBrand.ts";
 import {Input} from "@/primitives/input";
@@ -179,8 +179,8 @@ const BrandEditor = ({brand, isDialogOpen, setIsDialogOpen, onSuccess}: BrandEdi
                                 >
                                     <ImageUpload
                                         type="brand"
-                                        onImageUpload={(fileName) => field.onChange(`${IMAGE_BASE_URL}${fileName}`.replace('//', '/'))}
-                                        currentImageUrl={field.value || undefined}
+                                        onImageUpload={(fileName) => field.onChange(`${IMAGE_THUMBNAIL_URL}${fileName}`.replace('//', '/'))}
+                                        currentImageUrl={`${IMAGE_THUMBNAIL_URL}${field.value}`}
                                     />
                                 </FormItem>
                             )}

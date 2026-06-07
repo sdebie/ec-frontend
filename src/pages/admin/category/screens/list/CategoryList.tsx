@@ -9,6 +9,7 @@ import useDeleteCategory from "@/pages/admin/category/hooks/useDeleteCategory.ts
 import CategoryCreate from "@/pages/admin/category/screens/create/CategoryCreate.tsx";
 import CategoryEditor from "@/pages/admin/category/screens/edit";
 import {Category} from "@/types/admin/CategoryTypes.ts";
+import {IMAGE_THUMBNAIL_URL} from "@/constants/api.constant.ts";
 
 
 const CategoryList = () => {
@@ -50,7 +51,7 @@ const CategoryList = () => {
             enableSorting: false,
             size: 72,
             cell: ({row}) => (
-                <Thumbnail logoUrl={row.original.imageUrl} name={row.original.name}/>
+                <Thumbnail logoUrl={`${IMAGE_THUMBNAIL_URL}${row.original.imageUrl}`} name={row.original.name}/>
             ),
         },
         {

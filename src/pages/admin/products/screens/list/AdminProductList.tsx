@@ -2,7 +2,7 @@ import {ColumnDef} from "@tanstack/react-table";
 import {PenLine, Plus, Upload} from "lucide-react";
 import {useMemo} from "react";
 import {useNavigate} from "react-router-dom";
-import {Button} from "@/components";
+import {Button, Thumbnail} from "@/components";
 import {DataTable} from "@/components/shared/datatable/DataTable.tsx";
 import {IMAGE_THUMBNAIL_URL} from "@/constants/api.constant.ts";
 import useProductList from "@/pages/admin/products/hooks/useProductList.ts";
@@ -40,11 +40,7 @@ const AdminProductList = () => {
             accessorKey: "",
             header: "",
             cell: ({row}) => (
-                <img
-                    src={`${IMAGE_THUMBNAIL_URL}${row.original.imageName}`}
-                    alt="Preview"
-                    className="h-10 w-10 rounded object-cover"
-                />
+                <Thumbnail className="h-10 w-10 rounded object-cover" logoUrl={`${IMAGE_THUMBNAIL_URL}${row.original.imageName}`} name={row.original.name}/>
             ),
         },
         {
