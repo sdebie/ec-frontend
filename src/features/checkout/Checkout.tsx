@@ -1,24 +1,23 @@
-
+import InlineLogin from '@/features/auth/customer/components/InlineLogin.tsx';
 import CheckoutSubmitBar from '@/features/checkout/components/CheckoutSubmitBar.tsx';
 import SaveConfirmModal from '@/features/checkout/components/SaveConfirmModal.tsx';
-import { useCheckoutFlow } from '@/features/checkout/hooks/useCheckoutFlow.ts';
+import {useCheckoutFlow} from '@/features/checkout/hooks/useCheckoutFlow.ts';
 import ContactInfoSection from '@/features/checkout/sections/ContactInfoSection.tsx';
 import OrderSummarySection from '@/features/checkout/sections/OrderSummarySection.tsx';
 import PaymentMethodSection from '@/features/checkout/sections/PaymentMethodSection.tsx';
 import ShippingMethodSection from '@/features/checkout/sections/ShippingMethodSection.tsx';
-
-import type { CheckoutTenantCallbacks } from '@/features/checkout/types.ts';
-
+import type {CheckoutTenantCallbacks} from '@/features/checkout/types.ts';
 
 export type CheckoutProps = CheckoutTenantCallbacks;
 
-export function Checkout({ onInStoreOrder, onPaymentSuccess }: CheckoutProps) {
-    const flow = useCheckoutFlow({ onInStoreOrder, onPaymentSuccess });
+export function Checkout({onInStoreOrder, onPaymentSuccess}: CheckoutProps) {
+    const flow = useCheckoutFlow({onInStoreOrder, onPaymentSuccess});
 
     return (
         <>
             <div className="min-h-screen bg-(--sf-bg)">
-                <div className="mx-auto grid w-full max-w-7xl grid-cols-1 gap-8 px-4 py-8 sm:px-6 lg:grid-cols-12 lg:gap-10 lg:px-8">
+                <div
+                    className="mx-auto grid w-full max-w-7xl grid-cols-1 gap-8 px-4 py-8 sm:px-6 lg:grid-cols-12 lg:gap-10 lg:px-8">
                     <main className="space-y-6 lg:col-span-7">
                         <ContactInfoSection
                             email={flow.email}
@@ -31,7 +30,14 @@ export function Checkout({ onInStoreOrder, onPaymentSuccess }: CheckoutProps) {
                             isAuthenticated={flow.isAuthenticated}
                             returningChoice={flow.returningChoice}
                             setReturningChoice={flow.setReturningChoice}
-                            handleLogin={flow.handleLogin}
+                            loginSlot={
+                                <InlineLogin
+                                    email={flow.email}
+                                    onLoginSuccess={flow.handleLogin}
+                                    compact={true}
+                                    showLabel={true}
+                                />
+                            }
                         />
 
                         <ShippingMethodSection
@@ -69,6 +75,7 @@ export function Checkout({ onInStoreOrder, onPaymentSuccess }: CheckoutProps) {
                             itemsTotal={flow.itemsTotal}
                             selectedShipping={flow.selectedShipping}
                             shippingFee={flow.shippingFee}
+                            vatAmount={flow.vatAmount}
                             grandTotal={flow.grandTotal}
                         />
                         <CheckoutSubmitBar

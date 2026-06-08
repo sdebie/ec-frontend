@@ -1,12 +1,10 @@
-import { describe, expect, it } from 'vitest';
-
-import { getDisplayPrice } from '@/features/catalog/utils/pricing.ts';
-
-import type { ProductShoppingListItem } from '@/types/admin/ProductTypes.ts';
-
+import {describe, expect, it} from 'vitest';
+import {CustomerType} from '@/constants/enums/CustomerType.ts';
+import {getDisplayPrice} from '@/features/catalog/utils/pricing.ts';
+import type {ProductShoppingListItem} from '@/types/shared/ProductTypes.ts';
 
 function vp(price: number) {
-    return { id: 'p', price };
+    return {id: 'p', price};
 }
 
 describe('getDisplayPrice', () => {
@@ -19,7 +17,7 @@ describe('getDisplayPrice', () => {
             wholesalePrice: vp(50),
             wholesaleSalePrice: vp(45),
         };
-        const result = getDisplayPrice(product, 'retail');
+        const result = getDisplayPrice(product, CustomerType.RETAILER);
         expect(result.price).toBe(80);
         expect(result.originalPrice).toBe(100);
     });
@@ -31,7 +29,7 @@ describe('getDisplayPrice', () => {
             retailPrice: vp(100),
             wholesalePrice: vp(50),
         };
-        const result = getDisplayPrice(product, 'wholesaler');
+        const result = getDisplayPrice(product, CustomerType.WHOLESALER);
         expect(result.price).toBe(50);
         expect(result.originalPrice).toBeUndefined();
     });
@@ -43,7 +41,7 @@ describe('getDisplayPrice', () => {
             retailPrice: vp(100),
             retailSalePrice: vp(90),
         };
-        const result = getDisplayPrice(product, 'wholesaler');
+        const result = getDisplayPrice(product, CustomerType.WHOLESALER);
         expect(result.price).toBe(0);
     });
 });

@@ -7,6 +7,7 @@
   --c-text:          var(--admin-text);
   --c-text-muted:    var(--admin-text-muted);
   --c-border:        var(--admin-border);
+  --c-surface-hover: var(--admin-sidebar-hover);
   --c-accent:        var(--primary);
   --c-accent-hover:  var(--primary-hover);
   --c-accent-text:   #ffffff;
@@ -23,6 +24,7 @@
   --c-text:          var(--sf-text);
   --c-text-muted:    var(--sf-muted-text);
   --c-border:        var(--sf-border);
+  --c-surface-hover: color-mix(in srgb, var(--sf-panel, #ffffff) 92%, var(--sf-text, #000000));
   --c-accent:        var(--sf-accent);
   --c-accent-hover:  var(--sf-accent-hover, var(--sf-accent));
   --c-accent-text:   var(--sf-accent-text);

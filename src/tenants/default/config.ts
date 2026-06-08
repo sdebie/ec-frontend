@@ -1,11 +1,11 @@
 import {defaultHomeSections} from '@/tenants/default/sections/defaultHomeSections';
-
 import type {StorefrontClientConfig} from '@/types/storefront/storefrontTypes';
 
-
-export const defaultStorefrontConfig: StorefrontClientConfig = {
+export const storefrontConfig: StorefrontClientConfig = {
     id: 'default',
     displayName: 'Default Storefront',
+    locale: 'en-ZA',
+    defaultCountryCode: 'ZA',
     hostnames: ['localhost', '127.0.0.1', 'store.localhost'],
     branding: {
         name: 'E-Comm Demo.....',
@@ -56,6 +56,11 @@ export const defaultStorefrontConfig: StorefrontClientConfig = {
         navBorder: '#e2e8f0',
         navIconText: '#64748b',
         navIconTextHover: '#2563eb',
+        surfaceMuted: '#f1f5f9',
+        ring: '#2563eb',
+        radius: '0.5rem',
+        shadowSm: '0 1px 3px 0 rgba(15, 23, 42, 0.08)',
+        shadowLg: '0 10px 24px -6px rgba(15, 23, 42, 0.15)',
     },
     home: {
         sections: defaultHomeSections,

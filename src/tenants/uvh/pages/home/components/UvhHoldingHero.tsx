@@ -1,7 +1,6 @@
-import {MapPin, Package, ShieldCheck, Truck, type LucideIcon} from 'lucide-react';
-
-import {uvhHomeContent} from '@/tenants/uvh/content/uvhContent.ts';
-import type {UvhHeroStatIcon} from '@/tenants/uvh/content/uvhContent.ts';
+import {type LucideIcon, MapPin, Package, ShieldCheck, Truck} from 'lucide-react';
+import type {UvhHeroStatIcon} from '@/tenants/uvh/config';
+import {uvhHomeContent} from '@/tenants/uvh/config';
 
 const STAT_ICONS: Record<UvhHeroStatIcon, LucideIcon> = {
     package: Package,
@@ -88,7 +87,8 @@ export function UvhHoldingHero() {
                                         loading="lazy"
                                         className="h-25 w-auto sm:h-25 lg:h-25"
                                     />
-                                    <span className="mt-1.5 text-[10px] font-bold uppercase leading-tight tracking-wide text-neutral-950 sm:text-[11px]">
+                                    <span
+                                        className="mt-1.5 text-[10px] font-bold uppercase leading-tight tracking-wide text-neutral-950 sm:text-[11px]">
                                         {service.label}
                                     </span>
                                 </li>
@@ -99,30 +99,32 @@ export function UvhHoldingHero() {
             </div>
 
             {/* Bottom stats / social-proof band */}
-            <div className="w-full bg-neutral-950 py-6 lg:py-8">
+            <div className="w-full bg-neutral-950 py-5 lg:py-6">
                 <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-3">
-                    <ul className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-4 lg:gap-4">
+                    <ul className="grid grid-cols-2 gap-3 lg:grid-cols-4 lg:gap-4">
                         {hero.stats.map((stat) => {
                             const Icon = stat.icon ? STAT_ICONS[stat.icon] : null;
                             return (
                                 <li
                                     key={stat.id}
-                                    className="flex items-center gap-4 rounded-lg bg-white/3 px-5 py-4 ring-1 ring-white/5 sm:gap-5 sm:px-6 sm:py-5"
+                                    className="flex flex-col gap-2 rounded-lg bg-white/3 px-5 py-4 ring-1 ring-white/5"
                                 >
-                                    {Icon ? (
-                                        <Icon
-                                            className="size-10 shrink-0 text-(--sf-accent) sm:size-12 lg:size-12"
-                                            strokeWidth={1.5}
-                                            aria-hidden
-                                        />
-                                    ) : null}
-                                    <div className="min-w-0">
+                                    <div className="flex items-center gap-2">
+                                        {Icon ? (
+                                            <Icon
+                                                className="size-6 shrink-0 text-(--sf-accent)"
+                                                strokeWidth={1.5}
+                                                aria-hidden
+                                            />
+                                        ) : null}
                                         {stat.value ? (
-                                            <p className="text-lg font-bold uppercase leading-tight tracking-tight text-(--sf-accent) sm:text-xl lg:text-lg">
+                                            <p className="text-base font-bold uppercase leading-tight tracking-tight text-(--sf-accent)">
                                                 {stat.value}
                                             </p>
                                         ) : null}
-                                        <p className="mt-1 text-sm leading-snug text-white/85 sm:text-base lg:text-sm">
+                                    </div>
+                                    <div className="min-w-0">
+                                        <p className="text-xs leading-snug text-white/75">
                                             {stat.label}
                                         </p>
                                     </div>

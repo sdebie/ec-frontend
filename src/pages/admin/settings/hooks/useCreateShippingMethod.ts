@@ -1,5 +1,4 @@
 import {useState} from "react";
-
 import {apiSaveShippingMethod} from "@/services/graphql/admin/settings/SettingsService.graphql.ts";
 import {ShippingMethod} from "@/types/admin/SettingsTypes.ts";
 import {extractTechnicalDetails} from "@/utils/graphqlErrorUtils.ts";

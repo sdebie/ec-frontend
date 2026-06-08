@@ -1,5 +1,4 @@
 import {StorefrontComposer} from './StorefrontComposer';
-
 import type {StorefrontClientConfig} from '@/types/storefront/storefrontTypes';
 
 interface StorefrontHomePageProps {

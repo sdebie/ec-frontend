@@ -1,14 +1,13 @@
-import { useMemo, useState } from "react";
-
-import { InputField } from "@/components";
-import { formatAmount } from "@/utils/formatAmount.ts";
-import { calculateVatFromExclusive } from "@/utils/vat.ts";
+import {useMemo, useState} from "react";
+import {InputField} from "@/components";
+import {formatAmount} from "@/utils/formatAmount.ts";
+import {calculateVatFromExclusive} from "@/utils/vat.ts";
 
 type VatCalculatorProps = {
     vatRatePercent: number;
 };
 
-const VatCalculator = ({ vatRatePercent }: VatCalculatorProps) => {
+const VatCalculator = ({vatRatePercent}: VatCalculatorProps) => {
     const [baseAmountInput, setBaseAmountInput] = useState("");
 
     const baseAmount = useMemo(() => {

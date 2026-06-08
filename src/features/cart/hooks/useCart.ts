@@ -1,12 +1,11 @@
-import { useCallback, useEffect, useMemo, useState } from 'react';
+import {useCallback, useEffect, useMemo, useState} from 'react';
 
 
-import { cartStore } from '@/features/cart/cartStore.ts';
-import { fetchVariantsByIds } from '@/services/graphql/product/product.service.ts';
-import { useCustomerType } from '@/store/customerTypeStore.ts';
-import { getCartItemsKey, getCartLineDisplayUnit } from '@/utils/storefront/cart.utils.ts';
-
-import type { CartItem } from '@/features/cart/types.ts';
+import {cartStore} from '@/features/cart/cartStore.ts';
+import {fetchVariantsByIds} from '@/services/graphql/product/product.service.ts';
+import {useCustomerType} from '@/store/customerTypeStore.ts';
+import {getCartItemsKey, getCartLineDisplayUnit} from '@/utils/storefront/cart.utils.ts';
+import type {CartItem} from '@/features/cart/types.ts';
 
 type UseCartReturn = {
     items: CartItem[];
@@ -53,7 +52,7 @@ export const useCart = (): UseCartReturn => {
                     const variantId = typeof item.variant === 'string' ? item.variant : item.variant?.id;
                     const fullVariant = variantId != null ? variantMap.get(variantId) : undefined;
                     return fullVariant
-                        ? { ...item, variant: fullVariant as CartItem['variant'] }
+                        ? {...item, variant: fullVariant as CartItem['variant']}
                         : item;
                 });
 
@@ -115,7 +114,7 @@ export const useCart = (): UseCartReturn => {
         setItems((prevItems) => {
             const updatedItems = [...prevItems];
             if (newQuantity > 0) {
-                updatedItems[index] = { ...updatedItems[index], quantity: newQuantity };
+                updatedItems[index] = {...updatedItems[index], quantity: newQuantity};
             } else {
                 updatedItems.splice(index, 1);
             }
@@ -138,5 +137,5 @@ export const useCart = (): UseCartReturn => {
         setItems([]);
     }, []);
 
-    return { items, hasItems, itemCount, subtotal, updateQuantity, removeItem, clearCart };
+    return {items, hasItems, itemCount, subtotal, updateQuantity, removeItem, clearCart};
 };

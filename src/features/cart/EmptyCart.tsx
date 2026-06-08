@@ -1,16 +1,17 @@
-import { ShoppingBag } from 'lucide-react';
-
-import { Button } from '@/primitives/button';
+import {ShoppingBag} from 'lucide-react';
+import {Button} from '@/primitives/button';
 
 type EmptyCartProps = {
     onBrowse: () => void;
 };
 
-export default function EmptyCart({ onBrowse }: EmptyCartProps) {
+export default function EmptyCart({onBrowse}: EmptyCartProps) {
     return (
-        <div className="mt-12 rounded-2xl border border-dashed border-(--sf-border) bg-(--sf-panel) px-6 py-16 text-center">
-            <div className="mx-auto flex h-16 w-16 items-center justify-center rounded-full bg-(--sf-bg) shadow-sm ring-1 ring-(--sf-border)">
-                <ShoppingBag className="h-8 w-8 text-(--sf-muted-text)" />
+        <div
+            className="mt-12 rounded-2xl border border-dashed border-(--sf-border) bg-(--sf-panel) px-6 py-16 text-center">
+            <div
+                className="mx-auto flex h-16 w-16 items-center justify-center rounded-full bg-(--sf-bg) shadow-sm ring-1 ring-(--sf-border)">
+                <ShoppingBag className="h-8 w-8 text-(--sf-muted-text)"/>
             </div>
 
             <h2 className="mt-6 text-xl font-semibold text-(--sf-text)">Your cart is empty</h2>

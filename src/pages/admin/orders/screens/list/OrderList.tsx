@@ -1,13 +1,12 @@
-import { ColumnDef } from "@tanstack/react-table";
+import {ColumnDef} from "@tanstack/react-table";
 import {Eye} from "lucide-react";
-import { useMemo } from "react";
-import { useNavigate } from "react-router-dom";
-
+import {useMemo} from "react";
+import {useNavigate} from "react-router-dom";
 import {Button} from "@/components";
-import { DataTable } from "@/components/shared/datatable/DataTable.tsx";
-import { OrderStatusDisplay } from "@/constants/enums/OrderStatusDisplay.tsx";
+import {DataTable} from "@/components/shared/datatable/DataTable.tsx";
+import {OrderStatusDisplay} from "@/constants/enums/OrderStatusDisplay.tsx";
 import useOrderList from "@/pages/admin/orders/hooks/useOrderList.ts";
-import { OrderData } from "@/types/order.types.ts";
+import {OrderData} from "@/types/order.types.ts";
 
 const OrderList = () => {
     const navigate = useNavigate();
@@ -37,7 +36,7 @@ const OrderList = () => {
                 accessorKey: "createDate",
                 header: "Create Date",
                 enableSorting: false,
-                cell: ({ row }) => {
+                cell: ({row}) => {
                     const value = row.original.createDate;
                     return value ? new Date(value).toLocaleString() : "-";
                 },
@@ -47,7 +46,7 @@ const OrderList = () => {
                 accessorKey: "customer.email",
                 header: "Customer",
                 enableSorting: false,
-                cell: ({ row }) => {
+                cell: ({row}) => {
                     const value = row.original.customer?.email;
                     return value || "-";
                 },
@@ -57,21 +56,21 @@ const OrderList = () => {
                 accessorKey: "itemCount",
                 header: "Items",
                 enableSorting: false,
-                cell: ({ row }) => row.original.itemCount ?? row.original.items?.length ?? 0,
+                cell: ({row}) => row.original.itemCount ?? row.original.items?.length ?? 0,
             },
             {
                 id: "status",
                 accessorKey: "status",
                 header: "Status",
                 enableSorting: false,
-                cell: ({ row }) => <OrderStatusDisplay status={row.original.status ?? ""} />,
+                cell: ({row}) => <OrderStatusDisplay status={row.original.status ?? ""}/>,
             },
             {
                 id: "totalAmount",
                 accessorKey: "totalAmount",
                 header: "Total",
                 enableSorting: false,
-                cell: ({ row }) => {
+                cell: ({row}) => {
                     const total = Number(row.original.totalAmount ?? 0);
                     return `R ${total.toFixed(2)}`;
                 },

@@ -226,7 +226,7 @@ const CategoryEditor = ({category, isDialogOpen, setIsDialogOpen, onSuccess}: Ca
                                 >
                                     <ImageUpload
                                         type="category"
-                                        onImageUpload={(fileName) => field.onChange(`${IMAGE_BASE_URL}${fileName}`)}
+                                        onImageUpload={(fileName) => field.onChange(`${IMAGE_BASE_URL}${fileName}`.replace('//', '/'))}
                                         currentImageUrl={field.value || undefined}
                                     />
                                 </FormItem>

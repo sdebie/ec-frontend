@@ -1,7 +1,7 @@
-import type { Brand } from '@/types/admin/BrandTypes.ts';
-import type { Category } from '@/types/admin/CategoryTypes.ts';
-import type { ProductShoppingListItem, ProductInformation } from '@/types/admin/ProductTypes.ts';
-import type { FilterRequest, PageRequest } from '@/types/graphql/query.types.ts';
+import type {Brand} from '@/types/shared/BrandTypes.ts';
+import type {Category} from '@/types/shared/CategoryTypes.ts';
+import type {ProductInformation, ProductShoppingListItem} from '@/types/shared/ProductTypes.ts';
+import type {FilterRequest, PageRequest} from '@/types/graphql/query.types.ts';
 
 export type CatalogProductListItem = ProductShoppingListItem;
 export type CatalogProductInformation = ProductInformation;
@@ -10,11 +10,11 @@ export type CatalogBrand = Brand;
 
 export type CatalogProductsQuery = {
     categoryId?: string | null;
+    brandId?: string | null;
     search?: string;
     sortBy?: 'name' | 'price-asc' | 'price-desc';
     pageIndex?: number;
     pageSize?: number;
-    mode?: 'full' | 'page';
 };
 
 export type CatalogRequest = {

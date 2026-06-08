@@ -1,23 +1,18 @@
-import { useMemo } from 'react';
-
-import { useProducts, useTopBestSellers } from '@/features/catalog';
-import {uvhHomeContent} from '@/tenants/uvh/content/uvhContent.ts';
-import {
-    FROSTED_CARD,
-    UvhGradientTrustBand,
-} from '@/tenants/uvh/components/UvhGradientTrustBand.tsx';
+import {useMemo} from 'react';
+import {useProducts, useTopBestSellers} from '@/features/catalog';
+import {uvhHomeContent} from '@/tenants/uvh/config';
+import {FROSTED_CARD, UvhGradientTrustBand,} from '@/tenants/uvh/components/UvhGradientTrustBand.tsx';
 import {UvhAccreditorsSection} from "@/tenants/uvh/pages/home/components/UvhAccreditorsSection.tsx";
 import {UvhBrandsSection} from '@/tenants/uvh/pages/home/components/UvhBrandsSection.tsx';
 import {UvhCustomerReviewsSection} from "@/tenants/uvh/pages/home/components/UvhCustomerReviewsSection.tsx";
 import {UvhFeaturedBestSellers} from '@/tenants/uvh/pages/home/components/UvhFeaturedBestSellers.tsx';
-import {UvhGetQuoteCta} from '@/tenants/uvh/pages/home/components/UvhGetQuoteCta.tsx';
+import {UvhCtaSection} from '@/tenants/uvh/components/UvhCtaSection.tsx';
 import {UvhHoldingHero} from '@/tenants/uvh/pages/home/components/UvhHoldingHero.tsx';
 import {UvhHomeCategoryShowcases} from '@/tenants/uvh/pages/home/components/UvhHomeCategoryShowcases.tsx';
-import {UvhWholesaleCta} from "@/tenants/uvh/pages/home/components/UvhWholesaleCta.tsx";
 
 const UvhHomePage = () => {
-    const { products: bestSellers, loading: bestSellerLoading, error: bestSellerError } = useTopBestSellers();
-    const { products: featuredProducts, loading: featuredLoading, error: featuredError } = useProducts({
+    const {products: bestSellers, loading: bestSellerLoading, error: bestSellerError} = useTopBestSellers();
+    const {products: featuredProducts, loading: featuredLoading, error: featuredError} = useProducts({
         pageIndex: 0,
         pageSize: 24,
         sortBy: 'name',
@@ -55,15 +50,21 @@ const UvhHomePage = () => {
 
             <UvhBrandsSection/>
 
-            <UvhGetQuoteCta/>
+            <UvhCtaSection
+                eyebrow={uvhHomeContent.wholesaleCta.overline}
+                title="Need a Quote or Buying in Bulk?"
+                description="Send us your requirements and our team will provide competitive pricing, bulk order support, and wholesale account options."
+                cta={uvhHomeContent.getQuoteCta.cta}
+                secondaryCta={uvhHomeContent.wholesaleCta.cta}
+                id="uvh-combined-cta-heading"
+                dark
+            />
 
             <UvhHomeCategoryShowcases/>
 
-            <UvhWholesaleCta/>
+            <UvhCustomerReviewsSection/>
 
             <UvhAccreditorsSection/>
-
-            <UvhCustomerReviewsSection/>
         </div>
     );
 };

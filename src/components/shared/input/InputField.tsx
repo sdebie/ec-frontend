@@ -1,18 +1,16 @@
 import * as React from 'react';
-
 import {Label} from "@/components";
+import {Input} from '@/primitives/input';
 import {cn} from '@/utils/cn.ts';
 
 /**
- * InputField — composite that wraps the primitive input element with
- * a Label, optional left/right icons, helper text, and error message.
- * Use this when you need a fully-formed admin form field.
+ * InputField — composite that wraps the Input primitive with a Label,
+ * optional left/right icons, helper text, and error message.
+ * Uses --c-* surface tokens, so it works in any SurfaceProvider context.
  *
- * For raw styled <input>, use Input from @/primitives/input.
- * For form-row layout with FormItem-managed label/helper/error,
- * use the primitive Input inside <FormItem>.
+ * For a raw styled <input>, use Input from @/primitives/input directly.
  */
-export interface InputFieldProps extends React.InputHTMLAttributes<HTMLInputElement> {
+export interface InputFieldProps extends Omit<React.InputHTMLAttributes<HTMLInputElement>, 'size'> {
     label?: string;
     helperText?: React.ReactNode;
     error?: React.ReactNode;
@@ -38,7 +36,6 @@ export const InputField = React.forwardRef<HTMLInputElement, InputFieldProps>(
         },
         ref
     ) => {
-        // Generate a unique ID if one wasn't provided, to link label and input
         const generatedId = React.useId();
         const inputId = id || generatedId;
         const hasError = !!error;
@@ -52,29 +49,21 @@ export const InputField = React.forwardRef<HTMLInputElement, InputFieldProps>(
                 )}
                 <div className="relative mt-1 group flex items-center">
                     {leftIcon && (
-                        <div className="absolute left-3 text-admin-text-muted flex items-center pointer-events-none">
+                        <div className="absolute left-3 text-(--c-text-muted) flex items-center pointer-events-none">
                             {leftIcon}
                         </div>
                     )}
-                    <input
+                    <Input
                         ref={ref}
                         id={inputId}
                         required={required}
                         disabled={disabled}
-                        className={cn(
-                            'flex h-10 w-full rounded-md border-2 border-admin-border bg-admin-panel px-3 py-2 text-sm text-admin-text transition-colors',
-                            'placeholder:text-admin-text-muted',
-                            'focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent focus:ring-offset-1 focus:ring-offset-admin-bg',
-                            'disabled:cursor-not-allowed disabled:opacity-50 disabled:bg-admin-bg',
-                            hasError && 'border-red-500 focus:ring-red-500',
-                            leftIcon && 'pl-10',
-                            rightIcon && 'pr-10',
-                            className
-                        )}
+                        variant={hasError ? 'error' : 'default'}
+                        className={cn(leftIcon && 'pl-10', rightIcon && 'pr-10', className)}
                         {...props}
                     />
                     {rightIcon && (
-                        <div className="absolute right-3 text-admin-text-muted flex items-center pointer-events-none">
+                        <div className="absolute right-3 text-(--c-text-muted) flex items-center pointer-events-none">
                             {rightIcon}
                         </div>
                     )}
@@ -82,7 +71,7 @@ export const InputField = React.forwardRef<HTMLInputElement, InputFieldProps>(
                 {error ? (
                     <p className="text-sm text-red-500 mt-1" role="alert">{error}</p>
                 ) : helperText ? (
-                    <p className="text-sm text-admin-text-muted mt-1">{helperText}</p>
+                    <p className="text-sm text-(--c-text-muted) mt-1">{helperText}</p>
                 ) : null}
             </>
         );

@@ -1,10 +1,9 @@
-import { useCallback, useEffect, useMemo, useState } from "react";
+import {useCallback, useEffect, useMemo, useState} from "react";
+import {apiGetAllOrders} from "@/services/graphql/order/OrderService.graphql.ts";
+import {FilterRequest} from "@/types/graphql/query.types.ts";
+import {OrderData} from "@/types/order.types.ts";
 
-import { apiGetAllOrders } from "@/services/graphql/order/OrderService.graphql.ts";
-import { FilterRequest } from "@/types/graphql/query.types.ts";
-import { OrderData } from "@/types/order.types.ts";
-
-const DEFAULT_PAGE_SIZE = 10;
+const DEFAULT_PAGE_SIZE = 11;
 
 export default function useOrderList() {
     const [orderList, setOrderList] = useState<OrderData[]>([]);
@@ -19,10 +18,10 @@ export default function useOrderList() {
     const filterRequest = useMemo<FilterRequest>(
         () => ({
             filters: searchTerm.trim()
-                ? [{ key: "status", operator: "ILIKE", value: searchTerm.trim() }]
+                ? [{key: "status", operator: "ILIKE", value: searchTerm.trim()}]
                 : [],
             filterGroups: [],
-            sort: [{ field: "createdAt", direction: "DESC" }],
+            sort: [{field: "createdAt", direction: "DESC"}],
         }),
         [searchTerm]
     );
@@ -35,7 +34,7 @@ export default function useOrderList() {
                 setIsLoading(true);
                 setErrorMsg("");
 
-                const page = await apiGetAllOrders({ pageIndex, pageSize }, filterRequest);
+                const page = await apiGetAllOrders({pageIndex, pageSize}, filterRequest);
                 if (!isActive) {
                     return;
                 }

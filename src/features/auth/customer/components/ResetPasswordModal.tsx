@@ -1,5 +1,4 @@
-import React, { useMemo, useState } from 'react';
-
+import React, {useMemo, useState} from 'react';
 import {
     completeCustomerPasswordReset,
     requestCustomerPasswordResetCode,
@@ -14,11 +13,11 @@ interface ResetPasswordModalProps {
 }
 
 export default function ResetPasswordModal({
-    isOpen,
-    onClose,
-    initialEmail = '',
-    onBackToLogin,
-}: ResetPasswordModalProps): React.ReactElement | null {
+                                               isOpen,
+                                               onClose,
+                                               initialEmail = '',
+                                               onBackToLogin,
+                                           }: ResetPasswordModalProps): React.ReactElement | null {
     const [email, setEmail] = useState<string>(initialEmail);
     const [code, setCode] = useState<string>('');
     const [newPassword, setNewPassword] = useState<string>('');
@@ -51,8 +50,8 @@ export default function ResetPasswordModal({
             setCodeSent(true);
             setCodeVerified(false);
             setSuccess('If the account exists, a 6-digit reset code has been sent.');
-        } catch (err: any) {
-            const message = typeof err?.message === 'string' ? err.message : 'Could not request reset code.';
+        } catch (err: unknown) {
+            const message = err instanceof Error ? err.message : 'Could not request reset code.';
             setError(message);
         } finally {
             setLoadingRequest(false);
@@ -73,8 +72,8 @@ export default function ResetPasswordModal({
             await verifyCustomerPasswordResetCode(email.trim(), code.trim());
             setCodeVerified(true);
             setSuccess('Code verified. You can now set a new password.');
-        } catch (err: any) {
-            const message = typeof err?.message === 'string' ? err.message : 'Could not verify code.';
+        } catch (err: unknown) {
+            const message = err instanceof Error ? err.message : 'Could not verify code.';
             setError(message);
         } finally {
             setLoadingVerify(false);
@@ -113,8 +112,8 @@ export default function ResetPasswordModal({
                     onClose();
                 }
             }, 1000);
-        } catch (err: any) {
-            const message = typeof err?.message === 'string' ? err.message : 'Could not reset password.';
+        } catch (err: unknown) {
+            const message = err instanceof Error ? err.message : 'Could not reset password.';
             setError(message);
         } finally {
             setLoadingReset(false);
@@ -140,8 +139,9 @@ export default function ResetPasswordModal({
                             aria-label="Close"
                             className="ml-4 mt-1 text-(--sf-muted-text) hover:text-(--sf-text) transition-colors"
                         >
-                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-5 h-5">
-                                <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
+                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5}
+                                 stroke="currentColor" className="w-5 h-5">
+                                <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12"/>
                             </svg>
                         </button>
                     </div>
@@ -175,7 +175,8 @@ export default function ResetPasswordModal({
                         {codeSent && (
                             <>
                                 <div>
-                                    <label htmlFor="reset-code" className="mb-1 block text-sm font-medium text-(--sf-text)">
+                                    <label htmlFor="reset-code"
+                                           className="mb-1 block text-sm font-medium text-(--sf-text)">
                                         6-digit Code
                                     </label>
                                     <input
@@ -204,7 +205,8 @@ export default function ResetPasswordModal({
                         {codeVerified && (
                             <>
                                 <div>
-                                    <label htmlFor="reset-new-password" className="mb-1 block text-sm font-medium text-(--sf-text)">
+                                    <label htmlFor="reset-new-password"
+                                           className="mb-1 block text-sm font-medium text-(--sf-text)">
                                         New Password
                                     </label>
                                     <input
@@ -219,7 +221,8 @@ export default function ResetPasswordModal({
                                 </div>
 
                                 <div>
-                                    <label htmlFor="reset-confirm-password" className="mb-1 block text-sm font-medium text-(--sf-text)">
+                                    <label htmlFor="reset-confirm-password"
+                                           className="mb-1 block text-sm font-medium text-(--sf-text)">
                                         Confirm Password
                                     </label>
                                     <input
@@ -250,7 +253,8 @@ export default function ResetPasswordModal({
                         )}
 
                         {success && (
-                            <div className="rounded-lg border border-green-200 bg-green-50 px-3 py-2 text-sm text-green-700">
+                            <div
+                                className="rounded-lg border border-green-200 bg-green-50 px-3 py-2 text-sm text-green-700">
                                 {success}
                             </div>
                         )}

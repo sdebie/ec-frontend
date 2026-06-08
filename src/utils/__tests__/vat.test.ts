@@ -1,6 +1,5 @@
-import { describe, expect, it } from "vitest";
-
-import { calculateVatFromExclusive, parseVatRate } from "@/utils/vat.ts";
+import {describe, expect, it} from "vitest";
+import {calculateVatFromExclusive, parseVatRate} from "@/utils/vat.ts";
 
 describe("VAT utilities", () => {
     it("parses numeric VAT rates safely", () => {

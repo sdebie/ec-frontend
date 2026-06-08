@@ -1,10 +1,10 @@
 import {Star} from 'lucide-react';
 import {useCallback, useRef} from 'react';
-
+import {UvhDarkSectionHeading} from '@/tenants/uvh/components/UvhDarkSectionHeading.tsx';
 import {UVH_CUSTOMER_REVIEWS_SECTION_BG} from '@/tenants/uvh/components/UvhGradientTrustBand.tsx';
-import {uvhHomeContent} from '@/tenants/uvh/content/uvhContent.ts';
+import {uvhHomeContent} from '@/tenants/uvh/config';
 
-function ChevronLeft({className}: {className?: string}) {
+function ChevronLeft({className}: { className?: string }) {
     return (
         <svg className={className} viewBox="0 0 24 24" fill="none" stroke="currentColor" aria-hidden>
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7"/>
@@ -12,7 +12,7 @@ function ChevronLeft({className}: {className?: string}) {
     );
 }
 
-function ChevronRight({className}: {className?: string}) {
+function ChevronRight({className}: { className?: string }) {
     return (
         <svg className={className} viewBox="0 0 24 24" fill="none" stroke="currentColor" aria-hidden>
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7"/>
@@ -37,16 +37,12 @@ export function UvhCustomerReviewsSection() {
             aria-labelledby="uvh-customer-reviews-heading"
         >
             <div className="relative mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-                <p className="text-xs font-semibold uppercase tracking-[0.14em] text-white/85">
-                    <span className="mr-2 inline-block h-px w-5 align-middle bg-(--sf-accent)"/>
-                    {content.overline}
-                </p>
-                <h2
+                <UvhDarkSectionHeading
+                    eyebrow={content.overline}
+                    title={content.title}
                     id="uvh-customer-reviews-heading"
-                    className="mt-1.5 text-xl font-bold tracking-tight text-white sm:text-2xl"
-                >
-                    {content.title}
-                </h2>
+                    titleClassName="sm:text-2xl"
+                />
 
                 <div className="mt-4 flex items-center gap-2 md:gap-2.5">
                     <button

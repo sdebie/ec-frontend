@@ -1,6 +1,12 @@
-import {apiGetCountrySettings, apiGetStoreSettings} from "./graphql/admin/settings/SettingsService.graphql.ts";
-import type {CountrySetting, ShippingMethod, StoreSetting} from "@/types/admin/SettingsTypes.ts";
-export type {StoreSetting, ShippingMethod, CountrySetting};
+import {
+    apiGetCountrySettings,
+    apiGetShippingMethods,
+    apiGetStoreSettings,
+} from "./graphql/admin/settings/SettingsService.graphql.ts";
+export { apiGetShippingMethods, apiGetStoreSettings };
+import type { StoreSetting } from '@/types/admin/SettingsTypes.ts';
+import type { CountrySetting, ShippingMethod } from '@/types/shared/SettingsTypes.ts';
+export type { StoreSetting, ShippingMethod, CountrySetting };
 
 // Payment methods allowed values from settings
 export type PaymentMethodKey = 'IN_STORE' | 'FASTPAY';
@@ -33,7 +39,7 @@ export async function fetchPaymentMethodsConfig(): Promise<PaymentMethodsConfig>
         const settings = await apiGetStoreSettings();
         const entry = settings.find((s: StoreSetting) => s.key === 'payment_methods_allowed');
         const raw = entry?.value ?? '';
-        let parsed: any = null;
+        let parsed: unknown = null;
         try {
             parsed = raw ? JSON.parse(raw) : null;
         } catch {
@@ -77,15 +83,17 @@ export async function fetchPaymentMethodsConfig(): Promise<PaymentMethodsConfig>
         }
 
         // New: object map -> normalize keys and coerce enabled
-        if (parsed && typeof parsed === 'object') {
+        if (parsed && typeof parsed === 'object' && !Array.isArray(parsed)) {
             const map: PaymentMethodsConfig = {};
-            for (const [rawKey, val] of Object.entries(parsed as Record<string, any>)) {
+            for (const [rawKey, val] of Object.entries(parsed as Record<string, unknown>)) {
                 const key = normalizeKey(rawKey);
                 if (!key) continue;
-                const enabledRaw = (val as any)?.enabled;
+                const valObj = val && typeof val === 'object' ? val as Record<string, unknown> : null;
+                const enabledRaw = valObj?.['enabled'];
                 const enabled = typeof enabledRaw === 'string' ? enabledRaw.toLowerCase() === 'true' : !!enabledRaw;
-                const displayName = String((val as any)?.displayName || (key === 'IN_STORE' ? 'Pay in store' : 'FastPay'));
-                const description = (val as any)?.description ?? (key === 'IN_STORE' ? 'Cash/Card at Pickup' : 'Card / Instant EFT / Scan to Pay');
+                const displayName = String(valObj?.['displayName'] || (key === 'IN_STORE' ? 'Pay in store' : 'FastPay'));
+                const descRaw = valObj?.['description'];
+                const description = typeof descRaw === 'string' ? descRaw : (key === 'IN_STORE' ? 'Cash/Card at Pickup' : 'Card / Instant EFT / Scan to Pay');
                 map[key] = { displayName, description, enabled };
             }
             // Ensure at least FASTPAY present if all filtered out

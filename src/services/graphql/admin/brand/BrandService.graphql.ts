@@ -1,10 +1,8 @@
-
 import {GraphQLService} from "@/services/graphql/GraphQLService.ts";
 import {Brand} from "@/types/admin/BrandTypes.ts";
 import {FilterRequest, PageRequest} from "@/types/graphql/query.types.ts";
-import getServiceEndpoint from "@/utils/HostnameResolver.ts";
-
 import {ALL_BRANDS, BRAND_COUNT, CREATE_BRAND, DELETE_BRAND, GET_BRAND, UPDATE_BRAND} from "./brand.queries.ts";
+import getServiceEndpoint from "@/utils/HostnameResolver.ts";
 
 const graphQLEndpoint = getServiceEndpoint(8080) + '/api/graphql';
 

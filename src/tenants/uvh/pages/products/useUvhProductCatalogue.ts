@@ -1,38 +1,13 @@
 import {useCallback, useEffect, useMemo, useRef, useState} from 'react';
 import {useSearchParams} from 'react-router-dom';
-
-import {useBrands, useCategories, useProducts, useProductsByBrand} from '@/features/catalog';
+import {useBrands, useCategories, useProducts} from '@/features/catalog';
 import {resolveRootCategoryId} from '@/tenants/uvh/pages/home/resolveUvhShowcaseCategoryId.ts';
+import type {UvhCatalogueQuickCategory} from '@/tenants/uvh/pages/products/catalogue.config.ts';
 import {
     UVH_CATALOGUE_PAGE_SIZE,
     UVH_CATALOGUE_QUICK_CATEGORIES,
-    UVH_CATALOGUE_XL_PAGE_SIZE,
 } from '@/tenants/uvh/pages/products/catalogue.config.ts';
-
-const XL_MEDIA_QUERY = '(min-width: 1280px)';
-
-function useCataloguePageSize(): number {
-    const [pageSize, setPageSize] = useState(() =>
-        typeof window !== 'undefined' && window.matchMedia(XL_MEDIA_QUERY).matches
-            ? UVH_CATALOGUE_XL_PAGE_SIZE
-            : UVH_CATALOGUE_PAGE_SIZE,
-    );
-
-    useEffect(() => {
-        const media = window.matchMedia(XL_MEDIA_QUERY);
-        const sync = () => {
-            setPageSize(media.matches ? UVH_CATALOGUE_XL_PAGE_SIZE : UVH_CATALOGUE_PAGE_SIZE);
-        };
-        sync();
-        media.addEventListener('change', sync);
-        return () => media.removeEventListener('change', sync);
-    }, []);
-
-    return pageSize;
-}
-
 import type {CatalogBrand, CatalogCategory, CatalogProductListItem} from '@/features/catalog/types.ts';
-import type {UvhCatalogueQuickCategory} from '@/tenants/uvh/pages/products/catalogue.config.ts';
 
 const SEARCH_DEBOUNCE_MS = 350;
 
@@ -54,6 +29,7 @@ export type UvhCatalogueFilterActions = {
     setSearch: (value: string) => void;
     setSortBy: (sort: UvhCatalogueSort) => void;
     setPageIndex: (index: number) => void;
+    setPageSize: (size: number) => void;
     clearFilters: () => void;
     removeCategory: () => void;
     removeBrand: () => void;
@@ -67,6 +43,7 @@ export type UseUvhProductCatalogueResult = {
     products: CatalogProductListItem[];
     totalCount: number;
     pageCount: number;
+    pageSize: number;
     hasNextPage: boolean;
     loading: boolean;
     error: string | null;
@@ -106,11 +83,10 @@ export function useUvhProductCatalogue(): UseUvhProductCatalogueResult {
     const [debouncedSearch, setDebouncedSearch] = useState('');
     const [sortBy, setSortBy] = useState<UvhCatalogueSort>('name');
     const [pageIndex, setPageIndex] = useState(0);
+    const [pageSize, setPageSizeState] = useState(UVH_CATALOGUE_PAGE_SIZE);
     const [mobileFiltersOpen, setMobileFiltersOpen] = useState(false);
     const [brandSearch, setBrandSearch] = useState('');
     const [categorySearch, setCategorySearch] = useState('');
-
-    const pageSize = useCataloguePageSize();
 
     const {categories, isLoading: categoriesLoading} = useCategories();
     const {brands, loading: brandsLoading} = useBrands(200);
@@ -138,24 +114,14 @@ export function useUvhProductCatalogue(): UseUvhProductCatalogueResult {
         setPageIndex(0);
     }, [categoryId, brandId, debouncedSearch, sortBy, pageSize]);
 
-    const categoryProducts = useProducts({
+    const activeSource = useProducts({
         categoryId,
-        search: debouncedSearch,
-        sortBy,
-        pageIndex,
-        pageSize,
-    });
-
-    const brandProducts = useProductsByBrand({
         brandId,
         search: debouncedSearch,
         sortBy,
         pageIndex,
         pageSize,
     });
-
-    const useBrandSource = Boolean(brandId);
-    const activeSource = useBrandSource ? brandProducts : categoryProducts;
 
     const rootCategories = useMemo(
         () => categories.filter((c) => c.parent == null).sort((a, b) => a.name.localeCompare(b.name)),
@@ -215,6 +181,7 @@ export function useUvhProductCatalogue(): UseUvhProductCatalogueResult {
     const pageCount = Math.max(1, Math.ceil(activeSource.totalCount / pageSize));
 
     return {
+        pageSize,
         filters: {
             quickCategoryId,
             categoryId,
@@ -233,6 +200,7 @@ export function useUvhProductCatalogue(): UseUvhProductCatalogueResult {
             setSearch,
             setSortBy,
             setPageIndex,
+            setPageSize: setPageSizeState,
             clearFilters,
             removeCategory,
             removeBrand,

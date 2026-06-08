@@ -4,6 +4,8 @@ import {Outlet} from 'react-router-dom'
 import {layoutRegistry} from '@/app/layouts/storefront/layoutRegistry'
 import {useStorefrontBoundary} from '@/app/providers/StorefrontProvider'
 import {StorefrontRoutes} from '@/configs/routes/store/StorefrontRoutes'
+import {resolveActiveStorefrontConfig} from '@/configs/storefront/resolveStorefrontConfig'
+import {resolveStorefrontConventionPage} from '@/configs/storefront/storefrontPageConventionRegistry'
 import {listStorefrontRouteContracts} from '@/configs/storefront/storefrontRouteContracts'
 
 import type {StorefrontLayoutId} from '@/configs/storefront/storefrontRegistryTypes'
@@ -12,6 +14,7 @@ import type {RouteMeta, RouteObject} from '@/types/routes'
 
 export interface AppRouterStorefrontOptions {
     isAdminDomain: boolean
+    hostname: string
 }
 
 interface GroupedStorefrontRoute {
@@ -60,13 +63,28 @@ export function createStorefrontDataRoutes(
         return []
     }
 
-    const storefrontRoutes: RouteObject[] = listStorefrontRouteContracts().map((contract) => ({
+    const baseRoutes: RouteObject[] = listStorefrontRouteContracts().map((contract) => ({
         key: contract.key,
         path: contract.path,
         component: contract.component,
         authority: [],
         meta: contract.meta as RouteMeta,
     }))
+
+    const tenantConfig = resolveActiveStorefrontConfig({ hostname: options.hostname })
+    const extraRoutes: RouteObject[] = (tenantConfig.routes?.extra ?? []).flatMap((extraRoute) => {
+        const component = resolveStorefrontConventionPage(tenantConfig.id, extraRoute.key)
+        if (!component) return []
+        return [{
+            key: extraRoute.key,
+            path: extraRoute.path,
+            component,
+            authority: [],
+            meta: { layout: extraRoute.meta?.layout ?? 'default', headerTitle: extraRoute.meta?.title } as RouteMeta,
+        }]
+    })
+
+    const storefrontRoutes = [...baseRoutes, ...extraRoutes]
     const groupedRoutes = groupStorefrontRoutesByLayout(storefrontRoutes)
 
     return [

@@ -1,7 +1,6 @@
-import { ChevronLeft } from 'lucide-react';
-import { useNavigate } from 'react-router-dom';
-
-import { cn } from '@/utils/cn.ts';
+import {ChevronLeft} from 'lucide-react';
+import {useNavigate} from 'react-router-dom';
+import {cn} from '@/utils/cn.ts';
 
 interface PageBackButtonProps {
     /** Custom label for the back button. Defaults to 'Back' */
@@ -30,7 +29,7 @@ interface PageBackButtonProps {
  * <PageBackButton onClick={() => navigate('/admin/products')} />
  * ```
  */
-export function PageBackButton({ label = 'Back', className, onClick }: PageBackButtonProps) {
+export function PageBackButton({label = 'Back', className, onClick}: PageBackButtonProps) {
     const navigate = useNavigate();
 
     const handleClick = () => {
@@ -47,13 +46,13 @@ export function PageBackButton({ label = 'Back', className, onClick }: PageBackB
             onClick={handleClick}
             className={cn(
                 "inline-flex items-center gap-2 text-sm font-medium",
-                "text-admin-text-muted hover:text-admin-text",
+                "text-(--c-text-muted) hover:text-(--c-text)",
                 "transition-colors duration-150",
                 "focus:outline-none focus:ring-2 focus:ring-primary/50 rounded-md px-2 py-1 -ml-2",
                 className
             )}
         >
-            <ChevronLeft className="h-4 w-4" />
+            <ChevronLeft className="h-4 w-4"/>
             <span>{label}</span>
         </button>
     );

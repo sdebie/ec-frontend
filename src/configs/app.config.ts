@@ -5,8 +5,6 @@ export type AppConfig = {
 	apiPrefix: string
 	authenticatedEntryPath: string
 	unAuthenticatedEntryPath: string
-	locale: string
-	country: string
 	accessTokenPersistStrategy: 'localStorage' | 'sessionStorage' | 'cookies'
 	activeNavTranslation: boolean
 	platformRealm: string
@@ -22,8 +20,6 @@ const appConfig: AppConfig = {
 	platformRealm: 'ToSet',
 	authenticatedEntryPath: '/dashboard',
 	unAuthenticatedEntryPath: '',
-	locale: 'en',
-	country: 'NG',
 	accessTokenPersistStrategy: 'cookies',
 	activeNavTranslation: false,
 	devMode: true,

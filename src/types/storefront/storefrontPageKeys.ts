@@ -17,6 +17,7 @@ export const CANONICAL_STOREFRONT_PAGE_KEYS = [
     'termsAndConditions',
     'privacyPolicy',
     'deliveryAndReturnsPolicy',
+    'resetPassword',
 ] as const;
 
 export type StorefrontPageKey = (typeof CANONICAL_STOREFRONT_PAGE_KEYS)[number];

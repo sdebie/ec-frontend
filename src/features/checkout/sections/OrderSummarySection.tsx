@@ -1,14 +1,13 @@
-import { ShoppingBag } from 'lucide-react';
+import {ShoppingBag} from 'lucide-react';
 import React from 'react';
-
-
 import OrderSummaryItem from '@/features/checkout/sections/OrderSummaryItem.tsx';
-import { formatCurrency } from '@/features/checkout/utils/checkout.helpers.ts';
-import { Card } from '@/primitives/card';
-import { asVariant } from '@/types/order.types.ts';
-
-import type { ShippingMethod } from '@/services/StoreSettings.ts';
-import type { OrderData } from '@/types/order.types.ts';
+import {formatCurrency} from '@/features/checkout/utils/checkout.helpers.ts';
+import {Card} from '@/primitives/card';
+import type {OrderData} from '@/types/order.types.ts';
+import {asVariant} from '@/types/order.types.ts';
+import type {ShippingMethod} from '@/services/StoreSettings.ts';
+// import {calculateVatFromExclusive} from "@/utils/vat.ts"; // No longer needed here
+import formatAmount from "@/utils/formatAmount.ts";
 
 type Props = {
     order: OrderData | null;
@@ -17,23 +16,25 @@ type Props = {
     itemsTotal: number;
     selectedShipping: ShippingMethod | null;
     shippingFee: number;
+    vatAmount: number; // Add vatAmount to props
     grandTotal: number;
 };
 
 const OrderSummarySection: React.FC<Props> = ({
-    order,
-    loading,
-    error,
-    itemsTotal,
-    selectedShipping,
-    shippingFee,
-    grandTotal,
-}) => {
+                                                  order,
+                                                  loading,
+                                                  error,
+                                                  itemsTotal,
+                                                  selectedShipping,
+                                                  shippingFee,
+                                                  vatAmount, // Destructure vatAmount
+                                                  grandTotal,
+                                              }) => {
     return (
         <Card as="section" elevation="sm" padded={false} className="p-6">
             <div className="mb-4 flex items-center gap-2">
-                <ShoppingBag className="h-5 w-5 text-(--sf-muted-text)" />
-                <h2 className="text-base font-semibold text-(--sf-text)">Order summary</h2>
+                <ShoppingBag className="h-5 w-5 text-(--sf-muted-text)"/>
+                <h2 className="text-base font-semibold text-(--sf-text)">Order Summary</h2>
                 <span className="ml-auto text-xs text-(--sf-muted-text)">#{order?.id || '-'}</span>
             </div>
 
@@ -64,7 +65,14 @@ const OrderSummarySection: React.FC<Props> = ({
                             </dt>
                             <dd className="font-medium text-(--sf-text)">{formatCurrency(shippingFee)}</dd>
                         </div>
-                        <div className="flex items-center justify-between border-t border-(--sf-border) pt-3 text-base font-semibold">
+                        <div className="flex items-center justify-between">
+                            <dt className="text-(--sf-muted-text)">
+                                VAT
+                            </dt>
+                            <dd className="font-medium text-(--sf-text)">{formatAmount(vatAmount)}</dd>
+                        </div>
+                        <div
+                            className="flex items-center justify-between border-t border-(--sf-border) pt-3 text-base font-semibold">
                             <dt className="text-(--sf-text)">Total</dt>
                             <dd className="text-(--sf-text)">{formatCurrency(grandTotal)}</dd>
                         </div>

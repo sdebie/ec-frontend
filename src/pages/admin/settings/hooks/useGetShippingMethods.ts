@@ -1,5 +1,4 @@
 import {useCallback, useEffect, useState} from "react";
-
 import {apiGetShippingMethods} from "@/services/graphql/admin/settings/SettingsService.graphql.ts";
 import {ShippingMethod} from "@/types/admin/SettingsTypes.ts";
 

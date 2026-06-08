@@ -1,49 +1,38 @@
-import { ChevronRight } from 'lucide-react';
-import { Link } from 'react-router-dom';
+import {ChevronRight} from 'lucide-react';
+import {Link} from 'react-router-dom';
 
 type UvhProductBreadcrumbsProps = {
     categoryName: string;
     productName: string;
+    dark?: boolean;
 };
 
-export function UvhProductBreadcrumbs({ categoryName, productName }: UvhProductBreadcrumbsProps) {
+export function UvhProductBreadcrumbs({categoryName, dark}: UvhProductBreadcrumbsProps) {
+    const linkCls = dark
+        ? 'hover:text-(--sf-accent) hover:underline transition-colors text-white/60'
+        : 'hover:text-(--sf-accent) hover:underline transition-colors';
+    const separatorCls = dark ? 'text-white/40' : '';
+
     return (
-        <nav
-            aria-label="Breadcrumb"
-            className="border-b border-(--sf-border) bg-(--sf-surface-muted) py-3"
-        >
-            <ol className="mx-auto flex max-w-7xl flex-wrap items-center gap-1 px-4 text-xs text-(--sf-muted-text) sm:px-6 sm:text-sm lg:px-8">
+        <nav aria-label="Breadcrumb" className={dark ? 'mb-0' : 'border-b border-(--sf-border) bg-(--sf-bg) py-2.5'}>
+            <ol className={`flex flex-wrap items-center gap-1 text-sm ${dark ? '' : 'mx-auto max-w-7xl px-4 sm:px-6 lg:px-8'}`}>
                 <li>
-                    <Link className="hover:text-(--sf-accent) hover:underline" to="/">
-                        Home
-                    </Link>
+                    <Link className={linkCls} to="/">Home</Link>
                 </li>
-                <li aria-hidden className="flex items-center">
-                    <ChevronRight className="h-3.5 w-3.5" />
+                <li aria-hidden className={`flex items-center ${separatorCls}`}>
+                    <ChevronRight className="h-3 w-3"/>
                 </li>
                 <li>
-                    <Link className="hover:text-(--sf-accent) hover:underline" to="/products">
-                        Products
-                    </Link>
+                    <Link className={linkCls} to="/products">Products</Link>
                 </li>
-                <li aria-hidden className="flex items-center">
-                    <ChevronRight className="h-3.5 w-3.5" />
+                <li aria-hidden className={`flex items-center ${separatorCls}`}>
+                    <ChevronRight className="h-3 w-3"/>
                 </li>
                 <li>
-                    <Link
-                        className="hover:text-(--sf-accent) hover:underline"
-                        to={`/products?category=${encodeURIComponent(categoryName)}`}
-                    >
+                    <Link aria-current="page" className={linkCls}
+                          to={`/products?category=${encodeURIComponent(categoryName)}`}>
                         {categoryName}
                     </Link>
-                </li>
-                <li aria-hidden className="flex items-center">
-                    <ChevronRight className="h-3.5 w-3.5" />
-                </li>
-                <li>
-                    <span aria-current="page" className="font-semibold text-(--sf-text)">
-                        {productName}
-                    </span>
                 </li>
             </ol>
         </nav>

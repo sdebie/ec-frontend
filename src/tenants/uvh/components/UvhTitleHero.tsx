@@ -1,7 +1,5 @@
 import {cn} from '@/utils/cn.ts';
-
 import type {ReactNode} from 'react';
-
 
 const DEFAULT_TITLE_CLASS =
     'mt-2 text-2xl font-bold tracking-tight text-white sm:text-3xl lg:text-4xl';
@@ -27,17 +25,17 @@ export type UvhTitleHeroProps = {
 };
 
 export function UvhTitleHero({
-    eyebrow,
-    title,
-    description,
-    afterDescription,
-    rightSlot,
-    contentWidth = 'standard',
-    topSlot,
-    titleClassName = DEFAULT_TITLE_CLASS,
-    descriptionClassName = DEFAULT_DESCRIPTION_CLASS,
-    className,
-}: UvhTitleHeroProps) {
+                                 eyebrow,
+                                 title,
+                                 description,
+                                 afterDescription,
+                                 rightSlot,
+                                 contentWidth = 'standard',
+                                 topSlot,
+                                 titleClassName = DEFAULT_TITLE_CLASS,
+                                 descriptionClassName = DEFAULT_DESCRIPTION_CLASS,
+                                 className,
+                             }: UvhTitleHeroProps) {
     return (
         <section
             className={cn('relative w-full overflow-hidden py-5 sm:py-6 lg:py-8', className)}
@@ -55,7 +53,8 @@ export function UvhTitleHero({
                 aria-hidden
             />
 
-            <div className={cn('relative mx-auto w-full max-w-7xl px-4 sm:px-6 lg:px-8', rightSlot ? 'flex items-center justify-between gap-8' : undefined)}>
+            <div
+                className={cn('relative mx-auto w-full max-w-7xl px-4 sm:px-6 lg:px-8', rightSlot ? 'flex items-center justify-between gap-8' : undefined)}>
                 <div>
                     {topSlot}
                     <div
@@ -63,21 +62,22 @@ export function UvhTitleHero({
                             contentWidth === 'full'
                                 ? 'max-w-none'
                                 : contentWidth === 'wide'
-                                  ? 'max-w-3xl lg:max-w-4xl'
-                                  : 'max-w-xl lg:max-w-2xl',
+                                    ? 'max-w-3xl lg:max-w-4xl'
+                                    : 'max-w-xl lg:max-w-2xl',
                             topSlot ? 'mt-4' : undefined,
                         )}
                     >
                         <div className="flex items-center gap-3">
-                            <span className="h-0.5 w-8 shrink-0 bg-(--sf-accent)" aria-hidden />
+                            <span className="h-0.5 w-8 shrink-0 bg-(--sf-accent)" aria-hidden/>
                             <p className="text-xs font-bold uppercase tracking-[0.14em] text-white">{eyebrow}</p>
                         </div>
                         <h1 className={titleClassName}>{title}</h1>
                         {description ? <p className={descriptionClassName}>{description}</p> : null}
-                        {afterDescription ? <div className="mt-5">{afterDescription}</div> : null}
+                        {afterDescription ? <div className="mt-2">{afterDescription}</div> : null}
                     </div>
                 </div>
-                {rightSlot ? <div className="hidden shrink-0 lg:flex lg:flex-row lg:flex-wrap lg:gap-3">{rightSlot}</div> : null}
+                {rightSlot ?
+                    <div className="hidden shrink-0 lg:flex lg:flex-row lg:flex-wrap lg:gap-3">{rightSlot}</div> : null}
             </div>
         </section>
     );

@@ -1,13 +1,12 @@
-import { GraphQLService } from '@/services/graphql/GraphQLService.ts';
+import {GraphQLService} from '@/services/graphql/GraphQLService.ts';
 import {
     WholesaleApplicationDetails,
     WholesaleApplicationListItem,
     WholesaleCustomer,
     WholesaleCustomerInput,
 } from '@/types/admin/WholesaleCustomerTypes.ts';
-import { FilterRequest, PageRequest } from '@/types/graphql/query.types.ts';
+import {FilterRequest, PageRequest} from '@/types/graphql/query.types.ts';
 import getServiceEndpoint from '@/utils/HostnameResolver.ts';
-
 import {
     ALL_WHOLESALE_APPLICATIONS,
     CREATE_WHOLESALE_APPLICATION,
@@ -30,7 +29,7 @@ export async function createWholesaleCustomerFromApplication(
     const client = await GraphQLService.getGraphQLClient(graphQLEndpoint);
     const result = await client.request<{ createWholesaleCustomer: WholesaleCustomer }>(
         CREATE_WHOLESALE_CUSTOMER_FROM_APPLICATION,
-        { applicationId }
+        {applicationId}
     );
 
     return result.createWholesaleCustomer;
@@ -45,7 +44,7 @@ export async function createWholesaleApplication(
     const client = await GraphQLService.getGraphQLClient(graphQLEndpoint);
     const result = await client.request<{ createWholesaleApplication: WholesaleCustomer }>(
         CREATE_WHOLESALE_APPLICATION,
-        { customer }
+        {customer}
     );
 
     return result.createWholesaleApplication;
@@ -71,7 +70,7 @@ export async function apiGetWholesaleApplicationCount(filterRequest: FilterReque
     const client = await GraphQLService.getGraphQLClient(graphQLEndpoint);
     const result = await client.request<{ wholesaleApplicationCount: number }>(
         WHOLESALE_APPLICATION_COUNT,
-        { filterRequest }
+        {filterRequest}
     );
 
     return result.wholesaleApplicationCount ?? 0;
@@ -81,7 +80,7 @@ export async function apiGetWholesaleApplication(id: string): Promise<WholesaleA
     const client = await GraphQLService.getGraphQLClient(graphQLEndpoint);
     const result = await client.request<{ wholesaleApplication: WholesaleApplicationDetails }>(
         GET_WHOLESALE_APPLICATION,
-        { id }
+        {id}
     );
 
     return result.wholesaleApplication;

@@ -1,2 +1,2 @@
-import ProductDetail from "./ProductDetail.tsx";
-export default ProductDetail;
+import AdminProductDetail from "./AdminProductDetail.tsx";
+export default AdminProductDetail;

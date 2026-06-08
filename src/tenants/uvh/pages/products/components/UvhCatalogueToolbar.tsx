@@ -1,10 +1,8 @@
 import {ChevronDown, Filter, Search} from 'lucide-react';
-
 import {Button} from '@/primitives/button';
 import {Input} from '@/primitives/input';
 import {UVH_CATALOGUE_SORT_OPTIONS} from '@/tenants/uvh/pages/products/catalogue.config.ts';
 import {cn} from '@/utils/cn.ts';
-
 import type {UvhCatalogueSort} from '@/tenants/uvh/pages/products/useUvhProductCatalogue.ts';
 
 const sortSelectClassName = cn(
@@ -24,13 +22,13 @@ type UvhCatalogueToolbarProps = {
 };
 
 export function UvhCatalogueToolbar({
-    search,
-    onSearchChange,
-    sortBy,
-    onSortChange,
-    onOpenFilters,
-    totalCount,
-}: UvhCatalogueToolbarProps) {
+                                        search,
+                                        onSearchChange,
+                                        sortBy,
+                                        onSortChange,
+                                        onOpenFilters,
+                                        totalCount,
+                                    }: UvhCatalogueToolbarProps) {
     return (
         <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
             <div className="flex min-w-0 flex-1 flex-col gap-2 sm:flex-row sm:items-center">
@@ -54,7 +52,7 @@ export function UvhCatalogueToolbar({
                     variant="outline"
                     size="md"
                     className="lg:hidden"
-                    leftIcon={<Filter className="size-4" aria-hidden />}
+                    leftIcon={<Filter className="size-4" aria-hidden/>}
                     onClick={onOpenFilters}
                 >
                     Filters

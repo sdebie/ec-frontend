@@ -10,7 +10,7 @@ export function SidebarSection({title, children, isCollapsed}: SidebarSectionPro
     return (
         <div className="mb-6 w-full">
             {title && !isCollapsed && (
-                <h3 className="px-3 mb-2 text-[0.65rem] font-bold tracking-wider uppercase text-admin-text-muted shrink-0">
+                <h3 className="px-3 mb-2 text-[0.65rem] font-bold tracking-wider uppercase text-(--c-text-muted) shrink-0">
                     {title}
                 </h3>
             )}

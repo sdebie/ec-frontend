@@ -1,17 +1,14 @@
-import { type ReactNode } from "react";
-
-
-import { Button } from "@/components";
-import { Dialog, DialogContent, DialogFooter, DialogHeader } from "@/components/shared/dialog/Dialog.tsx";
-
-import type { ProductUploadStaged } from "@/types/admin/ProductTypes.ts";
+import {type ReactNode} from "react";
+import {Button} from "@/components";
+import {Dialog, DialogContent, DialogFooter, DialogHeader} from "@/components/shared/dialog/Dialog.tsx";
+import type {ProductUploadStaged} from "@/types/admin/ProductTypes.ts";
 
 interface ProductImportRowDetailDialogProps {
     selectedRow: ProductUploadStaged | null;
     onClose: () => void;
 }
 
-const ProductImportRowDetailDialog = ({ selectedRow, onClose }: ProductImportRowDetailDialogProps) => {
+const ProductImportRowDetailDialog = ({selectedRow, onClose}: ProductImportRowDetailDialogProps) => {
 
     const formatText = (value?: string | null) => {
         if (!value || !value.trim()) return "-";
@@ -65,20 +62,20 @@ const ProductImportRowDetailDialog = ({ selectedRow, onClose }: ProductImportRow
             <div className="overflow-x-auto rounded border border-admin-border">
                 <table className="w-full text-sm">
                     <thead className="bg-admin-bg border-b border-admin-border">
-                        <tr>
-                            <th className="text-left p-2 w-1/4">Field</th>
-                            {showCurrentValues && <th className="text-left p-2 w-3/8">Current</th>}
-                            <th className="text-left p-2 w-3/8">Proposed</th>
-                        </tr>
+                    <tr>
+                        <th className="text-left p-2 w-1/4">Field</th>
+                        {showCurrentValues && <th className="text-left p-2 w-3/8">Current</th>}
+                        <th className="text-left p-2 w-3/8">Proposed</th>
+                    </tr>
                     </thead>
                     <tbody>
-                        {rows.map((row) => (
-                            <tr key={row.field} className={showCurrentValues && row.changed ? "bg-slate-500/40" : ""}>
-                                <td className="p-2 font-medium text-admin-text-muted">{row.field}</td>
-                                {showCurrentValues && <td className="p-2 text-admin-text align-top">{row.current}</td>}
-                                <td className="p-2 text-admin-text align-top">{row.proposed}</td>
-                            </tr>
-                        ))}
+                    {rows.map((row) => (
+                        <tr key={row.field} className={showCurrentValues && row.changed ? "bg-slate-500/40" : ""}>
+                            <td className="p-2 font-medium text-admin-text-muted">{row.field}</td>
+                            {showCurrentValues && <td className="p-2 text-admin-text align-top">{row.current}</td>}
+                            <td className="p-2 text-admin-text align-top">{row.proposed}</td>
+                        </tr>
+                    ))}
                     </tbody>
                 </table>
             </div>
@@ -122,47 +119,53 @@ const ProductImportRowDetailDialog = ({ selectedRow, onClose }: ProductImportRow
                                     <div className="overflow-x-auto rounded border border-admin-border">
                                         <table className="w-full text-sm">
                                             <thead className="bg-admin-bg border-b border-admin-border">
-                                                <tr>
-                                                    <th className="text-left p-2">Image</th>
-                                                    <th className="text-left p-2 w-28">Status</th>
-                                                </tr>
+                                            <tr>
+                                                <th className="text-left p-2">Image</th>
+                                                <th className="text-left p-2 w-28">Status</th>
+                                            </tr>
                                             </thead>
                                             <tbody>
-                                                {(() => {
-                                                    const images = (selectedRow.proposedImages ?? "")
-                                                        .split(/[\n,]/)
-                                                        .map(s => s.trim())
-                                                        .filter(Boolean);
-                                                    const errors = (selectedRow.imageErrors ?? "")
-                                                        .split(/[\n,]/)
-                                                        .map(s => s.trim())
-                                                        .filter(Boolean);
+                                            {(() => {
+                                                const images = (selectedRow.proposedImages ?? "")
+                                                    .split(/[\n,]/)
+                                                    .map(s => s.trim())
+                                                    .filter(Boolean);
+                                                const errors = (selectedRow.imageErrors ?? "")
+                                                    .split(/[\n,]/)
+                                                    .map(s => s.trim())
+                                                    .filter(Boolean);
 
-                                                    if (images.length === 0) {
-                                                        return (
-                                                            <tr>
-                                                                <td colSpan={2} className="p-2 text-admin-text-muted text-xs italic">No images</td>
-                                                            </tr>
-                                                        );
-                                                    }
+                                                if (images.length === 0) {
+                                                    return (
+                                                        <tr>
+                                                            <td colSpan={2}
+                                                                className="p-2 text-admin-text-muted text-xs italic">No
+                                                                images
+                                                            </td>
+                                                        </tr>
+                                                    );
+                                                }
 
-                                                    return images.map((img, i) => {
-                                                        const name = img.split("/").pop() ?? img;
-                                                        const hasError = errors.some(e => e.toLowerCase().includes(img.toLowerCase()) || img.toLowerCase().includes(e.toLowerCase()));
-                                                        const isInvalid = hasError || (errors.length > 0 && images.length === 1);
-                                                        return (
-                                                            <tr key={i} className={isInvalid ? "bg-red-500/10" : ""}>
-                                                                <td className="p-2 text-admin-text text-xs truncate max-w-xs" title={img}>{name}</td>
-                                                                <td className="p-2">
-                                                                    {isInvalid
-                                                                        ? <span className="text-red-400 text-xs font-medium">Invalid</span>
-                                                                        : <span className="text-green-400 text-xs font-medium">Valid</span>
-                                                                    }
-                                                                </td>
-                                                            </tr>
-                                                        );
-                                                    });
-                                                })()}
+                                                return images.map((img, i) => {
+                                                    const name = img.split("/").pop() ?? img;
+                                                    const hasError = errors.some(e => e.toLowerCase().includes(img.toLowerCase()) || img.toLowerCase().includes(e.toLowerCase()));
+                                                    const isInvalid = hasError || (errors.length > 0 && images.length === 1);
+                                                    return (
+                                                        <tr key={i} className={isInvalid ? "bg-red-500/10" : ""}>
+                                                            <td className="p-2 text-admin-text text-xs truncate max-w-xs"
+                                                                title={img}>{name}</td>
+                                                            <td className="p-2">
+                                                                {isInvalid
+                                                                    ? <span
+                                                                        className="text-red-400 text-xs font-medium">Invalid</span>
+                                                                    : <span
+                                                                        className="text-green-400 text-xs font-medium">Valid</span>
+                                                                }
+                                                            </td>
+                                                        </tr>
+                                                    );
+                                                });
+                                            })()}
                                             </tbody>
                                         </table>
                                     </div>

@@ -12,6 +12,7 @@ const AdminLogin: React.FC<AdminLoginProps> = ({ onLoginSuccess }) => {
     const [credentials, setCredentials] = useState({ email: '', password: '' });
     const [error, setError] = useState('');
 
+    console.log("Admin Login")
     const handleLogin = async (e: React.FormEvent) => {
         e.preventDefault();
         setError('');
@@ -25,6 +26,7 @@ const AdminLogin: React.FC<AdminLoginProps> = ({ onLoginSuccess }) => {
             };
             localStorage.setItem('admin_user', JSON.stringify(userWithAuthority));
 
+            console.log("Check Reset Password")
             if (data.resetPassword) {
                 console.log('Password reset required. Redirecting to reset password page.');
                 navigate('/admin/reset-password', {replace: true});
@@ -33,9 +35,11 @@ const AdminLogin: React.FC<AdminLoginProps> = ({ onLoginSuccess }) => {
 
             // 3. Trigger the callback to update global app state
             onLoginSuccess();
-        } catch (err: any) {
-            const message = err?.response?.data;
-            setError(typeof message === 'string' ? message : 'Invalid credentials or unauthorized access');
+        } catch (err: unknown) {
+            const responseData = err && typeof err === 'object' && 'response' in err
+                ? (err as { response?: { data?: unknown } }).response?.data
+                : undefined;
+            setError(typeof responseData === 'string' ? responseData : 'Invalid credentials or unauthorized access');
         }
     };
 

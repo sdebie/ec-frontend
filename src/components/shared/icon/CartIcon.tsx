@@ -1,9 +1,7 @@
 import {ShoppingCart} from 'lucide-react';
 import React, {useEffect, useState} from 'react';
 import {useNavigate} from 'react-router-dom';
-
-import { cartStore } from '@/features/cart';
-
+import {cartStore} from '@/features/cart';
 
 export type CartIconProps = {
     className?: string;

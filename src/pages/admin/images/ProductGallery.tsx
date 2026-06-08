@@ -1,11 +1,10 @@
-import { Loader, Upload } from 'lucide-react';
-import { useEffect, useState } from 'react';
-import { useNavigate } from "react-router-dom";
-
-import { PageLayout } from "@/components";
-import { IMAGE_BASE_URL } from '@/constants/api.constant.ts';
-import { Button } from '@/primitives/button';
-import { Card } from '@/primitives/card';
+import {Loader, Upload} from 'lucide-react';
+import {useEffect, useState} from 'react';
+import {useNavigate} from "react-router-dom";
+import {PageLayout} from "@/components";
+import {IMAGE_BASE_URL} from '@/constants/api.constant.ts';
+import {Button} from '@/primitives/button';
+import {Card} from '@/primitives/card';
 import ImageServiceRest from "@/services/rest/admin/ImageService.rest.ts";
 
 const PAGE_SIZE = 80;
@@ -50,7 +49,7 @@ const ProductGallery = () => {
             action={
                 <Button
                     variant="solid"
-                    leftIcon={<Upload className="w-4 h-4" />}
+                    leftIcon={<Upload className="w-4 h-4"/>}
                     onClick={() => navigate('/admin/imports/images/bulk-upload/')}
                 >
                     Bulk Upload Images
@@ -63,11 +62,12 @@ const ProductGallery = () => {
                     <Card className="p-0 overflow-hidden">
                         <div className="w-full h-120 flex items-center justify-center relative">
                             <img
-                                src={`${IMAGE_BASE_URL}${selectedImage}`}
+                                src={`${IMAGE_BASE_URL}${selectedImage}`.replace('//', '/')}
                                 className="max-w-full max-h-full object-contain p-4"
                                 alt="Preview"
                             />
-                            <div className="absolute bottom-4 right-4 bg-admin-panel/80 border border-admin-border px-3 py-1 rounded-lg text-sm text-admin-text-muted">
+                            <div
+                                className="absolute bottom-4 right-4 bg-admin-panel/80 border border-admin-border px-3 py-1 rounded-lg text-sm text-admin-text-muted">
                                 {selectedImage}
                             </div>
                         </div>
@@ -91,14 +91,15 @@ const ProductGallery = () => {
                                 }`}
                             >
                                 <img
-                                    src={`${IMAGE_BASE_URL}thumbnails/${filename}`}
+                                    src={`${IMAGE_BASE_URL}thumbnails/${filename}`.replace('//', '/')}
                                     className="w-full h-full object-cover"
                                     alt={filename}
                                     onError={(e) => {
-                                        (e.target as HTMLImageElement).src = `${IMAGE_BASE_URL}${filename}`;
+                                        (e.target as HTMLImageElement).src = `${IMAGE_BASE_URL}${filename}`.replace('//', '/');
                                     }}
                                 />
-                                <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 flex items-end p-1 transition">
+                                <div
+                                    className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 flex items-end p-1 transition">
                                     <span className="text-[10px] truncate w-full text-white">{filename}</span>
                                 </div>
                             </button>
@@ -115,7 +116,7 @@ const ProductGallery = () => {
                             >
                                 {isLoading ? (
                                     <>
-                                        <Loader className="w-4 h-4 animate-spin mr-2" />
+                                        <Loader className="w-4 h-4 animate-spin mr-2"/>
                                         Loading...
                                     </>
                                 ) : (

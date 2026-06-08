@@ -1,53 +1,17 @@
 import {useCallback, useRef} from 'react';
+import {ChevronLeft, ChevronRight, ShoppingCart} from 'lucide-react';
 import {Link} from 'react-router-dom';
-
-
 import {IMAGE_BASE_URL} from '@/constants/api.constant.ts';
 import {getDisplayPrice} from '@/features/catalog/utils/pricing.ts';
 import {Card} from '@/primitives/card';
-import {useCustomerType} from '@/store/customerTypeStore.ts';
-
+import {useCustomerType, useIsWholesaler} from '@/store/customerTypeStore.ts';
+import {UvhSectionHeading} from '@/tenants/uvh/components/UvhSectionHeading';
 import type {ProductShoppingListItem} from '@/types/admin/ProductTypes.ts';
-
-const formatZar = (value: number): string =>
-    new Intl.NumberFormat('en-ZA', {
-        style: 'currency',
-        currency: 'ZAR',
-        minimumFractionDigits: 2,
-    }).format(value);
+import formatAmount from "@/utils/formatAmount.ts";
 
 const pickFeaturedImage = (product: ProductShoppingListItem): string | undefined => {
     return product.images?.find((img) => img.isFeatured)?.imageUrl ?? product.images?.[0]?.imageUrl;
 };
-
-function CartGlyph({className}: { className?: string }) {
-    return (
-        <svg className={className} viewBox="0 0 24 24" fill="none" stroke="currentColor" aria-hidden>
-            <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth={2}
-                d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z"
-            />
-        </svg>
-    );
-}
-
-function ChevronLeft({className}: { className?: string }) {
-    return (
-        <svg className={className} viewBox="0 0 24 24" fill="none" stroke="currentColor" aria-hidden>
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7"/>
-        </svg>
-    );
-}
-
-function ChevronRight({className}: { className?: string }) {
-    return (
-        <svg className={className} viewBox="0 0 24 24" fill="none" stroke="currentColor" aria-hidden>
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7"/>
-        </svg>
-    );
-}
 
 export type UvhFeaturedBestSellersProps = {
     products: ProductShoppingListItem[];
@@ -57,6 +21,8 @@ export type UvhFeaturedBestSellersProps = {
 
 export function UvhFeaturedBestSellers({products, loading, error}: UvhFeaturedBestSellersProps) {
     const customerType = useCustomerType();
+    const isWholesaler = useIsWholesaler();
+
     const scrollerRef = useRef<HTMLDivElement>(null);
 
     const scrollByDirection = useCallback((dir: -1 | 1) => {
@@ -72,16 +38,7 @@ export function UvhFeaturedBestSellers({products, loading, error}: UvhFeaturedBe
             aria-label="Featured and best selling products"
         >
             <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-                <h2 className="text-xl font-bold tracking-tight text-zinc-900 sm:text-2xl">
-                    <span className="relative inline-block">
-                        Featured
-                        <span
-                            className="absolute -bottom-1 left-0 block h-1 w-[1.15em] rounded-full bg-(--sf-accent)"
-                            aria-hidden
-                        />
-                    </span>
-                    <span className="text-zinc-900"> / Best Sellers</span>
-                </h2>
+                <UvhSectionHeading eyebrow="Top Picks">Best Sellers</UvhSectionHeading>
 
                 {loading && (
                     <Card elevation="none" padded={false} className="mt-8 p-8 text-sm text-(--sf-muted-text)">
@@ -125,7 +82,7 @@ export function UvhFeaturedBestSellers({products, loading, error}: UvhFeaturedBe
                                 const priceInfo = getDisplayPrice(product, customerType);
                                 const wholesale = product.wholesaleSalePrice?.price ?? product.wholesalePrice?.price;
                                 const showWholesaleHint =
-                                    customerType === 'retail' && wholesale != null && wholesale > 0;
+                                    isWholesaler && wholesale != null && wholesale > 0;
                                 const imgPath = pickFeaturedImage(product);
                                 const imageUrl = imgPath ? `${IMAGE_BASE_URL}${imgPath}` : undefined;
                                 const productTo = `/product/${product.id}`;
@@ -162,7 +119,7 @@ export function UvhFeaturedBestSellers({products, loading, error}: UvhFeaturedBe
                                                         className="flex h-9 w-9 items-center justify-center rounded-full bg-(--sf-accent) text-(--sf-accent-text) shadow-sm transition hover:opacity-90"
                                                         aria-label={`View ${product.name} to add to cart`}
                                                     >
-                                                        <CartGlyph className="h-4 w-4"/>
+                                                        <ShoppingCart className="h-4 w-4" aria-hidden/>
                                                     </Link>
                                                     <Link
                                                         to={productTo}
@@ -194,8 +151,17 @@ export function UvhFeaturedBestSellers({products, loading, error}: UvhFeaturedBe
                                                     {product.name}
                                                 </Link>
                                                 <div>
+                                                    {showWholesaleHint && (
+                                                        <p className="mt-0.5 text-xs text-zinc-800">
+                                                            {/*<br />*/}
+                                                            {/*showWholesaleHint: {String(showWholesaleHint)}*/}
+                                                            {/*<br />*/}
+                                                            {/*isWholesaler: {String(isWholesaler)}*/}
+                                                            Wholesale
+                                                        </p>
+                                                    )}
                                                     <p className="text-sm font-bold text-(--sf-accent)">
-                                                        {formatZar(priceInfo.price)}
+                                                        {formatAmount(priceInfo.price)}
                                                         <span className="ml-1 text-xs font-normal text-zinc-500">
                                                             Ex. Vat
                                                         </span>
@@ -203,14 +169,9 @@ export function UvhFeaturedBestSellers({products, loading, error}: UvhFeaturedBe
                                                     {priceInfo.originalPrice != null &&
                                                         priceInfo.originalPrice > priceInfo.price && (
                                                             <p className="mt-0.5 text-xs text-zinc-500 line-through">
-                                                                {formatZar(priceInfo.originalPrice)}
+                                                                {formatAmount(priceInfo.originalPrice)}
                                                             </p>
                                                         )}
-                                                    {showWholesaleHint && (
-                                                        <p className="mt-0.5 text-xs text-zinc-800">
-                                                            Wholesale: {formatZar(wholesale ?? 0)}
-                                                        </p>
-                                                    )}
                                                 </div>
                                                 <Link
                                                     to={productTo}

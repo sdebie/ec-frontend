@@ -1,5 +1,4 @@
 import * as React from "react";
-
 import {Label} from "@/components";
 import {cn} from '@/utils/cn.ts';
 
@@ -26,10 +25,10 @@ export const Textarea = React.forwardRef<HTMLTextAreaElement, TextareaProps>(
                     id={textareaId}
                     required={required}
                     className={cn(
-                        "min-h-24 w-full rounded-md border-2 border-admin-border bg-admin-panel px-3 py-2 text-sm text-admin-text transition-colors",
-                        "placeholder:text-admin-text-muted",
-                        "focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent focus:ring-offset-1 focus:ring-offset-admin-bg",
-                        "disabled:cursor-not-allowed disabled:opacity-50 disabled:bg-admin-bg",
+                        "min-h-24 w-full rounded-md border-2 border-(--c-border) bg-(--c-panel) px-3 py-2 text-sm text-(--c-text) transition-colors",
+                        "placeholder:text-(--c-text-muted)",
+                        "focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent focus:ring-offset-1 focus:ring-offset-(--c-bg)",
+                        "disabled:cursor-not-allowed disabled:opacity-50 disabled:bg-(--c-bg)",
                         hasError && 'border-red-500 focus:ring-red-500',
                         className
                     )}
@@ -38,7 +37,7 @@ export const Textarea = React.forwardRef<HTMLTextAreaElement, TextareaProps>(
                 {hasError && error ? (
                     <p className="text-sm text-red-500">{error}</p>
                 ) : helperText ? (
-                    <p className="text-sm text-admin-text-muted">{helperText}</p>
+                    <p className="text-sm text-(--c-text-muted)">{helperText}</p>
                 ) : null}
             </div>
         );

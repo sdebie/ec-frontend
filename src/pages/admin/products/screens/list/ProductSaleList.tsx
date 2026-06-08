@@ -1,14 +1,13 @@
-import { ColumnDef } from "@tanstack/react-table";
-import { PenLine } from "lucide-react";
-import { useEffect, useMemo, useState } from "react";
-import { useNavigate } from "react-router-dom";
+import {ColumnDef} from "@tanstack/react-table";
+import {PenLine} from "lucide-react";
+import {useEffect, useMemo, useState} from "react";
+import {useNavigate} from "react-router-dom";
 
 
-import { Button } from "@/components";
-import { DataTable } from "@/components/shared/datatable/DataTable.tsx";
-import { apiGetProductOnSaleList } from "@/services/graphql/product/product.service.ts";
-
-import type { ProductShoppingListItem } from "@/types/admin/ProductTypes.ts";
+import {Button} from "@/components";
+import {DataTable} from "@/components/shared/datatable/DataTable.tsx";
+import {apiGetProductOnSaleList} from "@/services/graphql/product/product.service.ts";
+import type {ProductShoppingListItem} from "@/types/admin/ProductTypes.ts";
 
 type SaleProductRow = ProductShoppingListItem;
 
@@ -64,7 +63,7 @@ const ProductSaleList = () => {
                 accessorFn: (row) => row.name ?? "",
                 header: "Product Name",
                 enableSorting: true,
-                cell: ({ row }) => (
+                cell: ({row}) => (
                     <div className="w-100 truncate flex flex-col">
                         <span>{row.original.name ?? "-"}</span>
                         <span className="text-xs text-gray-500">{row.original.shortDescription ?? "-"}</span>
@@ -76,14 +75,14 @@ const ProductSaleList = () => {
                 accessorFn: (row) => row.productType ?? "",
                 header: "Type",
                 enableSorting: true,
-                cell: ({ row }) => row.original.productType ?? "-",
+                cell: ({row}) => row.original.productType ?? "-",
             },
             {
                 id: "variantCount",
                 accessorFn: (row) => row.variantCount ?? 0,
                 header: "Variants",
                 enableSorting: true,
-                cell: ({ row }) => row.original.variantCount ?? "-",
+                cell: ({row}) => row.original.variantCount ?? "-",
             },
             {
                 id: "wholesaleSalesPrice",
@@ -91,12 +90,12 @@ const ProductSaleList = () => {
                 header: () => (
                     <div>
                         Wholesale
-                        <br />
+                        <br/>
                         <div className="text-[10px]">Sale Price</div>
                     </div>
                 ),
                 enableSorting: true,
-                cell: ({ row }) => formatPrice(row.original.wholesaleSalePrice?.price ?? null),
+                cell: ({row}) => formatPrice(row.original.wholesaleSalePrice?.price ?? null),
             },
             {
                 id: "wholesaleSaleDaysRemaining",
@@ -104,12 +103,12 @@ const ProductSaleList = () => {
                 header: () => (
                     <div>
                         Wholesale
-                        <br />
+                        <br/>
                         <div className="text-[10px]">Days Left</div>
                     </div>
                 ),
                 enableSorting: true,
-                cell: ({ row }) => row.original.wholesaleSalePrice?.saleDaysRemaining ?? "-",
+                cell: ({row}) => row.original.wholesaleSalePrice?.saleDaysRemaining ?? "-",
             },
             {
                 id: "retailSalesPrice",
@@ -117,12 +116,12 @@ const ProductSaleList = () => {
                 header: () => (
                     <div>
                         Retail
-                        <br />
+                        <br/>
                         <div className="text-[10px]">Sale Price</div>
                     </div>
                 ),
                 enableSorting: true,
-                cell: ({ row }) => formatPrice(row.original.retailSalePrice?.price ?? null),
+                cell: ({row}) => formatPrice(row.original.retailSalePrice?.price ?? null),
             },
             {
                 id: "retailSaleDaysRemaining",
@@ -130,12 +129,12 @@ const ProductSaleList = () => {
                 header: () => (
                     <div>
                         Retail
-                        <br />
+                        <br/>
                         <div className="text-[10px]">Days Left</div>
                     </div>
                 ),
                 enableSorting: true,
-                cell: ({ row }) => row.original.retailSalePrice?.saleDaysRemaining ?? "-",
+                cell: ({row}) => row.original.retailSalePrice?.saleDaysRemaining ?? "-",
             },
             {
                 id: "actions",
@@ -149,7 +148,7 @@ const ProductSaleList = () => {
                             onClick={() => handleEdit(props.row.original)}
                             disabled={!props.row.original.id}
                         >
-                            <PenLine size={12} />
+                            <PenLine size={12}/>
                         </Button>
                     </div>
                 ),

@@ -1,9 +1,8 @@
-import { AlertTriangle, CheckCircle2, HelpCircle, Info, XCircle } from 'lucide-react';
+import {AlertTriangle, CheckCircle2, HelpCircle, Info, XCircle} from 'lucide-react';
 import * as React from 'react';
-
-import { Dialog, DialogContent, DialogFooter, DialogHeader } from '@/components/shared/dialog';
-import { Button } from '@/primitives/button';
-import { cn } from '@/utils/cn';
+import {Dialog, DialogContent, DialogFooter, DialogHeader} from '@/components/shared/dialog';
+import {Button} from '@/primitives/button';
+import {cn} from '@/utils/cn';
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
@@ -152,20 +151,20 @@ const VARIANT_CONFIG: Record<ConfirmationDialogVariant, VariantConfig> = {
  * ```
  */
 export function ConfirmationDialog({
-    open,
-    onClose,
-    onConfirm,
-    title,
-    message,
-    confirmText = 'Confirm',
-    cancelText = 'Cancel',
-    variant = 'default',
-    icon,
-    loading = false,
-    hideCancelButton = false,
-    size = 'sm',
-}: ConfirmationDialogProps) {
-    const { DefaultIcon, iconClass, badgeClass, confirmClass } = VARIANT_CONFIG[variant];
+                                       open,
+                                       onClose,
+                                       onConfirm,
+                                       title,
+                                       message,
+                                       confirmText = 'Confirm',
+                                       cancelText = 'Cancel',
+                                       variant = 'default',
+                                       icon,
+                                       loading = false,
+                                       hideCancelButton = false,
+                                       size = 'sm',
+                                   }: ConfirmationDialogProps) {
+    const {DefaultIcon, iconClass, badgeClass, confirmClass} = VARIANT_CONFIG[variant];
 
     // Resolve the icon to render:
     //   icon === null      → no icon
@@ -175,8 +174,8 @@ export function ConfirmationDialog({
         icon === null
             ? null
             : icon !== undefined
-              ? icon
-              : <DefaultIcon className={cn('h-5 w-5', iconClass)} aria-hidden="true" />;
+                ? icon
+                : <DefaultIcon className={cn('h-5 w-5', iconClass)} aria-hidden="true"/>;
 
     return (
         <Dialog open={open} onClose={onClose} size={size}>
@@ -184,7 +183,7 @@ export function ConfirmationDialog({
              * border-b-0  — removes the heavy divider line under the title
              * pb-3        — replaces the visual separation with tighter spacing
              */}
-            <DialogHeader title={title} className="border-b-0 pb-3" />
+            <DialogHeader title={title} className="border-b-0 pb-3"/>
 
             {/*
              * pt-2 pb-3   — collapses the excessive double-padding gap that
@@ -207,7 +206,7 @@ export function ConfirmationDialog({
 
                     {/* Body copy */}
                     {message != null && (
-                        <p className="text-sm text-admin-text-muted leading-relaxed self-center">
+                        <p className="text-sm text-(--c-text-muted) leading-relaxed self-center">
                             {message}
                         </p>
                     )}

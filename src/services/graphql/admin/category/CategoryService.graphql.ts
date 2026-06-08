@@ -1,9 +1,7 @@
-
 import {GraphQLService} from "@/services/graphql/GraphQLService.ts";
 import {Category} from "@/types/admin/CategoryTypes.ts";
 import {FilterRequest, PageRequest} from "@/types/graphql/query.types.ts";
 import getServiceEndpoint from "@/utils/HostnameResolver.ts";
-
 import {
     ALL_CATEGORY,
     CATEGORY_COUNT,

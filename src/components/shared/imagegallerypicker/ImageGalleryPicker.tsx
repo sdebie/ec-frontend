@@ -1,6 +1,5 @@
 import {Check, Loader} from "lucide-react";
-import {useState, useCallback, useEffect, useRef} from "react";
-
+import {useCallback, useEffect, useRef, useState} from "react";
 import {Button} from "@/components";
 import {IMAGE_BASE_URL} from "@/constants/api.constant.ts";
 import {Input} from "@/primitives/input";
@@ -110,12 +109,12 @@ export const ImageGalleryPicker = ({
             />
 
             {isLoading && images.length === 0 ? (
-                <div className="flex items-center justify-center py-12 text-admin-text-muted">
+                <div className="flex items-center justify-center py-12 text-(--c-text-muted)">
                     <Loader className="w-5 h-5 animate-spin mr-2"/>
                     Loading images...
                 </div>
             ) : images.length === 0 ? (
-                <div className="flex items-center justify-center py-8 text-admin-text-muted text-sm">
+                <div className="flex items-center justify-center py-8 text-(--c-text-muted) text-sm">
                     {searchQuery ? `No images match "${searchQuery}"` : "No images available"}
                 </div>
             ) : (
@@ -128,16 +127,16 @@ export const ImageGalleryPicker = ({
                                 className={`group relative aspect-square rounded-md overflow-hidden border-2 transition ${
                                     selectedImageId === filename
                                         ? "border-primary border-3 scale-95 bg-primary-subtle/20"
-                                        : "border-admin-border hover:border-primary"
+                                        : "border-(--c-border) hover:border-primary"
                                 }`}
                                 type="button"
                             >
                                 <img
-                                    src={`${IMAGE_BASE_URL}thumbnails/${filename}`}
+                                    src={`${IMAGE_BASE_URL}thumbnails/${filename}`.replace('//', '/')}
                                     className="w-full h-full object-cover"
                                     alt={filename}
                                     onError={(e) => {
-                                        (e.target as HTMLImageElement).src = `${IMAGE_BASE_URL}${filename}`;
+                                        (e.target as HTMLImageElement).src = `${IMAGE_BASE_URL}${filename}`.replace('//', '/');
                                     }}
                                 />
                                 {selectedImageId === filename && (
@@ -176,7 +175,7 @@ export const ImageGalleryPicker = ({
                     )}
 
                     {enablePagination && !canLoadMore && images.length > 0 && totalCount > 0 && (
-                        <p className="text-xs text-admin-text-muted text-center pt-2">
+                        <p className="text-xs text-(--c-text-muted) text-center pt-2">
                             Showing {images.length} of {totalCount} images
                         </p>
                     )}

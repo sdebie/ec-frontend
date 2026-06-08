@@ -1,14 +1,11 @@
 import {ChevronDown, ChevronUp} from 'lucide-react';
 import {useMemo, useState} from 'react';
 import {Link, useNavigate} from 'react-router-dom';
-
 import ProductImage from '@/components/shared/imageupload/ProductImage.tsx';
-import {useProduct} from '@/features/catalog/hooks/useProduct.ts';
+import {useProductDetail} from '@/features/catalog/hooks/useProductDetail.ts';
 import {getDisplayPriceForVariantTiers, pickVariantPriceByType,} from '@/features/catalog/utils/pricing.ts';
 import {Button} from '@/primitives/button';
 import {useCustomerType} from '@/store/customerTypeStore.ts';
-
-type ProductDetailLayout = 'default' | 'uvh';
 
 type UiVariant = {
     id: string;
@@ -32,26 +29,15 @@ type UiProduct = {
 
 type ProductDetailProps = {
     productId: string;
-    layout?: ProductDetailLayout;
-    onAddToCart: (variantId: string, unitPrice: number) => Promise<void> | void;
+    onAddToCart: (variantId: string, unitPrice: number, productName: string) => Promise<void> | void;
 };
 
 const defaultContainerClass = 'max-w-6xl mx-auto p-6 grid grid-cols-1 md:grid-cols-2 gap-12 bg-(--sf-bg)';
-const uvhContainerClass = 'w-full grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-10 bg-transparent p-6 sm:p-8';
 
-export function ProductDetail({productId, layout = 'default', onAddToCart}: ProductDetailProps) {
+export function ProductDetail({productId, onAddToCart}: ProductDetailProps) {
     const navigate = useNavigate();
-    const {product, loading, error} = useProduct(productId);
+    const {product, loading, error} = useProductDetail(productId);
     const mapped = useMemo(() => mapToUiProduct(product), [product]);
-
-    if (layout === 'uvh') {
-        return renderUvhLayout({
-            loading,
-            error,
-            product: mapped,
-            onAddToCart,
-        });
-    }
 
     if (loading) return <div className="min-h-screen bg-(--sf-bg) p-8">Loading product…</div>;
     if (error) return <div className="min-h-screen bg-(--sf-bg) p-8 text-(--sf-error)">{error}</div>;
@@ -86,114 +72,6 @@ export function ProductDetail({productId, layout = 'default', onAddToCart}: Prod
     );
 }
 
-function renderUvhLayout({
-                             loading,
-                             error,
-                             product,
-                             onAddToCart,
-                         }: {
-    loading: boolean;
-    error: string | null;
-    product: UiProduct | null;
-    onAddToCart: (variantId: string, unitPrice: number) => Promise<void> | void;
-}) {
-    if (loading) {
-        return (
-            <main className="min-h-screen w-full bg-(--sf-bg)">
-                <UvhDetailHero subtitle="Loading product details…" title="Product"/>
-                <div className="mx-auto mt-6 max-w-7xl px-4 py-8 sm:mt-8 sm:px-6 sm:py-10 lg:px-8">
-                    <div
-                        className="rounded-2xl border border-(--sf-border) bg-(--sf-panel) p-8 text-(--sf-muted-text) shadow-sm">
-                        Loading product…
-                    </div>
-                </div>
-            </main>
-        );
-    }
-
-    if (error) {
-        return (
-            <main className="min-h-screen w-full bg-(--sf-bg)">
-                <UvhDetailHero subtitle="We couldn’t load this item." title="Product"/>
-                <div className="mx-auto mt-6 max-w-7xl px-4 py-8 sm:mt-8 sm:px-6 sm:py-10 lg:px-8">
-                    <div
-                        className="rounded-2xl border border-(--sf-border) bg-(--sf-panel) p-8 text-(--sf-error) shadow-sm">
-                        {error}
-                    </div>
-                </div>
-            </main>
-        );
-    }
-
-    if (!product) {
-        return (
-            <main className="min-h-screen w-full bg-(--sf-bg)">
-                <UvhDetailHero subtitle="This product may have been removed." title="Product not found"/>
-                <div className="mx-auto mt-6 max-w-7xl px-4 py-8 sm:mt-8 sm:px-6 sm:py-10 lg:px-8">
-                    <div
-                        className="rounded-2xl border border-(--sf-border) bg-(--sf-panel) p-8 text-(--sf-muted-text) shadow-sm">
-                        <Link className="font-semibold text-(--sf-accent) hover:underline" to="/products">
-                            Browse all products
-                        </Link>
-                    </div>
-                </div>
-            </main>
-        );
-    }
-
-    return (
-        <main className="min-h-screen w-full bg-(--sf-bg)">
-            <UvhDetailHero
-                subtitle={product.shortDescription || 'Choose options, review pricing (Ex. VAT), and add to your cart.'}
-                title={product.name}
-            />
-            <section className="mx-auto mt-6 w-full max-w-7xl px-4 pb-10 sm:mt-8 sm:px-6 sm:pb-12 lg:px-8">
-                <div className="rounded-2xl border border-(--sf-border) bg-(--sf-panel) shadow-sm">
-                    <ProductDetailCard
-                        compactSummary
-                        containerClassName={uvhContainerClass}
-                        onAddToCart={onAddToCart}
-                        product={product}
-                    />
-                </div>
-            </section>
-        </main>
-    );
-}
-
-function UvhDetailHero({title, subtitle}: { title: string; subtitle?: string }) {
-    const navigate = useNavigate();
-    return (
-        <section className="bg-(--sf-text) text-(--sf-accent-text)">
-            <div className="mx-auto max-w-7xl px-4 py-8 sm:px-6 sm:py-10 lg:px-8">
-                <div className="flex flex-wrap items-center gap-x-4 gap-y-2">
-                    <button
-                        className="inline-flex text-sm font-medium text-(--sf-accent-text) underline-offset-4 transition-colors hover:text-(--sf-accent) hover:underline"
-                        onClick={() => navigate(-1)}
-                        type="button"
-                    >
-                        ← Back
-                    </button>
-                    <span aria-hidden className="hidden text-(--sf-accent-text)/60 sm:inline">|</span>
-                    <Link
-                        className="inline-flex text-sm font-medium text-(--sf-accent-text) underline-offset-4 transition-colors hover:text-(--sf-accent) hover:underline"
-                        to="/products"
-                    >
-                        All products
-                    </Link>
-                </div>
-                <p className="mt-4 text-xs font-semibold uppercase tracking-[0.14em] text-(--sf-accent)">Shop</p>
-                <h1 className="mt-3 text-xl font-semibold tracking-tight text-(--sf-accent-text) sm:text-2xl lg:text-3xl">{title}</h1>
-                {subtitle ? (
-                    <p className="mt-3 text-xs font-normal leading-relaxed text-(--sf-accent-text)/90 sm:text-sm">
-                        {subtitle}
-                    </p>
-                ) : null}
-            </div>
-        </section>
-    );
-}
-
 function ProductDetailCard({
                                product,
                                onAddToCart,
@@ -201,7 +79,7 @@ function ProductDetailCard({
                                compactSummary = false,
                            }: {
     product: UiProduct;
-    onAddToCart: (variantId: string, unitPrice: number) => Promise<void> | void;
+    onAddToCart: (variantId: string, unitPrice: number, productName: string) => Promise<void> | void;
     containerClassName: string;
     compactSummary?: boolean;
 }) {
@@ -350,6 +228,7 @@ function ProductDetailCard({
                                 },
                                 customerType,
                             ).price,
+                            product.name,
                         )
                     }
                     className="mt-10 w-full py-4 text-lg"
@@ -383,7 +262,7 @@ function ProductDetailCard({
     );
 }
 
-function mapToUiProduct(product: ReturnType<typeof useProduct>['product']): UiProduct | null {
+function mapToUiProduct(product: ReturnType<typeof useProductDetail>['product']): UiProduct | null {
     if (!product?.product) return null;
     const variants = product.variants ?? [];
     const productImages = variants.flatMap((variant) => variant.images || []).map((img) => ({

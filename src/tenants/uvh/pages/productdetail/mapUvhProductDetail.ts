@@ -1,6 +1,5 @@
-import { pickVariantPriceByType } from '@/features/catalog/utils/pricing.ts';
-
-import type { CatalogProductInformation } from '@/features/catalog/types.ts';
+import {pickVariantPriceByType} from '@/features/catalog/utils/pricing.ts';
+import type {CatalogProductInformation} from '@/features/catalog/types.ts';
 
 export type UvhDetailVariant = {
     id: string;
@@ -31,7 +30,7 @@ export function mapUvhProductDetail(product: CatalogProductInformation | null): 
     const variants = product.variants ?? [];
     const productImages = variants
         .flatMap((variant) => variant.images ?? [])
-        .map((img) => ({ id: img.id, imageUrl: img.imageUrl }));
+        .map((img) => ({id: img.id, imageUrl: img.imageUrl}));
 
     const primaryCategory = product.product.categories?.[0];
 
@@ -84,16 +83,16 @@ export function buildSpecificationRows(
     if (!variant) return [];
 
     const rows: { label: string; value: string }[] = [
-        { label: 'Product', value: productName },
-        { label: 'SKU', value: variant.sku || '—' },
+        {label: 'Product', value: productName},
+        {label: 'SKU', value: variant.sku || '—'},
     ];
 
     if (variant.weightKg) {
-        rows.push({ label: 'Weight', value: `${variant.weightKg} kg` });
+        rows.push({label: 'Weight', value: `${variant.weightKg} kg`});
     }
 
     Object.entries(variant.attributes).forEach(([key, value]) => {
-        rows.push({ label: key, value });
+        rows.push({label: key, value});
     });
 
     return rows;

@@ -1,8 +1,7 @@
-import React, { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
-
-import { Button } from "@/components";
-import { Dialog, DialogContent, DialogFooter, DialogHeader } from "@/components/shared/dialog/Dialog.tsx";
+import React, {useState} from 'react';
+import {useNavigate} from 'react-router-dom';
+import {Button} from "@/components";
+import {Dialog, DialogContent, DialogFooter, DialogHeader} from "@/components/shared/dialog/Dialog.tsx";
 import {uploadProductPriceCsv} from "@/services/rest/admin/ProductPriceUploadService.rest.ts";
 
 const ProductBulkUpload = () => {

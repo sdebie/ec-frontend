@@ -1,4 +1,4 @@
-import ApiService from '../RestApiService.ts';
+import getServiceEndpoint from "../../../utils/HostnameResolver";
 
 interface ImageUploadResponse {
   fileName: string;
@@ -20,75 +20,84 @@ interface PaginatedImageFilenamesResponse {
   pageSize: number;
 }
 
+const baseUrl = getServiceEndpoint(8080) || '/api';
+
 const ImageServiceRest = {
-  uploadImage: (file: File) => {
+  uploadImage: async (file: File): Promise<ImageUploadResponse> => {
     const formData = new FormData();
     formData.append('file', file);
 
-    return ApiService.fetchDataWithAxios<ImageUploadResponse, FormData>({
-      url: '/admin/images/upload',
+    const res = await fetch(`${baseUrl}/api/admin/images/upload`, {
       method: 'POST',
-      data: formData,
+      body: formData,
     });
+    if (!res.ok) throw new Error(await res.text());
+    return await res.json();
   },
 
-  uploadProductVariantImage: (file: File, productVariantId: string) => {
+  uploadProductVariantImage: async (file: File, productVariantId: string): Promise<ImageUploadResponse> => {
     const formData = new FormData();
     formData.append('file', file);
 
-    return ApiService.fetchDataWithAxios<ImageUploadResponse, FormData>({
-      url: `/admin/images/upload/product-variant/${productVariantId}`,
+    const res = await fetch(`${baseUrl}/api/admin/images/upload/product-variant/${productVariantId}`, {
       method: 'POST',
-      data: formData,
+      body: formData,
     });
+    if (!res.ok) throw new Error(await res.text());
+    return await res.json();
   },
 
-  uploadCategoryImage: (file: File) => {
+  uploadCategoryImage: async (file: File): Promise<ImageUploadResponse> => {
     const formData = new FormData();
     formData.append('file', file);
 
-    return ApiService.fetchDataWithAxios<ImageUploadResponse, FormData>({
-      url: '/admin/images/upload/category',
+    const res = await fetch(`${baseUrl}/api/admin/images/upload/category`, {
       method: 'POST',
-      data: formData,
+      body: formData,
     });
+    if (!res.ok) throw new Error(await res.text());
+    return await res.json();
   },
 
-  uploadBrandImage: (file: File) => {
+  uploadBrandImage: async (file: File): Promise<ImageUploadResponse> => {
     const formData = new FormData();
     formData.append('file', file);
 
-    return ApiService.fetchDataWithAxios<ImageUploadResponse, FormData>({
-      url: '/admin/images/upload/brand',
+    const res = await fetch(`${baseUrl}/api/admin/images/upload/brand`, {
       method: 'POST',
-      data: formData,
+      body: formData,
     });
+    if (!res.ok) throw new Error(await res.text());
+    return await res.json();
   },
 
-  bulkUploadImages: (files: File[], options?: BulkImageUploadOptions) => {
+  bulkUploadImages: async (files: File[], options?: BulkImageUploadOptions): Promise<BulkImageUploadResponse> => {
     const formData = new FormData();
     files.forEach(file => formData.append('images', file));
     formData.append('destinationDirectory', options?.destinationDirectory?.trim() ?? '');
 
-    return ApiService.fetchDataWithAxios<BulkImageUploadResponse, FormData>({
-      url: '/admin/images/bulk-upload',
+    const res = await fetch(`${baseUrl}/api/admin/images/bulk-upload`, {
       method: 'POST',
-      data: formData,
+      body: formData,
     });
+    if (!res.ok) throw new Error(await res.text());
+    return await res.json();
   },
 
-  fetchImageDirectories: () => {
-    return ApiService.fetchDataWithAxios<string[]>({
-      url: '/admin/images/directories',
+  fetchImageDirectories: async (): Promise<string[]> => {
+    const res = await fetch(`${baseUrl}/api/admin/images/directories`, {
       method: 'GET',
     });
+    if (!res.ok) throw new Error(await res.text());
+    return await res.json();
   },
 
-  fetchImageFilenames: () => { // Corrected syntax for object method
-    return ApiService.fetchDataWithAxios<string[]>({
-      url: '/admin/images/image-list', // ApiService will prepend API_BASE_URL
+  fetchImageFilenames: async (): Promise<string[]> => {
+    const res = await fetch(`${baseUrl}/api/admin/images/image-list`, {
       method: 'GET',
     });
+    if (!res.ok) throw new Error(await res.text());
+    return await res.json();
   },
 
   fetchImageFilenamesPaginated: async (
@@ -96,15 +105,16 @@ const ImageServiceRest = {
     pageSize = 30,
     search = ''
   ): Promise<PaginatedImageFilenamesResponse> => {
-    return ApiService.fetchDataWithAxios<PaginatedImageFilenamesResponse>({
-      url: '/admin/images/image-list/paginated',
-      method: 'GET',
-      params: {
-        page,
-        pageSize,
-        search,
-      },
+    const params = new URLSearchParams({
+      page: page.toString(),
+      pageSize: pageSize.toString(),
+      search,
     });
+    const res = await fetch(`${baseUrl}/api/admin/images/image-list/paginated?${params}`, {
+      method: 'GET',
+    });
+    if (!res.ok) throw new Error(await res.text());
+    return await res.json();
   },
 };
 

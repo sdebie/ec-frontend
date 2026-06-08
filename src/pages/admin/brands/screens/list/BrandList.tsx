@@ -9,6 +9,7 @@ import useDeleteBrand from "@/pages/admin/brands/hooks/useDeleteBrand.ts";
 import BrandCreate from "@/pages/admin/brands/screens/create";
 import BrandEditor from "@/pages/admin/brands/screens/edit";
 import {Brand} from "@/types/admin/BrandTypes.ts";
+import {IMAGE_THUMBNAIL_URL} from "@/constants/api.constant.ts";
 
 
 
@@ -66,7 +67,7 @@ const BrandList = () => {
             enableSorting: false,
             size: 72,
             cell: ({row}) => (
-                <Thumbnail logoUrl={row.original.logoUrl} name={row.original.name}/>
+                <Thumbnail logoUrl={`${IMAGE_THUMBNAIL_URL}${row.original.logoUrl}`} name={row.original.name}/>
             ),
         },
         {

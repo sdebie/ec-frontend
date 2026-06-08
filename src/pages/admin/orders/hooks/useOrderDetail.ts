@@ -1,7 +1,6 @@
-import { useEffect, useState } from "react";
-
-import { apiGetOrderDetail } from "@/services/graphql/order/OrderService.graphql.ts";
-import { OrderDetailData } from "@/types/order.types.ts";
+import {useEffect, useState} from "react";
+import {apiGetOrderDetail} from "@/services/graphql/order/OrderService.graphql.ts";
+import {OrderDetailData} from "@/types/order.types.ts";
 
 export default function useOrderDetail(orderId?: string) {
     const [order, setOrder] = useState<OrderDetailData | null>(null);
@@ -19,8 +18,8 @@ export default function useOrderDetail(orderId?: string) {
             try {
                 const result = await apiGetOrderDetail(orderId);
                 if (!cancelled) setOrder(result);
-            } catch (e: any) {
-                if (!cancelled) setErrorMsg(e?.message ?? "Failed to load order detail");
+            } catch (e: unknown) {
+                if (!cancelled) setErrorMsg(e instanceof Error ? e.message : "Failed to load order detail");
             } finally {
                 if (!cancelled) setIsLoading(false);
             }
@@ -33,6 +32,6 @@ export default function useOrderDetail(orderId?: string) {
         };
     }, [orderId]);
 
-    return { order, isLoading, errorMsg };
+    return {order, isLoading, errorMsg};
 }
 

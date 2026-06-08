@@ -1,34 +1,25 @@
-import { useEffect, useState } from 'react';
+import {useQuery} from '@tanstack/react-query';
+import type {ShippingMethod} from '@/services/StoreSettings.ts';
+import {apiGetShippingMethods} from '@/services/StoreSettings.ts';
 
-import { apiGetShippingMethods } from '@/services/graphql/admin/settings/SettingsService.graphql.ts';
-
-import type { ShippingMethod } from '@/services/StoreSettings.ts';
-
+const isActiveMethod = (m: ShippingMethod) => (m.active ?? true) && !!m.id;
 
 /**
- * Loads active shipping methods from the Store Settings API (§5 deviation: not threaded from tenant config until Phase 1).
+ * Loads active shipping methods from the Store Settings API.
  */
 export function useShippingMethods(): { shippingMethods: ShippingMethod[] } {
-    const [shippingMethods, setShippingMethods] = useState<ShippingMethod[]>([]);
+    const query = useQuery({
+        queryKey: ['shippingMethods'],
+        queryFn: () =>
+            apiGetShippingMethods()
+                .then((methods) => (methods ?? []).filter(isActiveMethod))
+                .catch((e) => {
+                    console.warn('Failed to load shipping methods', e);
+                    return [] as ShippingMethod[];
+                }),
+        // Shipping methods change infrequently — treat as session-stable.
+        staleTime: 1000 * 60 * 10,
+    });
 
-    useEffect(() => {
-        let cancelled = false;
-        const load = async () => {
-            try {
-                const methods = await apiGetShippingMethods();
-                if (!cancelled) {
-                    setShippingMethods((methods || []).filter((m) => (m.active ?? true) && !!m.id));
-                }
-            } catch (e) {
-                console.warn('Failed to load shipping methods', e);
-                if (!cancelled) setShippingMethods([]);
-            }
-        };
-        void load();
-        return () => {
-            cancelled = true;
-        };
-    }, []);
-
-    return { shippingMethods };
+    return {shippingMethods: query.data ?? []};
 }

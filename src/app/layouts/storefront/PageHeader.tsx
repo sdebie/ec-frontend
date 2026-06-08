@@ -1,34 +1,29 @@
-/* eslint-disable import/order */
-import {HardHat, UserIcon} from 'lucide-react';
+import {HardHat, UserIcon, X} from 'lucide-react';
 import React, {useEffect, useRef, useState} from 'react';
+import {createPortal} from 'react-dom';
 import {Link, useLocation, useNavigate} from 'react-router-dom';
 
 import ImageUploadModal from '@/app/layouts/storefront/ImageUploadModal.tsx';
 import CartIcon from '@/components/shared/icon/CartIcon.tsx';
+import {StorefrontNavLink} from '@/components/shared/navigation';
 import LoginModal from '@/features/auth/customer/components/LoginModal.tsx';
 import ResetPasswordModal from '@/features/auth/customer/components/ResetPasswordModal.tsx';
-import { cartStore } from '@/features/cart';
-import {useIsWholesaler} from '@/store/customerTypeStore.ts';
-
+import {cartStore} from '@/features/cart';
 import {CustomerProfile} from '@/services/CustomerService.ts';
-
-import {NavMenuItem, StorefrontClientConfig} from '@/types/storefront/storefrontTypes.ts';
-
+import {customerTypeStore, useIsWholesaler} from '@/store/customerTypeStore.ts';
+import {StorefrontClientConfig} from '@/types/storefront/storefrontTypes.ts';
 import styles from './PageHeader.module.css';
+
 const AUTH_KEY = 'checkoutIsAuthenticated';
 const EMAIL_KEY = 'checkoutEmail';
-const DESKTOP_QUERY = '(min-width: 1024px)'; // Tailwind lg breakpoint
+const DESKTOP_QUERY = '(min-width: 768px)'; // Tailwind md breakpoint
 
 interface PageHeaderProps {
     storefrontConfig: StorefrontClientConfig;
 }
 
-interface RenderNavItemOptions {
-    className?: string;
-    onClick?: () => void;
-}
 
-const PageHeader: React.FC<PageHeaderProps> = ({ storefrontConfig }) => {
+const PageHeader: React.FC<PageHeaderProps> = ({storefrontConfig}) => {
     const navigate = useNavigate();
     const location = useLocation();
 
@@ -47,14 +42,15 @@ const PageHeader: React.FC<PageHeaderProps> = ({ storefrontConfig }) => {
     const isWholesaler = useIsWholesaler();
     const userMenuRef = useRef<HTMLDivElement>(null);
 
+
     const renderUserProfileIcon = () => {
         if (!isWholesaler) {
-            return <UserIcon size={22} />;
+            return <UserIcon size={22}/>;
         }
 
         return (
             <span className="relative inline-flex h-5.5 w-5.5 items-center justify-center">
-                <UserIcon size={22} />
+                <UserIcon size={22}/>
                 <HardHat
                     size={10}
                     className="absolute -top-0.5 right-0 rounded-full bg-(--sf-nav-bg)"
@@ -149,7 +145,8 @@ const PageHeader: React.FC<PageHeaderProps> = ({ storefrontConfig }) => {
             setIsAuthenticated(false);
             setShowUserMenu(false);
             setShowLoginModal(false);
-                setShowResetPasswordModal(false);
+            setShowResetPasswordModal(false);
+            customerTypeStore.getState().resetToRetail(); // Reset customer type to retail
             readValues();
             navigate('/');
         } catch (e) {
@@ -181,60 +178,6 @@ const PageHeader: React.FC<PageHeaderProps> = ({ storefrontConfig }) => {
         setShowLoginModal(true);
     };
 
-    const renderNavItem = (item: NavMenuItem, options: RenderNavItemOptions = {}) => {
-        const {className = styles.navLink, onClick} = options;
-
-        if (item.external) {
-            return (
-                <a
-                    key={item.id}
-                    href={item.to}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className={className}
-                    onClick={onClick}
-                >
-                    {item.label}
-                </a>
-            );
-        }
-
-        if (/^https?:\/\//i.test(item.to) && typeof window !== 'undefined') {
-            try {
-                const url = new URL(item.to);
-                if (url.origin === window.location.origin) {
-                    return (
-                        <Link
-                            key={item.id}
-                            to={`${url.pathname}${url.search}${url.hash}`}
-                            className={className}
-                            onClick={onClick}
-                        >
-                            {item.label}
-                        </Link>
-                    );
-                }
-            } catch {
-                // fall through to plain anchor
-            }
-            return (
-                <a key={item.id} href={item.to} className={className} onClick={onClick}>
-                    {item.label}
-                </a>
-            );
-        }
-
-        return (
-            <Link
-                key={item.id}
-                to={item.to}
-                className={className}
-                onClick={onClick}
-            >
-                {item.label}
-            </Link>
-        );
-    };
 
     return (
         <header
@@ -244,7 +187,7 @@ const PageHeader: React.FC<PageHeaderProps> = ({ storefrontConfig }) => {
         >
             <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 bg-(--sf-nav-bg)">
                 <div
-                    className="grid h-18 grid-cols-[minmax(0,1fr)_auto] items-center gap-2 lg:grid-cols-[auto_1fr_auto] lg:gap-8">
+                    className="grid h-14 grid-cols-[minmax(0,1fr)_auto] items-center gap-2 md:grid-cols-[auto_1fr_auto] md:gap-8">
                     <Link to="/" className="min-w-0 inline-flex items-center flex-nowrap gap-2 no-underline">
                         {logo?.src ? (
                             <img
@@ -252,7 +195,7 @@ const PageHeader: React.FC<PageHeaderProps> = ({ storefrontConfig }) => {
                                 alt={logo.alt || `${storefrontConfig.branding.name} logo`}
                                 width={logo.width}
                                 height={logo.height}
-                                className="shrink-0 h-9 w-auto object-contain"
+                                className="shrink-0 h-7 w-auto object-contain"
                                 style={{width: logo.width, height: logo.height}}
                             />
                         ) : null}
@@ -263,9 +206,18 @@ const PageHeader: React.FC<PageHeaderProps> = ({ storefrontConfig }) => {
 
                     <nav
                         aria-label="Primary"
-                        className={`hidden lg:flex items-center justify-center gap-7 ${styles.navMenu}`}
+                        className={`hidden md:flex items-center justify-center gap-5 ${styles.navMenu}`}
                     >
-                        {menuItems.map((item) => renderNavItem(item))}
+                        {menuItems.map((item) => (
+                            <StorefrontNavLink
+                                key={item.id}
+                                to={item.to}
+                                external={item.external}
+                                className={styles.navLink}
+                            >
+                                {item.label}
+                            </StorefrontNavLink>
+                        ))}
                     </nav>
 
                     <div className="flex items-center justify-end gap-1 sm:gap-2">
@@ -330,43 +282,66 @@ const PageHeader: React.FC<PageHeaderProps> = ({ storefrontConfig }) => {
                             <button
                                 type="button"
                                 className={`${styles.iconButton} text-(--sf-nav-icon-text)`}
-                                aria-label={showMobileMenu ? 'Close navigation menu' : 'Open navigation menu'}
+                                aria-label="Open navigation menu"
                                 aria-expanded={showMobileMenu}
                                 aria-controls="mobile-primary-nav"
                                 onClick={() => setShowMobileMenu((prev) => !prev)}
                             >
-                                {showMobileMenu ? (
-                                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
-                                         strokeWidth={1.5} stroke="currentColor" className="w-6 h-6">
-                                        <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12"/>
-                                    </svg>
-                                ) : (
-                                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
-                                         strokeWidth={1.5} stroke="currentColor" className="w-6 h-6">
-                                        <path strokeLinecap="round" strokeLinejoin="round"
-                                              d="M3.75 6.75h16.5M3.75 12h16.5m-16.5 5.25h16.5"/>
-                                    </svg>
-                                )}
+                                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
+                                     strokeWidth={1.5} stroke="currentColor" className="w-6 h-6">
+                                    <path strokeLinecap="round" strokeLinejoin="round"
+                                          d="M3.75 6.75h16.5M3.75 12h16.5m-16.5 5.25h16.5"/>
+                                </svg>
                             </button>
                         )}
                     </div>
                 </div>
 
-                {!isDesktopViewport && showMobileMenu && (
-                    <nav
-                        id="mobile-primary-nav"
-                        aria-label="Mobile primary"
-                        className="border-t border-(--sf-nav-border) bg-black/10 py-2"
-                    >
-                        <div className="flex flex-col pb-2">
-                            {menuItems.map((item) =>
-                                renderNavItem(item, {
-                                    className: 'block rounded-md px-2 py-2 text-sm text-(--sf-nav-text) hover:bg-white/10',
-                                    onClick: () => setShowMobileMenu(false),
-                                })
-                            )}
+                {!isDesktopViewport && createPortal(
+                    <>
+                        {/* Backdrop */}
+                        <div
+                            aria-hidden="true"
+                            onClick={() => setShowMobileMenu(false)}
+                            className={`fixed inset-0 z-40 bg-black/50 transition-opacity duration-300 ${showMobileMenu ? 'opacity-100' : 'opacity-0 pointer-events-none'}`}
+                        />
+                        {/* Drawer */}
+                        <div
+                            id="mobile-primary-nav"
+                            role="dialog"
+                            aria-modal="true"
+                            aria-label="Navigation menu"
+                            style={{backgroundColor: 'var(--sf-nav-bg)'}}
+                            className={`fixed inset-y-0 right-0 z-50 flex w-72 flex-col shadow-xl transition-transform duration-300 ease-in-out ${showMobileMenu ? 'translate-x-0' : 'translate-x-full'}`}
+                        >
+                            <div
+                                className="flex items-center justify-between border-b border-(--sf-nav-border) px-4 py-3">
+                                <span className="text-sm font-semibold text-(--sf-nav-text)">Menu</span>
+                                <button
+                                    type="button"
+                                    className={`${styles.iconButton} text-(--sf-nav-icon-text)`}
+                                    aria-label="Close navigation menu"
+                                    onClick={() => setShowMobileMenu(false)}
+                                >
+                                    <X size={22}/>
+                                </button>
+                            </div>
+                            <nav aria-label="Mobile primary" className="flex flex-col gap-1 overflow-y-auto p-4">
+                                {menuItems.map((item) => (
+                                    <StorefrontNavLink
+                                        key={item.id}
+                                        to={item.to}
+                                        external={item.external}
+                                        className={`block rounded-md px-3 py-2.5 text-sm font-medium text-(--sf-nav-text) transition-colors ${styles.drawerNavLink}`}
+                                        onClick={() => setShowMobileMenu(false)}
+                                    >
+                                        {item.label}
+                                    </StorefrontNavLink>
+                                ))}
+                            </nav>
                         </div>
-                    </nav>
+                    </>,
+                    document.querySelector(`[data-storefront-client="${storefrontConfig.id}"]`) ?? document.body
                 )}
             </div>
 

@@ -1,7 +1,6 @@
 import {getDisplayPriceFromVariantPriceRows} from '@/features/catalog/utils/pricing.ts';
 import {OrderItemData as OrderItemsData, asVariant} from '@/types/order.types.ts';
 import {getCartItemsStorageKey} from '@/utils/storefront/tenantStorageKeys';
-
 import type { CustomerType } from '@/constants/enums/CustomerType';
 
 

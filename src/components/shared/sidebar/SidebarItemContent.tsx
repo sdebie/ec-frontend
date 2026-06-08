@@ -1,12 +1,7 @@
 import {ChevronDown, ChevronUp} from 'lucide-react';
-
 import {cn} from '@/utils/cn.ts';
-
 import Icon from '../../shared/icon/Icon';
-
 import type {ReactNode} from 'react';
-
-
 
 interface SidebarItemContentProps {
     label?: string;
@@ -41,7 +36,7 @@ export function SidebarItemContent({label, icon, hasSubMenu, isExpanded, isColla
                 {!isCollapsed && <span className="whitespace-nowrap truncate">{label}</span>}
             </div>
             {!isCollapsed && hasSubMenu && (
-                <span className="flex items-center text-admin-text-muted transition-transform shrink-0 ml-auto">
+                <span className="flex items-center text-(--c-text-muted) transition-transform shrink-0 ml-auto">
                     {isExpanded ? <ChevronUp className="w-4 h-4"/> : <ChevronDown className="w-4 h-4"/>}
                 </span>
             )}

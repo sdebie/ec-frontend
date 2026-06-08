@@ -2,6 +2,18 @@ import { create } from 'zustand';
 
 export type ToastVariant = 'success' | 'error' | 'warning' | 'info';
 
+/**
+ * Where the toast stack appears on screen.
+ * Pass as a prop to <ToastContainer position="…" />.
+ */
+export type ToastPosition =
+    | 'top-left'
+    | 'top-center'
+    | 'top-right'
+    | 'bottom-left'
+    | 'bottom-center'
+    | 'bottom-right';
+
 export type ToastOptions = {
     title?: string;
     /**

@@ -1,9 +1,6 @@
-import { beforeEach, describe, expect, it, vi } from 'vitest';
-
-import { cartStore } from '@/features/cart/cartStore.ts';
-
-import type { OrderData, OrderItemData } from '@/types/order.types.ts';
-
+import {beforeEach, describe, expect, it, vi} from 'vitest';
+import {cartStore} from '@/features/cart/cartStore.ts';
+import type {OrderData, OrderItemData} from '@/types/order.types.ts';
 
 beforeEach(() => {
     localStorage.clear();
@@ -15,8 +12,8 @@ describe('cartStore', () => {
         const listener = vi.fn();
         const unsub = cartStore.subscribe(listener);
         const items: OrderItemData[] = [
-            { quantity: 2, unitPrice: 10, variant: 'variant-a' },
-            { quantity: 1, unitPrice: 5, variant: 'variant-b' },
+            {quantity: 2, unitPrice: 10, variant: 'variant-a'},
+            {quantity: 1, unitPrice: 5, variant: 'variant-b'},
         ];
 
         cartStore.setItems(items);
@@ -27,12 +24,12 @@ describe('cartStore', () => {
     });
 
     it('mergeItems merges duplicate variants by id and sums quantities', () => {
-        cartStore.setItems([{ quantity: 1, unitPrice: 10, variant: 'v1' }]);
+        cartStore.setItems([{quantity: 1, unitPrice: 10, variant: 'v1'}]);
 
         const merged = cartStore.mergeItems({
             items: [
-                { quantity: 2, unitPrice: 10, variant: 'v1' },
-                { quantity: 1, unitPrice: 22, variant: 'v2' },
+                {quantity: 2, unitPrice: 10, variant: 'v1'},
+                {quantity: 1, unitPrice: 22, variant: 'v2'},
             ],
         } as OrderData);
 
@@ -49,7 +46,7 @@ describe('cartStore', () => {
         const unsub = cartStore.subscribe(listener);
         unsub();
 
-        cartStore.setItems([{ quantity: 1, unitPrice: 1, variant: 'x' }]);
+        cartStore.setItems([{quantity: 1, unitPrice: 1, variant: 'x'}]);
 
         expect(listener).not.toHaveBeenCalled();
     });

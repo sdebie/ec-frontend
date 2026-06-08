@@ -3,6 +3,7 @@ import {resolveStorefrontConventionPage} from '@/configs/storefront/storefrontPa
 import {storefrontPageRegistry, storefrontPageVariantRegistry} from '@/configs/storefront/storefrontPageRegistry'
 
 import type {
+    StorefrontPageComponent,
     StorefrontPageResolverInput,
     StorefrontPageResolverResult,
 } from '@/types/storefront/storefrontPageContracts'
@@ -16,12 +17,16 @@ export function resolveStorefrontPageCore({
     routeComponent,
     storefrontConfig,
 }: StorefrontPageResolverInput): StorefrontPageResolverResult {
-    const defaultComponent = storefrontPageRegistry[routeKey]
-    const requestedVariant = storefrontConfig.pages?.variants?.[routeKey]
+    const pageRegistry = storefrontPageRegistry as Record<string, StorefrontPageComponent | undefined>
+    const variantRegistry = storefrontPageVariantRegistry as Record<string, Record<string, StorefrontPageComponent> | undefined>
+    const pagesVariants = storefrontConfig.pages?.variants as Record<string, string | undefined> | undefined
+
+    const defaultComponent = pageRegistry[routeKey]
+    const requestedVariant = pagesVariants?.[routeKey]
     const conventionComponent = resolveStorefrontConventionPage(storefrontConfig.id, routeKey)
 
     if (requestedVariant) {
-        const variantComponent = storefrontPageVariantRegistry[routeKey]?.[requestedVariant]
+        const variantComponent = variantRegistry[routeKey]?.[requestedVariant]
 
         if (variantComponent) {
             return {

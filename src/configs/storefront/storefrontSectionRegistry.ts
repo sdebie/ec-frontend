@@ -1,14 +1,12 @@
-
-import {BenefitsSection} from "@/components/layout/store/BenefitsSection.tsx";
-import {CategoryPreviewSection} from '@/components/layout/store/CategoryPreviewSection.tsx';
-import {CtaSection} from "@/components/layout/store/CtaSection.tsx";
-import {FeaturedProductsSection} from "@/components/layout/store/FeaturedProductsSection.tsx";
-import {HeroSection} from "@/components/layout/store/HeroSection.tsx";
-import {NewsletterSection} from '@/components/layout/store/NewsletterSection.tsx';
-import {PromoGridSection} from '@/components/layout/store/PromoGridSection.tsx';
-import {TestimonialsSection} from '@/components/layout/store/TestimonialsSection.tsx';
+import {BenefitsSection} from "@/components/storefront/sections/BenefitsSection.tsx";
+import {CategoryPreviewSection} from '@/components/storefront/sections/CategoryPreviewSection.tsx';
+import {CtaSection} from "@/components/storefront/sections/CtaSection.tsx";
+import {FeaturedProductsSection} from "@/components/storefront/sections/FeaturedProductsSection.tsx";
+import {HeroSection} from "@/components/storefront/sections/HeroSection.tsx";
+import {NewsletterSection} from '@/components/storefront/sections/NewsletterSection.tsx';
+import {PromoGridSection} from '@/components/storefront/sections/PromoGridSection.tsx';
+import {TestimonialsSection} from '@/components/storefront/sections/TestimonialsSection.tsx';
 import {StorefrontSectionConfig, StorefrontSectionType} from "@/types/storefront/storefrontTypes.ts";
-
 import type {ComponentType} from 'react';
 
 type RegistryComponent = ComponentType<{ props: StorefrontSectionConfig['props'] }>;

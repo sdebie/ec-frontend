@@ -1,5 +1,4 @@
 import * as React from 'react';
-
 import {Label} from '@/components';
 import {cn} from '@/utils/cn.ts';
 
@@ -37,7 +36,7 @@ export const FormItem: React.FC<FormItemProps> = ({
                 <p className="text-sm text-red-500">{errorMessage}</p>
             )}
             {!hasError && helperText && (
-                <p className="text-sm text-admin-text-muted">{helperText}</p>
+                <p className="text-sm text-(--c-text-muted)">{helperText}</p>
             )}
         </div>
     );

@@ -59,7 +59,7 @@ export const adminMenuRoutes: Routes = [
             {
                 key: 'admin.products.list',
                 path: '/admin/products/list',
-                component: lazy(() => import('@/pages/admin/products/screens/list/ProductList')),
+                component: lazy(() => import('@/pages/admin/products/screens/list/AdminProductList')),
                 authority: ['SUPER_ADMIN'],
                 meta: {
                     label: 'Product List',
@@ -227,23 +227,23 @@ export const adminMenuRoutes: Routes = [
                 },
             },
             {
-                key: 'admin.settings.store',
-                path: '/admin/settings/store',
-                component: lazy(() => import('../../../pages/admin/settings/screens/./StoreSettings')),
-                authority: ['SUPER_ADMIN'],
-                meta: {
-                    label: 'Store Settings',
-                    pageBackgroundType: 'plain',
-                    pageContainerType: 'contained',
-                },
-            },
-            {
                 key: 'admin.settings.shipping',
                 path: '/admin/settings/shipping',
                 component: lazy(() => import('../../../pages/admin/settings/screens/./ShippingSettings')),
                 authority: ['SUPER_ADMIN'],
                 meta: {
                     label: 'Shipping Methods',
+                    pageBackgroundType: 'plain',
+                    pageContainerType: 'contained',
+                },
+            },
+            {
+                key: 'admin.settings.storefront',
+                path: '/admin/settings/storefront',
+                component: lazy(() => import('@/pages/admin/storefrontSettings/StorefrontSettingsPage')),
+                authority: ['SUPER_ADMIN'],
+                meta: {
+                    label: 'Storefront Settings',
                     pageBackgroundType: 'plain',
                     pageContainerType: 'contained',
                 },
@@ -275,19 +275,6 @@ export const adminMenuRoutes: Routes = [
                 },
             },
         ]
-    },
-    {
-        key: 'admin.component-demo',
-        path: '/admin/component-demo',
-        component: lazy(() => import('../../../pages/shared/demo/ComponentsDemo.tsx')),
-        authority: ['SUPER_ADMIN'],
-        meta: {
-            label: 'Component Demo',
-            section: 'CONFIGURATION',
-            pageBackgroundType: 'plain',
-            pageContainerType: 'contained',
-            icon: 'component',
-        },
     },
 ]
 

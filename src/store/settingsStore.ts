@@ -1,5 +1,5 @@
 import { create } from 'zustand';
-import type { CountrySetting } from '@/types/admin/SettingsTypes';
+import type { CountrySetting } from '@/types/shared/SettingsTypes';
 import { getDefaultCountrySetting, createCountryMoneyFormatter, formatAmount } from '@/utils/formatAmount';
 
 type SettingsState = {

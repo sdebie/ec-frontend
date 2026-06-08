@@ -152,7 +152,7 @@ const BrandCreate = ({isDialogOpen, setIsDialogOpen, onSuccess}: BrandCreateProp
                                 >
                                     <ImageUpload
                                         type="brand"
-                                        onImageUpload={(fileName) => field.onChange(`${IMAGE_BASE_URL}${fileName}`)}
+                                        onImageUpload={(fileName) => field.onChange(`${IMAGE_BASE_URL}${fileName}`.replace('//', '/'))}
                                         currentImageUrl={field.value || undefined}
                                     />
                                 </FormItem>

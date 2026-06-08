@@ -1,6 +1,5 @@
 import {CheckCircle2, PenLine, Plus, TrashIcon, XCircle} from "lucide-react";
 import {useCallback, useState} from 'react';
-
 import {Button, DataTable, toast} from "@/components";
 import useGetShippingMethods from "@/pages/admin/settings/hooks/useGetShippingMethods.ts";
 import ShippingMethodCreate from "@/pages/admin/settings/screens/create";
@@ -126,12 +125,12 @@ const ShippingSettings = ({onEdit, onDelete: _onDelete, onCreate}: ShippingSetti
                 }
             />
             <ShippingMethodEdit method={selectedMethod}
-                         isDialogOpen={isEditDialogOpen}
-                         setIsDialogOpen={setIsEditDialogOpen}
-                         onSuccess={fetchShippingMethods}/>
+                                isDialogOpen={isEditDialogOpen}
+                                setIsDialogOpen={setIsEditDialogOpen}
+                                onSuccess={fetchShippingMethods}/>
             <ShippingMethodCreate isDialogOpen={isCreateDialogOpen}
-                         setIsDialogOpen={setIsCreateDialogOpen}
-                         onSuccess={fetchShippingMethods}/>
+                                  setIsDialogOpen={setIsCreateDialogOpen}
+                                  onSuccess={fetchShippingMethods}/>
         </section>
     );
 };

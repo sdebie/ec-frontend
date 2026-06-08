@@ -1,6 +1,5 @@
 import {X} from 'lucide-react';
 import * as React from 'react';
-
 import {cn} from '@/utils/cn.ts';
 
 interface DialogContextValue {
@@ -86,7 +85,7 @@ export function Dialog({open, onClose, children, size = 'md', className}: Dialog
                     role="dialog"
                     aria-modal="true"
                     className={cn(
-                        'flex flex-col w-full bg-admin-panel border border-admin-border rounded-xl shadow-2xl pointer-events-auto overflow-hidden animate-in fade-in zoom-in-95 duration-200 max-h-[calc(100vh-6rem)]',
+                        'flex flex-col w-full bg-(--c-panel) border border-(--c-border) rounded-xl shadow-2xl pointer-events-auto overflow-hidden animate-in fade-in zoom-in-95 duration-200 max-h-[calc(100vh-6rem)]',
                         sizes[size],
                         className
                     )}
@@ -111,19 +110,19 @@ export function DialogHeader({
     const {onClose} = useDialog();
 
     return (
-        <div className={cn('flex flex-col space-y-1.5 p-6 border-b border-admin-border relative', className)}>
-            <div className="text-lg font-semibold leading-none tracking-tight text-admin-text pr-8">
+        <div className={cn('flex flex-col space-y-1.5 p-6 border-b border-(--c-border) relative', className)}>
+            <div className="text-lg font-semibold leading-none tracking-tight text-(--c-text) pr-8">
                 {title}
             </div>
             {description && (
-                <div className="text-sm text-admin-text-muted">
+                <div className="text-sm text-(--c-text-muted)">
                     {description}
                 </div>
             )}
             <button
                 type="button"
                 onClick={onClose}
-                className="absolute right-4 top-4 rounded-md p-2 opacity-70 transition-opacity hover:opacity-100 hover:bg-admin-sidebar-hover text-admin-text focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-1 focus:ring-offset-admin-panel"
+                className="absolute right-4 top-4 rounded-md p-2 opacity-70 transition-opacity hover:opacity-100 hover:bg-(--c-surface-hover) text-(--c-text) focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-1 focus:ring-offset-(--c-panel)"
             >
                 <span className="sr-only">Close</span>
                 <X className="h-4 w-4"/>
@@ -145,7 +144,7 @@ export function DialogContent({className, children}: { className?: string; child
 export function DialogFooter({className, children}: { className?: string; children: React.ReactNode }) {
     return (
         <div
-            className={cn('flex items-center justify-end space-x-2 p-6 border-t border-admin-border bg-admin-sidebar-bg', className)}>
+            className={cn('flex items-center justify-end space-x-2 p-6 border-t border-(--c-border) bg-(--c-panel)', className)}>
             {children}
         </div>
     );

@@ -1,9 +1,6 @@
-import { useEffect, useState } from 'react';
-
-import { apiGetAllBrands } from '@/services/graphql/admin/brand/BrandService.graphql.ts';
-
-import type { CatalogBrand } from '@/features/catalog/types.ts';
-
+import {useQuery} from '@tanstack/react-query';
+import {apiGetAllBrands} from '@/services/graphql/brand/brand.service.ts';
+import type {CatalogBrand} from '@/features/catalog/types.ts';
 
 type UseBrandsResult = {
     brands: CatalogBrand[];
@@ -12,36 +9,18 @@ type UseBrandsResult = {
 };
 
 export function useBrands(limit = 30): UseBrandsResult {
-    const [brands, setBrands] = useState<CatalogBrand[]>([]);
-    const [loading, setLoading] = useState(true);
-    const [error, setError] = useState<string | null>(null);
+    const query = useQuery({
+        queryKey: ['brands', limit],
+        queryFn: () =>
+            apiGetAllBrands(
+                {pageIndex: 0, pageSize: limit},
+                {filters: [], filterGroups: [], sort: [{field: 'name', direction: 'ASC'}]},
+            ).then((items) => items ?? []),
+    });
 
-    useEffect(() => {
-        let isMounted = true;
-        const run = async () => {
-            try {
-                setLoading(true);
-                setError(null);
-                const items = await apiGetAllBrands(
-                    { pageIndex: 0, pageSize: limit },
-                    { filters: [], filterGroups: [], sort: [{ field: 'name', direction: 'ASC' }] },
-                );
-                if (!isMounted) return;
-                setBrands(items ?? []);
-            } catch (err) {
-                if (!isMounted) return;
-                setError(err instanceof Error ? err.message : 'Failed to load brands.');
-                setBrands([]);
-            } finally {
-                if (isMounted) setLoading(false);
-            }
-        };
-
-        void run();
-        return () => {
-            isMounted = false;
-        };
-    }, [limit]);
-
-    return { brands, loading, error };
+    return {
+        brands: query.data ?? [],
+        loading: query.isPending,
+        error: query.isError ? (query.error?.message ?? 'Failed to load brands.') : null,
+    };
 }

@@ -1,10 +1,9 @@
 import {useCallback, useEffect, useMemo, useState} from "react";
-
 import {apiGetAllBrands, apiGetBrandCount} from "@/services/graphql/admin/brand/BrandService.graphql.ts";
 import {Brand} from "@/types/admin/BrandTypes.ts";
 import {FilterRequest} from "@/types/graphql/query.types.ts";
 
-const DEFAULT_PAGE_SIZE = 10;
+const DEFAULT_PAGE_SIZE = 25;
 
 export default function useBrandList() {
 

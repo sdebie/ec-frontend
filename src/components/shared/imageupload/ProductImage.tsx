@@ -1,7 +1,5 @@
 import {IMAGE_BASE_URL} from "@/constants/api.constant.ts";
-
 import type {FC} from 'react';
-
 
 interface ProductImageProps {
     fileName: string;
@@ -11,7 +9,7 @@ interface ProductImageProps {
 
 const ProductImage: FC<ProductImageProps> = ({fileName, alt, className}) => {
     // Construct the full path using your local Quarkus server address
-    const src = `${IMAGE_BASE_URL}${fileName}`;
+    const src = `${IMAGE_BASE_URL}${fileName}`.replace('//', '/');
     console.log("ProductImage :" + src)
     return (
         <img

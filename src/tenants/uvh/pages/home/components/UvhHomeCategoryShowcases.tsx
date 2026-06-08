@@ -10,7 +10,7 @@ import {
     type UvhCategoryShowcaseSpec,
 } from '@/tenants/uvh/pages/home/uvhCategoryShowcases.config.ts'
 
-import type {ProductShoppingListItem} from '@/types/admin/ProductTypes.ts'
+import type { ProductShoppingListItem } from '@/types/shared/ProductTypes.ts'
 
 type ShowcaseRowState = {
     spec: UvhCategoryShowcaseSpec

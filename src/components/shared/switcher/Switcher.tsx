@@ -1,5 +1,4 @@
 import {InputHTMLAttributes, Ref, useId} from 'react';
-
 import {cn} from '@/utils/cn.ts';
 
 export interface SwitcherProps extends Omit<InputHTMLAttributes<HTMLInputElement>, 'onChange'> {
@@ -55,8 +54,8 @@ export const Switcher = ({
                 }}
                 className={cn(
                     'w-11 h-6 rounded-full transition-colors cursor-pointer',
-                    'bg-admin-border peer-checked:bg-primary',
-                    'peer-focus:ring-2 peer-focus:ring-primary peer-focus:ring-offset-1 peer-focus:ring-offset-admin-bg',
+                    'bg-(--c-border) peer-checked:bg-primary',
+                    'peer-focus:ring-2 peer-focus:ring-primary peer-focus:ring-offset-1 peer-focus:ring-offset-(--c-bg)',
                     'peer-disabled:cursor-not-allowed peer-disabled:opacity-50',
                     'relative'
                 )}
@@ -74,7 +73,7 @@ export const Switcher = ({
     const labelElement = label && (
         <label
             className={cn(
-                'text-sm text-admin-text cursor-pointer select-none',
+                'text-sm text-(--c-text) cursor-pointer select-none',
                 disabled && 'cursor-not-allowed opacity-50'
             )}
         >

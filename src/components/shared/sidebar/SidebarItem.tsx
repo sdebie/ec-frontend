@@ -1,12 +1,8 @@
 import {NavLink} from 'react-router-dom';
-
 import {cn} from '@/utils/cn.ts';
-
 import {SidebarItemContent} from './SidebarItemContent';
 import {SidebarSubMenu} from './SidebarSubMenu';
-
 import type {Route} from '@/types/routes';
-
 
 interface SidebarItemProps {
     route: Route;
@@ -39,7 +35,7 @@ export function SidebarItem({route, isChild, isCollapsed, setCollapsed, onItemCl
                         // ? 'bg-primary-subtle text-primary font-bold'
                         : 'border-primary bg-primary-subtle ring-1 ring-primary text-primary font-bold'
                     // : 'bg-primary-subtle text-primary font-bold'
-                    : 'text-admin-text-muted hover:bg-admin-sidebar-hover hover:text-admin-text'
+                    : 'text-(--c-text-muted) hover:bg-(--c-surface-hover) hover:text-(--c-text)'
             )}
         >
             <SidebarItemContent label={route.meta.label} icon={route.meta.icon} isCollapsed={isCollapsed}/>

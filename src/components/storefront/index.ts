@@ -1,13 +1,10 @@
 /**
- * Storefront primitive components.
+ * Storefront composite components.
  *
- * These components use only --sf-* CSS custom property tokens and are
- * safe to use in any storefront tenant context.
- *
- * Do NOT import these from @/components (admin barrel).
- * Import from @/components/storefront instead.
+ * These components use --c-* surface tokens and are safe in any storefront
+ * tenant context under a SurfaceProvider. Do NOT import from @/components
+ * (the admin barrel) — import from @/components/storefront instead.
  */
 
-export { Divider } from '@/primitives/divider';
 export { IconBox } from '@/primitives/icon-box';
 

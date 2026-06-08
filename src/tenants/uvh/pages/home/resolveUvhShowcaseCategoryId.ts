@@ -1,4 +1,4 @@
-import type {Category} from '@/types/admin/CategoryTypes.ts'
+import type { Category } from '@/types/shared/CategoryTypes.ts'
 
 /**
  * Picks a storefront root category id whose name matches any of the hints.

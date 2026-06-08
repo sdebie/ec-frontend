@@ -1,6 +1,5 @@
 import type {StorefrontPageKey} from '@/types/storefront/storefrontPageKeys.ts';
 
-export type KnownStorefrontClientId = 'default' | 'uvh';
 export type StorefrontClientId = string;
 
 export type StorefrontSectionType =
@@ -165,10 +164,16 @@ export interface FooterConfig {
 }
 
 export type StorefrontSlotId =
-    | 'layout.header'
-    | 'layout.footer'
-    | 'store.nav'
-    | 'home.hero';
+    // Shell-level (rendered by StorefrontShell without page-component involvement)
+    | 'layout.header'        // above the page header — full-bleed banners
+    | 'layout.below-header'  // between header and main — announcement bars, promo strips
+    | 'layout.footer'        // below the footer — cookie banners, legal notices
+    | 'store.nav'            // between header and main — secondary navigation bars
+    // Page-level (place <StorefrontSlot> in the relevant page component to activate)
+    | 'product.above-purchase'   // product detail, above the add-to-cart panel
+    | 'cart.above-checkout'      // cart view, above the checkout button
+    // Escape hatch — any string is accepted; TypeScript still offers autocomplete for the above
+    | (string & {});
 
 export interface StorefrontSlotContribution {
     id: string;
@@ -272,17 +277,35 @@ export type StorefrontSectionConfig =
     | StorefrontSectionBase<'testimonials', TestimonialsSectionProps>
     | StorefrontSectionBase<'newsletter', NewsletterSectionProps>;
 
+/**
+ * A route that exists only for a specific tenant and has no canonical page key.
+ * The component is resolved from the convention registry: tenants/{tenantId}/pages/{key}/page.tsx
+ */
+export interface TenantExtraRoute {
+    key: string;
+    path: string;
+    meta?: {
+        layout?: 'default' | 'plain' | 'full' | 'shop';
+        title?: string;
+    };
+}
+
 export interface StorefrontClientConfig {
     id: StorefrontClientId;
     stickyHeader?: boolean;
     displayName: string;
     hostnames: string[];
+    locale?: string;
+    defaultCountryCode?: string;
     branding: StorefrontBranding;
     navigation: StorefrontNavigation;
     theme: StorefrontTheme;
     pages?: {
         variants?: Partial<Record<StorefrontPageKey, string>>;
         cms?: StorefrontCmsPageDefinition[];
+    };
+    routes?: {
+        extra?: TenantExtraRoute[];
     };
     slots?: StorefrontSlotContribution[];
     home?: {

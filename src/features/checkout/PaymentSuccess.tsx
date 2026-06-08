@@ -1,7 +1,7 @@
 import {useEffect, useState} from 'react';
-
 import {OrderStatus} from '@/constants/enums/OrderStatus.ts';
 import {apiOrderById, apiOrderBySessionId} from '@/services/graphql/order/OrderService.graphql.ts';
+import type {OrderData} from '@/types/order.types.ts';
 import {cartStore} from '@/store/storefrontCartStore.ts';
 
 export function PaymentSuccess() {
@@ -17,7 +17,7 @@ export function PaymentSuccess() {
         const interval = setInterval(async () => {
             try {
                 console.log('Polling order status...');
-                let data: any = null;
+                let data: OrderData | null = null;
                 if (sessionId) {
                     // Prefer polling by session id if available
                     data = await apiOrderBySessionId(sessionId);
@@ -56,6 +56,6 @@ export function PaymentSuccess() {
             </h1>
         </div>
     );
-};
+}
 
 export default PaymentSuccess;

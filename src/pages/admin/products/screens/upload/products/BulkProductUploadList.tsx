@@ -2,15 +2,10 @@ import {ColumnDef} from "@tanstack/react-table";
 import {Eye, LoaderCircle, Plus, RefreshCw, Upload} from "lucide-react";
 import {useCallback, useEffect, useMemo, useState} from "react";
 import {useNavigate} from "react-router-dom";
-
-
 import {Button, DataTable} from "@/components";
-import {
-    apiGetProductUploadBatches,
-} from "@/services/graphql/admin/product/ProductImportService.graphql.ts";
+import {apiGetProductUploadBatches,} from "@/services/graphql/admin/product/ProductImportService.graphql.ts";
 import {exportProductsList} from "@/services/rest/admin/ProductExportService.rest.ts";
 import {getProductUploadBatchProcessStatus} from "@/services/rest/admin/ProductUploadService.rest.ts";
-
 import type {ProductUploadBatch} from "@/types/admin/ProductTypes.ts";
 
 const BulkProductUploadList = () => {
@@ -116,7 +111,9 @@ const BulkProductUploadList = () => {
         {
             id: 'validationErrorCount',
             accessorKey: 'validationErrorCount',
-            header: () => <div>Validation<br /><div className={"text-[10px]"}>Errors</div></div>,
+            header: () => <div>Validation<br/>
+                <div className={"text-[10px]"}>Errors</div>
+            </div>,
             enableSorting: true,
             cell: (props) => props.row.original.validationErrorCount ?? 0,
         },
@@ -133,10 +130,10 @@ const BulkProductUploadList = () => {
             enableSorting: true,
             cell: (props) => {
                 const row = props.row.original;
-                const isProcessing = row.status === 'PROCESSING';
-                const processedRows = row.processedRows ?? 0;
-                const skippedRows = row.skippedRows ?? 0;
-                const totalRows = row.totalRows ?? 0;
+                // const isProcessing = row.status === 'PROCESSING';
+                // const processedRows = row.processedRows ?? 0;
+                // const skippedRows = row.skippedRows ?? 0;
+                // const totalRows = row.totalRows ?? 0;
 
                 return (
                     <div className="flex flex-col">
@@ -163,7 +160,8 @@ const BulkProductUploadList = () => {
                         <Button variant="solid" size={"sm"} onClick={() => handleDetail(row)}>
                             <Eye size={12}/>
                         </Button>
-                        <Button variant="solid" size={"sm"} onClick={() => handleRefreshStatus(row)} disabled={isRefreshing}>
+                        <Button variant="solid" size={"sm"} onClick={() => handleRefreshStatus(row)}
+                                disabled={isRefreshing}>
                             {isRefreshing ? <LoaderCircle size={12} className="animate-spin"/> : <RefreshCw size={12}/>}
                         </Button>
                     </div>
@@ -172,9 +170,9 @@ const BulkProductUploadList = () => {
         }
     ], [refreshingBatchIds]);
 
-     const bulkUpload = async () => {
-         navigate("/admin/imports/products/bulk-upload");
-     };
+    const bulkUpload = async () => {
+        navigate("/admin/imports/products/bulk-upload");
+    };
 
     return (
         <div>

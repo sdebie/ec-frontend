@@ -1,9 +1,7 @@
 import {X} from 'lucide-react';
 import {useEffect} from 'react';
-
 import {Button} from '@/primitives/button';
 import {UvhCatalogueSidebar} from '@/tenants/uvh/pages/products/components/UvhCatalogueSidebar.tsx';
-
 import type {CatalogBrand, CatalogCategory} from '@/features/catalog/types.ts';
 
 type UvhCatalogueMobileFiltersProps = {
@@ -24,10 +22,10 @@ type UvhCatalogueMobileFiltersProps = {
 };
 
 export function UvhCatalogueMobileFilters({
-    open,
-    onClose,
-    ...sidebarProps
-}: UvhCatalogueMobileFiltersProps) {
+                                              open,
+                                              onClose,
+                                              ...sidebarProps
+                                          }: UvhCatalogueMobileFiltersProps) {
     useEffect(() => {
         if (!open) return;
         const onKeyDown = (event: KeyboardEvent) => {
@@ -60,7 +58,7 @@ export function UvhCatalogueMobileFilters({
                         className="rounded-lg p-2 text-(--sf-text) hover:bg-(--sf-panel)"
                         aria-label="Close filters panel"
                     >
-                        <X className="size-5" aria-hidden />
+                        <X className="size-5" aria-hidden/>
                     </button>
                 </div>
                 <div className="flex-1 overflow-y-auto p-4">

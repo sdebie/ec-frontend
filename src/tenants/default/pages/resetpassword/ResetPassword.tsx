@@ -1,7 +1,7 @@
 import React from 'react';
-import { useNavigate, useSearchParams } from 'react-router-dom';
-
+import {useNavigate, useSearchParams} from 'react-router-dom';
 import ResetPasswordModal from '@/features/auth/customer/components/ResetPasswordModal.tsx';
+
 export default function ResetPassword(): React.ReactElement {
     const navigate = useNavigate();
     const [searchParams] = useSearchParams();

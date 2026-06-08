@@ -8,7 +8,6 @@ import {DataTable} from "@/components/shared/datatable/DataTable.tsx";
 import useStaffList from "@/pages/admin/staff/hooks/useStaffList.ts";
 import StaffCreate from "@/pages/admin/staff/screens/create/StaffCreate.tsx";
 import StaffEdit from "@/pages/admin/staff/screens/edit/StaffEdit.tsx";
-
 import type {Staff} from "@/types/admin/StaffTypes.ts";
 
 const formatCreatedAt = (value?: string | null) => {

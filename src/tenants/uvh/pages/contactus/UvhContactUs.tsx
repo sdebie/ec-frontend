@@ -1,16 +1,11 @@
 import {Mail, MapPin, Phone, Send} from "lucide-react";
-import {FaWhatsapp} from "react-icons/fa";
-import {TbDeviceLandlinePhone} from "react-icons/tb";
-
-
+import {IconWhatsApp} from '@/components/icons';
 import {Button} from '@/primitives/button';
 import {IconBox} from '@/primitives/icon-box';
 import {Input} from '@/primitives/input';
 import {UvhTitleHero} from '@/tenants/uvh/components/UvhTitleHero.tsx';
-import {uvhContactContent} from "@/tenants/uvh/content/uvhContent";
-
+import {uvhContactContent} from "@/tenants/uvh/config";
 import {useUvhContactForm} from "./useUvhContactForm";
-
 import type {ChangeEvent} from 'react';
 
 const HERO_QUICK_LINK_CLASS =
@@ -31,10 +26,8 @@ function UvhContactHeroQuickLinks() {
                 rel="noopener noreferrer"
                 target="_blank"
             >
-                <FaWhatsapp
-                    className="size-5 shrink-0 text-[#25D366] transition-colors group-hover:text-(--sf-accent-text)"
-                    aria-hidden
-                />
+                <IconWhatsApp
+                    className="size-5 shrink-0 text-[#25D366] transition-colors group-hover:text-(--sf-accent-text)"/>
                 WhatsApp
             </a>
             <a className={HERO_QUICK_LINK_CLASS} href={`mailto:${salesEmail}`}>
@@ -66,100 +59,84 @@ const UvhContactUs = () => {
         <main className="min-h-screen w-full bg-(--sf-bg)">
             <UvhTitleHero
                 rightSlot={<UvhContactHeroQuickLinks/>}
-                afterDescription={<div className="lg:hidden mt-5"><UvhContactHeroQuickLinks/></div>}
-                className="py-5 sm:py-6 lg:py-8"
+                afterDescription={<div className="lg:hidden mt-4"><UvhContactHeroQuickLinks/></div>}
+                className="py-4 sm:py-5 lg:py-6"
                 contentWidth="standard"
                 description="Product advice, quotes, and wholesale support — use a quick action below or the inquiry form."
                 eyebrow="Contact UVH"
                 title="We're here to Help"
             />
 
-            <section className="mx-auto w-full max-w-7xl px-4 py-8 sm:px-6 sm:py-10 lg:px-8">
-                <div className="rounded-2xl border border-(--sf-border) bg-(--sf-panel) p-6 shadow-sm sm:p-8 lg:p-10">
-                    <div className="grid grid-cols-1 items-stretch gap-10 lg:grid-cols-2 lg:gap-12">
-                        <div className="order-2 lg:order-1">
-                            <h2 className="text-xl font-semibold text-(--sf-text)">
+            <section className="mx-auto w-full max-w-7xl px-4 py-4 sm:px-6 sm:py-5 lg:px-8">
+                <div className="rounded-2xl border border-(--sf-border) bg-(--sf-panel) p-4 shadow-sm sm:p-5 lg:p-6">
+                    <div className="grid grid-cols-1 items-stretch gap-6 lg:grid-cols-2 lg:gap-8">
+                        <div className="order-2 flex flex-col lg:order-1">
+                            <h2 className="text-sm font-semibold text-(--sf-text)">
                                 Contact details
                             </h2>
                             <div
-                                className="mt-4 h-0.5 w-12 max-w-18 bg-(--sf-accent)"
+                                className="mt-2 h-0.5 w-8 bg-(--sf-accent)"
                                 aria-hidden
                             />
 
-                            <div className="mt-6 space-y-6">
-                                <div className="flex items-start gap-4">
-                                    <IconBox>
-                                        <Phone size={20}/>
-                                    </IconBox>
-                                    <div>
-                                        <p className="text-xs font-semibold uppercase tracking-[0.08em] text-(--sf-muted-text)">
-                                            Call / WhatsApp
-                                        </p>
+                            <div className="mt-3 space-y-4">
+                                <div>
+                                    <div className="flex items-center gap-2">
+                                        <IconBox><IconWhatsApp className="size-5"/></IconBox>
+                                        <p className="text-xs font-semibold uppercase tracking-[0.08em] text-(--sf-muted-text)">Call / WhatsApp</p>
+                                    </div>
+                                    <div className="mt-0.5 pl-11">
                                         {uvhContactContent.phones.map((phone) => (
-                                            <a
-                                                key={phone}
-                                                href={`tel:${phone.replace(/\s+/g, "")}`}
-                                                className="mt-1 block text-xs font-medium text-(--sf-text) hover:underline"
-                                            >
+                                            <a key={phone} href={`tel:${phone.replace(/\s+/g, "")}`}
+                                               className="block text-sm font-medium text-(--sf-text) hover:underline">
                                                 {phone}
                                             </a>
                                         ))}
                                     </div>
                                 </div>
 
-                                <div className="flex items-start gap-4">
-                                    <IconBox>
-                                        <TbDeviceLandlinePhone size={20}/>
-                                    </IconBox>
-                                    <div>
-                                        <p className="text-xs font-semibold uppercase tracking-[0.08em] text-(--sf-muted-text)">
-                                            Landline
-                                        </p>
-                                        <a
-                                            href={`tel:${uvhContactContent.landline.replace(/\s+/g, "")}`}
-                                            className="mt-1 block text-xs font-medium text-(--sf-text) hover:underline"
-                                        >
+                                <div>
+                                    <div className="flex items-center gap-2">
+                                        <IconBox><Phone size={20}/></IconBox>
+                                        <p className="text-xs font-semibold uppercase tracking-[0.08em] text-(--sf-muted-text)">Landline</p>
+                                    </div>
+                                    <div className="mt-0.5 pl-11">
+                                        <a href={`tel:${uvhContactContent.landline.replace(/\s+/g, "")}`}
+                                           className="block text-sm font-medium text-(--sf-text) hover:underline">
                                             {uvhContactContent.landline}
                                         </a>
                                     </div>
                                 </div>
 
-                                <div className="flex items-start gap-4">
-                                    <IconBox>
-                                        <Mail size={20}/>
-                                    </IconBox>
-                                    <div>
-                                        <p className="text-xs font-semibold uppercase tracking-[0.08em] text-(--sf-muted-text)">
-                                            Email
-                                        </p>
+                                <div>
+                                    <div className="flex items-center gap-2">
+                                        <IconBox><Mail size={20}/></IconBox>
+                                        <p className="text-xs font-semibold uppercase tracking-[0.08em] text-(--sf-muted-text)">Email</p>
+                                    </div>
+                                    <div className="mt-0.5 pl-11">
                                         {uvhContactContent.emails.map((email) => (
-                                            <a
-                                                key={email}
-                                                href={`mailto:${email}`}
-                                                className="mt-1 block text-xs font-medium text-(--sf-text) hover:underline"
-                                            >
+                                            <a key={email} href={`mailto:${email}`}
+                                               className="block text-sm font-medium text-(--sf-text) hover:underline">
                                                 {email}
                                             </a>
                                         ))}
                                     </div>
                                 </div>
 
-                                <div className="flex items-start gap-4">
-                                    <IconBox>
-                                        <MapPin size={20}/>
-                                    </IconBox>
-                                    <div>
-                                        <p className="text-xs font-semibold uppercase tracking-[0.08em] text-(--sf-muted-text)">
-                                            Address
-                                        </p>
-                                        <p className="mt-1 text-xs font-medium text-(--sf-text)">
+                                <div>
+                                    <div className="flex items-center gap-2">
+                                        <IconBox><MapPin size={20}/></IconBox>
+                                        <p className="text-xs font-semibold uppercase tracking-[0.08em] text-(--sf-muted-text)">Address</p>
+                                    </div>
+                                    <div className="mt-0.5 pl-11">
+                                        <p className="text-sm font-medium text-(--sf-text)">
                                             {uvhContactContent.address}
                                         </p>
                                     </div>
                                 </div>
                             </div>
 
-                            <div className="mt-6 h-36 rounded-lg border border-(--sf-border) bg-(--sf-bg)">
+                            <div className="mt-3 min-h-32 flex-1 rounded-lg border border-(--sf-border) bg-(--sf-bg)">
                                 <iframe
                                     title="Location Map"
                                     src="https://www.google.com/maps?q=-25.8723417,28.1661571&z=15&output=embed"
@@ -171,25 +148,25 @@ const UvhContactUs = () => {
                         </div>
 
                         <div
-                            className="order-1 border-t border-(--sf-border) pt-10 lg:order-2 lg:border-t-0 lg:border-l lg:pl-12 lg:pt-0">
-                            <h2 className="text-xl font-semibold text-(--sf-text)">
+                            className="order-1 border-t border-(--sf-border) pt-6 lg:order-2 lg:border-t-0 lg:border-l lg:pl-6 lg:pt-0">
+                            <h2 className="text-sm font-semibold text-(--sf-text)">
                                 Send an inquiry
                             </h2>
                             <div
-                                className="mt-4 h-0.5 w-12 max-w-18 bg-(--sf-accent)"
+                                className="mt-2 h-0.5 w-8 bg-(--sf-accent)"
                                 aria-hidden
                             />
 
                             <form
                                 id="uvh-contact-form"
                                 onSubmit={handleSubmit}
-                                className="mt-6 scroll-mt-24 space-y-4"
+                                className="mt-3 scroll-mt-24 space-y-2"
                             >
-                                <div className="grid grid-cols-1 gap-2">
+                                <div className="grid grid-cols-1 gap-1.5">
                                     <div>
                                         <label
                                             htmlFor="name"
-                                            className="mb-2 block text-xs font-semibold text-(--sf-text)"
+                                            className="mb-1 block text-xs font-semibold text-(--sf-text)"
                                         >
                                             Name
                                         </label>
@@ -209,7 +186,7 @@ const UvhContactUs = () => {
                                     <div>
                                         <label
                                             htmlFor="email"
-                                            className="mb-2 block text-xs font-semibold text-(--sf-text)"
+                                            className="mb-1 block text-xs font-semibold text-(--sf-text)"
                                         >
                                             Email
                                         </label>
@@ -229,7 +206,7 @@ const UvhContactUs = () => {
                                     <div>
                                         <label
                                             htmlFor="phone"
-                                            className="mb-2 block text-xs font-semibold text-(--sf-text)"
+                                            className="mb-1 block text-xs font-semibold text-(--sf-text)"
                                         >
                                             Phone
                                         </label>
@@ -249,7 +226,7 @@ const UvhContactUs = () => {
                                     <div>
                                         <label
                                             htmlFor="company"
-                                            className="mb-2 block text-xs font-semibold text-(--sf-text)"
+                                            className="mb-1 block text-xs font-semibold text-(--sf-text)"
                                         >
                                             Company
                                         </label>
@@ -270,14 +247,14 @@ const UvhContactUs = () => {
                                 <div>
                                     <label
                                         htmlFor="message"
-                                        className="mb-2 block text-xs font-semibold text-(--sf-text)"
+                                        className="mb-1 block text-xs font-semibold text-(--sf-text)"
                                     >
                                         Message
                                     </label>
                                     <textarea
                                         id="message"
                                         name="message"
-                                        rows={5}
+                                        rows={3}
                                         value={formData.message}
                                         onChange={(event: ChangeEvent<HTMLTextAreaElement>) =>
                                             updateField("message", event.target.value)
@@ -297,10 +274,10 @@ const UvhContactUs = () => {
                                 <Button
                                     type="submit"
                                     fullWidth
-                                    size="lg"
+                                    size="sm"
                                     disabled={isSubmitting || !canSubmit}
-                                    leftIcon={<Send size={16}/>}
-                                    className="mt-2 disabled:cursor-not-allowed disabled:opacity-60"
+                                    leftIcon={<Send size={14}/>}
+                                    className="mt-1 disabled:cursor-not-allowed disabled:opacity-60"
                                 >
                                     {isSubmitting ? "Sending..." : "Send inquiry"}
                                 </Button>

@@ -1,25 +1,17 @@
 import {
     ColumnDef,
+    ColumnFiltersState,
     flexRender,
     getCoreRowModel,
     getFilteredRowModel,
     getPaginationRowModel,
     getSortedRowModel,
-    SortingState,
-    ColumnFiltersState,
     PaginationState,
+    SortingState,
     useReactTable,
 } from "@tanstack/react-table";
-import {
-    ChevronLeft,
-    ChevronRight,
-    Loader2,
-    ArrowUpDown,
-    ArrowUp,
-    ArrowDown,
-} from "lucide-react";
+import {ArrowDown, ArrowUp, ArrowUpDown, ChevronLeft, ChevronRight,} from "lucide-react";
 import * as React from "react";
-
 import {Input} from '@/primitives/input';
 import {cn} from "@/utils/cn";
 
@@ -181,11 +173,11 @@ export function DataTable<T>({
 
     const renderSortIcon = (sorted: false | "asc" | "desc") => {
         if (sorted === "asc") {
-            return <ArrowUp className="h-3 w-3 text-admin-text"/>;
+            return <ArrowUp className="h-3 w-3 text-(--c-text)"/>;
         }
 
         if (sorted === "desc") {
-            return <ArrowDown className="h-3 w-3 text-admin-text"/>;
+            return <ArrowDown className="h-3 w-3 text-(--c-text)"/>;
         }
 
         return <ArrowUpDown className="h-3 w-3"/>;
@@ -193,9 +185,9 @@ export function DataTable<T>({
 
     return (
         <div className={cn("w-full flex-1 flex flex-col", className)}>
-            <div className="rounded-md border border-admin-border overflow-hidden bg-admin-panel shadow-sm">
+            <div className="rounded-md border border-(--c-border) overflow-hidden bg-(--c-panel) shadow-sm">
                 <>
-                    <div className="p-4 border-b border-admin-border bg-admin-panel">
+                    <div className="p-4 border-b border-(--c-border) bg-(--c-panel)">
                         <div className="flex flex-col gap-6 sm:flex-row sm:items-center sm:justify-between">
 
                             {toolbarAction && (
@@ -222,9 +214,9 @@ export function DataTable<T>({
                     </div>
 
                     <div className="overflow-x-auto">
-                        <table className="w-full text-sm text-left text-admin-text">
+                        <table className="w-full text-sm text-left text-(--c-text)">
                             <thead
-                                className="text-xs font-semibold text-admin-text-muted bg-admin-sidebar-hover border-b border-admin-border shadow-sm">
+                                className="text-xs font-semibold text-(--c-text-muted) bg-(--c-surface-hover) border-b border-(--c-border) shadow-sm">
                             {table.getHeaderGroups().map((headerGroup) => (
                                 <tr key={headerGroup.id}>
                                     {headerGroup.headers.map((header) => {
@@ -239,7 +231,7 @@ export function DataTable<T>({
                                                     "px-6 py-4 whitespace-nowrap tracking-wider",
                                                     isActionsColumn && "text-center",
                                                     canSort &&
-                                                    "cursor-pointer select-none hover:text-admin-text transition-colors group"
+                                                    "cursor-pointer select-none hover:text-(--c-text) transition-colors group"
                                                 )}
                                                 onClick={header.column.getToggleSortingHandler()}
                                             >
@@ -258,7 +250,7 @@ export function DataTable<T>({
                                                         </span>
                                                         {canSort && (
                                                             <span
-                                                                className="inline-flex text-admin-text-muted/50 group-hover:text-admin-text-muted transition-colors">
+                                                                className="inline-flex text-(--c-text-muted)/50 group-hover:text-(--c-text-muted) transition-colors">
                                                                 {renderSortIcon(sorted)}
                                                             </span>
                                                         )}
@@ -273,19 +265,20 @@ export function DataTable<T>({
 
                             <tbody>
                             {isLoading ? (
-                                <tr>
-                                    <td
-                                        colSpan={columns.length}
-                                        className="h-48 text-center bg-admin-panel"
-                                    >
-                                        <Loader2 className="h-6 w-6 animate-spin text-admin-text-muted mx-auto"/>
-                                    </td>
-                                </tr>
+                                Array.from({length: 6}).map((_, i) => (
+                                    <tr key={i} className="border-b border-(--c-border) last:border-0">
+                                        {columns.map((_, j) => (
+                                            <td key={j} className="px-6 py-4">
+                                                <div className="h-4 rounded bg-(--c-border) animate-pulse"/>
+                                            </td>
+                                        ))}
+                                    </tr>
+                                ))
                             ) : errorMsg ? (
                                 <tr>
                                     <td
                                         colSpan={columns.length}
-                                        className="h-48 text-center text-admin-text-muted bg-admin-panel"
+                                        className="h-48 text-center text-(--c-text-muted) bg-(--c-panel)"
                                     >
                                         {errorMsg}
                                     </td>
@@ -294,7 +287,7 @@ export function DataTable<T>({
                                 <tr>
                                     <td
                                         colSpan={columns.length}
-                                        className="h-48 text-center text-admin-text-muted bg-admin-panel"
+                                        className="h-48 text-center text-(--c-text-muted) bg-(--c-panel)"
                                     >
                                         {emptyMessage}
                                     </td>
@@ -304,8 +297,8 @@ export function DataTable<T>({
                                     <tr
                                         key={row.id}
                                         className={cn(
-                                            "border-b border-admin-border last:border-0 bg-admin-panel transition-colors",
-                                            highlightRows && "hover:bg-admin-sidebar-hover"
+                                            "border-b border-(--c-border) last:border-0 bg-(--c-panel) transition-colors",
+                                            highlightRows && "hover:bg-(--c-surface-hover)"
                                         )}
                                     >
                                         {row.getVisibleCells().map((cell) => (
@@ -337,17 +330,17 @@ export function DataTable<T>({
 
                     {!isLoading && (
                         <div
-                            className="flex flex-col sm:flex-row items-center justify-between px-6 py-4 border-t border-admin-border bg-admin-panel rounded-b-md gap-4">
-                            <div className="text-sm text-admin-text-muted">
+                            className="flex flex-col sm:flex-row items-center justify-between px-6 py-4 border-t border-(--c-border) bg-(--c-panel) rounded-b-md gap-4">
+                            <div className="text-sm text-(--c-text-muted)">
                                 Showing{" "}
-                                <span className="font-medium text-admin-text">{startItem}</span> to{" "}
-                                <span className="font-medium text-admin-text">{endItem}</span> of{" "}
-                                <span className="font-medium text-admin-text">{totalRows}</span> results
+                                <span className="font-medium text-(--c-text)">{startItem}</span> to{" "}
+                                <span className="font-medium text-(--c-text)">{endItem}</span> of{" "}
+                                <span className="font-medium text-(--c-text)">{totalRows}</span> results
                             </div>
 
                             <div className="flex items-center gap-3">
                                 <select
-                                    className="h-9 rounded-md border border-admin-border bg-admin-panel px-3 text-sm text-admin-text"
+                                    className="h-9 rounded-md border border-(--c-border) bg-(--c-panel) px-3 text-sm text-(--c-text)"
                                     value={pageSize}
                                     onChange={(e) => table.setPageSize(Number(e.target.value))}
                                 >
@@ -362,7 +355,7 @@ export function DataTable<T>({
                                     <button
                                         onClick={() => table.previousPage()}
                                         disabled={!table.getCanPreviousPage()}
-                                        className="inline-flex items-center justify-center rounded-md p-1.5 text-admin-text-muted hover:text-admin-text hover:bg-admin-sidebar-hover disabled:opacity-50 disabled:pointer-events-none transition-colors"
+                                        className="inline-flex items-center justify-center rounded-md p-1.5 text-(--c-text-muted) hover:text-(--c-text) hover:bg-(--c-surface-hover) disabled:opacity-50 disabled:pointer-events-none transition-colors"
                                         title="Previous Page"
                                     >
                                         <ChevronLeft className="h-4 w-4"/>
@@ -378,7 +371,7 @@ export function DataTable<T>({
                                                     "inline-flex items-center justify-center rounded-md w-8 h-8 text-sm transition-colors",
                                                     currentPage === page
                                                         ? "bg-primary text-white font-medium shadow-sm"
-                                                        : "text-admin-text hover:bg-admin-sidebar-hover"
+                                                        : "text-(--c-text) hover:bg-(--c-surface-hover)"
                                                 )}
                                             >
                                                 {page}
@@ -389,7 +382,7 @@ export function DataTable<T>({
                                     <button
                                         onClick={() => table.nextPage()}
                                         disabled={!table.getCanNextPage()}
-                                        className="inline-flex items-center justify-center rounded-md p-1.5 text-admin-text-muted hover:text-admin-text hover:bg-admin-sidebar-hover disabled:opacity-50 disabled:pointer-events-none transition-colors"
+                                        className="inline-flex items-center justify-center rounded-md p-1.5 text-(--c-text-muted) hover:text-(--c-text) hover:bg-(--c-surface-hover) disabled:opacity-50 disabled:pointer-events-none transition-colors"
                                         title="Next Page"
                                     >
                                         <ChevronRight className="h-4 w-4"/>

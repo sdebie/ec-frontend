@@ -1,14 +1,11 @@
 import {useRef} from 'react'
 import {Link} from 'react-router-dom'
-
-
-import { ProductCard } from '@/features/catalog';
+import {ProductCard} from '@/features/catalog/ProductCard';
 import {
     UVH_SHOWCASE_SHIELD_BY_THEME,
     type UvhShowcaseTheme,
 } from '@/tenants/uvh/pages/home/uvhCategoryShowcases.config.ts'
-
-import type {ProductShoppingListItem} from '@/types/admin/ProductTypes.ts'
+import type {ProductShoppingListItem} from '@/types/shared/ProductTypes.ts'
 
 const THEME_GRADIENT: Record<UvhShowcaseTheme, string> = {
     'medical-blue': 'from-sky-500 via-blue-700 to-slate-950',
@@ -87,7 +84,8 @@ export function UvhCategoryShowcaseSection({
                     </Link>
                 </div>
 
-                <div className="mt-5 grid grid-cols-[200px_1fr] items-stretch gap-3 sm:gap-5 lg:grid-cols-[minmax(0,240px)_1fr] lg:gap-6">
+                <div
+                    className="mt-5 grid grid-cols-[200px_1fr] items-stretch gap-3 sm:gap-5 lg:grid-cols-[minmax(0,240px)_1fr] lg:gap-6">
                     <div
                         className="flex h-full w-full justify-center self-stretch sm:mx-auto sm:max-w-[min(100%,260px)] lg:mx-0 lg:h-full lg:max-w-none lg:min-h-0">
                         <Link
@@ -143,7 +141,8 @@ export function UvhCategoryShowcaseSection({
                                     className="flex gap-3 overflow-x-scroll scroll-smooth pb-3 snap-x snap-mandatory [scrollbar-color:rgba(255,255,255,0.7)_rgba(255,255,255,0.15)] [scrollbar-width:thin] [&::-webkit-scrollbar]:h-1.5 [&::-webkit-scrollbar]:block [&::-webkit-scrollbar-track]:rounded-full [&::-webkit-scrollbar-track]:bg-white/15 [&::-webkit-scrollbar-thumb]:rounded-full [&::-webkit-scrollbar-thumb]:bg-white/70 md:overflow-x-auto md:[-ms-overflow-style:none] md:[scrollbar-width:none] md:[&::-webkit-scrollbar]:hidden md:px-10"
                                 >
                                     {products.map((product) => (
-                                        <ProductCard key={product.id} className="w-[min(100%,170px)] snap-start shrink-0" product={product} size="compact"/>
+                                        <ProductCard key={product.id} product={product}
+                                                     className="w-[min(100%,170px)] snap-start shrink-0"/>
                                     ))}
                                 </div>
                             </>

@@ -1,4 +1,4 @@
-import {IconType} from "react-icons";
+import type {LucideIcon} from "lucide-react";
 
 export enum CustomerType {
     GUEST = "GUEST",
@@ -10,7 +10,7 @@ type Option = {
     label: string,
     value: CustomerType,
     colorClass: string
-    icon?: IconType;
+    icon?: LucideIcon;
 }
 
 export const CustomerTypeOptions: Option[] = [

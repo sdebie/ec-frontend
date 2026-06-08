@@ -1,11 +1,10 @@
 import React from 'react';
 
 
-import { IMAGE_THUMBNAIL_URL } from '@/constants/api.constant.ts';
-import { formatCurrency, parseAttributesJson } from '@/features/checkout/utils/checkout.helpers.ts';
-import { asVariant } from '@/types/order.types.ts';
-
-import type { OrderItemData as OrderItemsData } from '@/types/order.types.ts';
+import {IMAGE_THUMBNAIL_URL} from '@/constants/api.constant.ts';
+import {formatCurrency, parseAttributesJson} from '@/features/checkout/utils/checkout.helpers.ts';
+import type {OrderItemData as OrderItemsData} from '@/types/order.types.ts';
+import {asVariant} from '@/types/order.types.ts';
 
 type Props = {
     item: OrderItemsData;
@@ -13,7 +12,7 @@ type Props = {
 };
 
 /** Internal line item for OrderSummarySection — not exported from the checkout feature barrel. */
-const OrderSummaryItem: React.FC<Props> = ({ item, index }) => {
+const OrderSummaryItem: React.FC<Props> = ({item, index}) => {
     const quantity = Number(item.quantity || 0);
     const unitPrice = Number(item.unitPrice || 0);
     const lineTotal = quantity * unitPrice;
@@ -31,7 +30,8 @@ const OrderSummaryItem: React.FC<Props> = ({ item, index }) => {
                         className="h-full w-full object-cover"
                     />
                 ) : (
-                    <div className="flex h-full w-full items-center justify-center text-xs text-(--sf-muted-text)">Item</div>
+                    <div
+                        className="flex h-full w-full items-center justify-center text-xs text-(--sf-muted-text)">Item</div>
                 )}
             </div>
 

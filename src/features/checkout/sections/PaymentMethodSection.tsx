@@ -17,7 +17,7 @@ const PaymentMethodSection: React.FC<Props> = ({
     setSelectedPayment,
 }) => {
     return (
-        <div className="mt-10 border-t border-(--sf-border) pt-10">
+        <div className="mt-2 border-t border-(--sf-border) pt-2">
             <h2 className="mb-3 text-lg font-medium text-(--sf-text)">Payment</h2>
             {enabledPayments.length === 0 ? (
                 <div className="rounded-lg border border-yellow-200 bg-yellow-50 p-3 text-sm text-yellow-800">

@@ -1,10 +1,27 @@
+import { cartStore } from '@/store/storefrontCartStore.ts';
+import { formatAmount } from '@/utils/formatAmount.ts';
+
+// ---------------------------------------------------------------------------
+// localStorage keys — single source of truth for checkout session persistence
+// ---------------------------------------------------------------------------
+export const CHECKOUT_EMAIL_STORAGE_KEY = 'checkoutEmail';
+export const CHECKOUT_AUTH_STORAGE_KEY = 'checkoutIsAuthenticated';
+
+/**
+ * Resolves the active checkout session ID.
+ * Prefers the URL param; falls back to the cart store's persisted session.
+ */
+export function resolveCheckoutSessionId(urlSessionId: string | undefined): string | undefined {
+    return urlSessionId ?? cartStore.getOrderSessionId() ?? undefined;
+}
+
 export type CheckoutAttribute = {
     label: string;
     value: string;
 };
 
 export function formatCurrency(amount: number): string {
-    return `R${Number(amount || 0).toFixed(2)}`;
+    return formatAmount(amount);
 }
 
 export function toDisplayLabel(key: string): string {

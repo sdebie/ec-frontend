@@ -286,8 +286,8 @@ export const UPDATE_PRODUCT_INFORMATION = gql`
 `;
 
 export const PRODUCT_COUNT = gql`
-    query ProductCount($filterRequest: FilterRequestInput) {
-        productCount(filterRequest: $filterRequest)
+    query ProductCount($filterRequest: FilterRequestInput, $categoryId: String, $brandId: String) {
+        productCount(filterRequest: $filterRequest, categoryId: $categoryId, brandId: $brandId)
     }
 `;
 

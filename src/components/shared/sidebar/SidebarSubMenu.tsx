@@ -2,14 +2,11 @@ import {useMemo, useState} from 'react';
 import {matchPath, useLocation} from 'react-router-dom';
 
 
-
 import {SidebarItem} from '@/components';
 import {hasRequiredAuthority} from '@/utils/authorizationHelper.ts';
 import {cn} from '@/utils/cn.ts';
 import {isRouteVisibleInSidebar} from '@/utils/sidebarVisibility.ts';
-
 import {SidebarItemContent} from './SidebarItemContent';
-
 import type {Route} from '@/types/routes';
 
 interface SidebarSubMenuProps {
@@ -56,7 +53,7 @@ export function SidebarSubMenu({route, isCollapsed, setCollapsed, onItemClick}: 
                     'px-3 py-2.5',
                     isParentActive
                         ? 'text-primary bg-primary-subtle font-semibold'
-                        : 'text-admin-text-muted hover:bg-admin-sidebar-hover hover:text-admin-text'
+                        : 'text-(--c-text-muted) hover:bg-(--c-surface-hover) hover:text-(--c-text)'
                 )}
                 title={isCollapsed ? route.meta.label : undefined}
             >
@@ -74,7 +71,7 @@ export function SidebarSubMenu({route, isCollapsed, setCollapsed, onItemClick}: 
                     <div
                         className={cn(
                             'absolute left-4.5 top-0 bottom-0 w-px',
-                            hasActiveChild ? 'bg-primary/40' : 'bg-admin-sidebar-border'
+                            hasActiveChild ? 'bg-primary/40' : 'bg-(--c-border)'
                         )}
                     />
                     {authorizedChildren.map(child => (

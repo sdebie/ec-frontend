@@ -1,12 +1,9 @@
+import type {ComponentType} from 'react';
 import {lazy} from 'react';
-import { storefrontPageImports } from 'virtual:storefront-page-map';
-
+import {storefrontPageImports} from 'virtual:storefront-page-map';
 import {normalizeDiscoveredStorefrontPageKey} from '@/configs/storefront/storefrontPageKeyNormalization';
 import {listStorefrontPageRoutes} from '@/configs/storefront/storefrontRouteContracts';
-
 import type {StorefrontPageComponent, StorefrontPageKey} from '@/types/storefront/storefrontPageContracts.ts';
-import type { ComponentType } from 'react';
-
 
 type StorefrontPageLoader = () => Promise<{ default: ComponentType<Record<string, unknown>> }>;
 

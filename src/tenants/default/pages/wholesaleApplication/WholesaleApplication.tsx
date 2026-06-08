@@ -1,5 +1,4 @@
 import {Link} from 'react-router-dom';
-
 import {WholesaleApplicationForm} from '@/features/wholesale-application';
 
 const WholesaleApplication = () => {

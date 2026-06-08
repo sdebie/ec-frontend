@@ -16,7 +16,7 @@ import {
 	ProductShoppingListItem,
 	ProductInformation,
 	VariantItem,
-} from "@/types/admin/ProductTypes.ts";
+} from "@/types/shared/ProductTypes.ts";
 import {FilterRequest, PageRequest} from "@/types/graphql/query.types.ts";
 import getServiceEndpoint from "@/utils/HostnameResolver.ts";
 
@@ -95,11 +95,17 @@ export async function apiGetProductOnSaleList(pageRequest?: PageRequest | null):
 	return result.saleProductList ?? [];
 }
 
-export async function apiGetProductCount(filterRequest?: FilterRequest | null): Promise<number> {
+export async function apiGetProductCount(
+	filterRequest?: FilterRequest | null,
+	categoryId?: string | null,
+	brandId?: string | null,
+): Promise<number> {
 	const client = await GraphQLService.getGraphQLClient(graphQLEndpoint);
 
 	const result = await client.request<{ productCount: number }>(PRODUCT_COUNT, {
 		filterRequest,
+		...(categoryId ? {categoryId} : {}),
+		...(brandId ? {brandId} : {}),
 	});
 
 	return result.productCount ?? 0;

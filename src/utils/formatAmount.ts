@@ -1,4 +1,5 @@
-import type {CountrySetting} from "@/types/admin/SettingsTypes.ts";
+import type {CountrySetting} from '@/types/shared/SettingsTypes.ts';
+import {getSystemSettings} from '../settings'; // Import getSystemSettings
 
 export type MoneyFormatOptions = {
     currencyCode?: string;
@@ -16,11 +17,16 @@ export function formatAmount(amount?: number | null, options: MoneyFormatOptions
         return options.fallback ?? "-";
     }
 
-    const locale = options.locale || DEFAULT_LOCALE;
-    const currencyCode = (options.currencyCode || DEFAULT_CURRENCY).toUpperCase();
+    const systemSettings = getSystemSettings();
+    const defaultLocale = systemSettings?.countrySetting?.locale;
+    const defaultCurrencyCode = systemSettings?.countrySetting?.currencyCode;
+    const defaultDecimalPlaces = systemSettings?.countrySetting?.decimalPlaces;
+
+    const locale = options.locale || defaultLocale || DEFAULT_LOCALE;
+    const currencyCode = (options.currencyCode || defaultCurrencyCode || DEFAULT_CURRENCY).toUpperCase();
     const decimalPlaces = Number.isInteger(options.decimalPlaces)
         ? Math.max(0, options.decimalPlaces as number)
-        : DEFAULT_DECIMALS;
+        : (defaultDecimalPlaces !== undefined ? defaultDecimalPlaces : DEFAULT_DECIMALS);
 
     try {
         return new Intl.NumberFormat(locale, {
@@ -55,4 +61,3 @@ export function getDefaultCountrySetting(countrySettings: CountrySetting[]): Cou
 }
 
 export default formatAmount;
-

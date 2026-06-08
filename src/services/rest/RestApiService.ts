@@ -1,7 +1,5 @@
 import AxiosBase from "@/services/axios/AxiosBase.ts";
-
-import type { AxiosRequestConfig, AxiosResponse, AxiosError } from 'axios'
-
+import type {AxiosError, AxiosRequestConfig, AxiosResponse} from 'axios'
 
 const ApiService = {
     fetchDataWithAxios<Response = unknown, Request = Record<string, unknown>>(
