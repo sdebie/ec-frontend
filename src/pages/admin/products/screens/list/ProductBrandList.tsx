@@ -2,11 +2,16 @@ import {ColumnDef} from "@tanstack/react-table";
 import {PenLine} from "lucide-react";
 import {useEffect, useMemo, useState} from "react";
 import {useNavigate} from "react-router-dom";
+
 import {Button, Select} from "@/components";
 import {DataTable} from "@/components/shared/datatable/DataTable.tsx";
 import {IMAGE_THUMBNAIL_URL} from "@/constants/api.constant.ts";
+import {ProductStatusOptions} from "@/constants/enums/ProductStatus.ts";
+import {ProductStatusDisplay} from "@/constants/enums/ProductStatusDisplay.tsx";
+
 import {apiGetAllBrands} from "@/services/graphql/admin/brand/BrandService.graphql.ts";
 import {apiGetProductListByBrand} from "@/services/graphql/product/product.service.ts";
+
 import type {Brand} from "@/types/admin/BrandTypes.ts";
 import type {ProductListItem} from "@/types/admin/ProductTypes.ts";
 
@@ -17,6 +22,7 @@ const ProductBrandList = () => {
     const navigate = useNavigate();
     const [brands, setBrands] = useState<Brand[]>([]);
     const [selectedBrandId, setSelectedBrandId] = useState("");
+    const [selectedStatus, setSelectedStatus] = useState("");
     const [products, setProducts] = useState<ProductListItem[]>([]);
     const [isLoadingBrands, setIsLoadingBrands] = useState(false);
     const [isLoadingProducts, setIsLoadingProducts] = useState(false);
@@ -58,56 +64,62 @@ const ProductBrandList = () => {
         };
     }, []);
 
-    useEffect(() => {
-        let isActive = true;
+     useEffect(() => {
+         let isActive = true;
 
-        if (!selectedBrandId) {
-            setProducts([]);
-            return () => {
-                isActive = false;
-            };
-        }
+         if (!selectedBrandId) {
+             setProducts([]);
+             return () => {
+                 isActive = false;
+             };
+         }
 
-        const fetchProducts = async () => {
-            try {
-                setIsLoadingProducts(true);
-                setErrorMsg("");
+          const fetchProducts = async () => {
+              try {
+                  setIsLoadingProducts(true);
+                  setErrorMsg("");
 
-                const data = await apiGetProductListByBrand(
-                    selectedBrandId,
-                    {pageIndex: 0, pageSize: PRODUCTS_PAGE_SIZE},
-                    {
-                        filters: [],
-                        filterGroups: [],
-                        sort: [{field: "name", direction: "ASC"}],
-                    }
-                );
+                  const data = await apiGetProductListByBrand(
+                      selectedBrandId,
+                      {pageIndex: 0, pageSize: PRODUCTS_PAGE_SIZE},
+                      {
+                          filters: selectedStatus ? [{key: "status", operator: "EQUALS", value: selectedStatus}] : [],
+                          filterGroups: [],
+                          sort: [{field: "name", direction: "ASC"}],
+                      },
+                      true
+                  );
 
-                if (!isActive) return;
-                setProducts(data);
-            } catch (error) {
-                console.error("Failed to load products by brand:", error);
-                if (isActive) {
-                    setErrorMsg("Failed to load products for the selected brand.");
-                }
-            } finally {
-                if (isActive) {
-                    setIsLoadingProducts(false);
-                }
-            }
-        };
+                 if (!isActive) return;
+                 setProducts(data);
+             } catch (error) {
+                 console.error("Failed to load products by brand:", error);
+                 if (isActive) {
+                     setErrorMsg("Failed to load products for the selected brand.");
+                 }
+             } finally {
+                 if (isActive) {
+                     setIsLoadingProducts(false);
+                 }
+             }
+         };
 
-        void fetchProducts();
+         void fetchProducts();
 
-        return () => {
-            isActive = false;
-        };
-    }, [selectedBrandId]);
+         return () => {
+             isActive = false;
+         };
+     }, [selectedBrandId, selectedStatus]);
 
-    const brandOptions = useMemo(
-        () => brands.map((brand) => ({value: brand.id, label: brand.name})),
-        [brands]
-    );
+     const brandOptions = useMemo(
+         () => brands.map((brand) => ({value: brand.id, label: brand.name})),
+         [brands]
+     );
+
+     const statusOptions = useMemo(
+         () => ProductStatusOptions.map((status) => ({value: status.value, label: status.label})),
+         []
+     );
 
     const columns: ColumnDef<ProductListItem>[] = useMemo(() => [
         {
@@ -151,29 +163,36 @@ const ProductBrandList = () => {
             enableSorting: true,
             cell: ({row}) => row.original.categoryNames?.length ? row.original.categoryNames.join(", ") : "-",
         },
-        {
-            id: "brandName",
-            accessorKey: "brandName",
-            header: "Brand",
-            enableSorting: true,
-            cell: ({row}) => row.original.brandName || "-",
-        },
-        {
-            id: "actions",
-            header: "Actions",
-            enableSorting: false,
-            cell: ({row}) => (
-                <div className="flex items-start justify-center gap-2">
-                    <Button
-                        variant="solid"
-                        size="sm"
-                        onClick={() => navigate(`/admin/product/detail/${row.original.id}`)}
-                    >
-                        <PenLine size={12}/>
-                    </Button>
-                </div>
-            ),
-        },
+         {
+             id: "brandName",
+             accessorKey: "brandName",
+             header: "Brand",
+             enableSorting: true,
+             cell: ({row}) => row.original.brandName || "-",
+         },
+         {
+             id: "status",
+             accessorKey: "status",
+             header: "Status",
+             enableSorting: true,
+             cell: ({row}) => row.original.status ? <ProductStatusDisplay status={row.original.status} /> : "-",
+         },
+         {
+             id: "actions",
+             header: "Actions",
+             enableSorting: false,
+             cell: ({row}) => (
+                 <div className="flex items-start justify-center gap-2">
+                     <Button
+                         variant="solid"
+                         size="sm"
+                         onClick={() => navigate(`/admin/product/detail/${row.original.id}`)}
+                     >
+                         <PenLine size={12}/>
+                     </Button>
+                 </div>
+             ),
+         },
     ], [navigate]);
 
     return (
@@ -182,16 +201,24 @@ const ProductBrandList = () => {
                 <h1 className="text-2xl font-bold">Products By Brand</h1>
             </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-4 items-end">
-                <Select
-                    label="Brand"
-                    options={brandOptions}
-                    value={selectedBrandId}
-                    onChange={setSelectedBrandId}
-                    placeholder={isLoadingBrands ? "Loading brands..." : "Select brand"}
-                    disabled={isLoadingBrands}
-                />
-            </div>
+             <div className="grid grid-cols-1 md:grid-cols-3 gap-4 items-end">
+                 <Select
+                     label="Brand"
+                     options={brandOptions}
+                     value={selectedBrandId}
+                     onChange={setSelectedBrandId}
+                     placeholder={isLoadingBrands ? "Loading brands..." : "Select brand"}
+                     disabled={isLoadingBrands}
+                 />
+                 <Select
+                     label="Status"
+                     options={statusOptions}
+                     value={selectedStatus}
+                     onChange={setSelectedStatus}
+                     placeholder="Select status"
+                     disabled={!selectedBrandId}
+                 />
+             </div>
 
             <DataTable
                 data={products}

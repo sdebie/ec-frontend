@@ -1,15 +1,19 @@
 import {ColumnDef} from "@tanstack/react-table";
 import {PenLine, Plus, Upload} from "lucide-react";
-import {useMemo} from "react";
+import {useMemo, useState} from "react";
 import {useNavigate} from "react-router-dom";
-import {Button, Thumbnail} from "@/components";
+import {Button, Select, Thumbnail} from "@/components";
 import {DataTable} from "@/components/shared/datatable/DataTable.tsx";
 import {IMAGE_THUMBNAIL_URL} from "@/constants/api.constant.ts";
+import {ProductStatusOptions} from "@/constants/enums/ProductStatus.ts";
+import {ProductStatusDisplay} from "@/constants/enums/ProductStatusDisplay.tsx";
 import useProductList from "@/pages/admin/products/hooks/useProductList.ts";
+
 import type {ProductListItem} from "@/types/admin/ProductTypes.ts";
 
 const AdminProductList = () => {
     const navigate = useNavigate();
+    const [selectedStatus, setSelectedStatus] = useState("");
 
     const {
         products,
@@ -24,7 +28,12 @@ const AdminProductList = () => {
         onPageSizeChange,
         onSearchChange,
         onExportProducts,
-    } = useProductList();
+    } = useProductList(selectedStatus);
+
+    const statusOptions = useMemo(
+        () => ProductStatusOptions.map((status) => ({value: status.value, label: status.label})),
+        []
+    );
 
     function handleCreate() {
     }
@@ -77,6 +86,13 @@ const AdminProductList = () => {
             cell: ({row}) => row.original.brandName || "-",
         },
         {
+            id: "status",
+            accessorKey: "status",
+            header: "Status",
+            enableSorting: true,
+            cell: ({row}) => row.original.status ? <ProductStatusDisplay status={row.original.status} /> : "-",
+        },
+        {
             id: 'actions',
             header: 'Actions',
             enableSorting: false,
@@ -95,6 +111,18 @@ const AdminProductList = () => {
             <div className="mb-4 flex items-center justify-between">
                 <h1 className="text-2xl font-bold">Products</h1>
             </div>
+
+            <div className="mb-4">
+                <Select
+                    label="Status"
+                    options={statusOptions}
+                    value={selectedStatus}
+                    onChange={setSelectedStatus}
+                    placeholder="Select status"
+                    isClearable
+                />
+            </div>
+
             <DataTable
                 data={products}
                 columns={columns}

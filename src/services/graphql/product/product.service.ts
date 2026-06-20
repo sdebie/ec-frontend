@@ -1,4 +1,5 @@
 import {GraphQLService} from "@/services/graphql/GraphQLService.ts";
+import {FilterRequest, PageRequest} from "@/types/graphql/query.types.ts";
 import {
 	GET_PRODUCTS_LIST,
 	GET_PRODUCTS_LIST_BY_BRAND,
@@ -17,7 +18,6 @@ import {
 	ProductInformation,
 	VariantItem,
 } from "@/types/shared/ProductTypes.ts";
-import {FilterRequest, PageRequest} from "@/types/graphql/query.types.ts";
 import getServiceEndpoint from "@/utils/HostnameResolver.ts";
 
 
@@ -27,7 +27,8 @@ export async function apiGetProductList(
 	categoryId?: string | null,
 	pageRequest?: PageRequest | null,
 	filterRequest?: FilterRequest | null,
-	includeSubCategories = true
+	includeSubCategories = true,
+	ignoreStatus = false,
 ): Promise<ProductListItem[]> {
 	const client = await GraphQLService.getGraphQLClient(graphQLEndpoint);
 	const useCategoryScopedQuery = !!categoryId && categoryId !== 'ALL';
@@ -36,6 +37,7 @@ export async function apiGetProductList(
 		const result = await client.request<{ productListByCategory: ProductListItem[] }>(GET_PRODUCTS_LIST_BY_CATEGORY, {
 			categoryId,
 			includeSubCategories,
+			ignoreStatus,
 			pageRequest,
 			filterRequest,
 		});
@@ -55,6 +57,7 @@ export async function apiGetProductListByBrand(
 	brandId: string,
 	pageRequest?: PageRequest | null,
 	filterRequest?: FilterRequest | null,
+	ignoreStatus = false,
 ): Promise<ProductListItem[]> {
 	if (!brandId || brandId === 'ALL') return [];
 
@@ -62,6 +65,7 @@ export async function apiGetProductListByBrand(
 
 	const result = await client.request<{ productListByBrand: ProductListItem[] }>(GET_PRODUCTS_LIST_BY_BRAND, {
 		brandId,
+		ignoreStatus,
 		pageRequest,
 		filterRequest,
 	});
@@ -72,12 +76,14 @@ export async function apiGetProductListByBrand(
 export async function apiGetShoppingProductsList(
 	categoryId?: string | null,
 	pageRequest?: PageRequest | null,
-	filterRequest?: FilterRequest | null
+	filterRequest?: FilterRequest | null,
+	ignoreStatus = false,
 ): Promise<ProductShoppingListItem[]> {
 	const client = await GraphQLService.getGraphQLClient(graphQLEndpoint);
 
 	const result = await client.request<{ shoppingProductList: ProductShoppingListItem[] }>(GET_SHOPPING_PRODUCTS_LIST, {
 		categoryId,
+		ignoreStatus,
 		pageRequest,
 		filterRequest,
 	});
@@ -85,11 +91,13 @@ export async function apiGetShoppingProductsList(
 	return result.shoppingProductList ?? [];
 }
 
-export async function apiGetProductOnSaleList(pageRequest?: PageRequest | null): Promise<ProductShoppingListItem[]> {
+export async function apiGetProductOnSaleList(pageRequest?: PageRequest | null, ignoreStatus = false, filterRequest?: FilterRequest | null): Promise<ProductShoppingListItem[]> {
 	const client = await GraphQLService.getGraphQLClient(graphQLEndpoint);
 
 	const result = await client.request<{ saleProductList: ProductShoppingListItem[] }>(GET_SALE_PRODUCTS_LIST, {
 		pageRequest,
+		ignoreStatus,
+		filterRequest,
 	});
 
 	return result.saleProductList ?? [];
@@ -99,6 +107,7 @@ export async function apiGetProductCount(
 	filterRequest?: FilterRequest | null,
 	categoryId?: string | null,
 	brandId?: string | null,
+	ignoreStatus = false,
 ): Promise<number> {
 	const client = await GraphQLService.getGraphQLClient(graphQLEndpoint);
 
@@ -106,6 +115,7 @@ export async function apiGetProductCount(
 		filterRequest,
 		...(categoryId ? {categoryId} : {}),
 		...(brandId ? {brandId} : {}),
+		ignoreStatus,
 	});
 
 	return result.productCount ?? 0;

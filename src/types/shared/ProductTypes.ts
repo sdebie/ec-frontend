@@ -13,20 +13,22 @@ export type ProductListItem = {
     variantIds?: string[] | null;
     categoryNames?: string[] | null;
     brandName?: string | null;
+    status?: string | null;
 };
 
 export type ProductShoppingListItem = {
-    id: string;
-    name: string;
-    shortDescription?: string | null;
-    productType?: string | null;
-    variantCount?: number | null;
-    variantId?: string | null;
-    images?: ProductImage[] | null;
-    retailPrice?: VariantPrice | null;
-    wholesalePrice?: VariantPrice | null;
-    retailSalePrice?: VariantPrice | null;
-    wholesaleSalePrice?: VariantPrice | null;
+     id: string;
+     name: string;
+     shortDescription?: string | null;
+     productType?: string | null;
+     variantCount?: number | null;
+     variantId?: string | null;
+     images?: ProductImage[] | null;
+     retailPrice?: VariantPrice | null;
+     wholesalePrice?: VariantPrice | null;
+     retailSalePrice?: VariantPrice | null;
+     wholesaleSalePrice?: VariantPrice | null;
+     status?: string | null;
 };
 
 export type VariantPrice = {

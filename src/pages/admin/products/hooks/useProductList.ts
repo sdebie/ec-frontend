@@ -8,7 +8,7 @@ import type {ProductListItem} from "@/types/admin/ProductTypes.ts";
 
 const DEFAULT_PAGE_SIZE = 14;
 
-export default function useProductList() {
+export default function useProductList(statusFilter?: string) {
     const [products, setProducts] = useState<ProductListItem[]>([]);
     const [totalRows, setTotalRows] = useState(0);
     const [pageIndex, setPageIndex] = useState(0);
@@ -21,7 +21,7 @@ export default function useProductList() {
 
     const filterRequest = useMemo<FilterRequest>(
         () => ({
-            filters: [],
+            filters: statusFilter ? [{key: "status", operator: "EQUALS", value: statusFilter}] : [],
             filterGroups: searchTerm.trim()
                 ? [
                     {
@@ -36,7 +36,7 @@ export default function useProductList() {
                 : [],
             sort: [{field: "name", direction: "ASC"}],
         }),
-        [searchTerm]
+        [searchTerm, statusFilter]
     );
 
     useEffect(() => {

@@ -5,6 +5,8 @@ import {useNavigate} from "react-router-dom";
 import {Button, Checkbox, Select} from "@/components";
 import {DataTable} from "@/components/shared/datatable/DataTable.tsx";
 import {IMAGE_THUMBNAIL_URL} from "@/constants/api.constant.ts";
+import {ProductStatusOptions} from "@/constants/enums/ProductStatus.ts";
+import {ProductStatusDisplay} from "@/constants/enums/ProductStatusDisplay.tsx";
 import {apiGetAllCategories} from "@/services/graphql/admin/category/CategoryService.graphql.ts";
 import {apiGetProductList} from "@/services/graphql/product/product.service.ts";
 import type {Category} from "@/types/admin/CategoryTypes.ts";
@@ -17,6 +19,7 @@ const ProductCategoryList = () => {
     const navigate = useNavigate();
     const [categories, setCategories] = useState<Category[]>([]);
     const [selectedCategoryId, setSelectedCategoryId] = useState("");
+    const [selectedStatus, setSelectedStatus] = useState("");
     const [includeSubCategories, setIncludeSubCategories] = useState(true);
     const [products, setProducts] = useState<ProductListItem[]>([]);
     const [isLoadingCategories, setIsLoadingCategories] = useState(false);
@@ -60,57 +63,63 @@ const ProductCategoryList = () => {
         };
     }, []);
 
-    useEffect(() => {
-        let isActive = true;
+     useEffect(() => {
+         let isActive = true;
 
-        if (!selectedCategoryId) {
-            setProducts([]);
-            return () => {
-                isActive = false;
-            };
-        }
+         if (!selectedCategoryId) {
+             setProducts([]);
+             return () => {
+                 isActive = false;
+             };
+         }
 
-        const fetchProducts = async () => {
-            try {
-                setIsLoadingProducts(true);
-                setErrorMsg("");
+          const fetchProducts = async () => {
+              try {
+                  setIsLoadingProducts(true);
+                  setErrorMsg("");
 
-                const data = await apiGetProductList(
-                    selectedCategoryId,
-                    {pageIndex: 0, pageSize: PRODUCTS_PAGE_SIZE},
-                    {
-                        filters: [],
-                        filterGroups: [],
-                        sort: [{field: "name", direction: "ASC"}],
-                    },
-                    includeSubCategories,
-                );
+                  const data = await apiGetProductList(
+                      selectedCategoryId,
+                      {pageIndex: 0, pageSize: PRODUCTS_PAGE_SIZE},
+                      {
+                          filters: selectedStatus ? [{key: "status", operator: "EQUALS", value: selectedStatus}] : [],
+                          filterGroups: [],
+                          sort: [{field: "name", direction: "ASC"}],
+                      },
+                      includeSubCategories,
+                      true
+                  );
 
-                if (!isActive) return;
-                setProducts(data);
-            } catch (error) {
-                console.error("Failed to load products by category:", error);
-                if (isActive) {
-                    setErrorMsg("Failed to load products for the selected category.");
-                }
-            } finally {
-                if (isActive) {
-                    setIsLoadingProducts(false);
-                }
-            }
-        };
+                 if (!isActive) return;
+                 setProducts(data);
+             } catch (error) {
+                 console.error("Failed to load products by category:", error);
+                 if (isActive) {
+                     setErrorMsg("Failed to load products for the selected category.");
+                 }
+             } finally {
+                 if (isActive) {
+                     setIsLoadingProducts(false);
+                 }
+             }
+         };
 
-        void fetchProducts();
+         void fetchProducts();
 
-        return () => {
-            isActive = false;
-        };
-    }, [selectedCategoryId, includeSubCategories]);
+         return () => {
+             isActive = false;
+         };
+     }, [selectedCategoryId, includeSubCategories, selectedStatus]);
 
-    const categoryOptions = useMemo(
-        () => categories.map((category) => ({value: category.id, label: category.name})),
-        [categories]
-    );
+     const categoryOptions = useMemo(
+         () => categories.map((category) => ({value: category.id, label: category.name})),
+         [categories]
+     );
+
+     const statusOptions = useMemo(
+         () => ProductStatusOptions.map((status) => ({value: status.value, label: status.label})),
+         []
+     );
 
     const columns: ColumnDef<ProductListItem>[] = useMemo(() => [
         {
@@ -151,29 +160,36 @@ const ProductCategoryList = () => {
             enableSorting: true,
             cell: ({row}) => row.original.categoryNames?.length ? row.original.categoryNames.join(", ") : "-",
         },
-        {
-            id: "brandName",
-            accessorKey: "brandName",
-            header: "Brand",
-            enableSorting: true,
-            cell: ({row}) => row.original.brandName || "-",
-        },
-        {
-            id: "actions",
-            header: "Actions",
-            enableSorting: false,
-            cell: ({row}) => (
-                <div className="flex items-start justify-center gap-2">
-                    <Button
-                        variant="solid"
-                        size="sm"
-                        onClick={() => navigate(`/admin/product/detail/${row.original.id}`)}
-                    >
-                        <PenLine size={12}/>
-                    </Button>
-                </div>
-            ),
-        },
+         {
+             id: "brandName",
+             accessorKey: "brandName",
+             header: "Brand",
+             enableSorting: true,
+             cell: ({row}) => row.original.brandName || "-",
+         },
+         {
+             id: "status",
+             accessorKey: "status",
+             header: "Status",
+             enableSorting: true,
+             cell: ({row}) => row.original.status ? <ProductStatusDisplay status={row.original.status} /> : "-",
+         },
+         {
+             id: "actions",
+             header: "Actions",
+             enableSorting: false,
+             cell: ({row}) => (
+                 <div className="flex items-start justify-center gap-2">
+                     <Button
+                         variant="solid"
+                         size="sm"
+                         onClick={() => navigate(`/admin/product/detail/${row.original.id}`)}
+                     >
+                         <PenLine size={12}/>
+                     </Button>
+                 </div>
+             ),
+         },
     ], [navigate]);
 
     return (
@@ -182,24 +198,32 @@ const ProductCategoryList = () => {
                 <h1 className="text-2xl font-bold">Products By Category</h1>
             </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-4 items-end">
-                <Select
-                    label="Category"
-                    options={categoryOptions}
-                    value={selectedCategoryId}
-                    onChange={setSelectedCategoryId}
-                    placeholder={isLoadingCategories ? "Loading categories..." : "Select category"}
-                    disabled={isLoadingCategories}
-                />
-                <div className="md:col-span-2 pb-2">
-                    <Checkbox
-                        checked={includeSubCategories}
-                        onChange={setIncludeSubCategories}
-                        label="Include subcategories"
-                        disabled={!selectedCategoryId}
-                    />
-                </div>
-            </div>
+             <div className="grid grid-cols-1 md:grid-cols-3 gap-4 items-end">
+                 <Select
+                     label="Category"
+                     options={categoryOptions}
+                     value={selectedCategoryId}
+                     onChange={setSelectedCategoryId}
+                     placeholder={isLoadingCategories ? "Loading categories..." : "Select category"}
+                     disabled={isLoadingCategories}
+                 />
+                  <Select
+                      label="Status"
+                      options={statusOptions}
+                      value={selectedStatus}
+                      onChange={setSelectedStatus}
+                      placeholder="Select status"
+                      disabled={!selectedCategoryId}
+                  />
+                 <div className="md:col-span-1 pb-2">
+                     <Checkbox
+                         checked={includeSubCategories}
+                         onChange={setIncludeSubCategories}
+                         label="Include subcategories"
+                         disabled={!selectedCategoryId}
+                     />
+                 </div>
+             </div>
 
             <DataTable
                 data={products}

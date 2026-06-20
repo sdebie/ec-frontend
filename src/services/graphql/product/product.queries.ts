@@ -10,15 +10,17 @@ export const GET_PRODUCTS_LIST = gql`
             variantIds
             categoryNames
             brandName
+            status
         }
     }
 `;
 
 export const GET_PRODUCTS_LIST_BY_CATEGORY = gql`
-    query GetProductsListByCategory($categoryId: String!, $includeSubCategories: Boolean!, $pageRequest: PageRequestInput, $filterRequest: FilterRequestInput) {
+    query GetProductsListByCategory($categoryId: String!, $includeSubCategories: Boolean!, $ignoreStatus: Boolean, $pageRequest: PageRequestInput, $filterRequest: FilterRequestInput) {
         productListByCategory(
             categoryId: $categoryId,
             includeSubCategories: $includeSubCategories,
+            ignoreStatus: $ignoreStatus,
             pageRequest: $pageRequest,
             filterRequest: $filterRequest
         ) {
@@ -29,14 +31,16 @@ export const GET_PRODUCTS_LIST_BY_CATEGORY = gql`
             variantIds
             categoryNames
             brandName
+            status
         }
     }
 `;
 
 export const GET_PRODUCTS_LIST_BY_BRAND = gql`
-    query GetProductsListByBrand($brandId: String!, $pageRequest: PageRequestInput, $filterRequest: FilterRequestInput) {
+    query GetProductsListByBrand($brandId: String!, $ignoreStatus: Boolean, $pageRequest: PageRequestInput, $filterRequest: FilterRequestInput) {
         productListByBrand(
             brandId: $brandId,
+            ignoreStatus: $ignoreStatus,
             pageRequest: $pageRequest,
             filterRequest: $filterRequest
         ) {
@@ -47,17 +51,19 @@ export const GET_PRODUCTS_LIST_BY_BRAND = gql`
             variantIds
             categoryNames
             brandName
+            status
         }
     }
 `;
 
 export const GET_SHOPPING_PRODUCTS_LIST = gql`
-    query GetShoppingProductsList($categoryId: String, $pageRequest: PageRequestInput, $filterRequest: FilterRequestInput) {
-        shoppingProductList(categoryId: $categoryId, pageRequest: $pageRequest, filterRequest: $filterRequest) {
+    query GetShoppingProductsList($categoryId: String, $ignoreStatus: Boolean, $pageRequest: PageRequestInput, $filterRequest: FilterRequestInput) {
+        shoppingProductList(categoryId: $categoryId, ignoreStatus: $ignoreStatus, pageRequest: $pageRequest, filterRequest: $filterRequest) {
             id
             name
             shortDescription
             productType
+            status
             variantCount
             variantId
             images {
@@ -107,12 +113,13 @@ export const GET_SHOPPING_PRODUCTS_LIST = gql`
 `;
 
 export const GET_SALE_PRODUCTS_LIST = gql`
-    query GetSaleProductsList($pageRequest: PageRequestInput) {
-        saleProductList(pageRequest: $pageRequest) {
+    query GetSaleProductsList($pageRequest: PageRequestInput, $ignoreStatus: Boolean) {
+        saleProductList(pageRequest: $pageRequest, ignoreStatus: $ignoreStatus) {
             id
             name
             shortDescription
             productType
+            status
             variantCount
             variantId
             images {
@@ -166,6 +173,7 @@ export const VARIANTS_BY_IDS = gql`
         variantsByIds(ids: $ids) {
             id
             sku
+            status
             prices {
                 active
                 id
@@ -199,6 +207,7 @@ export const GET_PRODUCT_AND_VARIANTS = gql`
                 description
                 shortDescription
                 productType
+                status
                 createdAt
                 categories {
                     id
@@ -214,6 +223,7 @@ export const GET_PRODUCT_AND_VARIANTS = gql`
             variants {
                 id
                 sku
+                status
                 stockQuantity
                 attributesJson
                 weightKg
@@ -247,6 +257,7 @@ export const UPDATE_PRODUCT_INFORMATION = gql`
                 description
                 shortDescription
                 productType
+                status
                 createdAt
                 categories {
                     id
@@ -262,6 +273,7 @@ export const UPDATE_PRODUCT_INFORMATION = gql`
             variants {
                 id
                 sku
+                status
                 stockQuantity
                 attributesJson
                 weightKg
@@ -286,8 +298,8 @@ export const UPDATE_PRODUCT_INFORMATION = gql`
 `;
 
 export const PRODUCT_COUNT = gql`
-    query ProductCount($filterRequest: FilterRequestInput, $categoryId: String, $brandId: String) {
-        productCount(filterRequest: $filterRequest, categoryId: $categoryId, brandId: $brandId)
+    query ProductCount($filterRequest: FilterRequestInput, $categoryId: String, $brandId: String, $ignoreStatus: Boolean) {
+        productCount(filterRequest: $filterRequest, categoryId: $categoryId, brandId: $brandId, ignoreStatus: $ignoreStatus)
     }
 `;
 
@@ -297,6 +309,8 @@ export const GET_TOP_BEST_SELLERS = gql`
             id
             name
             shortDescription
+            productType
+            status
             variantCount
             images {
                 id
