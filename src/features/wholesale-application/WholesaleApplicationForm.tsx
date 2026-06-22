@@ -129,6 +129,7 @@ export function WholesaleApplicationForm({formClassName = 'mt-6 space-y-10'}: {f
                             <FieldError message={errors.existingWebsiteAccountEmail?.message}/>
                         </div>
                     </div>
+
                 </div>
             </fieldset>
 

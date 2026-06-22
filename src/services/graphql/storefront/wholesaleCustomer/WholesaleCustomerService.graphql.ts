@@ -9,9 +9,11 @@ import {FilterRequest, PageRequest} from '@/types/graphql/query.types.ts';
 import getServiceEndpoint from '@/utils/HostnameResolver.ts';
 import {
     ALL_WHOLESALE_APPLICATIONS,
+    APPROVE_WHOLESALE_APPLICATION,
     CREATE_WHOLESALE_APPLICATION,
     CREATE_WHOLESALE_CUSTOMER_FROM_APPLICATION,
     GET_WHOLESALE_APPLICATION,
+    REJECT_WHOLESALE_APPLICATION,
     WHOLESALE_APPLICATION_COUNT,
 } from './wholesaleCustomer.queries.ts';
 
@@ -84,5 +86,25 @@ export async function apiGetWholesaleApplication(id: string): Promise<WholesaleA
     );
 
     return result.wholesaleApplication;
+}
+
+export async function apiApproveWholesaleApplication(id: string): Promise<WholesaleApplicationDetails> {
+    const client = await GraphQLService.getGraphQLClient(graphQLEndpoint);
+    const result = await client.request<{ approveWholesaleApplication: WholesaleApplicationDetails }>(
+        APPROVE_WHOLESALE_APPLICATION,
+        {id}
+    );
+
+    return result.approveWholesaleApplication;
+}
+
+export async function apiRejectWholesaleApplication(id: string): Promise<WholesaleApplicationDetails> {
+    const client = await GraphQLService.getGraphQLClient(graphQLEndpoint);
+    const result = await client.request<{ rejectWholesaleApplication: WholesaleApplicationDetails }>(
+        REJECT_WHOLESALE_APPLICATION,
+        {id}
+    );
+
+    return result.rejectWholesaleApplication;
 }
 

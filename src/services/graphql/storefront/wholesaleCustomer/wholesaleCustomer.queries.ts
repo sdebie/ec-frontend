@@ -27,6 +27,9 @@ const WHOLESALE_CUSTOMER_FIELDS = `
 
 const WHOLESALE_APPLICATION_LIST_FIELDS = `
     id
+    email
+    firstName
+    lastName
     createdAt
     status
 `;
@@ -90,8 +93,24 @@ export const WHOLESALE_APPLICATION_COUNT = gql`
 `;
 
 export const GET_WHOLESALE_APPLICATION = gql`
-    query WholesaleApplication($id: UUID!) {
+    query WholesaleApplication($id: String!) {
         wholesaleApplication(id: $id) {
+            ${WHOLESALE_APPLICATION_DETAIL_FIELDS}
+        }
+    }
+`;
+
+export const APPROVE_WHOLESALE_APPLICATION = gql`
+    mutation ApproveWholesaleApplication($id: String!) {
+        approveWholesaleApplication(id: $id) {
+            ${WHOLESALE_APPLICATION_DETAIL_FIELDS}
+        }
+    }
+`;
+
+export const REJECT_WHOLESALE_APPLICATION = gql`
+    mutation RejectWholesaleApplication($id: String!) {
+        rejectWholesaleApplication(id: $id) {
             ${WHOLESALE_APPLICATION_DETAIL_FIELDS}
         }
     }

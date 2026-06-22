@@ -1,8 +1,10 @@
 import {useCallback, useEffect, useMemo, useState} from 'react';
+
 import {
     apiGetAllWholesaleApplications,
     apiGetWholesaleApplicationCount,
 } from '@/services/graphql/storefront/wholesaleCustomer/WholesaleCustomerService.graphql.ts';
+
 import type {WholesaleApplicationListItem, WholesaleApplicationStatus} from '@/types/admin/WholesaleCustomerTypes.ts';
 import type {FilterRequest} from '@/types/graphql/query.types.ts';
 
@@ -42,43 +44,29 @@ export default function useWholesaleApplicationList() {
         };
     }, [searchTerm, statusFilter]);
 
-    useEffect(() => {
-        let isActive = true;
+    const fetchApplications = useCallback(async () => {
+        try {
+            setIsLoading(true);
+            setErrorMsg('');
 
-        const fetchApplications = async () => {
-            try {
-                setIsLoading(true);
-                setErrorMsg('');
+            const [page, count] = await Promise.all([
+                apiGetAllWholesaleApplications({pageIndex, pageSize}, filterRequest),
+                apiGetWholesaleApplicationCount(filterRequest),
+            ]);
 
-                const [page, count] = await Promise.all([
-                    apiGetAllWholesaleApplications({pageIndex, pageSize}, filterRequest),
-                    apiGetWholesaleApplicationCount(filterRequest),
-                ]);
-
-                if (!isActive) {
-                    return;
-                }
-
-                setApplications(page);
-                setTotalRows(count);
-            } catch (error) {
-                console.error('Failed to fetch wholesale applications:', error);
-                if (isActive) {
-                    setErrorMsg('Failed to load wholesale applications.');
-                }
-            } finally {
-                if (isActive) {
-                    setIsLoading(false);
-                }
-            }
-        };
-
-        void fetchApplications();
-
-        return () => {
-            isActive = false;
-        };
+            setApplications(page);
+            setTotalRows(count);
+        } catch (error) {
+            console.error('Failed to fetch wholesale applications:', error);
+            setErrorMsg('Failed to load wholesale applications.');
+        } finally {
+            setIsLoading(false);
+        }
     }, [pageIndex, pageSize, filterRequest]);
+
+    useEffect(() => {
+        void fetchApplications();
+    }, [fetchApplications]);
 
     const handlePageChange = useCallback((newPageIndex: number) => {
         setPageIndex(newPageIndex);
@@ -114,6 +102,7 @@ export default function useWholesaleApplicationList() {
         onPageSizeChange: handlePageSizeChange,
         onSearchChange: handleSearchChange,
         onStatusFilterChange: handleStatusFilterChange,
+        refreshApplications: fetchApplications,
     };
 }
 

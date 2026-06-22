@@ -1,5 +1,8 @@
-export type WholesaleCustomerStatus = 'ACTIVE' | 'DISABLED' | 'PENDING' | 'APPROVED' | 'REJECTED' | 'CONVERTED';
-export type WholesaleApplicationStatus = 'PENDING' | 'APPROVED' | 'REJECTED' | 'CONVERTED';
+import { WholesaleCustomerStatus as WholesaleCustomerStatusEnum } from "@/constants/enums/WholesaleCustomerStatus.ts";
+import { WholesaleApplicationStatus as WholesaleApplicationStatusEnum } from "@/constants/enums/WholesaleApplicationStatus.ts";
+
+export type WholesaleCustomerStatus = `${WholesaleCustomerStatusEnum}`;
+export type WholesaleApplicationStatus = `${WholesaleApplicationStatusEnum}`;
 
 export type WholesaleCustomer = {
     id: string;
@@ -52,6 +55,9 @@ export type WholesaleCustomerInput = {
 
 export type WholesaleApplicationListItem = {
     id: string;
+    email?: string;
+    firstName?: string;
+    lastName?: string;
     createdAt?: string;
     status?: WholesaleApplicationStatus;
 };

@@ -111,6 +111,16 @@ const adminPageOnlyRoutes: PageRoutes = [
             pageContainerType: 'contained',
         },
     },
+    {
+        key: 'admin.testing.addresstest',
+        path: '/admin/testing/addresstest',
+        component: lazy(() => import('@/pages/admin/testing/AddressLookup.tsx')),
+        authority: ['SUPER_ADMIN'],
+        meta: {
+            pageBackgroundType: 'plain',
+            pageContainerType: 'contained',
+        },
+    },
 ]
 
 export const adminRoutingRoutes: PageRoutes = [

@@ -276,5 +276,31 @@ export const adminMenuRoutes: Routes = [
             },
         ]
     },
+    {
+        key: 'admin.testing',
+        path: '/admin/testing',
+        component: lazy(() => import('../../../pages/admin/settings/screens/./GeneralSettings')),
+        authority: ['SUPER_ADMIN'],
+        meta: {
+            label: 'Testing',
+            section: 'CONFIGURATION',
+            pageBackgroundType: 'plain',
+            pageContainerType: 'contained',
+            icon: 'settings',
+        },
+        subMenu: [
+            {
+                key: 'admin.testing.addresstest',
+                path: '/admin/testing/addresstest',
+                component: lazy(() => import('../../../pages/admin/testing/AddressLookup')),
+                authority: ['SUPER_ADMIN'],
+                meta: {
+                    label: 'Address input Test',
+                    pageBackgroundType: 'plain',
+                    pageContainerType: 'contained',
+                },
+            },
+        ],
+    }
 ]
 
