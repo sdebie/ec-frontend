@@ -1,1 +1,0 @@
-export type { Category } from '@/types/shared/CategoryTypes.ts';

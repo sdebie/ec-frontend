@@ -1,0 +1,173 @@
+export interface NavItem {
+  id: string
+  label: string
+  path: string        // relative path or absolute URL
+  external: boolean   // true → opens in new tab
+  sortOrder: number
+}
+
+export interface AnnouncementConfig {
+  enabled: boolean
+  text: string
+  backgroundColor: string   // CSS colour value, default '#1a1f35'
+  textColor: string          // CSS colour value, default '#ffffff'
+}
+
+export interface HeaderConfig {
+  announcement?: AnnouncementConfig
+}
+
+export interface StorefrontActionLink {
+  label: string
+  to: string
+}
+
+// --- Per-section props types ---
+
+export interface HeroSectionProps {
+  title: string
+  subtitle?: string
+  primaryCta?: StorefrontActionLink
+  secondaryCta?: StorefrontActionLink
+  backgroundImageUrl?: string
+  overlayOpacity?: number
+  contentAlignment?: 'left' | 'center' | 'right'
+  darkStyle?: boolean
+}
+
+export interface CategoryPreviewItem {
+  id: string
+  label: string
+  to: string
+  description?: string
+  imageSrc?: string
+  imageAlt?: string
+}
+
+export interface CategoryPreviewSectionProps {
+  title: string
+  subtitle?: string
+  layout?: 'tiles' | 'list'
+  columns?: 2 | 3 | 4 | 6
+  items: CategoryPreviewItem[]
+}
+
+export interface TestimonialItem {
+  id: string
+  quote: string
+  name: string
+  role?: string
+  company?: string
+}
+
+export interface TestimonialsSectionProps {
+  title: string
+  subtitle?: string
+  layout?: 'grid' | 'stacked'
+  columns?: 1 | 2 | 3
+  items: TestimonialItem[]
+}
+
+export interface BenefitItem {
+  title: string
+  description: string
+}
+
+export interface BenefitsSectionProps {
+  title: string
+  items: BenefitItem[]
+}
+
+export interface CtaSectionProps {
+  title: string
+  description?: string
+  cta: StorefrontActionLink
+  variant?: 'accent' | 'dark'
+}
+
+export interface NewsletterSectionProps {
+  title: string
+  submitLabel: string
+  description?: string
+  placeholder?: string
+  legalText?: string
+  secondaryLink?: StorefrontActionLink
+  layout?: 'inline' | 'stacked'
+}
+
+export interface PromoGridItem {
+  id: string
+  title: string
+  description?: string
+  eyebrow?: string
+  cta?: StorefrontActionLink
+}
+
+export interface PromoGridSectionProps {
+  title: string
+  subtitle?: string
+  layout?: 'cards' | 'feature-first'
+  columns?: 2 | 3 | 4
+  items: PromoGridItem[]
+}
+
+export interface FeaturedProductsSectionProps {
+  title: string
+  category?: string
+  limit?: number
+}
+
+// --- Discriminated union members ---
+
+interface SectionBase<T extends string, P> {
+  id: string
+  type: T
+  props: P
+}
+
+export type HeroSectionConfig = SectionBase<'hero', HeroSectionProps>
+export type FeaturedProductsSectionConfig = SectionBase<'featured-products', FeaturedProductsSectionProps>
+export type CategoryPreviewSectionConfig = SectionBase<'category-preview', CategoryPreviewSectionProps>
+export type TestimonialsSectionConfig = SectionBase<'testimonials', TestimonialsSectionProps>
+export type BenefitsSectionConfig = SectionBase<'benefits', BenefitsSectionProps>
+export type CtaSectionConfig = SectionBase<'cta', CtaSectionProps>
+export type NewsletterSectionConfig = SectionBase<'newsletter', NewsletterSectionProps>
+export type PromoGridSectionConfig = SectionBase<'promo-grid', PromoGridSectionProps>
+
+export type SectionConfig =
+  | HeroSectionConfig
+  | FeaturedProductsSectionConfig
+  | CategoryPreviewSectionConfig
+  | TestimonialsSectionConfig
+  | BenefitsSectionConfig
+  | CtaSectionConfig
+  | NewsletterSectionConfig
+  | PromoGridSectionConfig
+
+export interface StorefrontBrandingLogo {
+  src: string
+  alt: string
+}
+
+export interface StorefrontBranding {
+  name: string
+  logo?: StorefrontBrandingLogo
+}
+
+export interface StorefrontAuthConfig {
+  loginStyle?: 'modal' | 'page'
+}
+
+export interface StorefrontConfig {
+  clientId: string
+  clientName: string
+  currency: string
+  locale: string
+  theme: Record<string, string>
+  nav: NavItem[]
+  sections: SectionConfig[]
+  branding: StorefrontBranding
+  stickyHeader?: boolean
+  header?: HeaderConfig
+  auth?: StorefrontAuthConfig
+}

@@ -1,0 +1,8 @@
+query OrderBySessionId($sessionId: String!) {
+  orderBySessionId(sessionId: $sessionId) {
+    id
+    status
+    totalAmount
+    createdAt
+  }
+}

@@ -1,0 +1,51 @@
+import {useState} from 'react'
+import {cn} from '@/shared/utils/cn'
+
+export type ThumbnailSize = 'sm' | 'md' | 'lg'
+
+export interface ThumbnailProps {
+    logoUrl?: string | null
+    name: string
+    size?: ThumbnailSize
+    className?: string
+}
+
+const sizeClasses: Record<ThumbnailSize, string> = {
+    sm: 'h-7 w-7 text-[10px]',
+    md: 'h-9 w-9 text-xs',
+    lg: 'h-12 w-12 text-sm',
+}
+
+export function Thumbnail({logoUrl, name, size = 'md', className}: ThumbnailProps) {
+    const [imgError, setImgError] = useState(false)
+    const initials = name?.slice(0, 2).toUpperCase() ?? '?'
+
+    if (logoUrl && !imgError) {
+        return (
+            <img
+                src={logoUrl}
+                alt={`${name} logo`}
+                className={cn(
+                    sizeClasses[size],
+                    'rounded-md object-contain bg-(--c-bg) border border-(--c-border)',
+                    className
+                )}
+                onError={() => setImgError(true)}
+            />
+        )
+    }
+
+    return (
+        <div
+            className={cn(
+                sizeClasses[size],
+                'rounded-md bg-(--c-bg) border border-(--c-border) flex items-center justify-center font-semibold text-(--c-text-muted) select-none',
+                className
+            )}
+        >
+            {initials}
+        </div>
+    )
+}
+
+Thumbnail.displayName = 'Thumbnail'

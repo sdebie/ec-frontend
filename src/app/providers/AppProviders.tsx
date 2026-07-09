@@ -1,38 +1,21 @@
 import {QueryClientProvider} from '@tanstack/react-query'
 import {ReactQueryDevtools} from '@tanstack/react-query-devtools'
-import {RouterProvider} from 'react-router-dom'
+import {GoogleOAuthProvider} from '@react-oauth/google'
+import {queryClient} from '@/shared/api/queryClient'
+import {ToastContainer} from '@/shared/ui/components/toast'
 
-import {queryClient} from '@/lib/queryClient'
-
-import {SettingsInitializationProvider} from './SettingsInitializationProvider'
-import {StorefrontCategoryProvider} from './StorefrontCategoryProvider'
-import {StorefrontProvider} from './StorefrontProvider'
-
-import type {ResolveStorefrontConfigOptions} from '@/configs/storefront/storefrontRegistryTypes'
-import type {ComponentProps, PropsWithChildren} from 'react'
-
-interface AppProvidersProps extends PropsWithChildren {
-    storefrontOptions?: ResolveStorefrontConfigOptions
-    router: ComponentProps<typeof RouterProvider>['router']
+interface Props {
+    children: React.ReactNode
 }
 
-export function AppProviders({
-                                 children,
-                                 storefrontOptions,
-                                 router,
-                             }: AppProvidersProps) {
-    return (
+const googleClientId = import.meta.env.VITE_GOOGLE_CLIENT_ID ?? ''
+
+export const AppProviders = ({children}: Props) => (
+    <GoogleOAuthProvider clientId={googleClientId}>
         <QueryClientProvider client={queryClient}>
-            <SettingsInitializationProvider>
-                <StorefrontProvider options={storefrontOptions}>
-                    <StorefrontCategoryProvider>
-                        <RouterProvider router={router}/>
-                        {children}
-                    </StorefrontCategoryProvider>
-                </StorefrontProvider>
-            </SettingsInitializationProvider>
-            {import.meta.env.DEV && <ReactQueryDevtools initialIsOpen={false}/>}
+            {children}
+            <ToastContainer/>
+            {import.meta.env.DEV && <ReactQueryDevtools/>}
         </QueryClientProvider>
-    )
-}
-
+    </GoogleOAuthProvider>
+)

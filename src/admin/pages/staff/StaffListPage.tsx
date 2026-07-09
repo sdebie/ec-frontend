@@ -1,0 +1,140 @@
+import { useState, useEffect, useMemo } from 'react'
+import { useNavigate } from 'react-router-dom'
+import type { PaginationState } from '@tanstack/react-table'
+
+import { DataTable, StatusBadge } from '@/shared/ui/components'
+import type { ColumnDef } from '@/shared/ui/components'
+import { Button, Input } from '@/shared/ui/primitives'
+import { useAdminAuthStore } from '@/shared/auth/adminAuthStore'
+import { deriveCanMutate } from '@/admin/hooks/imports/utils'
+import { useStaff } from '@/admin/hooks/staff'
+import type { StaffMember } from '@/admin/hooks/staff'
+import { StaffActionsMenu } from './StaffActionsMenu'
+
+const ROLE_LABELS: Record<StaffMember['role'], string> = {
+  SUPER_ADMIN: 'Super Admin',
+  CATALOG_MANAGER: 'Catalog Manager',
+  ORDER_MANAGER: 'Order Manager',
+  VIEWER: 'Viewer',
+}
+
+const ROLE_COLORS: Record<StaffMember['role'], string> = {
+  SUPER_ADMIN: 'blue',
+  CATALOG_MANAGER: 'purple',
+  ORDER_MANAGER: 'green',
+  VIEWER: 'gray',
+}
+
+export function StaffListPage() {
+  const navigate = useNavigate()
+  const canMutate = deriveCanMutate(useAdminAuthStore((s) => s.role))
+
+  const [searchInput, setSearchInput] = useState('')
+  const [search, setSearch] = useState('')
+  const [pagination, setPagination] = useState<PaginationState>({
+    pageIndex: 0,
+    pageSize: 10,
+  })
+
+  // Debounce search input by 300ms
+  useEffect(() => {
+    const t = setTimeout(() => {
+      setSearch(searchInput)
+      setPagination((prev) => ({ ...prev, pageIndex: 0 }))
+    }, 300)
+    return () => clearTimeout(t)
+  }, [searchInput])
+
+  const { data, isLoading } = useStaff({
+    pageIndex: pagination.pageIndex,
+    pageSize: pagination.pageSize,
+    search,
+  })
+
+  const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setSearchInput(e.target.value)
+  }
+
+  const columns = useMemo<ColumnDef<StaffMember, unknown>[]>(
+    () => [
+      {
+        accessorKey: 'fullName',
+        header: 'Name',
+        cell: ({ row }) => row.original.fullName ?? '—',
+      },
+      {
+        accessorKey: 'email',
+        header: 'Email',
+      },
+      {
+        accessorKey: 'role',
+        header: 'Role',
+        cell: ({ row }) => (
+          <StatusBadge
+            label={ROLE_LABELS[row.original.role]}
+            color={ROLE_COLORS[row.original.role]}
+          />
+        ),
+      },
+      {
+        id: 'active',
+        header: 'Active',
+        cell: ({ row }) => (
+          <StatusBadge
+            label={row.original.active ? 'Active' : 'Inactive'}
+            color={row.original.active ? 'green' : 'gray'}
+          />
+        ),
+      },
+      ...(canMutate
+        ? [
+            {
+              id: 'actions',
+              header: 'Actions',
+              cell: ({ row }: { row: { original: StaffMember } }) => (
+                <StaffActionsMenu staff={row.original} />
+              ),
+            } as ColumnDef<StaffMember, unknown>,
+          ]
+        : []),
+    ],
+    [canMutate],
+  )
+
+  const pageCount = data ? Math.ceil(data.total / pagination.pageSize) : 0
+
+  return (
+    <div className="flex flex-col gap-6">
+      <div className="flex items-center justify-between">
+        <h1 className="text-2xl font-semibold text-(--c-text)">Staff</h1>
+        {canMutate && (
+          <Button onClick={() => navigate('/admin/staff/new')}>
+            Add staff member
+          </Button>
+        )}
+      </div>
+
+      {/* Search filter bar */}
+      <div className="flex items-center gap-4">
+        <Input
+          type="text"
+          placeholder="Search by name or email..."
+          value={searchInput}
+          onChange={handleSearchChange}
+        />
+      </div>
+
+      {/* Data Table */}
+      <DataTable
+        columns={columns}
+        data={data?.data ?? []}
+        isLoading={isLoading}
+        showSearch={false}
+        manualPagination
+        pageCount={pageCount}
+        pagination={pagination}
+        onPaginationChange={setPagination}
+      />
+    </div>
+  )
+}

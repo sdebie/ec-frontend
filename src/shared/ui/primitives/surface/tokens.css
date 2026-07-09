@@ -1,0 +1,135 @@
+/* Surface tokens — maps --c-* design tokens per surface elevation */
+
+/*
+  Root defaults — used by portal-rendered components (toasts, modals, dropdowns)
+  that render at document.body and have no [data-surface] ancestor.
+  Values mirror the light-theme admin surface so portals look correct in the
+  default (light) state. Dark-mode portals are not themed — an accepted limitation.
+*/
+:root {
+  --c-bg:           var(--admin-bg);
+  --c-panel:        var(--admin-panel);
+  --c-surface:      var(--admin-panel);
+  --c-text:         var(--admin-text);
+  --c-text-muted:   var(--admin-text-muted);
+  --c-border:       var(--admin-border);
+  --c-surface-hover: var(--admin-sidebar-hover);
+  --c-success:      var(--admin-status-green-text);
+  --c-error:        var(--admin-status-red-text);
+  --c-warning:      var(--admin-status-yellow-text);
+  --c-info:         var(--primary);
+  --c-input-bg:     var(--admin-panel);
+  --c-accent-fg:    #ffffff;
+  --c-danger:       #ef4444;
+  --c-danger-hover: #dc2626;
+  --c-danger-text:  #ffffff;
+}
+
+/* Admin surface — drives admin app appearance */
+[data-surface='admin'] {
+  --c-bg: var(--admin-bg);
+  --c-panel: var(--admin-panel);
+  --c-text: var(--admin-text);
+  --c-text-muted: var(--admin-text-muted);
+  --c-border: var(--admin-border);
+  --c-surface-hover: var(--admin-sidebar-hover);
+  --c-accent: var(--primary);
+  --c-accent-hover: var(--primary-hover);
+  --c-accent-text: var(--admin-accent-text, #ffffff);
+  --c-accent-subtle: var(--primary-subtle);
+  --c-ring: var(--primary);
+  --c-shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.05);
+
+  /* Table-specific */
+  --c-table-header-bg:     var(--admin-table-header-bg, var(--c-surface-hover));
+  --c-table-row-bg:        var(--admin-table-row-bg, var(--c-panel));
+  --c-table-row-hover:     var(--admin-table-row-hover, var(--c-surface-hover));
+
+  /* Sidebar-specific */
+  --c-sidebar-bg:          var(--admin-sidebar-bg, #ffffff);
+  --c-sidebar-hover:       var(--admin-sidebar-hover, #f1f5f9);
+  --c-sidebar-active:      var(--admin-sidebar-active, #eff6ff);
+  --c-sidebar-active-text: var(--admin-sidebar-active-text, var(--primary));
+  --c-sidebar-border:      var(--admin-sidebar-border, var(--admin-border));
+  --c-header-bg:           var(--admin-header-bg, #ffffff);
+
+  /* Radius */
+  --c-radius:    var(--admin-radius, 0.5rem);
+  --c-radius-sm: var(--admin-radius-sm, 0.25rem);
+  --c-radius-lg: var(--admin-radius-lg, 0.75rem);
+
+  /* Surface elevation */
+  --c-surface:      var(--admin-panel);
+  --c-input-bg:     var(--admin-panel);
+  --c-accent-fg:    var(--c-accent-text);
+  --c-danger:       #ef4444;
+  --c-danger-hover: #dc2626;
+  --c-danger-text:  #ffffff;
+
+  /* Semantic colours — used by Toast variant icons/accents and alert states */
+  --c-success: var(--admin-status-green-text);
+  --c-error:   var(--admin-status-red-text);
+  --c-warning: var(--admin-status-yellow-text);
+  --c-info:    var(--primary);
+
+  /* Status colours */
+  --c-status-red-bg:        var(--admin-status-red-bg);
+  --c-status-red-text:      var(--admin-status-red-text);
+  --c-status-red-border:    var(--admin-status-red-border);
+  --c-status-green-bg:      var(--admin-status-green-bg);
+  --c-status-green-text:    var(--admin-status-green-text);
+  --c-status-green-border:  var(--admin-status-green-border);
+  --c-status-yellow-bg:     var(--admin-status-yellow-bg);
+  --c-status-yellow-text:   var(--admin-status-yellow-text);
+  --c-status-yellow-border: var(--admin-status-yellow-border);
+}
+
+/* Storefront surface — pulls from --sf-* set by StorefrontConfigProvider (camelCase → kebab-case) */
+[data-surface='storefront'] {
+  --c-bg: var(--sf-background);
+  --c-bg-surface: var(--sf-background);
+  --c-panel: var(--sf-panel, var(--sf-background, #ffffff));
+  --c-text: var(--sf-text);
+  --c-text-muted: var(--sf-muted-text);
+  --c-border: var(--sf-border);
+  --c-surface-hover: color-mix(in srgb, var(--sf-panel, #ffffff) 92%, var(--sf-text, #000000));
+  --c-surface-dark: var(--sf-surface-dark, #000000);
+  --c-accent: var(--sf-accent);
+  --c-accent-hover: var(--sf-accent-hover, var(--sf-accent));
+  --c-accent-text: var(--sf-accent-text);
+  --c-accent-subtle: var(--sf-accent-subtle, color-mix(in srgb, var(--sf-accent) 20%, transparent));
+  --c-ring: var(--sf-ring, var(--sf-accent));
+  --c-radius: var(--sf-radius, 0.5rem);
+  --c-shadow-sm: var(--sf-shadow-sm, 0 1px 2px rgba(0, 0, 0, 0.05));
+}
+
+/* Wholesaler surface — defined when Phase 9 lands */
+[data-surface='wholesaler'] {
+  --c-bg: var(--ws-bg, var(--sf-background));
+  --c-panel: var(--ws-panel, var(--sf-panel, #ffffff));
+  --c-surface-dark: var(--ws-surface-dark, var(--sf-surface-dark, #000000));
+  --c-text: var(--ws-text, var(--sf-text));
+  --c-text-muted: var(--ws-muted-text, var(--sf-muted-text));
+  --c-border: var(--ws-border, var(--sf-border));
+  --c-surface-hover: var(--ws-surface-hover, var(--sf-surface-hover));
+  --c-accent: var(--ws-accent, var(--sf-accent));
+  --c-accent-hover: var(--ws-accent-hover, var(--sf-accent-hover, var(--sf-accent)));
+  --c-accent-text: var(--ws-accent-text, var(--sf-accent-text));
+  --c-accent-subtle: var(--ws-accent-subtle, var(--sf-accent-subtle));
+  --c-ring: var(--ws-ring, var(--sf-ring, var(--sf-accent)));
+  --c-radius: var(--ws-radius, var(--sf-radius, 0.5rem));
+  --c-shadow-sm: var(--ws-shadow-sm, var(--sf-shadow-sm, 0 1px 2px rgba(0, 0, 0, 0.05)));
+}
+
+/* Density modifiers */
+[data-density='compact'] {
+  --c-control-h-sm: 1.75rem;
+  --c-control-h-md: 2rem;
+  --c-control-h-lg: 2.5rem;
+}
+
+[data-density='comfortable'] {
+  --c-control-h-sm: 2rem;
+  --c-control-h-md: 2.5rem;
+  --c-control-h-lg: 3rem;
+}

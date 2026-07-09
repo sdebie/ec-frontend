@@ -1,0 +1,9 @@
+query myOrders {
+  myOrders {
+    id
+    orderDate
+    status
+    itemCount
+    totalAmount
+  }
+}

@@ -1,0 +1,15 @@
+query AllWholesaleApplications($pageRequest: PageRequestInput!, $filterRequest: FilterRequestInput) {
+  allWholesaleApplications(pageRequest: $pageRequest, filterRequest: $filterRequest) {
+    id
+    customerId
+    customerFirstName
+    customerLastName
+    customerEmail
+    status
+    submittedAt
+  }
+}
+
+query WholesaleApplicationCount($filterRequest: FilterRequestInput) {
+  wholesaleApplicationCount(filterRequest: $filterRequest)
+}

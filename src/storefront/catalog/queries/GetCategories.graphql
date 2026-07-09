@@ -1,0 +1,10 @@
+query GetCategories($pageIndex: Int, $pageSize: Int) {
+  getCategories(pageIndex: $pageIndex, pageSize: $pageSize) {
+    content {
+      id
+      name
+      slug
+    }
+    totalElements
+  }
+}

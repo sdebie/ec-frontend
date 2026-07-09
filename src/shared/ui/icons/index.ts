@@ -1,0 +1,8 @@
+export { Icon } from './Icon'
+export { IconFacebook } from './IconFacebook'
+export { IconInstagram } from './IconInstagram'
+export { IconLinkedIn } from './IconLinkedIn'
+export { IconTikTok } from './IconTikTok'
+export { IconWhatsApp } from './IconWhatsApp'
+export { IconXTwitter } from './IconXTwitter'
+export { IconYouTube } from './IconYouTube'

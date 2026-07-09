@@ -1,0 +1,114 @@
+import { Link } from 'react-router-dom'
+import { useCustomerProfile } from './hooks/useCustomerProfile'
+import { useMyOrders } from './hooks/useMyOrders'
+import { useWishlist } from './hooks/useWishlist'
+import { formatAmount } from '@/shared/utils/formatAmount'
+
+const STATUS_BADGE_CLASSES: Record<string, string> = {
+  CREATED: 'bg-gray-100 text-gray-700',
+  PAID: 'bg-blue-100 text-blue-700',
+  SHIPPED: 'bg-amber-100 text-amber-700',
+  DELIVERED: 'bg-green-100 text-green-700',
+  CANCELLED: 'bg-red-100 text-red-700',
+}
+
+export function AccountDashboardPage() {
+  const { data: profile, isLoading: profileLoading } = useCustomerProfile()
+  const { data: ordersData, isLoading: ordersLoading } = useMyOrders()
+  const { data: wishlist, isLoading: wishlistLoading } = useWishlist()
+
+  const isLoading = profileLoading || ordersLoading || wishlistLoading
+
+  if (isLoading) {
+    return (
+      <div className="space-y-6">
+        <div className="h-8 w-48 animate-pulse rounded bg-gray-200" />
+        <div className="space-y-3">
+          <div className="h-16 animate-pulse rounded bg-gray-200" />
+          <div className="h-16 animate-pulse rounded bg-gray-200" />
+          <div className="h-16 animate-pulse rounded bg-gray-200" />
+        </div>
+        <div className="h-12 w-40 animate-pulse rounded bg-gray-200" />
+      </div>
+    )
+  }
+
+  const orders = ordersData?.myOrders ?? []
+  const recentOrders = [...orders]
+    .sort((a, b) => new Date(b.orderDate).getTime() - new Date(a.orderDate).getTime())
+    .slice(0, 3)
+
+  const wishlistCount = wishlist?.size ?? 0
+
+  return (
+    <div className="space-y-8">
+      <h1 className="text-2xl font-semibold text-gray-900">
+        Welcome back{profile?.firstName ? `, ${profile.firstName}` : ''}
+      </h1>
+
+      {/* Recent Orders Section */}
+      <section>
+        <h2 className="mb-4 text-lg font-medium text-gray-900">Recent Orders</h2>
+        {recentOrders.length === 0 ? (
+          <div className="rounded-lg border border-gray-200 p-6 text-center">
+            <p className="text-gray-500">No orders yet</p>
+            <Link
+              to="/products"
+              className="mt-2 inline-block text-sm font-medium text-blue-600 hover:text-blue-500"
+            >
+              Browse products
+            </Link>
+          </div>
+        ) : (
+          <div className="space-y-3">
+            {recentOrders.map((order) => (
+              <Link
+                key={order.id}
+                to={`/account/orders/${order.id}`}
+                className="flex items-center justify-between rounded-lg border border-gray-200 p-4 transition-colors hover:bg-gray-50"
+              >
+                <div className="flex items-center gap-4">
+                  <span className="text-sm text-gray-600">
+                    {new Date(order.orderDate).toLocaleDateString('en-ZA', {
+                      year: 'numeric',
+                      month: 'short',
+                      day: 'numeric',
+                    })}
+                  </span>
+                  <span
+                    className={`inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium ${STATUS_BADGE_CLASSES[order.status] ?? 'bg-gray-100 text-gray-700'}`}
+                  >
+                    {order.status}
+                  </span>
+                </div>
+                <span className="text-sm font-medium text-gray-900">
+                  {formatAmount(order.totalAmount)}
+                </span>
+              </Link>
+            ))}
+          </div>
+        )}
+      </section>
+
+      {/* Wishlist Summary */}
+      <section>
+        <div className="rounded-lg border border-gray-200 p-4">
+          <div className="flex items-center justify-between">
+            <div>
+              <h2 className="text-lg font-medium text-gray-900">Wishlist</h2>
+              <p className="text-sm text-gray-500">
+                {wishlistCount} {wishlistCount === 1 ? 'item' : 'items'} saved
+              </p>
+            </div>
+            <Link
+              to="/account/wishlist"
+              className="text-sm font-medium text-blue-600 hover:text-blue-500"
+            >
+              View wishlist
+            </Link>
+          </div>
+        </div>
+      </section>
+    </div>
+  )
+}

@@ -1,0 +1,10 @@
+query GetBrands($pageIndex: Int, $pageSize: Int) {
+  getBrands(pageIndex: $pageIndex, pageSize: $pageSize) {
+    content {
+      id
+      name
+      slug
+    }
+    totalElements
+  }
+}

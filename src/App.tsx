@@ -1,26 +1,12 @@
-import {useAppComposition} from '@/app/bootstrap/useAppComposition'
-import {AppProviders} from '@/app/providers/AppProviders'
-import {ToastContainer} from '@/components/shared/toast'
-import {useCustomerTypeUrlBootstrap} from '@/store/customerTypeStore.ts'
-
-function CustomerTypeBootstrap() {
-    useCustomerTypeUrlBootstrap()
-    return null
-}
+import {RouterProvider} from 'react-router-dom'
+import {StorefrontConfigProvider} from '@/app/providers/StorefrontConfigProvider'
+import {router} from '@/app/router/router'
 
 function App() {
-    const {router, storefrontOptions, manifestGeneratedAt} = useAppComposition()
-
     return (
-        <AppProviders storefrontOptions={storefrontOptions} router={router}>
-            {/* Manifest bootstrap seam loaded at app startup for normalization. */}
-            <div
-                data-storefront-manifest-generated={manifestGeneratedAt}
-                className="hidden"
-            />
-            <CustomerTypeBootstrap/>
-            <ToastContainer/>
-        </AppProviders>
+        <StorefrontConfigProvider>
+            <RouterProvider router={router}/>
+        </StorefrontConfigProvider>
     )
 }
 

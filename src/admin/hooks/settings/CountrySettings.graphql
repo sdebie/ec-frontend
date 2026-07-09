@@ -1,0 +1,11 @@
+query CountrySettings {
+  countrySettings {
+    countryCode
+    countryName
+    currencyCode
+    locale
+    decimalPlaces
+    isDefault: default
+    isActive: active
+  }
+}

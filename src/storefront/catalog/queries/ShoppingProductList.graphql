@@ -1,0 +1,37 @@
+query ShoppingProductList(
+  $filterRequest: FilterRequest
+  $pageIndex: Int
+  $pageSize: Int
+) {
+  shoppingProductList(
+    filterRequest: $filterRequest
+    pageIndex: $pageIndex
+    pageSize: $pageSize
+  ) {
+    content {
+      id
+      name
+      slug
+      shortDescription
+      images {
+        id
+        imageUrl
+        isFeatured
+        sortOrder
+      }
+      variants {
+        id
+        retailPrice
+        wholesalePrice
+        retailSalePrice
+        wholesaleSalePrice
+        stockQuantity
+        attributesJson
+      }
+    }
+    totalElements
+    totalPages
+    pageSize
+    pageIndex
+  }
+}

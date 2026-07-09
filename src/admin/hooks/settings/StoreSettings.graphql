@@ -1,0 +1,15 @@
+query StoreSettings {
+  storeSettings {
+    key
+    value
+    description
+  }
+}
+
+mutation UpdateSetting($key: String!, $value: String!) {
+  updateSetting(key: $key, value: $value) {
+    key
+    value
+    description
+  }
+}

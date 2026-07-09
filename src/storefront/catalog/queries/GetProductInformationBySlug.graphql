@@ -1,0 +1,33 @@
+query GetProductInformationBySlug($slug: String!) {
+  getProductInformationBySlug(slug: $slug) {
+    id
+    name
+    slug
+    shortDescription
+    description
+    category {
+      id
+      name
+      slug
+    }
+    brand {
+      id
+      name
+    }
+    images {
+      id
+      imageUrl
+      isFeatured
+      sortOrder
+    }
+    variants {
+      id
+      retailPrice
+      wholesalePrice
+      retailSalePrice
+      wholesaleSalePrice
+      stockQuantity
+      attributesJson
+    }
+  }
+}

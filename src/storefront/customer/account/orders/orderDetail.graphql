@@ -1,0 +1,26 @@
+query getOrderDetail($id: String!) {
+  getOrderDetail(id: $id) {
+    id
+    orderDate
+    status
+    totalAmount
+    shippingAddress {
+      line1
+      line2
+      suburb
+      city
+      province
+      postalCode
+    }
+    lineItems {
+      productName
+      variantName
+      quantity
+      unitPrice
+    }
+    statusHistory {
+      status
+      timestamp
+    }
+  }
+}

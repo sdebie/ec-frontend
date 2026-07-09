@@ -1,0 +1,19 @@
+query ShippingMethods {
+  shippingMethods {
+    id
+    name
+    isActive: active
+    baseFee
+    estimatedDays
+  }
+}
+
+mutation SaveShippingMethod($methodDto: ShippingMethodDtoInput!) {
+  saveShippingMethod(methodDto: $methodDto) {
+    id
+    name
+    isActive: active
+    baseFee
+    estimatedDays
+  }
+}
