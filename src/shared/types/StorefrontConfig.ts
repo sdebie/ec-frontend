@@ -147,6 +147,8 @@ export type SectionConfig =
 export interface StorefrontBrandingLogo {
   src: string
   alt: string
+  width?: number
+  height?: number
 }
 
 export interface StorefrontBranding {
@@ -156,6 +158,38 @@ export interface StorefrontBranding {
 
 export interface StorefrontAuthConfig {
   loginStyle?: 'modal' | 'page'
+}
+
+export interface FooterCallout {
+  heading: string
+  body: string
+}
+
+export interface FooterColumn {
+  heading: string
+  links: Array<{ id: string; label: string; to: string; external: boolean }>
+}
+
+export interface FooterSocialLink {
+  id: string
+  label: string
+  to: string
+  icon: string
+}
+
+export interface FooterLegalLink {
+  id: string
+  label: string
+  to: string
+  external?: boolean
+}
+
+export interface FooterConfig {
+  description?: string
+  footerCallout?: FooterCallout
+  columns?: FooterColumn[]
+  socialLinks?: FooterSocialLink[]
+  legalLinks?: FooterLegalLink[]
 }
 
 export interface StorefrontConfig {
@@ -170,4 +204,5 @@ export interface StorefrontConfig {
   stickyHeader?: boolean
   header?: HeaderConfig
   auth?: StorefrontAuthConfig
+  footer?: FooterConfig
 }
