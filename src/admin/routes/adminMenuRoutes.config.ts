@@ -184,7 +184,7 @@ export const adminMenuRoutes: AdminRouteList = [
         ),
         authority: ['SUPER_ADMIN', 'VIEWER'],
         meta: {
-            label: 'Customers',
+            label: 'Retail',
             section: 'CUSTOMER MANAGEMENT',
             pageBackgroundType: 'plain',
             pageContainerType: 'contained',
@@ -197,8 +197,8 @@ export const adminMenuRoutes: AdminRouteList = [
         authority: ['SUPER_ADMIN', 'VIEWER'],
         meta: {
             label: 'Wholesale',
-            section: 'WHOLESALE MANAGEMENT',
-            icon: 'package',
+            section: 'CUSTOMER MANAGEMENT',
+            icon: 'warehouse',
             pageBackgroundType: 'plain',
             pageContainerType: 'contained',
         },
