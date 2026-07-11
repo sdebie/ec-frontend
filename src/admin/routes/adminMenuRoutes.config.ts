@@ -118,7 +118,7 @@ export const adminMenuRoutes: AdminRouteList = [
         meta: {
             label: 'Imports',
             section: 'PRODUCT MANAGEMENT',
-            icon: 'upload',
+            icon: 'import',
             pageBackgroundType: 'plain',
             pageContainerType: 'contained',
         },
@@ -173,7 +173,7 @@ export const adminMenuRoutes: AdminRouteList = [
             section: 'ORDER MANAGEMENT',
             pageBackgroundType: 'plain',
             pageContainerType: 'contained',
-            icon: 'import',
+            icon: 'package',
         },
     },
     {
