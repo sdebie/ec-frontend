@@ -112,6 +112,56 @@ export const adminMenuRoutes: AdminRouteList = [
         ],
     },
     {
+        key: 'admin.imports',
+        path: '/admin/imports',
+        authority: ['SUPER_ADMIN', 'VIEWER'],
+        meta: {
+            label: 'Imports',
+            section: 'PRODUCT MANAGEMENT',
+            icon: 'upload',
+            pageBackgroundType: 'plain',
+            pageContainerType: 'contained',
+        },
+        subMenu: [
+            {
+                key: 'admin.images',
+                path: '/admin/images',
+                component: lazy(() =>
+                    import('@/admin/pages/images/ImageGalleryPage').then((m) => ({default: m.ImageGalleryPage}))
+                ),
+                authority: ['SUPER_ADMIN', 'CATALOG_MANAGER', 'ORDER_MANAGER', 'VIEWER'],
+                meta: {
+                    label: 'Image Gallery',
+                    pageBackgroundType: 'plain',
+                    pageContainerType: 'contained',
+                    menuMatch: 'exact',
+                },
+            },
+            {
+                key: 'admin.imports.products',
+                path: '/admin/imports/products/list',
+                component: lazy(() => import('@/admin/pages/imports/ProductImportListPage')),
+                authority: ['SUPER_ADMIN', 'VIEWER'],
+                meta: {
+                    label: 'Product Upload',
+                    pageBackgroundType: 'plain',
+                    pageContainerType: 'contained',
+                },
+            },
+            {
+                key: 'admin.imports.price',
+                path: '/admin/imports/products/price/list',
+                component: lazy(() => import('@/admin/pages/imports/PriceImportListPage')),
+                authority: ['SUPER_ADMIN', 'VIEWER'],
+                meta: {
+                    label: 'Price Changes',
+                    pageBackgroundType: 'plain',
+                    pageContainerType: 'contained',
+                },
+            },
+        ],
+    },
+    {
         key: 'admin.orders',
         path: '/admin/orders',
         component: lazy(() =>
@@ -180,56 +230,6 @@ export const adminMenuRoutes: AdminRouteList = [
                 authority: ['SUPER_ADMIN', 'VIEWER'],
                 meta: {
                     label: 'Customers',
-                    pageBackgroundType: 'plain',
-                    pageContainerType: 'contained',
-                },
-            },
-        ],
-    },
-    {
-        key: 'admin.imports',
-        path: '/admin/imports',
-        authority: ['SUPER_ADMIN', 'VIEWER'],
-        meta: {
-            label: 'Bulk Imports',
-            section: 'IMPORTS',
-            icon: 'upload',
-            pageBackgroundType: 'plain',
-            pageContainerType: 'contained',
-        },
-        subMenu: [
-            {
-                key: 'admin.images',
-                path: '/admin/images',
-                component: lazy(() =>
-                    import('@/admin/pages/images/ImageGalleryPage').then((m) => ({default: m.ImageGalleryPage}))
-                ),
-                authority: ['SUPER_ADMIN', 'CATALOG_MANAGER', 'ORDER_MANAGER', 'VIEWER'],
-                meta: {
-                    label: 'Image Gallery',
-                    pageBackgroundType: 'plain',
-                    pageContainerType: 'contained',
-                    menuMatch: 'exact',
-                },
-            },
-            {
-                key: 'admin.imports.products',
-                path: '/admin/imports/products/list',
-                component: lazy(() => import('@/admin/pages/imports/ProductImportListPage')),
-                authority: ['SUPER_ADMIN', 'VIEWER'],
-                meta: {
-                    label: 'Product Upload',
-                    pageBackgroundType: 'plain',
-                    pageContainerType: 'contained',
-                },
-            },
-            {
-                key: 'admin.imports.price',
-                path: '/admin/imports/products/price/list',
-                component: lazy(() => import('@/admin/pages/imports/PriceImportListPage')),
-                authority: ['SUPER_ADMIN', 'VIEWER'],
-                meta: {
-                    label: 'Price Changes',
                     pageBackgroundType: 'plain',
                     pageContainerType: 'contained',
                 },
