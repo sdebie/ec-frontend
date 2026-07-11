@@ -12,18 +12,19 @@ describe('Import route configuration', () => {
   describe('adminMenuRoutes — admin.imports entry', () => {
     const importsEntry = adminMenuRoutes.find((route) => route.key === 'admin.imports')
 
-    it('admin.imports entry exists with meta.section "IMPORTS"', () => {
+    it('admin.imports entry exists under section "PRODUCT MANAGEMENT"', () => {
       expect(importsEntry).toBeDefined()
-      expect(importsEntry!.meta.section).toBe('IMPORTS')
+      expect(importsEntry!.meta.section).toBe('PRODUCT MANAGEMENT')
     })
 
-    it('admin.imports has a subMenu with exactly 2 children', () => {
+    it('admin.imports has a subMenu with exactly 3 children', () => {
       expect(importsEntry!.subMenu).toBeDefined()
-      expect(importsEntry!.subMenu).toHaveLength(2)
+      expect(importsEntry!.subMenu).toHaveLength(3)
     })
 
     it('children have correct paths', () => {
       const expectedPaths = [
+        '/admin/images',
         '/admin/imports/products/list',
         '/admin/imports/products/price/list',
       ]
@@ -32,12 +33,14 @@ describe('Import route configuration', () => {
       expect(actualPaths).toEqual(expectedPaths)
     })
 
-    it('both children have authority ["SUPER_ADMIN", "VIEWER"]', () => {
+    it('import upload children have authority ["SUPER_ADMIN", "VIEWER"]', () => {
       const expectedAuthority = ['SUPER_ADMIN', 'VIEWER']
 
-      importsEntry!.subMenu!.forEach((child) => {
-        expect(child.authority).toEqual(expectedAuthority)
-      })
+      importsEntry!.subMenu!
+        .filter((child) => child.key !== 'admin.images')
+        .forEach((child) => {
+          expect(child.authority).toEqual(expectedAuthority)
+        })
     })
   })
 

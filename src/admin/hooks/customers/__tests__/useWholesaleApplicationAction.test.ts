@@ -34,10 +34,12 @@ describe('useWholesaleApplicationAction', () => {
     vi.clearAllMocks()
   })
 
-  it('calls approveWholesaleApplication then createWholesaleCustomer when action=approve', async () => {
-    vi.mocked(adminGraphqlClient.request)
-      .mockResolvedValueOnce({ approveWholesaleApplication: { id: 'app-1', status: 'APPROVED' } })
-      .mockResolvedValueOnce({ createWholesaleCustomer: { id: 'cust-1', email: 'test@example.com' } })
+  it('calls approveWholesaleApplication mutation when action=approve', async () => {
+    // The backend approve mutation handles customer provisioning itself —
+    // the frontend makes exactly one call.
+    vi.mocked(adminGraphqlClient.request).mockResolvedValue({
+      approveWholesaleApplication: { id: 'app-1', status: 'APPROVED' },
+    })
 
     const { result } = renderHook(() => useWholesaleApplicationAction(), { wrapper: createWrapper() })
 
@@ -47,11 +49,9 @@ describe('useWholesaleApplicationAction', () => {
 
     await waitFor(() => expect(result.current.isPending).toBe(false))
 
-    expect(adminGraphqlClient.request).toHaveBeenCalledTimes(2)
-    const firstCallQuery = String(vi.mocked(adminGraphqlClient.request).mock.calls[0][0])
-    expect(firstCallQuery).toContain('approveWholesaleApplication')
-    const secondCallQuery = String(vi.mocked(adminGraphqlClient.request).mock.calls[1][0])
-    expect(secondCallQuery).toContain('createWholesaleCustomer')
+    expect(adminGraphqlClient.request).toHaveBeenCalledTimes(1)
+    const query = String(vi.mocked(adminGraphqlClient.request).mock.calls[0][0])
+    expect(query).toContain('approveWholesaleApplication')
   })
 
   it('calls rejectWholesaleApplication mutation when action=reject', async () => {
@@ -73,9 +73,9 @@ describe('useWholesaleApplicationAction', () => {
   })
 
   it('shows approved success toast on approve', async () => {
-    vi.mocked(adminGraphqlClient.request)
-      .mockResolvedValueOnce({ approveWholesaleApplication: { id: 'app-1', status: 'APPROVED' } })
-      .mockResolvedValueOnce({ createWholesaleCustomer: { id: 'cust-1', email: 'test@example.com' } })
+    vi.mocked(adminGraphqlClient.request).mockResolvedValue({
+      approveWholesaleApplication: { id: 'app-1', status: 'APPROVED' },
+    })
 
     const { result } = renderHook(() => useWholesaleApplicationAction(), { wrapper: createWrapper() })
 
@@ -85,9 +85,7 @@ describe('useWholesaleApplicationAction', () => {
 
     await waitFor(() => expect(result.current.isPending).toBe(false))
 
-    expect(toast.success).toHaveBeenCalledWith(
-      'Wholesale application approved and customer account created',
-    )
+    expect(toast.success).toHaveBeenCalledWith('Wholesale application approved')
   })
 
   it('shows rejected success toast on reject', async () => {

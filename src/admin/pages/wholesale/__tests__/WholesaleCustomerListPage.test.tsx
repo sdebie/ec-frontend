@@ -132,16 +132,27 @@ describe('WholesaleCustomerListPage', () => {
     })
   })
 
+  // Row actions live inside a DropdownMenu behind an unnamed ellipsis
+  // trigger button — open it before asserting on the menu items.
+  function openRowActionsMenu() {
+    const trigger = screen
+      .getAllByRole('button')
+      .find((button) => button.querySelector('svg') !== null)
+    expect(trigger).toBeDefined()
+    fireEvent.click(trigger!)
+  }
+
   describe('actions menu visibility', () => {
-    it('renders action buttons for SUPER_ADMIN with ACTIVE customer (has suspend transition)', () => {
+    it('renders Suspend menu item for SUPER_ADMIN with ACTIVE customer (has suspend transition)', () => {
       setupDefaultMocks({
         role: 'SUPER_ADMIN',
         customersData: [createMockCustomer({ status: 'ACTIVE' })],
       })
 
       renderPage()
+      openRowActionsMenu()
 
-      expect(screen.getByRole('button', { name: 'Suspend' })).toBeInTheDocument()
+      expect(screen.getByRole('menuitem', { name: 'Suspend' })).toBeInTheDocument()
     })
 
     it('does not render action buttons for VIEWER role', () => {
@@ -165,9 +176,10 @@ describe('WholesaleCustomerListPage', () => {
       })
 
       renderPage()
+      openRowActionsMenu()
 
-      // Click "Suspend" action button
-      const suspendButton = screen.getByRole('button', { name: 'Suspend' })
+      // Click "Suspend" menu item
+      const suspendButton = screen.getByRole('menuitem', { name: 'Suspend' })
       fireEvent.click(suspendButton)
 
       // ConfirmationDialog should now be open
@@ -187,9 +199,10 @@ describe('WholesaleCustomerListPage', () => {
       })
 
       renderPage()
+      openRowActionsMenu()
 
-      // Click "Activate" action button
-      const activateButton = screen.getByRole('button', { name: 'Activate' })
+      // Click "Activate" menu item
+      const activateButton = screen.getByRole('menuitem', { name: 'Activate' })
       fireEvent.click(activateButton)
 
       // mutate should be called directly with ACTIVE status

@@ -3,15 +3,18 @@ import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { z } from 'zod'
 import { useNavigate } from 'react-router-dom'
-import { Form, FormItem, Textarea } from '@/shared/ui/components'
+import { Form, FormItem, ImageUpload, Textarea } from '@/shared/ui/components'
 import { Button, Input } from '@/shared/ui/primitives'
+import { toast } from '@/shared/ui/components/toast'
 import { toSlug } from '@/admin/utils/slug'
+import { useUploadBrandLogo } from '@/admin/hooks/images'
+import { resolveImageUrl } from '@/shared/utils/imageUrl'
 
 const brandSchema = z.object({
   name: z.string().min(1, 'Name is required'),
   slug: z.string().min(1, 'Slug is required').regex(/^[a-z0-9-]+$/, 'Slug may only contain lowercase letters, numbers, and hyphens'),
   description: z.string().optional().or(z.literal('')),
-  logoUrl: z.string().url('Must be a valid URL').optional().or(z.literal('')),
+  logoUrl: z.string().optional().or(z.literal('')),
 })
 
 export type BrandFormValues = z.infer<typeof brandSchema>
@@ -26,6 +29,7 @@ export function BrandForm({ defaultValues, onSubmit, isSubmitting = false }: Bra
   const navigate = useNavigate()
   const slugManuallyEdited = useRef(false)
   const [slugTouched, setSlugTouched] = useState(false)
+  const { mutate: uploadLogo, isPending: isUploading } = useUploadBrandLogo()
 
   const {
     register,
@@ -45,6 +49,23 @@ export function BrandForm({ defaultValues, onSubmit, isSubmitting = false }: Bra
   })
 
   const nameValue = watch('name')
+  const logoUrlValue = watch('logoUrl')
+
+  const handleLogoUpload = async (file: File) => {
+    try {
+      // Copy the bytes up front: Safari revokes file handles used async, and
+      // cloud-placeholder files (iCloud "online-only") fail here with NotReadableError.
+      const buffer = await file.arrayBuffer()
+      const stableFile = new File([buffer], file.name, { type: file.type })
+      uploadLogo(stableFile, {
+        onSuccess: (fileName) => {
+          setValue('logoUrl', fileName, { shouldValidate: true })
+        },
+      })
+    } catch {
+      toast.error('Could not read the file. If it is stored in iCloud/Dropbox, download it locally first and try again.')
+    }
+  }
 
   // Auto-generate slug from name when not manually edited
   useEffect(() => {
@@ -111,19 +132,14 @@ export function BrandForm({ defaultValues, onSubmit, isSubmitting = false }: Bra
         />
       </FormItem>
 
-      {/* Logo URL */}
-      <FormItem
-        label="Logo URL"
-        invalid={!!errors.logoUrl}
-        errorMessage={errors.logoUrl?.message}
-        helperText="Full URL to the brand logo image"
-      >
-        <Input
-          {...register('logoUrl')}
-          placeholder="https://example.com/logo.png"
-          variant={errors.logoUrl ? 'error' : 'default'}
-        />
-      </FormItem>
+      {/* Logo */}
+      <ImageUpload
+        label={isUploading ? 'Logo — uploading…' : 'Logo'}
+        images={logoUrlValue && resolveImageUrl(logoUrlValue) ? [resolveImageUrl(logoUrlValue)!] : []}
+        onUpload={handleLogoUpload}
+        onRemove={() => setValue('logoUrl', '', { shouldValidate: true })}
+        disabled={isUploading}
+      />
 
       {/* Actions */}
       <div className="flex items-center gap-3 pt-4">

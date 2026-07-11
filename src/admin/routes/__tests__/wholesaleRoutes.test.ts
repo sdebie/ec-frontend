@@ -24,12 +24,12 @@ describe('Wholesale route configuration', () => {
       expect(wholesaleEntry!.authority).toEqual(['SUPER_ADMIN', 'VIEWER'])
     })
 
-    it('admin.wholesale has meta.section "WHOLESALE MANAGEMENT"', () => {
-      expect(wholesaleEntry!.meta.section).toBe('WHOLESALE MANAGEMENT')
+    it('admin.wholesale has meta.section "CUSTOMER MANAGEMENT"', () => {
+      expect(wholesaleEntry!.meta.section).toBe('CUSTOMER MANAGEMENT')
     })
 
-    it('admin.wholesale has meta.icon "package"', () => {
-      expect(wholesaleEntry!.meta.icon).toBe('package')
+    it('admin.wholesale has meta.icon "warehouse"', () => {
+      expect(wholesaleEntry!.meta.icon).toBe('warehouse')
     })
 
     it('admin.wholesale has a subMenu with exactly 2 entries', () => {

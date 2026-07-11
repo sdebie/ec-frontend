@@ -44,8 +44,11 @@ export function useWholesaleApplicationAction() {
       )
     },
     onError: (error) => {
-      console.error(error instanceof ClientError ? error.response.errors?.[0]?.message : error)
-      toast.error('Failed to process wholesale application', { duration: 0 })
+      const message =
+        error instanceof ClientError
+          ? error.response.errors?.[0]?.message ?? 'Failed to process wholesale application'
+          : 'Failed to process wholesale application'
+      toast.error(message, { duration: 0 })
     },
   })
 }

@@ -29,14 +29,31 @@ export function ThemeApplier({ targetRef }: ThemeApplierProps) {
 
       el.dataset.theme = resolved
       el.dataset.preset = preset
+
+      // Mirror onto <body> so portal-rendered components (toasts, dropdowns,
+      // dialogs) that attach at document.body receive the same admin theming.
+      document.body.dataset.surface = 'admin'
+      document.body.dataset.theme = resolved
+      document.body.dataset.preset = preset
     }
 
     apply()
 
+    const cleanupBody = () => {
+      delete document.body.dataset.surface
+      delete document.body.dataset.theme
+      delete document.body.dataset.preset
+    }
+
     if (mode === 'system' && mq) {
       mq.addEventListener('change', apply)
-      return () => mq.removeEventListener('change', apply)
+      return () => {
+        mq.removeEventListener('change', apply)
+        cleanupBody()
+      }
     }
+
+    return cleanupBody
   }, [mode, preset, targetRef])
 
   return null

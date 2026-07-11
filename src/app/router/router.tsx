@@ -1,6 +1,7 @@
 import { lazy, Suspense } from 'react'
 import { createBrowserRouter, Navigate } from 'react-router-dom'
 import { StorefrontLayout } from '@/storefront/layouts/StorefrontLayout'
+import { StorefrontConfigProvider } from '@/app/providers/StorefrontConfigProvider'
 import { AdminLayout } from '@/admin/layouts/AdminLayout'
 import { AdminGuard } from './AdminGuard'
 import { CustomerGuard } from './CustomerGuard'
@@ -47,7 +48,13 @@ const CheckoutSuccessPage = lazy(() =>
 
 export const router = createBrowserRouter([
   {
-    element: <StorefrontLayout />,
+    // StorefrontConfigProvider is scoped to the storefront branch only —
+    // the admin panel must never depend on /storefront/config being available.
+    element: (
+      <StorefrontConfigProvider>
+        <StorefrontLayout />
+      </StorefrontConfigProvider>
+    ),
     children: [
       { path: '/', element: <HomePage /> },
       { path: '/products', element: <Suspense fallback={null}><ProductListPage /></Suspense> },

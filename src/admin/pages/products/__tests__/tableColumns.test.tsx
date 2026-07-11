@@ -124,9 +124,9 @@ describe('Product table columns', () => {
     // Get all th elements from the table
     const headerCells = screen.getAllByRole('columnheader')
 
-    // Expected column order: checkbox, Product, SKU, Category, Price, Status, Stock, Actions
+    // Expected column order: checkbox, Icon, Product, SKU, Price, Status, Stock, Actions
     // The checkbox column has a checkbox input instead of text
-    const expectedHeaders = ['Product', 'SKU', 'Category', 'Price', 'Status', 'Stock', 'Actions']
+    const expectedHeaders = ['Icon', 'Product', 'SKU', 'Price', 'Status', 'Stock', 'Actions']
 
     // First column is checkbox (no text header, has a checkbox input)
     const firstHeader = headerCells[0]

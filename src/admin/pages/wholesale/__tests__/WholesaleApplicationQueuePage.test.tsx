@@ -111,15 +111,14 @@ describe('WholesaleApplicationQueuePage', () => {
     })
   })
 
-  describe('row click navigates to correct detail URL', () => {
-    it('renders customer name as a Link to the wholesale customer detail page', () => {
+  describe('applicant name rendering', () => {
+    it('renders the applicant name as plain text (applications are actioned inline, not via a detail page)', () => {
       setupDefaultMocks()
 
       renderPage()
 
-      const link = screen.getByRole('link', { name: 'Jane Doe' })
-      expect(link).toBeInTheDocument()
-      expect(link).toHaveAttribute('href', '/admin/wholesale/customers/customer-1')
+      expect(screen.getByText('Jane Doe')).toBeInTheDocument()
+      expect(screen.queryByRole('link', { name: 'Jane Doe' })).not.toBeInTheDocument()
     })
   })
 

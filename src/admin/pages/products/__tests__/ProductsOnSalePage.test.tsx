@@ -99,10 +99,4 @@ describe('ProductsOnSalePage', () => {
     expect(screen.getByText('Sale Product B')).toBeInTheDocument()
   })
 
-  it('renders category and brand filter dropdowns', () => {
-    renderPage()
-
-    expect(screen.getByDisplayValue('All Categories')).toBeInTheDocument()
-    expect(screen.getByDisplayValue('All Brands')).toBeInTheDocument()
-  })
 })

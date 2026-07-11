@@ -4,7 +4,9 @@
   Root defaults — used by portal-rendered components (toasts, modals, dropdowns)
   that render at document.body and have no [data-surface] ancestor.
   Values mirror the light-theme admin surface so portals look correct in the
-  default (light) state. Dark-mode portals are not themed — an accepted limitation.
+  default (light) state. While the admin surface is mounted, ThemeApplier
+  mirrors data-surface/data-theme/data-preset onto <body>, so portals follow
+  admin dark mode and presets too.
 */
 :root {
   --c-bg:           var(--admin-bg);

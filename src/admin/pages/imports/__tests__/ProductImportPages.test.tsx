@@ -111,6 +111,12 @@ function setupListPageDefaults(overrides?: {
     isPending: false,
   } as unknown as ReturnType<typeof useRefreshBatchStatus>)
 
+  // The list page renders the upload dialog inline and calls useUploadCsv itself
+  vi.mocked(useUploadCsv).mockReturnValue({
+    mutateAsync: vi.fn(),
+    isPending: false,
+  } as unknown as ReturnType<typeof useUploadCsv>)
+
   mockRole(overrides?.role ?? 'SUPER_ADMIN')
 }
 
@@ -217,8 +223,7 @@ describe('ProductImportListPage', () => {
     expect(screen.getByText('Total Rows')).toBeInTheDocument()
     expect(screen.getByText('Processed')).toBeInTheDocument()
     expect(screen.getByText('Skipped')).toBeInTheDocument()
-    expect(screen.getByText('Errors')).toBeInTheDocument()
-    expect(screen.getByText('Uploaded By')).toBeInTheDocument()
+    expect(screen.getByText('Actions')).toBeInTheDocument()
   })
 
   it('renders "+ Upload CSV" button when canMutate is true (SUPER_ADMIN)', () => {
