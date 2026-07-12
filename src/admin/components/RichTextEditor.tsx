@@ -28,6 +28,8 @@ export function RichTextEditor({value, onChange, disabled = false}: RichTextEdit
         extensions: [
             StarterKit.configure({
                 heading: {levels: [1, 2, 3]},
+                link: false,
+                underline: false,
             }),
             Underline,
             Link.configure({
@@ -37,6 +39,7 @@ export function RichTextEditor({value, onChange, disabled = false}: RichTextEdit
         ],
         content: value,
         editable: !disabled,
+        immediatelyRender: false,
         onUpdate: ({editor}) => {
             isInternalUpdate.current = true
             onChange(editor.getHTML())

@@ -14,7 +14,7 @@ export interface PageContent {
 }
 
 export function usePageContent(id: string) {
-  const { data, isLoading, error } = useQuery({
+  const { data, isLoading, isFetched, error } = useQuery({
     queryKey: ['admin', 'pages', id],
     queryFn: async () => {
       const response = await adminHttpClient.get<PageContent>(
@@ -25,5 +25,5 @@ export function usePageContent(id: string) {
     enabled: !!id,
   })
 
-  return { data, isLoading, error }
+  return { data, isLoading, isFetched, error }
 }

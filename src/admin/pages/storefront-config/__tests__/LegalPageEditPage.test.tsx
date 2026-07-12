@@ -102,7 +102,7 @@ describe('LegalPageEditPage', () => {
     it('initialises editor with draftContent when available', async () => {
       vi.mocked(usePageContent).mockReturnValue({
         data: mockPageData,
-        isLoading: false,
+        isLoading: false, isFetched: true,
         error: null,
       } as any)
 
@@ -117,7 +117,7 @@ describe('LegalPageEditPage', () => {
     it('falls back to publishedContent when draftContent is null', async () => {
       vi.mocked(usePageContent).mockReturnValue({
         data: { ...mockPageData, draftContent: null },
-        isLoading: false,
+        isLoading: false, isFetched: true,
         error: null,
       } as any)
 
@@ -132,7 +132,7 @@ describe('LegalPageEditPage', () => {
     it('falls back to empty string when both draftContent and publishedContent are null', async () => {
       vi.mocked(usePageContent).mockReturnValue({
         data: { ...mockPageData, draftContent: null, publishedContent: null },
-        isLoading: false,
+        isLoading: false, isFetched: true,
         error: null,
       } as any)
 
@@ -150,7 +150,7 @@ describe('LegalPageEditPage', () => {
       const user = userEvent.setup()
       vi.mocked(usePageContent).mockReturnValue({
         data: mockPageData,
-        isLoading: false,
+        isLoading: false, isFetched: true,
         error: null,
       } as any)
 
@@ -176,7 +176,7 @@ describe('LegalPageEditPage', () => {
       const user = userEvent.setup()
       vi.mocked(usePageContent).mockReturnValue({
         data: mockPageData,
-        isLoading: false,
+        isLoading: false, isFetched: true,
         error: null,
       } as any)
 
@@ -225,7 +225,7 @@ describe('LegalPageEditPage', () => {
       )
       vi.mocked(usePageContent).mockReturnValue({
         data: mockPageData,
-        isLoading: false,
+        isLoading: false, isFetched: true,
         error: null,
       } as any)
 
@@ -241,7 +241,7 @@ describe('LegalPageEditPage', () => {
       )
       vi.mocked(usePageContent).mockReturnValue({
         data: mockPageData,
-        isLoading: false,
+        isLoading: false, isFetched: true,
         error: null,
       } as any)
 

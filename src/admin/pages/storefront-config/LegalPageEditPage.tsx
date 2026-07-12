@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react'
+import { useState } from 'react'
 import { useParams, Link, useNavigate } from 'react-router-dom'
 
 import { PageLoadingSpinner, ConfirmationDialog } from '@/shared/ui/components'
@@ -13,16 +13,23 @@ import { RichTextEditor } from '@/admin/components/RichTextEditor'
 export function LegalPageEditPage() {
   const { id } = useParams<{ id: string }>()
   const navigate = useNavigate()
-  const { data, isLoading } = usePageContent(id!)
+  const { data, isLoading, isFetched } = usePageContent(id!)
   const role = useAdminAuthStore((s) => s.role)
   const isSuperAdmin = role === 'SUPER_ADMIN'
 
   const saveDraft = useSavePageDraft()
   const publishPage = usePublishPage()
 
-  const [content, setContent] = useState('')
-  const [initialized, setInitialized] = useState(false)
+  // Derive the initial editor content from the fetched data.
+  // We track the initial value so the editor is only seeded once (on first data load).
+  const initialContent = data ? (data.draftContent ?? data.publishedContent ?? '') : null
+  const [content, setContent] = useState<string | null>(null)
   const [publishDialogOpen, setPublishDialogOpen] = useState(false)
+
+  // Seed the local content state exactly once when data first arrives
+  if (initialContent !== null && content === null) {
+    setContent(initialContent)
+  }
 
   useBreadcrumb([
     { label: 'Home', href: '/admin' },
@@ -30,16 +37,13 @@ export function LegalPageEditPage() {
     { label: data?.title ?? 'Edit' },
   ])
 
-  // Initialize editor content once data loads
-  useEffect(() => {
-    if (data && !initialized) {
-      setContent(data.draftContent ?? data.publishedContent ?? '')
-      setInitialized(true)
-    }
-  }, [data, initialized])
+  // Loading state
+  if (isLoading || content === null) {
+    return <PageLoadingSpinner />
+  }
 
-  // Not found state
-  if (!isLoading && !data) {
+  // Not found state — only after fetch completes
+  if (isFetched && !data) {
     return (
       <div className="flex min-h-[60vh] items-center justify-center p-8">
         <div
@@ -75,11 +79,6 @@ export function LegalPageEditPage() {
         </div>
       </div>
     )
-  }
-
-  // Loading state
-  if (isLoading) {
-    return <PageLoadingSpinner />
   }
 
   const page = data!

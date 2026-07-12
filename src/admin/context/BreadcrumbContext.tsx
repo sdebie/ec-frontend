@@ -1,4 +1,4 @@
-import { createContext, useContext, useEffect, useState, type ReactNode } from 'react'
+import { createContext, useContext, useEffect, useMemo, useState, type ReactNode } from 'react'
 
 export interface BreadcrumbItem {
     label: string
@@ -17,8 +17,9 @@ const BreadcrumbContext = createContext<BreadcrumbContextValue>({
 
 export function BreadcrumbProvider({ children }: { children: ReactNode }) {
     const [items, setItems] = useState<BreadcrumbItem[]>([])
+    const value = useMemo(() => ({ items, setItems }), [items])
     return (
-        <BreadcrumbContext.Provider value={{ items, setItems }}>
+        <BreadcrumbContext.Provider value={value}>
             {children}
         </BreadcrumbContext.Provider>
     )
@@ -27,8 +28,8 @@ export function BreadcrumbProvider({ children }: { children: ReactNode }) {
 /** Call at the top of a page component to register its breadcrumb trail. */
 export function useBreadcrumb(items: BreadcrumbItem[]) {
     const { setItems } = useContext(BreadcrumbContext)
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-    useEffect(() => { setItems(items); return () => setItems([]) }, [])
+    const serialized = JSON.stringify(items)
+    useEffect(() => { setItems(JSON.parse(serialized)); return () => setItems([]) }, [setItems, serialized])
 }
 
 /** Read the current breadcrumb items — used by AdminHeader. */
