@@ -267,6 +267,21 @@ export const adminMenuRoutes: AdminRouteList = [
         },
     },
     {
+        key: 'admin.storefront.legal',
+        path: '/admin/storefront/legal',
+        component: lazy(() =>
+            import('@/admin/pages/storefront-config/LegalPagesListPage').then((m) => ({default: m.LegalPagesListPage}))
+        ),
+        authority: ['SUPER_ADMIN', 'VIEWER'],
+        meta: {
+            label: 'Legal',
+            section: 'STOREFRONT',
+            pageBackgroundType: 'plain',
+            pageContainerType: 'contained',
+            icon: 'scale',
+        },
+    },
+    {
         key: 'admin.settings',
         path: '/admin/settings',
         authority: ['SUPER_ADMIN', 'CATALOG_MANAGER', 'ORDER_MANAGER', 'VIEWER'],

@@ -195,6 +195,21 @@ const adminPageOnlyRoutes: AdminRouteList = [
         },
     },
     {
+        key: 'admin.storefront.legal.edit',
+        path: '/admin/storefront/legal/:id',
+        component: lazy(() =>
+            import('@/admin/pages/storefront-config/LegalPageEditPage').then((m) => ({
+                default: m.LegalPageEditPage,
+            }))
+        ),
+        authority: ['SUPER_ADMIN', 'VIEWER'],
+        meta: {
+            label: 'Edit Legal Page',
+            pageBackgroundType: 'plain',
+            pageContainerType: 'contained',
+        },
+    },
+    {
         key: 'admin.staff.new',
         path: '/admin/staff/new',
         component: lazy(() =>

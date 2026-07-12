@@ -45,6 +45,10 @@ const CheckoutPage = lazy(() =>
 const CheckoutSuccessPage = lazy(() =>
   import('@/storefront/checkout/CheckoutSuccessPage').then((m) => ({ default: m.CheckoutSuccessPage })),
 )
+// eslint-disable-next-line react-refresh/only-export-components
+const PageContentPage = lazy(() =>
+  import('@/storefront/pages/PageContentPage').then((m) => ({ default: m.PageContentPage })),
+)
 
 export const router = createBrowserRouter([
   {
@@ -82,6 +86,9 @@ export const router = createBrowserRouter([
       { path: '/checkout', element: <Suspense fallback={null}><CheckoutPage /></Suspense> },
       { path: '/checkout/success', element: <Suspense fallback={null}><CheckoutSuccessPage /></Suspense> },
       { path: '/wholesale-application', element: <WholesaleApplicationPage /> },
+      { path: '/terms-and-conditions', element: <Suspense fallback={null}><PageContentPage slug="terms-and-conditions" /></Suspense> },
+      { path: '/privacy-policy', element: <Suspense fallback={null}><PageContentPage slug="privacy-policy" /></Suspense> },
+      { path: '/delivery-and-returns', element: <Suspense fallback={null}><PageContentPage slug="delivery-and-returns" /></Suspense> },
       { path: '*', element: <NotFoundPage /> },
     ],
   },
