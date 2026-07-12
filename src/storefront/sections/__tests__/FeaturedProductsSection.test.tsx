@@ -3,10 +3,10 @@ import {render, screen, waitFor} from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import {MemoryRouter} from 'react-router-dom'
 import {QueryClient, QueryClientProvider} from '@tanstack/react-query'
-import {StorefrontConfigContext} from '@/shared/config/storefrontConfig.context'
-import type {FeaturedProductsSectionConfig, StorefrontConfig} from '@/shared/types/StorefrontConfig'
-import {FeaturedProductsSection} from './FeaturedProductsSection'
-import {storefrontHttpClient} from '@/shared/api/http/storefrontHttpClient'
+import {StorefrontConfigContext} from '@/shared/config/storefrontConfig.context.ts'
+import type {FeaturedProductsSectionConfig, StorefrontConfig} from '@/shared/types/StorefrontConfig.ts'
+import {FeaturedProductsSection} from '../FeaturedProductsSection.tsx'
+import {storefrontHttpClient} from '@/shared/api/http/storefrontHttpClient.ts'
 
 vi.mock('@/shared/api/http/storefrontHttpClient', () => ({
     storefrontHttpClient: {
@@ -38,13 +38,16 @@ const mockProducts = [
 ]
 
 const storefrontConfig: StorefrontConfig = {
+    branding: {
+        name: 'Test Store',
+    },
     clientId: 'test-client',
     clientName: 'Test Store',
     currency: 'ZAR',
     locale: 'en-ZA',
     theme: {},
     nav: [],
-    sections: [],
+    sections: []
 }
 
 function createQueryClient() {

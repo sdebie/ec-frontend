@@ -2,8 +2,8 @@ import { describe, it, expect, vi, beforeEach } from 'vitest'
 import { render, screen } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { MemoryRouter } from 'react-router-dom'
-import { useCustomerAuthStore } from '@/shared/auth/customerAuthStore'
-import { WishlistButton } from './WishlistButton'
+import { useCustomerAuthStore } from '@/shared/auth/customerAuthStore.ts'
+import { WishlistButton } from '../WishlistButton.tsx'
 
 const mockNavigate = vi.fn()
 const mockMutate = vi.fn()
@@ -21,8 +21,8 @@ vi.mock('../hooks/useToggleWishlist', () => ({
   useToggleWishlist: vi.fn(() => ({ mutate: mockMutate })),
 }))
 
-import { useWishlist } from '../hooks/useWishlist'
-import { useToggleWishlist } from '../hooks/useToggleWishlist'
+import { useWishlist } from '../../hooks/useWishlist.ts'
+import { useToggleWishlist } from '../../hooks/useToggleWishlist.ts'
 
 const mockedUseWishlist = vi.mocked(useWishlist)
 const mockedUseToggleWishlist = vi.mocked(useToggleWishlist)

@@ -1,7 +1,7 @@
-import { describe, it, expect } from 'vitest'
+import {describe, expect, it} from 'vitest'
 import fc from 'fast-check'
-import { toDto } from '../mappers'
-import type { WholesaleApplicationFormValues } from '../wholesaleApplicationSchema'
+import {toDto} from '../mappers'
+import type {WholesaleApplicationFormValues} from '../wholesaleApplicationSchema'
 
 /**
  * Property 2: Status is always PENDING
@@ -12,44 +12,44 @@ import type { WholesaleApplicationFormValues } from '../wholesaleApplicationSche
  */
 
 const nonEmptyStringArb = fc
-  .string({ minLength: 1, maxLength: 50 })
-  .filter((s) => s.trim().length > 0)
+    .string({minLength: 1, maxLength: 50})
+    .filter((s) => s.trim().length > 0)
 
 const formValuesArb: fc.Arbitrary<WholesaleApplicationFormValues> = fc.record({
-  firstName: nonEmptyStringArb,
-  lastName: nonEmptyStringArb,
-  email: fc.emailAddress(),
-  phone: nonEmptyStringArb,
-  companyName: nonEmptyStringArb,
-  vatNumber: fc.option(nonEmptyStringArb, { nil: undefined }),
-  regNumber: nonEmptyStringArb,
-  physicalAddressLine1: nonEmptyStringArb,
-  physicalAddressLine2: fc.option(nonEmptyStringArb, { nil: undefined }),
-  physicalSuburb: nonEmptyStringArb,
-  physicalCity: nonEmptyStringArb,
-  physicalProvince: nonEmptyStringArb,
-  physicalPostalCode: nonEmptyStringArb,
-  sameAsPhysical: fc.boolean(),
-  postalAddressLine1: fc.option(nonEmptyStringArb, { nil: undefined }),
-  postalAddressLine2: fc.option(nonEmptyStringArb, { nil: undefined }),
-  postalSuburb: fc.option(nonEmptyStringArb, { nil: undefined }),
-  postalCity: fc.option(nonEmptyStringArb, { nil: undefined }),
-  postalProvince: fc.option(nonEmptyStringArb, { nil: undefined }),
-  postalPostalCode: fc.option(nonEmptyStringArb, { nil: undefined }),
-  notes: fc.option(fc.string({ maxLength: 1000 }), { nil: undefined }),
+    firstName: nonEmptyStringArb,
+    lastName: nonEmptyStringArb,
+    email: fc.emailAddress(),
+    phone: nonEmptyStringArb,
+    companyName: nonEmptyStringArb,
+    vatNumber: fc.option(nonEmptyStringArb, {nil: undefined}),
+    regNumber: nonEmptyStringArb,
+    physicalAddressLine1: nonEmptyStringArb,
+    physicalAddressLine2: fc.option(nonEmptyStringArb, {nil: undefined}),
+    physicalSuburb: nonEmptyStringArb,
+    physicalCity: nonEmptyStringArb,
+    physicalProvince: nonEmptyStringArb,
+    physicalPostalCode: nonEmptyStringArb,
+    sameAsPhysical: fc.boolean(),
+    postalAddressLine1: fc.option(nonEmptyStringArb, {nil: undefined}),
+    postalAddressLine2: fc.option(nonEmptyStringArb, {nil: undefined}),
+    postalSuburb: fc.option(nonEmptyStringArb, {nil: undefined}),
+    postalCity: fc.option(nonEmptyStringArb, {nil: undefined}),
+    postalProvince: fc.option(nonEmptyStringArb, {nil: undefined}),
+    postalPostalCode: fc.option(nonEmptyStringArb, {nil: undefined}),
+    notes: fc.option(fc.string({maxLength: 1000}), {nil: undefined}),
 })
 
 describe('toDto — Property 2: Status is always PENDING', () => {
-  /**
-   * **Validates: Requirements 7.1**
-   */
-  it('DTO status is always PENDING regardless of input values', () => {
-    fc.assert(
-      fc.property(formValuesArb, (values) => {
-        const dto = toDto(values)
-        expect(dto.status).toBe('PENDING')
-      }),
-      { numRuns: 100 }
-    )
-  })
+    /**
+     * **Validates: Requirements 7.1**
+     */
+    it('DTO status is always PENDING regardless of input values', () => {
+        fc.assert(
+            fc.property(formValuesArb, (values) => {
+                const dto = toDto(values)
+                expect(dto.status).toBe('PENDING')
+            }),
+            {numRuns: 100}
+        )
+    })
 })
