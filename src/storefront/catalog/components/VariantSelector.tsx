@@ -71,7 +71,7 @@ export function VariantSelector(props: VariantSelectorProps) {
     <div className="space-y-4">
       {attributeGroups.map(({ key, values }) => (
         <div key={key}>
-          <label className="block text-sm font-medium text-gray-700 mb-2">
+          <label className="block text-sm font-medium text-(--sf-text) mb-2">
             {key}
           </label>
           <div className="flex flex-wrap gap-2">
@@ -87,8 +87,8 @@ export function VariantSelector(props: VariantSelectorProps) {
                   onClick={() => handleOptionClick(key, value)}
                   className={`px-3 py-1.5 text-sm rounded-md transition-colors ${
                     isSelected
-                      ? 'bg-gray-900 text-white'
-                      : 'border border-gray-300 text-gray-700 hover:border-gray-400'
+                      ? 'bg-(--sf-accent) text-(--sf-accent-text)'
+                      : 'border border-(--sf-border) text-(--sf-text) hover:border-(--sf-accent)'
                   } ${
                     isDisabled
                       ? 'opacity-50 cursor-not-allowed line-through'

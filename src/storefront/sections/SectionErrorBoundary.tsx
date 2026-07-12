@@ -22,7 +22,7 @@ export class SectionErrorBoundary extends Component<Props, State> {
 
   render() {
     if (this.state.hasError) {
-      return <div className="min-h-[100px] bg-gray-50" />
+      return <div className="min-h-[100px] bg-(--sf-surface-muted)" />
     }
 
     return this.props.children

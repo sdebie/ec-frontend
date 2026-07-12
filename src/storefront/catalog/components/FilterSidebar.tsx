@@ -49,7 +49,7 @@ function FilterContent({
     <div className="flex flex-col gap-5">
       {/* Search Input */}
       <div>
-        <label htmlFor="filter-search" className="block text-sm font-medium text-gray-700 mb-1">
+        <label htmlFor="filter-search" className="block text-sm font-medium text-(--sf-text) mb-1">
           Search
         </label>
         <input
@@ -58,20 +58,20 @@ function FilterContent({
           placeholder="Search products..."
           value={searchValue}
           onChange={(e) => setSearchValue(e.target.value)}
-          className="w-full rounded-md border border-gray-300 px-3 py-2 text-sm placeholder-gray-400 focus:border-gray-500 focus:outline-none focus:ring-1 focus:ring-gray-500"
+          className="w-full rounded-md border border-(--sf-border) px-3 py-2 text-sm placeholder-(--sf-muted-text) focus:border-(--sf-ring) focus:outline-none focus:ring-1 focus:ring-(--sf-ring)"
         />
       </div>
 
       {/* Category Dropdown */}
       <div>
-        <label htmlFor="filter-category" className="block text-sm font-medium text-gray-700 mb-1">
+        <label htmlFor="filter-category" className="block text-sm font-medium text-(--sf-text) mb-1">
           Category
         </label>
         <select
           id="filter-category"
           value={activeFilters.category}
           onChange={(e) => setFilter('category', e.target.value)}
-          className="w-full rounded-md border border-gray-300 px-3 py-2 text-sm focus:border-gray-500 focus:outline-none focus:ring-1 focus:ring-gray-500"
+          className="w-full rounded-md border border-(--sf-border) px-3 py-2 text-sm focus:border-(--sf-ring) focus:outline-none focus:ring-1 focus:ring-(--sf-ring)"
         >
           <option value="">All Categories</option>
           {categories.map((cat) => (
@@ -84,14 +84,14 @@ function FilterContent({
 
       {/* Brand Dropdown */}
       <div>
-        <label htmlFor="filter-brand" className="block text-sm font-medium text-gray-700 mb-1">
+        <label htmlFor="filter-brand" className="block text-sm font-medium text-(--sf-text) mb-1">
           Brand
         </label>
         <select
           id="filter-brand"
           value={activeFilters.brand}
           onChange={(e) => setFilter('brand', e.target.value)}
-          className="w-full rounded-md border border-gray-300 px-3 py-2 text-sm focus:border-gray-500 focus:outline-none focus:ring-1 focus:ring-gray-500"
+          className="w-full rounded-md border border-(--sf-border) px-3 py-2 text-sm focus:border-(--sf-ring) focus:outline-none focus:ring-1 focus:ring-(--sf-ring)"
         >
           <option value="">All Brands</option>
           {brands.map((brand) => (
@@ -104,14 +104,14 @@ function FilterContent({
 
       {/* Sort Select */}
       <div>
-        <label htmlFor="filter-sort" className="block text-sm font-medium text-gray-700 mb-1">
+        <label htmlFor="filter-sort" className="block text-sm font-medium text-(--sf-text) mb-1">
           Sort by
         </label>
         <select
           id="filter-sort"
           value={activeFilters.sort}
           onChange={(e) => setFilter('sort', e.target.value)}
-          className="w-full rounded-md border border-gray-300 px-3 py-2 text-sm focus:border-gray-500 focus:outline-none focus:ring-1 focus:ring-gray-500"
+          className="w-full rounded-md border border-(--sf-border) px-3 py-2 text-sm focus:border-(--sf-ring) focus:outline-none focus:ring-1 focus:ring-(--sf-ring)"
         >
           <option value="name">Name A–Z</option>
           <option value="price-asc">Price Low–High</option>
@@ -123,7 +123,7 @@ function FilterContent({
       <button
         type="button"
         onClick={onClearAll}
-        className="mt-2 w-full rounded-md border border-gray-300 px-3 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50 transition-colors"
+        className="mt-2 w-full rounded-md border border-(--sf-border) px-3 py-2 text-sm font-medium text-(--sf-text) hover:bg-(--sf-surface-muted) transition-colors"
       >
         Clear all filters
       </button>
@@ -150,7 +150,7 @@ export function FilterSidebar(props: FilterSidebarProps) {
         <button
           type="button"
           onClick={() => setDrawerOpen(true)}
-          className="inline-flex items-center gap-2 rounded-md border border-gray-300 bg-white px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50"
+          className="inline-flex items-center gap-2 rounded-md border border-(--sf-border) bg-(--sf-panel) px-4 py-2 text-sm font-medium text-(--sf-text) hover:bg-(--sf-surface-muted)"
         >
           <svg
             xmlns="http://www.w3.org/2000/svg"
@@ -181,13 +181,13 @@ export function FilterSidebar(props: FilterSidebarProps) {
             />
 
             {/* Drawer panel */}
-            <div className="relative ml-auto flex h-full w-full max-w-xs flex-col overflow-y-auto bg-white p-6 shadow-xl">
+            <div className="relative ml-auto flex h-full w-full max-w-xs flex-col overflow-y-auto bg-(--sf-panel) p-6 shadow-xl">
               <div className="flex items-center justify-between mb-6">
-                <h2 className="text-lg font-semibold text-gray-900">Filters</h2>
+                <h2 className="text-lg font-semibold text-(--sf-text)">Filters</h2>
                 <button
                   type="button"
                   onClick={handleClose}
-                  className="rounded-md p-1 text-gray-400 hover:text-gray-600"
+                  className="rounded-md p-1 text-(--sf-muted-text) hover:text-(--sf-text)"
                   aria-label="Close filters"
                 >
                   <svg

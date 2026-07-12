@@ -6,12 +6,12 @@ export function CtaSection({section}: { section: CtaSectionConfig }) {
 
     const isDark = variant === 'dark'
     const sectionStyle = isDark
-        ? { background: 'linear-gradient(135deg, var(--c-surface-dark, #000) 0%, var(--c-surface-dark, #000) 55%, var(--c-accent) 140%)' }
-        : { background: 'var(--c-accent)' }
+        ? { background: 'linear-gradient(135deg, var(--sf-nav-background, #000) 0%, var(--sf-nav-background, #000) 55%, var(--sf-accent) 140%)' }
+        : { background: 'var(--sf-accent)' }
 
     const buttonStyle = isDark
-        ? { background: 'var(--c-accent-text)', color: 'var(--c-surface-dark, #000)' }
-        : { background: 'var(--c-accent-text)', color: 'var(--c-accent)' }
+        ? { background: 'var(--sf-accent-text)', color: 'var(--sf-nav-background, #000)' }
+        : { background: 'var(--sf-accent-text)', color: 'var(--sf-accent)' }
 
     return (
         <section
@@ -21,14 +21,14 @@ export function CtaSection({section}: { section: CtaSectionConfig }) {
             <div className="mx-auto max-w-2xl">
                 <h2
                     className="text-3xl font-bold"
-                    style={{ color: 'var(--c-accent-text)' }}
+                    style={{ color: 'var(--sf-accent-text)' }}
                 >
                     {title}
                 </h2>
                 {description && (
                     <p
                         className="mt-4 text-lg"
-                        style={{ color: 'var(--c-accent-text)', opacity: 0.85 }}
+                        style={{ color: 'var(--sf-accent-text)', opacity: 0.85 }}
                     >
                         {description}
                     </p>

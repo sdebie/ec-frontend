@@ -22,8 +22,8 @@ export function AccountLayout() {
                   cn(
                     'block px-3 py-2 rounded-md text-sm transition-colors',
                     isActive
-                      ? 'font-semibold bg-gray-100 text-gray-900'
-                      : 'text-gray-600 hover:bg-gray-50 hover:text-gray-900',
+                      ? 'font-semibold bg-(--sf-surface-muted) text-(--sf-text)'
+                      : 'text-(--sf-muted-text) hover:bg-(--sf-surface-muted) hover:text-(--sf-text)',
                   )
                 }
               >
@@ -35,7 +35,7 @@ export function AccountLayout() {
       </nav>
 
       {/* Mobile: horizontal tab strip */}
-      <nav aria-label="Account navigation" className="md:hidden flex gap-4 overflow-x-auto pb-2 border-b border-gray-200">
+      <nav aria-label="Account navigation" className="md:hidden flex gap-4 overflow-x-auto pb-2 border-b border-(--sf-border)">
         {NAV_ITEMS.map((item) => (
           <NavLink
             key={item.to}
@@ -44,8 +44,8 @@ export function AccountLayout() {
               cn(
                 'whitespace-nowrap px-3 py-2 rounded-md text-sm transition-colors',
                 isActive
-                  ? 'font-semibold bg-gray-100 text-gray-900'
-                  : 'text-gray-600 hover:bg-gray-50 hover:text-gray-900',
+                  ? 'font-semibold bg-(--sf-surface-muted) text-(--sf-text)'
+                  : 'text-(--sf-muted-text) hover:bg-(--sf-surface-muted) hover:text-(--sf-text)',
               )
             }
           >

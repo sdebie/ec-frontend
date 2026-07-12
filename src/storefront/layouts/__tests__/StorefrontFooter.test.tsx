@@ -60,7 +60,7 @@ describe('StorefrontFooter', () => {
     renderFooter(baseConfig)
 
     const logo = screen.getByRole('img', { name: 'Store Logo' })
-    expect(logo).toHaveAttribute('src', '/logo.png')
+    expect(logo).toHaveAttribute('src', '/static/images/logo.png')
     expect(logo).toHaveAttribute('width', '120')
     expect(logo).toHaveAttribute('height', '40')
 

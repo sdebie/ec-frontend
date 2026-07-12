@@ -79,8 +79,8 @@ describe('AnnouncementBanner', () => {
     render(<AnnouncementBanner />)
 
     const banner = screen.getByRole('banner')
-    expect(banner).toHaveStyle({ backgroundColor: 'var(--c-bg-surface)' })
-    expect(banner).toHaveStyle({ color: 'var(--c-text)' })
+    expect(banner).toHaveStyle({ backgroundColor: 'var(--sf-panel)' })
+    expect(banner).toHaveStyle({ color: 'var(--sf-text)' })
   })
 
   it('applies custom backgroundColor and textColor from config', () => {

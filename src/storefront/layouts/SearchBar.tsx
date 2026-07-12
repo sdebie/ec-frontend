@@ -32,19 +32,19 @@ export function SearchBar({ className }: SearchBarProps) {
 
   return (
     <form onSubmit={handleSubmit} role="search" className={className}>
-      <div className="flex items-center rounded-md border border-gray-300 bg-white focus-within:border-gray-500 focus-within:ring-1 focus-within:ring-gray-500">
+      <div className="flex items-center rounded-md border border-(--sf-border) bg-(--sf-panel) text-(--sf-text) focus-within:border-(--sf-ring) focus-within:ring-1 focus-within:ring-(--sf-ring)">
         <input
           type="search"
           value={value}
           onChange={(e) => setValue(e.target.value)}
           placeholder="Search products…"
           aria-label="Search products"
-          className="w-full bg-transparent px-3 py-2 text-sm outline-none placeholder:text-gray-400"
+          className="w-full bg-transparent px-3 py-2 text-sm outline-none placeholder:text-(--sf-muted-text)"
         />
         <button
           type="submit"
           aria-label="Submit search"
-          className="flex shrink-0 items-center justify-center px-3 py-2 text-gray-500 hover:text-gray-700"
+          className="flex shrink-0 items-center justify-center px-3 py-2 text-(--sf-muted-text) hover:text-(--sf-text)"
         >
           <Search className="h-4 w-4" />
         </button>

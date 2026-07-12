@@ -31,13 +31,13 @@ export function CheckoutSuccessPage() {
   if (!sessionId) {
     return (
       <div className="mx-auto max-w-lg px-4 py-16 text-center">
-        <h1 className="text-xl font-semibold text-gray-900">Invalid link</h1>
-        <p className="mt-2 text-gray-600">
+        <h1 className="text-xl font-semibold text-(--sf-text)">Invalid link</h1>
+        <p className="mt-2 text-(--sf-muted-text)">
           Invalid confirmation link. Return to home.
         </p>
         <Link
           to="/"
-          className="mt-4 inline-block rounded-md bg-black px-4 py-2 text-sm font-medium text-white hover:bg-gray-800"
+          className="mt-4 inline-block rounded-md bg-(--sf-accent) px-4 py-2 text-sm font-medium text-(--sf-accent-text) hover:opacity-90"
         >
           Return to home
         </Link>
@@ -49,8 +49,8 @@ export function CheckoutSuccessPage() {
   if (isTimedOut) {
     return (
       <div className="mx-auto max-w-lg px-4 py-16 text-center">
-        <h1 className="text-xl font-semibold text-gray-900">Payment pending</h1>
-        <p className="mt-2 text-gray-600">
+        <h1 className="text-xl font-semibold text-(--sf-text)">Payment pending</h1>
+        <p className="mt-2 text-(--sf-muted-text)">
           Payment is taking longer than expected. Check your email for confirmation or contact us.
         </p>
       </div>
@@ -61,16 +61,16 @@ export function CheckoutSuccessPage() {
   if (data?.status === 'PAID') {
     return (
       <div className="mx-auto max-w-lg px-4 py-16 text-center">
-        <h1 className="text-xl font-semibold text-gray-900">Payment confirmed</h1>
-        <p className="mt-2 text-gray-600">
+        <h1 className="text-xl font-semibold text-(--sf-text)">Payment confirmed</h1>
+        <p className="mt-2 text-(--sf-muted-text)">
           Thank you! Your order <span className="font-medium">{data.id}</span> has been paid.
         </p>
-        <p className="mt-1 text-gray-600">
+        <p className="mt-1 text-(--sf-muted-text)">
           Total: {formatAmount(data.totalAmount, config.currency, config.locale)}
         </p>
         <Link
           to="/"
-          className="mt-6 inline-block rounded-md bg-black px-4 py-2 text-sm font-medium text-white hover:bg-gray-800"
+          className="mt-6 inline-block rounded-md bg-(--sf-accent) px-4 py-2 text-sm font-medium text-(--sf-accent-text) hover:opacity-90"
         >
           Continue shopping
         </Link>
@@ -82,13 +82,13 @@ export function CheckoutSuccessPage() {
   if (data?.status === 'IN_STORE_PAYMENT') {
     return (
       <div className="mx-auto max-w-lg px-4 py-16 text-center">
-        <h1 className="text-xl font-semibold text-gray-900">Order confirmed</h1>
-        <p className="mt-2 text-gray-600">
+        <h1 className="text-xl font-semibold text-(--sf-text)">Order confirmed</h1>
+        <p className="mt-2 text-(--sf-muted-text)">
           Your order is confirmed. Please pay at collection.
         </p>
         <Link
           to="/"
-          className="mt-6 inline-block rounded-md bg-black px-4 py-2 text-sm font-medium text-white hover:bg-gray-800"
+          className="mt-6 inline-block rounded-md bg-(--sf-accent) px-4 py-2 text-sm font-medium text-(--sf-accent-text) hover:opacity-90"
         >
           Continue shopping
         </Link>
@@ -99,12 +99,12 @@ export function CheckoutSuccessPage() {
   // Polling / loading state
   return (
     <div className="mx-auto max-w-lg px-4 py-16 text-center">
-      <h1 className="text-xl font-semibold text-gray-900">Confirming your payment…</h1>
-      <p className="mt-2 text-gray-600">
+      <h1 className="text-xl font-semibold text-(--sf-text)">Confirming your payment…</h1>
+      <p className="mt-2 text-(--sf-muted-text)">
         Please wait while we confirm your payment. This usually takes a few seconds.
       </p>
       <div className="mt-6 flex justify-center">
-        <div className="h-8 w-8 animate-spin rounded-full border-4 border-gray-200 border-t-gray-900" />
+        <div className="h-8 w-8 animate-spin rounded-full border-4 border-(--sf-border) border-t-(--sf-accent)" />
       </div>
     </div>
   )

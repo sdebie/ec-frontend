@@ -210,7 +210,7 @@ describe('StorefrontHeader', () => {
 
       const logo = screen.getByAltText('My Shop Logo')
       expect(logo).toBeInTheDocument()
-      expect(logo).toHaveAttribute('src', '/logo.png')
+      expect(logo).toHaveAttribute('src', '/static/images/logo.png')
     })
   })
 

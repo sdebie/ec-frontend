@@ -84,14 +84,14 @@ export function CustomerLoginModal({ isOpen, onClose, onForgotPassword }: Custom
         ref={panelRef}
         role="dialog"
         aria-modal="true"
-        className="relative w-full max-w-xl rounded-lg bg-white p-8 shadow-xl"
+        className="relative w-full max-w-xl rounded-lg bg-(--sf-panel) p-8 shadow-xl"
         onClick={(e) => e.stopPropagation()}
       >
         <button
           ref={closeButtonRef}
           onClick={onClose}
           aria-label="Close"
-          className="absolute right-4 top-4 text-gray-400 hover:text-gray-600"
+          className="absolute right-4 top-4 text-(--sf-muted-text) hover:text-(--sf-text)"
         >
           <X className="h-5 w-5" />
         </button>

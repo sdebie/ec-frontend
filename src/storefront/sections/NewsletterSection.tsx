@@ -16,9 +16,9 @@ export function NewsletterSection({section}: { section: NewsletterSectionConfig 
     return (
         <section className="py-16 px-6 sm:px-8">
             <div className="mx-auto max-w-2xl text-center">
-                <h2 className="text-3xl font-bold text-gray-900">{title}</h2>
+                <h2 className="text-3xl font-bold text-(--sf-text)">{title}</h2>
                 {description && (
-                    <p className="mt-4 text-lg text-gray-600">{description}</p>
+                    <p className="mt-4 text-lg text-(--sf-muted-text)">{description}</p>
                 )}
                 <form
                     onSubmit={(e) => e.preventDefault()}
@@ -34,14 +34,14 @@ export function NewsletterSection({section}: { section: NewsletterSectionConfig 
                         required
                         placeholder={placeholder}
                         className={cn(
-                            'rounded-md border border-gray-300 px-4 py-3 text-sm placeholder-gray-400 focus:border-indigo-500 focus:outline-none focus:ring-1 focus:ring-indigo-500',
+                            'rounded-md border border-(--sf-border) px-4 py-3 text-sm placeholder-(--sf-muted-text) focus:border-(--sf-ring) focus:outline-none focus:ring-1 focus:ring-(--sf-ring)',
                             layout === 'inline' ? 'flex-1' : 'w-full',
                         )}
                     />
                     <button
                         type="submit"
                         className={cn(
-                            'rounded-md bg-indigo-600 px-6 py-3 text-sm font-semibold text-white shadow-sm hover:bg-indigo-500',
+                            'rounded-md bg-(--sf-accent) px-6 py-3 text-sm font-semibold text-(--sf-accent-text) shadow-sm hover:opacity-90',
                             layout === 'stacked' && 'w-full',
                         )}
                     >
@@ -49,12 +49,12 @@ export function NewsletterSection({section}: { section: NewsletterSectionConfig 
                     </button>
                 </form>
                 {legalText && (
-                    <p className="mt-4 text-xs text-gray-500">{legalText}</p>
+                    <p className="mt-4 text-xs text-(--sf-muted-text)">{legalText}</p>
                 )}
                 {secondaryLink && (
                     <Link
                         to={secondaryLink.to}
-                        className="mt-4 inline-block text-sm text-indigo-600 underline hover:text-indigo-500"
+                        className="mt-4 inline-block text-sm text-(--sf-accent) underline hover:opacity-90"
                     >
                         {secondaryLink.label}
                     </Link>

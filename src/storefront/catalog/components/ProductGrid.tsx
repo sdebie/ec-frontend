@@ -23,11 +23,11 @@ interface ProductGridProps {
 
 function SkeletonCard() {
   return (
-    <div className="animate-pulse rounded-lg border border-gray-200 bg-white overflow-hidden">
-      <div className="aspect-square w-full bg-gray-200" />
+    <div className="animate-pulse rounded-lg border border-(--sf-border) bg-(--sf-panel) overflow-hidden">
+      <div className="aspect-square w-full bg-(--sf-surface-muted)" />
       <div className="p-4 space-y-3">
-        <div className="h-4 w-3/4 rounded bg-gray-200" />
-        <div className="h-4 w-1/2 rounded bg-gray-200" />
+        <div className="h-4 w-3/4 rounded bg-(--sf-surface-muted)" />
+        <div className="h-4 w-1/2 rounded bg-(--sf-surface-muted)" />
       </div>
     </div>
   )
@@ -46,7 +46,7 @@ export function ProductGrid({ products, isLoading }: ProductGridProps) {
 
   if (products.length === 0) {
     return (
-      <p className="py-12 text-center text-gray-500">
+      <p className="py-12 text-center text-(--sf-muted-text)">
         No products found. Try adjusting your filters.
       </p>
     )

@@ -32,7 +32,7 @@ export function PaymentSection({ control, paymentMethods }: PaymentSectionProps)
         <h2 id="payment-heading" className="text-lg font-semibold mb-4">
           Payment method
         </h2>
-        <p className="text-sm text-gray-500">
+        <p className="text-sm text-(--sf-muted-text)">
           No payment methods are configured. Please contact us.
         </p>
       </section>
@@ -46,7 +46,7 @@ export function PaymentSection({ control, paymentMethods }: PaymentSectionProps)
       </h2>
 
       {paymentMethods.length === 1 ? (
-        <p className="text-sm text-gray-700">
+        <p className="text-sm text-(--sf-text)">
           {getPaymentLabel(paymentMethods[0])}
         </p>
       ) : (
@@ -60,14 +60,14 @@ export function PaymentSection({ control, paymentMethods }: PaymentSectionProps)
                 {paymentMethods.map((method) => (
                   <label
                     key={method}
-                    className="flex items-center gap-3 rounded-md border border-gray-200 p-3 cursor-pointer hover:border-gray-400 has-[:checked]:border-black"
+                    className="flex items-center gap-3 rounded-md border border-(--sf-border) p-3 cursor-pointer hover:border-(--sf-accent) has-[:checked]:border-(--sf-accent)"
                   >
                     <input
                       type="radio"
                       value={method}
                       checked={field.value === method}
                       onChange={() => field.onChange(method)}
-                      className="accent-black"
+                      className="accent-(--sf-accent)"
                     />
                     <span className="text-sm">{getPaymentLabel(method)}</span>
                   </label>

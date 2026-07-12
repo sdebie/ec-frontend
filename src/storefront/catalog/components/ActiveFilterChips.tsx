@@ -36,12 +36,12 @@ export function ActiveFilterChips({
 
 function FilterChip({ label, onClear }: { label: string; onClear: () => void }) {
   return (
-    <span className="inline-flex items-center gap-1 rounded-full bg-gray-100 px-3 py-1 text-sm text-gray-700">
+    <span className="inline-flex items-center gap-1 rounded-full bg-(--sf-surface-muted) px-3 py-1 text-sm text-(--sf-text)">
       {label}
       <button
         type="button"
         onClick={onClear}
-        className="ml-1 inline-flex h-4 w-4 items-center justify-center rounded-full text-gray-400 hover:bg-gray-200 hover:text-gray-600"
+        className="ml-1 inline-flex h-4 w-4 items-center justify-center rounded-full text-(--sf-muted-text) hover:bg-(--sf-surface-muted) hover:text-(--sf-text)"
         aria-label={`Remove ${label} filter`}
       >
         ×

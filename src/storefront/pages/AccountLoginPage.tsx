@@ -27,14 +27,14 @@ export function AccountLoginPage() {
     <div className="flex min-h-screen items-center justify-center px-4">
       <div className="w-full max-w-md space-y-8">
         <div className="text-center">
-          <h1 className="text-2xl font-bold tracking-tight text-gray-900">
+          <h1 className="text-2xl font-bold tracking-tight text-(--sf-text)">
             Sign in to your account
           </h1>
-          <p className="mt-2 text-sm text-gray-600">
+          <p className="mt-2 text-sm text-(--sf-muted-text)">
             Don't have an account?{' '}
             <Link
               to="/account/register"
-              className="font-medium text-indigo-600 hover:text-indigo-500"
+              className="font-medium text-(--sf-accent) hover:opacity-80"
             >
               Create one
             </Link>

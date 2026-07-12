@@ -91,7 +91,7 @@ export function ProductListPage() {
 
   return (
     <div className="mx-auto max-w-7xl px-4 py-6 sm:px-6 lg:px-8">
-      <h1 className="mb-6 text-2xl font-bold text-gray-900">{pageTitle}</h1>
+      <h1 className="mb-6 text-2xl font-bold text-(--sf-text)">{pageTitle}</h1>
 
       <div className="flex flex-col gap-6 md:flex-row">
         {/* Sidebar — desktop inline, mobile drawer */}

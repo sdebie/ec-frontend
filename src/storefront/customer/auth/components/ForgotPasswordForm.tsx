@@ -125,10 +125,10 @@ export function ForgotPasswordForm({ onBackToLogin }: ForgotPasswordFormProps) {
     return (
       <div className="w-full max-w-md space-y-8">
         <div className="text-center">
-          <h1 className="text-2xl font-bold tracking-tight text-gray-900">
+          <h1 className="text-2xl font-bold tracking-tight text-(--sf-text)">
             Reset your password
           </h1>
-          <p className="mt-2 text-sm text-gray-600">
+          <p className="mt-2 text-sm text-(--sf-muted-text)">
             Enter your email address and we'll send you a reset code.
           </p>
         </div>
@@ -150,7 +150,7 @@ export function ForgotPasswordForm({ onBackToLogin }: ForgotPasswordFormProps) {
           <div>
             <label
               htmlFor="request-email"
-              className="block text-sm font-medium text-gray-700"
+              className="block text-sm font-medium text-(--sf-text)"
             >
               Email address
             </label>
@@ -162,7 +162,7 @@ export function ForgotPasswordForm({ onBackToLogin }: ForgotPasswordFormProps) {
                 requestForm.formState.errors.email ? 'request-email-error' : undefined
               }
               aria-invalid={requestForm.formState.errors.email ? 'true' : undefined}
-              className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 text-sm shadow-sm placeholder:text-gray-400 focus:border-indigo-500 focus:outline-none focus:ring-1 focus:ring-indigo-500"
+              className="mt-1 block w-full rounded-md border border-(--sf-border) px-3 py-2 text-sm shadow-sm placeholder:text-(--sf-muted-text) focus:border-(--sf-ring) focus:outline-none focus:ring-1 focus:ring-(--sf-ring)"
               {...requestForm.register('email')}
             />
             {requestForm.formState.errors.email && (
@@ -175,7 +175,7 @@ export function ForgotPasswordForm({ onBackToLogin }: ForgotPasswordFormProps) {
           <button
             type="submit"
             disabled={requestMutation.isPending}
-            className="flex w-full justify-center rounded-md bg-indigo-600 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-indigo-500 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600 disabled:cursor-not-allowed disabled:opacity-50"
+            className="flex w-full justify-center rounded-md bg-(--sf-accent) px-3 py-2 text-sm font-semibold text-(--sf-accent-text) shadow-sm hover:opacity-90 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-(--sf-ring) disabled:cursor-not-allowed disabled:opacity-50"
           >
             {requestMutation.isPending ? 'Sending…' : 'Send code'}
           </button>
@@ -186,7 +186,7 @@ export function ForgotPasswordForm({ onBackToLogin }: ForgotPasswordFormProps) {
             <button
               type="button"
               onClick={onBackToLogin}
-              className="text-sm font-medium text-indigo-600 hover:text-indigo-500"
+              className="text-sm font-medium text-(--sf-accent) hover:opacity-80"
             >
               Back to login
             </button>
@@ -200,10 +200,10 @@ export function ForgotPasswordForm({ onBackToLogin }: ForgotPasswordFormProps) {
     return (
       <div className="w-full max-w-md space-y-8">
         <div className="text-center">
-          <h1 className="text-2xl font-bold tracking-tight text-gray-900">
+          <h1 className="text-2xl font-bold tracking-tight text-(--sf-text)">
             Enter verification code
           </h1>
-          <p className="mt-2 text-sm text-gray-600">
+          <p className="mt-2 text-sm text-(--sf-muted-text)">
             If the account exists, a 6-digit reset code has been sent. The code is valid
             for 10 minutes.
           </p>
@@ -226,7 +226,7 @@ export function ForgotPasswordForm({ onBackToLogin }: ForgotPasswordFormProps) {
           <div>
             <label
               htmlFor="verify-code"
-              className="block text-sm font-medium text-gray-700"
+              className="block text-sm font-medium text-(--sf-text)"
             >
               Verification code
             </label>
@@ -240,7 +240,7 @@ export function ForgotPasswordForm({ onBackToLogin }: ForgotPasswordFormProps) {
                 verifyForm.formState.errors.code ? 'verify-code-error' : undefined
               }
               aria-invalid={verifyForm.formState.errors.code ? 'true' : undefined}
-              className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 text-sm shadow-sm placeholder:text-gray-400 focus:border-indigo-500 focus:outline-none focus:ring-1 focus:ring-indigo-500"
+              className="mt-1 block w-full rounded-md border border-(--sf-border) px-3 py-2 text-sm shadow-sm placeholder:text-(--sf-muted-text) focus:border-(--sf-ring) focus:outline-none focus:ring-1 focus:ring-(--sf-ring)"
               placeholder="000000"
               {...verifyForm.register('code')}
             />
@@ -254,7 +254,7 @@ export function ForgotPasswordForm({ onBackToLogin }: ForgotPasswordFormProps) {
           <button
             type="submit"
             disabled={verifyMutation.isPending}
-            className="flex w-full justify-center rounded-md bg-indigo-600 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-indigo-500 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600 disabled:cursor-not-allowed disabled:opacity-50"
+            className="flex w-full justify-center rounded-md bg-(--sf-accent) px-3 py-2 text-sm font-semibold text-(--sf-accent-text) shadow-sm hover:opacity-90 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-(--sf-ring) disabled:cursor-not-allowed disabled:opacity-50"
           >
             {verifyMutation.isPending ? 'Verifying…' : 'Verify code'}
           </button>
@@ -265,7 +265,7 @@ export function ForgotPasswordForm({ onBackToLogin }: ForgotPasswordFormProps) {
             type="button"
             onClick={handleResendCode}
             disabled={requestMutation.isPending}
-            className="text-sm font-medium text-indigo-600 hover:text-indigo-500 disabled:opacity-50"
+            className="text-sm font-medium text-(--sf-accent) hover:opacity-80 disabled:opacity-50"
           >
             {requestMutation.isPending ? 'Resending…' : 'Resend code'}
           </button>
@@ -281,10 +281,10 @@ export function ForgotPasswordForm({ onBackToLogin }: ForgotPasswordFormProps) {
     return (
       <div className="w-full max-w-md space-y-8">
         <div className="text-center">
-          <h1 className="text-2xl font-bold tracking-tight text-gray-900">
+          <h1 className="text-2xl font-bold tracking-tight text-(--sf-text)">
             Set new password
           </h1>
-          <p className="mt-2 text-sm text-gray-600">
+          <p className="mt-2 text-sm text-(--sf-muted-text)">
             Enter your new password below.
           </p>
         </div>
@@ -306,7 +306,7 @@ export function ForgotPasswordForm({ onBackToLogin }: ForgotPasswordFormProps) {
           <div>
             <label
               htmlFor="new-password"
-              className="block text-sm font-medium text-gray-700"
+              className="block text-sm font-medium text-(--sf-text)"
             >
               New password
             </label>
@@ -322,7 +322,7 @@ export function ForgotPasswordForm({ onBackToLogin }: ForgotPasswordFormProps) {
               aria-invalid={
                 completeForm.formState.errors.newPassword ? 'true' : undefined
               }
-              className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 text-sm shadow-sm placeholder:text-gray-400 focus:border-indigo-500 focus:outline-none focus:ring-1 focus:ring-indigo-500"
+              className="mt-1 block w-full rounded-md border border-(--sf-border) px-3 py-2 text-sm shadow-sm placeholder:text-(--sf-muted-text) focus:border-(--sf-ring) focus:outline-none focus:ring-1 focus:ring-(--sf-ring)"
               {...completeForm.register('newPassword')}
             />
             {completeForm.formState.errors.newPassword && (
@@ -335,7 +335,7 @@ export function ForgotPasswordForm({ onBackToLogin }: ForgotPasswordFormProps) {
           <div>
             <label
               htmlFor="confirm-password"
-              className="block text-sm font-medium text-gray-700"
+              className="block text-sm font-medium text-(--sf-text)"
             >
               Confirm password
             </label>
@@ -351,7 +351,7 @@ export function ForgotPasswordForm({ onBackToLogin }: ForgotPasswordFormProps) {
               aria-invalid={
                 completeForm.formState.errors.confirmPassword ? 'true' : undefined
               }
-              className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 text-sm shadow-sm placeholder:text-gray-400 focus:border-indigo-500 focus:outline-none focus:ring-1 focus:ring-indigo-500"
+              className="mt-1 block w-full rounded-md border border-(--sf-border) px-3 py-2 text-sm shadow-sm placeholder:text-(--sf-muted-text) focus:border-(--sf-ring) focus:outline-none focus:ring-1 focus:ring-(--sf-ring)"
               {...completeForm.register('confirmPassword')}
             />
             {completeForm.formState.errors.confirmPassword && (
@@ -364,7 +364,7 @@ export function ForgotPasswordForm({ onBackToLogin }: ForgotPasswordFormProps) {
           <button
             type="submit"
             disabled={completeMutation.isPending}
-            className="flex w-full justify-center rounded-md bg-indigo-600 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-indigo-500 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600 disabled:cursor-not-allowed disabled:opacity-50"
+            className="flex w-full justify-center rounded-md bg-(--sf-accent) px-3 py-2 text-sm font-semibold text-(--sf-accent-text) shadow-sm hover:opacity-90 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-(--sf-ring) disabled:cursor-not-allowed disabled:opacity-50"
           >
             {completeMutation.isPending ? 'Resetting…' : 'Reset password'}
           </button>
@@ -377,10 +377,10 @@ export function ForgotPasswordForm({ onBackToLogin }: ForgotPasswordFormProps) {
   return (
     <div className="w-full max-w-md space-y-8">
       <div className="text-center">
-        <h1 className="text-2xl font-bold tracking-tight text-gray-900">
+        <h1 className="text-2xl font-bold tracking-tight text-(--sf-text)">
           Password reset successful.
         </h1>
-        <p className="mt-2 text-sm text-gray-600">
+        <p className="mt-2 text-sm text-(--sf-muted-text)">
           You can now sign in with your new password.
         </p>
       </div>
@@ -390,7 +390,7 @@ export function ForgotPasswordForm({ onBackToLogin }: ForgotPasswordFormProps) {
           <button
             type="button"
             onClick={onBackToLogin}
-            className="text-sm font-medium text-indigo-600 hover:text-indigo-500"
+            className="text-sm font-medium text-(--sf-accent) hover:opacity-80"
           >
             Back to login
           </button>

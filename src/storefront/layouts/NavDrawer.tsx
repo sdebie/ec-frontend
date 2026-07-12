@@ -31,7 +31,7 @@ export function NavDrawer({ open, onClose, items }: NavDrawerProps) {
       <div
         role="dialog"
         aria-label="Navigation menu"
-        className="fixed top-0 right-0 h-full w-72 bg-white z-50 flex flex-col shadow-xl"
+        className="fixed top-0 right-0 h-full w-72 bg-(--sf-panel) text-(--sf-text) z-50 flex flex-col shadow-xl"
       >
         <div className="flex justify-end p-4">
           <button onClick={onClose} aria-label="Close navigation">✕</button>

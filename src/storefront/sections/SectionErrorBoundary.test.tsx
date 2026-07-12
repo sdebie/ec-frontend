@@ -28,7 +28,7 @@ describe('SectionErrorBoundary', () => {
       </SectionErrorBoundary>
     )
 
-    const fallback = container.querySelector('div.min-h-\\[100px\\].bg-gray-50')
+    const fallback = container.querySelector('div.min-h-\\[100px\\].bg-\\(--sf-surface-muted\\)')
     expect(fallback).toBeInTheDocument()
     expect(fallback).toHaveTextContent('')
   })

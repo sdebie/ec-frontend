@@ -21,9 +21,9 @@ export function TestimonialsSection({ section }: { section: TestimonialsSectionC
   return (
     <section className="px-6 py-16">
       <div className="max-w-5xl mx-auto">
-        <h2 className="text-3xl font-bold text-gray-900">{title}</h2>
+        <h2 className="text-3xl font-bold text-(--sf-text)">{title}</h2>
         {subtitle && (
-          <p className="mt-2 text-lg text-gray-600">{subtitle}</p>
+          <p className="mt-2 text-lg text-(--sf-muted-text)">{subtitle}</p>
         )}
         <div
           className={cn(
@@ -33,10 +33,10 @@ export function TestimonialsSection({ section }: { section: TestimonialsSectionC
         >
           {items.map((item) => (
             <div key={item.id} className="flex flex-col gap-4">
-              <blockquote className="text-gray-700 italic">
+              <blockquote className="text-(--sf-text) italic">
                 &ldquo;{item.quote}&rdquo;
               </blockquote>
-              <p className="text-sm font-medium text-gray-900">
+              <p className="text-sm font-medium text-(--sf-text)">
                 {item.name}
                 {item.role && `, ${item.role}`}
                 {item.company && ` at ${item.company}`}

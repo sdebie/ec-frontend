@@ -14,8 +14,8 @@ import {ProductDetailSkeleton} from './components/ProductDetailSkeleton'
 function ProductNotFound() {
     return (
         <div className="text-center py-16">
-            <h2 className="text-xl font-semibold text-gray-900 mb-2">Product not found</h2>
-            <p className="text-gray-500 mb-4">
+            <h2 className="text-xl font-semibold text-(--sf-text) mb-2">Product not found</h2>
+            <p className="text-(--sf-muted-text) mb-4">
                 The product you&#39;re looking for doesn&#39;t exist or has been removed.
             </p>
             <Link to="/products" className="text-sm font-medium underline">
@@ -90,20 +90,20 @@ export function ProductDetailPage() {
         <div>
             {/* Breadcrumb */}
             <nav aria-label="Breadcrumb" className="mb-6">
-                <ol className="flex items-center gap-2 text-sm text-gray-500">
+                <ol className="flex items-center gap-2 text-sm text-(--sf-muted-text)">
                     <li>
-                        <Link to="/products" className="hover:text-gray-700">
+                        <Link to="/products" className="hover:text-(--sf-text)">
                             Products
                         </Link>
                     </li>
                     {categoryName && (
                         <>
                             <li aria-hidden="true">/</li>
-                            <li className="text-gray-400">{categoryName}</li>
+                            <li className="text-(--sf-muted-text)">{categoryName}</li>
                         </>
                     )}
                     <li aria-hidden="true">/</li>
-                    <li className="text-gray-900 font-medium">{product.name}</li>
+                    <li className="text-(--sf-text) font-medium">{product.name}</li>
                 </ol>
             </nav>
 
@@ -114,10 +114,10 @@ export function ProductDetailPage() {
 
                 {/* Right: Product info */}
                 <div className="space-y-6">
-                    <h1 className="text-2xl font-bold text-gray-900">{product.name}</h1>
+                    <h1 className="text-2xl font-bold text-(--sf-text)">{product.name}</h1>
 
                     {product.shortDescription && (
-                        <p className="text-gray-600">{product.shortDescription}</p>
+                        <p className="text-(--sf-muted-text)">{product.shortDescription}</p>
                     )}
 
                     <VariantSelector
@@ -129,7 +129,7 @@ export function ProductDetailPage() {
                     {/* Price display */}
                     <div className="flex items-baseline gap-3">
                         {originalPrice != null && (
-                            <span className="line-through text-gray-400 text-lg">
+                            <span className="line-through text-(--sf-muted-text) text-lg">
                 {formatAmount(originalPrice, currency, locale)}
               </span>
                         )}
@@ -143,7 +143,7 @@ export function ProductDetailPage() {
                         <button
                             type="button"
                             disabled
-                            className="px-6 py-3 rounded-lg font-medium text-white bg-gray-300 cursor-not-allowed"
+                            className="px-6 py-3 rounded-lg font-medium bg-(--sf-surface-muted) text-(--sf-muted-text) cursor-not-allowed"
                         >
                             Out of stock
                         </button>
@@ -151,7 +151,7 @@ export function ProductDetailPage() {
                         <button
                             type="button"
                             disabled
-                            className="px-6 py-3 rounded-lg font-medium text-white bg-gray-300 cursor-not-allowed"
+                            className="px-6 py-3 rounded-lg font-medium bg-(--sf-surface-muted) text-(--sf-muted-text) cursor-not-allowed"
                         >
                             Added ✓
                         </button>
@@ -160,10 +160,10 @@ export function ProductDetailPage() {
                             type="button"
                             disabled={!selectedVariant}
                             onClick={handleAddToCart}
-                            className={`px-6 py-3 rounded-lg font-medium text-white transition-colors ${
+                            className={`px-6 py-3 rounded-lg font-medium transition-colors ${
                                 selectedVariant
-                                    ? 'bg-gray-900 hover:bg-gray-800 cursor-pointer'
-                                    : 'bg-gray-300 cursor-not-allowed'
+                                    ? 'bg-(--sf-accent) text-(--sf-accent-text) hover:opacity-90 cursor-pointer'
+                                    : 'bg-(--sf-surface-muted) text-(--sf-muted-text) cursor-not-allowed'
                             }`}
                         >
                             Add to Cart
@@ -183,11 +183,11 @@ export function ProductDetailPage() {
 
             {/* Description accordion */}
             {product.description && (
-                <details className="mt-10 border-t border-gray-200 pt-6">
-                    <summary className="cursor-pointer text-lg font-medium text-gray-900 select-none">
+                <details className="mt-10 border-t border-(--sf-border) pt-6">
+                    <summary className="cursor-pointer text-lg font-medium text-(--sf-text) select-none">
                         Description
                     </summary>
-                    <div className="mt-4 text-gray-600 prose prose-sm max-w-none">
+                    <div className="mt-4 text-(--sf-muted-text) prose prose-sm max-w-none">
                         {product.description}
                     </div>
                 </details>

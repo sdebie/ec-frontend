@@ -167,7 +167,7 @@ export function ProfilePage() {
   if (isLoading) {
     return (
       <div className="flex items-center justify-center py-12">
-        <Loader2 className="h-6 w-6 animate-spin text-gray-400" />
+        <Loader2 className="h-6 w-6 animate-spin text-(--sf-muted-text)" />
       </div>
     )
   }
@@ -175,8 +175,8 @@ export function ProfilePage() {
   return (
     <div className="space-y-8">
       <div>
-        <h1 className="text-2xl font-semibold text-gray-900">Profile</h1>
-        <p className="mt-1 text-sm text-gray-500">
+        <h1 className="text-2xl font-semibold text-(--sf-text)">Profile</h1>
+        <p className="mt-1 text-sm text-(--sf-muted-text)">
           Manage your personal information and delivery addresses.
         </p>
       </div>
@@ -200,11 +200,11 @@ export function ProfilePage() {
 
         {/* Personal Information */}
         <fieldset className="space-y-4">
-          <legend className="text-lg font-medium text-gray-900">Personal Information</legend>
+          <legend className="text-lg font-medium text-(--sf-text)">Personal Information</legend>
 
           {/* Email (read-only) */}
           <div>
-            <label htmlFor="email" className="block text-sm font-medium text-gray-700">
+            <label htmlFor="email" className="block text-sm font-medium text-(--sf-text)">
               Email address
             </label>
             <input
@@ -213,14 +213,14 @@ export function ProfilePage() {
               value={profile?.email ?? ''}
               readOnly
               disabled
-              className="mt-1 block w-full rounded-md border border-gray-200 bg-gray-50 px-3 py-2 text-sm text-gray-500 shadow-sm"
+              className="mt-1 block w-full rounded-md border border-(--sf-border) bg-(--sf-surface-muted) px-3 py-2 text-sm text-(--sf-muted-text) shadow-sm"
             />
-            <p className="mt-1 text-xs text-gray-400">Email cannot be changed.</p>
+            <p className="mt-1 text-xs text-(--sf-muted-text)">Email cannot be changed.</p>
           </div>
 
           {/* First Name */}
           <div>
-            <label htmlFor="firstName" className="block text-sm font-medium text-gray-700">
+            <label htmlFor="firstName" className="block text-sm font-medium text-(--sf-text)">
               First name
             </label>
             <input
@@ -229,7 +229,7 @@ export function ProfilePage() {
               autoComplete="given-name"
               aria-describedby={errors.firstName ? 'firstName-error' : undefined}
               aria-invalid={!!errors.firstName}
-              className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 text-sm shadow-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
+              className="mt-1 block w-full rounded-md border border-(--sf-border) px-3 py-2 text-sm shadow-sm focus:border-(--sf-ring) focus:outline-none focus:ring-1 focus:ring-(--sf-ring)"
               {...register('firstName')}
             />
             {errors.firstName && (
@@ -241,7 +241,7 @@ export function ProfilePage() {
 
           {/* Last Name */}
           <div>
-            <label htmlFor="lastName" className="block text-sm font-medium text-gray-700">
+            <label htmlFor="lastName" className="block text-sm font-medium text-(--sf-text)">
               Last name
             </label>
             <input
@@ -250,7 +250,7 @@ export function ProfilePage() {
               autoComplete="family-name"
               aria-describedby={errors.lastName ? 'lastName-error' : undefined}
               aria-invalid={!!errors.lastName}
-              className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 text-sm shadow-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
+              className="mt-1 block w-full rounded-md border border-(--sf-border) px-3 py-2 text-sm shadow-sm focus:border-(--sf-ring) focus:outline-none focus:ring-1 focus:ring-(--sf-ring)"
               {...register('lastName')}
             />
             {errors.lastName && (
@@ -262,8 +262,8 @@ export function ProfilePage() {
 
           {/* Phone */}
           <div>
-            <label htmlFor="phone" className="block text-sm font-medium text-gray-700">
-              Phone number <span className="text-gray-400">(optional)</span>
+            <label htmlFor="phone" className="block text-sm font-medium text-(--sf-text)">
+              Phone number <span className="text-(--sf-muted-text)">(optional)</span>
             </label>
             <input
               id="phone"
@@ -271,7 +271,7 @@ export function ProfilePage() {
               autoComplete="tel"
               aria-describedby={errors.phone ? 'phone-error' : undefined}
               aria-invalid={!!errors.phone}
-              className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 text-sm shadow-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
+              className="mt-1 block w-full rounded-md border border-(--sf-border) px-3 py-2 text-sm shadow-sm focus:border-(--sf-ring) focus:outline-none focus:ring-1 focus:ring-(--sf-ring)"
               {...register('phone')}
             />
             {errors.phone && (
@@ -284,82 +284,82 @@ export function ProfilePage() {
 
         {/* Physical Address */}
         <fieldset className="space-y-4">
-          <legend className="text-lg font-medium text-gray-900">Physical Address</legend>
+          <legend className="text-lg font-medium text-(--sf-text)">Physical Address</legend>
 
           <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
             <div className="sm:col-span-2">
-              <label htmlFor="physicalLine1" className="block text-sm font-medium text-gray-700">
+              <label htmlFor="physicalLine1" className="block text-sm font-medium text-(--sf-text)">
                 Address line 1
               </label>
               <input
                 id="physicalLine1"
                 type="text"
                 autoComplete="address-line1"
-                className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 text-sm shadow-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
+                className="mt-1 block w-full rounded-md border border-(--sf-border) px-3 py-2 text-sm shadow-sm focus:border-(--sf-ring) focus:outline-none focus:ring-1 focus:ring-(--sf-ring)"
                 {...register('physicalLine1')}
               />
             </div>
 
             <div className="sm:col-span-2">
-              <label htmlFor="physicalLine2" className="block text-sm font-medium text-gray-700">
-                Address line 2 <span className="text-gray-400">(optional)</span>
+              <label htmlFor="physicalLine2" className="block text-sm font-medium text-(--sf-text)">
+                Address line 2 <span className="text-(--sf-muted-text)">(optional)</span>
               </label>
               <input
                 id="physicalLine2"
                 type="text"
                 autoComplete="address-line2"
-                className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 text-sm shadow-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
+                className="mt-1 block w-full rounded-md border border-(--sf-border) px-3 py-2 text-sm shadow-sm focus:border-(--sf-ring) focus:outline-none focus:ring-1 focus:ring-(--sf-ring)"
                 {...register('physicalLine2')}
               />
             </div>
 
             <div>
-              <label htmlFor="physicalSuburb" className="block text-sm font-medium text-gray-700">
-                Suburb <span className="text-gray-400">(optional)</span>
+              <label htmlFor="physicalSuburb" className="block text-sm font-medium text-(--sf-text)">
+                Suburb <span className="text-(--sf-muted-text)">(optional)</span>
               </label>
               <input
                 id="physicalSuburb"
                 type="text"
-                className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 text-sm shadow-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
+                className="mt-1 block w-full rounded-md border border-(--sf-border) px-3 py-2 text-sm shadow-sm focus:border-(--sf-ring) focus:outline-none focus:ring-1 focus:ring-(--sf-ring)"
                 {...register('physicalSuburb')}
               />
             </div>
 
             <div>
-              <label htmlFor="physicalCity" className="block text-sm font-medium text-gray-700">
+              <label htmlFor="physicalCity" className="block text-sm font-medium text-(--sf-text)">
                 City
               </label>
               <input
                 id="physicalCity"
                 type="text"
                 autoComplete="address-level2"
-                className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 text-sm shadow-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
+                className="mt-1 block w-full rounded-md border border-(--sf-border) px-3 py-2 text-sm shadow-sm focus:border-(--sf-ring) focus:outline-none focus:ring-1 focus:ring-(--sf-ring)"
                 {...register('physicalCity')}
               />
             </div>
 
             <div>
-              <label htmlFor="physicalProvince" className="block text-sm font-medium text-gray-700">
+              <label htmlFor="physicalProvince" className="block text-sm font-medium text-(--sf-text)">
                 Province
               </label>
               <input
                 id="physicalProvince"
                 type="text"
                 autoComplete="address-level1"
-                className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 text-sm shadow-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
+                className="mt-1 block w-full rounded-md border border-(--sf-border) px-3 py-2 text-sm shadow-sm focus:border-(--sf-ring) focus:outline-none focus:ring-1 focus:ring-(--sf-ring)"
                 {...register('physicalProvince')}
               />
             </div>
 
             <div>
-              <label htmlFor="physicalPostalCode" className="block text-sm font-medium text-gray-700">
+              <label htmlFor="physicalPostalCode" className="block text-sm font-medium text-(--sf-text)">
                 Postal code
               </label>
               <input
                 id="physicalPostalCode"
                 type="text"
                 autoComplete="postal-code"
-                className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 text-sm shadow-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
+                className="mt-1 block w-full rounded-md border border-(--sf-border) px-3 py-2 text-sm shadow-sm focus:border-(--sf-ring) focus:outline-none focus:ring-1 focus:ring-(--sf-ring)"
                 {...register('physicalPostalCode')}
               />
             </div>
@@ -368,23 +368,23 @@ export function ProfilePage() {
 
         {/* Postal Address */}
         <fieldset className="space-y-4">
-          <legend className="text-lg font-medium text-gray-900">Postal Address</legend>
+          <legend className="text-lg font-medium text-(--sf-text)">Postal Address</legend>
 
           <div className="flex items-center gap-2">
             <input
               id="postalSameAsPhysical"
               type="checkbox"
-              className="h-4 w-4 rounded border-gray-300 text-blue-600 focus:ring-blue-500"
+              className="h-4 w-4 rounded border-(--sf-border) text-(--sf-accent) focus:ring-(--sf-ring)"
               {...register('postalSameAsPhysical')}
             />
-            <label htmlFor="postalSameAsPhysical" className="text-sm text-gray-700">
+            <label htmlFor="postalSameAsPhysical" className="text-sm text-(--sf-text)">
               Postal address same as physical
             </label>
           </div>
 
           <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
             <div className="sm:col-span-2">
-              <label htmlFor="postalLine1" className="block text-sm font-medium text-gray-700">
+              <label htmlFor="postalLine1" className="block text-sm font-medium text-(--sf-text)">
                 Address line 1
               </label>
               <input
@@ -392,40 +392,40 @@ export function ProfilePage() {
                 type="text"
                 autoComplete="address-line1"
                 disabled={postalSameAsPhysical}
-                className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 text-sm shadow-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500 disabled:bg-gray-50 disabled:text-gray-500"
+                className="mt-1 block w-full rounded-md border border-(--sf-border) px-3 py-2 text-sm shadow-sm focus:border-(--sf-ring) focus:outline-none focus:ring-1 focus:ring-(--sf-ring) disabled:bg-(--sf-surface-muted) disabled:text-(--sf-muted-text)"
                 {...register('postalLine1')}
               />
             </div>
 
             <div className="sm:col-span-2">
-              <label htmlFor="postalLine2" className="block text-sm font-medium text-gray-700">
-                Address line 2 <span className="text-gray-400">(optional)</span>
+              <label htmlFor="postalLine2" className="block text-sm font-medium text-(--sf-text)">
+                Address line 2 <span className="text-(--sf-muted-text)">(optional)</span>
               </label>
               <input
                 id="postalLine2"
                 type="text"
                 autoComplete="address-line2"
                 disabled={postalSameAsPhysical}
-                className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 text-sm shadow-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500 disabled:bg-gray-50 disabled:text-gray-500"
+                className="mt-1 block w-full rounded-md border border-(--sf-border) px-3 py-2 text-sm shadow-sm focus:border-(--sf-ring) focus:outline-none focus:ring-1 focus:ring-(--sf-ring) disabled:bg-(--sf-surface-muted) disabled:text-(--sf-muted-text)"
                 {...register('postalLine2')}
               />
             </div>
 
             <div>
-              <label htmlFor="postalSuburb" className="block text-sm font-medium text-gray-700">
-                Suburb <span className="text-gray-400">(optional)</span>
+              <label htmlFor="postalSuburb" className="block text-sm font-medium text-(--sf-text)">
+                Suburb <span className="text-(--sf-muted-text)">(optional)</span>
               </label>
               <input
                 id="postalSuburb"
                 type="text"
                 disabled={postalSameAsPhysical}
-                className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 text-sm shadow-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500 disabled:bg-gray-50 disabled:text-gray-500"
+                className="mt-1 block w-full rounded-md border border-(--sf-border) px-3 py-2 text-sm shadow-sm focus:border-(--sf-ring) focus:outline-none focus:ring-1 focus:ring-(--sf-ring) disabled:bg-(--sf-surface-muted) disabled:text-(--sf-muted-text)"
                 {...register('postalSuburb')}
               />
             </div>
 
             <div>
-              <label htmlFor="postalCity" className="block text-sm font-medium text-gray-700">
+              <label htmlFor="postalCity" className="block text-sm font-medium text-(--sf-text)">
                 City
               </label>
               <input
@@ -433,13 +433,13 @@ export function ProfilePage() {
                 type="text"
                 autoComplete="address-level2"
                 disabled={postalSameAsPhysical}
-                className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 text-sm shadow-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500 disabled:bg-gray-50 disabled:text-gray-500"
+                className="mt-1 block w-full rounded-md border border-(--sf-border) px-3 py-2 text-sm shadow-sm focus:border-(--sf-ring) focus:outline-none focus:ring-1 focus:ring-(--sf-ring) disabled:bg-(--sf-surface-muted) disabled:text-(--sf-muted-text)"
                 {...register('postalCity')}
               />
             </div>
 
             <div>
-              <label htmlFor="postalProvince" className="block text-sm font-medium text-gray-700">
+              <label htmlFor="postalProvince" className="block text-sm font-medium text-(--sf-text)">
                 Province
               </label>
               <input
@@ -447,13 +447,13 @@ export function ProfilePage() {
                 type="text"
                 autoComplete="address-level1"
                 disabled={postalSameAsPhysical}
-                className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 text-sm shadow-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500 disabled:bg-gray-50 disabled:text-gray-500"
+                className="mt-1 block w-full rounded-md border border-(--sf-border) px-3 py-2 text-sm shadow-sm focus:border-(--sf-ring) focus:outline-none focus:ring-1 focus:ring-(--sf-ring) disabled:bg-(--sf-surface-muted) disabled:text-(--sf-muted-text)"
                 {...register('postalProvince')}
               />
             </div>
 
             <div>
-              <label htmlFor="postalPostalCode" className="block text-sm font-medium text-gray-700">
+              <label htmlFor="postalPostalCode" className="block text-sm font-medium text-(--sf-text)">
                 Postal code
               </label>
               <input
@@ -461,7 +461,7 @@ export function ProfilePage() {
                 type="text"
                 autoComplete="postal-code"
                 disabled={postalSameAsPhysical}
-                className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 text-sm shadow-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500 disabled:bg-gray-50 disabled:text-gray-500"
+                className="mt-1 block w-full rounded-md border border-(--sf-border) px-3 py-2 text-sm shadow-sm focus:border-(--sf-ring) focus:outline-none focus:ring-1 focus:ring-(--sf-ring) disabled:bg-(--sf-surface-muted) disabled:text-(--sf-muted-text)"
                 {...register('postalPostalCode')}
               />
             </div>
@@ -473,7 +473,7 @@ export function ProfilePage() {
           <button
             type="submit"
             disabled={isSubmitting || updateProfile.isPending}
-            className="inline-flex items-center rounded-md bg-blue-600 px-4 py-2 text-sm font-medium text-white shadow-sm hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
+            className="inline-flex items-center rounded-md bg-(--sf-accent) px-4 py-2 text-sm font-medium text-(--sf-accent-text) shadow-sm hover:opacity-90 focus:outline-none focus:ring-2 focus:ring-(--sf-ring) focus:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
           >
             {updateProfile.isPending && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
             {updateProfile.isPending ? 'Saving…' : 'Save changes'}
@@ -557,11 +557,11 @@ function PasswordSection({ hasPassword }: { hasPassword: boolean }) {
   }
 
   return (
-    <section className="border-t border-gray-200 pt-8">
-      <h2 className="text-lg font-medium text-gray-900">
+    <section className="border-t border-(--sf-border) pt-8">
+      <h2 className="text-lg font-medium text-(--sf-text)">
         {hasPassword ? 'Change password' : 'Set a password'}
       </h2>
-      <p className="mt-1 text-sm text-gray-500">
+      <p className="mt-1 text-sm text-(--sf-muted-text)">
         {hasPassword
           ? 'Update your account password.'
           : 'Set a password to secure your account.'}
@@ -591,7 +591,7 @@ function PasswordSection({ hasPassword }: { hasPassword: boolean }) {
           <div>
             <label
               htmlFor="currentPassword"
-              className="block text-sm font-medium text-gray-700"
+              className="block text-sm font-medium text-(--sf-text)"
             >
               Current password
             </label>
@@ -604,12 +604,12 @@ function PasswordSection({ hasPassword }: { hasPassword: boolean }) {
                   errors.currentPassword ? 'currentPassword-error' : undefined
                 }
                 aria-invalid={!!errors.currentPassword}
-                className="block w-full rounded-md border border-gray-300 px-3 py-2 pr-10 text-sm shadow-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
+                className="block w-full rounded-md border border-(--sf-border) px-3 py-2 pr-10 text-sm shadow-sm focus:border-(--sf-ring) focus:outline-none focus:ring-1 focus:ring-(--sf-ring)"
                 {...register('currentPassword')}
               />
               <button
                 type="button"
-                className="absolute inset-y-0 right-0 flex items-center pr-3 text-gray-400 hover:text-gray-600"
+                className="absolute inset-y-0 right-0 flex items-center pr-3 text-(--sf-muted-text) hover:text-(--sf-text)"
                 onClick={() => setShowCurrentPassword((v) => !v)}
                 aria-label={
                   showCurrentPassword
@@ -640,7 +640,7 @@ function PasswordSection({ hasPassword }: { hasPassword: boolean }) {
         <div>
           <label
             htmlFor="newPassword"
-            className="block text-sm font-medium text-gray-700"
+            className="block text-sm font-medium text-(--sf-text)"
           >
             New password
           </label>
@@ -653,12 +653,12 @@ function PasswordSection({ hasPassword }: { hasPassword: boolean }) {
                 errors.newPassword ? 'newPassword-error' : undefined
               }
               aria-invalid={!!errors.newPassword}
-              className="block w-full rounded-md border border-gray-300 px-3 py-2 pr-10 text-sm shadow-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
+              className="block w-full rounded-md border border-(--sf-border) px-3 py-2 pr-10 text-sm shadow-sm focus:border-(--sf-ring) focus:outline-none focus:ring-1 focus:ring-(--sf-ring)"
               {...register('newPassword')}
             />
             <button
               type="button"
-              className="absolute inset-y-0 right-0 flex items-center pr-3 text-gray-400 hover:text-gray-600"
+              className="absolute inset-y-0 right-0 flex items-center pr-3 text-(--sf-muted-text) hover:text-(--sf-text)"
               onClick={() => setShowNewPassword((v) => !v)}
               aria-label={
                 showNewPassword ? 'Hide new password' : 'Show new password'
@@ -686,7 +686,7 @@ function PasswordSection({ hasPassword }: { hasPassword: boolean }) {
         <div>
           <label
             htmlFor="confirmPassword"
-            className="block text-sm font-medium text-gray-700"
+            className="block text-sm font-medium text-(--sf-text)"
           >
             Confirm new password
           </label>
@@ -699,12 +699,12 @@ function PasswordSection({ hasPassword }: { hasPassword: boolean }) {
                 errors.confirmPassword ? 'confirmPassword-error' : undefined
               }
               aria-invalid={!!errors.confirmPassword}
-              className="block w-full rounded-md border border-gray-300 px-3 py-2 pr-10 text-sm shadow-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
+              className="block w-full rounded-md border border-(--sf-border) px-3 py-2 pr-10 text-sm shadow-sm focus:border-(--sf-ring) focus:outline-none focus:ring-1 focus:ring-(--sf-ring)"
               {...register('confirmPassword')}
             />
             <button
               type="button"
-              className="absolute inset-y-0 right-0 flex items-center pr-3 text-gray-400 hover:text-gray-600"
+              className="absolute inset-y-0 right-0 flex items-center pr-3 text-(--sf-muted-text) hover:text-(--sf-text)"
               onClick={() => setShowConfirmPassword((v) => !v)}
               aria-label={
                 showConfirmPassword
@@ -735,7 +735,7 @@ function PasswordSection({ hasPassword }: { hasPassword: boolean }) {
           <button
             type="submit"
             disabled={changePassword.isPending}
-            className="inline-flex items-center rounded-md bg-blue-600 px-4 py-2 text-sm font-medium text-white shadow-sm hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
+            className="inline-flex items-center rounded-md bg-(--sf-accent) px-4 py-2 text-sm font-medium text-(--sf-accent-text) shadow-sm hover:opacity-90 focus:outline-none focus:ring-2 focus:ring-(--sf-ring) focus:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
           >
             {changePassword.isPending && (
               <Loader2 className="mr-2 h-4 w-4 animate-spin" />

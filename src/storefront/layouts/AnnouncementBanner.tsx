@@ -10,8 +10,8 @@ export function AnnouncementBanner() {
     <div
       role="banner"
       style={{
-        backgroundColor: ann.backgroundColor || 'var(--c-bg-surface)',
-        color: ann.textColor || 'var(--c-text)',
+        backgroundColor: ann.backgroundColor || 'var(--sf-panel)',
+        color: ann.textColor || 'var(--sf-text)',
       }}
       className="w-full py-2 px-4 text-center text-sm"
     >

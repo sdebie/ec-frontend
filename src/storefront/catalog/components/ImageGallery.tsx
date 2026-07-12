@@ -18,8 +18,8 @@ export function ImageGallery({ images, productName }: ImageGalleryProps) {
 
   if (!images.length || !selectedImage) {
     return (
-      <div className="aspect-square w-full overflow-hidden rounded-lg bg-gray-100">
-        <div className="flex h-full w-full items-center justify-center text-gray-400">
+      <div className="aspect-square w-full overflow-hidden rounded-lg bg-(--sf-surface-muted)">
+        <div className="flex h-full w-full items-center justify-center text-(--sf-muted-text)">
           <svg
             xmlns="http://www.w3.org/2000/svg"
             className="h-16 w-16"
@@ -42,7 +42,7 @@ export function ImageGallery({ images, productName }: ImageGalleryProps) {
 
   return (
     <div className="space-y-3">
-      <div className="aspect-square w-full overflow-hidden rounded-lg bg-gray-100">
+      <div className="aspect-square w-full overflow-hidden rounded-lg bg-(--sf-surface-muted)">
         <img
           src={selectedImage}
           alt={productName}
@@ -62,8 +62,8 @@ export function ImageGallery({ images, productName }: ImageGalleryProps) {
                 onClick={() => setSelectedImage(resolveImageUrl(image.imageUrl))}
                 className={`shrink-0 h-16 w-16 overflow-hidden rounded-md border-2 transition-colors ${
                   selectedImage === resolveImageUrl(image.imageUrl)
-                    ? 'border-gray-900'
-                    : 'border-transparent hover:border-gray-300'
+                    ? 'border-(--sf-accent)'
+                    : 'border-transparent hover:border-(--sf-border)'
                 }`}
               >
                 <img

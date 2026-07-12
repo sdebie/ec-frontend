@@ -86,7 +86,7 @@ export function CustomerLoginForm({ onSuccess, onForgotPassword }: CustomerLogin
         <div>
           <label
             htmlFor="email"
-            className="block text-sm font-medium text-gray-700"
+            className="block text-sm font-medium text-(--sf-text)"
           >
             Email address
           </label>
@@ -96,7 +96,7 @@ export function CustomerLoginForm({ onSuccess, onForgotPassword }: CustomerLogin
             autoComplete="email"
             aria-describedby={errors.email ? 'email-error' : undefined}
             aria-invalid={errors.email ? 'true' : undefined}
-            className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 text-sm shadow-sm placeholder:text-gray-400 focus:border-indigo-500 focus:outline-none focus:ring-1 focus:ring-indigo-500"
+            className="mt-1 block w-full rounded-md border border-(--sf-border) px-3 py-2 text-sm shadow-sm placeholder:text-(--sf-muted-text) focus:border-(--sf-ring) focus:outline-none focus:ring-1 focus:ring-(--sf-ring)"
             {...register('email')}
           />
           {errors.email && (
@@ -109,7 +109,7 @@ export function CustomerLoginForm({ onSuccess, onForgotPassword }: CustomerLogin
         <div>
           <label
             htmlFor="password"
-            className="block text-sm font-medium text-gray-700"
+            className="block text-sm font-medium text-(--sf-text)"
           >
             Password
           </label>
@@ -120,13 +120,13 @@ export function CustomerLoginForm({ onSuccess, onForgotPassword }: CustomerLogin
               autoComplete="current-password"
               aria-describedby={errors.password ? 'password-error' : undefined}
               aria-invalid={errors.password ? 'true' : undefined}
-              className="block w-full rounded-md border border-gray-300 px-3 py-2 pr-10 text-sm shadow-sm placeholder:text-gray-400 focus:border-indigo-500 focus:outline-none focus:ring-1 focus:ring-indigo-500"
+              className="block w-full rounded-md border border-(--sf-border) px-3 py-2 pr-10 text-sm shadow-sm placeholder:text-(--sf-muted-text) focus:border-(--sf-ring) focus:outline-none focus:ring-1 focus:ring-(--sf-ring)"
               {...register('password')}
             />
             <button
               type="button"
               onClick={() => setShowPassword(!showPassword)}
-              className="absolute inset-y-0 right-0 flex items-center pr-3 text-gray-400 hover:text-gray-600"
+              className="absolute inset-y-0 right-0 flex items-center pr-3 text-(--sf-muted-text) hover:text-(--sf-text)"
               aria-label={showPassword ? 'Hide password' : 'Show password'}
             >
               {showPassword ? (
@@ -148,7 +148,7 @@ export function CustomerLoginForm({ onSuccess, onForgotPassword }: CustomerLogin
             <button
               type="button"
               onClick={onForgotPassword}
-              className="text-sm font-medium text-indigo-600 hover:text-indigo-500"
+              className="text-sm font-medium text-(--sf-accent) hover:opacity-80"
             >
               Forgot password?
             </button>
@@ -158,7 +158,7 @@ export function CustomerLoginForm({ onSuccess, onForgotPassword }: CustomerLogin
         <button
           type="submit"
           disabled={isPending}
-          className="flex w-full justify-center rounded-md bg-indigo-600 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-indigo-500 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600 disabled:cursor-not-allowed disabled:opacity-50"
+          className="flex w-full justify-center rounded-md bg-(--sf-accent) px-3 py-2 text-sm font-semibold text-(--sf-accent-text) shadow-sm hover:opacity-90 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-(--sf-ring) disabled:cursor-not-allowed disabled:opacity-50"
         >
           {isPending ? 'Signing in…' : 'Sign in'}
         </button>
@@ -166,10 +166,10 @@ export function CustomerLoginForm({ onSuccess, onForgotPassword }: CustomerLogin
 
       <div className="relative mt-6">
         <div className="absolute inset-0 flex items-center">
-          <div className="w-full border-t border-gray-300" />
+          <div className="w-full border-t border-(--sf-border)" />
         </div>
         <div className="relative flex justify-center text-sm">
-          <span className="bg-white px-2 text-gray-500">Or continue with</span>
+          <span className="bg-(--sf-panel) px-2 text-(--sf-muted-text)">Or continue with</span>
         </div>
       </div>
 

@@ -145,7 +145,7 @@ describe('VariantSelector', () => {
       const sButton = screen.getByRole('button', { name: 'S' })
       await user.click(sButton)
 
-      expect(sButton).toHaveClass('bg-gray-900', 'text-white')
+      expect(sButton).toHaveClass('bg-(--sf-accent)', 'text-(--sf-accent-text)')
     })
   })
 })

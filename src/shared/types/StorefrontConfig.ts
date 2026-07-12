@@ -117,6 +117,37 @@ export interface FeaturedProductsSectionProps {
   limit?: number
 }
 
+// --- Accreditors section ---
+
+export interface AccreditorItem {
+  id: string
+  name: string
+  logoUrl: string
+  url?: string
+}
+
+export interface AccreditorsSectionProps {
+  heading?: string
+  items: AccreditorItem[]
+}
+
+// --- Brands section ---
+
+export interface BrandsSectionProps {
+  heading?: string
+  limit?: number
+}
+
+// --- Category Showcase section ---
+
+export interface CategoryShowcaseSectionProps {
+  title: string
+  categorySlug: string
+  themeColor: string
+  imageUrl?: string
+  limit?: number
+}
+
 // --- Discriminated union members ---
 
 interface SectionBase<T extends string, P> {
@@ -133,6 +164,9 @@ export type BenefitsSectionConfig = SectionBase<'benefits', BenefitsSectionProps
 export type CtaSectionConfig = SectionBase<'cta', CtaSectionProps>
 export type NewsletterSectionConfig = SectionBase<'newsletter', NewsletterSectionProps>
 export type PromoGridSectionConfig = SectionBase<'promo-grid', PromoGridSectionProps>
+export type AccreditorsSectionConfig = SectionBase<'accreditors', AccreditorsSectionProps>
+export type BrandsSectionConfig = SectionBase<'brands', BrandsSectionProps>
+export type CategoryShowcaseSectionConfig = SectionBase<'category-showcase', CategoryShowcaseSectionProps>
 
 export type SectionConfig =
   | HeroSectionConfig
@@ -143,6 +177,9 @@ export type SectionConfig =
   | CtaSectionConfig
   | NewsletterSectionConfig
   | PromoGridSectionConfig
+  | AccreditorsSectionConfig
+  | BrandsSectionConfig
+  | CategoryShowcaseSectionConfig
 
 export interface StorefrontBrandingLogo {
   src: string

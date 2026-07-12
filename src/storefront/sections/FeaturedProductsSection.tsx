@@ -40,11 +40,11 @@ export function FeaturedProductsSection({section}: { section: FeaturedProductsSe
                 <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
                     {Array.from({length: effectiveLimit}).map((_, i) => (
                         <div key={i} className="animate-pulse">
-                            <div className="bg-gray-200 aspect-square rounded"/>
-                            <div className="mt-2 h-4 bg-gray-200 rounded w-3/4"/>
-                            <div className="mt-1 h-3 bg-gray-200 rounded w-full"/>
-                            <div className="mt-1 h-3 bg-gray-200 rounded w-1/2"/>
-                            <div className="mt-2 h-4 bg-gray-200 rounded w-1/4"/>
+                            <div className="bg-(--sf-surface-muted) aspect-square rounded"/>
+                            <div className="mt-2 h-4 bg-(--sf-surface-muted) rounded w-3/4"/>
+                            <div className="mt-1 h-3 bg-(--sf-surface-muted) rounded w-full"/>
+                            <div className="mt-1 h-3 bg-(--sf-surface-muted) rounded w-1/2"/>
+                            <div className="mt-2 h-4 bg-(--sf-surface-muted) rounded w-1/4"/>
                         </div>
                     ))}
                 </div>
@@ -74,7 +74,7 @@ export function FeaturedProductsSection({section}: { section: FeaturedProductsSe
         return (
             <section className="py-12 px-6">
                 <h2 className="text-2xl font-bold mb-6">{title}</h2>
-                <p className="text-gray-500 text-center py-8">No featured products at this time.</p>
+                <p className="text-(--sf-muted-text) text-center py-8">No featured products at this time.</p>
             </section>
         )
     }
@@ -95,7 +95,7 @@ export function FeaturedProductsSection({section}: { section: FeaturedProductsSe
                         )}
                         <h3 className="mt-2 font-semibold text-sm">{product.name}</h3>
                         {product.shortDescription && (
-                            <p className={cn('text-xs text-gray-500 line-clamp-2')}>
+                            <p className={cn('text-xs text-(--sf-muted-text) line-clamp-2')}>
                                 {product.shortDescription}
                             </p>
                         )}

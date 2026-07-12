@@ -72,7 +72,7 @@ export function AccountRegisterPage() {
       return (
         <p className="text-sm text-red-600" role="alert">
           An account with this email already exists.{' '}
-          <Link to="/account/login" className="font-medium text-blue-600 underline hover:text-blue-500">
+          <Link to="/account/login" className="font-medium text-(--sf-accent) underline hover:opacity-80">
             Sign in instead
           </Link>
         </p>
@@ -108,10 +108,10 @@ export function AccountRegisterPage() {
     <div className="flex min-h-screen items-center justify-center px-4 py-12">
       <div className="w-full max-w-md space-y-8">
         <div className="text-center">
-          <h1 className="text-2xl font-bold tracking-tight text-gray-900">Create your account</h1>
-          <p className="mt-2 text-sm text-gray-600">
+          <h1 className="text-2xl font-bold tracking-tight text-(--sf-text)">Create your account</h1>
+          <p className="mt-2 text-sm text-(--sf-muted-text)">
             Already have an account?{' '}
-            <Link to="/account/login" className="font-medium text-blue-600 hover:text-blue-500">
+            <Link to="/account/login" className="font-medium text-(--sf-accent) hover:opacity-80">
               Sign in
             </Link>
           </p>
@@ -123,7 +123,7 @@ export function AccountRegisterPage() {
 
           {/* First name */}
           <div>
-            <label htmlFor="firstName" className="block text-sm font-medium text-gray-700">
+            <label htmlFor="firstName" className="block text-sm font-medium text-(--sf-text)">
               First name
             </label>
             <input
@@ -132,7 +132,7 @@ export function AccountRegisterPage() {
               autoComplete="given-name"
               aria-describedby={errors.firstName ? 'firstName-error' : undefined}
               aria-invalid={!!errors.firstName}
-              className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 text-sm shadow-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
+              className="mt-1 block w-full rounded-md border border-(--sf-border) px-3 py-2 text-sm shadow-sm focus:border-(--sf-ring) focus:outline-none focus:ring-1 focus:ring-(--sf-ring)"
               {...registerField('firstName')}
             />
             {errors.firstName && (
@@ -144,7 +144,7 @@ export function AccountRegisterPage() {
 
           {/* Last name */}
           <div>
-            <label htmlFor="lastName" className="block text-sm font-medium text-gray-700">
+            <label htmlFor="lastName" className="block text-sm font-medium text-(--sf-text)">
               Last name
             </label>
             <input
@@ -153,7 +153,7 @@ export function AccountRegisterPage() {
               autoComplete="family-name"
               aria-describedby={errors.lastName ? 'lastName-error' : undefined}
               aria-invalid={!!errors.lastName}
-              className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 text-sm shadow-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
+              className="mt-1 block w-full rounded-md border border-(--sf-border) px-3 py-2 text-sm shadow-sm focus:border-(--sf-ring) focus:outline-none focus:ring-1 focus:ring-(--sf-ring)"
               {...registerField('lastName')}
             />
             {errors.lastName && (
@@ -165,7 +165,7 @@ export function AccountRegisterPage() {
 
           {/* Email */}
           <div>
-            <label htmlFor="email" className="block text-sm font-medium text-gray-700">
+            <label htmlFor="email" className="block text-sm font-medium text-(--sf-text)">
               Email address
             </label>
             <input
@@ -174,7 +174,7 @@ export function AccountRegisterPage() {
               autoComplete="email"
               aria-describedby={errors.email ? 'email-error' : undefined}
               aria-invalid={!!errors.email}
-              className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 text-sm shadow-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
+              className="mt-1 block w-full rounded-md border border-(--sf-border) px-3 py-2 text-sm shadow-sm focus:border-(--sf-ring) focus:outline-none focus:ring-1 focus:ring-(--sf-ring)"
               {...registerField('email')}
             />
             {errors.email && (
@@ -186,7 +186,7 @@ export function AccountRegisterPage() {
 
           {/* Password */}
           <div>
-            <label htmlFor="password" className="block text-sm font-medium text-gray-700">
+            <label htmlFor="password" className="block text-sm font-medium text-(--sf-text)">
               Password
             </label>
             <div className="relative mt-1">
@@ -196,13 +196,13 @@ export function AccountRegisterPage() {
                 autoComplete="new-password"
                 aria-describedby={errors.password ? 'password-error' : undefined}
                 aria-invalid={!!errors.password}
-                className="block w-full rounded-md border border-gray-300 px-3 py-2 pr-10 text-sm shadow-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
+                className="block w-full rounded-md border border-(--sf-border) px-3 py-2 pr-10 text-sm shadow-sm focus:border-(--sf-ring) focus:outline-none focus:ring-1 focus:ring-(--sf-ring)"
                 {...registerField('password')}
               />
               <button
                 type="button"
                 onClick={() => setShowPassword((prev) => !prev)}
-                className="absolute inset-y-0 right-0 flex items-center pr-3 text-gray-400 hover:text-gray-600"
+                className="absolute inset-y-0 right-0 flex items-center pr-3 text-(--sf-muted-text) hover:text-(--sf-text)"
                 aria-label={showPassword ? 'Hide password' : 'Show password'}
               >
                 {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
@@ -217,7 +217,7 @@ export function AccountRegisterPage() {
 
           {/* Confirm password */}
           <div>
-            <label htmlFor="confirmPassword" className="block text-sm font-medium text-gray-700">
+            <label htmlFor="confirmPassword" className="block text-sm font-medium text-(--sf-text)">
               Confirm password
             </label>
             <div className="relative mt-1">
@@ -227,13 +227,13 @@ export function AccountRegisterPage() {
                 autoComplete="new-password"
                 aria-describedby={errors.confirmPassword ? 'confirmPassword-error' : undefined}
                 aria-invalid={!!errors.confirmPassword}
-                className="block w-full rounded-md border border-gray-300 px-3 py-2 pr-10 text-sm shadow-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
+                className="block w-full rounded-md border border-(--sf-border) px-3 py-2 pr-10 text-sm shadow-sm focus:border-(--sf-ring) focus:outline-none focus:ring-1 focus:ring-(--sf-ring)"
                 {...registerField('confirmPassword')}
               />
               <button
                 type="button"
                 onClick={() => setShowConfirmPassword((prev) => !prev)}
-                className="absolute inset-y-0 right-0 flex items-center pr-3 text-gray-400 hover:text-gray-600"
+                className="absolute inset-y-0 right-0 flex items-center pr-3 text-(--sf-muted-text) hover:text-(--sf-text)"
                 aria-label={showConfirmPassword ? 'Hide password' : 'Show password'}
               >
                 {showConfirmPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
@@ -250,7 +250,7 @@ export function AccountRegisterPage() {
           <button
             type="submit"
             disabled={isPending}
-            className="flex w-full items-center justify-center rounded-md bg-blue-600 px-4 py-2 text-sm font-medium text-white shadow-sm hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
+            className="flex w-full items-center justify-center rounded-md bg-(--sf-accent) px-4 py-2 text-sm font-medium text-(--sf-accent-text) shadow-sm hover:opacity-90 focus:outline-none focus:ring-2 focus:ring-(--sf-ring) focus:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
           >
             {isPending && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
             {isPending ? 'Creating account…' : 'Create account'}
@@ -260,10 +260,10 @@ export function AccountRegisterPage() {
         {/* Divider */}
         <div className="relative">
           <div className="absolute inset-0 flex items-center">
-            <div className="w-full border-t border-gray-300" />
+            <div className="w-full border-t border-(--sf-border)" />
           </div>
           <div className="relative flex justify-center text-sm">
-            <span className="bg-white px-2 text-gray-500">Or</span>
+            <span className="bg-(--sf-panel) px-2 text-(--sf-muted-text)">Or</span>
           </div>
         </div>
 

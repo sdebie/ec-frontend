@@ -8,12 +8,12 @@ export function WishlistPage() {
   if (isLoading) {
     return (
       <div className="space-y-6">
-        <h1 className="text-2xl font-semibold text-gray-900">Wishlist</h1>
+        <h1 className="text-2xl font-semibold text-(--sf-text)">Wishlist</h1>
         <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
           {Array.from({ length: 6 }).map((_, i) => (
             <div
               key={i}
-              className="h-48 animate-pulse rounded-lg bg-gray-200"
+              className="h-48 animate-pulse rounded-lg bg-(--sf-surface-muted)"
             />
           ))}
         </div>
@@ -26,12 +26,12 @@ export function WishlistPage() {
   if (variantIds.length === 0) {
     return (
       <div className="space-y-6">
-        <h1 className="text-2xl font-semibold text-gray-900">Wishlist</h1>
-        <div className="rounded-lg border border-gray-200 p-8 text-center">
-          <p className="text-gray-500">Your wishlist is empty</p>
+        <h1 className="text-2xl font-semibold text-(--sf-text)">Wishlist</h1>
+        <div className="rounded-lg border border-(--sf-border) p-8 text-center">
+          <p className="text-(--sf-muted-text)">Your wishlist is empty</p>
           <Link
             to="/products"
-            className="mt-3 inline-block text-sm font-medium text-blue-600 hover:text-blue-500"
+            className="mt-3 inline-block text-sm font-medium text-(--sf-accent) hover:opacity-80"
           >
             Browse products
           </Link>
@@ -42,19 +42,19 @@ export function WishlistPage() {
 
   return (
     <div className="space-y-6">
-      <h1 className="text-2xl font-semibold text-gray-900">Wishlist</h1>
+      <h1 className="text-2xl font-semibold text-(--sf-text)">Wishlist</h1>
       <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
         {variantIds.map((variantId) => (
           <div
             key={variantId}
-            className="relative rounded-lg border border-gray-200 p-4"
+            className="relative rounded-lg border border-(--sf-border) p-4"
           >
             <div className="flex items-start justify-between">
               <div className="min-w-0 flex-1">
-                <p className="truncate text-sm font-medium text-gray-900">
+                <p className="truncate text-sm font-medium text-(--sf-text)">
                   Variant
                 </p>
-                <p className="mt-1 truncate text-xs text-gray-500">
+                <p className="mt-1 truncate text-xs text-(--sf-muted-text)">
                   {variantId}
                 </p>
               </div>

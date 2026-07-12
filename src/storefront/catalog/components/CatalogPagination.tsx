@@ -27,12 +27,12 @@ export function CatalogPagination({
             type="button"
             disabled={isFirstPage}
             onClick={() => onPageChange(page - 1)}
-            className="rounded-md border border-gray-300 bg-white px-4 py-2 text-sm font-medium text-gray-700 transition-colors hover:bg-gray-50 disabled:cursor-not-allowed disabled:opacity-50"
+            className="rounded-md border border-(--sf-border) bg-(--sf-panel) px-4 py-2 text-sm font-medium text-(--sf-text) transition-colors hover:bg-(--sf-surface-muted) disabled:cursor-not-allowed disabled:opacity-50"
           >
             Previous
           </button>
 
-          <span className="text-sm text-gray-700">
+          <span className="text-sm text-(--sf-text)">
             Page {page} of {totalPages}
           </span>
 
@@ -40,14 +40,14 @@ export function CatalogPagination({
             type="button"
             disabled={isLastPage}
             onClick={() => onPageChange(page + 1)}
-            className="rounded-md border border-gray-300 bg-white px-4 py-2 text-sm font-medium text-gray-700 transition-colors hover:bg-gray-50 disabled:cursor-not-allowed disabled:opacity-50"
+            className="rounded-md border border-(--sf-border) bg-(--sf-panel) px-4 py-2 text-sm font-medium text-(--sf-text) transition-colors hover:bg-(--sf-surface-muted) disabled:cursor-not-allowed disabled:opacity-50"
           >
             Next
           </button>
         </div>
       )}
 
-      <p className="text-sm text-gray-500">
+      <p className="text-sm text-(--sf-muted-text)">
         Showing {start}–{end} of {totalElements} products
       </p>
     </div>

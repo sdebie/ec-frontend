@@ -15,7 +15,7 @@ export function StorefrontNavLink({ item }: StorefrontNavLinkProps) {
         href={item.path}
         target="_blank"
         rel="noopener noreferrer"
-        className="text-sm hover:underline"
+        className="text-sm transition-colors hover:underline hover:text-(--sf-nav-text-hover)"
       >
         {item.label}
       </a>
@@ -26,7 +26,7 @@ export function StorefrontNavLink({ item }: StorefrontNavLinkProps) {
     <NavLink
       to={item.path}
       className={({ isActive }) =>
-        cn('text-sm hover:underline', isActive && 'font-semibold')
+        cn('text-sm transition-colors hover:underline hover:text-(--sf-nav-text-hover)', isActive && 'font-semibold')
       }
     >
       {item.label}

@@ -36,11 +36,11 @@ export function HeroSection({section}: { section: HeroSectionConfig }) {
                     contentAlignment === 'right' && 'text-right ml-auto',
                 )}
             >
-                <h2 className={cn('text-4xl font-bold leading-tight', darkStyle ? 'text-white' : 'text-gray-900')}>
+                <h2 className={cn('text-4xl font-bold leading-tight', darkStyle ? 'text-white' : 'text-(--sf-text)')}>
                     {title}
                 </h2>
                 {subtitle && (
-                    <p className={cn('mt-4 text-lg', darkStyle ? 'text-gray-200' : 'text-gray-600')}>
+                    <p className={cn('mt-4 text-lg', darkStyle ? 'text-gray-200' : 'text-(--sf-muted-text)')}>
                         {subtitle}
                     </p>
                 )}
@@ -48,15 +48,26 @@ export function HeroSection({section}: { section: HeroSectionConfig }) {
                     <div
                         className={cn(
                             'mt-8 flex flex-wrap gap-4',
+                            darkStyle ? 'text-white' : 'text-(--sf-text)',
                             contentAlignment === 'center' && 'justify-center',
                             contentAlignment === 'right' && 'justify-end',
                         )}
                     >
                         {primaryCta && (
-                            <Link to={primaryCta.to} className="btn-primary">{primaryCta.label}</Link>
+                            <Link
+                                to={primaryCta.to}
+                                className="inline-block rounded-md bg-(--sf-accent) px-6 py-3 text-sm font-semibold text-(--sf-accent-text) shadow-sm hover:opacity-90"
+                            >
+                                {primaryCta.label}
+                            </Link>
                         )}
                         {secondaryCta && (
-                            <Link to={secondaryCta.to} className="btn-secondary">{secondaryCta.label}</Link>
+                            <Link
+                                to={secondaryCta.to}
+                                className="inline-block rounded-md border border-current px-6 py-3 text-sm font-semibold hover:opacity-80"
+                            >
+                                {secondaryCta.label}
+                            </Link>
                         )}
                     </div>
                 )}

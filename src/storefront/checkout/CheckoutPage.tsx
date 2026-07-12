@@ -66,13 +66,13 @@ export function CheckoutPage() {
   if (!session) {
     return (
       <div className="mx-auto max-w-lg px-4 py-16 text-center">
-        <h1 className="text-xl font-semibold text-gray-900">Session expired</h1>
-        <p className="mt-2 text-gray-600">
+        <h1 className="text-xl font-semibold text-(--sf-text)">Session expired</h1>
+        <p className="mt-2 text-(--sf-muted-text)">
           Your checkout session has expired. Return to cart to start again.
         </p>
         <Link
           to="/cart"
-          className="mt-4 inline-block rounded-md bg-black px-4 py-2 text-sm font-medium text-white hover:bg-gray-800"
+          className="mt-4 inline-block rounded-md bg-(--sf-accent) px-4 py-2 text-sm font-medium text-(--sf-accent-text) hover:opacity-90"
         >
           Return to cart
         </Link>
@@ -145,7 +145,7 @@ export function CheckoutPage() {
 
   return (
     <div className="mx-auto max-w-5xl px-4 py-8">
-      <h1 className="text-2xl font-bold text-gray-900 mb-8">Checkout</h1>
+      <h1 className="text-2xl font-bold text-(--sf-text) mb-8">Checkout</h1>
 
       <FormProvider {...methods}>
         <form onSubmit={handleSubmit(onSubmit)} noValidate>
@@ -182,7 +182,7 @@ export function CheckoutPage() {
               <button
                 type="submit"
                 disabled={isSubmitting || (paymentMethods?.length === 0)}
-                className="w-full rounded-md bg-black px-6 py-3 text-sm font-medium text-white hover:bg-gray-800 disabled:opacity-50 disabled:cursor-not-allowed"
+                className="w-full rounded-md bg-(--sf-accent) px-6 py-3 text-sm font-medium text-(--sf-accent-text) hover:opacity-90 disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 {isSubmitting ? 'Processing…' : 'Place order'}
               </button>

@@ -10,10 +10,10 @@ export function BenefitsSection({section}: { section: BenefitsSectionConfig }) {
                 {items.map((item) => (
                     <article
                         key={item.title}
-                        className="rounded-lg border border-gray-200 bg-white p-5 shadow-sm"
+                        className="rounded-lg border border-(--sf-border) bg-(--sf-panel) p-5 shadow-sm"
                     >
                         <h3 className="font-medium">{item.title}</h3>
-                        <p className="mt-2 text-sm text-gray-600">{item.description}</p>
+                        <p className="mt-2 text-sm text-(--sf-muted-text)">{item.description}</p>
                     </article>
                 ))}
             </div>

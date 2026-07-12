@@ -40,8 +40,8 @@ export function ShippingSection({ control, watch, errors, setValue }: ShippingSe
           Shipping method
         </h2>
         <div className="animate-pulse space-y-3">
-          <div className="h-12 bg-gray-200 rounded" />
-          <div className="h-12 bg-gray-200 rounded" />
+          <div className="h-12 bg-(--sf-surface-muted) rounded" />
+          <div className="h-12 bg-(--sf-surface-muted) rounded" />
         </div>
       </section>
     )
@@ -85,8 +85,8 @@ export function ShippingSection({ control, watch, errors, setValue }: ShippingSe
                   key={method.id}
                   className={`flex items-center justify-between p-3 border rounded-md cursor-pointer transition-colors ${
                     field.value === method.id
-                      ? 'border-blue-500 bg-blue-50'
-                      : 'border-gray-200 hover:border-gray-300'
+                      ? 'border-(--sf-accent) bg-(--sf-surface-muted)'
+                      : 'border-(--sf-border) hover:border-(--sf-accent)'
                   }`}
                 >
                   <div className="flex items-center gap-3">
@@ -96,20 +96,20 @@ export function ShippingSection({ control, watch, errors, setValue }: ShippingSe
                       value={method.id}
                       checked={field.value === method.id}
                       onChange={() => field.onChange(method.id)}
-                      className="h-4 w-4 text-blue-600 border-gray-300 focus:ring-blue-500"
+                      className="h-4 w-4 accent-(--sf-accent) border-(--sf-border) focus:ring-(--sf-ring)"
                     />
                     <div>
-                      <span className="text-sm font-medium text-gray-900">
+                      <span className="text-sm font-medium text-(--sf-text)">
                         {method.name}
                       </span>
                       {method.estimatedDays && (
-                        <span className="ml-2 text-xs text-gray-500">
+                        <span className="ml-2 text-xs text-(--sf-muted-text)">
                           ({method.estimatedDays} days)
                         </span>
                       )}
                     </div>
                   </div>
-                  <span className="text-sm font-medium text-gray-700">
+                  <span className="text-sm font-medium text-(--sf-text)">
                     {formatAmount(method.baseFee, currency, locale)}
                   </span>
                 </label>
@@ -124,7 +124,7 @@ export function ShippingSection({ control, watch, errors, setValue }: ShippingSe
 
       {showAddressForm && (
         <div className="mt-4 space-y-3">
-          <h3 className="text-sm font-medium text-gray-700">Delivery address</h3>
+          <h3 className="text-sm font-medium text-(--sf-text)">Delivery address</h3>
 
           <div>
             <Controller
@@ -137,8 +137,8 @@ export function ShippingSection({ control, watch, errors, setValue }: ShippingSe
                   placeholder="Street address"
                   aria-label="Street address"
                   aria-invalid={!!errors.streetAddress}
-                  className={`w-full px-3 py-2 border rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 ${
-                    errors.streetAddress ? 'border-red-500' : 'border-gray-300'
+                  className={`w-full px-3 py-2 border rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-(--sf-ring) ${
+                    errors.streetAddress ? 'border-red-500' : 'border-(--sf-border)'
                   }`}
                 />
               )}
@@ -159,8 +159,8 @@ export function ShippingSection({ control, watch, errors, setValue }: ShippingSe
                   placeholder="City"
                   aria-label="City"
                   aria-invalid={!!errors.city}
-                  className={`w-full px-3 py-2 border rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 ${
-                    errors.city ? 'border-red-500' : 'border-gray-300'
+                  className={`w-full px-3 py-2 border rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-(--sf-ring) ${
+                    errors.city ? 'border-red-500' : 'border-(--sf-border)'
                   }`}
                 />
               )}
@@ -181,8 +181,8 @@ export function ShippingSection({ control, watch, errors, setValue }: ShippingSe
                   placeholder="Province"
                   aria-label="Province"
                   aria-invalid={!!errors.province}
-                  className={`w-full px-3 py-2 border rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 ${
-                    errors.province ? 'border-red-500' : 'border-gray-300'
+                  className={`w-full px-3 py-2 border rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-(--sf-ring) ${
+                    errors.province ? 'border-red-500' : 'border-(--sf-border)'
                   }`}
                 />
               )}
@@ -203,8 +203,8 @@ export function ShippingSection({ control, watch, errors, setValue }: ShippingSe
                   placeholder="Postal code"
                   aria-label="Postal code"
                   aria-invalid={!!errors.postalCode}
-                  className={`w-full px-3 py-2 border rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 ${
-                    errors.postalCode ? 'border-red-500' : 'border-gray-300'
+                  className={`w-full px-3 py-2 border rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-(--sf-ring) ${
+                    errors.postalCode ? 'border-red-500' : 'border-(--sf-border)'
                   }`}
                 />
               )}

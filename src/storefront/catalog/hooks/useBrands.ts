@@ -6,6 +6,7 @@ interface Brand {
   id: string
   name: string
   slug: string
+  logoUrl: string | null
 }
 
 interface GetBrandsResponse {
@@ -22,6 +23,7 @@ const GET_BRANDS = gql`
         id
         name
         slug
+        logoUrl
       }
       totalElements
     }

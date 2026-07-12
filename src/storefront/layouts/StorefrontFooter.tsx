@@ -1,6 +1,7 @@
 import { Globe } from 'lucide-react'
 import { Link } from 'react-router-dom'
 import { useStorefrontConfig } from '@/shared/config/storefrontConfig.context'
+import { resolveImageUrl } from '@/shared/utils/imageUrl'
 import {
   IconFacebook,
   IconInstagram,
@@ -93,7 +94,7 @@ export function StorefrontFooter() {
           <div className="lg:col-span-4">
             {branding.logo && (
               <img
-                src={branding.logo.src}
+                src={resolveImageUrl(branding.logo.src) ?? branding.logo.src}
                 alt={branding.logo.alt}
                 width={branding.logo.width}
                 height={branding.logo.height}
