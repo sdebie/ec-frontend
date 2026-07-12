@@ -84,12 +84,12 @@ export function ProductCard({product}: ProductCardProps) {
                 <div className="mt-auto flex items-center gap-2 pt-2">
                     {originalPrice != null && (
                         <span className="line-through text-(--sf-muted-text)">
-              {formatAmount(originalPrice, currency, locale)}
-            </span>
+                            {formatAmount(originalPrice, currency, locale)}
+                        </span>
                     )}
                     <span className="font-semibold">
-            {formatAmount(price, currency, locale)}
-          </span>
+                        {formatAmount(price, currency, locale)}
+                    </span>
                 </div>
             </div>
         </Link>

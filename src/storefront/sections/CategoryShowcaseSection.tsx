@@ -76,23 +76,26 @@ export function CategoryShowcaseSection({section}: { section: CategoryShowcaseSe
     return (
         <section style={gradientStyle}>
             <div className="max-w-7xl mx-auto px-4 py-10">
-                {resolvedImageSrc && (
-                    <img
-                        src={resolvedImageSrc}
-                        alt=""
-                        aria-hidden="true"
-                        className="mb-4 h-16 w-auto object-contain"
-                    />
-                )}
-
                 <h2 className="text-2xl font-bold mb-6">{title}</h2>
 
-                <div className="flex items-stretch gap-4 overflow-x-auto py-2">
-                    {displayProducts.map((product) => (
-                        <div key={product.id} className="w-56 shrink-0">
-                            <ProductCard product={product}/>
+                <div className="mb-4 flex items-stretch gap-8">
+                    {resolvedImageSrc && (
+                        <div className="flex w-64 shrink-0 items-center justify-center">
+                            <img
+                                src={resolvedImageSrc}
+                                alt=""
+                                aria-hidden="true"
+                                className="max-h-112 w-full object-contain"
+                            />
                         </div>
-                    ))}
+                    )}
+                    <div className="flex min-w-0 flex-1 items-stretch gap-4 overflow-x-auto py-2">
+                        {displayProducts.map((product) => (
+                            <div key={product.id} className="w-56 shrink-0">
+                                <ProductCard product={product}/>
+                            </div>
+                        ))}
+                    </div>
                 </div>
             </div>
         </section>
