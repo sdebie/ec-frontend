@@ -1,5 +1,6 @@
 import {Link} from 'react-router-dom'
 import {cn} from '@/shared/utils/cn'
+import {resolveImageUrl} from '@/shared/utils/imageUrl'
 import type {HeroSectionConfig} from '@/shared/types/StorefrontConfig'
 
 export function HeroSection({section}: { section: HeroSectionConfig }) {
@@ -14,15 +15,21 @@ export function HeroSection({section}: { section: HeroSectionConfig }) {
         darkStyle = false,
     } = section.props
 
+    // Storage-relative paths (e.g. "storefront/hero-warehouse.jpg") must go through
+    // resolveImageUrl() before use, same rule the header/footer follow — otherwise
+    // the browser resolves the URL relative to the current page and 404s. Absolute
+    // URLs and already-resolved paths are passed through untouched.
+    const resolvedBackground = resolveImageUrl(backgroundImageUrl ?? null) ?? backgroundImageUrl
+
     return (
         <section
             aria-label={title}
             className={cn('relative flex items-center justify-center min-h-[480px] px-6 py-20', {
-                'bg-cover bg-center': !!backgroundImageUrl,
+                'bg-cover bg-center': !!resolvedBackground,
             })}
-            style={backgroundImageUrl ? {backgroundImage: `url(${backgroundImageUrl})`} : undefined}
+            style={resolvedBackground ? {backgroundImage: `url(${resolvedBackground})`} : undefined}
         >
-            {backgroundImageUrl && (
+            {resolvedBackground && (
                 <div
                     className="absolute inset-0 bg-black"
                     style={{opacity: overlayOpacity}}
