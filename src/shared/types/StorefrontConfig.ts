@@ -144,6 +144,14 @@ export interface CategoryShowcaseSectionProps {
   title: string
   categorySlug: string
   themeColor: string
+  /**
+   * Optional full CSS `background` value (typically a `linear-gradient(...)` string)
+   * that overrides the themeColor-derived gradient. Lets each row carry its own
+   * multi-stop gradient from the DB without hardcoding client-specific colours
+   * in the component. When absent, the component falls back to a gradient
+   * derived from `themeColor`.
+   */
+  gradient?: string
   imageUrl?: string
   limit?: number
 }

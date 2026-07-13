@@ -20,7 +20,7 @@ function resolveThemeColor(raw: string): string {
 }
 
 export function CategoryShowcaseSection({section}: { section: CategoryShowcaseSectionConfig }) {
-    const {title, categorySlug, themeColor, imageUrl, limit} = section.props
+    const {title, categorySlug, themeColor, gradient, imageUrl, limit} = section.props
 
     // Step 1: resolve slug → category ID
     const {categories, isLoading: categoriesLoading} = useCategories()
@@ -65,10 +65,15 @@ export function CategoryShowcaseSection({section}: { section: CategoryShowcaseSe
         return null
     }
 
-    // Validate themeColor and build gradient
+    // Prefer the DB-provided full gradient (from section.props.gradient) when set,
+    // so each row's multi-stop brand gradient is authored in the seed rather than
+    // derived in code. Fall back to a themeColor-based gradient for backward
+    // compatibility with clients that only supply a single hex.
     const validColor = resolveThemeColor(themeColor)
     const gradientStyle = {
-        background: `linear-gradient(135deg, ${validColor}22 0%, ${validColor}08 100%)`,
+        background: gradient && gradient.trim().length > 0
+            ? gradient
+            : `linear-gradient(135deg, ${validColor}22 0%, ${validColor}08 100%)`,
     }
 
     const resolvedImageSrc = resolveImageUrl(imageUrl ?? null)
@@ -76,7 +81,7 @@ export function CategoryShowcaseSection({section}: { section: CategoryShowcaseSe
     return (
         <section style={gradientStyle}>
             <div className="max-w-7xl mx-auto px-4 py-10">
-                <h2 className="text-2xl font-bold mb-6">{title}</h2>
+                <h2 className="text-2xl font-bold mb-4 text-(--sf-accent-text) drop-shadow-md">{title}</h2>
 
                 <div className="mb-4 flex items-stretch gap-8">
                     {resolvedImageSrc && (
