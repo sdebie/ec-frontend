@@ -55,7 +55,7 @@ export function AccreditorsSection({section}: { section: AccreditorsSectionConfi
     return (
         <section className="py-12 px-6 sm:px-8">
             {heading && (
-                <h2 className="mb-6 text-center text-2xl font-semibold">{heading}</h2>
+                <h2 className="mb-6 text-2xl font-semibold">{heading}</h2>
             )}
             <div className="mx-auto flex max-w-5xl flex-wrap items-center justify-center gap-4 sm:gap-5">
                 {items.map((item) => (
