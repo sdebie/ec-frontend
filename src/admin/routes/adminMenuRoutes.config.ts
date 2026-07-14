@@ -282,6 +282,21 @@ export const adminMenuRoutes: AdminRouteList = [
         },
     },
     {
+        key: 'admin.storefront.featured-products',
+        path: '/admin/storefront/featured-products',
+        component: lazy(() =>
+            import('@/admin/pages/storefront-config/FeaturedProductsPage').then((m) => ({default: m.FeaturedProductsPage}))
+        ),
+        authority: ['SUPER_ADMIN', 'VIEWER'],
+        meta: {
+            label: 'Featured Products',
+            section: 'STOREFRONT',
+            pageBackgroundType: 'plain',
+            pageContainerType: 'contained',
+            icon: 'star',
+        },
+    },
+    {
         key: 'admin.settings',
         path: '/admin/settings',
         authority: ['SUPER_ADMIN', 'CATALOG_MANAGER', 'ORDER_MANAGER', 'VIEWER'],
