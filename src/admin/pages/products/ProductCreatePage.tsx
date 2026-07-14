@@ -6,13 +6,13 @@ import { useBreadcrumb } from '@/admin/context/BreadcrumbContext'
 import { useCreateProduct } from '@/admin/hooks/products/useCreateProduct'
 import { useCategories } from '@/admin/hooks/products/useCategories'
 import { useMediaUpload, useMediaDelete } from '@/admin/hooks/media'
-import { ProductForm } from './components/ProductForm'
+import { ProductForm, toProductPayload } from './components/ProductForm'
 import type { ProductFormValues } from './components/ProductForm'
 
 export function ProductCreatePage() {
   const navigate = useNavigate()
   const { mutate: createProduct, isLoading } = useCreateProduct()
-  const { data: categories = [], isLoading: categoriesLoading } = useCategories()
+  const { data: categories = [] } = useCategories()
   const { upload } = useMediaUpload()
   const { remove } = useMediaDelete()
   const [serverErrors, setServerErrors] = useState<Record<string, string>>({})
@@ -26,7 +26,7 @@ export function ProductCreatePage() {
   const handleSubmit = (values: ProductFormValues) => {
     setServerErrors({})
 
-    createProduct(values, {
+    createProduct(toProductPayload(values), {
       onSuccess: () => {
         toast.success('Product created successfully')
         navigate('/admin/products')

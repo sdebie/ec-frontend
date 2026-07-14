@@ -10,7 +10,7 @@ let mockState: { mutate: typeof mockMutate; isPending: boolean } = {
     isPending: false,
 }
 
-vi.mock('./useWholesaleApplicationSubmit', () => ({
+vi.mock('../useWholesaleApplicationSubmit', () => ({
     useWholesaleApplicationSubmit: () => mockState,
 }))
 

@@ -9,6 +9,7 @@
     "lint": "eslint .",
     "preview": "vite preview",
     "codegen": "graphql-codegen --config codegen.ts",
+    "schema:refresh": "curl -sf ${GRAPHQL_URL:-http://localhost:8080/api/graphql/schema.graphql} -o src/shared/api/graphql/schema.graphql && echo \"schema.graphql updated from ${GRAPHQL_URL:-http://localhost:8080/api/graphql/schema.graphql}\"",
     "test": "vitest --run"
   },
   "dependencies": {

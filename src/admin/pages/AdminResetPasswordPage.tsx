@@ -1,6 +1,5 @@
 import { useForm } from 'react-hook-form'
 import { useLocation, useNavigate } from 'react-router-dom'
-import { useAdminAuthStore } from '@/shared/auth/adminAuthStore'
 import { useAdminResetPassword } from '@/admin/hooks/auth/useAdminResetPassword'
 import { useAdminLogin } from '@/admin/hooks/auth/useAdminLogin'
 
@@ -16,7 +15,6 @@ export function AdminResetPasswordPage() {
 
   const { mutate: resetPassword, isPending, error } = useAdminResetPassword()
   const { mutate: login } = useAdminLogin()
-  const setSession = useAdminAuthStore((s) => s.setSession)
 
   const {
     register,

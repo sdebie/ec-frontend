@@ -40,10 +40,9 @@ export function MenuTrigger({ children, asChild, className }: MenuTriggerProps) 
   const { toggle, isOpen } = useMenu()
 
   if (asChild && React.isValidElement(children)) {
-    const child = children as React.ReactElement<{
-      onClick?: (e: React.MouseEvent) => void
-      className?: string
-    }>
+    const child = children as React.ReactElement<
+      React.HTMLAttributes<HTMLElement> & { onClick?: (e: React.MouseEvent) => void }
+    >
 
     return React.cloneElement(child, {
       onClick: (e: React.MouseEvent) => {
@@ -53,7 +52,7 @@ export function MenuTrigger({ children, asChild, className }: MenuTriggerProps) 
       className: cn(child.props.className, className),
       'aria-expanded': isOpen,
       'aria-haspopup': 'menu',
-    } as React.HTMLAttributes<HTMLElement>)
+    })
   }
 
   return (

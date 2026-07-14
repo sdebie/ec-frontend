@@ -6,15 +6,17 @@ import {QueryClient, QueryClientProvider} from '@tanstack/react-query'
 import {StorefrontConfigContext} from '@/shared/config/storefrontConfig.context.ts'
 import type {FeaturedProductsSectionConfig, StorefrontConfig} from '@/shared/types/StorefrontConfig.ts'
 import {FeaturedProductsSection} from '../FeaturedProductsSection.tsx'
-import {storefrontHttpClient} from '@/shared/api/http/storefrontHttpClient.ts'
+import {graphqlClient} from '@/shared/api/graphql/graphqlClient.ts'
 
-vi.mock('@/shared/api/http/storefrontHttpClient', () => ({
-    storefrontHttpClient: {
-        get: vi.fn(),
+// The section fetches via useFeaturedShoppingProducts, which calls
+// graphqlClient.request(SHOPPING_FEATURED_PRODUCT_LIST). Mock at that boundary.
+vi.mock('@/shared/api/graphql/graphqlClient', () => ({
+    graphqlClient: {
+        request: vi.fn(),
     },
 }))
 
-const mockedGet = vi.mocked(storefrontHttpClient.get)
+const mockedRequest = vi.mocked(graphqlClient.request)
 
 const section: FeaturedProductsSectionConfig = {
     id: 'featured-1',
@@ -25,17 +27,35 @@ const section: FeaturedProductsSectionConfig = {
     },
 }
 
+// FeaturedProduct wire shape returned by shoppingFeaturedProductList.
 const mockProducts = [
     {
         id: '1',
         name: 'Product One',
         slug: 'product-one',
-        retailPrice: 299.99,
         shortDescription: 'A great product',
-        primaryImageUrl: '/img/p1.jpg'
+        images: [{imageUrl: 'images/p1.jpg', featured: true, sortOrder: 0}],
+        retailPrice: {price: 299.99},
+        wholesalePrice: null,
+        retailSalePrice: null,
+        wholesaleSalePrice: null,
     },
-    {id: '2', name: 'Product Two', slug: 'product-two', retailPrice: 149.50, primaryImageUrl: '/img/p2.jpg'},
+    {
+        id: '2',
+        name: 'Product Two',
+        slug: 'product-two',
+        shortDescription: '',
+        images: [{imageUrl: 'images/p2.jpg', featured: true, sortOrder: 0}],
+        retailPrice: {price: 149.5},
+        wholesalePrice: null,
+        retailSalePrice: null,
+        wholesaleSalePrice: null,
+    },
 ]
+
+function resolve(products: typeof mockProducts) {
+    return {shoppingFeaturedProductList: products}
+}
 
 const storefrontConfig: StorefrontConfig = {
     branding: {
@@ -47,7 +67,7 @@ const storefrontConfig: StorefrontConfig = {
     locale: 'en-ZA',
     theme: {},
     nav: [],
-    sections: []
+    sections: [],
 }
 
 function createQueryClient() {
@@ -69,7 +89,7 @@ function renderComponent(sectionConfig: FeaturedProductsSectionConfig = section)
                     <FeaturedProductsSection section={sectionConfig}/>
                 </MemoryRouter>
             </StorefrontConfigContext.Provider>
-        </QueryClientProvider>
+        </QueryClientProvider>,
     )
 }
 
@@ -79,7 +99,7 @@ describe('FeaturedProductsSection', () => {
     })
 
     it('renders skeleton cards matching limit count during loading state', () => {
-        mockedGet.mockReturnValue(new Promise(() => {
+        mockedRequest.mockReturnValue(new Promise(() => {
         })) // Never resolves — stays in loading
 
         const {container} = renderComponent()
@@ -89,7 +109,7 @@ describe('FeaturedProductsSection', () => {
     })
 
     it('renders error message and "Try again" button on fetch error', async () => {
-        mockedGet.mockRejectedValueOnce(new Error('Network error'))
+        mockedRequest.mockRejectedValueOnce(new Error('Network error'))
 
         renderComponent()
 
@@ -101,7 +121,7 @@ describe('FeaturedProductsSection', () => {
     })
 
     it('clicking "Try again" triggers refetch', async () => {
-        mockedGet.mockRejectedValueOnce(new Error('Network error'))
+        mockedRequest.mockRejectedValueOnce(new Error('Network error'))
 
         renderComponent()
 
@@ -109,28 +129,33 @@ describe('FeaturedProductsSection', () => {
             expect(screen.getByRole('button', {name: 'Try again'})).toBeInTheDocument()
         })
 
-        mockedGet.mockResolvedValueOnce({data: mockProducts})
+        mockedRequest.mockResolvedValueOnce(resolve(mockProducts))
 
         const user = userEvent.setup()
         await user.click(screen.getByRole('button', {name: 'Try again'}))
 
         await waitFor(() => {
-            expect(mockedGet).toHaveBeenCalledTimes(2)
+            expect(mockedRequest).toHaveBeenCalledTimes(2)
         })
     })
 
-    it('renders empty state message when API returns empty array', async () => {
-        mockedGet.mockResolvedValueOnce({data: []})
+    it('renders nothing when the list is empty', async () => {
+        mockedRequest.mockResolvedValueOnce(resolve([]))
 
-        renderComponent()
+        const {container} = renderComponent()
 
+        // Empty result → the section renders null (no title, no section element).
         await waitFor(() => {
-            expect(screen.getByText('No featured products at this time.')).toBeInTheDocument()
+            expect(mockedRequest).toHaveBeenCalled()
         })
+        await waitFor(() => {
+            expect(screen.queryByText('Featured Products')).not.toBeInTheDocument()
+        })
+        expect(container.querySelector('section')).toBeNull()
     })
 
     it('renders product names, formatted prices, and links to /products/{slug}', async () => {
-        mockedGet.mockResolvedValueOnce({data: mockProducts})
+        mockedRequest.mockResolvedValueOnce(resolve(mockProducts))
 
         renderComponent()
 
@@ -140,19 +165,19 @@ describe('FeaturedProductsSection', () => {
 
         expect(screen.getByText('Product Two')).toBeInTheDocument()
 
-        // ZAR formatting with en-ZA locale: R 299,99 and R 149,50
-        // The exact format depends on the Intl implementation but should contain "299" and "149"
+        // ZAR / en-ZA formatting — prices contain the currency symbol.
         const priceElements = screen.getAllByText(/R/)
         expect(priceElements.length).toBeGreaterThanOrEqual(2)
 
-        const links = screen.getAllByRole('link', {name: 'View details'})
+        // Each ProductCard is itself a link to the product detail page.
+        const links = screen.getAllByRole('link')
         expect(links).toHaveLength(2)
         expect(links[0]).toHaveAttribute('href', '/products/product-one')
         expect(links[1]).toHaveAttribute('href', '/products/product-two')
     })
 
     it('renders product images with loading="lazy" and alt set to product name', async () => {
-        mockedGet.mockResolvedValueOnce({data: mockProducts})
+        mockedRequest.mockResolvedValueOnce(resolve(mockProducts))
 
         renderComponent()
 
@@ -162,10 +187,10 @@ describe('FeaturedProductsSection', () => {
 
         const img1 = screen.getByAltText('Product One')
         expect(img1).toHaveAttribute('loading', 'lazy')
-        expect(img1).toHaveAttribute('src', '/img/p1.jpg')
+        expect(img1.getAttribute('src')).toContain('p1.jpg')
 
         const img2 = screen.getByAltText('Product Two')
         expect(img2).toHaveAttribute('loading', 'lazy')
-        expect(img2).toHaveAttribute('src', '/img/p2.jpg')
+        expect(img2.getAttribute('src')).toContain('p2.jpg')
     })
 })

@@ -6,7 +6,7 @@ import { useProductDetail } from '@/admin/hooks/products/useProductDetail'
 import { useUpdateProduct } from '@/admin/hooks/products/useUpdateProduct'
 import { useCategories } from '@/admin/hooks/products/useCategories'
 import { useMediaUpload, useMediaDelete } from '@/admin/hooks/media'
-import { ProductForm } from './components/ProductForm'
+import { ProductForm, toProductPayload } from './components/ProductForm'
 import type { ProductFormValues } from './components/ProductForm'
 
 export function ProductEditPage() {
@@ -80,7 +80,7 @@ export function ProductEditPage() {
   }
 
   const handleSubmit = (values: ProductFormValues) => {
-    updateProduct(values, {
+    updateProduct(toProductPayload(values), {
       onSuccess: () => {
         toast.success('Product updated successfully')
         navigate('/admin/products')

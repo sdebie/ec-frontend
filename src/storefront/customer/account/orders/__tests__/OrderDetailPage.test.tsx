@@ -8,7 +8,7 @@ import type {OrderDetail} from '../../hooks/useOrderDetail.ts'
 
 const mockUseOrderDetail = vi.fn()
 
-vi.mock('../hooks/useOrderDetail', () => ({
+vi.mock('../../hooks/useOrderDetail', () => ({
     useOrderDetail: (orderId: string) => mockUseOrderDetail(orderId),
 }))
 

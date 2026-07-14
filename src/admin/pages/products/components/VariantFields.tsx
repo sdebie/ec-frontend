@@ -1,21 +1,14 @@
 import { useController, type Control, type UseFieldArrayReturn } from 'react-hook-form'
 import { Button, Input } from '@/shared/ui/primitives'
 import { FormItem, Label } from '@/shared/ui/components'
-
-interface VariantFormValues {
-  variants: {
-    id?: string
-    sku: string
-    price: string
-    stock: number
-  }[]
-}
+// Operate on the parent product form's values — don't duplicate the shape.
+import type { ProductFormValues } from './ProductForm'
 
 interface VariantFieldsProps {
-  control: Control<VariantFormValues>
-  fields: UseFieldArrayReturn<VariantFormValues, 'variants'>['fields']
-  append: UseFieldArrayReturn<VariantFormValues, 'variants'>['append']
-  remove: UseFieldArrayReturn<VariantFormValues, 'variants'>['remove']
+  control: Control<ProductFormValues>
+  fields: UseFieldArrayReturn<ProductFormValues, 'variants'>['fields']
+  append: UseFieldArrayReturn<ProductFormValues, 'variants'>['append']
+  remove: UseFieldArrayReturn<ProductFormValues, 'variants'>['remove']
 }
 
 function VariantRow({
@@ -24,7 +17,7 @@ function VariantRow({
   onRemove,
   disableRemove,
 }: {
-  control: Control<VariantFormValues>
+  control: Control<ProductFormValues>
   index: number
   onRemove: () => void
   disableRemove: boolean

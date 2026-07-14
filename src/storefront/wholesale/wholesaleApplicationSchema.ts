@@ -33,4 +33,8 @@ export const wholesaleApplicationSchema = z.object({
   notes: z.string().max(1000, 'Notes must be 1000 characters or fewer').optional(),
 })
 
-export type WholesaleApplicationFormValues = z.infer<typeof wholesaleApplicationSchema>
+// `.default(false)` makes the schema's input and output types differ (sameAsPhysical
+// is optional on input, required on output). Expose both: the form fields hold the
+// INPUT shape, while a validated submit produces the OUTPUT (Values) shape.
+export type WholesaleApplicationFormInput = z.input<typeof wholesaleApplicationSchema>
+export type WholesaleApplicationFormValues = z.output<typeof wholesaleApplicationSchema>

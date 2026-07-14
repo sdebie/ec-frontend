@@ -9,9 +9,9 @@ import {useUpdateProfile} from '../../hooks/useUpdateProfile.ts'
 import {useChangePassword} from '../../hooks/useChangePassword.ts'
 import {ProfilePage} from '../ProfilePage.tsx'
 
-vi.mock('../hooks/useCustomerProfile')
-vi.mock('../hooks/useUpdateProfile')
-vi.mock('../hooks/useChangePassword')
+vi.mock('../../hooks/useCustomerProfile')
+vi.mock('../../hooks/useUpdateProfile')
+vi.mock('../../hooks/useChangePassword')
 
 const mockedUseCustomerProfile = vi.mocked(useCustomerProfile)
 const mockedUseUpdateProfile = vi.mocked(useUpdateProfile)

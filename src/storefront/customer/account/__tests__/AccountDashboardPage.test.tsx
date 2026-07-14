@@ -8,9 +8,9 @@ import {useCustomerProfile} from '../hooks/useCustomerProfile.ts'
 import {useWishlist} from '../hooks/useWishlist.ts'
 import {AccountDashboardPage} from '../AccountDashboardPage.tsx'
 
-vi.mock('./hooks/useMyOrders')
-vi.mock('./hooks/useCustomerProfile')
-vi.mock('./hooks/useWishlist')
+vi.mock('../hooks/useMyOrders')
+vi.mock('../hooks/useCustomerProfile')
+vi.mock('../hooks/useWishlist')
 
 const mockedUseMyOrders = vi.mocked(useMyOrders)
 const mockedUseCustomerProfile = vi.mocked(useCustomerProfile)

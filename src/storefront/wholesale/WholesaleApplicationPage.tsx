@@ -5,6 +5,7 @@ import { zodResolver } from '@hookform/resolvers/zod'
 
 import {
   wholesaleApplicationSchema,
+  type WholesaleApplicationFormInput,
   type WholesaleApplicationFormValues,
 } from './wholesaleApplicationSchema'
 import { useWholesaleApplicationSubmit } from './useWholesaleApplicationSubmit'
@@ -15,7 +16,7 @@ import { toDto } from './mappers'
 // ---------------------------------------------------------------------------
 
 interface SectionProps {
-  form: UseFormReturn<WholesaleApplicationFormValues>
+  form: UseFormReturn<WholesaleApplicationFormInput, unknown, WholesaleApplicationFormValues>
 }
 
 interface PostalSectionProps extends SectionProps {
@@ -462,11 +463,12 @@ function NotesSection({ form }: SectionProps) {
 export function WholesaleApplicationPage() {
   const [submitted, setSubmitted] = useState(false)
   const { mutate, isPending } = useWholesaleApplicationSubmit()
-  const form = useForm<WholesaleApplicationFormValues>({
+  const form = useForm<WholesaleApplicationFormInput, unknown, WholesaleApplicationFormValues>({
     resolver: zodResolver(wholesaleApplicationSchema),
     mode: 'onTouched',
+    defaultValues: { sameAsPhysical: false },
   })
-  const sameAsPhysical = form.watch('sameAsPhysical')
+  const sameAsPhysical = form.watch('sameAsPhysical') ?? false
 
   if (submitted) return <SuccessCard />
 

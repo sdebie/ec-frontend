@@ -11,7 +11,7 @@ import {
 import type { ColumnDef } from '@/shared/ui/components'
 import { useAdminAuthStore } from '@/shared/auth/adminAuthStore'
 import { useCustomers, useUpdateCustomerStatus } from '@/admin/hooks/customers'
-import type { AdminCustomerSummary, CustomerStatus } from '@/admin/hooks/customers'
+import type { AdminCustomerSummary } from '@/admin/hooks/customers'
 import { getAvailableActions, getCustomerStatusColor } from '@/admin/hooks/customers'
 import { CustomerActionsMenu } from './components/CustomerActionsMenu'
 

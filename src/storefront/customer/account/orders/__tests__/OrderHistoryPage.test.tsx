@@ -8,7 +8,7 @@ import type {MyOrder} from '../../hooks/useMyOrders.ts'
 
 const mockUseMyOrders = vi.fn()
 
-vi.mock('../hooks/useMyOrders', () => ({
+vi.mock('../../hooks/useMyOrders', () => ({
     useMyOrders: () => mockUseMyOrders(),
 }))
 

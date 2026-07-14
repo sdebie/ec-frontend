@@ -24,9 +24,10 @@ export const FormItem: React.FC<FormItemProps> = ({
   const generatedId = React.useId()
   const hasError = invalid || !!errorMessage
 
-  const fieldChild = React.cloneElement(React.Children.only(children) as React.ReactElement, {
-    id: generatedId,
-  })
+  const fieldChild = React.cloneElement(
+    React.Children.only(children) as React.ReactElement<{ id?: string }>,
+    { id: generatedId },
+  )
 
   return (
     <div className={cn('space-y-1', className)}>

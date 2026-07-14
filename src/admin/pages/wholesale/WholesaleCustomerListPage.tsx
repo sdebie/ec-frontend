@@ -22,7 +22,7 @@ import {
   getCustomerStatusColor,
   getWholesaleStatusColor,
 } from '@/admin/hooks/customers/types'
-import type { WholesaleStatus } from '@/admin/hooks/customers/types'
+import type { CustomerStatus, WholesaleStatus } from '@/admin/hooks/customers/types'
 
 const STATUS_FILTER_OPTIONS = [
   { value: 'ALL', label: 'All' },
@@ -42,7 +42,7 @@ function formatDate(dateString: string): string {
 export function WholesaleCustomerListPage() {
   const canMutate = useAdminAuthStore((s) => s.role) === 'SUPER_ADMIN'
 
-  const [statusFilter, setStatusFilter] = useState('ALL')
+  const [statusFilter, setStatusFilter] = useState<CustomerStatus | 'ALL'>('ALL')
   const [searchInput, setSearchInput] = useState('')
   const [search, setSearch] = useState('')
   const [pagination, setPagination] = useState<PaginationState>({
@@ -75,7 +75,7 @@ export function WholesaleCustomerListPage() {
   })
 
   const handleStatusFilterChange = (value: string) => {
-    setStatusFilter(value)
+    setStatusFilter(value as CustomerStatus | 'ALL')
     setPagination((prev) => ({ ...prev, pageIndex: 0 }))
   }
 

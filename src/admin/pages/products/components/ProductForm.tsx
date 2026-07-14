@@ -8,6 +8,7 @@ import { Button, Input } from '@/shared/ui/primitives'
 import { ProductStatus } from '@/shared/types/enums'
 import { toSlug } from '@/admin/utils/slug'
 import { VariantFields } from './VariantFields'
+import type { ProductPayload } from '@/admin/hooks/products/useCreateProduct'
 
 const variantSchema = z.object({
   id: z.string().optional(),
@@ -28,6 +29,21 @@ const productSchema = z.object({
 })
 
 export type ProductFormValues = z.infer<typeof productSchema>
+
+// Maps validated form values to the API payload: the schema guarantees `status`
+// is a valid ProductStatus, and optional text fields collapse to empty strings.
+export function toProductPayload(values: ProductFormValues): ProductPayload {
+  return {
+    name: values.name,
+    slug: values.slug,
+    shortDescription: values.shortDescription ?? '',
+    description: values.description ?? '',
+    status: values.status as ProductStatus,
+    categoryId: values.categoryId,
+    images: values.images,
+    variants: values.variants,
+  }
+}
 
 // Re-export toSlug for backward compatibility — canonical source is @/admin/utils/slug
 export { toSlug } from '@/admin/utils/slug'

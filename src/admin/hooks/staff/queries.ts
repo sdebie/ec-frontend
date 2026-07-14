@@ -34,30 +34,16 @@ export const STAFF_BY_ID = gql`
   }
 `
 
+// addStaffUser/updateStaffUser return Void; a selection set is invalid GraphQL.
+// Callers refetch the staff list on success rather than reading the result.
 export const ADD_STAFF_USER = gql`
   mutation AddStaffUser($staffDto: StaffDtoInput!) {
-    addStaffUser(staffDto: $staffDto) {
-      id
-      email
-      fullName
-      role
-      active
-      resetPassword
-      createdAt
-    }
+    addStaffUser(staffDto: $staffDto)
   }
 `
 
 export const UPDATE_STAFF_USER = gql`
   mutation UpdateStaffUser($id: String!, $staffDto: StaffDtoInput!) {
-    updateStaffUser(id: $id, staffDto: $staffDto) {
-      id
-      email
-      fullName
-      role
-      active
-      resetPassword
-      createdAt
-    }
+    updateStaffUser(id: $id, staffDto: $staffDto)
   }
 `

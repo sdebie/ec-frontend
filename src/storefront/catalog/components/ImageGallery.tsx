@@ -6,7 +6,7 @@ interface ImageGalleryProps {
   images: Array<{
     id: string
     imageUrl: string
-    isFeatured: boolean
+    featured: boolean
     sortOrder: number
   }>
   productName: string

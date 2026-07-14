@@ -24,7 +24,12 @@ export function useUpdateStaff() {
 
   return useMutation({
     mutationFn: async ({ id, staffDto }: UpdateStaffPayload) => {
-      return adminGraphqlClient.request(UPDATE_STAFF_USER, { id, staffDto })
+      const { isActive, ...rest } = staffDto
+      // StaffDtoInput uses `active` (Boolean!), not the UI's `isActive`.
+      return adminGraphqlClient.request(UPDATE_STAFF_USER, {
+        id,
+        staffDto: { ...rest, active: isActive },
+      })
     },
     onSuccess: (_data, { id }) => {
       queryClient.invalidateQueries({ queryKey: ['admin', 'staff'] })

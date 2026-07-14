@@ -12,8 +12,11 @@ export function useCreateStaff() {
   const navigate = useNavigate()
 
   return useMutation({
-    mutationFn: (staffDto: StaffFormValues) =>
-      adminGraphqlClient.request(ADD_STAFF_USER, { staffDto }),
+    mutationFn: ({ isActive, ...rest }: StaffFormValues & { resetPassword?: boolean }) =>
+      // StaffDtoInput uses `active` (Boolean!), not the UI's `isActive`.
+      adminGraphqlClient.request(ADD_STAFF_USER, {
+        staffDto: { ...rest, active: isActive, resetPassword: rest.resetPassword ?? false },
+      }),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['admin', 'staff'] })
       navigate('/admin/staff')

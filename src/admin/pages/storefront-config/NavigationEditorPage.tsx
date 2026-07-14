@@ -1,6 +1,6 @@
 import { useEffect } from 'react'
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
-import { useForm, useFieldArray } from 'react-hook-form'
+import { useForm, useFieldArray, Controller } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { z } from 'zod'
 import { ArrowUp, ArrowDown, Trash2, Plus } from 'lucide-react'
@@ -88,7 +88,7 @@ export function NavigationEditorPage() {
     { label: 'Navigation' },
   ])
 
-  const { data: settings, isLoading } = useQuery({
+  const { data: settings } = useQuery({
     queryKey: ['admin', 'storeSettings'],
     queryFn: async () => {
       const result = await adminGraphqlClient.request<{ storeSettings: StoreSetting[] }>(
@@ -159,7 +159,7 @@ export function NavigationEditorPage() {
   )
 
   return (
-    <PageLayout title="Navigation Editor" isLoading={isLoading} action={headerAction}>
+    <PageLayout title="Navigation Editor" action={headerAction}>
       <form id="nav-editor-form" onSubmit={handleSubmit(onSubmit)} className="space-y-4 max-w-3xl">
         {fields.length === 0 && (
           <p className="text-sm text-(--c-text-muted)">
@@ -221,10 +221,16 @@ export function NavigationEditorPage() {
               />
             </div>
 
-            <Checkbox
-              id={`external-${field.id}`}
-              label="Open in new tab (external link)"
-              {...register(`items.${index}.external`)}
+            <Controller
+              control={control}
+              name={`items.${index}.external`}
+              render={({ field: externalField }) => (
+                <Checkbox
+                  label="Open in new tab (external link)"
+                  checked={!!externalField.value}
+                  onChange={externalField.onChange}
+                />
+              )}
             />
           </div>
         ))}

@@ -13,11 +13,11 @@ vi.mock('react-router-dom', async () => {
   return { ...actual, useNavigate: () => mockNavigate }
 })
 
-vi.mock('../hooks/useWishlist', () => ({
+vi.mock('../../hooks/useWishlist', () => ({
   useWishlist: vi.fn(() => ({ data: new Set<string>() })),
 }))
 
-vi.mock('../hooks/useToggleWishlist', () => ({
+vi.mock('../../hooks/useToggleWishlist', () => ({
   useToggleWishlist: vi.fn(() => ({ mutate: mockMutate })),
 }))
 

@@ -68,7 +68,7 @@ export interface WholesaleCustomerDetail {
   status: CustomerStatus
   registeredAt: string
   wholesaleApplication: WholesaleApplicationDetail | null
-  recentOrders: WholesaleOrderRef[]
+  recentOrders: AdminOrderRef[]
 }
 
 // --- Actions ---

@@ -116,7 +116,6 @@ export function WholesaleCustomerDetailPage() {
     if (!customer.wholesaleApplication) return
     applicationAction.mutate({
       applicationId: customer.wholesaleApplication.id,
-      customerId: customer.id,
       action: 'approve',
     })
   }
@@ -130,7 +129,6 @@ export function WholesaleCustomerDetailPage() {
     applicationAction.mutate(
       {
         applicationId: customer.wholesaleApplication.id,
-        customerId: customer.id,
         action: 'reject',
       },
       { onSettled: () => setRejectDialogOpen(false) },
