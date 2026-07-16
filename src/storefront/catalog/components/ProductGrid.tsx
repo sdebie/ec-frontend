@@ -19,6 +19,7 @@ interface Product {
 interface ProductGridProps {
   products: Product[]
   isLoading: boolean
+  emptyMessage?: string
 }
 
 function SkeletonCard() {
@@ -33,7 +34,7 @@ function SkeletonCard() {
   )
 }
 
-export function ProductGrid({ products, isLoading }: ProductGridProps) {
+export function ProductGrid({ products, isLoading, emptyMessage }: ProductGridProps) {
   if (isLoading) {
     return (
       <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-4">
@@ -47,7 +48,7 @@ export function ProductGrid({ products, isLoading }: ProductGridProps) {
   if (products.length === 0) {
     return (
       <p className="py-12 text-center text-(--sf-muted-text)">
-        No products found. Try adjusting your filters.
+        {emptyMessage ?? 'No products found. Try adjusting your filters.'}
       </p>
     )
   }

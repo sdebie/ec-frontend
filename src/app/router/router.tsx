@@ -62,6 +62,7 @@ export const router = createBrowserRouter([
     children: [
       { path: '/', element: <HomePage /> },
       { path: '/products', element: <Suspense fallback={null}><ProductListPage /></Suspense> },
+      { path: '/specials', element: <Suspense fallback={null}><ProductListPage onSale /></Suspense> },
       { path: '/products/:slug', element: <Suspense fallback={null}><ProductDetailPage /></Suspense> },
       { path: '/account/login', element: <AccountLoginPage /> },
       { path: '/account/register', element: <AccountRegisterPage /> },

@@ -10,6 +10,7 @@ import {PromoGridSection} from './PromoGridSection'
 import {AccreditorsSection} from './AccreditorsSection'
 import {BrandsSection} from './BrandsSection'
 import {CategoryShowcaseSection} from './CategoryShowcaseSection'
+import {SaleProductsSection} from './SaleProductsSection'
 
 type AnySectionComponent = React.ComponentType<{ section: SectionConfig }>
 
@@ -40,4 +41,5 @@ export const sectionRegistry: Partial<Record<SectionConfig['type'], AnySectionCo
     'accreditors': AccreditorsSection as AnySectionComponent,
     'brands': BrandsSection as AnySectionComponent,
     'category-showcase': CategoryShowcaseSection as AnySectionComponent,
+    'sale-products': SaleProductsSection as AnySectionComponent,
 }

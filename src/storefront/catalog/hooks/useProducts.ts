@@ -70,6 +70,7 @@ interface UseProductsParams {
     brandId?: string | null
     sort?: SortOption
     page?: number
+    onSale?: boolean
     enabled?: boolean
 }
 
@@ -80,11 +81,13 @@ const SHOPPING_PRODUCT_LIST = gql`
         $filterRequest: FilterRequestInput
         $pageIndex: Int
         $pageSize: Int
+        $onSale: Boolean
     ) {
         shoppingProductList(
             filterRequest: $filterRequest
             pageIndex: $pageIndex
             pageSize: $pageSize
+            onSale: $onSale
         ) {
             content {
                 id
@@ -155,7 +158,7 @@ function buildFilterRequest(params: UseProductsParams): FilterRequest {
 // --- Hook ---
 
 export function useProducts(params: UseProductsParams = {}) {
-    const {sort = 'name', page = 1, enabled = true} = params
+    const {sort = 'name', page = 1, enabled = true, onSale} = params
     const customerType = useCustomerAuthStore((state) => state.customerType)
 
     const filterRequest = buildFilterRequest(params)
@@ -169,12 +172,14 @@ export function useProducts(params: UseProductsParams = {}) {
             params.brandId,
             sort,
             page,
+            onSale,
         ],
         queryFn: () =>
             graphqlClient.request<ShoppingProductListResponse>(SHOPPING_PRODUCT_LIST, {
                 filterRequest,
                 pageIndex,
                 pageSize: PAGE_SIZE,
+                onSale,
             }),
         enabled,
     })

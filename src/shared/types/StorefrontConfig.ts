@@ -156,6 +156,14 @@ export interface CategoryShowcaseSectionProps {
   limit?: number
 }
 
+// --- Sale Products section ---
+
+export interface SaleProductsSectionProps {
+  title?: string
+  limit?: number
+  category?: string
+}
+
 // --- Discriminated union members ---
 
 interface SectionBase<T extends string, P> {
@@ -175,6 +183,7 @@ export type PromoGridSectionConfig = SectionBase<'promo-grid', PromoGridSectionP
 export type AccreditorsSectionConfig = SectionBase<'accreditors', AccreditorsSectionProps>
 export type BrandsSectionConfig = SectionBase<'brands', BrandsSectionProps>
 export type CategoryShowcaseSectionConfig = SectionBase<'category-showcase', CategoryShowcaseSectionProps>
+export type SaleProductsSectionConfig = SectionBase<'sale-products', SaleProductsSectionProps>
 
 export type SectionConfig =
   | HeroSectionConfig
@@ -188,6 +197,7 @@ export type SectionConfig =
   | AccreditorsSectionConfig
   | BrandsSectionConfig
   | CategoryShowcaseSectionConfig
+  | SaleProductsSectionConfig
 
 export interface StorefrontBrandingLogo {
   src: string

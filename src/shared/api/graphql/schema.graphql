@@ -633,6 +633,7 @@ type Query {
     ignoreStatus: Boolean = false,
     "When true, includes products linked to the selected category and all descendant categories. When false, only products linked directly to the selected category are returned."
     includeSubCategories: Boolean = true,
+    onSale: Boolean = false,
     pageIndex: Int = 0,
     pageSize: Int = 20
   ): PageResponse_ProductShoppingListItemDto

@@ -10,7 +10,11 @@ import { CatalogPagination } from './components/CatalogPagination'
 
 const PAGE_SIZE = 20
 
-export function ProductListPage() {
+interface ProductListPageProps {
+  onSale?: boolean
+}
+
+export function ProductListPage({ onSale = false }: ProductListPageProps) {
   const [params, setParams] = useSearchParams()
 
   // Read filter state from URL params
@@ -38,6 +42,7 @@ export function ProductListPage() {
     brandId,
     sort,
     page,
+    onSale,
     enabled: !categorySlug || categories.length > 0, // only wait for slug resolution when a category filter is active
   })
 
@@ -86,8 +91,9 @@ export function ProductListPage() {
   const onClearCategory = useCallback(() => setFilter('category', ''), [setFilter])
   const onClearBrand = useCallback(() => setFilter('brand', ''), [setFilter])
 
-  // Page title: active category name or "All Products"
-  const pageTitle = activeCategory?.name ?? 'All Products'
+  // Page title: "Specials" when on-sale, otherwise active category name or "All Products"
+  const pageTitle = onSale ? 'Specials' : (activeCategory?.name ?? 'All Products')
+  const emptyCopy = onSale ? 'No specials match your filters.' : 'No products found. Try adjusting your filters.'
 
   return (
     <div className="mx-auto max-w-7xl px-4 py-6 sm:px-6 lg:px-8">
@@ -141,7 +147,7 @@ export function ProductListPage() {
           {/* Product grid */}
           {!isError && (
             <>
-              <ProductGrid products={products} isLoading={isLoading} />
+              <ProductGrid products={products} isLoading={isLoading} emptyMessage={emptyCopy} />
 
               {/* Pagination */}
               {!isLoading && totalPages > 0 && (
