@@ -201,6 +201,10 @@ export function WholesaleCustomerDetailPage() {
                 <span className="font-medium">Company Name:</span>{' '}
                 {customer.wholesaleApplication.companyName}
               </p>
+              <p className="text-sm text-(--c-text)">
+                <span className="font-medium">Trading Name:</span>{' '}
+                {customer.wholesaleApplication.tradingName || '-'}
+              </p>
               {customer.wholesaleApplication.vatNumber && (
                 <p className="text-sm text-(--c-text)">
                   <span className="font-medium">VAT Number:</span>{' '}
@@ -213,6 +217,50 @@ export function WholesaleCustomerDetailPage() {
                   {customer.wholesaleApplication.regNumber}
                 </p>
               )}
+              <p className="text-sm text-(--c-text)">
+                <span className="font-medium">Applicant Email:</span>{' '}
+                {customer.wholesaleApplication.applicantEmail}
+              </p>
+              <p className="text-sm text-(--c-text)">
+                <span className="font-medium">Account Email:</span>{' '}
+                {customer.wholesaleApplication.accountEmail || '-'}
+              </p>
+              <p className="text-sm text-(--c-text)">
+                <span className="font-medium">Company Phone:</span>{' '}
+                {customer.wholesaleApplication.companyPhone || '-'}
+              </p>
+              <p className="text-sm text-(--c-text)">
+                <span className="font-medium">Company Email:</span>{' '}
+                {customer.wholesaleApplication.companyEmail || '-'}
+              </p>
+
+              {/* Finance Contact */}
+              <div className="border-t border-(--c-border) pt-3 mt-1">
+                <p className="text-xs font-semibold uppercase tracking-wide text-(--c-text-muted) mb-2">
+                  Finance Contact
+                </p>
+                <div className="flex flex-col gap-2">
+                  <p className="text-sm text-(--c-text)">
+                    <span className="font-medium">Name:</span>{' '}
+                    {customer.wholesaleApplication.financeContactName || '-'}
+                  </p>
+                  <p className="text-sm text-(--c-text)">
+                    <span className="font-medium">Email:</span>{' '}
+                    {customer.wholesaleApplication.financeContactEmail || '-'}
+                  </p>
+                  <p className="text-sm text-(--c-text)">
+                    <span className="font-medium">Phone:</span>{' '}
+                    {customer.wholesaleApplication.financeContactPhone || '-'}
+                  </p>
+                </div>
+              </div>
+
+              {/* Purchase Order Required */}
+              <p className="text-sm text-(--c-text)">
+                <span className="font-medium">Purchase Order Required:</span>{' '}
+                {customer.wholesaleApplication.purchaseOrderRequired ? 'Yes' : 'No'}
+              </p>
+
               <p className="text-sm text-(--c-text-muted)">
                 Submitted: {formatTimestamp(customer.wholesaleApplication.submittedAt)}
               </p>

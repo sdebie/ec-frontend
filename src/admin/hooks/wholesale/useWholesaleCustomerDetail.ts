@@ -2,7 +2,7 @@ import { useQuery } from '@tanstack/react-query'
 import { gql } from 'graphql-request'
 
 import { adminGraphqlClient } from '@/shared/api/graphql/adminGraphqlClient'
-import type { WholesaleApplicationDetail, WholesaleCustomerDetail, WholesaleOrderRef } from './types'
+import type { WholesaleApplicationSummary, WholesaleCustomerDetail, WholesaleOrderRef } from './types'
 
 const ADMIN_CUSTOMER = gql`
   query AdminCustomer($id: String!) {
@@ -25,6 +25,14 @@ const ADMIN_CUSTOMER = gql`
         firstName
         lastName
         createdAt
+        applicantEmail
+        tradingName
+        companyPhone
+        companyEmail
+        financeContactName
+        financeContactEmail
+        financeContactPhone
+        purchaseOrderRequired
       }
       recentOrders {
         id
@@ -47,6 +55,14 @@ interface AdminCustomerRawApplication {
   firstName: string
   lastName: string
   createdAt: string
+  applicantEmail: string
+  tradingName: string | null
+  companyPhone: string | null
+  companyEmail: string | null
+  financeContactName: string | null
+  financeContactEmail: string | null
+  financeContactPhone: string | null
+  purchaseOrderRequired: boolean | null
 }
 
 interface AdminCustomerRawResponse {
@@ -67,7 +83,7 @@ interface AdminCustomerResponse {
 }
 
 function mapToWholesaleCustomerDetail(raw: AdminCustomerRawResponse): WholesaleCustomerDetail {
-  let wholesaleApplication: WholesaleApplicationDetail | null = null
+  let wholesaleApplication: WholesaleApplicationSummary | null = null
 
   if (raw.wholesaleApplication) {
     const app = raw.wholesaleApplication
@@ -76,8 +92,17 @@ function mapToWholesaleCustomerDetail(raw: AdminCustomerRawResponse): WholesaleC
       companyName: app.companyName,
       vatNumber: app.vatNumber,
       regNumber: app.regNumber,
-      status: app.status as WholesaleApplicationDetail['status'],
+      status: app.status as WholesaleApplicationSummary['status'],
       submittedAt: app.createdAt,
+      applicantEmail: app.applicantEmail,
+      accountEmail: app.email || null,
+      tradingName: app.tradingName,
+      companyPhone: app.companyPhone,
+      companyEmail: app.companyEmail,
+      financeContactName: app.financeContactName,
+      financeContactEmail: app.financeContactEmail,
+      financeContactPhone: app.financeContactPhone,
+      purchaseOrderRequired: app.purchaseOrderRequired,
     }
   }
 

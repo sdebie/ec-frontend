@@ -753,11 +753,17 @@ type VariantPricesEntity {
 }
 
 type WholesaleApplicationDetailsDto {
+  applicantEmail: String
+  companyEmail: String
   companyName: String
+  companyPhone: String
   "ISO-8601"
   createdAt: DateTime
   customerId: String
   email: String
+  financeContactEmail: String
+  financeContactName: String
+  financeContactPhone: String
   firstName: String
   id: String
   lastName: String
@@ -777,8 +783,10 @@ type WholesaleApplicationDetailsDto {
   postalSuburb: String
   "ISO-8601"
   processedAt: DateTime
+  purchaseOrderRequired: Boolean
   regNumber: String
   status: WholesaleApplicationStatusEn
+  tradingName: String
   vatNumber: String
 }
 
@@ -1183,8 +1191,14 @@ input VariantPricesEntityInput {
 }
 
 input WholesaleCustomerDtoInput {
+  applicantEmail: String
+  companyEmail: String
   companyName: String
+  companyPhone: String
   email: String
+  financeContactEmail: String
+  financeContactName: String
+  financeContactPhone: String
   firstName: String
   id: String
   lastName: String
@@ -1202,7 +1216,9 @@ input WholesaleCustomerDtoInput {
   postalPostalCode: String
   postalProvince: String
   postalSuburb: String
+  purchaseOrderRequired: Boolean
   regNumber: String
   status: WholesaleCustomerStatusEn
+  tradingName: String
   vatNumber: String
 }

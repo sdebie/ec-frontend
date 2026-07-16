@@ -50,11 +50,12 @@ describe('ProductActionsMenu — Property Tests', () => {
         // Open the dropdown to verify items
         openMenu(container)
 
+        // Menu items are rendered via portal to document.body
         // Edit action should never be present (removed from menu)
-        expect(container.querySelector('[data-testid="action-edit"]')).toBeNull()
+        expect(document.body.querySelector('[data-testid="action-edit"]')).toBeNull()
 
         // Delete action should always be present
-        expect(container.querySelector('[data-testid="action-delete"]')).not.toBeNull()
+        expect(document.body.querySelector('[data-testid="action-delete"]')).not.toBeNull()
 
         unmount()
       }),
@@ -75,7 +76,8 @@ describe('ProductActionsMenu — Property Tests', () => {
 
         openMenu(container)
 
-        const activateAction = container.querySelector('[data-testid="action-activate"]')
+        // Menu items are rendered via portal to document.body
+        const activateAction = document.body.querySelector('[data-testid="action-activate"]')
         if (status === ProductStatus.ACTIVE) {
           expect(activateAction).toBeNull()
         } else {
@@ -101,7 +103,8 @@ describe('ProductActionsMenu — Property Tests', () => {
 
         openMenu(container)
 
-        const disableAction = container.querySelector('[data-testid="action-disable"]')
+        // Menu items are rendered via portal to document.body
+        const disableAction = document.body.querySelector('[data-testid="action-disable"]')
         if (status === ProductStatus.DISABLED) {
           expect(disableAction).toBeNull()
         } else {

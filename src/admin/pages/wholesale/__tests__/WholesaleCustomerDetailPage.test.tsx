@@ -47,6 +47,15 @@ const mockCustomer: WholesaleCustomerDetail = {
     regNumber: 'REG789',
     status: 'PENDING',
     submittedAt: '2025-06-01T08:00:00Z',
+    applicantEmail: 'john@example.com',
+    accountEmail: 'john.account@wholesale.com',
+    tradingName: 'Smith Traders',
+    companyPhone: '+27111234567',
+    companyEmail: 'info@smithtrading.co.za',
+    financeContactName: 'Jane Smith',
+    financeContactEmail: 'jane@smithtrading.co.za',
+    financeContactPhone: '+27119876543',
+    purchaseOrderRequired: true,
   },
   recentOrders: [
     { id: 'order-1', reference: 'ORD-001', placedAt: '2025-06-10T08:00:00Z', total: 15000, status: 'PAID' },
@@ -157,6 +166,132 @@ describe('WholesaleCustomerDetailPage', () => {
 
     it('renders submitted date', () => {
       expect(screen.getByText(/Submitted:/)).toBeInTheDocument()
+    })
+
+    it('renders applicant email', () => {
+      expect(screen.getByText('john@example.com')).toBeInTheDocument()
+    })
+
+    it('renders account email', () => {
+      expect(screen.getByText('john.account@wholesale.com')).toBeInTheDocument()
+    })
+
+    it('renders trading name', () => {
+      expect(screen.getByText('Smith Traders')).toBeInTheDocument()
+    })
+
+    it('renders company phone', () => {
+      expect(screen.getByText('+27111234567')).toBeInTheDocument()
+    })
+
+    it('renders company email', () => {
+      expect(screen.getByText('info@smithtrading.co.za')).toBeInTheDocument()
+    })
+
+    it('renders finance contact name', () => {
+      expect(screen.getByText('Jane Smith')).toBeInTheDocument()
+    })
+
+    it('renders finance contact email', () => {
+      expect(screen.getByText('jane@smithtrading.co.za')).toBeInTheDocument()
+    })
+
+    it('renders finance contact phone', () => {
+      expect(screen.getByText('+27119876543')).toBeInTheDocument()
+    })
+
+    it('renders purchase order required as Yes when true', () => {
+      expect(screen.getByText('Yes')).toBeInTheDocument()
+    })
+  })
+
+  describe('application section with null/empty fields renders blanks', () => {
+    beforeEach(() => {
+      setupMocks({
+        data: {
+          ...mockCustomer,
+          wholesaleApplication: {
+            id: 'app-1',
+            companyName: 'Smith Trading Co',
+            vatNumber: null,
+            regNumber: null,
+            status: 'PENDING',
+            submittedAt: '2025-06-01T08:00:00Z',
+            applicantEmail: 'john@example.com',
+            accountEmail: null,
+            tradingName: null,
+            companyPhone: null,
+            companyEmail: null,
+            financeContactName: null,
+            financeContactEmail: null,
+            financeContactPhone: null,
+            purchaseOrderRequired: null,
+          },
+        },
+        role: 'SUPER_ADMIN',
+      })
+      renderPage()
+    })
+
+    it('renders without error when optional fields are null', () => {
+      expect(screen.getByText('Wholesale Application')).toBeInTheDocument()
+      expect(screen.getByText('Smith Trading Co')).toBeInTheDocument()
+    })
+
+    it('renders account email as dash when null', () => {
+      const accountEmailLine = screen.getByText('Account Email:').closest('p')
+      expect(accountEmailLine).toHaveTextContent('Account Email: -')
+    })
+
+    it('renders trading name as dash when null', () => {
+      const tradingNameLine = screen.getByText('Trading Name:').closest('p')
+      expect(tradingNameLine).toHaveTextContent('Trading Name: -')
+    })
+
+    it('renders company phone as dash when null', () => {
+      const companyPhoneLine = screen.getByText('Company Phone:').closest('p')
+      expect(companyPhoneLine).toHaveTextContent('Company Phone: -')
+    })
+
+    it('renders company email as dash when null', () => {
+      const companyEmailLine = screen.getByText('Company Email:').closest('p')
+      expect(companyEmailLine).toHaveTextContent('Company Email: -')
+    })
+
+    it('renders finance contact name as dash when null', () => {
+      const nameLine = screen.getByText((content, element) => {
+        return element?.tagName === 'SPAN' && content === 'Name:' &&
+          element.closest('[class*="border-t"]') !== null
+      })?.closest('p')
+      expect(nameLine).toHaveTextContent('Name: -')
+    })
+
+    it('renders finance contact email as dash when null', () => {
+      const emailLine = screen.getByText((content, element) => {
+        return element?.tagName === 'SPAN' && content === 'Email:' &&
+          element.closest('[class*="border-t"]') !== null
+      })?.closest('p')
+      expect(emailLine).toHaveTextContent('Email: -')
+    })
+
+    it('renders finance contact phone as dash when null', () => {
+      const phoneLine = screen.getByText((content, element) => {
+        return element?.tagName === 'SPAN' && content === 'Phone:' &&
+          element.closest('[class*="border-t"]') !== null
+      })?.closest('p')
+      expect(phoneLine).toHaveTextContent('Phone: -')
+    })
+
+    it('renders purchase order required as No when null/false', () => {
+      expect(screen.getByText('No')).toBeInTheDocument()
+    })
+
+    it('does not render VAT number when null', () => {
+      expect(screen.queryByText('VAT Number:')).not.toBeInTheDocument()
+    })
+
+    it('does not render registration number when null', () => {
+      expect(screen.queryByText('Registration Number:')).not.toBeInTheDocument()
     })
   })
 

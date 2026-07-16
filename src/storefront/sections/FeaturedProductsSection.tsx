@@ -15,7 +15,7 @@ export function FeaturedProductsSection({section}: { section: FeaturedProductsSe
     if (isLoading) {
         return (
             <section className="py-12 px-6">
-                <h2 className="text-2xl font-bold mb-6">{title}</h2>
+                <h2 className="text-2xl font-bold mb-6 text-(--sf-text)">{title}</h2>
                 <div className="flex items-stretch gap-4 overflow-x-auto py-2">
                     {Array.from({length: effectiveLimit}).map((_, i) => (
                         <div key={i} className="w-56 shrink-0 animate-pulse">
@@ -32,7 +32,7 @@ export function FeaturedProductsSection({section}: { section: FeaturedProductsSe
     if (isError) {
         return (
             <section className="py-12 px-6">
-                <h2 className="text-2xl font-bold mb-6">{title}</h2>
+                <h2 className="text-2xl font-bold mb-6 text-(--sf-text)">{title}</h2>
                 <div className="text-center py-8">
                     <p className="text-red-600 mb-4">Failed to load featured products.</p>
                     <button
@@ -53,7 +53,7 @@ export function FeaturedProductsSection({section}: { section: FeaturedProductsSe
 
     return (
         <section className="py-12 px-6">
-            <h2 className="text-2xl font-bold mb-6">{title}</h2>
+            <h2 className="text-2xl font-bold mb-6 text-(--sf-text)">{title}</h2>
             <div className="flex items-stretch gap-4 overflow-x-auto py-2">
                 {products.map((product) => (
                     <div key={product.id} className="w-56 shrink-0">

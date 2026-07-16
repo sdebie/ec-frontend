@@ -15,13 +15,21 @@ const CREATE_WHOLESALE_APPLICATION = gql`
 `
 
 export interface WholesaleCustomerDtoInput {
-  email: string
+  applicantEmail: string
+  email: string | null
   firstName: string
   lastName: string
   phone: string
   companyName: string
+  tradingName: string | null
+  companyPhone: string | null
+  companyEmail: string | null
   vatNumber: string
   regNumber: string
+  financeContactName: string | null
+  financeContactEmail: string | null
+  financeContactPhone: string | null
+  purchaseOrderRequired: boolean
   notes: string
   status: string
   physicalAddressLine1: string

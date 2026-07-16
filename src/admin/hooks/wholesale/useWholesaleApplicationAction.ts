@@ -14,15 +14,6 @@ const APPROVE_APPLICATION = gql`
   }
 `
 
-const CREATE_WHOLESALE_CUSTOMER = gql`
-  mutation CreateWholesaleCustomer($applicationId: String!) {
-    createWholesaleCustomer(applicationId: $applicationId) {
-      id
-      email
-    }
-  }
-`
-
 const REJECT_APPLICATION = gql`
   mutation RejectWholesaleApplication($id: String!) {
     rejectWholesaleApplication(id: $id) {
@@ -39,7 +30,6 @@ export function useWholesaleApplicationAction() {
     mutationFn: async ({ applicationId, action }: WholesaleApplicationActionPayload) => {
       if (action === 'approve') {
         await adminGraphqlClient.request(APPROVE_APPLICATION, { id: applicationId })
-        await adminGraphqlClient.request(CREATE_WHOLESALE_CUSTOMER, { applicationId })
       } else {
         await adminGraphqlClient.request(REJECT_APPLICATION, { id: applicationId })
       }
@@ -54,7 +44,7 @@ export function useWholesaleApplicationAction() {
       )
     },
     onError: (error) => {
-      console.error(error instanceof ClientError ? error.response.errors?.[0]?.message : error)
+      console.error('[WholesaleApplicationAction] action failed:', error instanceof ClientError ? error.response.errors?.[0]?.message : error)
       toast.error('Failed to process wholesale application', { duration: 0 })
     },
   })

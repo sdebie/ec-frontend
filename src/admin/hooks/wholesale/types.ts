@@ -50,13 +50,22 @@ export interface UseWholesaleCustomersParams {
 
 // --- Customer Detail ---
 
-export interface WholesaleApplicationDetail {
+export interface WholesaleApplicationSummary {
   id: string
   companyName: string
   vatNumber: string | null
   regNumber: string | null
   status: WholesaleStatus
   submittedAt: string
+  applicantEmail: string
+  accountEmail: string | null
+  tradingName: string | null
+  companyPhone: string | null
+  companyEmail: string | null
+  financeContactName: string | null
+  financeContactEmail: string | null
+  financeContactPhone: string | null
+  purchaseOrderRequired: boolean | null
 }
 
 export interface WholesaleCustomerDetail {
@@ -67,7 +76,7 @@ export interface WholesaleCustomerDetail {
   phone: string | null
   status: CustomerStatus
   registeredAt: string
-  wholesaleApplication: WholesaleApplicationDetail | null
+  wholesaleApplication: WholesaleApplicationSummary | null
   recentOrders: AdminOrderRef[]
 }
 

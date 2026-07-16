@@ -112,7 +112,7 @@ export const storefrontConfigFixture: StorefrontConfig = {
       props: {
         title: 'Ready to Place an Order?',
         description: 'Register as a wholesale customer to unlock bulk pricing and account credit.',
-        cta: { label: 'Register as Wholesale', to: '/account/register' },
+        cta: { label: 'Apply for a wholesaler account', to: '/wholesale-application' },
       },
     },
   ],
