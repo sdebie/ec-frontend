@@ -1,9 +1,9 @@
 /**
  * Shared data model interfaces for the customer account portal.
  *
- * Order types (OrderResponseDto, OrderLineItemDto, OrderStatusEvent) are generated
- * by graphql-codegen and live in src/shared/api/graphql/__generated__/.
- * Do NOT hand-write or duplicate those here.
+ * Order types (e.g. OrderStatusEvent) are hand-written alongside their hooks
+ * (see useOrderDetail.ts). There is no graphql-codegen step — mirror the inline
+ * `gql` selection set in the hook when adding fields (see CLAUDE.md law #8).
  */
 
 export interface AddressDto {
