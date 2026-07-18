@@ -247,6 +247,18 @@ export interface FooterConfig {
   legalLinks?: FooterLegalLink[]
 }
 
+export interface ContactConfig {
+  emails?: string[]
+  phones?: string[]
+  landline?: string
+  physicalAddress?: string
+  businessHours?: string
+  responseSla?: string
+  mapUrl?: string
+  mapEmbedUrl?: string
+  enquiryEmail?: string
+}
+
 export interface StorefrontConfig {
   clientId: string
   clientName: string
@@ -260,4 +272,5 @@ export interface StorefrontConfig {
   header?: HeaderConfig
   auth?: StorefrontAuthConfig
   footer?: FooterConfig
+  contact?: ContactConfig
 }

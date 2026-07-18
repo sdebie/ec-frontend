@@ -297,6 +297,21 @@ export const adminMenuRoutes: AdminRouteList = [
         },
     },
     {
+        key: 'admin.storefront.contact',
+        path: '/admin/storefront/contact',
+        component: lazy(() =>
+            import('@/admin/pages/storefront-config/ContactEditorPage').then((m) => ({default: m.ContactEditorPage}))
+        ),
+        authority: ['SUPER_ADMIN', 'VIEWER'],
+        meta: {
+            label: 'Contact',
+            section: 'STOREFRONT',
+            pageBackgroundType: 'plain',
+            pageContainerType: 'contained',
+            icon: 'mail',
+        },
+    },
+    {
         key: 'admin.settings',
         path: '/admin/settings',
         authority: ['SUPER_ADMIN', 'CATALOG_MANAGER', 'ORDER_MANAGER', 'VIEWER'],

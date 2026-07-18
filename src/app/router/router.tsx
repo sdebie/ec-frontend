@@ -53,6 +53,10 @@ const CheckoutSuccessPage = lazy(() =>
 const PageContentPage = lazy(() =>
     import('@/storefront/pages/PageContentPage').then((m) => ({default: m.PageContentPage})),
 )
+// eslint-disable-next-line react-refresh/only-export-components
+const ContactUsPage = lazy(() =>
+    import('@/storefront/pages/ContactUsPage').then((m) => ({default: m.ContactUsPage})),
+)
 
 export const router = createBrowserRouter([
     {
@@ -64,13 +68,42 @@ export const router = createBrowserRouter([
             </StorefrontConfigProvider>
         ),
         children: [
-            {path: '/', element: <Suspense fallback={null}><HomePage/></Suspense>},
-            {path: '/products', element: <Suspense fallback={null}><ProductListPage/></Suspense>},
-            {path: '/specials', element: <Suspense fallback={null}><ProductListPage onSale/></Suspense>},
-            {path: '/products/:slug', element: <Suspense fallback={null}><ProductDetailPage/></Suspense>},
-            {path: '/account/login', element: <Suspense fallback={null}><AccountLoginPage/></Suspense>},
-            {path: '/account/register', element: <Suspense fallback={null}><AccountRegisterPage/></Suspense>},
-            {path: '/account/forgot-password', element: <Suspense fallback={null}><ForgotPasswordPage/></Suspense>},
+            {
+                path: '/',
+                element: (
+                    <Suspense fallback={null}>
+                        <HomePage/>
+                    </Suspense>
+                )
+            },
+            {
+                path: '/products',
+                element: <Suspense fallback={null}><ProductListPage/></Suspense>
+            },
+            {
+                path: '/specials',
+                element: <Suspense fallback={null}><ProductListPage onSale/></Suspense>
+            },
+            {
+                path: '/products/:slug',
+                element: <Suspense fallback={null}><ProductDetailPage/></Suspense>
+            },
+            {
+                path: '/account/login',
+                element: <Suspense fallback={null}><AccountLoginPage/></Suspense>
+            },
+            {
+                path: '/account/register',
+                element: <Suspense fallback={null}><AccountRegisterPage/></Suspense>
+            },
+            {
+                path: '/account/forgot-password',
+                element: (
+                    <Suspense fallback={null}>
+                        <ForgotPasswordPage/>
+                    </Suspense>
+                )
+            },
             {
                 path: '/account',
                 element: (
@@ -87,10 +120,26 @@ export const router = createBrowserRouter([
                     {path: 'wishlist', element: <Suspense fallback={null}><WishlistPage/></Suspense>},
                 ],
             },
-            {path: '/cart', element: <Suspense fallback={null}><CartPage/></Suspense>},
-            {path: '/checkout', element: <Suspense fallback={null}><CheckoutPage/></Suspense>},
-            {path: '/checkout/success', element: <Suspense fallback={null}><CheckoutSuccessPage/></Suspense>},
-            {path: '/wholesale-application', element: <Suspense fallback={null}><WholesaleApplicationPage/></Suspense>},
+            {
+                path: '/cart', element: (
+                    <Suspense fallback={null}>
+                        <CartPage/>
+                    </Suspense>
+                )
+            },
+            {
+                path: '/checkout', element: <Suspense fallback={null}><CheckoutPage/></Suspense>
+            },
+            {
+                path: '/checkout/success', element: <Suspense fallback={null}><CheckoutSuccessPage/></Suspense>
+            },
+            {
+                path: '/wholesale-application',
+                element: <Suspense fallback={null}><WholesaleApplicationPage/></Suspense>
+            },
+            {
+                path: '/contact-us', element: <Suspense fallback={null}><ContactUsPage/></Suspense>
+            },
             {
                 path: '/terms-and-conditions',
                 element: <Suspense fallback={null}><PageContentPage slug="terms-and-conditions"/></Suspense>
@@ -103,12 +152,18 @@ export const router = createBrowserRouter([
                 path: '/delivery-and-returns',
                 element: <Suspense fallback={null}><PageContentPage slug="delivery-and-returns"/></Suspense>
             },
-            {path: '*', element: <Suspense fallback={null}><NotFoundPage/></Suspense>},
+            {
+                path: '*', element: <Suspense fallback={null}><NotFoundPage/></Suspense>
+            },
         ],
     },
     {
         path: '/admin/login',
-        element: <Suspense fallback={null}><AdminLoginPage/></Suspense>,
+        element: (
+            <Suspense fallback={null}>
+                <AdminLoginPage/>
+            </Suspense>
+        ),
     },
     {
         path: '/admin',
@@ -118,9 +173,18 @@ export const router = createBrowserRouter([
             </AdminGuard>
         ),
         children: [
-            {index: true, element: <Navigate to="/admin/dashboard" replace/>},
+            {
+                index: true,
+                element: <Navigate to="/admin/dashboard" replace/>
+            },
             ...buildAdminRouteObjects(adminRoutingRoutes),
-            {path: '*', element: <Suspense fallback={null}><AdminNotFoundPage/></Suspense>},
+            {
+                path: '*', element: (
+                    <Suspense fallback={null}>
+                        <AdminNotFoundPage/>
+                    </Suspense>
+                )
+            },
         ],
     },
 ])
