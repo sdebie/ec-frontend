@@ -8,19 +8,17 @@ import {
 } from '@/shared/ui/components'
 import { Button } from '@/shared/ui/primitives'
 import { useAdminAuthStore } from '@/shared/auth/adminAuthStore'
-import { formatAmount } from '@/shared/utils/formatAmount'
-import { OrderStatusOptions } from '@/shared/types/enums/OrderStatus'
 import {
   useCustomerDetail,
   useUpdateCustomerStatus,
 } from '@/admin/hooks/customers'
 import { useWholesaleApplicationAction } from '@/admin/hooks/wholesale'
+import { RecentOrdersTable } from '@/admin/components/RecentOrdersTable'
 import {
   getAvailableActions,
   getCustomerStatusColor,
   getWholesaleStatusColor,
 } from '@/admin/hooks/customers/types'
-import type { OrderStatus } from '@/shared/types/enums/OrderStatus'
 
 function formatTimestamp(dateString: string): string {
   return new Intl.DateTimeFormat(undefined, {
@@ -29,14 +27,6 @@ function formatTimestamp(dateString: string): string {
     year: 'numeric',
     hour: '2-digit',
     minute: '2-digit',
-  }).format(new Date(dateString))
-}
-
-function formatDate(dateString: string): string {
-  return new Intl.DateTimeFormat(undefined, {
-    day: 'numeric',
-    month: 'short',
-    year: 'numeric',
   }).format(new Date(dateString))
 }
 
@@ -177,70 +167,7 @@ export function CustomerDetailPage() {
       )}
 
       {/* Order history section */}
-      <section className="flex flex-col gap-2">
-        <h2 className="text-lg font-semibold text-(--c-text)">Order History</h2>
-        {customer.recentOrders.length === 0 ? (
-          <p className="text-sm text-(--c-text-muted)">No orders yet.</p>
-        ) : (
-          <div className="overflow-x-auto rounded-lg border border-(--c-border) bg-(--c-panel)">
-            <table className="w-full text-sm">
-              <thead>
-                <tr className="border-b border-(--c-border)">
-                  <th className="px-4 py-3 text-left font-medium text-(--c-text-muted)">
-                    Reference
-                  </th>
-                  <th className="px-4 py-3 text-left font-medium text-(--c-text-muted)">
-                    Date
-                  </th>
-                  <th className="px-4 py-3 text-left font-medium text-(--c-text-muted)">
-                    Total
-                  </th>
-                  <th className="px-4 py-3 text-left font-medium text-(--c-text-muted)">
-                    Status
-                  </th>
-                </tr>
-              </thead>
-              <tbody>
-                {customer.recentOrders.map((order) => {
-                  const statusOption =
-                    OrderStatusOptions[order.status as OrderStatus]
-                  return (
-                    <tr
-                      key={order.id}
-                      className="border-b border-(--c-border) last:border-b-0"
-                    >
-                      <td className="px-4 py-3">
-                        <Link
-                          to={`/admin/orders/${order.id}`}
-                          className="font-medium text-(--c-accent) hover:underline"
-                        >
-                          {order.reference}
-                        </Link>
-                      </td>
-                      <td className="px-4 py-3 text-(--c-text-muted)">
-                        {formatDate(order.placedAt)}
-                      </td>
-                      <td className="px-4 py-3 text-(--c-text)">
-                        {formatAmount(order.total)}
-                      </td>
-                      <td className="px-4 py-3">
-                        {statusOption ? (
-                          <StatusBadge
-                            label={statusOption.label}
-                            color={statusOption.color}
-                          />
-                        ) : (
-                          <StatusBadge label={order.status} color="gray" />
-                        )}
-                      </td>
-                    </tr>
-                  )
-                })}
-              </tbody>
-            </table>
-          </div>
-        )}
-      </section>
+      <RecentOrdersTable orders={customer.recentOrders} title="Order History" />
 
       {/* Wholesale section */}
       {customer.wholesaleApplication !== null && (

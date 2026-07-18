@@ -164,7 +164,7 @@ export function ProductListPage() {
                             aria-label="Select all rows"
                         />
                         <span className="w-[18px] h-[18px] rounded-[4px] border-2 border-(--c-text-muted) bg-(--c-panel) group-has-[:checked]:bg-(--c-accent) group-has-[:checked]:border-(--c-accent) flex items-center justify-center transition-colors duration-150">
-                            <svg className="w-3 h-3 text-transparent group-has-[:checked]:text-white pointer-events-none" viewBox="0 0 10 8" fill="none">
+                            <svg className="w-3 h-3 text-transparent group-has-[:checked]:text-(--c-accent-text) pointer-events-none" viewBox="0 0 10 8" fill="none">
                                 <path d="M1 4l2.5 2.5L9 1" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"/>
                             </svg>
                         </span>
@@ -190,7 +190,7 @@ export function ProductListPage() {
                             aria-label={`Select ${row.original.name}`}
                         />
                         <span className="w-[18px] h-[18px] rounded-[4px] border-2 border-(--c-text-muted) bg-(--c-panel) group-has-[:checked]:bg-(--c-accent) group-has-[:checked]:border-(--c-accent) flex items-center justify-center transition-colors duration-150">
-                            <svg className="w-3 h-3 text-transparent group-has-[:checked]:text-white pointer-events-none" viewBox="0 0 10 8" fill="none">
+                            <svg className="w-3 h-3 text-transparent group-has-[:checked]:text-(--c-accent-text) pointer-events-none" viewBox="0 0 10 8" fill="none">
                                 <path d="M1 4l2.5 2.5L9 1" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"/>
                             </svg>
                         </span>

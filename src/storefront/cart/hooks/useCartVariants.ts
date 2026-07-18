@@ -2,6 +2,7 @@ import { useQuery } from '@tanstack/react-query'
 import { gql } from 'graphql-request'
 import { graphqlClient } from '@/shared/api/graphql/graphqlClient'
 import { useCustomerAuthStore } from '@/shared/auth/customerAuthStore'
+import { getDisplayPrice, priceTiersFromEntries } from '@/storefront/catalog/utils/pricing'
 
 interface VariantPrice {
   active: boolean | null
@@ -81,26 +82,10 @@ export function useCartVariants(variantIds: string[]) {
 
   if (data?.variantsByIds) {
     for (const variant of data.variantsByIds) {
-      const prices = variant.prices ?? []
-
-      // Price selection: prefer sale price if active, fall back to regular price for the tier
-      const salePriceType =
-        customerType === 'WHOLESALE' ? 'WHOLESALE_SALE_PRICE' : 'RETAIL_SALE_PRICE'
-      const regularPriceType =
-        customerType === 'WHOLESALE' ? 'WHOLESALE_PRICE' : 'RETAIL_PRICE'
-
-      const activeSaleEntry = prices.find(
-        (p) => p.priceType === salePriceType && p.active === true
-      )
-      const regularEntry = prices.find(
-        (p) => p.priceType === regularPriceType && p.active === true
-      )
-      const regularFallback = prices.find(
-        (p) => p.priceType === regularPriceType
-      )
-
-      const displayPrice =
-        activeSaleEntry?.price ?? regularEntry?.price ?? regularFallback?.price ?? null
+      // Delegate all tier selection to the canonical getDisplayPrice so the
+      // cart shows exactly what ProductCard/PDP show for the same customer type.
+      const tiers = priceTiersFromEntries(variant.prices ?? [])
+      const displayPrice = getDisplayPrice(tiers, customerType).price
 
       variants.set(variant.id, {
         id: variant.id,

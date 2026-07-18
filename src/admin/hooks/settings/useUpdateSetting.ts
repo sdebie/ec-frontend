@@ -29,6 +29,7 @@ export function useUpdateSetting() {
       queryClient.invalidateQueries({ queryKey: ['admin-store-settings'] })
     },
     onError: (error) => {
+      console.error('[Settings] update setting failed:', error)
       const message =
         error instanceof ClientError
           ? error.response.errors?.[0]?.message ?? 'Failed to update setting'

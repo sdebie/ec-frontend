@@ -1,41 +1,18 @@
-import { useQuery } from '@tanstack/react-query'
-import { gql } from 'graphql-request'
+import { useBrandList, type BrandListItem } from '@/admin/hooks/brands/useBrandList'
 
-import { adminGraphqlClient } from '@/shared/api/graphql/adminGraphqlClient'
+/** @deprecated Use {@link BrandListItem}. Retained for callers that only read id/name. */
+export type Brand = Pick<BrandListItem, 'id' | 'name'>
 
-export interface Brand {
-  id: string
-  name: string
-}
-
-interface GetBrandsResponse {
-  getBrands: {
-    content: Brand[]
-  }
-}
-
-const GET_BRANDS = gql`
-  query GetBrands($pageSize: Int) {
-    getBrands(pageSize: $pageSize) {
-      content {
-        id
-        name
-      }
-    }
-  }
-`
-
+/**
+ * Lightweight brand list for dropdowns/filters ({id, name}). Delegates to the
+ * single `GetBrands` query in {@link useBrandList} rather than defining a second
+ * one — the extra fields for a bounded (<=500) brand set are negligible.
+ */
 export function useBrands() {
-  const { data, isLoading } = useQuery({
-    queryKey: ['admin-brands'],
-    queryFn: () =>
-      adminGraphqlClient.request<GetBrandsResponse>(GET_BRANDS, {
-        pageSize: 500,
-      }),
-  })
+  const { data, isLoading } = useBrandList({ pageIndex: 0, pageSize: 500 })
 
   return {
-    data: data?.getBrands.content,
+    data: data?.content.map(({ id, name }): Brand => ({ id, name })),
     isLoading,
   }
 }

@@ -1,0 +1,79 @@
+import { Link } from 'react-router-dom'
+import { StatusBadge } from '@/shared/ui/components'
+import { formatAmount } from '@/shared/utils/formatAmount'
+import { OrderStatusOptions } from '@/shared/types/enums/OrderStatus'
+import type { OrderStatus } from '@/shared/types/enums/OrderStatus'
+import type { AdminOrderRef } from '@/admin/hooks/customers/types'
+
+interface RecentOrdersTableProps {
+  orders: AdminOrderRef[]
+  /** Heading shown above the table. */
+  title?: string
+  emptyMessage?: string
+}
+
+function formatDate(dateString: string): string {
+  return new Date(dateString).toLocaleDateString('en-ZA', {
+    year: 'numeric',
+    month: 'short',
+    day: 'numeric',
+  })
+}
+
+/**
+ * Shared read-only order-history table for the customer and wholesale-customer
+ * detail pages. Previously duplicated verbatim in both (architectural law #4).
+ */
+export function RecentOrdersTable({
+  orders,
+  title = 'Order History',
+  emptyMessage = 'No orders yet.',
+}: RecentOrdersTableProps) {
+  return (
+    <section className="flex flex-col gap-2">
+      <h2 className="text-lg font-semibold text-(--c-text)">{title}</h2>
+      {orders.length === 0 ? (
+        <p className="text-sm text-(--c-text-muted)">{emptyMessage}</p>
+      ) : (
+        <div className="overflow-x-auto rounded-lg border border-(--c-border) bg-(--c-panel)">
+          <table className="w-full text-sm">
+            <thead>
+              <tr className="border-b border-(--c-border)">
+                <th className="px-4 py-3 text-left font-medium text-(--c-text-muted)">Reference</th>
+                <th className="px-4 py-3 text-left font-medium text-(--c-text-muted)">Date</th>
+                <th className="px-4 py-3 text-left font-medium text-(--c-text-muted)">Total</th>
+                <th className="px-4 py-3 text-left font-medium text-(--c-text-muted)">Status</th>
+              </tr>
+            </thead>
+            <tbody>
+              {orders.map((order) => {
+                const statusOption = OrderStatusOptions[order.status as OrderStatus]
+                return (
+                  <tr key={order.id} className="border-b border-(--c-border) last:border-b-0">
+                    <td className="px-4 py-3">
+                      <Link
+                        to={`/admin/orders/${order.id}`}
+                        className="font-medium text-(--c-accent) hover:underline"
+                      >
+                        {order.reference}
+                      </Link>
+                    </td>
+                    <td className="px-4 py-3 text-(--c-text-muted)">{formatDate(order.placedAt)}</td>
+                    <td className="px-4 py-3 text-(--c-text)">{formatAmount(order.total)}</td>
+                    <td className="px-4 py-3">
+                      {statusOption ? (
+                        <StatusBadge label={statusOption.label} color={statusOption.color} />
+                      ) : (
+                        <StatusBadge label={order.status} color="gray" />
+                      )}
+                    </td>
+                  </tr>
+                )
+              })}
+            </tbody>
+          </table>
+        </div>
+      )}
+    </section>
+  )
+}

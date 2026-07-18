@@ -140,7 +140,7 @@ export function BulkUploadDialog({ open, onClose }: BulkUploadDialogProps) {
                                     className={[
                                         'px-4 py-1.5 rounded-md text-sm font-medium transition-colors',
                                         mode === m
-                                            ? 'bg-(--c-accent) text-white'
+                                            ? 'bg-(--c-accent) text-(--c-accent-text)'
                                             : 'text-(--c-text-muted) hover:text-(--c-text)',
                                     ].join(' ')}
                                 >

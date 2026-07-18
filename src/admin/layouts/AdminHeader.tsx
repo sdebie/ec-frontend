@@ -2,9 +2,11 @@ import { useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import { Menu, Sun, Moon, Monitor } from 'lucide-react'
 
-const clientName = import.meta.env.VITE_CLIENT_NAME ?? 'Admin Portal'
-const clientTagline = import.meta.env.VITE_CLIENT_TAGLINE ?? 'Management Console'
 import { useAdminAuthStore } from '@/shared/auth/adminAuthStore'
+import { useClientName } from '@/admin/hooks/useClientName'
+
+// Generic admin-console chrome, not client data — safe as a constant.
+const clientTagline = 'Management Console'
 import { useThemeStore, type ThemeMode, type ThemePreset } from '@/admin/stores/themeStore'
 import { useBreadcrumbItems } from '@/admin/context/BreadcrumbContext'
 import { cn } from '@/shared/utils/cn'
@@ -24,6 +26,7 @@ interface AdminHeaderProps {
 
 export function AdminHeader({ onMenuClick, isCollapsed }: AdminHeaderProps) {
   const navigate = useNavigate()
+  const clientName = useClientName()
   const { userName, clearSession } = useAdminAuthStore()
   const breadcrumbs = useBreadcrumbItems()
   const [dropdownOpen, setDropdownOpen] = useState(false)
@@ -95,7 +98,7 @@ export function AdminHeader({ onMenuClick, isCollapsed }: AdminHeaderProps) {
               className="cursor-pointer"
               title="Staff Profile"
             >
-              <div className="flex items-center justify-center w-9 h-9 rounded-full bg-linear-to-tr from-primary to-primary-subtle text-white font-bold text-sm shadow-md ring-2 ring-admin-panel cursor-pointer">
+              <div className="flex items-center justify-center w-9 h-9 rounded-full bg-linear-to-tr from-primary to-primary-subtle text-(--c-accent-text) font-bold text-sm shadow-md ring-2 ring-admin-panel cursor-pointer">
                 {avatarInitial}
               </div>
             </button>

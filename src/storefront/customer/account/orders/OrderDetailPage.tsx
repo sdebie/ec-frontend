@@ -2,14 +2,7 @@ import { Link, useParams } from 'react-router-dom'
 import { useOrderDetail } from '../hooks/useOrderDetail'
 import { formatAmount } from '@/shared/utils/formatAmount'
 import type { OrderStatusEvent } from '../hooks/useOrderDetail'
-
-const STATUS_BADGE_CLASSES: Record<string, string> = {
-  CREATED: 'bg-gray-100 text-gray-700',
-  PAID: 'bg-blue-100 text-blue-700',
-  SHIPPED: 'bg-amber-100 text-amber-700',
-  DELIVERED: 'bg-green-100 text-green-700',
-  CANCELLED: 'bg-red-100 text-red-700',
-}
+import { orderStatusBadgeClasses } from '../orderStatusBadge'
 
 function formatDate(dateString: string): string {
   return new Date(dateString).toLocaleDateString('en-ZA', {
@@ -91,7 +84,7 @@ export function OrderDetailPage() {
           </h1>
         </div>
         <span
-          className={`inline-flex w-fit items-center rounded-full px-3 py-1 text-sm font-medium ${STATUS_BADGE_CLASSES[status] ?? 'bg-gray-100 text-gray-700'}`}
+          className={`inline-flex w-fit items-center rounded-full px-3 py-1 text-sm font-medium ${orderStatusBadgeClasses(status)}`}
         >
           {status}
         </span>
@@ -167,7 +160,7 @@ export function OrderDetailPage() {
               <li key={index} className="flex items-start gap-3">
                 <div className="relative flex flex-col items-center">
                   <div
-                    className={`h-3 w-3 rounded-full ${STATUS_BADGE_CLASSES[event.status]?.split(' ')[0] ?? 'bg-(--sf-surface-muted)'}`}
+                    className={`h-3 w-3 rounded-full ${orderStatusBadgeClasses(event.status).split(' ')[0]}`}
                   />
                   {index < sortedHistory.length - 1 && (
                     <div className="mt-1 h-6 w-px bg-(--sf-border)" />

@@ -31,6 +31,7 @@ export function useSaveShippingMethod() {
       queryClient.invalidateQueries({ queryKey: ['admin-shipping-methods'] })
     },
     onError: (error) => {
+      console.error('[Settings] save shipping method failed:', error)
       const message =
         error instanceof ClientError
           ? error.response.errors?.[0]?.message ?? 'Failed to save shipping method'

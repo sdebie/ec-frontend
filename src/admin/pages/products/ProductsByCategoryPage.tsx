@@ -13,6 +13,7 @@ import {
 import type { ColumnDef } from '@/shared/ui/components'
 import type { SelectOption } from '@/shared/ui/components/form/Select'
 import { Input } from '@/shared/ui/primitives'
+import { resolveImageUrl } from '@/shared/utils/imageUrl'
 import { formatAmount } from '@/shared/utils/formatAmount'
 
 export function ProductsByCategoryPage() {
@@ -78,7 +79,7 @@ export function ProductsByCategoryPage() {
           <div className="flex items-center gap-3">
             {row.original.thumbnailUrl && (
               <img
-                src={row.original.thumbnailUrl}
+                src={resolveImageUrl(row.original.thumbnailUrl) ?? undefined}
                 alt={row.original.name}
                 className="h-10 w-10 rounded-md object-cover"
               />

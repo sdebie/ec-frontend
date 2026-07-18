@@ -50,9 +50,11 @@ describe('useBrands', () => {
 
     // Verify it's a GraphQL query containing getBrands
     expect(String(document)).toContain('getBrands')
-    expect(variables).toEqual({ pageSize: 500 })
+    // useBrands delegates to useBrandList (single GetBrands query), fetching a
+    // bounded page with no search filter.
+    expect(variables).toEqual({ pageIndex: 0, pageSize: 500, filterRequest: undefined })
 
-    // Verify returned data is the flat content array
+    // Verify returned data is the flat {id, name} array
     expect(result.current.data).toEqual([
       { id: 'b1', name: 'Nike' },
       { id: 'b2', name: 'Adidas' },

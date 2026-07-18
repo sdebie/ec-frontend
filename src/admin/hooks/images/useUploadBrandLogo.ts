@@ -11,7 +11,8 @@ export function useUploadBrandLogo() {
       const { data } = await adminHttpClient.post<{ fileName: string }>('/admin/images/upload', formData)
       return data.fileName
     },
-    onError: () => {
+    onError: (error) => {
+      console.error('[Images] upload brand logo failed:', error)
       toast.error('Failed to upload logo')
     },
   })

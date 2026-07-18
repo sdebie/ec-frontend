@@ -3,14 +3,7 @@ import { useCustomerProfile } from './hooks/useCustomerProfile'
 import { useMyOrders } from './hooks/useMyOrders'
 import { useWishlist } from './hooks/useWishlist'
 import { formatAmount } from '@/shared/utils/formatAmount'
-
-const STATUS_BADGE_CLASSES: Record<string, string> = {
-  CREATED: 'bg-gray-100 text-gray-700',
-  PAID: 'bg-blue-100 text-blue-700',
-  SHIPPED: 'bg-amber-100 text-amber-700',
-  DELIVERED: 'bg-green-100 text-green-700',
-  CANCELLED: 'bg-red-100 text-red-700',
-}
+import { orderStatusBadgeClasses } from './orderStatusBadge'
 
 export function AccountDashboardPage() {
   const { data: profile, isLoading: profileLoading } = useCustomerProfile()
@@ -76,7 +69,7 @@ export function AccountDashboardPage() {
                     })}
                   </span>
                   <span
-                    className={`inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium ${STATUS_BADGE_CLASSES[order.status] ?? 'bg-gray-100 text-gray-700'}`}
+                    className={`inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium ${orderStatusBadgeClasses(order.status)}`}
                   >
                     {order.status}
                   </span>

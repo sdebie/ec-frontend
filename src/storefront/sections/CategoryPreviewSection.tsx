@@ -1,5 +1,6 @@
 import {Link} from 'react-router-dom'
 import {cn} from '@/shared/utils/cn'
+import {resolveImageUrl} from '@/shared/utils/imageUrl'
 import type {CategoryPreviewSectionConfig} from '@/shared/types/StorefrontConfig'
 
 const gridColsClass: Record<2 | 3 | 4 | 6, string> = {
@@ -35,7 +36,7 @@ export function CategoryPreviewSection({section}: { section: CategoryPreviewSect
                         >
                             {item.imageSrc && (
                                 <img
-                                    src={item.imageSrc}
+                                    src={resolveImageUrl(item.imageSrc) ?? undefined}
                                     alt={item.imageAlt ?? item.label}
                                     loading="lazy"
                                     className="h-16 w-16 rounded object-cover"
@@ -62,7 +63,7 @@ export function CategoryPreviewSection({section}: { section: CategoryPreviewSect
                                 <div
                                     className="aspect-[4/3] w-full overflow-hidden border-b border-(--sf-border) bg-(--sf-surface-muted)">
                                     <img
-                                        src={item.imageSrc}
+                                        src={resolveImageUrl(item.imageSrc) ?? undefined}
                                         alt={item.imageAlt ?? item.label}
                                         loading="lazy"
                                         className="h-full w-full object-cover"

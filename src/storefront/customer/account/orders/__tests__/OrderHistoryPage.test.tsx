@@ -5,6 +5,7 @@ import {MemoryRouter} from 'react-router-dom'
 import {OrderHistoryPage} from '../OrderHistoryPage.tsx'
 import {formatAmount} from '@/shared/utils/formatAmount.ts'
 import type {MyOrder} from '../../hooks/useMyOrders.ts'
+import {orderStatusBadgeClasses} from '../../orderStatusBadge.ts'
 
 const mockUseMyOrders = vi.fn()
 
@@ -19,13 +20,10 @@ vi.mock('react-router-dom', async () => {
 
 const ORDER_STATUSES = ['CREATED', 'PAID', 'SHIPPED', 'DELIVERED', 'CANCELLED'] as const
 
-const STATUS_BADGE_CLASSES: Record<string, string> = {
-    CREATED: 'bg-gray-100 text-gray-700',
-    PAID: 'bg-blue-100 text-blue-700',
-    SHIPPED: 'bg-amber-100 text-amber-700',
-    DELIVERED: 'bg-green-100 text-green-700',
-    CANCELLED: 'bg-red-100 text-red-700',
-}
+// Derived from the real source of truth so the test can never drift from it.
+const STATUS_BADGE_CLASSES: Record<string, string> = Object.fromEntries(
+    ORDER_STATUSES.map((s) => [s, orderStatusBadgeClasses(s)]),
+)
 
 /** Arbitrary for a valid order status */
 const orderStatusArb = fc.constantFrom(...ORDER_STATUSES)

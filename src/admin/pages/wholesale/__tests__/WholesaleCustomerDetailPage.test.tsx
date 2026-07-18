@@ -442,8 +442,9 @@ describe('WholesaleCustomerDetailPage', () => {
     })
 
     it('renders order status badges', () => {
-      expect(screen.getByText('PAID')).toBeInTheDocument()
-      expect(screen.getByText('DELIVERED')).toBeInTheDocument()
+      // RecentOrdersTable maps raw status → friendly label via OrderStatusOptions.
+      expect(screen.getByText('Paid')).toBeInTheDocument()
+      expect(screen.getByText('Delivered')).toBeInTheDocument()
     })
   })
 })

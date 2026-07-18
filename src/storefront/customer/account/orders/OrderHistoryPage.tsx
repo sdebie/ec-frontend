@@ -1,14 +1,7 @@
 import { Link, useNavigate } from 'react-router-dom'
 import { useMyOrders } from '../hooks/useMyOrders'
 import { formatAmount } from '@/shared/utils/formatAmount'
-
-const STATUS_BADGE_CLASSES: Record<string, string> = {
-  CREATED: 'bg-gray-100 text-gray-700',
-  PAID: 'bg-blue-100 text-blue-700',
-  SHIPPED: 'bg-amber-100 text-amber-700',
-  DELIVERED: 'bg-green-100 text-green-700',
-  CANCELLED: 'bg-red-100 text-red-700',
-}
+import { orderStatusBadgeClasses } from '../orderStatusBadge'
 
 export function OrderHistoryPage() {
   const { data, isLoading, isError, refetch } = useMyOrders()
@@ -37,7 +30,7 @@ export function OrderHistoryPage() {
           </p>
           <button
             onClick={() => refetch()}
-            className="mt-3 rounded-md bg-red-600 px-4 py-2 text-sm font-medium text-white hover:bg-red-700"
+            className="mt-3 rounded-md bg-(--c-danger) px-4 py-2 text-sm font-medium text-(--c-danger-text) hover:bg-(--c-danger-hover)"
           >
             Retry
           </button>
@@ -80,7 +73,7 @@ export function OrderHistoryPage() {
                   })}
                 </span>
                 <span
-                  className={`inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium ${STATUS_BADGE_CLASSES[order.status] ?? 'bg-gray-100 text-gray-700'}`}
+                  className={`inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium ${orderStatusBadgeClasses(order.status)}`}
                 >
                   {order.status}
                 </span>

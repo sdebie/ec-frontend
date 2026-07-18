@@ -116,25 +116,25 @@ export function AnnouncementEditorPage() {
   }
 
   if (isLoading) {
-    return <div className="p-8 text-sm text-gray-500">Loading announcement settings…</div>
+    return <div className="p-8 text-sm text-(--c-text-muted)">Loading announcement settings…</div>
   }
 
   if (isError) {
-    return <div className="p-8 text-sm text-red-600">Failed to load settings. Please try again.</div>
+    return <div className="p-8 text-sm text-(--c-status-red-text)">Failed to load settings. Please try again.</div>
   }
 
   return (
     <div className="max-w-2xl space-y-8 p-8">
       <div>
         <h1 className="text-2xl font-semibold">Announcement Banner</h1>
-        <p className="mt-1 text-sm text-gray-600">
+        <p className="mt-1 text-sm text-(--c-text-muted)">
           Configure the announcement banner displayed above the storefront header.
         </p>
       </div>
 
       {/* Live Preview */}
       <div className="space-y-2">
-        <label className="text-sm font-medium text-gray-700">Preview</label>
+        <label className="text-sm font-medium text-(--c-text)">Preview</label>
         <div
           style={{
             backgroundColor: form.backgroundColor,
@@ -154,23 +154,23 @@ export function AnnouncementEditorPage() {
           aria-checked={form.enabled}
           onClick={() => setForm((prev) => ({ ...prev, enabled: !prev.enabled }))}
           className={`relative inline-flex h-6 w-11 shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ${
-            form.enabled ? 'bg-blue-600' : 'bg-gray-200'
+            form.enabled ? 'bg-(--c-accent)' : 'bg-(--c-surface-hover)'
           }`}
         >
           <span
-            className={`pointer-events-none inline-block h-5 w-5 rounded-full bg-white shadow ring-0 transition-transform duration-200 ${
+            className={`pointer-events-none inline-block h-5 w-5 rounded-full bg-(--c-panel) shadow ring-0 transition-transform duration-200 ${
               form.enabled ? 'translate-x-5' : 'translate-x-0'
             }`}
           />
         </button>
-        <span className="text-sm font-medium text-gray-700">
+        <span className="text-sm font-medium text-(--c-text)">
           {form.enabled ? 'Enabled' : 'Disabled'}
         </span>
       </div>
 
       {/* Text Input */}
       <div className="space-y-1">
-        <label htmlFor="announcement-text" className="text-sm font-medium text-gray-700">
+        <label htmlFor="announcement-text" className="text-sm font-medium text-(--c-text)">
           Announcement Text
         </label>
         <input
@@ -179,14 +179,14 @@ export function AnnouncementEditorPage() {
           value={form.text}
           onChange={(e) => setForm((prev) => ({ ...prev, text: e.target.value }))}
           placeholder="e.g. Free shipping on orders over R500!"
-          className="w-full rounded border border-gray-300 px-3 py-2 text-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
+          className="w-full rounded border border-(--c-border) bg-(--c-panel) px-3 py-2 text-sm text-(--c-text) focus:border-(--c-accent) focus:outline-none focus:ring-1 focus:ring-(--c-ring)"
         />
       </div>
 
       {/* Colour Pickers */}
       <div className="grid grid-cols-2 gap-4">
         <div className="space-y-1">
-          <label htmlFor="bg-color" className="text-sm font-medium text-gray-700">
+          <label htmlFor="bg-color" className="text-sm font-medium text-(--c-text)">
             Background Colour
           </label>
           <div className="flex items-center gap-2">
@@ -195,14 +195,14 @@ export function AnnouncementEditorPage() {
               type="color"
               value={form.backgroundColor}
               onChange={(e) => setForm((prev) => ({ ...prev, backgroundColor: e.target.value }))}
-              className="h-9 w-9 cursor-pointer rounded border border-gray-300"
+              className="h-9 w-9 cursor-pointer rounded border border-(--c-border)"
             />
-            <span className="text-sm text-gray-500">{form.backgroundColor}</span>
+            <span className="text-sm text-(--c-text-muted)">{form.backgroundColor}</span>
           </div>
         </div>
 
         <div className="space-y-1">
-          <label htmlFor="text-color" className="text-sm font-medium text-gray-700">
+          <label htmlFor="text-color" className="text-sm font-medium text-(--c-text)">
             Text Colour
           </label>
           <div className="flex items-center gap-2">
@@ -211,9 +211,9 @@ export function AnnouncementEditorPage() {
               type="color"
               value={form.textColor}
               onChange={(e) => setForm((prev) => ({ ...prev, textColor: e.target.value }))}
-              className="h-9 w-9 cursor-pointer rounded border border-gray-300"
+              className="h-9 w-9 cursor-pointer rounded border border-(--c-border)"
             />
-            <span className="text-sm text-gray-500">{form.textColor}</span>
+            <span className="text-sm text-(--c-text-muted)">{form.textColor}</span>
           </div>
         </div>
       </div>
@@ -224,7 +224,7 @@ export function AnnouncementEditorPage() {
           type="button"
           onClick={handleSave}
           disabled={mutation.isPending}
-          className="rounded bg-blue-600 px-4 py-2 text-sm font-medium text-white hover:bg-blue-700 disabled:opacity-50"
+          className="rounded bg-(--c-accent) px-4 py-2 text-sm font-medium text-(--c-accent-text) hover:bg-(--c-accent-hover) disabled:opacity-50"
         >
           {mutation.isPending ? 'Saving…' : 'Save Changes'}
         </button>

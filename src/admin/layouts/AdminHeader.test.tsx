@@ -11,6 +11,12 @@ vi.mock('react-router-dom', async () => {
   return { ...actual, useNavigate: () => mockNavigate }
 })
 
+// clientName is DB-sourced via a React Query hook; stub it so the header can
+// render without a QueryClientProvider.
+vi.mock('@/admin/hooks/useClientName', () => ({
+  useClientName: () => 'Test Client',
+}))
+
 function renderHeader(props: { onMenuClick?: () => void } = {}) {
   const onMenuClick = props.onMenuClick ?? vi.fn()
   return render(
