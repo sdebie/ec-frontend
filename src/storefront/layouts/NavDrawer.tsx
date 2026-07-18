@@ -14,10 +14,20 @@ interface NavDrawerProps {
 export function NavDrawer({ open, onClose, items }: NavDrawerProps) {
   const location = useLocation()
   const onCloseRef = useRef(onClose)
-  onCloseRef.current = onClose
+  const previousPathname = useRef(location.pathname)
 
-  // Close on route change
-  useEffect(() => { onCloseRef.current() }, [location.pathname])
+  useEffect(() => {
+    onCloseRef.current = onClose
+  }, [onClose])
+
+  // Ignore the initial effect run: opening the drawer must not close it. Only
+  // close it once navigation actually changes the pathname.
+  useEffect(() => {
+    if (previousPathname.current !== location.pathname) {
+      previousPathname.current = location.pathname
+      onCloseRef.current()
+    }
+  }, [location.pathname])
 
   if (!open) return null
 

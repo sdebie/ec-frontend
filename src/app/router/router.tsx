@@ -1,113 +1,126 @@
-import { lazy, Suspense } from 'react'
-import { createBrowserRouter, Navigate } from 'react-router-dom'
-import { StorefrontLayout } from '@/storefront/layouts/StorefrontLayout'
-import { StorefrontConfigProvider } from '@/app/providers/StorefrontConfigProvider'
-import { AdminLayout } from '@/admin/layouts/AdminLayout'
-import { AdminGuard } from './AdminGuard'
-import { CustomerGuard } from './CustomerGuard'
-import { buildAdminRouteObjects } from './buildAdminRoutes'
-import { adminRoutingRoutes } from '@/admin/routes/adminPageRoutes.config'
-import { HomePage } from '@/storefront/pages/HomePage'
-import { AccountLoginPage } from '@/storefront/pages/AccountLoginPage'
-import { AccountRegisterPage } from '@/storefront/pages/AccountRegisterPage'
-import { AccountDashboardPage } from '@/storefront/customer/account/AccountDashboardPage'
-import { NotFoundPage } from '@/storefront/pages/NotFoundPage'
-import { AdminLoginPage } from '@/admin/pages/AdminLoginPage'
-import { AdminNotFoundPage } from '@/admin/pages/AdminNotFoundPage'
-import { AccountLayout } from '@/storefront/customer/account/AccountLayout'
-import { OrderHistoryPage } from '@/storefront/customer/account/orders/OrderHistoryPage'
-import { OrderDetailPage } from '@/storefront/customer/account/orders/OrderDetailPage'
-import { ProfilePage } from '@/storefront/customer/account/profile/ProfilePage'
-import { WishlistPage } from '@/storefront/customer/account/wishlist/WishlistPage'
-import { WholesaleApplicationPage } from '@/storefront/wholesale/WholesaleApplicationPage'
+import {type ComponentType, lazy, Suspense} from 'react'
+import {createBrowserRouter, Navigate} from 'react-router-dom'
+import {StorefrontLayout} from '@/storefront/layouts/StorefrontLayout'
+import {StorefrontConfigProvider} from '@/app/providers/StorefrontConfigProvider'
+import {AdminLayout} from '@/admin/layouts/AdminLayout'
+import {AdminGuard} from './AdminGuard'
+import {CustomerGuard} from './CustomerGuard'
+import {buildAdminRouteObjects} from './buildAdminRoutes'
+import {adminRoutingRoutes} from '@/admin/routes/adminPageRoutes.config'
+import {AccountLayout} from '@/storefront/customer/account/AccountLayout'
+
+const lazyPage = <T extends Record<string, unknown>>(loader: () => Promise<T>, exportName: keyof T) =>
+    lazy(async () => ({default: (await loader())[exportName] as ComponentType}))
+
+const HomePage = lazyPage(() => import('@/storefront/pages/HomePage'), 'HomePage')
+const AccountLoginPage = lazyPage(() => import('@/storefront/pages/AccountLoginPage'), 'AccountLoginPage')
+const AccountRegisterPage = lazyPage(() => import('@/storefront/pages/AccountRegisterPage'), 'AccountRegisterPage')
+const AccountDashboardPage = lazyPage(() => import('@/storefront/customer/account/AccountDashboardPage'), 'AccountDashboardPage')
+const NotFoundPage = lazyPage(() => import('@/storefront/pages/NotFoundPage'), 'NotFoundPage')
+const AdminLoginPage = lazyPage(() => import('@/admin/pages/AdminLoginPage'), 'AdminLoginPage')
+const AdminNotFoundPage = lazyPage(() => import('@/admin/pages/AdminNotFoundPage'), 'AdminNotFoundPage')
+const OrderHistoryPage = lazyPage(() => import('@/storefront/customer/account/orders/OrderHistoryPage'), 'OrderHistoryPage')
+const OrderDetailPage = lazyPage(() => import('@/storefront/customer/account/orders/OrderDetailPage'), 'OrderDetailPage')
+const ProfilePage = lazyPage(() => import('@/storefront/customer/account/profile/ProfilePage'), 'ProfilePage')
+const WishlistPage = lazyPage(() => import('@/storefront/customer/account/wishlist/WishlistPage'), 'WishlistPage')
+const WholesaleApplicationPage = lazyPage(() => import('@/storefront/wholesale/WholesaleApplicationPage'), 'WholesaleApplicationPage')
 
 // eslint-disable-next-line react-refresh/only-export-components
 const ForgotPasswordPage = lazy(() =>
-  import('@/storefront/pages/ForgotPasswordPage').then((m) => ({ default: m.ForgotPasswordPage })),
+    import('@/storefront/pages/ForgotPasswordPage').then((m) => ({default: m.ForgotPasswordPage})),
 )
 // eslint-disable-next-line react-refresh/only-export-components
 const ProductListPage = lazy(() =>
-  import('@/storefront/catalog/ProductListPage').then((m) => ({ default: m.ProductListPage })),
+    import('@/storefront/catalog/ProductListPage').then((m) => ({default: m.ProductListPage})),
 )
 // eslint-disable-next-line react-refresh/only-export-components
 const ProductDetailPage = lazy(() =>
-  import('@/storefront/catalog/ProductDetailPage').then((m) => ({ default: m.ProductDetailPage })),
+    import('@/storefront/catalog/ProductDetailPage').then((m) => ({default: m.ProductDetailPage})),
 )
 // eslint-disable-next-line react-refresh/only-export-components
 const CartPage = lazy(() =>
-  import('@/storefront/cart/CartPage').then((m) => ({ default: m.CartPage })),
+    import('@/storefront/cart/CartPage').then((m) => ({default: m.CartPage})),
 )
 // eslint-disable-next-line react-refresh/only-export-components
 const CheckoutPage = lazy(() =>
-  import('@/storefront/checkout/CheckoutPage').then((m) => ({ default: m.CheckoutPage })),
+    import('@/storefront/checkout/CheckoutPage').then((m) => ({default: m.CheckoutPage})),
 )
 // eslint-disable-next-line react-refresh/only-export-components
 const CheckoutSuccessPage = lazy(() =>
-  import('@/storefront/checkout/CheckoutSuccessPage').then((m) => ({ default: m.CheckoutSuccessPage })),
+    import('@/storefront/checkout/CheckoutSuccessPage').then((m) => ({default: m.CheckoutSuccessPage})),
 )
 // eslint-disable-next-line react-refresh/only-export-components
 const PageContentPage = lazy(() =>
-  import('@/storefront/pages/PageContentPage').then((m) => ({ default: m.PageContentPage })),
+    import('@/storefront/pages/PageContentPage').then((m) => ({default: m.PageContentPage})),
 )
 
 export const router = createBrowserRouter([
-  {
-    // StorefrontConfigProvider is scoped to the storefront branch only —
-    // the admin panel must never depend on /storefront/config being available.
-    element: (
-      <StorefrontConfigProvider>
-        <StorefrontLayout />
-      </StorefrontConfigProvider>
-    ),
-    children: [
-      { path: '/', element: <HomePage /> },
-      { path: '/products', element: <Suspense fallback={null}><ProductListPage /></Suspense> },
-      { path: '/specials', element: <Suspense fallback={null}><ProductListPage onSale /></Suspense> },
-      { path: '/products/:slug', element: <Suspense fallback={null}><ProductDetailPage /></Suspense> },
-      { path: '/account/login', element: <AccountLoginPage /> },
-      { path: '/account/register', element: <AccountRegisterPage /> },
-      { path: '/account/forgot-password', element: <Suspense fallback={null}><ForgotPasswordPage /></Suspense> },
-      {
-        path: '/account',
+    {
+        // StorefrontConfigProvider is scoped to the storefront branch only —
+        // the admin panel must never depend on /storefront/config being available.
         element: (
-          <CustomerGuard>
-            <AccountLayout />
-          </CustomerGuard>
+            <StorefrontConfigProvider>
+                <StorefrontLayout/>
+            </StorefrontConfigProvider>
         ),
         children: [
-          { index: true, element: <Navigate to="/account/dashboard" replace /> },
-          { path: 'dashboard', element: <AccountDashboardPage /> },
-          { path: 'orders', element: <OrderHistoryPage /> },
-          { path: 'orders/:orderId', element: <OrderDetailPage /> },
-          { path: 'profile', element: <ProfilePage /> },
-          { path: 'wishlist', element: <WishlistPage /> },
+            {path: '/', element: <Suspense fallback={null}><HomePage/></Suspense>},
+            {path: '/products', element: <Suspense fallback={null}><ProductListPage/></Suspense>},
+            {path: '/specials', element: <Suspense fallback={null}><ProductListPage onSale/></Suspense>},
+            {path: '/products/:slug', element: <Suspense fallback={null}><ProductDetailPage/></Suspense>},
+            {path: '/account/login', element: <Suspense fallback={null}><AccountLoginPage/></Suspense>},
+            {path: '/account/register', element: <Suspense fallback={null}><AccountRegisterPage/></Suspense>},
+            {path: '/account/forgot-password', element: <Suspense fallback={null}><ForgotPasswordPage/></Suspense>},
+            {
+                path: '/account',
+                element: (
+                    <CustomerGuard>
+                        <AccountLayout/>
+                    </CustomerGuard>
+                ),
+                children: [
+                    {index: true, element: <Navigate to="/account/dashboard" replace/>},
+                    {path: 'dashboard', element: <Suspense fallback={null}><AccountDashboardPage/></Suspense>},
+                    {path: 'orders', element: <Suspense fallback={null}><OrderHistoryPage/></Suspense>},
+                    {path: 'orders/:orderId', element: <Suspense fallback={null}><OrderDetailPage/></Suspense>},
+                    {path: 'profile', element: <Suspense fallback={null}><ProfilePage/></Suspense>},
+                    {path: 'wishlist', element: <Suspense fallback={null}><WishlistPage/></Suspense>},
+                ],
+            },
+            {path: '/cart', element: <Suspense fallback={null}><CartPage/></Suspense>},
+            {path: '/checkout', element: <Suspense fallback={null}><CheckoutPage/></Suspense>},
+            {path: '/checkout/success', element: <Suspense fallback={null}><CheckoutSuccessPage/></Suspense>},
+            {path: '/wholesale-application', element: <Suspense fallback={null}><WholesaleApplicationPage/></Suspense>},
+            {
+                path: '/terms-and-conditions',
+                element: <Suspense fallback={null}><PageContentPage slug="terms-and-conditions"/></Suspense>
+            },
+            {
+                path: '/privacy-policy',
+                element: <Suspense fallback={null}><PageContentPage slug="privacy-policy"/></Suspense>
+            },
+            {
+                path: '/delivery-and-returns',
+                element: <Suspense fallback={null}><PageContentPage slug="delivery-and-returns"/></Suspense>
+            },
+            {path: '*', element: <Suspense fallback={null}><NotFoundPage/></Suspense>},
         ],
-      },
-      { path: '/cart', element: <Suspense fallback={null}><CartPage /></Suspense> },
-      { path: '/checkout', element: <Suspense fallback={null}><CheckoutPage /></Suspense> },
-      { path: '/checkout/success', element: <Suspense fallback={null}><CheckoutSuccessPage /></Suspense> },
-      { path: '/wholesale-application', element: <WholesaleApplicationPage /> },
-      { path: '/terms-and-conditions', element: <Suspense fallback={null}><PageContentPage slug="terms-and-conditions" /></Suspense> },
-      { path: '/privacy-policy', element: <Suspense fallback={null}><PageContentPage slug="privacy-policy" /></Suspense> },
-      { path: '/delivery-and-returns', element: <Suspense fallback={null}><PageContentPage slug="delivery-and-returns" /></Suspense> },
-      { path: '*', element: <NotFoundPage /> },
-    ],
-  },
-  {
-    path: '/admin/login',
-    element: <AdminLoginPage />,
-  },
-  {
-    path: '/admin',
-    element: (
-      <AdminGuard>
-        <AdminLayout />
-      </AdminGuard>
-    ),
-    children: [
-      { index: true, element: <Navigate to="/admin/dashboard" replace /> },
-      ...buildAdminRouteObjects(adminRoutingRoutes),
-      { path: '*', element: <AdminNotFoundPage /> },
-    ],
-  },
+    },
+    {
+        path: '/admin/login',
+        element: <Suspense fallback={null}><AdminLoginPage/></Suspense>,
+    },
+    {
+        path: '/admin',
+        element: (
+            <AdminGuard>
+                <AdminLayout/>
+            </AdminGuard>
+        ),
+        children: [
+            {index: true, element: <Navigate to="/admin/dashboard" replace/>},
+            ...buildAdminRouteObjects(adminRoutingRoutes),
+            {path: '*', element: <Suspense fallback={null}><AdminNotFoundPage/></Suspense>},
+        ],
+    },
 ])

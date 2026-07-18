@@ -1,5 +1,5 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest'
-import { render, screen } from '@testing-library/react'
+import { render, screen, waitFor } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { MemoryRouter, Routes, Route, Link } from 'react-router-dom'
 import { NavDrawer } from './NavDrawer'
@@ -43,10 +43,6 @@ describe('NavDrawer', () => {
       const onClose = vi.fn()
       renderNavDrawer({ onClose })
 
-      // The useEffect fires onClose on mount due to location.pathname dependency
-      // Clear the mock to isolate the backdrop click behavior
-      onClose.mockClear()
-
       const backdrop = document.querySelector('[aria-hidden="true"]')!
       await user.click(backdrop)
 
@@ -78,15 +74,14 @@ describe('NavDrawer', () => {
         </MemoryRouter>,
       )
 
-      // The useEffect fires onClose on initial mount
-      expect(onClose).toHaveBeenCalledTimes(1)
-      onClose.mockClear()
+      // Opening the drawer must not close it; only a later route change does.
+      expect(onClose).not.toHaveBeenCalled()
 
       // Click a link to trigger a route change
       await user.click(screen.getByTestId('nav-trigger'))
 
       // onClose should be called again because location.pathname changed
-      expect(onClose).toHaveBeenCalled()
+      await waitFor(() => expect(onClose).toHaveBeenCalledTimes(1))
     })
   })
 

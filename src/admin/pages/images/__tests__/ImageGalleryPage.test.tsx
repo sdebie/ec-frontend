@@ -66,13 +66,9 @@ describe('ImageGalleryPage', () => {
       setupDefaultMocks()
 
       vi.mocked(useImageList).mockReturnValue({
-        data: {
-          images: ['product1.jpg', 'logo.png', 'banner.webp'],
-          totalCount: 3,
-          page: 0,
-          pageSize: 80,
-        },
+        data: { pages: [{ images: ['product1.jpg', 'logo.png', 'banner.webp'], totalCount: 3, page: 0, pageSize: 80 }] },
         isLoading: false,
+        hasNextPage: false,
       } as any)
 
       renderPage()
@@ -94,13 +90,9 @@ describe('ImageGalleryPage', () => {
       setupDefaultMocks({ role: 'VIEWER' })
 
       vi.mocked(useImageList).mockReturnValue({
-        data: {
-          images: ['photo.jpg'],
-          totalCount: 1,
-          page: 0,
-          pageSize: 80,
-        },
+        data: { pages: [{ images: ['photo.jpg'], totalCount: 1, page: 0, pageSize: 80 }] },
         isLoading: false,
+        hasNextPage: false,
       } as any)
 
       renderPage()
@@ -117,13 +109,9 @@ describe('ImageGalleryPage', () => {
       setupDefaultMocks({ role: 'SUPER_ADMIN' })
 
       vi.mocked(useImageList).mockReturnValue({
-        data: {
-          images: ['photo.jpg'],
-          totalCount: 1,
-          page: 0,
-          pageSize: 80,
-        },
+        data: { pages: [{ images: ['photo.jpg'], totalCount: 1, page: 0, pageSize: 80 }] },
         isLoading: false,
+        hasNextPage: false,
       } as any)
 
       renderPage()
@@ -145,13 +133,11 @@ describe('ImageGalleryPage', () => {
 
       // First render: page 0 data
       mockUseImageList.mockReturnValue({
-        data: {
-          images: ['page0-img1.jpg', 'page0-img2.jpg'],
-          totalCount: 4,
-          page: 0,
-          pageSize: 80,
-        },
+        data: { pages: [{ images: ['page0-img1.jpg', 'page0-img2.jpg'], totalCount: 4, page: 0, pageSize: 2 }] },
         isLoading: false,
+        hasNextPage: true,
+        fetchNextPage: vi.fn(),
+        isFetchingNextPage: false,
       } as any)
 
       const { rerender } = renderPage()
@@ -165,19 +151,19 @@ describe('ImageGalleryPage', () => {
       const loadMoreButton = screen.getByRole('button', { name: /load more/i })
       fireEvent.click(loadMoreButton)
 
-      // After clicking load more, the hook will be called with page=1
-      // Simulate the hook returning page 1 data
+      // Simulate the infinite-query cache gaining its next page.
       mockUseImageList.mockReturnValue({
-        data: {
-          images: ['page1-img1.jpg', 'page1-img2.jpg'],
-          totalCount: 4,
-          page: 1,
-          pageSize: 80,
-        },
+        data: { pages: [
+          { images: ['page0-img1.jpg', 'page0-img2.jpg'], totalCount: 4, page: 0, pageSize: 2 },
+          { images: ['page1-img1.jpg', 'page1-img2.jpg'], totalCount: 4, page: 1, pageSize: 2 },
+        ] },
         isLoading: false,
+        hasNextPage: false,
+        fetchNextPage: vi.fn(),
+        isFetchingNextPage: false,
       } as any)
 
-      // Re-render to trigger the effect with new data
+      // Re-render with the cached pages supplied by the infinite query.
       const queryClient = createQueryClient()
       rerender(
         <QueryClientProvider client={queryClient}>

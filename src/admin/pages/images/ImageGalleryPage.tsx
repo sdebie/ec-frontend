@@ -19,9 +19,6 @@ export function ImageGalleryPage() {
 
   const [searchInput, setSearchInput] = useState('')
   const [debouncedSearch, setDebouncedSearch] = useState('')
-  const [page, setPage] = useState(0)
-  const [images, setImages] = useState<string[]>([])
-  const [totalCount, setTotalCount] = useState(0)
 
   const [previewFilename, setPreviewFilename] = useState<string | null>(null)
   const [uploadOpen, setUploadOpen] = useState(false)
@@ -31,37 +28,18 @@ export function ImageGalleryPage() {
   useEffect(() => {
     const timer = setTimeout(() => {
       setDebouncedSearch(searchInput)
-      setPage(0)
     }, 300)
     return () => clearTimeout(timer)
   }, [searchInput])
 
-  // Reset accumulated images when search changes
-  useEffect(() => {
-    setImages([])
-  }, [debouncedSearch])
-
-  const { data, isLoading } = useImageList({
-    page,
+  const { data, isLoading, fetchNextPage, hasNextPage, isFetchingNextPage } = useImageList({
     pageSize: PAGE_SIZE,
     search: debouncedSearch,
   })
-
-  // Append fetched images to accumulated state
-  useEffect(() => {
-    if (data) {
-      setTotalCount(data.totalCount)
-      setImages((prev) => {
-        if (page === 0) return data.images
-        return [...prev, ...data.images]
-      })
-    }
-  }, [data, page])
-
-  const hasMore = images.length < totalCount
+  const images = data?.pages?.flatMap((result) => result.images) ?? []
 
   const handleLoadMore = () => {
-    setPage((prev) => prev + 1)
+    void fetchNextPage()
   }
 
   const headerAction = (
@@ -123,10 +101,10 @@ export function ImageGalleryPage() {
             </div>
 
             {/* Load more */}
-            {hasMore && (
+            {hasNextPage && (
               <div className="flex justify-center pt-4">
-                <Button variant="ghost" onClick={handleLoadMore} disabled={isLoading}>
-                  {isLoading ? 'Loading...' : 'Load more'}
+                <Button variant="ghost" onClick={handleLoadMore} disabled={isFetchingNextPage}>
+                  {isFetchingNextPage ? 'Loading...' : 'Load more'}
                 </Button>
               </div>
             )}
