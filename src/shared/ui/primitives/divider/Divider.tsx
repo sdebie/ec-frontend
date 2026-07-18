@@ -1,7 +1,7 @@
 import * as React from 'react'
 import { cn } from '@/shared/utils/cn'
 
-export interface DividerProps extends React.HTMLAttributes<HTMLHRElement> {}
+export type DividerProps = React.HTMLAttributes<HTMLHRElement>
 
 export function Divider({ className, ...props }: DividerProps) {
   return (

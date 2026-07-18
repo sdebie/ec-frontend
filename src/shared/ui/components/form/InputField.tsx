@@ -33,7 +33,7 @@ export const InputField = React.forwardRef<HTMLInputElement, InputFieldProps>(
       required,
       leftIcon,
       rightIcon,
-      fullWidth: _fullWidth = true,
+      fullWidth = true,
       disabled,
       variant,
       size,
@@ -52,7 +52,7 @@ export const InputField = React.forwardRef<HTMLInputElement, InputFieldProps>(
             {label}
           </Label>
         )}
-        <div className="relative mt-1 group flex items-center">
+        <div className={cn('relative mt-1 group flex items-center', fullWidth && 'w-full')}>
           {leftIcon && (
             <div className="absolute left-3 text-(--c-text-muted) flex items-center pointer-events-none">
               {leftIcon}

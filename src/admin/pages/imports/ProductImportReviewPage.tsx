@@ -115,7 +115,7 @@ export default function ProductImportReviewPage() {
       })
       setIsApproved(true)
       setBatchStatus((prev) => prev ? { ...prev, status: 'PROCESSING' } : null)
-    } catch (err) {
+    } catch {
       toast.error('Failed to process import — please try again', { duration: 0 })
     }
   }

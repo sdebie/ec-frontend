@@ -157,7 +157,7 @@ export function WholesaleApplicationQueuePage() {
           ]
         : []),
     ],
-    [canMutate, applicationAction.isPending],
+    [applicationAction.isPending, canMutate, handleApprove],
   )
 
   const pageCount = total ? Math.ceil(total / pagination.pageSize) : 0

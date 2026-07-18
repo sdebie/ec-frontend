@@ -152,7 +152,7 @@ export function CustomerListPage() {
           ]
         : []),
     ],
-    [canMutate],
+    [canMutate, handleActivate, handleSuspend],
   )
 
   const pageCount = data ? Math.ceil(data.total / pagination.pageSize) : 0

@@ -190,7 +190,7 @@ export function WholesaleCustomerListPage() {
           ]
         : []),
     ],
-    [canMutate, updateStatus.isPending],
+    [canMutate, handleActivate, handleSuspend, updateStatus.isPending],
   )
 
   const pageCount = total ? Math.ceil(total / pagination.pageSize) : 0
@@ -243,4 +243,3 @@ export function WholesaleCustomerListPage() {
     </div>
   )
 }
-

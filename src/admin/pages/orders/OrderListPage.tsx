@@ -170,7 +170,7 @@ export function OrderListPage() {
           ]
         : []),
     ],
-    [canMutate],
+    [canMutate, handleCancel, handleDeliver, handleRefund, handleShip],
   )
 
   const pageCount = data ? Math.ceil(data.total / pagination.pageSize) : 0

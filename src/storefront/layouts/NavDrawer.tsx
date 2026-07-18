@@ -1,4 +1,4 @@
-import { useEffect } from 'react'
+import { useEffect, useRef } from 'react'
 import { createPortal } from 'react-dom'
 import { useLocation } from 'react-router-dom'
 import type { NavItem } from '@/shared/types/StorefrontConfig'
@@ -13,9 +13,11 @@ interface NavDrawerProps {
 
 export function NavDrawer({ open, onClose, items }: NavDrawerProps) {
   const location = useLocation()
+  const onCloseRef = useRef(onClose)
+  onCloseRef.current = onClose
 
   // Close on route change
-  useEffect(() => { onClose() }, [location.pathname])
+  useEffect(() => { onCloseRef.current() }, [location.pathname])
 
   if (!open) return null
 

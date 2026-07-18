@@ -32,12 +32,12 @@ export const Select = React.forwardRef<HTMLDivElement, SelectProps>(
             onChange,
             label,
             placeholder = 'Select an option',
-            helperText: _helperText,
+            helperText,
             error,
             disabled,
             required,
             className,
-            fullWidth: _fullWidth = true,
+            fullWidth = true,
             ...props
         },
         ref
@@ -120,7 +120,7 @@ export const Select = React.forwardRef<HTMLDivElement, SelectProps>(
                     </Label>
                 )}
                 <div
-                    className={cn('relative', className)}
+                    className={cn('relative', fullWidth && 'w-full', className)}
                     ref={(node) => {
                         containerRef.current = node
                         if (typeof ref === 'function') ref(node)
@@ -192,6 +192,9 @@ export const Select = React.forwardRef<HTMLDivElement, SelectProps>(
                         document.body
                     )}
                 </div>
+                {helperText && !error && (
+                    <p className="mt-1 text-sm text-(--c-text-muted)">{helperText}</p>
+                )}
             </>
         )
     }
