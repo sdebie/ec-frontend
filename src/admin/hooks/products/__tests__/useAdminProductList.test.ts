@@ -67,7 +67,7 @@ describe('useAdminProductList', () => {
     })
 
     expect(adminGraphqlClient.request).toHaveBeenCalledTimes(1)
-    const [document, variables] = vi.mocked(adminGraphqlClient.request).mock.calls[0]
+    const [document, variables] = vi.mocked(adminGraphqlClient.request).mock.calls[0] as unknown as [unknown, Record<string, unknown>]
 
     // Verify it's a GraphQL query containing adminProductList
     expect(String(document)).toContain('adminProductList')
@@ -118,7 +118,7 @@ describe('useAdminProductList', () => {
       expect(result.current.data).toBeDefined()
     })
 
-    const [, variables] = vi.mocked(adminGraphqlClient.request).mock.calls[0]
+    const [, variables] = vi.mocked(adminGraphqlClient.request).mock.calls[0] as unknown as [unknown, Record<string, unknown>]
 
     // Only pageIndex and pageSize should be present
     expect(variables).toEqual({

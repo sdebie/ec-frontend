@@ -150,7 +150,7 @@ describe('ProductEditPage', () => {
       })
 
       // Mutation for update should NOT have been called (only the initial read query)
-      const calls = vi.mocked(adminGraphqlClient.request).mock.calls
+      const calls = vi.mocked(adminGraphqlClient.request).mock.calls as unknown as [unknown, Record<string, unknown>][]
       const mutationCalls = calls.filter(([doc]) =>
         String(doc).includes('updateProductInformation'),
       )
@@ -180,7 +180,7 @@ describe('ProductEditPage', () => {
       })
 
       // Verify no update mutation was called
-      const calls = vi.mocked(adminGraphqlClient.request).mock.calls
+      const calls = vi.mocked(adminGraphqlClient.request).mock.calls as unknown as [unknown, Record<string, unknown>][]
       const mutationCalls = calls.filter(([doc]) =>
         String(doc).includes('updateProductInformation'),
       )
@@ -234,7 +234,7 @@ describe('ProductEditPage', () => {
       })
 
       // No update mutation
-      const calls = vi.mocked(adminGraphqlClient.request).mock.calls
+      const calls = vi.mocked(adminGraphqlClient.request).mock.calls as unknown as [unknown, Record<string, unknown>][]
       const mutationCalls = calls.filter(([doc]) =>
         String(doc).includes('updateProductInformation'),
       )
@@ -265,7 +265,7 @@ describe('ProductEditPage', () => {
       await user.click(screen.getByRole('button', { name: /save changes/i }))
 
       await waitFor(() => {
-        const calls = vi.mocked(adminGraphqlClient.request).mock.calls
+        const calls = vi.mocked(adminGraphqlClient.request).mock.calls as unknown as [unknown, Record<string, unknown>][]
         const mutationCalls = calls.filter(([doc]) =>
           String(doc).includes('updateProductInformation'),
         )
@@ -273,7 +273,7 @@ describe('ProductEditPage', () => {
       })
 
       // Verify productId was sent
-      const calls = vi.mocked(adminGraphqlClient.request).mock.calls
+      const calls = vi.mocked(adminGraphqlClient.request).mock.calls as unknown as [unknown, Record<string, unknown>][]
       const mutationCall = calls.find(([doc]) =>
         String(doc).includes('updateProductInformation'),
       )

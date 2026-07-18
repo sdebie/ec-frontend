@@ -26,15 +26,15 @@ vi.mock('react-router-dom', async () => {
 
 describe('ProductForm — image lifecycle (no optimistic deletion + cleanup)', () => {
   const categories = [{ id: 'cat-1', name: 'Test Category' }]
-  let mockOnUpload: ReturnType<typeof vi.fn>
-  let mockOnCleanup: ReturnType<typeof vi.fn>
-  let mockOnSubmit: ReturnType<typeof vi.fn>
+  let mockOnUpload: ReturnType<typeof vi.fn<(file: File) => Promise<string>>>
+  let mockOnCleanup: ReturnType<typeof vi.fn<(filePath: string) => Promise<void>>>
+  let mockOnSubmit: ReturnType<typeof vi.fn<(values: ProductFormValues) => void | Promise<void>>>
 
   beforeEach(() => {
     vi.clearAllMocks()
-    mockOnUpload = vi.fn()
-    mockOnCleanup = vi.fn().mockResolvedValue(undefined)
-    mockOnSubmit = vi.fn()
+    mockOnUpload = vi.fn<(file: File) => Promise<string>>()
+    mockOnCleanup = vi.fn<(filePath: string) => Promise<void>>().mockResolvedValue(undefined)
+    mockOnSubmit = vi.fn<(values: ProductFormValues) => void | Promise<void>>()
   })
 
   function renderForm(defaultValues?: Partial<ProductFormValues>) {

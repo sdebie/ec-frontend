@@ -18,9 +18,10 @@ const nonEmptyStringArb = fc
 const formValuesArb: fc.Arbitrary<WholesaleApplicationFormValues> = fc.record({
     firstName: nonEmptyStringArb,
     lastName: nonEmptyStringArb,
-    email: fc.emailAddress(),
+    applicantEmail: fc.emailAddress(),
     phone: nonEmptyStringArb,
     companyName: nonEmptyStringArb,
+    purchaseOrderRequired: fc.boolean(),
     vatNumber: fc.option(nonEmptyStringArb, {nil: undefined}),
     regNumber: nonEmptyStringArb,
     physicalAddressLine1: nonEmptyStringArb,

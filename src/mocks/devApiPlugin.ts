@@ -14,16 +14,16 @@
 
 import type {Plugin} from 'vite'
 import type {IncomingMessage} from 'http'
-import {storefrontConfigFixture} from './fixtures/storefrontConfig.fixture'
-import {featuredProductsFixture} from './fixtures/featuredProducts.fixture'
-import {customerProfileFixture} from './fixtures/customerProfile.fixture'
-import {myOrdersFixture, orderDetailFixture} from './fixtures/orders.fixture'
+import {storefrontConfigFixture} from './fixtures/storefrontConfig.fixture.js'
+import {featuredProductsFixture} from './fixtures/featuredProducts.fixture.js'
+import {customerProfileFixture} from './fixtures/customerProfile.fixture.js'
+import {myOrdersFixture, orderDetailFixture} from './fixtures/orders.fixture.js'
 import {
     storefrontBrandsFixture,
     storefrontCategoriesFixture,
     storefrontFeaturedProductsFixture,
     storefrontProductsFixture,
-} from './fixtures/storefrontCatalog.fixture'
+} from './fixtures/storefrontCatalog.fixture.js'
 
 /**
  * Collects the request body from a Node.js IncomingMessage stream

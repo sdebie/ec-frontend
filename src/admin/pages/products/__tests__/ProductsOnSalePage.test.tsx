@@ -3,6 +3,7 @@ import { render, screen } from '@testing-library/react'
 import { MemoryRouter } from 'react-router-dom'
 
 import { useOnSaleProducts } from '@/admin/hooks/products/useOnSaleProducts'
+import type { OnSaleProductItem } from '@/admin/hooks/products/useOnSaleProducts'
 import { useCategories } from '@/admin/hooks/products/useCategories'
 import { useBrands } from '@/admin/hooks/products/useBrands'
 import { ProductsOnSalePage } from '../ProductsOnSalePage'
@@ -17,24 +18,22 @@ vi.mock('@/admin/hooks/products/useBrands', () => ({
   useBrands: vi.fn(),
 }))
 
-const mockOnSaleProducts = [
+const mockOnSaleProducts: OnSaleProductItem[] = [
   {
     id: '1',
     name: 'Sale Product A',
     slug: 'sale-product-a',
-    thumbnailUrl: null,
-    retailPrice: '199.99',
-    salePrice: '149.99',
-    category: { id: 'cat-1', name: 'Electronics' },
+    images: [],
+    retailPrice: { price: 199.99 },
+    retailSalePrice: { price: 149.99 },
   },
   {
     id: '2',
     name: 'Sale Product B',
     slug: 'sale-product-b',
-    thumbnailUrl: null,
-    retailPrice: '59.99',
-    salePrice: '39.99',
-    category: { id: 'cat-2', name: 'Clothing' },
+    images: [],
+    retailPrice: { price: 59.99 },
+    retailSalePrice: { price: 39.99 },
   },
 ]
 

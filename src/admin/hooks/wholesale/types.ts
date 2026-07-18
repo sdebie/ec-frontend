@@ -85,6 +85,10 @@ export interface WholesaleCustomerDetail {
 export interface WholesaleApplicationActionPayload {
   applicationId: string
   action: 'approve' | 'reject'
+  // Optional: when the action is taken from a customer-scoped screen (e.g. the
+  // customer detail page), pass the customer id so the customer caches are
+  // invalidated in addition to the wholesale caches.
+  customerId?: string
 }
 
 export interface WholesaleCustomerStatusPayload {

@@ -34,9 +34,16 @@ export function useWholesaleApplicationAction() {
         await adminGraphqlClient.request(REJECT_APPLICATION, { id: applicationId })
       }
     },
-    onSuccess: (_data, { action }) => {
+    onSuccess: (_data, { action, customerId }) => {
+      // Always invalidate the wholesale caches; approving/rejecting an application
+      // affects both the application queue and the wholesale customer lists.
       queryClient.invalidateQueries({ queryKey: ['admin', 'wholesale-applications'] })
       queryClient.invalidateQueries({ queryKey: ['admin', 'wholesale-customers'] })
+      // When invoked from a customer-scoped screen, also refresh the customer caches.
+      if (customerId) {
+        queryClient.invalidateQueries({ queryKey: ['admin', 'customers', customerId] })
+        queryClient.invalidateQueries({ queryKey: ['admin', 'customers', 'list'] })
+      }
       toast.success(
         action === 'approve'
           ? 'Wholesale application approved and customer account created'
@@ -44,8 +51,10 @@ export function useWholesaleApplicationAction() {
       )
     },
     onError: (error) => {
-      console.error('[WholesaleApplicationAction] action failed:', error instanceof ClientError ? error.response.errors?.[0]?.message : error)
-      toast.error('Failed to process wholesale application', { duration: 0 })
+      const serverMessage =
+        error instanceof ClientError ? error.response.errors?.[0]?.message : undefined
+      console.error('[WholesaleApplicationAction] action failed:', serverMessage ?? error)
+      toast.error(serverMessage ?? 'Failed to process wholesale application', { duration: 0 })
     },
   })
 }

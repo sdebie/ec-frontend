@@ -78,7 +78,7 @@ describe('useSaveShippingMethod', () => {
 
   it('shows toast.error with duration:0 on ClientError', async () => {
     const clientError = new ClientError(
-      { errors: [{ message: 'Save failed' }], status: 400, headers: new Headers() },
+      ({ errors: [{ message: 'Save failed' }], status: 400, headers: new Headers() } as unknown as ConstructorParameters<typeof ClientError>[0]),
       { query: '' },
     )
     vi.mocked(adminGraphqlClient.request).mockRejectedValue(clientError)

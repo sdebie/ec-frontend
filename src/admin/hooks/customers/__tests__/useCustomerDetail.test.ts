@@ -61,7 +61,7 @@ describe('useCustomerDetail', () => {
     await waitFor(() => expect(result.current.isLoading).toBe(false))
 
     expect(adminGraphqlClient.request).toHaveBeenCalledTimes(1)
-    const variables = vi.mocked(adminGraphqlClient.request).mock.calls[0][1]
+    const variables = (vi.mocked(adminGraphqlClient.request).mock.calls[0] as unknown as [unknown, Record<string, unknown>])[1]
     expect(variables).toEqual({ id: 'c1' })
   })
 

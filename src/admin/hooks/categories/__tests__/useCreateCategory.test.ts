@@ -48,7 +48,7 @@ describe('useCreateCategory', () => {
     })
 
     expect(adminGraphqlClient.request).toHaveBeenCalledTimes(1)
-    const [document, variables] = vi.mocked(adminGraphqlClient.request).mock.calls[0]
+    const [document, variables] = vi.mocked(adminGraphqlClient.request).mock.calls[0] as unknown as [unknown, Record<string, unknown>]
 
     // Verify it's a GraphQL mutation containing createCategory
     expect(String(document)).toContain('createCategory')
@@ -85,7 +85,7 @@ describe('useCreateCategory', () => {
       expect(result.current.isSuccess).toBe(true)
     })
 
-    const [, variables] = vi.mocked(adminGraphqlClient.request).mock.calls[0]
+    const [, variables] = vi.mocked(adminGraphqlClient.request).mock.calls[0] as unknown as [unknown, Record<string, unknown>]
 
     // Verify parent is null for top-level category
     expect(variables).toEqual({

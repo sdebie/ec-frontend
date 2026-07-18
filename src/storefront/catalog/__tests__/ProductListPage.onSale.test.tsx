@@ -144,7 +144,7 @@ describe('ProductListPage onSale — Property 4', () => {
       // Every call must include onSale: true in the variables
       const calls = mockedRequest.mock.calls
       for (const call of calls) {
-        const variables = call[1] as Record<string, unknown>
+        const variables = (call as unknown as [unknown, Record<string, unknown>])[1]
         expect(variables.onSale).toBe(true)
       }
     })
@@ -190,7 +190,7 @@ describe('ProductListPage onSale — Property 4', () => {
       })
 
       for (const call of mockedRequest.mock.calls) {
-        const variables = call[1] as Record<string, unknown>
+        const variables = (call as unknown as [unknown, Record<string, unknown>])[1]
         expect(variables.onSale).toBe(true)
       }
     })
@@ -215,7 +215,7 @@ describe('ProductListPage onSale — Property 4', () => {
       })
 
       for (const call of mockedRequest.mock.calls) {
-        const variables = call[1] as Record<string, unknown>
+        const variables = (call as unknown as [unknown, Record<string, unknown>])[1]
         expect(variables.onSale).toBe(true)
       }
     })
@@ -240,7 +240,7 @@ describe('ProductListPage onSale — Property 4', () => {
       })
 
       for (const call of mockedRequest.mock.calls) {
-        const variables = call[1] as Record<string, unknown>
+        const variables = (call as unknown as [unknown, Record<string, unknown>])[1]
         expect(variables.onSale).toBe(true)
       }
     })
@@ -319,7 +319,7 @@ describe('ProductListPage onSale — Property 4', () => {
 
       // Initial request should be for page 0 (pageIndex)
       const initialCall = mockedRequest.mock.calls[0]
-      const initialVars = initialCall[1] as Record<string, unknown>
+      const initialVars = (initialCall as unknown as [unknown, Record<string, unknown>])[1]
       expect(initialVars.pageIndex).toBe(0)
 
       // Click next page
@@ -329,7 +329,7 @@ describe('ProductListPage onSale — Property 4', () => {
       // After page change, a new request is made with pageIndex: 1
       await waitFor(() => {
         const lastCall = mockedRequest.mock.calls[mockedRequest.mock.calls.length - 1]
-        const lastVars = lastCall[1] as Record<string, unknown>
+        const lastVars = (lastCall as unknown as [unknown, Record<string, unknown>])[1]
         expect(lastVars.pageIndex).toBe(1)
       })
     })

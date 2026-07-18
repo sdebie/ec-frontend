@@ -28,7 +28,7 @@ const productSchema = z.object({
   status: z.string().refine((val) => Object.values(ProductStatus).includes(val as ProductStatus)),
   categoryId: z.string().min(1, 'Category is required'),
   images: z.array(z.string()),
-  imageIds: z.record(z.string()).default({}),
+  imageIds: z.record(z.string()),
   variants: z.array(variantSchema).min(1, 'At least one variant is required'),
 }).superRefine((data, ctx) => {
   // Validate duplicate SKUs within the form

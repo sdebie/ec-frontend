@@ -29,7 +29,7 @@ function buildCustomer(status: CustomerStatus): AdminCustomerSummary {
     firstName: 'Test',
     lastName: 'Customer',
     email: 'test@example.com',
-    customerType: 'RETAILER',
+    shopperType: 'RETAILER',
     status,
     registeredAt: '2024-01-01T00:00:00Z',
   }

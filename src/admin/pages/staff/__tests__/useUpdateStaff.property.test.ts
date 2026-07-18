@@ -96,7 +96,7 @@ describe('useUpdateStaff — isActive toggle idempotency', () => {
         staffRecordArb,
         fc.array(fc.boolean(), { minLength: 1, maxLength: 10 }),
         (initialRecord, toggleSequence) => {
-          let record = { ...initialRecord }
+          let record: StaffRecord = { ...initialRecord }
 
           for (const targetActive of toggleSequence) {
             const dto: StaffDtoInput = {

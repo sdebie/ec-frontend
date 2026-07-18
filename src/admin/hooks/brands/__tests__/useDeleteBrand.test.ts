@@ -43,7 +43,7 @@ describe('useDeleteBrand', () => {
     })
 
     expect(adminGraphqlClient.request).toHaveBeenCalledTimes(1)
-    const [document, variables] = vi.mocked(adminGraphqlClient.request).mock.calls[0]
+    const [document, variables] = vi.mocked(adminGraphqlClient.request).mock.calls[0] as unknown as [unknown, Record<string, unknown>]
 
     expect(String(document)).toContain('deleteBrand')
     expect(variables).toEqual({ id: 'brand-123' })

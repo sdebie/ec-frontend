@@ -61,7 +61,9 @@ function createMockBatch(overrides?: Partial<ProductUploadBatchDto>): ProductUpl
     skippedRows: 0,
     validationErrorCount: 2,
     createdAt: '2025-01-15T10:00:00Z',
+    completedAt: null,
     uploadedByUsername: 'admin@test.com',
+    approvedByUsername: null,
     ...overrides,
   }
 }
@@ -148,7 +150,7 @@ function setupReviewPageMocks(overrides?: {
       // Instead, schedule it for the next microtask.
       Promise.resolve().then(() => {
         onStatusChange({
-          id: 'batch-123',
+          batchId: 'batch-123',
           status: status as 'PENDING' | 'IMPORTING' | 'PROCESSING' | 'PROCESSED' | 'FAILED',
           totalRows: 50,
           processedRows: 0,

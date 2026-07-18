@@ -43,7 +43,7 @@ describe('useDeleteProductGql', () => {
     })
 
     expect(adminGraphqlClient.request).toHaveBeenCalledTimes(1)
-    const [document, variables] = vi.mocked(adminGraphqlClient.request).mock.calls[0]
+    const [document, variables] = vi.mocked(adminGraphqlClient.request).mock.calls[0] as unknown as [unknown, Record<string, unknown>]
 
     // Verify it's a GraphQL mutation containing deleteProduct
     expect(String(document)).toContain('deleteProduct')

@@ -48,7 +48,7 @@ describe('useCreateBrand', () => {
     })
 
     expect(adminGraphqlClient.request).toHaveBeenCalledTimes(1)
-    const [document, variables] = vi.mocked(adminGraphqlClient.request).mock.calls[0]
+    const [document, variables] = vi.mocked(adminGraphqlClient.request).mock.calls[0] as unknown as [unknown, Record<string, unknown>]
 
     expect(String(document)).toContain('createBrand')
     expect(variables).toEqual({
@@ -81,7 +81,7 @@ describe('useCreateBrand', () => {
       expect(result.current.isSuccess).toBe(true)
     })
 
-    const [, variables] = vi.mocked(adminGraphqlClient.request).mock.calls[0]
+    const [, variables] = vi.mocked(adminGraphqlClient.request).mock.calls[0] as unknown as [unknown, Record<string, unknown>]
 
     expect(variables).toEqual({
       brandDto: {

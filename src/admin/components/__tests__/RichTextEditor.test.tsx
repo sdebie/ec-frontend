@@ -4,10 +4,10 @@ import { render, screen, fireEvent } from '@testing-library/react'
 import { RichTextEditor } from '../RichTextEditor'
 
 describe('RichTextEditor', () => {
-  let onChange: ReturnType<typeof vi.fn>
+  let onChange: ReturnType<typeof vi.fn<(html: string) => void>>
 
   beforeEach(() => {
-    onChange = vi.fn()
+    onChange = vi.fn<(html: string) => void>()
   })
 
   it('renders the toolbar with all expected buttons', () => {

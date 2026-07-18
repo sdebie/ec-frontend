@@ -13,8 +13,8 @@ import { OrderStatusOptions } from '@/shared/types/enums/OrderStatus'
 import {
   useCustomerDetail,
   useUpdateCustomerStatus,
-  useWholesaleApplicationAction,
 } from '@/admin/hooks/customers'
+import { useWholesaleApplicationAction } from '@/admin/hooks/wholesale'
 import {
   getAvailableActions,
   getCustomerStatusColor,

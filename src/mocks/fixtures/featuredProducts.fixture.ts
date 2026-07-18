@@ -1,4 +1,4 @@
-import { storefrontFeaturedProductsFixture } from './storefrontCatalog.fixture'
+import { storefrontFeaturedProductsFixture } from './storefrontCatalog.fixture.js'
 
 // Legacy REST mock retained for compatibility. The storefront itself uses the
 // GraphQL fixture in devApiPlugin, whose shape mirrors ProductShoppingListItemDto.

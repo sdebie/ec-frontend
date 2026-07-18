@@ -67,7 +67,7 @@ describe('useCreateProduct — real mapping', () => {
       expect(adminGraphqlClient.request).toHaveBeenCalledTimes(1)
     })
 
-    const [document] = vi.mocked(adminGraphqlClient.request).mock.calls[0]
+    const [document] = vi.mocked(adminGraphqlClient.request).mock.calls[0] as unknown as [unknown, Record<string, unknown>]
     expect(String(document)).toContain('addProductInformation')
     expect(String(document)).toContain('mutation')
   })
@@ -104,7 +104,7 @@ describe('useCreateProduct — real mapping', () => {
       expect(adminGraphqlClient.request).toHaveBeenCalledTimes(1)
     })
 
-    const [, variables] = vi.mocked(adminGraphqlClient.request).mock.calls[0]
+    const [, variables] = vi.mocked(adminGraphqlClient.request).mock.calls[0] as unknown as [unknown, Record<string, unknown>]
     const input = (variables as { input: unknown }).input as {
       product: { name: string; categories: Array<{ id: string }> }
       variants: Array<{
@@ -166,7 +166,7 @@ describe('useCreateProduct — real mapping', () => {
       expect(adminGraphqlClient.request).toHaveBeenCalledTimes(1)
     })
 
-    const [, variables] = vi.mocked(adminGraphqlClient.request).mock.calls[0]
+    const [, variables] = vi.mocked(adminGraphqlClient.request).mock.calls[0] as unknown as [unknown, Record<string, unknown>]
     const input = (variables as { input: { variants: Array<{ images?: unknown }> } }).input
     expect(input.variants[0].images).toBeUndefined()
   })
@@ -198,7 +198,7 @@ describe('useCreateProduct — real mapping', () => {
       expect(adminGraphqlClient.request).toHaveBeenCalledTimes(1)
     })
 
-    const [, variables] = vi.mocked(adminGraphqlClient.request).mock.calls[0]
+    const [, variables] = vi.mocked(adminGraphqlClient.request).mock.calls[0] as unknown as [unknown, Record<string, unknown>]
     const input = (variables as { input: { variants: Array<{ id?: string }> } }).input
     expect(input.variants[0].id).toBe('existing-var-id')
   })

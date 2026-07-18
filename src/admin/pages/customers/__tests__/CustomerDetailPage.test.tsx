@@ -5,7 +5,7 @@ import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 
 import { useCustomerDetail } from '@/admin/hooks/customers/useCustomerDetail'
 import { useUpdateCustomerStatus } from '@/admin/hooks/customers/useUpdateCustomerStatus'
-import { useWholesaleApplicationAction } from '@/admin/hooks/customers/useWholesaleApplicationAction'
+import { useWholesaleApplicationAction } from '@/admin/hooks/wholesale/useWholesaleApplicationAction'
 import { useAdminAuthStore } from '@/shared/auth/adminAuthStore'
 import type { AdminCustomerDetail } from '@/admin/hooks/customers/types'
 import { CustomerDetailPage } from '../CustomerDetailPage'
@@ -16,7 +16,7 @@ vi.mock('@/admin/hooks/customers/useCustomerDetail', () => ({
 vi.mock('@/admin/hooks/customers/useUpdateCustomerStatus', () => ({
   useUpdateCustomerStatus: vi.fn(),
 }))
-vi.mock('@/admin/hooks/customers/useWholesaleApplicationAction', () => ({
+vi.mock('@/admin/hooks/wholesale/useWholesaleApplicationAction', () => ({
   useWholesaleApplicationAction: vi.fn(),
 }))
 vi.mock('@/shared/auth/adminAuthStore', () => ({

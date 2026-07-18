@@ -65,7 +65,9 @@ function createMockBatch(overrides?: Partial<ProductUploadBatchDto>): ProductUpl
     skippedRows: 0,
     validationErrorCount: 2,
     createdAt: '2025-01-15T10:30:00Z',
+    completedAt: null,
     uploadedByUsername: 'admin@test.com',
+    approvedByUsername: null,
     ...overrides,
   }
 }
@@ -148,7 +150,7 @@ function setupReviewPageDefaults(overrides?: {
       // Call onStatusChange synchronously during render setup
       setTimeout(() => {
         onStatusChange({
-          id: 'batch-1',
+          batchId: 'batch-1',
           status: batchStatus as ProductUploadBatchDto['status'],
           totalRows: 100,
           processedRows: batchStatus === 'PROCESSED' ? 100 : 0,

@@ -64,7 +64,7 @@ describe('useCustomers', () => {
 
     await waitFor(() => expect(result.current.isLoading).toBe(false))
 
-    const listCall = vi.mocked(adminGraphqlClient.request).mock.calls[0]
+    const listCall = vi.mocked(adminGraphqlClient.request).mock.calls[0] as unknown as [unknown, Record<string, unknown>]
     const variables = listCall[1] as { filterRequest: { filters: Array<{ key: string; operator: string; value: string }> } }
     expect(variables.filterRequest.filters).toContainEqual({
       key: 'status',
@@ -85,7 +85,7 @@ describe('useCustomers', () => {
 
     await waitFor(() => expect(result.current.isLoading).toBe(false))
 
-    const listCall = vi.mocked(adminGraphqlClient.request).mock.calls[0]
+    const listCall = vi.mocked(adminGraphqlClient.request).mock.calls[0] as unknown as [unknown, Record<string, unknown>]
     const variables = listCall[1] as { filterRequest: { filters: Array<{ key: string; operator: string; value: string }> } }
     expect(variables.filterRequest.filters).toContainEqual({
       key: 'search',
@@ -106,7 +106,7 @@ describe('useCustomers', () => {
 
     await waitFor(() => expect(result.current.isLoading).toBe(false))
 
-    const listCall = vi.mocked(adminGraphqlClient.request).mock.calls[0]
+    const listCall = vi.mocked(adminGraphqlClient.request).mock.calls[0] as unknown as [unknown, Record<string, unknown>]
     const variables = listCall[1] as { pageRequest: { pageIndex: number; pageSize: number } }
     expect(variables.pageRequest).toEqual({ pageIndex: 1, pageSize: 20 })
   })

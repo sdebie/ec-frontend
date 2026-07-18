@@ -67,7 +67,7 @@ describe('useUpdateProduct — real mapping', () => {
       expect(adminGraphqlClient.request).toHaveBeenCalledTimes(1)
     })
 
-    const [document, variables] = vi.mocked(adminGraphqlClient.request).mock.calls[0]
+    const [document, variables] = vi.mocked(adminGraphqlClient.request).mock.calls[0] as unknown as [unknown, Record<string, unknown>]
 
     // Verify mutation document
     expect(String(document)).toContain('updateProductInformation')
@@ -109,7 +109,7 @@ describe('useUpdateProduct — real mapping', () => {
       expect(adminGraphqlClient.request).toHaveBeenCalledTimes(1)
     })
 
-    const [, variables] = vi.mocked(adminGraphqlClient.request).mock.calls[0]
+    const [, variables] = vi.mocked(adminGraphqlClient.request).mock.calls[0] as unknown as [unknown, Record<string, unknown>]
     const input = (variables as { input: {
       product: { name: string; slug: string; categories: Array<{ id: string }> }
       variants: Array<{

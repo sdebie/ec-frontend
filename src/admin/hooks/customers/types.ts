@@ -56,12 +56,6 @@ export interface CustomerStatusUpdatePayload {
     status: CustomerStatus
 }
 
-export interface WholesaleActionPayload {
-    applicationId: string
-    customerId: string
-    action: 'approve' | 'reject'
-}
-
 export function getAvailableActions(status: CustomerStatus): Array<'activate' | 'suspend'> {
     switch (status) {
         case 'PENDING':

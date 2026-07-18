@@ -65,7 +65,7 @@ describe('useCategoryList', () => {
     })
 
     expect(adminGraphqlClient.request).toHaveBeenCalledTimes(1)
-    const [document, variables] = vi.mocked(adminGraphqlClient.request).mock.calls[0]
+    const [document, variables] = vi.mocked(adminGraphqlClient.request).mock.calls[0] as unknown as [unknown, Record<string, unknown>]
 
     // Verify it's a GraphQL query containing getCategories
     expect(String(document)).toContain('getCategories')
@@ -112,7 +112,7 @@ describe('useCategoryList', () => {
       expect(result.current.data).toBeDefined()
     })
 
-    const [, variables] = vi.mocked(adminGraphqlClient.request).mock.calls[0] as [unknown, Record<string, unknown>]
+    const [, variables] = vi.mocked(adminGraphqlClient.request).mock.calls[0] as unknown as [unknown, Record<string, unknown>]
 
     expect(variables.pageIndex).toBe(0)
     expect(variables.pageSize).toBe(20)

@@ -3,6 +3,7 @@ import { render, cleanup, fireEvent, screen } from '@testing-library/react'
 import * as fc from 'fast-check'
 import { useForm, useFieldArray } from 'react-hook-form'
 import { VariantFields } from '../VariantFields'
+import type { ProductFormValues } from '../ProductForm'
 
 /**
  * Property 3: Variant remove is blocked when only one row remains
@@ -13,15 +14,6 @@ import { VariantFields } from '../VariantFields'
  *
  * **Validates: Requirements 2.7**
  */
-
-interface VariantFormValues {
-  variants: {
-    id?: string
-    sku: string
-    price: string
-    stock: number
-  }[]
-}
 
 // Arbitrary for a single variant row with random values
 const variantArb = fc.record({
@@ -38,8 +30,14 @@ function SingleVariantWrapper({
 }: {
   initialVariant: { sku: string; price: string; stock: number }
 }) {
-  const { control } = useForm<VariantFormValues>({
+  const { control } = useForm<ProductFormValues>({
     defaultValues: {
+      status: 'DRAFT',
+      name: '',
+      categoryId: '',
+      images: [],
+      slug: '',
+      imageIds: {},
       variants: [initialVariant],
     },
   })

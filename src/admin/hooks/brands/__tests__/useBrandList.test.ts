@@ -63,7 +63,7 @@ describe('useBrandList', () => {
     })
 
     expect(adminGraphqlClient.request).toHaveBeenCalledTimes(1)
-    const [document, variables] = vi.mocked(adminGraphqlClient.request).mock.calls[0]
+    const [document, variables] = vi.mocked(adminGraphqlClient.request).mock.calls[0] as unknown as [unknown, Record<string, unknown>]
 
     expect(String(document)).toContain('getBrands')
     expect(variables).toMatchObject({
@@ -108,7 +108,7 @@ describe('useBrandList', () => {
       expect(result.current.data).toBeDefined()
     })
 
-    const [, variables] = vi.mocked(adminGraphqlClient.request).mock.calls[0]
+    const [, variables] = vi.mocked(adminGraphqlClient.request).mock.calls[0] as unknown as [unknown, Record<string, unknown>]
 
     expect(variables).toMatchObject({
       pageIndex: 0,
@@ -141,7 +141,7 @@ describe('useBrandList', () => {
       expect(result.current.data).toBeDefined()
     })
 
-    const [, variables] = vi.mocked(adminGraphqlClient.request).mock.calls[0]
+    const [, variables] = vi.mocked(adminGraphqlClient.request).mock.calls[0] as unknown as [unknown, Record<string, unknown>]
 
     expect(variables).toMatchObject({
       pageIndex: 0,

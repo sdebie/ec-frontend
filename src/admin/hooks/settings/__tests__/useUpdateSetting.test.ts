@@ -48,7 +48,7 @@ describe('useUpdateSetting', () => {
     await waitFor(() => expect(result.current.isPending).toBe(false))
 
     expect(adminGraphqlClient.request).toHaveBeenCalledTimes(1)
-    const variables = vi.mocked(adminGraphqlClient.request).mock.calls[0][1]
+    const variables = (vi.mocked(adminGraphqlClient.request).mock.calls[0] as unknown as [unknown, Record<string, unknown>])[1]
     expect(variables).toEqual({ key: 'vat_rate_percent', value: '0.15' })
   })
 
@@ -80,7 +80,7 @@ describe('useUpdateSetting', () => {
 
   it('shows toast.error with duration:0 on ClientError', async () => {
     const clientError = new ClientError(
-      { errors: [{ message: 'Invalid value' }], status: 400, headers: new Headers() },
+      ({ errors: [{ message: 'Invalid value' }], status: 400, headers: new Headers() } as unknown as ConstructorParameters<typeof ClientError>[0]),
       { query: '' },
     )
     vi.mocked(adminGraphqlClient.request).mockRejectedValue(clientError)

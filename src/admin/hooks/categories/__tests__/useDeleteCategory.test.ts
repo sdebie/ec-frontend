@@ -12,14 +12,6 @@ vi.mock('@/shared/api/graphql/adminGraphqlClient', () => ({
 import { adminGraphqlClient } from '@/shared/api/graphql/adminGraphqlClient'
 import { useDeleteCategory } from '../useDeleteCategory'
 
-function createWrapper() {
-  const queryClient = new QueryClient({
-    defaultOptions: { queries: { retry: false }, mutations: { retry: false } },
-  })
-  return ({ children }: { children: React.ReactNode }) =>
-    createElement(QueryClientProvider, { client: queryClient }, children)
-}
-
 describe('useDeleteCategory', () => {
   beforeEach(() => {
     vi.clearAllMocks()
@@ -61,7 +53,7 @@ describe('useDeleteCategory', () => {
     })
 
     expect(adminGraphqlClient.request).toHaveBeenCalledTimes(1)
-    const [document, variables] = vi.mocked(adminGraphqlClient.request).mock.calls[0]
+    const [document, variables] = vi.mocked(adminGraphqlClient.request).mock.calls[0] as unknown as [unknown, Record<string, unknown>]
 
     // Verify it's a GraphQL mutation containing deleteCategory
     expect(String(document)).toContain('deleteCategory')

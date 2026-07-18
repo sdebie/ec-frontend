@@ -113,7 +113,7 @@ describe('NavigationEditorPage', () => {
 
     await waitFor(() => {
       // The second call is the mutation (first was the initial query)
-      const mutationCall = mockRequest.mock.calls.find(
+      const mutationCall = (mockRequest.mock.calls as unknown as [unknown, Record<string, unknown>][]).find(
         (call) => call[1] && (call[1] as Record<string, unknown>).storeSettingsDto,
       )
       expect(mutationCall).toBeDefined()
@@ -153,7 +153,7 @@ describe('NavigationEditorPage', () => {
     })
 
     // Only the initial query should have been called — no mutation
-    const mutationCalls = mockRequest.mock.calls.filter(
+    const mutationCalls = (mockRequest.mock.calls as unknown as [unknown, Record<string, unknown>][]).filter(
       (call) => call[1] && (call[1] as Record<string, unknown>).storeSettingsDto,
     )
     expect(mutationCalls).toHaveLength(0)
@@ -179,7 +179,7 @@ describe('NavigationEditorPage', () => {
     })
 
     // Only the initial query should have been called — no mutation
-    const mutationCalls = mockRequest.mock.calls.filter(
+    const mutationCalls = (mockRequest.mock.calls as unknown as [unknown, Record<string, unknown>][]).filter(
       (call) => call[1] && (call[1] as Record<string, unknown>).storeSettingsDto,
     )
     expect(mutationCalls).toHaveLength(0)

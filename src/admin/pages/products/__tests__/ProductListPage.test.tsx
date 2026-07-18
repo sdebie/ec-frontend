@@ -82,12 +82,12 @@ function setupDefaultMocks(overrides?: {
   vi.mocked(useDeleteProductGql).mockReturnValue({
     mutate: mockDeleteMutate,
     isPending: false,
-  } as ReturnType<typeof useDeleteProductGql>)
+  } as unknown as ReturnType<typeof useDeleteProductGql>)
 
   vi.mocked(useUpdateProductStatusGql).mockReturnValue({
     mutate: mockStatusMutate,
     isPending: false,
-  } as ReturnType<typeof useUpdateProductStatusGql>)
+  } as unknown as ReturnType<typeof useUpdateProductStatusGql>)
 
   vi.mocked(useCategories).mockReturnValue({
     data: [{ id: 'cat-1', name: 'Electronics' }],

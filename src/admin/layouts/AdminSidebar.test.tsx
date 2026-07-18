@@ -35,7 +35,13 @@ function renderSidebar(props: { isOpen?: boolean; onClose?: () => void } = {}) {
   const { isOpen = false, onClose = vi.fn() } = props
   return render(
     <MemoryRouter>
-      <AdminSidebar isOpen={isOpen} onClose={onClose} />
+      <AdminSidebar
+        isOpen={isOpen}
+        onClose={onClose}
+        isCollapsed={false}
+        onToggleCollapsed={vi.fn()}
+        onSetCollapsed={vi.fn()}
+      />
     </MemoryRouter>,
   )
 }

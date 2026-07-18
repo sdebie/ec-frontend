@@ -12,7 +12,7 @@ import { MemoryRouter } from 'react-router-dom'
  * **Validates: Requirements 3.3, 7.2**
  */
 
-const mockUseAdminProductList = vi.fn(() => ({
+const mockUseAdminProductList = vi.fn((..._args: unknown[]) => ({
   data: { content: [], totalElements: 0, totalPages: 0 },
   isLoading: false,
   refetch: vi.fn(),
