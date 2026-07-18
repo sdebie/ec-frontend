@@ -12,8 +12,13 @@ export function useUploadCsv() {
 
   const { mutateAsync, isPending } = useMutation({
     mutationFn: async ({ file, endpoint }: UploadCsvParams) => {
+      // Read the file into memory before posting. Safari streams disk-backed
+      // Files during upload and aborts with a bare "Network Error" if the file
+      // is an iCloud placeholder or was modified after selection; buffering
+      // makes the upload independent of the file's on-disk state.
+      const buffered = new File([await file.arrayBuffer()], file.name, { type: file.type })
       const formData = new FormData()
-      formData.append('file', file)
+      formData.append('file', buffered)
       const response = await adminHttpClient.post(endpoint, formData, {
         // Let the browser set the multipart boundary. CSV uploads can take
         // longer than the shared HTTP client's 60-second request timeout.

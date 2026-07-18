@@ -1,6 +1,7 @@
 import {
     Import,
     LayoutDashboard,
+    Mail,
     Megaphone,
     Menu,
     Package,
@@ -26,6 +27,7 @@ const icons: Record<string, FC<LucideProps>> = {
     users: Users,
     warehouse: Warehouse,
     menu: Menu,
+    mail: Mail,
     megaphone: Megaphone,
     scale: Scale,
     star: Star,
