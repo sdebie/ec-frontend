@@ -8,9 +8,6 @@ import type { BrandFormValues } from './components/BrandForm'
 
 export function BrandEditPage() {
   const canMutate = useAdminAuthStore((s) => s.role) === 'SUPER_ADMIN'
-
-  if (!canMutate) return <Navigate to="/admin/products/brands" replace />
-
   const { brandId } = useParams<{ brandId: string }>()
   const navigate = useNavigate()
   const { data: brand, isLoading } = useBrandDetail(brandId!)
@@ -22,6 +19,8 @@ export function BrandEditPage() {
     { label: 'Edit Brand' },
   ])
   const mutation = useUpdateBrand(brandId!)
+
+  if (!canMutate) return <Navigate to="/admin/products/brands" replace />
 
   if (isLoading) {
     return <PageLoadingSpinner />

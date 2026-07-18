@@ -1,4 +1,4 @@
-import { useRef } from 'react'
+import { useState } from 'react'
 import { Link, Navigate, useNavigate, useSearchParams } from 'react-router-dom'
 import { useCustomerAuthStore } from '@/shared/auth/customerAuthStore'
 import { isRelativePath } from '@/storefront/customer/auth/utils/urlValidation'
@@ -8,9 +8,9 @@ export function AccountLoginPage() {
   const [searchParams] = useSearchParams()
   const navigate = useNavigate()
   const isSignedIn = useCustomerAuthStore((s) => s.isSignedIn)
-  const wasSignedInOnMount = useRef(isSignedIn)
+  const [wasSignedInOnMount] = useState(() => isSignedIn)
 
-  if (isSignedIn && wasSignedInOnMount.current) {
+  if (isSignedIn && wasSignedInOnMount) {
     return <Navigate to="/account" replace />
   }
 

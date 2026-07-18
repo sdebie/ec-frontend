@@ -8,9 +8,6 @@ import type { CategoryFormValues } from './components/CategoryForm'
 
 export function CategoryEditPage() {
   const canMutate = useAdminAuthStore((s) => s.role) === 'SUPER_ADMIN'
-
-  if (!canMutate) return <Navigate to="/admin/products/categories" replace />
-
   const { categoryId } = useParams<{ categoryId: string }>()
   const navigate = useNavigate()
   const { data: category, isLoading } = useCategoryDetail(categoryId!)
@@ -22,6 +19,8 @@ export function CategoryEditPage() {
     { label: 'Edit Category' },
   ])
   const mutation = useUpdateCategory(categoryId!)
+
+  if (!canMutate) return <Navigate to="/admin/products/categories" replace />
 
   if (isLoading) {
     return <PageLoadingSpinner />
