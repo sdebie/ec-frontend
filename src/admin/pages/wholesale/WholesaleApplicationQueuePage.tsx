@@ -1,4 +1,4 @@
-import { useState, useMemo } from 'react'
+import { useState, useMemo, useCallback } from 'react'
 import type { PaginationState } from '@tanstack/react-table'
 import { EllipsisVertical } from 'lucide-react'
 
@@ -48,7 +48,7 @@ export function WholesaleApplicationQueuePage() {
     customerId: string
   }>({ open: false, applicationId: '', customerId: '' })
 
-  const applicationAction = useWholesaleApplicationAction()
+  const { mutate: submitApplicationAction, isPending: isSubmittingAction } = useWholesaleApplicationAction()
 
   const { data, total, isLoading } = useWholesaleApplications({
     page: pagination.pageIndex + 1,
@@ -61,17 +61,17 @@ export function WholesaleApplicationQueuePage() {
     setPagination((prev) => ({ ...prev, pageIndex: 0 }))
   }
 
-  const handleApprove = (applicationId: string) => {
-    applicationAction.mutate({ applicationId, action: 'approve' })
-  }
+  const handleApprove = useCallback((applicationId: string) => {
+    submitApplicationAction({ applicationId, action: 'approve' })
+  }, [submitApplicationAction])
 
-  const handleReject = (applicationId: string) => {
+  const handleReject = useCallback((applicationId: string) => {
     setConfirmDialog({ open: true, applicationId, customerId: '' })
-  }
+  }, [])
 
   const handleConfirmReject = () => {
     const { applicationId } = confirmDialog
-    applicationAction.mutate(
+    submitApplicationAction(
       { applicationId, action: 'reject' },
       { onSettled: () => setConfirmDialog((prev) => ({ ...prev, open: false })) },
     )
@@ -127,7 +127,7 @@ export function WholesaleApplicationQueuePage() {
                         <span
                           className={cn(
                             'inline-flex items-center justify-center p-1 rounded-lg hover:bg-(--c-surface-hover)',
-                            applicationAction.isPending && 'opacity-50 pointer-events-none',
+                            isSubmittingAction && 'opacity-50 pointer-events-none',
                           )}
                         >
                           <EllipsisVertical className="h-5 w-5 text-(--c-text-muted)" />
@@ -157,7 +157,7 @@ export function WholesaleApplicationQueuePage() {
           ]
         : []),
     ],
-    [applicationAction.isPending, canMutate, handleApprove],
+    [canMutate, handleApprove, handleReject, isSubmittingAction],
   )
 
   const pageCount = total ? Math.ceil(total / pagination.pageSize) : 0
@@ -195,7 +195,7 @@ export function WholesaleApplicationQueuePage() {
         description="Are you sure you want to reject this wholesale application? This action cannot be undone."
         variant="danger"
         confirmLabel="Reject Application"
-        isLoading={applicationAction.isPending}
+        isLoading={isSubmittingAction}
       />
     </div>
   )

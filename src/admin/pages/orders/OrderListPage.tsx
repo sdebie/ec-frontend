@@ -1,4 +1,4 @@
-import { useState, useMemo } from 'react'
+import { useState, useMemo, useCallback } from 'react'
 import { Link } from 'react-router-dom'
 import type { PaginationState } from '@tanstack/react-table'
 
@@ -54,7 +54,7 @@ export function OrderListPage() {
     orderId: string
   }>({ open: false, type: 'cancel', orderId: '' })
 
-  const updateStatus = useUpdateOrderStatus()
+  const { mutate: updateOrderStatus, isPending: isUpdatingStatus } = useUpdateOrderStatus()
 
   const { data, isLoading } = useOrders({
     page: pagination.pageIndex + 1,
@@ -79,27 +79,27 @@ export function OrderListPage() {
     setPagination((prev) => ({ ...prev, pageIndex: 0 }))
   }
 
-  const handleShip = (orderId: string) => {
-    updateStatus.mutate({ orderId, payload: { status: OrderStatus.IN_TRANSIT } })
-  }
+  const handleShip = useCallback((orderId: string) => {
+    updateOrderStatus({ orderId, payload: { status: OrderStatus.IN_TRANSIT } })
+  }, [updateOrderStatus])
 
-  const handleDeliver = (orderId: string) => {
-    updateStatus.mutate({ orderId, payload: { status: OrderStatus.DELIVERED } })
-  }
+  const handleDeliver = useCallback((orderId: string) => {
+    updateOrderStatus({ orderId, payload: { status: OrderStatus.DELIVERED } })
+  }, [updateOrderStatus])
 
-  const handleCancel = (orderId: string) => {
+  const handleCancel = useCallback((orderId: string) => {
     setConfirmDialog({ open: true, type: 'cancel', orderId })
-  }
+  }, [])
 
-  const handleRefund = (orderId: string) => {
+  const handleRefund = useCallback((orderId: string) => {
     setConfirmDialog({ open: true, type: 'refund', orderId })
-  }
+  }, [])
 
   const handleConfirmAction = () => {
     const { type, orderId } = confirmDialog
     const status =
       type === 'cancel' ? OrderStatus.CANCELLED : OrderStatus.REFUNDED
-    updateStatus.mutate(
+    updateOrderStatus(
       { orderId, payload: { status } },
       { onSettled: () => setConfirmDialog((prev) => ({ ...prev, open: false })) },
     )
@@ -245,7 +245,7 @@ export function OrderListPage() {
         }
         variant="danger"
         confirmLabel={confirmDialog.type === 'cancel' ? 'Cancel Order' : 'Refund Order'}
-        isLoading={updateStatus.isPending}
+        isLoading={isUpdatingStatus}
       />
     </div>
   )

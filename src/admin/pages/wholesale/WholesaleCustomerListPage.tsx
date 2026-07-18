@@ -1,4 +1,4 @@
-import { useState, useEffect, useMemo } from 'react'
+import { useState, useEffect, useMemo, useCallback } from 'react'
 import { Link } from 'react-router-dom'
 import type { PaginationState } from '@tanstack/react-table'
 
@@ -65,7 +65,7 @@ export function WholesaleCustomerListPage() {
     customerId: string
   }>({ open: false, customerId: '' })
 
-  const updateStatus = useWholesaleCustomerStatusAction()
+  const { mutate: updateWholesaleCustomerStatus, isPending: isUpdatingStatus } = useWholesaleCustomerStatusAction()
 
   const { data, total, isLoading } = useWholesaleCustomers({
     page: pagination.pageIndex + 1,
@@ -83,17 +83,17 @@ export function WholesaleCustomerListPage() {
     setSearchInput(e.target.value)
   }
 
-  const handleActivate = (customerId: string) => {
-    updateStatus.mutate({ customerId, status: 'ACTIVE' })
-  }
+  const handleActivate = useCallback((customerId: string) => {
+    updateWholesaleCustomerStatus({ customerId, status: 'ACTIVE' })
+  }, [updateWholesaleCustomerStatus])
 
-  const handleSuspend = (customerId: string) => {
+  const handleSuspend = useCallback((customerId: string) => {
     setConfirmDialog({ open: true, customerId })
-  }
+  }, [])
 
   const handleConfirmSuspend = () => {
     const { customerId } = confirmDialog
-    updateStatus.mutate(
+    updateWholesaleCustomerStatus(
       { customerId, status: 'DISABLED' },
       { onSettled: () => setConfirmDialog((prev) => ({ ...prev, open: false })) },
     )
@@ -165,7 +165,7 @@ export function WholesaleCustomerListPage() {
                       <span
                         className={cn(
                           'inline-flex items-center justify-center p-1 rounded-lg hover:bg-(--c-surface-hover)',
-                          updateStatus.isPending && 'opacity-50 pointer-events-none',
+                          isUpdatingStatus && 'opacity-50 pointer-events-none',
                         )}
                       >
                         <EllipsisVertical className="h-5 w-5 text-(--c-text-muted)" />
@@ -190,7 +190,7 @@ export function WholesaleCustomerListPage() {
           ]
         : []),
     ],
-    [canMutate, handleActivate, handleSuspend, updateStatus.isPending],
+    [canMutate, handleActivate, handleSuspend, isUpdatingStatus],
   )
 
   const pageCount = total ? Math.ceil(total / pagination.pageSize) : 0
@@ -238,7 +238,7 @@ export function WholesaleCustomerListPage() {
         description="Are you sure you want to suspend this wholesale customer? They will no longer be able to access the storefront."
         variant="danger"
         confirmLabel="Suspend Customer"
-        isLoading={updateStatus.isPending}
+        isLoading={isUpdatingStatus}
       />
     </div>
   )

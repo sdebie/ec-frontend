@@ -19,20 +19,32 @@ function validateVatRate(value: string): string | null {
 }
 
 export function StoreSettingEditDialog({ open, setting, onClose }: StoreSettingEditDialogProps) {
-  const [value, setValue] = React.useState('')
+  if (!setting) return null
+
+  // A keyed editor gives each open/setting pair a fresh form state. It replaces
+  // the effect that copied props into state after render.
+  return (
+    <StoreSettingEditDialogForm
+      key={`${setting.key}:${open ? 'open' : 'closed'}`}
+      open={open}
+      setting={setting}
+      onClose={onClose}
+    />
+  )
+}
+
+interface StoreSettingEditDialogFormProps {
+  open: boolean
+  setting: StoreSetting
+  onClose: () => void
+}
+
+function StoreSettingEditDialogForm({ open, setting, onClose }: StoreSettingEditDialogFormProps) {
+  const [value, setValue] = React.useState(setting.value)
   const [error, setError] = React.useState<string | null>(null)
   const mutation = useUpdateSetting()
 
-  React.useEffect(() => {
-    if (setting) {
-      setValue(setting.value)
-      setError(null)
-    }
-  }, [setting])
-
   const handleSave = () => {
-    if (!setting) return
-
     if (setting.key === 'vat_rate_percent') {
       const validationError = validateVatRate(value)
       if (validationError) {
@@ -51,8 +63,6 @@ export function StoreSettingEditDialog({ open, setting, onClose }: StoreSettingE
       }
     )
   }
-
-  if (!setting) return null
 
   const isTextarea = setting.key === 'payment_methods_allowed'
 

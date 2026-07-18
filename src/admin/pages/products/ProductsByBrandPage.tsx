@@ -49,12 +49,12 @@ export function ProductsByBrandPage() {
 
   const pageCount = data?.totalPages ?? 0
 
-  // Auto-reset: if pageIndex exceeds totalPages, reset to last valid page
-  useEffect(() => {
-    if (pageCount > 0 && pagination.pageIndex >= pageCount) {
-      setPagination((prev) => ({ ...prev, pageIndex: Math.max(0, pageCount - 1) }))
-    }
-  }, [pageCount, pagination.pageIndex])
+  // Derive the visible page when a result set shrinks rather than synchronising
+  // local state after a response arrives.
+  const visiblePagination = {
+    ...pagination,
+    pageIndex: pageCount > 0 ? Math.min(pagination.pageIndex, pageCount - 1) : pagination.pageIndex,
+  }
 
   const handleBrandChange = (value: string) => {
     setSelectedBrandId(value)
@@ -182,7 +182,7 @@ export function ProductsByBrandPage() {
           isLoading={isLoading}
           manualPagination
           pageCount={pageCount}
-          pagination={pagination}
+          pagination={visiblePagination}
           onPaginationChange={setPagination}
           emptyMessage="No products found"
         />

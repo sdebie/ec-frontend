@@ -1,4 +1,4 @@
-import { useState, useEffect, useMemo } from 'react'
+import { useState, useEffect, useMemo, useCallback } from 'react'
 import { Link } from 'react-router-dom'
 import type { PaginationState } from '@tanstack/react-table'
 
@@ -56,7 +56,7 @@ export function CustomerListPage() {
     customerId: string
   }>({ open: false, customerId: '' })
 
-  const updateStatus = useUpdateCustomerStatus()
+  const { mutate: updateCustomerStatus, isPending: isUpdatingStatus } = useUpdateCustomerStatus()
 
   const { data, isLoading } = useCustomers({
     page: pagination.pageIndex + 1,
@@ -74,17 +74,17 @@ export function CustomerListPage() {
     setSearchInput(e.target.value)
   }
 
-  const handleActivate = (customerId: string) => {
-    updateStatus.mutate({ customerId, status: 'ACTIVE' })
-  }
+  const handleActivate = useCallback((customerId: string) => {
+    updateCustomerStatus({ customerId, status: 'ACTIVE' })
+  }, [updateCustomerStatus])
 
-  const handleSuspend = (customerId: string) => {
+  const handleSuspend = useCallback((customerId: string) => {
     setConfirmDialog({ open: true, customerId })
-  }
+  }, [])
 
   const handleConfirmSuspend = () => {
     const { customerId } = confirmDialog
-    updateStatus.mutate(
+    updateCustomerStatus(
       { customerId, status: 'DISABLED' },
       { onSettled: () => setConfirmDialog((prev) => ({ ...prev, open: false })) },
     )
@@ -200,7 +200,7 @@ export function CustomerListPage() {
         description="Are you sure you want to suspend this customer? They will no longer be able to access the storefront."
         variant="danger"
         confirmLabel="Suspend Customer"
-        isLoading={updateStatus.isPending}
+        isLoading={isUpdatingStatus}
       />
     </div>
   )
