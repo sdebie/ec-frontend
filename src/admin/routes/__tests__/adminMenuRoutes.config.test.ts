@@ -53,11 +53,14 @@ describe('adminMenuRoutes — admin.products configuration', () => {
     expect(actualPaths).toEqual(expectedPaths)
   })
 
-  it('all children have authority ["SUPER_ADMIN", "VIEWER"]', () => {
-    const expectedAuthority = ['SUPER_ADMIN', 'VIEWER']
+  it('makes the product list readable by all staff while keeping the other product sections restricted', () => {
+    const listRoute = productsEntry!.subMenu!.find((child) => child.key === 'admin.products.list')
+    const otherRoutes = productsEntry!.subMenu!.filter((child) => child.key !== 'admin.products.list')
 
-    productsEntry!.subMenu!.forEach((child) => {
-      expect(child.authority).toEqual(expectedAuthority)
+    expect(productsEntry!.authority).toEqual(['SUPER_ADMIN', 'CATALOG_MANAGER', 'ORDER_MANAGER', 'VIEWER'])
+    expect(listRoute!.authority).toEqual(['SUPER_ADMIN', 'CATALOG_MANAGER', 'ORDER_MANAGER', 'VIEWER'])
+    otherRoutes.forEach((child) => {
+      expect(child.authority).toEqual(['SUPER_ADMIN', 'VIEWER'])
     })
   })
 })

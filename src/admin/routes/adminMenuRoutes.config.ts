@@ -8,7 +8,7 @@ export const adminMenuRoutes: AdminRouteList = [
         component: lazy(() =>
             import('@/admin/pages/AdminDashboardPage').then((m) => ({default: m.AdminDashboardPage}))
         ),
-        authority: ['SUPER_ADMIN', 'VIEWER'],
+        authority: ['SUPER_ADMIN', 'CATALOG_MANAGER', 'ORDER_MANAGER', 'VIEWER'],
         meta: {
             label: 'Dashboard',
             section: 'MAIN',
@@ -21,7 +21,7 @@ export const adminMenuRoutes: AdminRouteList = [
     {
         key: 'admin.products',
         path: '/admin/products',
-        authority: ['SUPER_ADMIN', 'VIEWER'],
+        authority: ['SUPER_ADMIN', 'CATALOG_MANAGER', 'ORDER_MANAGER', 'VIEWER'],
         meta: {
             label: 'Products',
             section: 'PRODUCT MANAGEMENT',
@@ -36,7 +36,7 @@ export const adminMenuRoutes: AdminRouteList = [
                 component: lazy(() =>
                     import('@/admin/pages/products/ProductListPage').then((m) => ({default: m.ProductListPage}))
                 ),
-                authority: ['SUPER_ADMIN', 'VIEWER'],
+                authority: ['SUPER_ADMIN', 'CATALOG_MANAGER', 'ORDER_MANAGER', 'VIEWER'],
                 meta: {
                     label: 'Product List',
                     pageBackgroundType: 'plain',

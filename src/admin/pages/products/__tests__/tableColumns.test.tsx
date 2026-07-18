@@ -9,7 +9,7 @@ import { useUpdateProductStatusGql } from '@/admin/hooks/products/useUpdateProdu
 import { useProductStats } from '@/admin/hooks/products/useProductStats'
 import { useCategories } from '@/admin/hooks/products/useCategories'
 import { useBrands } from '@/admin/hooks/products/useBrands'
-import { useAdminAuthStore } from '@/shared/auth/adminAuthStore'
+import * as authorizationHelper from '@/shared/utils/authorizationHelper'
 
 /**
  * Unit tests for table column rendering and order.
@@ -37,8 +37,9 @@ vi.mock('@/admin/hooks/products/useCategories', () => ({
 vi.mock('@/admin/hooks/products/useBrands', () => ({
   useBrands: vi.fn(),
 }))
-vi.mock('@/shared/auth/adminAuthStore', () => ({
-  useAdminAuthStore: vi.fn(),
+vi.mock('@/shared/utils/authorizationHelper', () => ({
+  canManageCatalog: vi.fn(),
+  hasRequiredAuthority: vi.fn(),
 }))
 
 const mockNavigate = vi.fn()
@@ -98,10 +99,10 @@ function setupMocks() {
     isLoading: false,
   })
 
-  vi.mocked(useAdminAuthStore).mockImplementation((selector: unknown) => {
-    const state = { role: 'SUPER_ADMIN' }
-    return typeof selector === 'function' ? (selector as (s: typeof state) => unknown)(state) : state
-  })
+  vi.mocked(authorizationHelper.canManageCatalog).mockReturnValue(true)
+  vi.mocked(authorizationHelper.hasRequiredAuthority).mockImplementation((roles) =>
+    roles.includes('SUPER_ADMIN'),
+  )
 }
 
 function renderPage() {
@@ -191,10 +192,7 @@ describe('Product table columns', () => {
   })
 
   it('renders Actions column with only view button for VIEWER role', () => {
-    vi.mocked(useAdminAuthStore).mockImplementation((selector: unknown) => {
-      const state = { role: 'VIEWER' }
-      return typeof selector === 'function' ? (selector as (s: typeof state) => unknown)(state) : state
-    })
+    vi.mocked(authorizationHelper.canManageCatalog).mockReturnValue(false)
 
     renderPage()
 

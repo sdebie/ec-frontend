@@ -1,6 +1,7 @@
 import { Suspense } from 'react'
 import type { RouteObject } from 'react-router-dom'
 import type { AdminRouteList } from '@/admin/types/routes'
+import { AdminRouteGuard } from './AdminRouteGuard'
 
 function flattenRoutes(routes: AdminRouteList): AdminRouteList {
   return routes.flatMap((route) => [
@@ -27,9 +28,11 @@ export function buildAdminRouteObjects(routes: AdminRouteList): RouteObject[] {
       return {
         path: route.path,
         element: (
-          <Suspense fallback={null}>
-            <Component />
-          </Suspense>
+          <AdminRouteGuard authority={route.authority}>
+            <Suspense fallback={null}>
+              <Component />
+            </Suspense>
+          </AdminRouteGuard>
         ),
       }
     })

@@ -8,7 +8,7 @@ import { useUpdateProductStatusGql } from '@/admin/hooks/products/useUpdateProdu
 import { useProductStats } from '@/admin/hooks/products/useProductStats'
 import { useCategories } from '@/admin/hooks/products/useCategories'
 import { useBrands } from '@/admin/hooks/products/useBrands'
-import { useAdminAuthStore } from '@/shared/auth/adminAuthStore'
+import * as authorizationHelper from '@/shared/utils/authorizationHelper'
 import { ProductListPage } from '../ProductListPage'
 
 const mockRefetch = vi.fn()
@@ -34,8 +34,9 @@ vi.mock('@/admin/hooks/products/useCategories', () => ({
 vi.mock('@/admin/hooks/products/useBrands', () => ({
   useBrands: vi.fn(),
 }))
-vi.mock('@/shared/auth/adminAuthStore', () => ({
-  useAdminAuthStore: vi.fn(),
+vi.mock('@/shared/utils/authorizationHelper', () => ({
+  canManageCatalog: vi.fn(),
+  hasRequiredAuthority: vi.fn(),
 }))
 vi.mock('react-router-dom', async () => {
   const actual = await vi.importActual('react-router-dom')
@@ -98,10 +99,14 @@ function setupDefaultMocks(overrides?: {
     isLoading: false,
   })
 
-  vi.mocked(useAdminAuthStore).mockImplementation((selector: unknown) => {
-    const state = { role: overrides?.role ?? 'SUPER_ADMIN' }
-    return typeof selector === 'function' ? (selector as (s: typeof state) => unknown)(state) : state
-  })
+  vi.mocked(authorizationHelper.canManageCatalog).mockReturnValue(
+    overrides?.role === 'VIEWER' || overrides?.role === 'ORDER_MANAGER'
+      ? false
+      : true,
+  )
+  vi.mocked(authorizationHelper.hasRequiredAuthority).mockReturnValue(
+    overrides?.role !== 'VIEWER' && overrides?.role !== 'ORDER_MANAGER',
+  )
 }
 
 function renderPage() {
@@ -169,6 +174,17 @@ describe('ProductListPage', () => {
   describe('VIEWER role', () => {
     it('hides Add Product button and actions menu for VIEWER role', () => {
       setupDefaultMocks({ role: 'VIEWER' })
+
+      renderPage()
+
+      expect(screen.queryByRole('button', { name: /add product/i })).not.toBeInTheDocument()
+      expect(screen.queryByTestId('actions-menu')).not.toBeInTheDocument()
+    })
+  })
+
+  describe('ORDER_MANAGER role', () => {
+    it('hides Add Product button and actions menu for ORDER_MANAGER role', () => {
+      setupDefaultMocks({ role: 'ORDER_MANAGER' })
 
       renderPage()
 

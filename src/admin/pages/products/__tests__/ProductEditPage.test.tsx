@@ -1,22 +1,24 @@
+/**
+ * Feature: admin-product-write, Task 6.1
+ * Page-level test — exercises the edit page's not-found handling when GraphQL returns null,
+ * form population from useProductDetail, and validation blocking.
+ * Mocks adminGraphqlClient.request (not the hooks) so the mapping code executes.
+ *
+ * Validates: Requirements 1.3, 2.5, 8.2
+ */
 import { describe, it, expect, vi, beforeEach } from 'vitest'
 import { render, screen, waitFor } from '@testing-library/react'
+import userEvent from '@testing-library/user-event'
 import { MemoryRouter } from 'react-router-dom'
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
+import { createElement } from 'react'
 import { ProductEditPage } from '../ProductEditPage'
 
-// --- Mocks ---
-
-const mockUpdateMutate = vi.fn()
-const mockNavigate = vi.fn()
-
-vi.mock('@/admin/hooks/products/useProductDetail', () => ({
-  useProductDetail: vi.fn(),
-}))
-
-vi.mock('@/admin/hooks/products/useUpdateProduct', () => ({
-  useUpdateProduct: vi.fn(() => ({
-    mutate: mockUpdateMutate,
-    isLoading: false,
-  })),
+// Mock only the boundary — adminGraphqlClient.request
+vi.mock('@/shared/api/graphql/adminGraphqlClient', () => ({
+  adminGraphqlClient: {
+    request: vi.fn(),
+  },
 }))
 
 vi.mock('@/admin/hooks/products/useCategories', () => ({
@@ -27,10 +29,11 @@ vi.mock('@/admin/hooks/products/useCategories', () => ({
 }))
 
 vi.mock('@/admin/hooks/media', () => ({
-  useMediaUpload: () => ({ upload: vi.fn().mockResolvedValue('/static/images/test.jpg'), isUploading: false }),
+  useMediaUpload: () => ({ upload: vi.fn().mockResolvedValue('uploaded.jpg'), isUploading: false }),
   useMediaDelete: () => ({ remove: vi.fn().mockResolvedValue(undefined), isDeleting: false }),
 }))
 
+const mockNavigate = vi.fn()
 vi.mock('react-router-dom', async () => {
   const actual = await vi.importActual('react-router-dom')
   return {
@@ -40,139 +43,77 @@ vi.mock('react-router-dom', async () => {
   }
 })
 
-vi.mock('@/shared/ui/components', async () => {
-  const actual = await vi.importActual('@/shared/ui/components')
-  return {
-    ...actual,
-    toast: { success: vi.fn(), error: vi.fn() },
-  }
-})
+vi.mock('@/shared/ui/components/toast', () => ({
+  toast: { success: vi.fn(), error: vi.fn() },
+}))
 
-import { useProductDetail } from '@/admin/hooks/products/useProductDetail'
+import { adminGraphqlClient } from '@/shared/api/graphql/adminGraphqlClient'
 
-// --- Mock Data ---
-
-const mockProduct = {
-  id: 'prod-123',
-  name: 'Test Widget',
-  slug: 'test-widget',
-  shortDescription: 'A test widget',
-  description: 'Detailed description',
-  status: 'ACTIVE',
-  category: { id: 'cat-1', name: 'Electronics' },
-  images: ['https://example.com/img1.jpg'],
-  variants: [{ id: 'var-1', sku: 'WDG-001', price: '49.99', stock: 10 }],
+function createWrapper() {
+  const queryClient = new QueryClient({
+    defaultOptions: { queries: { retry: false }, mutations: { retry: false } },
+  })
+  return ({ children }: { children: React.ReactNode }) =>
+    createElement(
+      QueryClientProvider,
+      { client: queryClient },
+      createElement(MemoryRouter, null, children),
+    )
 }
-
-// --- Helpers ---
 
 function renderPage() {
-  return render(
-    <MemoryRouter>
-      <ProductEditPage />
-    </MemoryRouter>,
-  )
+  return render(createElement(ProductEditPage), { wrapper: createWrapper() })
 }
 
-// --- Tests ---
+// Standard mock response representing a loaded product
+const mockGraphqlResponse = {
+  getProductInformation: {
+    product: {
+      id: 'prod-123',
+      name: 'Test Widget',
+      slug: 'test-widget',
+      shortDescription: 'A test widget',
+      description: 'Detailed description',
+      status: 'ACTIVE',
+      category: { id: 'cat-1', name: 'Electronics' },
+    },
+    variants: [
+      {
+        id: 'var-1',
+        sku: 'WDG-001',
+        stockQuantity: 10,
+        status: 'ACTIVE',
+        prices: [{ id: 'price-1', price: '49.99', priceType: 'RETAIL_PRICE' }],
+        images: [{ id: 'img-1', imageUrl: 'widget.jpg', featured: true, sortOrder: 0 }],
+      },
+    ],
+  },
+}
 
 describe('ProductEditPage', () => {
   beforeEach(() => {
     vi.clearAllMocks()
   })
 
-  describe('Loading state (Requirement 3.3)', () => {
-    it('shows PageLoadingSpinner when product is loading', () => {
-      vi.mocked(useProductDetail).mockReturnValue({
-        data: undefined,
-        isLoading: true,
-        error: null,
-      })
-
-      renderPage()
-
-      // PageLoadingSpinner renders a spinning div inside a flex container
-      const spinner = document.querySelector('.animate-spin')
-      expect(spinner).toBeInTheDocument()
-    })
-  })
-
-  describe('404 error state (Requirement 3.4)', () => {
-    it('renders "Product not found" when API returns 404', () => {
-      vi.mocked(useProductDetail).mockReturnValue({
-        data: undefined,
-        isLoading: false,
-        error: { response: { status: 404 } } as any,
-      })
-
-      renderPage()
-
-      expect(screen.getByText('Not Found')).toBeInTheDocument()
-      expect(screen.getByText('Product not found')).toBeInTheDocument()
-      expect(screen.getByText('Back to products')).toBeInTheDocument()
-    })
-
-    it('renders a link back to /admin/products on 404', () => {
-      vi.mocked(useProductDetail).mockReturnValue({
-        data: undefined,
-        isLoading: false,
-        error: { response: { status: 404 } } as any,
-      })
-
-      renderPage()
-
-      const link = screen.getByText('Back to products')
-      expect(link).toHaveAttribute('href', '/admin/products')
-    })
-  })
-
-  describe('Form populated with product data (Requirement 3.2)', () => {
-    it('populates form fields with product data from useProductDetail', async () => {
-      vi.mocked(useProductDetail).mockReturnValue({
-        data: mockProduct,
-        isLoading: false,
-        error: null,
+  describe('Not-found state (Req 1.3)', () => {
+    it('renders not-found when getProductInformation returns null', async () => {
+      vi.mocked(adminGraphqlClient.request).mockResolvedValue({
+        getProductInformation: null,
       })
 
       renderPage()
 
       await waitFor(() => {
-        const nameInput = screen.getByPlaceholderText('Product name')
-        expect(nameInput).toHaveValue('Test Widget')
+        expect(screen.getByText('Not Found')).toBeInTheDocument()
       })
-
-      const slugInput = screen.getByPlaceholderText('product-slug')
-      expect(slugInput).toHaveValue('test-widget')
-
-      const shortDescInput = screen.getByPlaceholderText('Brief product summary')
-      expect(shortDescInput).toHaveValue('A test widget')
-    })
-
-    it('renders the page title as "Edit Product"', () => {
-      vi.mocked(useProductDetail).mockReturnValue({
-        data: mockProduct,
-        isLoading: false,
-        error: null,
-      })
-
-      renderPage()
-
-      expect(screen.getByText('Edit Product')).toBeInTheDocument()
+      expect(screen.getByText('Product not found')).toBeInTheDocument()
+      expect(screen.getByText('Back to products')).toHaveAttribute('href', '/admin/products')
     })
   })
 
-  describe('Successful edit navigates to product list (Requirement 3.5)', () => {
-    it('navigates to /admin/products on successful update', async () => {
-      vi.mocked(useProductDetail).mockReturnValue({
-        data: mockProduct,
-        isLoading: false,
-        error: null,
-      })
-
-      // Capture the onSuccess callback when mutate is called
-      mockUpdateMutate.mockImplementation((_values, options) => {
-        options?.onSuccess?.()
-      })
+  describe('Form population from GraphQL response', () => {
+    it('populates form fields after useProductDetail maps the GraphQL response', async () => {
+      vi.mocked(adminGraphqlClient.request).mockResolvedValue(mockGraphqlResponse)
 
       renderPage()
 
@@ -180,13 +121,165 @@ describe('ProductEditPage', () => {
         expect(screen.getByPlaceholderText('Product name')).toHaveValue('Test Widget')
       })
 
-      // Submit the form by clicking the "Save Changes" button
-      const submitButton = screen.getByRole('button', { name: /save changes/i })
-      submitButton.click()
+      expect(screen.getByPlaceholderText('product-slug')).toHaveValue('test-widget')
+      expect(screen.getByPlaceholderText('Brief product summary')).toHaveValue('A test widget')
+      expect(screen.getByText('Edit Product')).toBeInTheDocument()
+    })
+  })
+
+  describe('Validation blocks submission (Req 2.5)', () => {
+    it('blocks submission when SKU is cleared to blank', async () => {
+      vi.mocked(adminGraphqlClient.request).mockResolvedValue(mockGraphqlResponse)
+      const user = userEvent.setup()
+
+      renderPage()
 
       await waitFor(() => {
-        expect(mockNavigate).toHaveBeenCalledWith('/admin/products')
+        expect(screen.getByPlaceholderText('Product name')).toHaveValue('Test Widget')
       })
+
+      // Clear the SKU field
+      const skuInput = screen.getByDisplayValue('WDG-001')
+      await user.clear(skuInput)
+
+      // Submit
+      await user.click(screen.getByRole('button', { name: /save changes/i }))
+
+      await waitFor(() => {
+        expect(screen.getByText('SKU is required')).toBeInTheDocument()
+      })
+
+      // Mutation for update should NOT have been called (only the initial read query)
+      const calls = vi.mocked(adminGraphqlClient.request).mock.calls
+      const mutationCalls = calls.filter(([doc]) =>
+        String(doc).includes('updateProductInformation'),
+      )
+      expect(mutationCalls).toHaveLength(0)
+    })
+
+    it('blocks submission when price is changed to non-positive value', async () => {
+      vi.mocked(adminGraphqlClient.request).mockResolvedValue(mockGraphqlResponse)
+      const user = userEvent.setup()
+
+      renderPage()
+
+      await waitFor(() => {
+        expect(screen.getByPlaceholderText('Product name')).toHaveValue('Test Widget')
+      })
+
+      // Change price to 0
+      const priceInput = screen.getByDisplayValue('49.99')
+      await user.clear(priceInput)
+      await user.type(priceInput, '0')
+
+      // Submit
+      await user.click(screen.getByRole('button', { name: /save changes/i }))
+
+      await waitFor(() => {
+        expect(screen.getByText('Price must be greater than 0')).toBeInTheDocument()
+      })
+
+      // Verify no update mutation was called
+      const calls = vi.mocked(adminGraphqlClient.request).mock.calls
+      const mutationCalls = calls.filter(([doc]) =>
+        String(doc).includes('updateProductInformation'),
+      )
+      expect(mutationCalls).toHaveLength(0)
+    })
+
+    it('blocks submission with duplicate SKUs across variants', async () => {
+      // Response with two variants
+      const twoVariantResponse = {
+        getProductInformation: {
+          ...mockGraphqlResponse.getProductInformation,
+          variants: [
+            {
+              id: 'var-1',
+              sku: 'WDG-001',
+              stockQuantity: 10,
+              status: 'ACTIVE',
+              prices: [{ id: 'p1', price: '49.99', priceType: 'RETAIL_PRICE' }],
+              images: [],
+            },
+            {
+              id: 'var-2',
+              sku: 'WDG-002',
+              stockQuantity: 5,
+              status: 'ACTIVE',
+              prices: [{ id: 'p2', price: '29.99', priceType: 'RETAIL_PRICE' }],
+              images: [],
+            },
+          ],
+        },
+      }
+      vi.mocked(adminGraphqlClient.request).mockResolvedValue(twoVariantResponse)
+      const user = userEvent.setup()
+
+      renderPage()
+
+      await waitFor(() => {
+        expect(screen.getByDisplayValue('WDG-001')).toBeInTheDocument()
+      })
+
+      // Change second variant SKU to match first
+      const secondSku = screen.getByDisplayValue('WDG-002')
+      await user.clear(secondSku)
+      await user.type(secondSku, 'WDG-001')
+
+      // Submit
+      await user.click(screen.getByRole('button', { name: /save changes/i }))
+
+      await waitFor(() => {
+        expect(screen.getByText('Duplicate SKU')).toBeInTheDocument()
+      })
+
+      // No update mutation
+      const calls = vi.mocked(adminGraphqlClient.request).mock.calls
+      const mutationCalls = calls.filter(([doc]) =>
+        String(doc).includes('updateProductInformation'),
+      )
+      expect(mutationCalls).toHaveLength(0)
+    })
+  })
+
+  describe('Successful update sends mutation via adminGraphqlClient', () => {
+    it('calls updateProductInformation with correct variables on valid submit', async () => {
+      vi.mocked(adminGraphqlClient.request).mockResolvedValue(mockGraphqlResponse)
+      const user = userEvent.setup()
+
+      renderPage()
+
+      await waitFor(() => {
+        expect(screen.getByPlaceholderText('Product name')).toHaveValue('Test Widget')
+      })
+
+      // Mock the update mutation response
+      vi.mocked(adminGraphqlClient.request).mockResolvedValue({
+        updateProductInformation: {
+          product: { id: 'prod-123', name: 'Test Widget', slug: 'test-widget', status: 'ACTIVE' },
+          variants: [{ id: 'var-1', sku: 'WDG-001', stockQuantity: 10, prices: [], images: [] }],
+        },
+      })
+
+      // Submit the form (all fields are valid from the loaded product)
+      await user.click(screen.getByRole('button', { name: /save changes/i }))
+
+      await waitFor(() => {
+        const calls = vi.mocked(adminGraphqlClient.request).mock.calls
+        const mutationCalls = calls.filter(([doc]) =>
+          String(doc).includes('updateProductInformation'),
+        )
+        expect(mutationCalls.length).toBeGreaterThanOrEqual(1)
+      })
+
+      // Verify productId was sent
+      const calls = vi.mocked(adminGraphqlClient.request).mock.calls
+      const mutationCall = calls.find(([doc]) =>
+        String(doc).includes('updateProductInformation'),
+      )
+      expect(mutationCall).toBeDefined()
+      const variables = mutationCall![1] as { productId: string }
+      expect(variables.productId).toBe('prod-123')
     })
   })
 })

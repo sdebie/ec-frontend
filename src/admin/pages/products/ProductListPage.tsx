@@ -22,7 +22,7 @@ import {
 import {Button, Input} from '@/shared/ui/primitives'
 import {ProductStatus} from '@/shared/types/enums'
 import {formatAmount} from '@/shared/utils/formatAmount'
-import {useAdminAuthStore} from '@/shared/auth/adminAuthStore'
+import {canManageCatalog, hasRequiredAuthority} from '@/shared/utils/authorizationHelper'
 
 export {getStatCardSubtitle} from './components/ProductStatCards'
 
@@ -47,7 +47,8 @@ export function getFormattedPrice(retailPrice: string | null): string {
 
 export function ProductListPage() {
     const navigate = useNavigate()
-    const canMutate = useAdminAuthStore((s) => s.role) === 'SUPER_ADMIN'
+    const canMutate = canManageCatalog()
+    const canManageLifecycle = hasRequiredAuthority(['SUPER_ADMIN'])
 
     const [pagination, setPagination] = useState({pageIndex: 0, pageSize: 10})
     const [statusFilter, setStatusFilter] = useState<StatusFilter>('ALL')
@@ -288,13 +289,15 @@ export function ProductListPage() {
                                 >
                                     <Pencil className="h-4 w-4 text-(--c-text-muted)"/>
                                 </button>
-                                <ProductActionsMenu
-                                    product={row.original}
-                                    onToggleStatus={(targetStatus) =>
-                                        handleToggleStatus(row.original.id, targetStatus)
-                                    }
-                                    onDelete={() => setDeleteTarget(row.original)}
-                                />
+                                {canManageLifecycle && (
+                                    <ProductActionsMenu
+                                        product={row.original}
+                                        onToggleStatus={(targetStatus) =>
+                                            handleToggleStatus(row.original.id, targetStatus)
+                                        }
+                                        onDelete={() => setDeleteTarget(row.original)}
+                                    />
+                                )}
                             </>
                         )}
                     </div>
@@ -302,7 +305,7 @@ export function ProductListPage() {
                 enableSorting: false,
             },
         ],
-        [canMutate, navigate, handleToggleStatus, selectedRows, data?.content],
+        [canMutate, canManageLifecycle, navigate, handleToggleStatus, selectedRows, data?.content],
     )
 
     useBreadcrumb([

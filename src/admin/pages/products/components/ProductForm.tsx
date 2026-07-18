@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from 'react'
+import { useEffect, useRef, useState, useCallback } from 'react'
 import { useForm, useFieldArray, useController } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { z } from 'zod'
@@ -12,8 +12,11 @@ import type { ProductPayload } from '@/admin/hooks/products/useCreateProduct'
 
 const variantSchema = z.object({
   id: z.string().optional(),
+  priceId: z.string().optional(),
   sku: z.string().min(1, 'SKU is required'),
-  price: z.string().regex(/^\d+(\.\d{1,2})?$/, 'Enter a valid price (e.g. 99.99)'),
+  price: z.string()
+    .regex(/^\d+(\.\d{1,2})?$/, 'Enter a valid price (e.g. 99.99)')
+    .refine((val) => parseFloat(val) > 0, 'Price must be greater than 0'),
   stock: z.coerce.number().int().min(0, 'Stock cannot be negative'),
 })
 
@@ -25,7 +28,22 @@ const productSchema = z.object({
   status: z.string().refine((val) => Object.values(ProductStatus).includes(val as ProductStatus)),
   categoryId: z.string().min(1, 'Category is required'),
   images: z.array(z.string()),
+  imageIds: z.record(z.string()).default({}),
   variants: z.array(variantSchema).min(1, 'At least one variant is required'),
+}).superRefine((data, ctx) => {
+  // Validate duplicate SKUs within the form
+  const skus = data.variants.map((v) => v.sku).filter(Boolean)
+  const seen = new Set<string>()
+  for (let i = 0; i < skus.length; i++) {
+    if (seen.has(skus[i])) {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        message: 'Duplicate SKU',
+        path: ['variants', i, 'sku'],
+      })
+    }
+    seen.add(skus[i])
+  }
 })
 
 export type ProductFormValues = z.infer<typeof productSchema>
@@ -41,6 +59,7 @@ export function toProductPayload(values: ProductFormValues): ProductPayload {
     status: values.status as ProductStatus,
     categoryId: values.categoryId,
     images: values.images,
+    imageIds: values.imageIds,
     variants: values.variants,
   }
 }
@@ -55,12 +74,12 @@ interface Category {
 
 interface ProductFormProps {
   defaultValues?: Partial<ProductFormValues>
-  onSubmit: (values: ProductFormValues) => void
+  onSubmit: (values: ProductFormValues) => void | Promise<void>
   isSubmitting: boolean
   categories: Category[]
   mode: 'create' | 'edit'
   onUpload: (file: File) => Promise<string>
-  onRemove: (imageUrl: string) => Promise<void>
+  onCleanup: (filePath: string) => Promise<void>
   serverErrors?: Record<string, string>
 }
 
@@ -82,12 +101,16 @@ export function ProductForm({
   categories,
   mode,
   onUpload,
-  onRemove,
+  onCleanup,
   serverErrors,
 }: ProductFormProps) {
   const navigate = useNavigate()
   const slugManuallyEdited = useRef(false)
   const [slugTouched, setSlugTouched] = useState(false)
+
+  // Track newly uploaded file paths during this session for cleanup on cancel/failure.
+  // These are paths uploaded in this editing session that haven't been saved yet.
+  const sessionUploadsRef = useRef<Set<string>>(new Set())
 
   const form = useForm<ProductFormValues>({
     resolver: zodResolver(productSchema),
@@ -99,6 +122,7 @@ export function ProductForm({
       status: ProductStatus.PENDING,
       categoryId: '',
       images: [],
+      imageIds: {},
       variants: [{ sku: '', price: '', stock: 0 }],
       ...defaultValues,
     },
@@ -150,23 +174,59 @@ export function ProductForm({
 
   const statusOptions = mode === 'create' ? CREATE_STATUS_OPTIONS : EDIT_STATUS_OPTIONS
 
+  /**
+   * Clean up every file uploaded in this editing session unless the mutation has
+   * completed successfully. Existing saved images are never in this set.
+   */
+  const cleanupAbandonedUploads = useCallback(async () => {
+    for (const filePath of sessionUploadsRef.current) {
+      try {
+        await onCleanup(filePath)
+      } catch {
+        // Best-effort cleanup — don't block the user
+      }
+    }
+    sessionUploadsRef.current.clear()
+  }, [onCleanup])
+
   const handleUpload = async (file: File) => {
-    const url = await onUpload(file)
-    imagesController.field.onChange([...imagesController.field.value, url])
+    const fileName = await onUpload(file)
+    // Track this upload for potential cleanup
+    sessionUploadsRef.current.add(fileName)
+    imagesController.field.onChange([...imagesController.field.value, fileName])
   }
 
   const handleRemove = async (imageUrl: string) => {
-    // Optimistic removal — update UI immediately, then call API
+    // Only change local form state — do NOT delete the storage file or DB association.
+    // The server handles association persistence on successful save.
+    // Abandoned session uploads are cleaned up on cancel/failure.
     imagesController.field.onChange(
       imagesController.field.value.filter((url) => url !== imageUrl),
     )
-    await onRemove(imageUrl)
+  }
+
+  /**
+   * On successful save, clear the session uploads tracker since those files are
+   * now associated with the product. The server owns association persistence.
+   */
+  const handleFormSubmit = async (values: ProductFormValues) => {
+    try {
+      await onSubmit(values)
+      sessionUploadsRef.current.clear()
+    } catch {
+      await cleanupAbandonedUploads()
+    }
+  }
+
+  const handleCancel = async () => {
+    await cleanupAbandonedUploads()
+    navigate('/admin/products')
   }
 
   const slugError = errors.slug?.message || serverErrors?.slug
 
   return (
-    <Form onSubmit={handleSubmit(onSubmit)}>
+    <Form onSubmit={handleSubmit(handleFormSubmit)}>
       {/* Name */}
       <FormItem
         label="Name"
@@ -285,7 +345,7 @@ export function ProductForm({
         <Button
           type="button"
           variant="outline"
-          onClick={() => navigate('/admin/products')}
+          onClick={handleCancel}
         >
           Cancel
         </Button>

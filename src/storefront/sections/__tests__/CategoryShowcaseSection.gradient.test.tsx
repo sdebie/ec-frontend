@@ -67,29 +67,28 @@ function setupMocksForRendering() {
     })
 }
 
-describe('CategoryShowcaseSection — gradient theming', () => {
+describe('CategoryShowcaseSection — configured background contract', () => {
     beforeEach(() => {
         vi.clearAllMocks()
     })
 
-    it('applies linear-gradient background when gradientColors has 3 entries', () => {
+    it('uses the authored gradient string from section configuration', () => {
         setupMocksForRendering()
 
-        const gradientColors = ['rgba(14,165,233,1)', 'rgba(29,78,216,1)', 'rgba(2,6,23,1)']
+        const gradient = 'linear-gradient(90deg, rgb(14, 165, 233) 0%, rgb(29, 78, 216) 50%, rgb(2, 6, 23) 100%)'
         const {container} = render(
-            <CategoryShowcaseSection section={buildSection({gradientColors})}/>
+            <CategoryShowcaseSection section={buildSection({gradient})}/>
         )
 
         const section = container.querySelector('section')
         expect(section).not.toBeNull()
-        // jsdom normalises rgba(r,g,b,1) to rgb(r, g, b) and formats with spaces
         expect(section!.style.background).toContain('linear-gradient(90deg')
         expect(section!.style.background).toContain('0%')
         expect(section!.style.background).toContain('50%')
         expect(section!.style.background).toContain('100%')
     })
 
-    it('applies solid themeColor background when gradientColors is not provided', () => {
+    it('derives the documented fallback gradient from themeColor when no gradient is configured', () => {
         setupMocksForRendering()
 
         const {container} = render(
@@ -98,23 +97,27 @@ describe('CategoryShowcaseSection — gradient theming', () => {
 
         const section = container.querySelector('section')
         expect(section).not.toBeNull()
-        // jsdom normalises hex to rgb() format
         const bg = section!.style.background
-        expect(bg).not.toContain('linear-gradient')
-        expect(bg).toBe('rgb(26, 58, 92)')
+        expect(bg).toContain('linear-gradient(135deg')
+        expect(bg).toContain('rgba(26, 58, 92, 0.133)')
+        expect(bg).toContain('rgba(26, 58, 92, 0.03)')
     })
 
-    it('applies text-white class to the section title', () => {
+    it('uses the storefront accent-text token for the title', () => {
         setupMocksForRendering()
 
-        render(
-            <CategoryShowcaseSection
-                section={buildSection({gradientColors: ['rgba(14,165,233,1)', 'rgba(29,78,216,1)', 'rgba(2,6,23,1)']})}
-            />
-        )
+        render(<CategoryShowcaseSection section={buildSection()}/>)
 
         const title = screen.getByText('Medical Supplies')
         expect(title.tagName).toBe('H2')
-        expect(title).toHaveClass('text-white')
+        expect(title).toHaveClass('text-(--sf-accent-text)')
+    })
+
+    it('uses the safe default colour when themeColor is invalid', () => {
+        setupMocksForRendering()
+
+        const {container} = render(<CategoryShowcaseSection section={buildSection({themeColor: '#not-a-colour'})}/>)
+
+        expect(container.querySelector('section')!.style.background).toContain('rgba(107, 114, 128, 0.133)')
     })
 })

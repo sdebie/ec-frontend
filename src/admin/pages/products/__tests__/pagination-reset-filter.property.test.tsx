@@ -46,10 +46,9 @@ vi.mock('@/admin/hooks/products/useBrands', () => ({
   useBrands: vi.fn(() => ({ data: [], isLoading: false })),
 }))
 
-vi.mock('@/shared/auth/adminAuthStore', () => ({
-  useAdminAuthStore: vi.fn((selector: (state: Record<string, unknown>) => unknown) =>
-    selector({ role: 'SUPER_ADMIN', authority: ['SUPER_ADMIN'] }),
-  ),
+vi.mock('@/shared/utils/authorizationHelper', () => ({
+  canManageCatalog: vi.fn(() => true),
+  hasRequiredAuthority: vi.fn(() => true),
 }))
 
 vi.mock('react-router-dom', async () => {

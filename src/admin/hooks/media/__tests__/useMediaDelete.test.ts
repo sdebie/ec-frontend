@@ -33,29 +33,33 @@ describe('useMediaDelete', () => {
     expect(result.current.isDeleting).toBe(false)
   })
 
-  it('extracts the filename and DELETEs /admin/media/{id}', async () => {
+  it('DELETEs /admin/images/cleanup with filePath in body', async () => {
     mockDelete.mockResolvedValueOnce({})
 
     const { result } = renderHook(() => useMediaDelete(), { wrapper: createWrapper() })
 
     await act(async () => {
-      await result.current.remove('/static/images/abc123.jpg')
+      await result.current.remove('abc123.jpg')
     })
 
     expect(mockDelete).toHaveBeenCalledTimes(1)
-    expect(mockDelete).toHaveBeenCalledWith('/admin/media/abc123.jpg')
+    expect(mockDelete).toHaveBeenCalledWith('/admin/images/cleanup', {
+      data: { filePath: 'abc123.jpg' },
+    })
   })
 
-  it('uses only the last segment of the URL as the id', async () => {
+  it('passes the full storage-relative path as filePath', async () => {
     mockDelete.mockResolvedValueOnce({})
 
     const { result } = renderHook(() => useMediaDelete(), { wrapper: createWrapper() })
 
     await act(async () => {
-      await result.current.remove('https://cdn.example.com/static/images/deep/path/file-xyz.png')
+      await result.current.remove('products/deep-uuid-file.png')
     })
 
-    expect(mockDelete).toHaveBeenCalledWith('/admin/media/file-xyz.png')
+    expect(mockDelete).toHaveBeenCalledWith('/admin/images/cleanup', {
+      data: { filePath: 'products/deep-uuid-file.png' },
+    })
   })
 
   it('sets isDeleting to true while the request is in flight', async () => {
@@ -64,7 +68,7 @@ describe('useMediaDelete', () => {
 
     const { result } = renderHook(() => useMediaDelete(), { wrapper: createWrapper() })
 
-    act(() => { result.current.remove('/static/images/img.jpg') })
+    act(() => { result.current.remove('img.jpg') })
     await waitFor(() => expect(result.current.isDeleting).toBe(true))
 
     await act(async () => { resolveDelete!({}) })
@@ -77,7 +81,7 @@ describe('useMediaDelete', () => {
     const { result } = renderHook(() => useMediaDelete(), { wrapper: createWrapper() })
 
     await expect(
-      act(async () => { await result.current.remove('/static/images/gone.jpg') }),
+      act(async () => { await result.current.remove('gone.jpg') }),
     ).rejects.toThrow('Not found')
   })
 })

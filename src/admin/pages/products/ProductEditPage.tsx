@@ -1,5 +1,4 @@
 import { useParams, useNavigate, Link } from 'react-router-dom'
-import type { AxiosError } from 'axios'
 import { toast, PageLoadingSpinner, PageLayout } from '@/shared/ui/components'
 import { useBreadcrumb } from '@/admin/context/BreadcrumbContext'
 import { useProductDetail } from '@/admin/hooks/products/useProductDetail'
@@ -12,8 +11,8 @@ import type { ProductFormValues } from './components/ProductForm'
 export function ProductEditPage() {
   const { productId } = useParams<{ productId: string }>()
   const navigate = useNavigate()
-  const { data: product, isLoading, error } = useProductDetail(productId!)
-  const { mutate: updateProduct, isLoading: isUpdating } = useUpdateProduct(productId!)
+  const { data: product, isLoading, notFound } = useProductDetail(productId!)
+  const { mutateAsync: updateProduct, isLoading: isUpdating } = useUpdateProduct(productId!)
   const { data: categories = [] } = useCategories()
   const { upload } = useMediaUpload()
   const { remove } = useMediaDelete()
@@ -24,8 +23,8 @@ export function ProductEditPage() {
     { label: 'Edit Product' },
   ])
 
-  // Handle 404
-  if (!isLoading && (error as AxiosError)?.response?.status === 404) {
+  // Handle not-found (GraphQL returns null for absent product)
+  if (!isLoading && notFound) {
     return (
       <div className="flex min-h-[60vh] items-center justify-center p-8">
         <div
@@ -76,21 +75,14 @@ export function ProductEditPage() {
     status: product.status,
     categoryId: product.category.id,
     images: product.images,
+    imageIds: product.imageIds,
     variants: product.variants,
   }
 
-  const handleSubmit = (values: ProductFormValues) => {
-    updateProduct(toProductPayload(values), {
-      onSuccess: () => {
-        toast.success('Product updated successfully')
-        navigate('/admin/products')
-      },
-      onError: (err) => {
-        const axiosErr = err as AxiosError<{ message?: string }>
-        console.error(axiosErr.response?.data ?? err)
-        toast.error('Failed to save product', { duration: 0 })
-      },
-    })
+  const handleSubmit = async (values: ProductFormValues) => {
+    await updateProduct(toProductPayload(values))
+    toast.success('Product updated successfully')
+    navigate('/admin/products')
   }
 
   return (
@@ -102,7 +94,7 @@ export function ProductEditPage() {
         categories={categories}
         mode="edit"
         onUpload={upload}
-        onRemove={remove}
+        onCleanup={remove}
       />
     </PageLayout>
   )

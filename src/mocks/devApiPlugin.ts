@@ -18,6 +18,12 @@ import {storefrontConfigFixture} from './fixtures/storefrontConfig.fixture'
 import {featuredProductsFixture} from './fixtures/featuredProducts.fixture'
 import {customerProfileFixture} from './fixtures/customerProfile.fixture'
 import {myOrdersFixture, orderDetailFixture} from './fixtures/orders.fixture'
+import {
+    storefrontBrandsFixture,
+    storefrontCategoriesFixture,
+    storefrontFeaturedProductsFixture,
+    storefrontProductsFixture,
+} from './fixtures/storefrontCatalog.fixture'
 
 /**
  * Collects the request body from a Node.js IncomingMessage stream
@@ -260,6 +266,81 @@ export function devApiPlugin(): Plugin {
                 parseJsonBody(req).then((body) => {
                     const query = (body.query as string) ?? ''
                     const variables = (body.variables as Record<string, unknown>) ?? {}
+
+                    if (query.includes('shoppingProductList')) {
+                        const filterRequest = variables.filterRequest as {
+                            filters?: Array<{ key: string; value: string }>
+                            filterGroups?: Array<{ filters?: Array<{ key: string; value: string }> }>
+                        } | undefined
+                        const categoryId = filterRequest?.filters?.find((filter) => filter.key === 'category.id')?.value
+                        const search = filterRequest?.filterGroups?.flatMap((group) => group.filters ?? [])
+                            .find((filter) => filter.key === 'name')?.value
+                            ?.replaceAll('%', '')
+                            .toLowerCase()
+                        const onSale = variables.onSale === true
+                        const filtered = storefrontProductsFixture.filter((product) =>
+                            (!categoryId || product.category.id === categoryId)
+                            && (!search || product.name.toLowerCase().includes(search))
+                            && (!onSale || product.retailSalePrice != null || product.wholesaleSalePrice != null),
+                        )
+                        const pageSize = typeof variables.pageSize === 'number' ? variables.pageSize : filtered.length
+                        const pageIndex = typeof variables.pageIndex === 'number' ? variables.pageIndex : 0
+                        const content = filtered.slice(pageIndex * pageSize, (pageIndex + 1) * pageSize)
+                        res.setHeader('Content-Type', 'application/json')
+                        res.end(JSON.stringify({data: {shoppingProductList: {
+                            content,
+                            totalElements: filtered.length,
+                            totalPages: Math.max(1, Math.ceil(filtered.length / pageSize)),
+                            pageSize,
+                            pageIndex,
+                        }}}))
+                        return
+                    }
+
+                    if (query.includes('getProductInformationBySlug')) {
+                        const slug = variables.slug as string | undefined
+                        const product = storefrontProductsFixture.find((item) => item.slug === slug)
+                        const information = product ? {
+                            product: {
+                                id: product.id,
+                                name: product.name,
+                                slug: product.slug,
+                                shortDescription: product.shortDescription,
+                                description: product.description,
+                                category: product.category,
+                                brand: {id: product.brand.id, name: product.brand.name},
+                            },
+                            variants: product.variants.map((variant) => ({...variant, images: product.images})),
+                        } : null
+                        res.setHeader('Content-Type', 'application/json')
+                        res.end(JSON.stringify({data: {getProductInformationBySlug: information}}))
+                        return
+                    }
+
+                    if (query.includes('shoppingFeaturedProductList')) {
+                        const limit = typeof variables.limit === 'number' ? variables.limit : storefrontFeaturedProductsFixture.length
+                        res.setHeader('Content-Type', 'application/json')
+                        res.end(JSON.stringify({data: {shoppingFeaturedProductList: storefrontFeaturedProductsFixture.slice(0, limit)}}))
+                        return
+                    }
+
+                    if (query.includes('getCategories')) {
+                        res.setHeader('Content-Type', 'application/json')
+                        res.end(JSON.stringify({data: {getCategories: {
+                            content: storefrontCategoriesFixture,
+                            totalElements: storefrontCategoriesFixture.length,
+                        }}}))
+                        return
+                    }
+
+                    if (query.includes('getBrands')) {
+                        res.setHeader('Content-Type', 'application/json')
+                        res.end(JSON.stringify({data: {getBrands: {
+                            content: storefrontBrandsFixture,
+                            totalElements: storefrontBrandsFixture.length,
+                        }}}))
+                        return
+                    }
 
                     // myOrders query
                     if (query.includes('myOrders')) {

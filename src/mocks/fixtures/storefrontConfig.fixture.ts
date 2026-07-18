@@ -62,7 +62,7 @@ export const storefrontConfigFixture: StorefrontConfig = {
         subtitle: 'PPE, medical, cleaning, safety, hospitality and household products — supplied at competitive wholesale and retail prices.',
         primaryCta:    { label: 'Shop Now',    to: '/products' },
         secondaryCta:  { label: 'Contact Us',  to: '/contact-us' },
-        backgroundImageUrl: '/static/images/hero-warehouse.jpg',
+        backgroundImageUrl: 'storefront/uvh-hero-new.png',
         overlayOpacity: 0.55,
         contentAlignment: 'left',
         darkStyle: true,
@@ -81,24 +81,46 @@ export const storefrontConfigFixture: StorefrontConfig = {
       type: 'featured-products',
       props: {
         title: 'Featured Products',
-        limit: 3,
+        limit: 8,
       },
     },
     {
-      id: 'categories-1',
-      type: 'category-preview',
+      id: 'brands-1',
+      type: 'brands',
       props: {
-        title: 'Shop by Category',
-        subtitle: 'Browse our full range of wholesale and retail product lines.',
-        layout: 'tiles',
-        columns: 4,
-        items: [
-          { id: 'cat-ppe',         label: 'PPE',               to: '/products?category=ppe',         description: 'Gloves, masks, coveralls and more' },
-          { id: 'cat-medical',     label: 'Medical',           to: '/products?category=medical',     description: 'First aid, diagnostics and consumables' },
-          { id: 'cat-cleaning',    label: 'Cleaning & Hygiene',to: '/products?category=cleaning',    description: 'Industrial and household cleaning supplies' },
-          { id: 'cat-safety',      label: 'Safety',            to: '/products?category=safety',      description: 'Hard hats, signage, fire safety' },
-          { id: 'cat-hospitality', label: 'Hospitality',       to: '/products?category=hospitality', description: 'Linen, kitchenware and guest amenities' },
-          { id: 'cat-household',   label: 'Household',         to: '/products?category=household',   description: 'Everyday home essentials in bulk' },
+        heading: 'Our Brands',
+      },
+    },
+    {
+      id: 'category-showcase-medical', type: 'category-showcase', props: {
+        title: 'Medical Supplies', categorySlug: 'medical', themeColor: '#0EA5E9',
+        gradient: 'linear-gradient(90deg, rgba(14, 165, 233, 1) 0%, rgba(29, 78, 216, 1) 50%, rgba(2, 6, 23, 1) 100%)', imageUrl: 'storefront/medical.png',
+      },
+    },
+    {
+      id: 'category-showcase-ppe', type: 'category-showcase', props: {
+        title: 'PPE & Protective Equipment', categorySlug: 'ppe', themeColor: '#DC2626',
+        gradient: 'linear-gradient(90deg, rgba(220, 38, 38, 1) 0%, rgba(185, 28, 28, 1) 50%, rgba(12, 10, 9, 1) 100%)', imageUrl: 'storefront/ppe.png',
+      },
+    },
+    {
+      id: 'category-showcase-cleaning', type: 'category-showcase', props: {
+        title: 'Cleaning & Equipment', categorySlug: 'cleaning-equipment', themeColor: '#16A34A',
+        gradient: 'linear-gradient(90deg, rgba(22, 163, 74, 1) 0%, rgba(5, 150, 105, 1) 50%, rgba(2, 6, 23, 1) 100%)', imageUrl: 'storefront/cleaning-equipment.png',
+      },
+    },
+    {
+      id: 'category-showcase-safety', type: 'category-showcase', props: {
+        title: 'Safety Wear & Equipment', categorySlug: 'safety-wear-equipment', themeColor: '#FACC15',
+        gradient: 'linear-gradient(90deg, rgba(250, 204, 21, 1) 0%, rgba(202, 138, 4, 1) 50%, rgba(12, 10, 9, 1) 100%)', imageUrl: 'storefront/safety-wear-equipment.png',
+      },
+    },
+    {
+      id: 'accreditors-1', type: 'accreditors', props: {
+        heading: 'Accreditors', items: [
+          { id: 'acc-sabs', name: 'SABS', logoUrl: 'storefront/sabs-logo.png', url: 'https://www.sabs.co.za' },
+          { id: 'acc-sahpra', name: 'SAHPRA', logoUrl: 'storefront/sahpra-logo.png', url: 'https://www.sahpra.org.za' },
+          { id: 'acc-safripol', name: 'Safripol', logoUrl: 'storefront/safripol-logo.png', url: 'https://www.safripol.com' },
         ],
       },
     },

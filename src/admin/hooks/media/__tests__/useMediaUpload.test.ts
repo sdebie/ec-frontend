@@ -33,28 +33,28 @@ describe('useMediaUpload', () => {
     expect(result.current.isUploading).toBe(false)
   })
 
-  it('POSTs multipart/form-data to /admin/media/upload and returns the url', async () => {
-    mockPost.mockResolvedValueOnce({ data: { url: '/static/images/test.jpg', id: 'img-1' } })
+  it('POSTs multipart/form-data to /admin/images/upload and returns the fileName', async () => {
+    mockPost.mockResolvedValueOnce({ data: { fileName: 'abc123-uuid.jpg' } })
 
     const { result } = renderHook(() => useMediaUpload(), { wrapper: createWrapper() })
     const file = new File(['data'], 'test.jpg', { type: 'image/jpeg' })
 
-    let returnedUrl: string | undefined
+    let returnedFileName: string | undefined
     await act(async () => {
-      returnedUrl = await result.current.upload(file)
+      returnedFileName = await result.current.upload(file)
     })
 
-    expect(returnedUrl).toBe('/static/images/test.jpg')
+    expect(returnedFileName).toBe('abc123-uuid.jpg')
     expect(mockPost).toHaveBeenCalledTimes(1)
 
     const [url, body, config] = mockPost.mock.calls[0]
-    expect(url).toBe('/admin/media/upload')
+    expect(url).toBe('/admin/images/upload')
     expect(body).toBeInstanceOf(FormData)
     expect(config).toMatchObject({ headers: { 'Content-Type': 'multipart/form-data' } })
   })
 
   it('appends the file under the "file" field', async () => {
-    mockPost.mockResolvedValueOnce({ data: { url: '/static/images/img.png', id: 'img-2' } })
+    mockPost.mockResolvedValueOnce({ data: { fileName: 'img-uuid.png' } })
 
     const { result } = renderHook(() => useMediaUpload(), { wrapper: createWrapper() })
     const file = new File(['px'], 'img.png', { type: 'image/png' })
@@ -75,7 +75,7 @@ describe('useMediaUpload', () => {
     act(() => { result.current.upload(file) })
     await waitFor(() => expect(result.current.isUploading).toBe(true))
 
-    await act(async () => { resolvePost!({ data: { url: '/static/images/test.jpg', id: 'x' } }) })
+    await act(async () => { resolvePost!({ data: { fileName: 'test-uuid.jpg' } }) })
     await waitFor(() => expect(result.current.isUploading).toBe(false))
   })
 

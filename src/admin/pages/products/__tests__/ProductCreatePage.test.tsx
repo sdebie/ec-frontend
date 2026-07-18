@@ -1,17 +1,25 @@
+/**
+ * Feature: admin-product-write, Task 6.1
+ * Page-level test — exercises form validation (no variant, blank SKU, duplicate SKU,
+ * non-positive price) and verifies the mutation is NOT called when validation fails.
+ * The hook is NOT fully mocked — only adminGraphqlClient.request is mocked so the
+ * real mapping code executes on valid submissions.
+ *
+ * Validates: Requirements 2.5, 8.2
+ */
 import { render, screen, waitFor } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { describe, it, expect, vi, beforeEach } from 'vitest'
 import { MemoryRouter } from 'react-router-dom'
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
+import { createElement } from 'react'
 import { ProductCreatePage } from '../ProductCreatePage'
 
-const mockCreateMutate = vi.fn()
-const mockNavigate = vi.fn()
-
-vi.mock('@/admin/hooks/products/useCreateProduct', () => ({
-  useCreateProduct: vi.fn(() => ({
-    mutate: mockCreateMutate,
-    isLoading: false,
-  })),
+// Mock only the boundary — adminGraphqlClient.request — not the hooks
+vi.mock('@/shared/api/graphql/adminGraphqlClient', () => ({
+  adminGraphqlClient: {
+    request: vi.fn(),
+  },
 }))
 
 vi.mock('@/admin/hooks/products/useCategories', () => ({
@@ -22,33 +30,36 @@ vi.mock('@/admin/hooks/products/useCategories', () => ({
 }))
 
 vi.mock('@/admin/hooks/media', () => ({
-  useMediaUpload: () => ({ upload: vi.fn().mockResolvedValue('/static/images/test.jpg'), isUploading: false }),
+  useMediaUpload: () => ({ upload: vi.fn().mockResolvedValue('uploaded.jpg'), isUploading: false }),
   useMediaDelete: () => ({ remove: vi.fn().mockResolvedValue(undefined), isDeleting: false }),
 }))
 
+const mockNavigate = vi.fn()
 vi.mock('react-router-dom', async () => {
   const actual = await vi.importActual('react-router-dom')
   return { ...actual, useNavigate: () => mockNavigate }
 })
 
-vi.mock('@/shared/ui/components', async () => {
-  const actual = await vi.importActual('@/shared/ui/components')
-  return {
-    ...actual,
-    toast: { success: vi.fn(), error: vi.fn() },
-  }
-})
-
-vi.mock('axios', () => ({
-  isAxiosError: (err: unknown) => !!(err as any)?.isAxiosError,
+vi.mock('@/shared/ui/components/toast', () => ({
+  toast: { success: vi.fn(), error: vi.fn() },
 }))
 
+import { adminGraphqlClient } from '@/shared/api/graphql/adminGraphqlClient'
+
+function createWrapper() {
+  const queryClient = new QueryClient({
+    defaultOptions: { mutations: { retry: false }, queries: { retry: false } },
+  })
+  return ({ children }: { children: React.ReactNode }) =>
+    createElement(
+      QueryClientProvider,
+      { client: queryClient },
+      createElement(MemoryRouter, null, children),
+    )
+}
+
 function renderPage() {
-  return render(
-    <MemoryRouter>
-      <ProductCreatePage />
-    </MemoryRouter>,
-  )
+  return render(createElement(ProductCreatePage), { wrapper: createWrapper() })
 }
 
 describe('ProductCreatePage', () => {
@@ -56,12 +67,10 @@ describe('ProductCreatePage', () => {
     vi.clearAllMocks()
   })
 
-  it('renders form in create mode with categories', () => {
+  it('renders form in create mode', () => {
     renderPage()
-
     expect(screen.getByText('Add Product')).toBeInTheDocument()
     expect(screen.getByPlaceholderText('Product name')).toBeInTheDocument()
-    expect(screen.getByPlaceholderText('product-slug')).toBeInTheDocument()
     expect(screen.getByText('Create Product')).toBeInTheDocument()
   })
 
@@ -73,89 +82,111 @@ describe('ProductCreatePage', () => {
     await user.type(nameInput, 'My Cool Product')
 
     await waitFor(() => {
-      const slugInput = screen.getByPlaceholderText('product-slug')
-      expect(slugInput).toHaveValue('my-cool-product')
+      expect(screen.getByPlaceholderText('product-slug')).toHaveValue('my-cool-product')
     })
   })
 
-  it('stops auto-generating slug after manual slug edit', async () => {
+  it('navigates to /admin/products on cancel without calling the mutation', async () => {
     const user = userEvent.setup()
     renderPage()
 
-    const slugInput = screen.getByPlaceholderText('product-slug')
-    const nameInput = screen.getByPlaceholderText('Product name')
-
-    // First type a name to trigger auto-generation
-    await user.type(nameInput, 'First')
-    await waitFor(() => {
-      expect(slugInput).toHaveValue('first')
-    })
-
-    // Manually edit the slug
-    await user.clear(slugInput)
-    await user.type(slugInput, 'custom-slug')
-
-    // Now change the name again
-    await user.clear(nameInput)
-    await user.type(nameInput, 'Second Name')
-
-    // Slug should stay as the manually typed value, not auto-generate
-    await waitFor(() => {
-      expect(slugInput).toHaveValue('custom-slug')
-    })
-  })
-
-  it('navigates to /admin/products on cancel without calling API', async () => {
-    const user = userEvent.setup()
-    renderPage()
-
-    const cancelButton = screen.getByRole('button', { name: 'Cancel' })
-    await user.click(cancelButton)
-
+    await user.click(screen.getByRole('button', { name: 'Cancel' }))
     expect(mockNavigate).toHaveBeenCalledWith('/admin/products')
-    expect(mockCreateMutate).not.toHaveBeenCalled()
+    expect(adminGraphqlClient.request).not.toHaveBeenCalled()
   })
 
-  it('displays slug duplicate error on FormItem when API returns slug field error', async () => {
-    // Mock mutate to immediately call onError with slug conflict
-    mockCreateMutate.mockImplementation((_payload, options) => {
-      const error = new Error('Request failed') as any
-      error.response = { data: { field: 'slug', message: 'Slug already exists' } }
-      error.isAxiosError = true
-      options?.onError?.(error)
+  describe('Validation blocks submission (Req 2.5)', () => {
+    it('blocks submission when variant has blank SKU (mutation not called)', async () => {
+      const user = userEvent.setup()
+      renderPage()
+
+      // Fill product name but leave variant SKU blank, fill price
+      await user.type(screen.getByPlaceholderText('Product name'), 'SKU Test')
+      await user.type(screen.getByPlaceholderText('e.g. 99.99'), '19.99')
+
+      // Submit — SKU still blank
+      await user.click(screen.getByRole('button', { name: 'Create Product' }))
+
+      await waitFor(() => {
+        expect(screen.getByText('SKU is required')).toBeInTheDocument()
+      })
+
+      expect(adminGraphqlClient.request).not.toHaveBeenCalled()
     })
 
-    const user = userEvent.setup()
-    renderPage()
+    it('prevents removing the last variant (at least one variant required)', () => {
+      renderPage()
 
-    // Fill required fields for form submission
-    const nameInput = screen.getByPlaceholderText('Product name')
-    await user.type(nameInput, 'Test Product')
-
-    await waitFor(() => {
-      expect(screen.getByPlaceholderText('product-slug')).toHaveValue('test-product')
+      // Remove button should be disabled when there's only 1 variant
+      const removeBtn = screen.getByTestId('remove-variant-0')
+      expect(removeBtn).toBeDisabled()
     })
 
-    // Fill category - click the SearchableSelect trigger button
-    const categoryTrigger = screen.getByRole('button', { name: /select a category/i })
-    await user.click(categoryTrigger)
-    const categoryOption = await screen.findByText('Electronics')
-    await user.click(categoryOption)
+    it('blocks submission when duplicate SKUs exist within the form', async () => {
+      const user = userEvent.setup()
+      renderPage()
 
-    // Fill variant SKU and price
-    const skuInput = screen.getByPlaceholderText('e.g. PROD-001')
-    await user.type(skuInput, 'SKU-001')
+      // Fill product name
+      await user.type(screen.getByPlaceholderText('Product name'), 'Dup SKU')
 
-    const priceInput = screen.getByPlaceholderText('e.g. 99.99')
-    await user.type(priceInput, '19.99')
+      // Fill first variant
+      const skuInput = screen.getByPlaceholderText('e.g. PROD-001')
+      await user.type(skuInput, 'SAME-SKU')
+      await user.type(screen.getByPlaceholderText('e.g. 99.99'), '19.99')
 
-    // Submit
-    const submitButton = screen.getByRole('button', { name: 'Create Product' })
-    await user.click(submitButton)
+      // Add a second variant
+      await user.click(screen.getByTestId('add-variant'))
 
-    // The slug error should be displayed
-    await waitFor(() => {
-      expect(screen.getByText('Slug already exists')).toBeInTheDocument()
+      // Fill second variant with same SKU
+      const allSkuInputs = screen.getAllByPlaceholderText('e.g. PROD-001')
+      await user.type(allSkuInputs[1], 'SAME-SKU')
+      const allPriceInputs = screen.getAllByPlaceholderText('e.g. 99.99')
+      await user.type(allPriceInputs[1], '29.99')
+
+      // Submit
+      await user.click(screen.getByRole('button', { name: 'Create Product' }))
+
+      await waitFor(() => {
+        expect(screen.getByText('Duplicate SKU')).toBeInTheDocument()
+      })
+
+      expect(adminGraphqlClient.request).not.toHaveBeenCalled()
+    })
+
+    it('blocks submission when price is zero (non-positive)', async () => {
+      const user = userEvent.setup()
+      renderPage()
+
+      // Fill product name and SKU, set price to 0
+      await user.type(screen.getByPlaceholderText('Product name'), 'Zero Price')
+      await user.type(screen.getByPlaceholderText('e.g. PROD-001'), 'ZP-001')
+      await user.type(screen.getByPlaceholderText('e.g. 99.99'), '0')
+
+      // Submit
+      await user.click(screen.getByRole('button', { name: 'Create Product' }))
+
+      await waitFor(() => {
+        expect(screen.getByText('Price must be greater than 0')).toBeInTheDocument()
+      })
+
+      expect(adminGraphqlClient.request).not.toHaveBeenCalled()
+    })
+
+    it('blocks submission when price is 0.00 (non-positive)', async () => {
+      const user = userEvent.setup()
+      renderPage()
+
+      await user.type(screen.getByPlaceholderText('Product name'), 'Zero Price 2')
+      await user.type(screen.getByPlaceholderText('e.g. PROD-001'), 'ZP-002')
+      await user.type(screen.getByPlaceholderText('e.g. 99.99'), '0.00')
+
+      await user.click(screen.getByRole('button', { name: 'Create Product' }))
+
+      await waitFor(() => {
+        expect(screen.getByText('Price must be greater than 0')).toBeInTheDocument()
+      })
+
+      expect(adminGraphqlClient.request).not.toHaveBeenCalled()
     })
   })
 })

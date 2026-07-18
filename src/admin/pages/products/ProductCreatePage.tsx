@@ -1,6 +1,4 @@
-import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { isAxiosError } from 'axios'
 import { toast, PageLayout } from '@/shared/ui/components'
 import { useBreadcrumb } from '@/admin/context/BreadcrumbContext'
 import { useCreateProduct } from '@/admin/hooks/products/useCreateProduct'
@@ -11,11 +9,10 @@ import type { ProductFormValues } from './components/ProductForm'
 
 export function ProductCreatePage() {
   const navigate = useNavigate()
-  const { mutate: createProduct, isLoading } = useCreateProduct()
+  const { mutateAsync: createProduct, isLoading } = useCreateProduct()
   const { data: categories = [] } = useCategories()
   const { upload } = useMediaUpload()
   const { remove } = useMediaDelete()
-  const [serverErrors, setServerErrors] = useState<Record<string, string>>({})
 
   useBreadcrumb([
     { label: 'Home', href: '/admin' },
@@ -23,28 +20,10 @@ export function ProductCreatePage() {
     { label: 'Add Product' },
   ])
 
-  const handleSubmit = (values: ProductFormValues) => {
-    setServerErrors({})
-
-    createProduct(toProductPayload(values), {
-      onSuccess: () => {
-        toast.success('Product created successfully')
-        navigate('/admin/products')
-      },
-      onError: (error) => {
-        if (
-          isAxiosError(error) &&
-          error.response?.data?.field === 'slug'
-        ) {
-          setServerErrors({
-            slug: error.response.data.message || 'This slug is already in use',
-          })
-        } else {
-          console.error(isAxiosError(error) ? error.response?.data : error)
-          toast.error('Failed to create product', { duration: 0 })
-        }
-      },
-    })
+  const handleSubmit = async (values: ProductFormValues) => {
+    await createProduct(toProductPayload(values))
+    toast.success('Product created successfully')
+    navigate('/admin/products')
   }
 
   return (
@@ -55,8 +34,7 @@ export function ProductCreatePage() {
         categories={categories}
         mode="create"
         onUpload={upload}
-        onRemove={remove}
-        serverErrors={serverErrors}
+        onCleanup={remove}
       />
     </PageLayout>
   )

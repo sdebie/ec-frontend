@@ -36,7 +36,7 @@ const adminPageOnlyRoutes: AdminRouteList = [
                 default: m.ProductCreatePage,
             }))
         ),
-        authority: ['SUPER_ADMIN'],
+        authority: ['SUPER_ADMIN', 'CATALOG_MANAGER'],
         meta: {
             pageBackgroundType: 'plain',
             pageContainerType: 'contained',
@@ -50,7 +50,7 @@ const adminPageOnlyRoutes: AdminRouteList = [
                 default: m.ProductEditPage,
             }))
         ),
-        authority: ['SUPER_ADMIN'],
+        authority: ['SUPER_ADMIN', 'CATALOG_MANAGER'],
         meta: {
             pageBackgroundType: 'plain',
             pageContainerType: 'contained',
