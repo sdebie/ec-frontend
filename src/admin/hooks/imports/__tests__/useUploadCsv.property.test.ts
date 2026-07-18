@@ -1,71 +1,61 @@
-// Feature: admin-product-import, Property 2: Upload FormData construction
-
-import { describe, it, expect, vi } from 'vitest'
-import * as fc from 'fast-check'
+import { createElement } from 'react'
+import { act, renderHook } from '@testing-library/react'
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
+import { beforeEach, describe, expect, it, vi } from 'vitest'
 
 vi.mock('@/shared/api/http/adminHttpClient', () => ({
   adminHttpClient: {
-    post: vi.fn().mockResolvedValue({ data: { id: 'mock-batch-id' } }),
+    post: vi.fn(),
   },
 }))
 
 import { adminHttpClient } from '@/shared/api/http/adminHttpClient'
+import { useUploadCsv } from '../useUploadCsv'
 
-/**
- * Validates: Requirements 3.5, 6.2
- */
-describe('useUploadCsv — FormData Construction Property Tests', () => {
-  it('constructs FormData with exactly one entry keyed "file" containing the correct file', () => {
-    fc.assert(
-      fc.property(
-        fc.string({ minLength: 1 }).map((s) => s.replace(/[^a-z0-9]/gi, 'x') + '.csv'),
-        (filename) => {
-          const file = new File(['content'], filename, { type: 'text/csv' })
-          const formData = new FormData()
-          formData.append('file', file)
+const mockPost = adminHttpClient.post as ReturnType<typeof vi.fn>
 
-          const entries = [...formData.entries()]
-          expect(entries).toHaveLength(1)
-          expect(entries[0][0]).toBe('file')
-          expect((entries[0][1] as File).name).toBe(filename)
-        },
-      ),
-      { numRuns: 100 },
-    )
+function createWrapper() {
+  const queryClient = new QueryClient({
+    defaultOptions: { queries: { retry: false }, mutations: { retry: false } },
+  })
+  return ({ children }: { children: React.ReactNode }) =>
+    createElement(QueryClientProvider, { client: queryClient }, children)
+}
+
+describe('useUploadCsv', () => {
+  beforeEach(() => {
+    vi.clearAllMocks()
   })
 
-  it('POSTs to the provided endpoint path', async () => {
-    const mockedPost = vi.mocked(adminHttpClient.post)
+  it('posts one CSV file with no timeout and lets the browser set the multipart boundary', async () => {
+    mockPost.mockResolvedValueOnce({ data: { batchId: 'batch-1' } })
+    const file = new File(['sku,name\nSKU-1,Product'], 'products.csv', { type: 'text/csv' })
+    const { result } = renderHook(() => useUploadCsv(), { wrapper: createWrapper() })
 
-    await fc.assert(
-      fc.asyncProperty(
-        fc.string({ minLength: 1 }).map((s) => s.replace(/[^a-z0-9]/gi, 'x') + '.csv'),
-        fc.string({ minLength: 1 }).map((s) => '/api/' + s.replace(/[^a-z0-9/]/gi, '')),
-        async (filename, endpoint) => {
-          mockedPost.mockClear()
-          mockedPost.mockResolvedValue({ data: { id: 'mock-batch-id' } })
+    await act(async () => {
+      await result.current.mutateAsync({ file, endpoint: '/admin/products/upload-csv' })
+    })
 
-          const file = new File(['content'], filename, { type: 'text/csv' })
+    expect(mockPost).toHaveBeenCalledTimes(1)
+    const [endpoint, body, config] = mockPost.mock.calls[0]
+    expect(endpoint).toBe('/admin/products/upload-csv')
+    expect(body).toBeInstanceOf(FormData)
+    expect((body as FormData).get('file')).toBe(file)
+    expect(config).toEqual({ timeout: 0 })
+  })
 
-          // Replicate the hook's FormData construction logic
-          const formData = new FormData()
-          formData.append('file', file)
-          await adminHttpClient.post(endpoint, formData, {
-            headers: { 'Content-Type': 'multipart/form-data' },
-          })
+  it('logs upload failures for diagnosis', async () => {
+    const error = new Error('Network Error')
+    const consoleError = vi.spyOn(console, 'error').mockImplementation(() => undefined)
+    mockPost.mockRejectedValueOnce(error)
+    const { result } = renderHook(() => useUploadCsv(), { wrapper: createWrapper() })
 
-          expect(mockedPost).toHaveBeenCalledTimes(1)
-          const [calledEndpoint, calledFormData, calledConfig] = mockedPost.mock.calls[0]
-          expect(calledEndpoint).toBe(endpoint)
-          expect(calledFormData).toBeInstanceOf(FormData)
-          const entries = [...(calledFormData as FormData).entries()]
-          expect(entries).toHaveLength(1)
-          expect(entries[0][0]).toBe('file')
-          expect((entries[0][1] as File).name).toBe(filename)
-          expect(calledConfig).toEqual({ headers: { 'Content-Type': 'multipart/form-data' } })
-        },
-      ),
-      { numRuns: 100 },
-    )
+    await expect(result.current.mutateAsync({
+      file: new File([''], 'products.csv', { type: 'text/csv' }),
+      endpoint: '/admin/products/upload-csv',
+    })).rejects.toThrow(error)
+
+    expect(consoleError).toHaveBeenCalledWith('[ProductImport] CSV upload failed:', error)
+    consoleError.mockRestore()
   })
 })

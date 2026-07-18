@@ -198,7 +198,7 @@ export default function ProductImportListPage() {
       <Dialog open={uploadOpen} onClose={handleCloseUpload} size="md">
         <DialogHeader
           title="Upload Product CSV"
-          description="Maximum 5,000 rows per batch. Each row represents one product or variant."
+          description="Each row represents one product or variant. Large files are staged in the background."
         />
         <DialogContent>
           <Upload accept=".csv" onUpload={setFile} disabled={isUploading} />

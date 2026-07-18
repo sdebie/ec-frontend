@@ -15,7 +15,9 @@ export function useUploadCsv() {
       const formData = new FormData()
       formData.append('file', file)
       const response = await adminHttpClient.post(endpoint, formData, {
-        headers: { 'Content-Type': 'multipart/form-data' },
+        // Let the browser set the multipart boundary. CSV uploads can take
+        // longer than the shared HTTP client's 60-second request timeout.
+        timeout: 0,
       })
       return response.data
     },
@@ -25,6 +27,9 @@ export function useUploadCsv() {
       } else if (endpoint.includes('products/upload-csv')) {
         queryClient.invalidateQueries({ queryKey: ['admin-product-upload-batches'] })
       }
+    },
+    onError: (error) => {
+      console.error('[ProductImport] CSV upload failed:', error)
     },
   })
 
