@@ -30,6 +30,10 @@ describe('StorefrontSideNavigationLayout', () => {
 
     expect(screen.getByRole('navigation', { name: 'Account navigation' })).toBeInTheDocument()
     expect(screen.getByRole('link', { name: 'Dashboard' })).toHaveAttribute('href', '/dashboard')
+    expect(screen.getByRole('link', { name: 'Dashboard' })).toHaveClass(
+      'bg-(--sf-accent)',
+      'text-(--sf-accent-text)',
+    )
     expect(screen.getByRole('heading', { name: 'Page content' })).toBeInTheDocument()
   })
 

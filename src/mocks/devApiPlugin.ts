@@ -91,12 +91,36 @@ export function devApiPlugin(): Plugin {
                     return
                 }
 
-                // Customer auth: POST /api/customers/registerOrUpdate
-                if (url === '/customers/registerOrUpdate' && req.method === 'POST') {
+                // Customer auth: POST /api/customers/register
+                if (url === '/customers/register' && req.method === 'POST') {
                     parseJsonBody(req).then((body) => {
+                        const email = (body.email as string) ?? 'dev@example.com'
+                        // Simulate 409 for a known "taken" email in dev
+                        if (email === 'taken@example.com') {
+                            res.statusCode = 409
+                            res.setHeader('Content-Type', 'application/json')
+                            res.end(JSON.stringify({ message: 'Account already exists' }))
+                            return
+                        }
                         res.setHeader('Content-Type', 'application/json')
                         res.end(JSON.stringify({
                             token: 'mock-customer-jwt-register',
+                            email,
+                            firstName: (body.firstName as string) ?? 'Dev',
+                            lastName: (body.lastName as string) ?? 'User',
+                            shopperType: 'RETAILER',
+                            status: 'ACTIVE',
+                        }))
+                    })
+                    return
+                }
+
+                // Customer profile: PATCH /api/customers/profile
+                if (url === '/customers/profile' && req.method === 'PATCH') {
+                    parseJsonBody(req).then((body) => {
+                        res.setHeader('Content-Type', 'application/json')
+                        res.end(JSON.stringify({
+                            token: 'mock-customer-jwt-profile',
                             email: (body.email as string) ?? 'dev@example.com',
                             firstName: (body.firstName as string) ?? 'Dev',
                             lastName: (body.lastName as string) ?? 'User',

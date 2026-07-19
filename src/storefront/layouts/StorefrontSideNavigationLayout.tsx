@@ -21,7 +21,7 @@ function navigationLinkClass(isActive: boolean) {
   return cn(
     'flex items-center gap-3 rounded-md px-3 py-2 text-sm transition-colors',
     isActive
-      ? 'bg-(--sf-surface-muted) font-semibold text-(--sf-text)'
+      ? 'bg-(--sf-accent) font-semibold text-(--sf-accent-text) hover:opacity-90'
       : 'text-(--sf-muted-text) hover:bg-(--sf-surface-muted) hover:text-(--sf-text)',
   )
 }
@@ -63,9 +63,9 @@ export function StorefrontSideNavigationLayout({
   if (!showNavigation) return <>{children}</>
 
   return (
-    <div className="mx-auto max-w-6xl px-4 py-8">
-      <div className="overflow-hidden rounded-xl border border-(--sf-border) bg-(--sf-panel)">
-        <div className="flex flex-col md:flex-row">
+    <div className="mx-auto flex w-full max-w-6xl flex-1 px-4 py-8">
+      <div className="flex flex-1 overflow-hidden rounded-xl border border-(--sf-border) bg-(--sf-panel)">
+        <div className="flex flex-1 flex-col md:flex-row">
           <nav
             aria-label={navigationLabel}
             className="hidden w-56 shrink-0 border-r border-(--sf-border) p-6 md:block"

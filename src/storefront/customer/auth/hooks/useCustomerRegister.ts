@@ -1,4 +1,5 @@
 import { useMutation, useQueryClient } from '@tanstack/react-query'
+import { AxiosError } from 'axios'
 import { storefrontHttpClient } from '@/shared/api/http/storefrontHttpClient'
 import { useCustomerAuthStore } from '@/shared/auth/customerAuthStore'
 import { mapShopperType } from '../utils/mapShopperType'
@@ -12,7 +13,7 @@ export function useCustomerRegister() {
   return useMutation({
     mutationFn: async (credentials: CustomerRegisterRequest) => {
       const { data } = await storefrontHttpClient.post<CustomerLoginResponse>(
-        '/customers/registerOrUpdate',
+        '/customers/register',
         credentials,
       )
       return data
@@ -26,6 +27,13 @@ export function useCustomerRegister() {
 
       // Fire-and-forget: merge local wishlist into server wishlist
       mergeWishlistOnSignIn(queryClient)
+    },
+    onError(error) {
+      console.error('[Registration] action failed:', error)
+      if (error instanceof AxiosError && error.response?.status === 409) {
+        // Account already exists — user should sign in instead
+        throw new Error('An account with this email already exists. Please sign in.')
+      }
     },
   })
 }

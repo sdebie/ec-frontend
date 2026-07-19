@@ -11,7 +11,7 @@ export function useUpdateProfile() {
   return useMutation({
     mutationFn: (payload: UpdateProfileRequest) =>
       storefrontHttpClient
-        .post<UpdateProfileResponse>('/customers/registerOrUpdate', payload)
+        .patch<UpdateProfileResponse>('/customers/profile', payload)
         .then((r) => r.data),
     onSuccess(data) {
       // Update store so header shows updated name immediately
@@ -24,6 +24,9 @@ export function useUpdateProfile() {
       })
       // Invalidate profile cache so next visit fetches fresh data
       queryClient.invalidateQueries({ queryKey: ['customer', 'profile'] })
+    },
+    onError(error) {
+      console.error('[Profile] action failed:', error)
     },
   })
 }

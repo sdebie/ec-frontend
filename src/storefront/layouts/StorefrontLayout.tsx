@@ -8,7 +8,7 @@ export function StorefrontLayout() {
     <div className="flex min-h-screen flex-col bg-(--sf-background) text-(--sf-text)">
       <AnnouncementBanner />
       <StorefrontHeader />
-      <main className="flex-1">
+      <main className="flex flex-1 flex-col">
         <Outlet />
       </main>
       <StorefrontFooter />
