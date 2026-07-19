@@ -122,4 +122,32 @@ describe('CustomerLoginForm', () => {
             'Your account is not active. Please contact support.',
         )
     })
+
+    it('shows rate limit message on 429 response', () => {
+        mockLoginState = {
+            mutate: mockLoginMutate,
+            isPending: false,
+            isError: true,
+            error: {response: {status: 429}},
+        }
+
+        render(<CustomerLoginForm/>)
+
+        expect(screen.getByRole('alert')).toHaveTextContent(
+            'Too many attempts — please try again later.',
+        )
+    })
+
+    it('does not show invalid credentials message on 429 response', () => {
+        mockLoginState = {
+            mutate: mockLoginMutate,
+            isPending: false,
+            isError: true,
+            error: {response: {status: 429}},
+        }
+
+        render(<CustomerLoginForm/>)
+
+        expect(screen.getByRole('alert')).not.toHaveTextContent('Invalid email or password.')
+    })
 })

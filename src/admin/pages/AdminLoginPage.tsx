@@ -35,11 +35,14 @@ export function AdminLoginPage() {
         }
       },
       onError: (err: unknown) => {
+        console.error('[AdminLogin] login failed:', err)
         const status =
           err && typeof err === 'object' && 'response' in err
             ? (err as { response?: { status?: number; data?: unknown } }).response?.status
             : undefined
-        if (status === 403) {
+        if (status === 429) {
+          setServerError('Too many attempts — please try again later.')
+        } else if (status === 403) {
           setServerError('Access denied. Your account is inactive.')
         } else {
           setServerError('Invalid email or password.')

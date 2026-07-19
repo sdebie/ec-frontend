@@ -19,6 +19,10 @@ function getErrorMessage(error: unknown): string {
     const axiosError = error as { response?: { status?: number; data?: { status?: string } } }
     const status = axiosError.response?.status
 
+    if (status === 429) {
+      return 'Too many attempts — please try again later.'
+    }
+
     if (status === 401 || status === 403) {
       return 'Invalid email or password.'
     }

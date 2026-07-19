@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import { Menu, User } from 'lucide-react'
 import { useStorefrontConfig } from '@/shared/config/storefrontConfig.context'
@@ -21,13 +21,36 @@ export function StorefrontHeader() {
   const [drawerOpen, setDrawerOpen] = useState(false)
   const [isLoginOpen, setIsLoginOpen] = useState(false)
   const [isForgotOpen, setIsForgotOpen] = useState(false)
+  const accountMenuRef = useRef<HTMLDivElement>(null)
 
   const navItems = config.nav ?? []
 
   function handleSignOut() {
+    setDropdownOpen(false)
     clearSession()
     navigate('/', { replace: true })
   }
+
+  useEffect(() => {
+    if (!dropdownOpen) return
+
+    function closeOnOutsidePointer(event: MouseEvent) {
+      if (!accountMenuRef.current?.contains(event.target as Node)) {
+        setDropdownOpen(false)
+      }
+    }
+
+    function closeOnEscape(event: KeyboardEvent) {
+      if (event.key === 'Escape') setDropdownOpen(false)
+    }
+
+    document.addEventListener('mousedown', closeOnOutsidePointer)
+    document.addEventListener('keydown', closeOnEscape)
+    return () => {
+      document.removeEventListener('mousedown', closeOnOutsidePointer)
+      document.removeEventListener('keydown', closeOnEscape)
+    }
+  }, [dropdownOpen])
 
   return (
     <header
@@ -68,10 +91,12 @@ export function StorefrontHeader() {
         {/* User area + burger button */}
         <div className="ml-auto flex shrink-0 items-center gap-3">
           {isSignedIn ? (
-            <div className="relative">
+            <div ref={accountMenuRef} className="relative">
               <button
                 onClick={() => setDropdownOpen((v) => !v)}
                 aria-expanded={dropdownOpen}
+                aria-haspopup="menu"
+                aria-controls="customer-account-menu"
                 className="flex items-center gap-2 rounded-md px-3 py-2 text-sm font-medium text-(--sf-nav-icon-text) hover:text-(--sf-nav-icon-text-hover) hover:bg-(--sf-nav-border)"
               >
                 <User className="h-5 w-5" aria-hidden="true" />
@@ -79,8 +104,9 @@ export function StorefrontHeader() {
               </button>
               {dropdownOpen && (
                 <div
+                  id="customer-account-menu"
                   role="menu"
-                  className="absolute right-0 mt-1 w-48 rounded-md border border-(--sf-border) bg-(--sf-panel) py-1 shadow-lg"
+                  className="absolute right-0 mt-1 w-48 rounded-md border border-(--sf-border) bg-(--sf-panel) py-1 shadow-(--sf-shadow-lg)"
                 >
                   <Link
                     to="/account/dashboard"

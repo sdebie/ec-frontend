@@ -159,6 +159,40 @@ describe('StorefrontHeader', () => {
       await user.click(toggleButton)
       expect(toggleButton).toHaveAttribute('aria-expanded', 'true')
     })
+
+    it('closes the dropdown when the customer clicks outside it', async () => {
+      const user = userEvent.setup()
+      renderHeader()
+
+      await user.click(screen.getByRole('button', { name: /jane/i }))
+      expect(screen.getByRole('menu')).toBeInTheDocument()
+
+      await user.click(document.body)
+      expect(screen.queryByRole('menu')).not.toBeInTheDocument()
+    })
+
+    it('closes the dropdown when Escape is pressed', async () => {
+      const user = userEvent.setup()
+      renderHeader()
+
+      await user.click(screen.getByRole('button', { name: /jane/i }))
+      await user.keyboard('{Escape}')
+
+      expect(screen.queryByRole('menu')).not.toBeInTheDocument()
+    })
+
+    it('uses storefront panel, border, and shadow tokens for the dropdown', async () => {
+      const user = userEvent.setup()
+      renderHeader()
+
+      await user.click(screen.getByRole('button', { name: /jane/i }))
+
+      expect(screen.getByRole('menu')).toHaveClass(
+        'bg-(--sf-panel)',
+        'border-(--sf-border)',
+        'shadow-(--sf-shadow-lg)',
+      )
+    })
   })
 
   describe('sign-out behaviour', () => {
