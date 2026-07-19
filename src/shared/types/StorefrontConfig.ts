@@ -24,15 +24,41 @@ export interface StorefrontActionLink {
 
 // --- Per-section props types ---
 
+/**
+ * Semantic content surface for the hero (and, by convention, any section that
+ * needs to render on-brand or on-dark content without a photo behind it).
+ * The component only ever picks one of these three buckets and maps each to
+ * theme tokens (`--sf-panel`/`--sf-text`, `--sf-accent`/`--sf-accent-text`,
+ * `--sf-surface-dark`/`--sf-accent-text`) — no client-specific colour or copy
+ * lives in the component itself.
+ *
+ * - 'default': tokenised light/panel surface. Safe with or without an image.
+ * - 'brand':   solid accent-coloured surface (no image needed).
+ * - 'dark':    dark surface — the right choice for a photo with a scrim, or
+ *              an explicit dark band with no photo.
+ */
+export type HeroContentSurface = 'default' | 'brand' | 'dark'
+
 export interface HeroSectionProps {
   title: string
   subtitle?: string
+  /** Small uppercase label above the title, e.g. "ABOUT UVH HOLDINGS". */
+  kicker?: string
   primaryCta?: StorefrontActionLink
   secondaryCta?: StorefrontActionLink
   backgroundImageUrl?: string
   overlayOpacity?: number
   contentAlignment?: 'left' | 'center' | 'right'
+  /**
+   * @deprecated Use `contentSurface` instead. Only honoured when
+   * `backgroundImageUrl` is set — a hero with no image always renders the
+   * safe `'default'` surface even if this is `true`, so a stale flag can
+   * never wash out the page. Prefer `contentSurface: 'dark'` or `'brand'`
+   * to opt into dark/on-brand styling explicitly, with or without a photo.
+   */
   darkStyle?: boolean
+  /** Explicit semantic surface. Takes precedence over `darkStyle`. */
+  contentSurface?: HeroContentSurface
 }
 
 export interface CategoryPreviewItem {
@@ -82,6 +108,7 @@ export interface CtaSectionProps {
   title: string
   description?: string
   cta: StorefrontActionLink
+  secondaryLinks?: StorefrontActionLink[]
   variant?: 'accent' | 'dark'
 }
 
@@ -164,6 +191,28 @@ export interface SaleProductsSectionProps {
   category?: string
 }
 
+// --- Stats section ---
+
+export interface StatItem {
+  value: string
+  label: string
+}
+
+export interface StatsSectionProps {
+  title?: string
+  items: StatItem[]
+}
+
+// --- Content Split section ---
+
+export interface ContentSplitSectionProps {
+  title: string
+  paragraphs: string[]
+  imageUrl?: string
+  imageAlt?: string
+  imagePosition?: 'left' | 'right'  // default 'left'
+}
+
 // --- Discriminated union members ---
 
 interface SectionBase<T extends string, P> {
@@ -184,6 +233,8 @@ export type AccreditorsSectionConfig = SectionBase<'accreditors', AccreditorsSec
 export type BrandsSectionConfig = SectionBase<'brands', BrandsSectionProps>
 export type CategoryShowcaseSectionConfig = SectionBase<'category-showcase', CategoryShowcaseSectionProps>
 export type SaleProductsSectionConfig = SectionBase<'sale-products', SaleProductsSectionProps>
+export type StatsSectionConfig = SectionBase<'stats', StatsSectionProps>
+export type ContentSplitSectionConfig = SectionBase<'content-split', ContentSplitSectionProps>
 
 export type SectionConfig =
   | HeroSectionConfig
@@ -198,6 +249,8 @@ export type SectionConfig =
   | BrandsSectionConfig
   | CategoryShowcaseSectionConfig
   | SaleProductsSectionConfig
+  | StatsSectionConfig
+  | ContentSplitSectionConfig
 
 export interface StorefrontBrandingLogo {
   src: string
@@ -267,6 +320,7 @@ export interface StorefrontConfig {
   theme: Record<string, string>
   nav: NavItem[]
   sections: SectionConfig[]
+  aboutSections?: SectionConfig[]
   branding: StorefrontBranding
   stickyHeader?: boolean
   header?: HeaderConfig

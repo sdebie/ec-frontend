@@ -11,23 +11,23 @@ import type { ProductComparisonDto, ValidationStatus } from '../types'
 describe('computeProductReviewSummary — Property Tests', () => {
   const productComparisonArbitrary: fc.Arbitrary<ProductComparisonDto> = fc.record({
     stagedId: fc.uuid(),
-    sku: fc.string(),
+    sku: fc.option(fc.string(), { nil: null }),
     validationStatus: fc.constantFrom<ValidationStatus>('VALID', 'INVALID'),
-    validationErrors: fc.array(fc.string()),
-    imageErrors: fc.array(fc.string()),
+    validationErrors: fc.option(fc.string(), { nil: null }),
+    imageErrors: fc.option(fc.string(), { nil: null }),
     isNewProduct: fc.boolean(),
     isNewVariant: fc.boolean(),
     hasChanges: fc.boolean(),
     currentName: fc.option(fc.string(), { nil: null }),
-    proposedName: fc.string(),
+    proposedName: fc.option(fc.string(), { nil: null }),
     currentDescription: fc.option(fc.string(), { nil: null }),
-    proposedDescription: fc.string(),
+    proposedDescription: fc.option(fc.string(), { nil: null }),
     currentStock: fc.option(fc.nat(), { nil: null }),
-    proposedStock: fc.nat(),
-    currentImages: fc.array(fc.string()),
-    proposedImages: fc.array(fc.string()),
-    currentAttributes: fc.option(fc.dictionary(fc.string(), fc.string()), { nil: null }),
-    proposedAttributes: fc.dictionary(fc.string(), fc.string()),
+    proposedStock: fc.option(fc.nat(), { nil: null }),
+    currentImages: fc.option(fc.string(), { nil: null }),
+    proposedImages: fc.option(fc.string(), { nil: null }),
+    currentAttributes: fc.option(fc.string(), { nil: null }),
+    proposedAttributes: fc.option(fc.string(), { nil: null }),
   })
 
   it('total equals array length', () => {

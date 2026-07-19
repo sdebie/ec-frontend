@@ -27,7 +27,7 @@ describe('useUploadCsv', () => {
     vi.clearAllMocks()
   })
 
-  it('posts one CSV file with no timeout and lets the browser set the multipart boundary', async () => {
+  it('posts one buffered CSV file with no timeout and lets the browser set the multipart boundary', async () => {
     mockPost.mockResolvedValueOnce({ data: { batchId: 'batch-1' } })
     const file = new File(['sku,name\nSKU-1,Product'], 'products.csv', { type: 'text/csv' })
     const { result } = renderHook(() => useUploadCsv(), { wrapper: createWrapper() })
@@ -40,7 +40,14 @@ describe('useUploadCsv', () => {
     const [endpoint, body, config] = mockPost.mock.calls[0]
     expect(endpoint).toBe('/admin/products/upload-csv')
     expect(body).toBeInstanceOf(FormData)
-    expect((body as FormData).get('file')).toBe(file)
+    // The hook uploads an in-memory copy, decoupled from the file's on-disk
+    // state (Safari/iCloud eviction fix) — same name/type/content, new File.
+    const sent = (body as FormData).get('file') as File
+    expect(sent).toBeInstanceOf(File)
+    expect(sent).not.toBe(file)
+    expect(sent.name).toBe('products.csv')
+    expect(sent.type).toBe('text/csv')
+    expect(new TextDecoder().decode(await sent.arrayBuffer())).toBe('sku,name\nSKU-1,Product')
     expect(config).toEqual({ timeout: 0 })
   })
 

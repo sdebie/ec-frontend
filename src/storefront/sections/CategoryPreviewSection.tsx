@@ -21,7 +21,7 @@ export function CategoryPreviewSection({section}: { section: CategoryPreviewSect
 
     return (
         <section className="px-6 py-12">
-            <h2 className="text-2xl font-semibold">{title}</h2>
+            <h2 className="text-2xl font-semibold text-(--sf-text)">{title}</h2>
             {subtitle && (
                 <p className="mt-2 text-(--sf-muted-text)">{subtitle}</p>
             )}
@@ -43,7 +43,7 @@ export function CategoryPreviewSection({section}: { section: CategoryPreviewSect
                                 />
                             )}
                             <div>
-                                <p className="font-medium">{item.label}</p>
+                                <p className="font-medium text-(--sf-text)">{item.label}</p>
                                 {item.description && (
                                     <p className="mt-1 text-sm text-(--sf-muted-text)">{item.description}</p>
                                 )}
@@ -71,7 +71,7 @@ export function CategoryPreviewSection({section}: { section: CategoryPreviewSect
                                 </div>
                             )}
                             <div className="p-4">
-                                <h3 className="font-medium">{item.label}</h3>
+                                <h3 className="font-medium text-(--sf-text)">{item.label}</h3>
                                 {item.description && (
                                     <p className="mt-1 text-sm text-(--sf-muted-text) line-clamp-2">{item.description}</p>
                                 )}

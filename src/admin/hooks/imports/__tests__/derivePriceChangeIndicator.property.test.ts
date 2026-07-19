@@ -13,7 +13,7 @@ describe('derivePriceChangeIndicator — Property Tests', () => {
     stagedId: fc.uuid(),
     sku: fc.string(),
     validationStatus: fc.constantFrom('VALID' as const, 'INVALID' as const),
-    validationErrors: fc.array(fc.string()),
+    validationErrors: fc.option(fc.string(), { nil: null }),
     hasChanges: fc.boolean(),
     currentRetailPrice: fc.oneof(fc.constant(null), fc.nat()),
     proposedRetailPrice: fc.nat(),

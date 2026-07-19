@@ -28,8 +28,8 @@ function buildProductComparisonDto(
     stagedId: 'staged-1',
     sku: 'SKU-001',
     validationStatus: 'VALID',
-    validationErrors: [],
-    imageErrors: [],
+    validationErrors: null,
+    imageErrors: null,
     isNewProduct,
     isNewVariant,
     hasChanges,
@@ -39,10 +39,10 @@ function buildProductComparisonDto(
     proposedDescription: 'Description',
     currentStock: null,
     proposedStock: 10,
-    currentImages: [],
-    proposedImages: [],
+    currentImages: null,
+    proposedImages: 'front.jpg,back.jpg',
     currentAttributes: null,
-    proposedAttributes: {},
+    proposedAttributes: '{"size":"M"}',
   }
 }
 

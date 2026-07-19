@@ -1,9 +1,9 @@
 import {useCallback, useMemo, useState} from 'react'
 import {useParams} from 'react-router-dom'
-import {Calendar, FileText, Hash, ShieldUser, User} from 'lucide-react'
+import {Calendar, Eye, FileText, Hash, ShieldUser, User} from 'lucide-react'
 
 import type {ColumnDef} from '@/shared/ui/components'
-import {DataTable, PageLayout, StatusBadge, toast} from '@/shared/ui/components'
+import {DataTable, Dialog, DialogContent, DialogHeader, PageLayout, StatusBadge, toast,} from '@/shared/ui/components'
 import {useBreadcrumb} from '@/admin/context/BreadcrumbContext'
 import {Button} from '@/shared/ui/primitives'
 import {useAdminAuthStore} from '@/shared/auth/adminAuthStore'
@@ -66,6 +66,7 @@ export default function PriceImportReviewPage() {
     const [batchStatus, setBatchStatus] = useState<BatchStatusResponse | null>(null)
     const [isApproved, setIsApproved] = useState(false)
     const [toastShown, setToastShown] = useState(false)
+    const [errorRow, setErrorRow] = useState<ProductPriceComparisonDto | null>(null)
 
     const currentStatus = batchStatus?.status ?? null
 
@@ -198,6 +199,25 @@ export default function PriceImportReviewPage() {
                 ),
                 enableSorting: false,
             },
+            {
+                id: 'actions',
+                header: 'Actions',
+                cell: ({row}) => (
+                    <div className="flex items-center gap-1">
+                        {!!row.original.validationErrors && (
+                            <button
+                                type="button"
+                                onClick={() => setErrorRow(row.original)}
+                                className="inline-flex items-center justify-center p-1 rounded-lg hover:bg-(--c-surface-hover)"
+                                aria-label={`View validation errors for ${row.original.sku}`}
+                            >
+                                <Eye className="h-4 w-4 text-(--c-text-muted)"/>
+                            </button>
+                        )}
+                    </div>
+                ),
+                enableSorting: false,
+            },
         ],
         [],
     )
@@ -254,6 +274,22 @@ export default function PriceImportReviewPage() {
                 manualPagination={false}
                 emptyMessage="No staged rows found"
             />
+
+            <Dialog open={errorRow !== null} onClose={() => setErrorRow(null)} size="md">
+                <DialogHeader
+                    title="Validation Errors"
+                    description={errorRow ? `SKU: ${errorRow.sku}` : undefined}
+                />
+                <DialogContent>
+                    <ul className="list-disc pl-5 space-y-2">
+                        {(errorRow?.validationErrors?.split('; ') ?? []).map((error, i) => (
+                            <li key={i} className="text-sm text-(--c-text)">
+                                {error}
+                            </li>
+                        ))}
+                    </ul>
+                </DialogContent>
+            </Dialog>
         </PageLayout>
     )
 }

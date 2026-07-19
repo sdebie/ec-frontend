@@ -23,30 +23,39 @@ export interface ProductUploadBatchDto {
 
 export interface ProductComparisonDto {
   stagedId: string
-  sku: string
+  /** Raw CSV cell; rows with a missing sku are still staged (with a validation error). */
+  sku: string | null
   validationStatus: ValidationStatus
-  validationErrors: string[]
-  imageErrors: string[]
+  /** Backend joins errors with '; ' (ProductImportValidator); null when the row is valid. */
+  validationErrors: string | null
+  /** Single message, e.g. "Missing Images: a.jpg, b.jpg"; null when all images exist. */
+  imageErrors: string | null
   isNewProduct: boolean
   isNewVariant: boolean
   hasChanges: boolean
   currentName: string | null
-  proposedName: string
+  proposedName: string | null
   currentDescription: string | null
-  proposedDescription: string
+  proposedDescription: string | null
   currentStock: number | null
-  proposedStock: number
-  currentImages: string[]
-  proposedImages: string[]
-  currentAttributes: Record<string, string> | null
-  proposedAttributes: Record<string, string>
+  /** Null when the CSV stock value is missing or unparseable. */
+  proposedStock: number | null
+  /** Comma-joined image filenames (','); null when the variant is new or has no images. */
+  currentImages: string | null
+  /** Raw comma-separated CSV cell; null when the column is absent or blank. */
+  proposedImages: string | null
+  /** Raw attributes JSON string from the existing variant; null when the variant is new. */
+  currentAttributes: string | null
+  /** Raw attributes JSON string from the CSV cell; null when absent. */
+  proposedAttributes: string | null
 }
 
 export interface ProductPriceComparisonDto {
   stagedId: string
   sku: string
   validationStatus: ValidationStatus
-  validationErrors: string[]
+  /** Backend joins errors with '; ' (ProductPriceImportValidator); null when the row is valid. */
+  validationErrors: string | null
   hasChanges: boolean
   currentRetailPrice: number | null
   proposedRetailPrice: number

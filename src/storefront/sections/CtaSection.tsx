@@ -2,7 +2,7 @@ import {Link} from 'react-router-dom'
 import type {CtaSectionConfig} from '@/shared/types/StorefrontConfig'
 
 export function CtaSection({section}: { section: CtaSectionConfig }) {
-    const {title, description, cta, variant = 'accent'} = section.props
+    const {title, description, cta, secondaryLinks = [], variant = 'accent'} = section.props
 
     const isDark = variant === 'dark'
     const sectionStyle = isDark
@@ -40,6 +40,20 @@ export function CtaSection({section}: { section: CtaSectionConfig }) {
                 >
                     {cta.label}
                 </Link>
+                {secondaryLinks.length > 0 && (
+                    <nav className="mt-5 flex flex-wrap justify-center gap-x-5 gap-y-2" aria-label="Related links">
+                        {secondaryLinks.map((link) => (
+                            <Link
+                                key={`${link.label}-${link.to}`}
+                                to={link.to}
+                                className="text-sm font-medium underline underline-offset-4"
+                                style={{color: 'var(--sf-accent-text)'}}
+                            >
+                                {link.label}
+                            </Link>
+                        ))}
+                    </nav>
+                )}
             </div>
         </section>
     )

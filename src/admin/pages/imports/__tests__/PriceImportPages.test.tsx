@@ -1,5 +1,6 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest'
 import { render, screen, waitFor } from '@testing-library/react'
+import userEvent from '@testing-library/user-event'
 import { MemoryRouter } from 'react-router-dom'
 
 import { usePriceUploadBatches } from '@/admin/hooks/imports/usePriceUploadBatches'
@@ -73,7 +74,7 @@ function createMockPriceRow(overrides?: Partial<ProductPriceComparisonDto>): Pro
     stagedId: 'staged-1',
     sku: 'SKU-001',
     validationStatus: 'VALID',
-    validationErrors: [],
+    validationErrors: null,
     hasChanges: true,
     currentRetailPrice: 100,
     proposedRetailPrice: 120,
@@ -278,6 +279,7 @@ describe('PriceImportReviewPage', () => {
     expect(screen.getByText('Proposed Wholesale')).toBeInTheDocument()
     expect(screen.getByText('Change')).toBeInTheDocument()
     expect(screen.getByText('Validation')).toBeInTheDocument()
+    expect(screen.getByText('Actions')).toBeInTheDocument()
   })
 
   it('shows "Approve Import" button when status is PENDING and canMutate is true', async () => {
@@ -333,5 +335,72 @@ describe('PriceImportReviewPage', () => {
       expect(screen.getByText('Price Import Review')).toBeInTheDocument()
     })
     expect(screen.queryByText('Approve Import')).not.toBeInTheDocument()
+  })
+
+  it('shows the view-errors eye button only for rows with validation errors', async () => {
+    setupReviewPageMocks({
+      rows: [
+        createMockPriceRow(),
+        createMockPriceRow({
+          stagedId: 'staged-2',
+          sku: 'SKU-002',
+          validationStatus: 'INVALID',
+          validationErrors: 'SKU not found; Proposed retail price must be positive',
+        }),
+      ],
+      batchStatus: 'PENDING',
+    })
+
+    render(
+      <MemoryRouter>
+        <PriceImportReviewPage />
+      </MemoryRouter>,
+    )
+
+    await waitFor(() => {
+      expect(screen.getByText('SKU-002')).toBeInTheDocument()
+    })
+    expect(
+      screen.getByRole('button', { name: 'View validation errors for SKU-002' }),
+    ).toBeInTheDocument()
+    expect(
+      screen.queryByRole('button', { name: 'View validation errors for SKU-001' }),
+    ).not.toBeInTheDocument()
+  })
+
+  it('opens a dialog listing the row validation errors when the eye button is clicked', async () => {
+    setupReviewPageMocks({
+      rows: [
+        createMockPriceRow({
+          sku: 'SKU-002',
+          validationStatus: 'INVALID',
+          validationErrors: 'SKU not found; Proposed retail price must be positive',
+        }),
+      ],
+      batchStatus: 'PENDING',
+    })
+
+    render(
+      <MemoryRouter>
+        <PriceImportReviewPage />
+      </MemoryRouter>,
+    )
+
+    const user = userEvent.setup()
+    await waitFor(() => {
+      expect(
+        screen.getByRole('button', { name: 'View validation errors for SKU-002' }),
+      ).toBeInTheDocument()
+    })
+    await user.click(screen.getByRole('button', { name: 'View validation errors for SKU-002' }))
+
+    const dialog = screen.getByRole('dialog')
+    expect(dialog).toHaveTextContent('Validation Errors')
+    expect(dialog).toHaveTextContent('SKU: SKU-002')
+    expect(dialog).toHaveTextContent('SKU not found')
+    expect(dialog).toHaveTextContent('Proposed retail price must be positive')
+
+    await user.click(screen.getByRole('button', { name: 'Close' }))
+    expect(screen.queryByRole('dialog')).not.toBeInTheDocument()
   })
 })
