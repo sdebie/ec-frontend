@@ -1,5 +1,6 @@
 import {useState} from 'react'
 import {cn} from '@/shared/utils/cn'
+import {resolveImageUrl} from '@/shared/utils/imageUrl'
 
 export type ThumbnailSize = 'sm' | 'md' | 'lg'
 
@@ -19,11 +20,13 @@ const sizeClasses: Record<ThumbnailSize, string> = {
 export function Thumbnail({logoUrl, name, size = 'md', className}: ThumbnailProps) {
     const [imgError, setImgError] = useState(false)
     const initials = name?.slice(0, 2).toUpperCase() ?? '?'
+    // Law 7: storage-relative DB paths must resolve to /static/images/…; idempotent for absolute URLs.
+    const resolvedUrl = resolveImageUrl(logoUrl)
 
-    if (logoUrl && !imgError) {
+    if (resolvedUrl && !imgError) {
         return (
             <img
-                src={logoUrl}
+                src={resolvedUrl}
                 alt={`${name} logo`}
                 className={cn(
                     sizeClasses[size],

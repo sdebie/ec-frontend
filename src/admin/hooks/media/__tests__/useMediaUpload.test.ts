@@ -33,7 +33,7 @@ describe('useMediaUpload', () => {
     expect(result.current.isUploading).toBe(false)
   })
 
-  it('POSTs multipart/form-data to /admin/images/upload and returns the fileName', async () => {
+  it('POSTs FormData to /admin/images/upload without a hardcoded Content-Type and returns the fileName', async () => {
     mockPost.mockResolvedValueOnce({ data: { fileName: 'abc123-uuid.jpg' } })
 
     const { result } = renderHook(() => useMediaUpload(), { wrapper: createWrapper() })
@@ -50,7 +50,9 @@ describe('useMediaUpload', () => {
     const [url, body, config] = mockPost.mock.calls[0]
     expect(url).toBe('/admin/images/upload')
     expect(body).toBeInstanceOf(FormData)
-    expect(config).toMatchObject({ headers: { 'Content-Type': 'multipart/form-data' } })
+    // No config/headers: the browser must set multipart/form-data with the
+    // boundary itself — a hardcoded Content-Type breaks uploads in Safari.
+    expect(config).toBeUndefined()
   })
 
   it('appends the file under the "file" field', async () => {

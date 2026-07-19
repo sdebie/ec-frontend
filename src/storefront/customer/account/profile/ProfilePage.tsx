@@ -161,6 +161,9 @@ export function ProfilePage() {
       onSuccess: () => {
         setSuccessMessage('Profile updated successfully.')
       },
+      onError: (error) => {
+        console.error('[Profile] update failed:', error)
+      },
     })
   }
 
@@ -546,6 +549,7 @@ function PasswordSection({ hasPassword }: { hasPassword: boolean }) {
           )
         },
         onError: (error: AxiosError) => {
+          console.error('[Profile] password change failed:', error)
           if (error.response?.status === 401) {
             setApiError('Current password is incorrect')
           } else {

@@ -16,7 +16,6 @@ import {
 import type { ColumnDef } from '@/shared/ui/components'
 import { Input } from '@/shared/ui/primitives'
 import { formatAmount } from '@/shared/utils/formatAmount'
-import { resolveImageUrl } from '@/shared/utils/imageUrl'
 
 export function ProductsByBrandPage() {
   const [pagination, setPagination] = useState({ pageIndex: 0, pageSize: 10 })
@@ -75,7 +74,7 @@ export function ProductsByBrandPage() {
         cell: ({ row }) => (
           <div className="flex items-center gap-3">
             <Thumbnail
-              logoUrl={resolveImageUrl(row.original.thumbnailUrl)}
+              logoUrl={row.original.thumbnailUrl}
               name={row.original.name}
               size="md"
               className="h-10 w-10 rounded-md"

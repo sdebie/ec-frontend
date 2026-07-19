@@ -60,7 +60,7 @@ export function StorefrontHeader() {
         {/* Search bar — centred, desktop only */}
         {navItems.length > 0 && (
           <div className="hidden flex-1 justify-center md:flex">
-            <SearchBar className="w-full max-w-md" />
+            <SearchBar tone="nav" className="w-full max-w-sm" />
           </div>
         )}
 

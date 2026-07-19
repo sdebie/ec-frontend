@@ -9,7 +9,6 @@ import type {ColumnDef} from '@/shared/ui/components'
 import {ConfirmationDialog, DataTable, PageLayout, Thumbnail, toast,} from '@/shared/ui/components'
 import {Button, Input} from '@/shared/ui/primitives'
 import {useAdminAuthStore} from '@/shared/auth/adminAuthStore'
-import {resolveImageUrl} from '@/shared/utils/imageUrl'
 
 export function BrandListPage() {
     const navigate = useNavigate()
@@ -72,7 +71,7 @@ export function BrandListPage() {
                 id: 'thumbnail',
                 header: 'Icon',
                 cell: ({row}) => (
-                    <Thumbnail logoUrl={resolveImageUrl(row.original.logoUrl)} name={row.original.name} size="md" className="h-10 w-10 rounded-md" />
+                    <Thumbnail logoUrl={row.original.logoUrl} name={row.original.name} size="md" className="h-10 w-10 rounded-md" />
                 ),
                 enableSorting: false,
             },
