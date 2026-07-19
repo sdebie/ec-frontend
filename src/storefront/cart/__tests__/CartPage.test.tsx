@@ -72,6 +72,12 @@ describe('CartPage', () => {
             expect(screen.queryByText('Proceed to checkout')).not.toBeInTheDocument()
             expect(screen.queryByText('Estimated subtotal')).not.toBeInTheDocument()
         })
+
+        it('uses the storefront page gutter and vertical spacing', () => {
+            const {container} = renderCartPage()
+
+            expect(container.firstElementChild).toHaveClass('mx-auto', 'max-w-4xl', 'px-4', 'py-8', 'sm:py-12')
+        })
     })
 
     describe('line item display', () => {
@@ -129,6 +135,12 @@ describe('CartPage', () => {
             renderCartPage()
 
             expect(screen.getByText('Your Cart')).toBeInTheDocument()
+        })
+
+        it('uses the storefront page gutter and vertical spacing', () => {
+            const {container} = renderCartPage()
+
+            expect(container.firstElementChild).toHaveClass('mx-auto', 'max-w-4xl', 'px-4', 'py-8', 'sm:py-12')
         })
     })
 

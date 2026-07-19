@@ -8,7 +8,7 @@ import { formatAmount } from '@/shared/utils/formatAmount'
 
 function CartEmptyState() {
   return (
-    <div className="text-center py-16">
+    <div className="py-16 text-center">
       <h1 className="text-2xl font-bold text-(--sf-text) mb-2">Your cart is empty</h1>
       <p className="text-(--sf-muted-text) mb-6">
         Looks like you haven't added anything to your cart yet.
@@ -68,7 +68,11 @@ export function CartPage() {
   const { currency, locale } = useStorefrontConfig()
 
   if (items.length === 0) {
-    return <CartEmptyState />
+    return (
+      <div className="mx-auto max-w-4xl px-4 py-8 sm:py-12">
+        <CartEmptyState />
+      </div>
+    )
   }
 
   // Merge unavailable IDs from catalog fetch and checkout 422 response
@@ -83,7 +87,7 @@ export function CartPage() {
   }, 0)
 
   return (
-    <div className="max-w-4xl mx-auto">
+    <div className="mx-auto max-w-4xl px-4 py-8 sm:py-12">
       <h1 className="text-2xl font-bold text-(--sf-text) mb-6">Your Cart</h1>
 
       {/* Line items */}
