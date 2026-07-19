@@ -141,7 +141,7 @@ export function ForgotPasswordForm({ onBackToLogin }: ForgotPasswordFormProps) {
           {requestMutation.isError && (
             <div
               role="alert"
-              className="rounded-md bg-red-50 p-3 text-sm text-(--c-status-red-text)"
+              className="rounded-md bg-red-50 p-3 text-sm text-red-700"
             >
               {extractErrorMessage(requestMutation.error)}
             </div>
@@ -217,7 +217,7 @@ export function ForgotPasswordForm({ onBackToLogin }: ForgotPasswordFormProps) {
           {verifyMutation.isError && (
             <div
               role="alert"
-              className="rounded-md bg-red-50 p-3 text-sm text-(--c-status-red-text)"
+              className="rounded-md bg-red-50 p-3 text-sm text-red-700"
             >
               {extractErrorMessage(verifyMutation.error)}
             </div>
@@ -297,7 +297,7 @@ export function ForgotPasswordForm({ onBackToLogin }: ForgotPasswordFormProps) {
           {completeMutation.isError && (
             <div
               role="alert"
-              className="rounded-md bg-red-50 p-3 text-sm text-(--c-status-red-text)"
+              className="rounded-md bg-red-50 p-3 text-sm text-red-700"
             >
               {extractErrorMessage(completeMutation.error)}
             </div>

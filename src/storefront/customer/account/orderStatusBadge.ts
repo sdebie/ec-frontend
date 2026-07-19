@@ -2,17 +2,18 @@
  * Single source of truth for order-status badge styling, shared by the account
  * dashboard and order history/detail pages (previously triplicated).
  *
- * Order-lifecycle states are semantic status indicators with no dedicated
- * storefront token: SHIPPED/DELIVERED/CANCELLED map onto the shared
- * `--c-status-*` tokens; CREATED (neutral) and PAID (info) have no token
- * equivalent and fall under the documented semantic-status exception.
+ * `--c-status-*` and `--c-info` are bound only under [data-surface='admin']
+ * (see shared/ui/primitives/surface/tokens.css), so they resolve to nothing on
+ * storefront pages. Lifecycle states therefore use semantic status palette
+ * classes (the documented theme-token exception); CREATED uses neutral surface
+ * tokens, which are defined for every surface.
  */
 const STATUS_BADGE_CLASSES: Record<string, string> = {
   CREATED: 'bg-(--c-surface-hover) text-(--c-text-muted)',
-  PAID: 'bg-(--c-accent-subtle) text-(--c-info)',
-  SHIPPED: 'bg-(--c-status-yellow-bg) text-(--c-status-yellow-text)',
-  DELIVERED: 'bg-(--c-status-green-bg) text-(--c-status-green-text)',
-  CANCELLED: 'bg-(--c-status-red-bg) text-(--c-status-red-text)',
+  PAID: 'bg-blue-50 text-blue-700',
+  SHIPPED: 'bg-amber-50 text-amber-700',
+  DELIVERED: 'bg-green-50 text-green-700',
+  CANCELLED: 'bg-red-50 text-red-700',
 }
 
 const FALLBACK_BADGE = 'bg-(--c-surface-hover) text-(--c-text-muted)'

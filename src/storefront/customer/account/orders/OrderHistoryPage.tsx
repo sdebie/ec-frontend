@@ -30,7 +30,7 @@ export function OrderHistoryPage() {
           </p>
           <button
             onClick={() => refetch()}
-            className="mt-3 rounded-md bg-(--c-danger) px-4 py-2 text-sm font-medium text-(--c-danger-text) hover:bg-(--c-danger-hover)"
+            className="mt-3 rounded-md bg-red-100 px-4 py-2 text-sm font-medium text-red-800 hover:bg-red-200 transition-colors"
           >
             Retry
           </button>
