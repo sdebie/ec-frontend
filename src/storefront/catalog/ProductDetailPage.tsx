@@ -87,7 +87,7 @@ export function ProductDetailPage() {
         null
 
     return (
-        <div>
+        <div className="mx-auto max-w-7xl px-4 py-6 sm:px-6 lg:px-8">
             {/* Breadcrumb */}
             <nav aria-label="Breadcrumb" className="mb-6">
                 <ol className="flex items-center gap-2 text-sm text-(--sf-muted-text)">
@@ -108,7 +108,7 @@ export function ProductDetailPage() {
             </nav>
 
             {/* Two-column layout */}
-            <div className="grid grid-cols-1 gap-8 md:grid-cols-2">
+            <div className="grid grid-cols-1 gap-8 md:grid-cols-2 lg:gap-12">
                 {/* Left: Image gallery */}
                 <ImageGallery images={product.images} productName={product.name}/>
 

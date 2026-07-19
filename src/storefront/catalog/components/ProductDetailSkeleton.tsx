@@ -11,7 +11,7 @@ export function ProductDetailSkeleton() {
       {/* Two-column layout: stacked on mobile, side-by-side on desktop */}
       <div className="grid grid-cols-1 gap-8 md:grid-cols-2">
         {/* Left: Image gallery placeholder */}
-        <div>
+        <div className="mx-auto w-full max-w-lg">
           <div className="aspect-square w-full rounded-lg bg-(--sf-surface-muted)" />
           {/* Thumbnail strip */}
           <div className="mt-4 flex gap-2">

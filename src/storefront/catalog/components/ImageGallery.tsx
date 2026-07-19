@@ -41,13 +41,13 @@ export function ImageGallery({ images, productName }: ImageGalleryProps) {
   }
 
   return (
-    <div className="space-y-3">
+    <div className="mx-auto w-full max-w-lg space-y-3">
       <div className="aspect-square w-full overflow-hidden rounded-lg bg-(--sf-surface-muted)">
         <img
           src={selectedImage}
           alt={productName}
           loading="lazy"
-          className="h-full w-full object-cover"
+          className="h-full w-full object-contain"
         />
       </div>
 
