@@ -1,5 +1,5 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest'
-import { render, screen } from '@testing-library/react'
+import { render, screen, fireEvent } from '@testing-library/react'
 import { MemoryRouter } from 'react-router-dom'
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 
@@ -414,6 +414,66 @@ describe('WholesaleCustomerDetailPage', () => {
 
       expect(screen.queryByRole('button', { name: 'Approve' })).not.toBeInTheDocument()
       expect(screen.queryByRole('button', { name: 'Reject' })).not.toBeInTheDocument()
+    })
+  })
+
+  describe('reject opens RejectApplicationDialog and requires a reason', () => {
+    it('opens RejectApplicationDialog when Reject button is clicked', () => {
+      setupMocks({ role: 'SUPER_ADMIN', data: mockCustomer })
+
+      renderPage()
+
+      fireEvent.click(screen.getByRole('button', { name: 'Reject' }))
+
+      expect(screen.getByText('Reject Wholesale Application')).toBeInTheDocument()
+    })
+
+    it('shows validation error when submitting without a reason', () => {
+      setupMocks({ role: 'SUPER_ADMIN', data: mockCustomer })
+
+      renderPage()
+
+      fireEvent.click(screen.getByRole('button', { name: 'Reject' }))
+
+      // Click the Reject button inside the dialog without entering a reason
+      const dialogRejectButtons = screen.getAllByRole('button', { name: 'Reject' })
+      const dialogRejectButton = dialogRejectButtons[dialogRejectButtons.length - 1]
+      fireEvent.click(dialogRejectButton)
+
+      expect(screen.getByText('A rejection reason is required.')).toBeInTheDocument()
+    })
+
+    it('shows validation error when reason is whitespace-only', () => {
+      setupMocks({ role: 'SUPER_ADMIN', data: mockCustomer })
+
+      renderPage()
+
+      fireEvent.click(screen.getByRole('button', { name: 'Reject' }))
+
+      const textarea = screen.getByPlaceholderText('Enter reason for rejection…')
+      fireEvent.change(textarea, { target: { value: '   ' } })
+
+      const dialogRejectButtons = screen.getAllByRole('button', { name: 'Reject' })
+      const dialogRejectButton = dialogRejectButtons[dialogRejectButtons.length - 1]
+      fireEvent.click(dialogRejectButton)
+
+      expect(screen.getByText('A rejection reason is required.')).toBeInTheDocument()
+    })
+
+    it('does not fire the mutation when reason is empty', () => {
+      setupMocks({ role: 'SUPER_ADMIN', data: mockCustomer })
+
+      renderPage()
+
+      fireEvent.click(screen.getByRole('button', { name: 'Reject' }))
+
+      const dialogRejectButtons = screen.getAllByRole('button', { name: 'Reject' })
+      const dialogRejectButton = dialogRejectButtons[dialogRejectButtons.length - 1]
+      fireEvent.click(dialogRejectButton)
+
+      const mutateFn = vi.mocked(useWholesaleApplicationAction).mock.results[0]
+        .value.mutate as ReturnType<typeof vi.fn>
+      expect(mutateFn).not.toHaveBeenCalled()
     })
   })
 

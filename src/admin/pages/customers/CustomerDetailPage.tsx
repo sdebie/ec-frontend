@@ -14,6 +14,7 @@ import {
 } from '@/admin/hooks/customers'
 import { useWholesaleApplicationAction } from '@/admin/hooks/wholesale'
 import { RecentOrdersTable } from '@/admin/components/RecentOrdersTable'
+import { RejectApplicationDialog } from '@/admin/components/RejectApplicationDialog'
 import {
   getAvailableActions,
   getCustomerStatusColor,
@@ -117,13 +118,14 @@ export function CustomerDetailPage() {
     setRejectDialogOpen(true)
   }
 
-  const handleConfirmRejectWholesale = () => {
+  const handleConfirmRejectWholesale = (reason: string) => {
     if (!customer.wholesaleApplication) return
     wholesaleAction.mutate(
       {
         applicationId: customer.wholesaleApplication.id,
         customerId: customer.id,
         action: 'reject',
+        reason,
       },
       { onSettled: () => setRejectDialogOpen(false) },
     )
@@ -226,14 +228,10 @@ export function CustomerDetailPage() {
       />
 
       {/* Reject Wholesale Confirmation Dialog */}
-      <ConfirmationDialog
+      <RejectApplicationDialog
         open={rejectDialogOpen}
         onClose={() => setRejectDialogOpen(false)}
         onConfirm={handleConfirmRejectWholesale}
-        title="Reject Wholesale Application"
-        description="Are you sure you want to reject this wholesale application?"
-        variant="danger"
-        confirmLabel="Reject"
         isLoading={wholesaleAction.isPending}
       />
     </div>

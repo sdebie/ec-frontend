@@ -85,6 +85,8 @@ export interface WholesaleCustomerDetail {
 export interface WholesaleApplicationActionPayload {
   applicationId: string
   action: 'approve' | 'reject'
+  // Required when action is 'reject' — the trimmed rejection reason.
+  reason?: string
   // Optional: when the action is taken from a customer-scoped screen (e.g. the
   // customer detail page), pass the customer id so the customer caches are
   // invalidated in addition to the wholesale caches.

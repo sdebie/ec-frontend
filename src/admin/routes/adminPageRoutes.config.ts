@@ -155,6 +155,20 @@ const adminPageOnlyRoutes: AdminRouteList = [
         },
     },
     {
+        key: 'admin.wholesale.applications.detail',
+        path: '/admin/wholesale/applications/:applicationId',
+        component: lazy(() =>
+            import('@/admin/pages/wholesale/WholesaleApplicationDetailPage').then((m) => ({
+                default: m.WholesaleApplicationDetailPage,
+            }))
+        ),
+        authority: ['SUPER_ADMIN', 'VIEWER'],
+        meta: {
+            pageBackgroundType: 'plain',
+            pageContainerType: 'contained',
+        },
+    },
+    {
         key: 'admin.imports.products.upload',
         path: '/admin/imports/products/bulk-upload',
         component: lazy(() => import('@/admin/pages/imports/ProductImportUploadPage')),

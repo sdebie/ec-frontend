@@ -1,21 +1,17 @@
-import { useState, useMemo, useCallback } from 'react'
+import { useState, useMemo } from 'react'
+import { useNavigate } from 'react-router-dom'
 import type { PaginationState } from '@tanstack/react-table'
-import { EllipsisVertical } from 'lucide-react'
+import { Eye } from 'lucide-react'
 
 import {
   DataTable,
   Segment,
-  ConfirmationDialog,
   StatusBadge,
-  DropdownMenu,
-  DropdownItem,
 } from '@/shared/ui/components'
 import type { ColumnDef } from '@/shared/ui/components'
-import { useAdminAuthStore } from '@/shared/auth/adminAuthStore'
-import { useWholesaleApplications, useWholesaleApplicationAction } from '@/admin/hooks/wholesale'
+import { useWholesaleApplications } from '@/admin/hooks/wholesale'
 import type { WholesaleApplicationListItem } from '@/admin/hooks/wholesale'
 import { getWholesaleStatusColor } from '@/admin/hooks/customers/types'
-import { cn } from '@/shared/utils/cn'
 
 const STATUS_FILTER_OPTIONS = [
   { value: 'ALL', label: 'All' },
@@ -33,22 +29,13 @@ function formatDate(dateString: string): string {
 }
 
 export function WholesaleApplicationQueuePage() {
-  const canMutate = useAdminAuthStore((s) => s.role) === 'SUPER_ADMIN'
+  const navigate = useNavigate()
 
   const [statusFilter, setStatusFilter] = useState('PENDING')
   const [pagination, setPagination] = useState<PaginationState>({
     pageIndex: 0,
     pageSize: 10,
   })
-
-  // Confirmation dialog state for reject action
-  const [confirmDialog, setConfirmDialog] = useState<{
-    open: boolean
-    applicationId: string
-    customerId: string
-  }>({ open: false, applicationId: '', customerId: '' })
-
-  const { mutate: submitApplicationAction, isPending: isSubmittingAction } = useWholesaleApplicationAction()
 
   const { data, total, isLoading } = useWholesaleApplications({
     page: pagination.pageIndex + 1,
@@ -59,26 +46,6 @@ export function WholesaleApplicationQueuePage() {
   const handleStatusFilterChange = (value: string) => {
     setStatusFilter(value)
     setPagination((prev) => ({ ...prev, pageIndex: 0 }))
-  }
-
-  const handleApprove = useCallback((applicationId: string) => {
-    submitApplicationAction({ applicationId, action: 'approve' })
-  }, [submitApplicationAction])
-
-  const handleReject = useCallback((applicationId: string) => {
-    setConfirmDialog({ open: true, applicationId, customerId: '' })
-  }, [])
-
-  const handleConfirmReject = () => {
-    const { applicationId } = confirmDialog
-    submitApplicationAction(
-      { applicationId, action: 'reject' },
-      { onSettled: () => setConfirmDialog((prev) => ({ ...prev, open: false })) },
-    )
-  }
-
-  const handleCloseDialog = () => {
-    setConfirmDialog((prev) => ({ ...prev, open: false }))
   }
 
   const columns = useMemo<ColumnDef<WholesaleApplicationListItem, unknown>[]>(
@@ -112,52 +79,23 @@ export function WholesaleApplicationQueuePage() {
         header: 'Submitted Date',
         cell: ({ row }) => formatDate(row.original.createdAt),
       },
-      ...(canMutate
-        ? [
-            {
-              id: 'actions',
-              header: 'Actions',
-              cell: ({ row }: { row: { original: WholesaleApplicationListItem } }) => {
-                const application = row.original
-                if (application.status !== 'PENDING') return null
-                return (
-                  <div data-testid="application-actions-menu">
-                    <DropdownMenu
-                      trigger={
-                        <span
-                          className={cn(
-                            'inline-flex items-center justify-center p-1 rounded-lg hover:bg-(--c-surface-hover)',
-                            isSubmittingAction && 'opacity-50 pointer-events-none',
-                          )}
-                        >
-                          <EllipsisVertical className="h-5 w-5 text-(--c-text-muted)" />
-                        </span>
-                      }
-                    >
-                      <div data-testid="action-approve">
-                        <DropdownItem
-                          onClick={() => handleApprove(application.id)}
-                        >
-                          Approve
-                        </DropdownItem>
-                      </div>
-                      <div data-testid="action-reject">
-                        <DropdownItem
-                          onClick={() => handleReject(application.id)}
-                          destructive
-                        >
-                          Reject
-                        </DropdownItem>
-                      </div>
-                    </DropdownMenu>
-                  </div>
-                )
-              },
-            } as ColumnDef<WholesaleApplicationListItem, unknown>,
-          ]
-        : []),
+      {
+        id: 'actions',
+        header: 'Actions',
+        cell: ({ row }) => (
+          <button
+            type="button"
+            onClick={() => navigate(`/admin/wholesale/applications/${row.original.id}`)}
+            className="inline-flex items-center justify-center p-1 rounded-lg hover:bg-(--c-surface-hover)"
+            aria-label="View application"
+            data-testid="action-view"
+          >
+            <Eye className="h-4 w-4 text-(--c-text-muted)" />
+          </button>
+        ),
+      },
     ],
-    [canMutate, handleApprove, handleReject, isSubmittingAction],
+    [navigate],
   )
 
   const pageCount = total ? Math.ceil(total / pagination.pageSize) : 0
@@ -184,18 +122,6 @@ export function WholesaleApplicationQueuePage() {
         pageCount={pageCount}
         pagination={pagination}
         onPaginationChange={setPagination}
-      />
-
-      {/* Confirmation Dialog for Reject */}
-      <ConfirmationDialog
-        open={confirmDialog.open}
-        onClose={handleCloseDialog}
-        onConfirm={handleConfirmReject}
-        title="Reject Application"
-        description="Are you sure you want to reject this wholesale application? This action cannot be undone."
-        variant="danger"
-        confirmLabel="Reject Application"
-        isLoading={isSubmittingAction}
       />
     </div>
   )

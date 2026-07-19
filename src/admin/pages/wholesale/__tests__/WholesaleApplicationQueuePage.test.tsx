@@ -3,19 +3,17 @@ import { render, screen, fireEvent } from '@testing-library/react'
 import { MemoryRouter } from 'react-router-dom'
 
 import { useWholesaleApplications } from '@/admin/hooks/wholesale/useWholesaleApplications'
-import { useWholesaleApplicationAction } from '@/admin/hooks/wholesale/useWholesaleApplicationAction'
-import { useAdminAuthStore } from '@/shared/auth/adminAuthStore'
 import type { WholesaleApplicationListItem } from '@/admin/hooks/wholesale/types'
 import { WholesaleApplicationQueuePage } from '../WholesaleApplicationQueuePage'
 
+const mockNavigate = vi.fn()
+vi.mock('react-router-dom', async () => {
+  const actual = await vi.importActual('react-router-dom')
+  return { ...actual, useNavigate: () => mockNavigate }
+})
+
 vi.mock('@/admin/hooks/wholesale/useWholesaleApplications', () => ({
   useWholesaleApplications: vi.fn(),
-}))
-vi.mock('@/admin/hooks/wholesale/useWholesaleApplicationAction', () => ({
-  useWholesaleApplicationAction: vi.fn(),
-}))
-vi.mock('@/shared/auth/adminAuthStore', () => ({
-  useAdminAuthStore: vi.fn(),
 }))
 
 // --- Mock Data Helpers ---
@@ -34,10 +32,7 @@ function createMockApplication(overrides?: Partial<WholesaleApplicationListItem>
 
 // --- Setup Helpers ---
 
-const mockMutate = vi.fn()
-
 function setupDefaultMocks(overrides?: {
-  role?: string
   applications?: WholesaleApplicationListItem[]
   total?: number
   isLoading?: boolean
@@ -48,16 +43,6 @@ function setupDefaultMocks(overrides?: {
     data: applications,
     total: overrides?.total ?? applications.length,
     isLoading: overrides?.isLoading ?? false,
-  })
-
-  vi.mocked(useWholesaleApplicationAction).mockReturnValue({
-    mutate: mockMutate,
-    isPending: false,
-  } as unknown as ReturnType<typeof useWholesaleApplicationAction>)
-
-  vi.mocked(useAdminAuthStore).mockImplementation((selector: unknown) => {
-    const state = { role: overrides?.role ?? 'SUPER_ADMIN' }
-    return typeof selector === 'function' ? (selector as (s: typeof state) => unknown)(state) : state
   })
 }
 
@@ -112,98 +97,76 @@ describe('WholesaleApplicationQueuePage', () => {
   })
 
   describe('applicant name rendering', () => {
-    it('renders the applicant name as plain text (applications are actioned inline, not via a detail page)', () => {
+    it('renders the applicant name as plain text', () => {
       setupDefaultMocks()
 
       renderPage()
 
       expect(screen.getByText('Jane Doe')).toBeInTheDocument()
-      expect(screen.queryByRole('link', { name: 'Jane Doe' })).not.toBeInTheDocument()
     })
   })
 
-  describe('actions menu visibility', () => {
-    it('renders actions menu for SUPER_ADMIN with PENDING status', () => {
+  describe('View action navigates to the detail route', () => {
+    it('renders a View button for PENDING applications', () => {
       setupDefaultMocks({
-        role: 'SUPER_ADMIN',
         applications: [createMockApplication({ status: 'PENDING' })],
       })
 
       renderPage()
 
-      expect(screen.getByTestId('application-actions-menu')).toBeInTheDocument()
+      expect(screen.getByTestId('action-view')).toBeInTheDocument()
     })
 
-    it('does not render actions menu for SUPER_ADMIN with non-PENDING status', () => {
+    it('renders a View button for APPROVED applications', () => {
       setupDefaultMocks({
-        role: 'SUPER_ADMIN',
         applications: [createMockApplication({ status: 'APPROVED' })],
       })
 
       renderPage()
 
-      expect(screen.queryByTestId('application-actions-menu')).not.toBeInTheDocument()
+      expect(screen.getByTestId('action-view')).toBeInTheDocument()
     })
 
-    it('does not render actions menu for VIEWER role', () => {
+    it('renders a View button for REJECTED applications', () => {
       setupDefaultMocks({
-        role: 'VIEWER',
-        applications: [createMockApplication({ status: 'PENDING' })],
+        applications: [createMockApplication({ status: 'REJECTED' })],
       })
 
       renderPage()
 
-      expect(screen.queryByTestId('application-actions-menu')).not.toBeInTheDocument()
+      expect(screen.getByTestId('action-view')).toBeInTheDocument()
+    })
+
+    it('navigates to the detail route when View is clicked', () => {
+      setupDefaultMocks({
+        applications: [createMockApplication({ id: 'app-42', status: 'PENDING' })],
+      })
+
+      renderPage()
+
+      const viewButton = screen.getByTestId('action-view')
+      fireEvent.click(viewButton)
+
+      expect(mockNavigate).toHaveBeenCalledWith('/admin/wholesale/applications/app-42')
     })
   })
 
-  describe('reject triggers ConfirmationDialog, approve does not', () => {
-    it('reject action opens ConfirmationDialog before mutation', () => {
+  describe('no inline approve/reject actions', () => {
+    it('does not render a dropdown menu', () => {
       setupDefaultMocks({
-        role: 'SUPER_ADMIN',
         applications: [createMockApplication({ status: 'PENDING' })],
       })
 
       renderPage()
 
-      // Open dropdown menu
-      const actionsMenu = screen.getByTestId('application-actions-menu')
-      const triggerButton = actionsMenu.querySelector('button')!
-      fireEvent.click(triggerButton)
-
-      // Click "Reject" action
-      const rejectButton = screen.getByRole('menuitem', { name: 'Reject' })
-      fireEvent.click(rejectButton)
-
-      // ConfirmationDialog should now be open
-      expect(screen.getByRole('dialog')).toBeInTheDocument()
-      expect(screen.getByText('Are you sure you want to reject this wholesale application?', { exact: false })).toBeInTheDocument()
-
-      // mutate should NOT have been called yet
-      expect(mockMutate).not.toHaveBeenCalled()
+      expect(screen.queryByTestId('application-actions-menu')).not.toBeInTheDocument()
     })
 
-    it('approve action triggers mutation directly without dialog', () => {
-      setupDefaultMocks({
-        role: 'SUPER_ADMIN',
-        applications: [createMockApplication({ status: 'PENDING' })],
-      })
+    it('does not render a confirmation dialog', () => {
+      setupDefaultMocks()
 
       renderPage()
 
-      // Open dropdown menu
-      const actionsMenu = screen.getByTestId('application-actions-menu')
-      const triggerButton = actionsMenu.querySelector('button')!
-      fireEvent.click(triggerButton)
-
-      // Click "Approve" action
-      const approveButton = screen.getByRole('menuitem', { name: 'Approve' })
-      fireEvent.click(approveButton)
-
-      // mutate should be called directly
-      expect(mockMutate).toHaveBeenCalledWith({ applicationId: 'app-1', action: 'approve' })
-
-      // No dialog should appear
       expect(screen.queryByRole('dialog')).not.toBeInTheDocument()
     })
   })

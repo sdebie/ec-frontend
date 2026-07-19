@@ -60,7 +60,7 @@ describe('useWholesaleApplicationAction', () => {
     )
   })
 
-  it('calls rejectWholesaleApplication with the application id when action=reject', async () => {
+  it('calls rejectWholesaleApplication with the application id and reason when action=reject', async () => {
     vi.mocked(adminGraphqlClient.request).mockResolvedValue({
       rejectWholesaleApplication: { id: 'app-2', status: 'REJECTED' },
     })
@@ -69,17 +69,18 @@ describe('useWholesaleApplicationAction', () => {
       wrapper: wrapperFor(makeClient()),
     })
 
-    result.current.mutate({ applicationId: 'app-2', action: 'reject' })
+    result.current.mutate({ applicationId: 'app-2', action: 'reject', reason: 'Incomplete documents' })
 
     await waitFor(() => expect(result.current.isSuccess).toBe(true))
 
-    const [document] = vi.mocked(adminGraphqlClient.request).mock
+    const [document, variables] = vi.mocked(adminGraphqlClient.request).mock
       .calls[0] as unknown as [unknown, Record<string, unknown>]
     expect(String(document)).toContain('rejectWholesaleApplication')
+    expect(variables).toEqual({ id: 'app-2', reason: 'Incomplete documents' })
     expect(toast.success).toHaveBeenCalledWith('Wholesale application rejected')
   })
 
-  it('invalidates only the wholesale caches when no customerId is supplied', async () => {
+  it('invalidates wholesale caches and the detail key when no customerId is supplied', async () => {
     vi.mocked(adminGraphqlClient.request).mockResolvedValue({
       approveWholesaleApplication: { id: 'app-1', status: 'APPROVED' },
     })
@@ -96,10 +97,11 @@ describe('useWholesaleApplicationAction', () => {
     const keys = invalidateSpy.mock.calls.map((c) => JSON.stringify(c[0]?.queryKey))
     expect(keys).toContain(JSON.stringify(['admin', 'wholesale-applications']))
     expect(keys).toContain(JSON.stringify(['admin', 'wholesale-customers']))
+    expect(keys).toContain(JSON.stringify(['admin', 'wholesale-application', 'app-1']))
     expect(keys.some((k) => k?.includes('"customers"'))).toBe(false)
   })
 
-  it('also invalidates the customer caches when a customerId is supplied', async () => {
+  it('also invalidates the customer caches and detail key when a customerId is supplied', async () => {
     vi.mocked(adminGraphqlClient.request).mockResolvedValue({
       approveWholesaleApplication: { id: 'app-1', status: 'APPROVED' },
     })
@@ -115,6 +117,8 @@ describe('useWholesaleApplicationAction', () => {
 
     const keys = invalidateSpy.mock.calls.map((c) => JSON.stringify(c[0]?.queryKey))
     expect(keys).toContain(JSON.stringify(['admin', 'wholesale-applications']))
+    expect(keys).toContain(JSON.stringify(['admin', 'wholesale-customers']))
+    expect(keys).toContain(JSON.stringify(['admin', 'wholesale-application', 'app-1']))
     expect(keys).toContain(JSON.stringify(['admin', 'customers', 'cust-9']))
     expect(keys).toContain(JSON.stringify(['admin', 'customers', 'list']))
   })
