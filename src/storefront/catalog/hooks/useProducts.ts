@@ -50,6 +50,7 @@ export interface Product {
     wholesalePrice: PriceTier | null
     retailSalePrice: PriceTier | null
     wholesaleSalePrice: PriceTier | null
+    variantId: string | null
 }
 
 interface ShoppingProductListResponse {
@@ -94,6 +95,7 @@ const SHOPPING_PRODUCT_LIST = gql`
                 name
                 slug
                 shortDescription
+                variantId
                 images {
                     id
                     imageUrl

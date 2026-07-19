@@ -99,7 +99,8 @@ describe('CategoryShowcaseSection', () => {
                     retailPrice: null,
                     wholesalePrice: null,
                     retailSalePrice: null,
-                    wholesaleSalePrice: null
+                    wholesaleSalePrice: null,
+                    variantId: null,
                 },
                 {
                     id: 'p2',
@@ -110,7 +111,8 @@ describe('CategoryShowcaseSection', () => {
                     retailPrice: null,
                     wholesalePrice: null,
                     retailSalePrice: null,
-                    wholesaleSalePrice: null
+                    wholesaleSalePrice: null,
+                    variantId: null,
                 },
             ],
             totalElements: 2,
@@ -167,7 +169,8 @@ describe('CategoryShowcaseSection', () => {
                     retailPrice: null,
                     wholesalePrice: null,
                     retailSalePrice: null,
-                    wholesaleSalePrice: null
+                    wholesaleSalePrice: null,
+                    variantId: null,
                 },
             ],
             totalElements: 1,

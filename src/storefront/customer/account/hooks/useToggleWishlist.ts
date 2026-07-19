@@ -1,5 +1,6 @@
 import { useMutation, useQueryClient } from '@tanstack/react-query'
 import { storefrontHttpClient } from '@/shared/api/http/storefrontHttpClient'
+import { toast } from '@/shared/ui/components/toast'
 
 export function useToggleWishlist() {
   const queryClient = useQueryClient()
@@ -23,10 +24,12 @@ export function useToggleWishlist() {
       })
       return { prev }
     },
-    onError: (_err, _vars, ctx) => {
+    onError: (error, _vars, ctx) => {
       if (ctx?.prev) {
         queryClient.setQueryData(['customer', 'wishlist'], ctx.prev)
       }
+      console.error('[Wishlist] toggle failed:', error)
+      toast.error('Could not update your wishlist. Please try again.')
     },
     onSettled: () => {
       queryClient.invalidateQueries({ queryKey: ['customer', 'wishlist'] })

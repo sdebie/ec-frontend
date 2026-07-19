@@ -15,8 +15,10 @@ vi.mock('@/shared/config/storefrontConfig.context', () => ({
 }))
 
 vi.mock('@/shared/auth/customerAuthStore', () => ({
-    useCustomerAuthStore: (selector: (state: { customerType: string }) => unknown) =>
-        selector({customerType: 'RETAIL'}),
+    useCustomerAuthStore: (selector?: (state: Record<string, unknown>) => unknown) => {
+        const state = { customerType: 'RETAIL', isSignedIn: false, token: null, email: null, firstName: null, lastName: null }
+        return selector ? selector(state) : state
+    },
 }))
 
 const mockProduct = {

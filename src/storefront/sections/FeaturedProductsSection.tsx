@@ -57,7 +57,7 @@ export function FeaturedProductsSection({section}: { section: FeaturedProductsSe
             <div className="flex items-stretch gap-4 overflow-x-auto py-2">
                 {products.map((product) => (
                     <div key={product.id} className="w-56 shrink-0">
-                        <ProductCard product={product}/>
+                        <ProductCard product={product} variantId={product.variantId}/>
                     </div>
                 ))}
             </div>

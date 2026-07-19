@@ -4,6 +4,7 @@ import {useCustomerAuthStore} from '@/shared/auth/customerAuthStore'
 import {formatAmount} from '@/shared/utils/formatAmount'
 import {getDisplayPrice} from '../utils/pricing'
 import {pickFeaturedImage} from '../utils/imageUtils'
+import {WishlistButton} from '@/storefront/customer/account/wishlist/WishlistButton'
 
 interface PriceTier {
     price: number | null
@@ -24,9 +25,10 @@ interface ProductCardProps {
         retailSalePrice: PriceTier | null
         wholesaleSalePrice: PriceTier | null
     }
+    variantId?: string | null
 }
 
-export function ProductCard({product}: ProductCardProps) {
+export function ProductCard({product, variantId}: ProductCardProps) {
     const {currency, locale} = useStorefrontConfig()
     const customerType = useCustomerAuthStore((state) => state.customerType)
 
@@ -46,7 +48,7 @@ export function ProductCard({product}: ProductCardProps) {
             to={`/products/${product.slug}`}
             className="group flex h-full flex-col rounded-lg border border-(--sf-border) bg-(--sf-panel) overflow-hidden transition-shadow hover:shadow-md"
         >
-            <div className="aspect-square w-full overflow-hidden bg-(--sf-surface-muted)">
+            <div className="relative aspect-square w-full overflow-hidden bg-(--sf-surface-muted)">
                 {imageUrl ? (
                     <img
                         src={imageUrl}
@@ -73,6 +75,12 @@ export function ProductCard({product}: ProductCardProps) {
                             />
                         </svg>
                     </div>
+                )}
+                {variantId && (
+                    <WishlistButton
+                        variantId={variantId}
+                        className="absolute top-2 right-2 rounded-full bg-(--sf-panel)/80 p-1.5 backdrop-blur-sm transition-colors hover:bg-(--sf-panel) cursor-pointer"
+                    />
                 )}
             </div>
 

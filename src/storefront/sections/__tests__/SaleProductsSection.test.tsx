@@ -40,6 +40,7 @@ const mockProducts = [
         wholesalePrice: null,
         retailSalePrice: {price: 149.99},
         wholesaleSalePrice: null,
+        variantId: null,
     },
     {
         id: 'p2',
@@ -51,6 +52,7 @@ const mockProducts = [
         wholesalePrice: null,
         retailSalePrice: {price: 79.99},
         wholesaleSalePrice: null,
+        variantId: null,
     },
 ]
 

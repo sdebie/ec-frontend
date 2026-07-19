@@ -8,6 +8,7 @@ import { SearchBar } from './SearchBar'
 import { StorefrontNavLink } from './StorefrontNavLink'
 import { NavDrawer } from './NavDrawer'
 import { CartIcon } from '@/storefront/cart/CartIcon'
+import { WishlistIcon } from '@/storefront/customer/account/wishlist/WishlistIcon'
 import { CustomerLoginModal } from '@/storefront/customer/auth/components/CustomerLoginModal'
 import { ForgotPasswordModal } from '@/storefront/customer/auth/components/ForgotPasswordModal'
 
@@ -132,6 +133,9 @@ export function StorefrontHeader() {
               Sign in
             </Link>
           )}
+
+          {/* Wishlist icon — visible on both desktop and mobile */}
+          <WishlistIcon />
 
           {/* Cart icon — visible on both desktop and mobile */}
           <CartIcon />

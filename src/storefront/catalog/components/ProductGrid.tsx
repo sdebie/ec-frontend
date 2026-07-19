@@ -14,6 +14,7 @@ interface Product {
   wholesalePrice: PriceTier | null
   retailSalePrice: PriceTier | null
   wholesaleSalePrice: PriceTier | null
+  variantId?: string | null
 }
 
 interface ProductGridProps {
@@ -56,7 +57,7 @@ export function ProductGrid({ products, isLoading, emptyMessage }: ProductGridPr
   return (
     <div className="grid grid-cols-2 gap-3 sm:gap-4 md:grid-cols-3 xl:grid-cols-4">
       {products.map((product) => (
-        <ProductCard key={product.id} product={product} />
+        <ProductCard key={product.id} product={product} variantId={product.variantId} />
       ))}
     </div>
   )

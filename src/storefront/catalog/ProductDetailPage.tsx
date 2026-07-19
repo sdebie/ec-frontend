@@ -10,6 +10,7 @@ import {parseAttributes} from './utils/imageUtils'
 import {ImageGallery} from './components/ImageGallery'
 import {VariantSelector} from './components/VariantSelector'
 import {ProductDetailSkeleton} from './components/ProductDetailSkeleton'
+import {WishlistButton} from '@/storefront/customer/account/wishlist/WishlistButton'
 
 function ProductNotFound() {
     return (
@@ -138,37 +139,46 @@ export function ProductDetailPage() {
             </span>
                     </div>
 
-                    {/* Add to Cart button */}
-                    {isOutOfStock ? (
-                        <button
-                            type="button"
-                            disabled
-                            className="px-6 py-3 rounded-lg font-medium bg-(--sf-surface-muted) text-(--sf-muted-text) cursor-not-allowed"
-                        >
-                            Out of stock
-                        </button>
-                    ) : showConfirmation ? (
-                        <button
-                            type="button"
-                            disabled
-                            className="px-6 py-3 rounded-lg font-medium bg-(--sf-surface-muted) text-(--sf-muted-text) cursor-not-allowed"
-                        >
-                            Added ✓
-                        </button>
-                    ) : (
-                        <button
-                            type="button"
-                            disabled={!selectedVariant}
-                            onClick={handleAddToCart}
-                            className={`px-6 py-3 rounded-lg font-medium transition-colors ${
-                                selectedVariant
-                                    ? 'bg-(--sf-accent) text-(--sf-accent-text) hover:opacity-90 cursor-pointer'
-                                    : 'bg-(--sf-surface-muted) text-(--sf-muted-text) cursor-not-allowed'
-                            }`}
-                        >
-                            Add to Cart
-                        </button>
-                    )}
+                    {/* Add to Cart + Wishlist */}
+                    <div className="flex items-center gap-3">
+                        {isOutOfStock ? (
+                            <button
+                                type="button"
+                                disabled
+                                className="px-6 py-3 rounded-lg font-medium bg-(--sf-surface-muted) text-(--sf-muted-text) cursor-not-allowed"
+                            >
+                                Out of stock
+                            </button>
+                        ) : showConfirmation ? (
+                            <button
+                                type="button"
+                                disabled
+                                className="px-6 py-3 rounded-lg font-medium bg-(--sf-surface-muted) text-(--sf-muted-text) cursor-not-allowed"
+                            >
+                                Added ✓
+                            </button>
+                        ) : (
+                            <button
+                                type="button"
+                                disabled={!selectedVariant}
+                                onClick={handleAddToCart}
+                                className={`px-6 py-3 rounded-lg font-medium transition-colors ${
+                                    selectedVariant
+                                        ? 'bg-(--sf-accent) text-(--sf-accent-text) hover:opacity-90 cursor-pointer'
+                                        : 'bg-(--sf-surface-muted) text-(--sf-muted-text) cursor-not-allowed'
+                                }`}
+                            >
+                                Add to Cart
+                            </button>
+                        )}
+
+                        {selectedVariant && (
+                            <WishlistButton
+                                variantId={selectedVariant.id}
+                                className="p-2 rounded-lg border border-(--sf-border) hover:bg-(--sf-surface-muted) transition-colors cursor-pointer"
+                            />
+                        )}
+                    </div>
 
                     {showConfirmation && (
                         <p className="text-sm text-green-600">

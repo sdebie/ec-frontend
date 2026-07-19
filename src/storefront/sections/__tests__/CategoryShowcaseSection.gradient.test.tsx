@@ -57,6 +57,7 @@ function setupMocksForRendering() {
                 wholesalePrice: null,
                 retailSalePrice: null,
                 wholesaleSalePrice: null,
+                variantId: null,
             },
         ],
         totalElements: 1,

@@ -2,30 +2,23 @@ import { describe, it, expect, vi, beforeEach } from 'vitest'
 import { render, screen } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { MemoryRouter } from 'react-router-dom'
-import { useCustomerAuthStore } from '@/shared/auth/customerAuthStore.ts'
 import { WishlistButton } from '../WishlistButton.tsx'
 
-const mockNavigate = vi.fn()
-const mockMutate = vi.fn()
+const mockToggle = vi.fn()
 
-vi.mock('react-router-dom', async () => {
-  const actual = await vi.importActual('react-router-dom')
-  return { ...actual, useNavigate: () => mockNavigate }
-})
-
-vi.mock('../../hooks/useWishlist', () => ({
-  useWishlist: vi.fn(() => ({ data: new Set<string>() })),
+vi.mock('../useEffectiveWishlist', () => ({
+  useEffectiveWishlist: vi.fn(() => ({ variantIds: new Set<string>(), count: 0, isLoading: false })),
 }))
 
-vi.mock('../../hooks/useToggleWishlist', () => ({
-  useToggleWishlist: vi.fn(() => ({ mutate: mockMutate })),
+vi.mock('../useToggleEffective', () => ({
+  useToggleEffective: vi.fn(() => ({ toggle: mockToggle, isPending: false })),
 }))
 
-import { useWishlist } from '../../hooks/useWishlist.ts'
-import { useToggleWishlist } from '../../hooks/useToggleWishlist.ts'
+import { useEffectiveWishlist } from '../useEffectiveWishlist'
+import { useToggleEffective } from '../useToggleEffective'
 
-const mockedUseWishlist = vi.mocked(useWishlist)
-const mockedUseToggleWishlist = vi.mocked(useToggleWishlist)
+const mockedUseEffectiveWishlist = vi.mocked(useEffectiveWishlist)
+const mockedUseToggleEffective = vi.mocked(useToggleEffective)
 
 function renderButton(variantId = 'variant-1', initialPath = '/products/some-product') {
   return render(
@@ -38,98 +31,56 @@ function renderButton(variantId = 'variant-1', initialPath = '/products/some-pro
 describe('WishlistButton', () => {
   beforeEach(() => {
     vi.clearAllMocks()
-    useCustomerAuthStore.setState({
-      isSignedIn: false,
-      token: null,
-      customerType: 'RETAIL',
-      email: null,
-      firstName: null,
-      lastName: null,
-    })
-    mockedUseWishlist.mockReturnValue({ data: new Set<string>() } as ReturnType<typeof useWishlist>)
-    mockedUseToggleWishlist.mockReturnValue({ mutate: mockMutate } as unknown as ReturnType<typeof useToggleWishlist>)
+    mockedUseEffectiveWishlist.mockReturnValue({ variantIds: new Set<string>(), count: 0, isLoading: false })
+    mockedUseToggleEffective.mockReturnValue({ toggle: mockToggle, isPending: false })
   })
 
-  describe('unauthenticated click redirects to login (Req 8.5)', () => {
-    it('navigates to /account/login with return URL when not signed in', async () => {
-      const user = userEvent.setup()
-      renderButton('variant-1', '/products/some-product')
-
-      await user.click(screen.getByRole('button', { name: /add to wishlist/i }))
-
-      expect(mockNavigate).toHaveBeenCalledWith(
-        '/account/login?return=%2Fproducts%2Fsome-product',
-      )
-    })
-
-    it('does not call mutate when not signed in', async () => {
-      const user = userEvent.setup()
-      renderButton()
-
-      await user.click(screen.getByRole('button', { name: /add to wishlist/i }))
-
-      expect(mockMutate).not.toHaveBeenCalled()
-    })
-  })
-
-  describe('toggling calls correct endpoint (Req 8.2, 8.3)', () => {
-    beforeEach(() => {
-      useCustomerAuthStore.setState({
-        isSignedIn: true,
-        token: 'test-token',
-        customerType: 'RETAIL',
-        email: 'test@example.com',
-        firstName: 'Test',
-        lastName: 'User',
-      })
-    })
-
-    it('calls mutate with add: true when item is NOT in wishlist', async () => {
-      mockedUseWishlist.mockReturnValue({ data: new Set<string>() } as ReturnType<typeof useWishlist>)
-
+  describe('signed-out toggle adds to local wishlist (Req 1.3)', () => {
+    it('calls toggle with add: true when item is NOT in wishlist (works signed out)', async () => {
       const user = userEvent.setup()
       renderButton('variant-abc')
 
       await user.click(screen.getByRole('button', { name: /add to wishlist/i }))
 
-      expect(mockMutate).toHaveBeenCalledWith({ variantId: 'variant-abc', add: true })
+      expect(mockToggle).toHaveBeenCalledWith('variant-abc', true)
     })
 
-    it('calls mutate with add: false when item IS in wishlist', async () => {
-      mockedUseWishlist.mockReturnValue({ data: new Set(['variant-abc']) } as ReturnType<typeof useWishlist>)
+    it('calls toggle with add: false when item IS in wishlist (works signed out)', async () => {
+      mockedUseEffectiveWishlist.mockReturnValue({ variantIds: new Set(['variant-abc']), count: 1, isLoading: false })
 
       const user = userEvent.setup()
       renderButton('variant-abc')
 
       await user.click(screen.getByRole('button', { name: /remove from wishlist/i }))
 
-      expect(mockMutate).toHaveBeenCalledWith({ variantId: 'variant-abc', add: false })
-    })
-
-    it('does not navigate when signed in', async () => {
-      const user = userEvent.setup()
-      renderButton()
-
-      await user.click(screen.getByRole('button', { name: /add to wishlist/i }))
-
-      expect(mockNavigate).not.toHaveBeenCalled()
+      expect(mockToggle).toHaveBeenCalledWith('variant-abc', false)
     })
   })
 
-  describe('optimistic icon flip (Req 8.2, 8.3)', () => {
-    beforeEach(() => {
-      useCustomerAuthStore.setState({
-        isSignedIn: true,
-        token: 'test-token',
-        customerType: 'RETAIL',
-        email: 'test@example.com',
-        firstName: 'Test',
-        lastName: 'User',
-      })
+  describe('toggling calls correct endpoint (Req 1.4)', () => {
+    it('calls toggle with add: true when item is NOT in wishlist', async () => {
+      const user = userEvent.setup()
+      renderButton('variant-abc')
+
+      await user.click(screen.getByRole('button', { name: /add to wishlist/i }))
+
+      expect(mockToggle).toHaveBeenCalledWith('variant-abc', true)
     })
 
+    it('calls toggle with add: false when item IS in wishlist', async () => {
+      mockedUseEffectiveWishlist.mockReturnValue({ variantIds: new Set(['variant-abc']), count: 1, isLoading: false })
+
+      const user = userEvent.setup()
+      renderButton('variant-abc')
+
+      await user.click(screen.getByRole('button', { name: /remove from wishlist/i }))
+
+      expect(mockToggle).toHaveBeenCalledWith('variant-abc', false)
+    })
+  })
+
+  describe('optimistic icon flip (Req 1.2, 7.1)', () => {
     it('renders heart with fill="none" when item is NOT in wishlist', () => {
-      mockedUseWishlist.mockReturnValue({ data: new Set<string>() } as ReturnType<typeof useWishlist>)
       renderButton('variant-1')
 
       const button = screen.getByRole('button', { name: /add to wishlist/i })
@@ -138,7 +89,7 @@ describe('WishlistButton', () => {
     })
 
     it('renders heart with fill="currentColor" when item IS in wishlist', () => {
-      mockedUseWishlist.mockReturnValue({ data: new Set(['variant-1']) } as ReturnType<typeof useWishlist>)
+      mockedUseEffectiveWishlist.mockReturnValue({ variantIds: new Set(['variant-1']), count: 1, isLoading: false })
       renderButton('variant-1')
 
       const button = screen.getByRole('button', { name: /remove from wishlist/i })
@@ -147,7 +98,6 @@ describe('WishlistButton', () => {
     })
 
     it('sets aria-pressed=false when item is NOT in wishlist', () => {
-      mockedUseWishlist.mockReturnValue({ data: new Set<string>() } as ReturnType<typeof useWishlist>)
       renderButton('variant-1')
 
       expect(screen.getByRole('button', { name: /add to wishlist/i })).toHaveAttribute(
@@ -157,7 +107,7 @@ describe('WishlistButton', () => {
     })
 
     it('sets aria-pressed=true when item IS in wishlist', () => {
-      mockedUseWishlist.mockReturnValue({ data: new Set(['variant-1']) } as ReturnType<typeof useWishlist>)
+      mockedUseEffectiveWishlist.mockReturnValue({ variantIds: new Set(['variant-1']), count: 1, isLoading: false })
       renderButton('variant-1')
 
       expect(screen.getByRole('button', { name: /remove from wishlist/i })).toHaveAttribute(
@@ -167,17 +117,34 @@ describe('WishlistButton', () => {
     })
 
     it('uses aria-label "Add to wishlist" when item is NOT in wishlist', () => {
-      mockedUseWishlist.mockReturnValue({ data: new Set<string>() } as ReturnType<typeof useWishlist>)
       renderButton('variant-1')
 
       expect(screen.getByRole('button', { name: 'Add to wishlist' })).toBeInTheDocument()
     })
 
     it('uses aria-label "Remove from wishlist" when item IS in wishlist', () => {
-      mockedUseWishlist.mockReturnValue({ data: new Set(['variant-1']) } as ReturnType<typeof useWishlist>)
+      mockedUseEffectiveWishlist.mockReturnValue({ variantIds: new Set(['variant-1']), count: 1, isLoading: false })
       renderButton('variant-1')
 
       expect(screen.getByRole('button', { name: 'Remove from wishlist' })).toBeInTheDocument()
+    })
+  })
+
+  describe('stopPropagation (Req 2.2)', () => {
+    it('stops event propagation on click', async () => {
+      const parentClick = vi.fn()
+      render(
+        <MemoryRouter>
+          <div onClick={parentClick}>
+            <WishlistButton variantId="variant-1" />
+          </div>
+        </MemoryRouter>,
+      )
+
+      const user = userEvent.setup()
+      await user.click(screen.getByRole('button', { name: /add to wishlist/i }))
+
+      expect(parentClick).not.toHaveBeenCalled()
     })
   })
 })

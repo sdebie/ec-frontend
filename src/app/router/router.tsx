@@ -121,8 +121,11 @@ export const router = createBrowserRouter([
                     {path: 'orders', element: <Suspense fallback={null}><OrderHistoryPage/></Suspense>},
                     {path: 'orders/:orderId', element: <Suspense fallback={null}><OrderDetailPage/></Suspense>},
                     {path: 'profile', element: <Suspense fallback={null}><ProfilePage/></Suspense>},
-                    {path: 'wishlist', element: <Suspense fallback={null}><WishlistPage/></Suspense>},
                 ],
+            },
+            {
+                path: '/account/wishlist',
+                element: <Suspense fallback={null}><WishlistPage/></Suspense>
             },
             {
                 path: '/cart', element: (

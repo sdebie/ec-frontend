@@ -2,6 +2,7 @@ import { describe, it, expect, vi, beforeEach } from 'vitest'
 import { render, screen, within } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { MemoryRouter } from 'react-router-dom'
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 import { useCustomerAuthStore } from '@/shared/auth/customerAuthStore'
 import type { StorefrontConfig, NavItem } from '@/shared/types/StorefrontConfig'
 import { StorefrontConfigContext } from '@/shared/config/storefrontConfig.context'
@@ -12,6 +13,10 @@ vi.mock('react-router-dom', async () => {
   const actual = await vi.importActual('react-router-dom')
   return { ...actual, useNavigate: () => mockNavigate }
 })
+
+vi.mock('@/storefront/customer/account/wishlist/WishlistIcon', () => ({
+  WishlistIcon: () => <div data-testid="wishlist-icon" />,
+}))
 
 vi.mock('@/storefront/customer/auth/components/CustomerLoginModal', () => ({
   CustomerLoginModal: ({ isOpen, onClose, onForgotPassword }: {
@@ -62,12 +67,17 @@ function createConfig(overrides: Partial<StorefrontConfig> = {}): StorefrontConf
 
 function renderHeader(config?: Partial<StorefrontConfig>) {
   const mergedConfig = createConfig(config)
+  const queryClient = new QueryClient({
+    defaultOptions: { queries: { retry: false } },
+  })
   return render(
-    <StorefrontConfigContext.Provider value={mergedConfig}>
-      <MemoryRouter>
-        <StorefrontHeader />
-      </MemoryRouter>
-    </StorefrontConfigContext.Provider>
+    <QueryClientProvider client={queryClient}>
+      <StorefrontConfigContext.Provider value={mergedConfig}>
+        <MemoryRouter>
+          <StorefrontHeader />
+        </MemoryRouter>
+      </StorefrontConfigContext.Provider>
+    </QueryClientProvider>
   )
 }
 

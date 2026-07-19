@@ -135,6 +135,34 @@ export function devApiPlugin(): Plugin {
                     return
                 }
 
+                // POST /api/storefront/wishlist/hydrate — must precede the add-variant
+                // route below, whose startsWith check would otherwise swallow it
+                if (url === '/storefront/wishlist/hydrate' && req.method === 'POST') {
+                    parseJsonBody(req).then((body) => {
+                        const requestedIds = Array.isArray(body.variantIds) ? (body.variantIds as string[]) : []
+                        const items = requestedIds.map((variantId, i) => {
+                            const product = storefrontProductsFixture[i % storefrontProductsFixture.length]
+                            const variant = product.variants[0]
+                            return {
+                                variantId,
+                                variantLabel: variant.attributesJson,
+                                sku: variant.sku,
+                                productId: product.id,
+                                productName: product.name,
+                                productSlug: product.slug,
+                                imagePath: product.images[0]?.imageUrl ?? null,
+                                retailPrice: product.retailPrice,
+                                wholesalePrice: product.wholesalePrice,
+                                retailSalePrice: null,
+                                wholesaleSalePrice: null,
+                            }
+                        })
+                        res.setHeader('Content-Type', 'application/json')
+                        res.end(JSON.stringify({items}))
+                    })
+                    return
+                }
+
                 // POST /api/storefront/wishlist/:variantId
                 if (url.startsWith('/storefront/wishlist/') && req.method === 'POST') {
                     res.statusCode = 204
