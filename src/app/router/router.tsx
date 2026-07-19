@@ -110,22 +110,15 @@ export const router = createBrowserRouter([
             },
             {
                 path: '/account',
-                element: (
-                    <CustomerGuard>
-                        <AccountLayout/>
-                    </CustomerGuard>
-                ),
+                element: <AccountLayout/>,
                 children: [
-                    {index: true, element: <Navigate to="/account/dashboard" replace/>},
-                    {path: 'dashboard', element: <Suspense fallback={null}><AccountDashboardPage/></Suspense>},
-                    {path: 'orders', element: <Suspense fallback={null}><OrderHistoryPage/></Suspense>},
-                    {path: 'orders/:orderId', element: <Suspense fallback={null}><OrderDetailPage/></Suspense>},
-                    {path: 'profile', element: <Suspense fallback={null}><ProfilePage/></Suspense>},
+                    {index: true, element: <CustomerGuard><Navigate to="/account/dashboard" replace/></CustomerGuard>},
+                    {path: 'dashboard', element: <CustomerGuard><Suspense fallback={null}><AccountDashboardPage/></Suspense></CustomerGuard>},
+                    {path: 'orders', element: <CustomerGuard><Suspense fallback={null}><OrderHistoryPage/></Suspense></CustomerGuard>},
+                    {path: 'orders/:orderId', element: <CustomerGuard><Suspense fallback={null}><OrderDetailPage/></Suspense></CustomerGuard>},
+                    {path: 'profile', element: <CustomerGuard><Suspense fallback={null}><ProfilePage/></Suspense></CustomerGuard>},
+                    {path: 'wishlist', element: <Suspense fallback={null}><WishlistPage/></Suspense>},
                 ],
-            },
-            {
-                path: '/account/wishlist',
-                element: <Suspense fallback={null}><WishlistPage/></Suspense>
             },
             {
                 path: '/cart', element: (

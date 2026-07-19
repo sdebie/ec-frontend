@@ -66,10 +66,13 @@ export function WishlistPage() {
   }, [items, isSignedIn, hydrationLoading, ids])
 
   const isLoading = wishlistLoading || hydrationLoading
+  const pageClassName = isSignedIn
+    ? 'space-y-6'
+    : 'mx-auto max-w-6xl space-y-6 px-4 py-8'
 
   if (isLoading) {
     return (
-      <div className="mx-auto max-w-6xl space-y-6 px-4 py-8">
+      <div className={pageClassName}>
         <h1 className="text-2xl font-semibold text-(--sf-text)">Wishlist</h1>
         <div className="grid grid-cols-2 gap-3 sm:gap-4 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5">
           {Array.from({ length: 6 }).map((_, i) => (
@@ -85,7 +88,7 @@ export function WishlistPage() {
 
   if (hydrationError) {
     return (
-      <div className="mx-auto max-w-6xl space-y-6 px-4 py-8">
+      <div className={pageClassName}>
         <h1 className="text-2xl font-semibold text-(--sf-text)">Wishlist</h1>
         <div className="rounded-lg border border-(--sf-border) p-8 text-center">
           <p className="text-(--sf-muted-text)">
@@ -98,7 +101,7 @@ export function WishlistPage() {
 
   if (!items || items.length === 0) {
     return (
-      <div className="mx-auto max-w-6xl space-y-6 px-4 py-8">
+      <div className={pageClassName}>
         <h1 className="text-2xl font-semibold text-(--sf-text)">Wishlist</h1>
         <div className="rounded-lg border border-(--sf-border) p-8 text-center">
           <Heart className="mx-auto h-12 w-12 text-(--sf-muted-text)" />
@@ -115,7 +118,7 @@ export function WishlistPage() {
   }
 
   return (
-    <div className="mx-auto max-w-6xl space-y-6 px-4 py-8">
+    <div className={pageClassName}>
       <h1 className="text-2xl font-semibold text-(--sf-text)">Wishlist</h1>
       <div className="grid grid-cols-2 gap-3 sm:gap-4 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5">
         {items.map((item) => {
