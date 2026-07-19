@@ -48,9 +48,9 @@ export const storefrontConfigFixture: StorefrontConfig = {
   nav: [
     { id: 'home',         label: 'Home',       path: '/',           external: false, sortOrder: 0 },
     { id: 'products',     label: 'Products',   path: '/products',   external: false, sortOrder: 1 },
-    { id: 'nav-specials', label: 'Specials',   path: '/specials',   external: false, sortOrder: 2 },
-    { id: 'about',        label: 'About Us',   path: '/about-us',   external: false, sortOrder: 3 },
-    { id: 'contact',      label: 'Contact Us', path: '/contact-us', external: false, sortOrder: 4 },
+    // { id: 'nav-specials', label: 'Specials',   path: '/specials',   external: false, sortOrder: 2 },
+    { id: 'about',        label: 'About Us',   path: '/about-us',   external: false, sortOrder: 2 },
+    { id: 'contact',      label: 'Contact Us', path: '/contact-us', external: false, sortOrder: 3 },
   ],
 
   sections: [
