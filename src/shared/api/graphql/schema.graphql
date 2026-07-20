@@ -1,0 +1,1224 @@
+type AdminCustomerDetailDto {
+  email: String
+  firstName: String
+  id: String
+  lastName: String
+  phone: String
+  recentOrders: [AdminOrderRefDto]
+  registeredAt: String
+  shopperType: String
+  status: String
+  wholesaleApplication: WholesaleApplicationDetailsDto
+}
+
+type AdminCustomerListItemDto {
+  email: String
+  firstName: String
+  id: String
+  lastName: String
+  registeredAt: String
+  shopperType: String
+  status: String
+  wholesaleApplicationStatus: String
+}
+
+type AdminOrderRefDto {
+  id: String
+  placedAt: String
+  reference: String
+  status: String
+  total: Float!
+}
+
+type AdminProductListItemDto {
+  category: CategoryDto
+  id: String
+  name: String
+  retailPrice: String
+  sku: String
+  slug: String
+  status: String
+  stockCount: Int!
+  stockLevel: String
+  thumbnailUrl: String
+}
+
+type AdminProductStatsDto {
+  active: BigInteger!
+  disabled: BigInteger!
+  pending: BigInteger!
+  total: BigInteger!
+}
+
+type BrandDto {
+  description: String
+  id: String
+  logoUrl: String
+  name: String
+  slug: String
+}
+
+type BrandEntity {
+  description: String
+  id: String
+  logoUrl: String
+  name: String
+  slug: String
+}
+
+type CategoryDto {
+  description: String
+  id: String
+  imageUrl: String
+  name: String
+  parent: CategoryEntity
+  slug: String
+}
+
+type CategoryEntity {
+  description: String
+  id: String
+  imageUrl: String
+  name: String
+  parent: CategoryEntity
+  products: [ProductEntity]
+  slug: String
+}
+
+type CountrySettingsDto {
+  active: Boolean!
+  countryCode: String
+  countryName: String
+  currencyCode: String
+  decimalPlaces: Int!
+  default: Boolean!
+  locale: String
+}
+
+type CustomerAddressEntity {
+  addressLine1: String
+  addressLine2: String
+  addressType: AddressTypeEn
+  city: String
+  customer: CustomerEntity
+  id: String
+  isDefault: Boolean!
+  postalCode: String
+  province: String
+  suburb: String
+}
+
+type CustomerContactEntity {
+  contactRole: ContactRoleEn
+  customer: CustomerEntity
+  email: String
+  fullName: String
+  id: String
+  phone: String
+}
+
+type CustomerDetailDto {
+  email: String
+}
+
+type CustomerDto {
+  email: String
+}
+
+type CustomerEntity {
+  addresses: [CustomerAddressEntity]
+  contacts: [CustomerContactEntity]
+  firstName: String
+  id: String
+  lastName: String
+  orderEntities: [OrderEntity]
+  phone: String
+  shopperType: CustomerTypeEn
+  status: CustomerStatusEn
+  user: UserEntity
+  wholesaleProfile: WholesaleProfileEntity
+}
+
+type FeaturedProductResultDto {
+  featured: Boolean!
+  productId: String
+}
+
+type ImageDetailDto {
+  id: String
+  imageUrl: String
+  sortOrder: Int
+}
+
+"Mutation root"
+type Mutation {
+  "Create a new product with variants, images, and multiple categories. Products can be assigned to one or more categories."
+  addProductInformation(input: ProductInformationDtoInput): ProductInformationDto
+  "Creates a new staff user"
+  addStaffUser(staffDto: StaffDtoInput): Void
+  approveWholesaleApplication(id: String): WholesaleApplicationDetailsDto
+  "Completes a customer password reset using a valid token."
+  completeCustomerPasswordReset(newPassword: String, token: String): String
+  createBrand(brandDto: BrandDtoInput): Void
+  "Create a new category"
+  createCategory(categoryDto: CategoryDtoInput): Void
+  "Create an order"
+  createOrder(order: OrderDtoInput): OrderResponseDto
+  createWholesaleApplication(customer: WholesaleCustomerDtoInput): WholesaleCustomerDto
+  createWholesaleCustomer(applicationId: String): WholesaleCustomerDto
+  deleteBrand(id: String): Void
+  "Delete a category"
+  deleteCategory(id: String): Void
+  "Delete a product and all its variants. SUPER_ADMIN only."
+  deleteProduct(id: String): Void
+  "Initiates a customer password reset. Always returns a generic message."
+  initiateCustomerPasswordReset(email: String): String
+  rejectWholesaleApplication(id: String, reason: String): WholesaleApplicationDetailsDto
+  saveShippingMethod(methodDto: ShippingMethodDtoInput): ShippingMethodDto
+  saveStoreSettings(storeSettingsDto: [StoreSettingsDtoInput]): [StoreSettingsDto]
+  "Toggle the featured flag on a product. SUPER_ADMIN only."
+  setProductFeatured(featured: Boolean!, productId: String): FeaturedProductResultDto
+  updateBrand(brandDto: BrandDtoInput, id: String): Void
+  "Update an existing category"
+  updateCategory(categoryDto: CategoryDtoInput, id: String): Void
+  "Update customer information for the latest order in a session. For now only email is supported."
+  updateCustomerInformation(customer: CustomerDtoInput, sessionId: String): CustomerDto
+  updateCustomerStatus(id: String, status: String): AdminCustomerListItemDto
+  "Update the status of the latest order for a given sessionId"
+  updateOrderStatus(sessionId: String, status: String): OrderResponseDto
+  "Update an existing product with variants, images, and multiple categories. When updating categories, all previous category assignments are replaced with the new ones provided."
+  updateProductInformation(input: ProductInformationDtoInput, productId: String): ProductInformationDto
+  "Update a product's status. SUPER_ADMIN only."
+  updateProductStatus(id: String, status: String): Void
+  updateSetting(key: String, value: String): StoreSettingsDto
+  "Updates an existing staff user"
+  updateStaffUser(id: String, staffDto: StaffDtoInput): Void
+  updateWholesaleCustomer(customer: WholesaleCustomerDtoInput, id: String): WholesaleCustomerDto
+}
+
+type OrderDetailRespDto {
+  "ISO-8601"
+  createdAt: DateTime
+  customerEntity: CustomerDetailDto
+  id: String
+  items: [OrderItemDetailDto]
+  sessionId: String
+  shippingAddressLine1: String
+  shippingAddressLine2: String
+  shippingCity: String
+  shippingPhone: String
+  shippingPostalCode: String
+  shippingProvince: String
+  status: OrderStatusEn
+  statusHistory: [OrderStatusHistoryDetailRespDto]
+  totalAmount: BigDecimal
+}
+
+type OrderEntity {
+  city: String
+  contactEmail: String
+  contactFirstName: String
+  contactLastName: String
+  "ISO-8601"
+  createdAt: DateTime
+  customerEntity: CustomerEntity
+  id: String
+  items: [OrderItemEntity]
+  postalCode: String
+  province: String
+  sessionId: String
+  shippingMethod: ShippingMethodEntity
+  status: OrderStatusEn
+  streetAddress: String
+  totalAmount: BigDecimal
+}
+
+type OrderItemDetailDto {
+  id: String
+  quantity: Int
+  unitPrice: BigDecimal
+  variant: ProductVariantDetailDto
+}
+
+type OrderItemEntity {
+  id: String
+  orderEntity: OrderEntity
+  quantity: Int
+  subtotal: BigDecimal
+  unitPrice: BigDecimal
+  variant: ProductVariantEntity
+}
+
+type OrderItemResponseDto {
+  id: String
+  quantity: Int
+  unitPrice: BigDecimal
+  variant: ProductVariantDto
+}
+
+type OrderResponseDto {
+  createDate: String
+  customer: CustomerDto
+  id: String
+  itemCount: Int
+  items: [OrderItemResponseDto]
+  sessionId: String
+  status: String
+  totalAmount: BigDecimal
+}
+
+type OrderStatusHistoryDetailRespDto {
+  changedBy: String
+  comment: String
+  "ISO-8601"
+  createdAt: DateTime
+  id: String
+  order: OrderEntity
+  status: OrderStatusEn
+}
+
+type OrderSummaryDto {
+  id: String
+  itemCount: Int!
+  orderDate: String
+  status: String
+  totalAmount: Float!
+}
+
+type PageResponse_AdminProductListItemDto {
+  content: [AdminProductListItemDto]
+  pageIndex: Int!
+  pageSize: Int!
+  totalElements: BigInteger!
+  totalPages: Int!
+}
+
+type PageResponse_BrandDto {
+  content: [BrandDto]
+  pageIndex: Int!
+  pageSize: Int!
+  totalElements: BigInteger!
+  totalPages: Int!
+}
+
+type PageResponse_CategoryDto {
+  content: [CategoryDto]
+  pageIndex: Int!
+  pageSize: Int!
+  totalElements: BigInteger!
+  totalPages: Int!
+}
+
+type PageResponse_ProductShoppingListItemDto {
+  content: [ProductShoppingListItemDto]
+  pageIndex: Int!
+  pageSize: Int!
+  totalElements: BigInteger!
+  totalPages: Int!
+}
+
+type ProductComparisonDto {
+  brandSlug: String
+  categorySlug: String
+  currentAttributes: String
+  currentDescription: String
+  currentImages: String
+  currentName: String
+  currentShortDescription: String
+  currentStock: Int
+  hasChanges: Boolean!
+  imageErrors: String
+  isNewProduct: Boolean!
+  isNewVariant: Boolean!
+  isValidBrand: Boolean!
+  isValidCategory: Boolean!
+  proposedAttributes: String
+  proposedDescription: String
+  proposedImages: String
+  proposedName: String
+  proposedShortDescription: String
+  proposedStock: Int
+  sku: String
+  stagedId: String
+  validationErrors: String
+  validationStatus: ProductImportValidationStatusEn
+}
+
+type ProductDetailDto {
+  name: String
+}
+
+type ProductDto {
+  "Brand"
+  brand: BrandDto
+  "All categories this product belongs to"
+  categories: [CategoryDto]
+  "Primary/first category (for backward compatibility)"
+  category: CategoryDto
+  "Product created date/time"
+  createdAt: String
+  "Product description"
+  description: String
+  "Product ID (UUID as string)"
+  id: String
+  "Product name"
+  name: String
+  "Product type"
+  productType: String
+  "Product short description"
+  shortDescription: String
+  "Product slug"
+  slug: String
+  "Product status"
+  status: String
+  "Product variants"
+  variants: [ProductVariantDto]
+}
+
+type ProductEntity {
+  brand: BrandEntity
+  categories: [CategoryEntity]
+  category: CategoryEntity
+  "ISO-8601"
+  createdAt: DateTime
+  description: String
+  id: String
+  isFeatured: Boolean!
+  name: String
+  productType: ProductTypeEn
+  shorDescription: String
+  slug: String
+  status: ProductStatusEn
+  variants: [ProductVariantEntity]
+}
+
+type ProductImageDto {
+  "Whether this image is featured"
+  featured: Boolean!
+  "Image ID (UUID as string)"
+  id: String
+  "Image URL"
+  imageUrl: String
+  "Sort order for display"
+  sortOrder: Int
+}
+
+type ProductImageEntity {
+  id: String
+  imageUrl: String
+  isFeatured: Boolean
+  productVariant: ProductVariantEntity
+  sortOrder: Int
+}
+
+type ProductInformationDto {
+  "Product information"
+  product: ProductDto
+  "List of variants for this product"
+  variants: [ProductVariantDto]
+}
+
+type ProductListItemDto {
+  "Brand Name"
+  brandName: String
+  "All category names this product belongs to"
+  categoryNames: [String]
+  "Short description"
+  description: String
+  "Product ID (UUID as string)"
+  id: String
+  "Featured variant image URL"
+  imageName: String
+  "Product name"
+  name: String
+  "Product status"
+  status: String
+  "All variant IDs for this product"
+  variantIds: [String]
+}
+
+type ProductPriceComparisonDto {
+  currentRetailPrice: BigDecimal
+  currentWholesalePrice: BigDecimal
+  hasChanges: Boolean!
+  proposedRetailPrice: BigDecimal
+  proposedWholesalePrice: BigDecimal
+  sku: String
+  stagedId: String
+  validationErrors: String
+  validationStatus: ProductImportValidationStatusEn
+}
+
+type ProductShoppingListItemDto {
+  "Product ID (UUID as string)"
+  id: String
+  "Product images including featured flag"
+  images: [ProductImageDto]
+  "Product name"
+  name: String
+  "Product type (e.g. SIMPLE or VARIABLE)"
+  productType: String
+  "Lowest active retail price in the current window with oldest start date"
+  retailPrice: VariantPriceDto
+  "Lowest active retail sale price in the current window with oldest start date"
+  retailSalePrice: VariantPriceDto
+  "Product short description"
+  shortDescription: String
+  "URL slug for routing to the product detail page"
+  slug: String
+  "Product status"
+  status: String
+  "Total number of variants for this product"
+  variantCount: Int
+  "Variant ID for SIMPLE products; null for non-SIMPLE products"
+  variantId: String
+  "Lowest active wholesale price in the current window with oldest start date"
+  wholesalePrice: VariantPriceDto
+  "Lowest active wholesale sale price in the current window with oldest start date"
+  wholesaleSalePrice: VariantPriceDto
+}
+
+type ProductUploadBatchDto {
+  approvedByUsername: String
+  "ISO-8601"
+  completedAt: DateTime
+  "ISO-8601"
+  createdAt: DateTime
+  filename: String
+  id: String
+  processedRows: Int
+  skippedRows: Int
+  status: String
+  totalRows: Int
+  uploadedByUsername: String
+  validationErrorCount: Int
+}
+
+type ProductVariantDetailDto {
+  attributesJson: String
+  id: String
+  images: [ImageDetailDto]
+  product: ProductDetailDto
+  stockQuantity: Int
+  weightKg: BigDecimal
+}
+
+type ProductVariantDto {
+  attributesJson: String
+  "Product Variant ID (UUID as string)"
+  id: String
+  "Images attached to this variant"
+  images: [ProductImageDto]
+  "All prices for this variant"
+  prices: [VariantPriceDto]
+  "Parent product info"
+  product: ProductDto
+  sku: String
+  "Variant status"
+  status: String
+  stockQuantity: Int
+  weightKg: BigDecimal
+}
+
+type ProductVariantEntity {
+  attributesJson: String
+  id: String
+  images: [ProductImageEntity]
+  prices: [VariantPricesEntity]
+  product: ProductEntity
+  sku: String
+  status: ProductStatusEn
+  stockQuantity: Int
+  weightKg: BigDecimal
+}
+
+"Query root"
+type Query {
+  adminCustomer(id: String): AdminCustomerDetailDto
+  "Admin paginated product list with SKU, stock, and price. Staff JWT required."
+  adminProductList(brandId: String, categoryId: String, pageIndex: Int = 0, pageSize: Int = 10, search: String, status: String): PageResponse_AdminProductListItemDto
+  "Product count breakdown by status. Staff JWT required."
+  adminProductStats: AdminProductStatsDto
+  allBrands(filterRequest: FilterRequestInput, pageRequest: PageRequestInput): [BrandDto]
+  "Get all categories"
+  allCategories(filterRequest: FilterRequestInput, includeSubCategories: Boolean = false, pageRequest: PageRequestInput): [CategoryDto]
+  allCustomers(filterRequest: FilterRequestInput, pageRequest: PageRequestInput): [AdminCustomerListItemDto]
+  "Get all orders with paging, newest created orders first by default"
+  allOrders(filterRequest: FilterRequestInput, pageRequest: PageRequestInput): [OrderResponseDto]
+  allWholesaleApplications(filterRequest: FilterRequestInput, pageRequest: PageRequestInput): [WholesaleApplicationListItemDto]
+  brand(id: String): BrandDto
+  brandCount(filterRequest: FilterRequestInput): BigInteger!
+  "Get a category by ID"
+  category(id: String): CategoryDto
+  categoryCount(filterRequest: FilterRequestInput): BigInteger!
+  "Get all country settings used for locale/currency formatting"
+  countrySettings: [CountrySettingsDto]
+  customerCount(filterRequest: FilterRequestInput): BigInteger!
+  "Returns all featured products for admin management, ordered by name ascending."
+  featuredProductList: [AdminProductListItemDto]
+  "Get paginated brands for storefront filtering."
+  getBrands(filterRequest: FilterRequestInput, pageIndex: Int = 0, pageSize: Int = 500): PageResponse_BrandDto
+  "Get paginated categories for storefront filtering. Returns all categories including subcategories."
+  getCategories(filterRequest: FilterRequestInput, pageIndex: Int = 0, pageSize: Int = 500): PageResponse_CategoryDto
+  "Get order detail by order id"
+  getOrderDetail(id: String): OrderDetailRespDto
+  "Returns the list of product price import rows for a given batch ID"
+  getPriceImportRows(batchId: String): [ProductPriceComparisonDto]
+  "Fetch a product with all variants, categories, and images for a given product id. Products can belong to multiple categories which are returned in the response."
+  getProductInformation(productId: String): ProductInformationDto
+  "Fetch a product with all variants by slug."
+  getProductInformationBySlug(slug: String): ProductInformationDto
+  "Returns the list of product import rows for a given batch ID"
+  importRows(batchId: String): [ProductComparisonDto]
+  "Get authenticated customer's order history"
+  myOrders: [OrderSummaryDto]
+  "Update an order and return"
+  orderById(id: String): OrderResponseDto
+  "Get the latest order for a given sessionId"
+  orderBySessionId(sessionId: String): OrderResponseDto
+  "Returns the total number of products matching the given filter, optionally scoped to a category (including subcategories) and/or a brand."
+  productCount(
+    "Optional brand UUID. Restricts count to products linked to this brand."
+    brandId: String,
+    "Optional category UUID. Includes products in this category and all subcategories. Pass null or omit for all categories."
+    categoryId: String,
+    filterRequest: FilterRequestInput,
+    "When true, skips the default ACTIVE product and variant status restriction."
+    ignoreStatus: Boolean = false
+  ): BigInteger!
+  "Returns a paged list of products with active retail or wholesale pricing. Category scoping is not applied in this endpoint."
+  productList(filterRequest: FilterRequestInput, pageRequest: PageRequestInput): [ProductListItemDto]
+  "Returns a paged list of products linked to a mandatory brand."
+  productListByBrand(
+    "Required brand UUID."
+    brandId: String,
+    filterRequest: FilterRequestInput,
+    "When true, skips the default ACTIVE product and variant status restriction."
+    ignoreStatus: Boolean = false,
+    pageRequest: PageRequestInput
+  ): [ProductListItemDto]
+  "Returns a paged list of products for a mandatory category. Optionally includes categories under the same parent scope."
+  productListByCategory(
+    "Required category UUID."
+    categoryId: String,
+    filterRequest: FilterRequestInput,
+    "When true, skips the default ACTIVE product and variant status restriction."
+    ignoreStatus: Boolean = false,
+    "When true, products in the selected category and related parent-scope categories are included."
+    includeSubCategories: Boolean = true,
+    pageRequest: PageRequestInput
+  ): [ProductListItemDto]
+  "Returns the list of all product price upload batches"
+  productPriceUploadBatches: [ProductUploadBatchDto]
+  "Returns the list of all product upload batches"
+  productUploadBatches: [ProductUploadBatchDto]
+  "Returns shopping product cards that currently have active RETAIL_SALE_PRICE or WHOLESALE_SALE_PRICE values only."
+  saleProductList(
+    "When true, skips the default ACTIVE product and variant status restriction."
+    ignoreStatus: Boolean = false,
+    pageRequest: PageRequestInput
+  ): [ProductShoppingListItemDto]
+  "Get all settings including store settings and shipping methods"
+  settings: SettingsDto
+  "Get all available shipping options"
+  shippingMethods: [ShippingMethodDto]
+  "Returns featured ACTIVE products as shopping DTOs for the storefront. Publicly accessible."
+  shoppingFeaturedProductList(categorySlug: String, limit: Int = 8): [ProductShoppingListItemDto]
+  "Returns paginated shopping product cards with variant count, image list, and active lowest prices by type. Products can belong to multiple categories. Supports optional category scope and includeSubCategories."
+  shoppingProductList(
+    "Optional main category UUID. If omitted or ALL, returns products across all categories."
+    categoryId: String,
+    filterRequest: FilterRequestInput,
+    "When true, skips the default ACTIVE product and variant status restriction."
+    ignoreStatus: Boolean = false,
+    "When true, includes products linked to the selected category and all descendant categories. When false, only products linked directly to the selected category are returned."
+    includeSubCategories: Boolean = true,
+    onSale: Boolean = false,
+    pageIndex: Int = 0,
+    pageSize: Int = 20
+  ): PageResponse_ProductShoppingListItemDto
+  "Returns a staff member by ID"
+  staffById(id: String): StaffDto
+  "Returns the total number of staff matching the given filter."
+  staffCount(filterRequest: FilterRequestInput): BigInteger!
+  "Returns a paged list of staff members"
+  staffList(filterRequest: FilterRequestInput, pageRequest: PageRequestInput): [StaffDto]
+  "Get all general store toggles"
+  storeSettings: [StoreSettingsDto]
+  "Returns the top 10 best-selling products ranked by units sold in DELIVERED orders. Products can belong to multiple categories. If fewer than 10 delivered-order products exist, the list is padded with random products."
+  topBestSellers: [ProductShoppingListItemDto]
+  "Fetch product variants by a list of ids, including product relation and prices for the selected category"
+  variantsByIds(ids: [String]): [ProductVariantDto]
+  wholesaleApplication(id: String): WholesaleApplicationDetailsDto
+  wholesaleApplicationCount(filterRequest: FilterRequestInput): BigInteger!
+}
+
+type SettingsDto {
+  countrySettings: [CountrySettingsDto]
+  shippingMethods: [ShippingMethodDto]
+  storeSettings: [StoreSettingsDto]
+}
+
+type ShippingMethodDto {
+  active: Boolean!
+  baseFee: BigDecimal
+  estimatedDays: String
+  id: String
+  name: String
+}
+
+type ShippingMethodEntity {
+  baseFee: BigDecimal
+  estimatedDays: String
+  id: String
+  isActive: Boolean!
+  name: String
+}
+
+type StaffDto {
+  active: Boolean!
+  "ISO-8601"
+  createdAt: DateTime
+  email: String
+  fullName: String
+  id: String
+  resetPassword: Boolean!
+  role: StaffRoleEn
+  temporaryPassword: String
+}
+
+type StoreSettingsDto {
+  description: String
+  key: String
+  value: String
+}
+
+type UserEntity {
+  "ISO-8601"
+  createdAt: DateTime
+  customer: CustomerEntity
+  email: String
+  id: String
+  isActive: Boolean!
+  "ISO-8601"
+  lastLogin: DateTime
+  mfaEnabled: Boolean!
+  passwordHash: String
+  passwordResetCodeAttempts: Int!
+  "ISO-8601"
+  passwordResetCodeExpiry: DateTime
+  passwordResetCodeHash: String
+  "ISO-8601"
+  passwordResetCodeLockedUntil: DateTime
+  resetToken: String
+  "ISO-8601"
+  resetTokenExpiry: DateTime
+  roles: [String]
+}
+
+type VariantPriceDto {
+  "Whether this price is currently active based on date range"
+  active: Boolean
+  "Price ID (UUID as string)"
+  id: String
+  "Price amount"
+  price: BigDecimal
+  "When this price expires (null = never expires) (ISO-8601)"
+  priceEndDate: DateTime
+  "When this price becomes active (null = always active) (ISO-8601)"
+  priceStartDate: DateTime
+  "Price type: RETAIL_PRICE, RETAIL_SALE_PRICE, WHOLESALE_PRICE, WHOLESALE_SALE_PRICE"
+  priceType: String
+  "Number of days remaining for sale prices (RETAIL_SALE_PRICE / WHOLESALE_SALE_PRICE); null for non-sale or no end date"
+  saleDaysRemaining: BigInteger
+}
+
+type VariantPricesEntity {
+  active: Boolean!
+  "ISO-8601"
+  createdAt: DateTime
+  createdBy: String
+  id: String
+  price: BigDecimal
+  "ISO-8601"
+  priceEndDate: DateTime
+  "ISO-8601"
+  priceStartDate: DateTime
+  priceType: PriceTypeEn
+  "ISO-8601"
+  updatedAt: DateTime
+  updatedBy: String
+  variant: ProductVariantEntity
+}
+
+type WholesaleApplicationDetailsDto {
+  applicantEmail: String
+  companyEmail: String
+  companyName: String
+  companyPhone: String
+  "ISO-8601"
+  createdAt: DateTime
+  customerId: String
+  email: String
+  financeContactEmail: String
+  financeContactName: String
+  financeContactPhone: String
+  firstName: String
+  id: String
+  lastName: String
+  notes: String
+  phone: String
+  physicalAddressLine1: String
+  physicalAddressLine2: String
+  physicalCity: String
+  physicalPostalCode: String
+  physicalProvince: String
+  physicalSuburb: String
+  postalAddressLine1: String
+  postalAddressLine2: String
+  postalCity: String
+  postalPostalCode: String
+  postalProvince: String
+  postalSuburb: String
+  "ISO-8601"
+  processedAt: DateTime
+  purchaseOrderRequired: Boolean
+  regNumber: String
+  rejectionReason: String
+  status: WholesaleApplicationStatusEn
+  tradingName: String
+  vatNumber: String
+}
+
+type WholesaleApplicationListItemDto {
+  "ISO-8601"
+  createdAt: DateTime
+  email: String
+  firstName: String
+  id: String
+  lastName: String
+  status: WholesaleApplicationStatusEn
+}
+
+type WholesaleCustomerDto {
+  companyName: String
+  email: String
+  firstName: String
+  id: String
+  lastName: String
+  notes: String
+  phone: String
+  physicalAddressLine1: String
+  physicalAddressLine2: String
+  physicalCity: String
+  physicalPostalCode: String
+  physicalProvince: String
+  physicalSuburb: String
+  postalAddressLine1: String
+  postalAddressLine2: String
+  postalCity: String
+  postalPostalCode: String
+  postalProvince: String
+  postalSuburb: String
+  regNumber: String
+  status: WholesaleCustomerStatusEn
+  vatNumber: String
+}
+
+type WholesaleProfileEntity {
+  companyName: String
+  creditLimit: BigDecimal
+  customer: CustomerEntity
+  customerId: String
+  paymentTermsDays: Int!
+  regNumber: String
+  vatNumber: String
+}
+
+enum AddressTypeEn {
+  BILLING
+  PHYSICAL
+  POSTAL
+  SHIPPING
+}
+
+enum ContactRoleEn {
+  BUYER
+  FINANCE
+  MANAGER
+}
+
+enum CustomerStatusEn {
+  ACTIVE
+  DISABLED
+  PENDING
+}
+
+enum CustomerTypeEn {
+  GUEST
+  RETAILER
+  WHOLESALER
+}
+
+enum FilterOperator {
+  BETWEEN
+  EQUALS
+  GREATER_THAN
+  GREATER_THAN_OR_EQUALS
+  ILIKE
+  IN
+  IS_NOT_NULL
+  IS_NULL
+  LESS_THAN
+  LESS_THAN_OR_EQUALS
+  LIKE
+  NOT_BETWEEN
+  NOT_EQUALS
+  NOT_IN
+  NOT_LIKE
+}
+
+enum LogicalOperator {
+  AND
+  OR
+}
+
+enum OrderStatusEn {
+  CANCELLED
+  CREATED
+  DELIVERED
+  FAILED
+  IN_STORE_PAYMENT
+  IN_TRANSIT
+  PAID
+  PENDING
+  SYSTEM_CANCELED
+}
+
+enum PriceTypeEn {
+  RETAIL_PRICE
+  RETAIL_SALE_PRICE
+  WHOLESALE_PRICE
+  WHOLESALE_SALE_PRICE
+}
+
+enum ProductImportValidationStatusEn {
+  INVALID
+  VALID
+}
+
+enum ProductStatusEn {
+  ACTIVE
+  DISABLED
+  PENDING
+}
+
+enum ProductTypeEn {
+  SIMPLE
+  VARIABLE
+}
+
+enum SortDirection {
+  ASC
+  DESC
+}
+
+enum StaffRoleEn {
+  CATALOG_MANAGER
+  ORDER_MANAGER
+  SUPER_ADMIN
+  VIEWER
+}
+
+enum WholesaleApplicationStatusEn {
+  APPROVED
+  CONVERTED
+  PENDING
+  REJECTED
+}
+
+enum WholesaleCustomerStatusEn {
+  ACTIVE
+  APPROVED
+  CONVERTED
+  DISABLED
+  PENDING
+  REJECTED
+}
+
+input BrandDtoInput {
+  description: String
+  id: String
+  logoUrl: String
+  name: String
+  slug: String
+}
+
+input BrandEntityInput {
+  description: String
+  id: String
+  logoUrl: String
+  name: String
+  slug: String
+}
+
+input CategoryDtoInput {
+  description: String
+  id: String
+  imageUrl: String
+  name: String
+  parent: CategoryEntityInput
+  slug: String
+}
+
+input CategoryEntityInput {
+  description: String
+  id: String
+  imageUrl: String
+  name: String
+  parent: CategoryEntityInput
+  products: [ProductEntityInput]
+  slug: String
+}
+
+input CustomerDtoInput {
+  email: String
+}
+
+input FilterGroupInput {
+  filterGroups: [FilterGroupInput]
+  filters: [FilterInput]
+  operator: LogicalOperator
+}
+
+input FilterInput {
+  key: String
+  operator: FilterOperator
+  value: String
+  values: [String]
+}
+
+input FilterRequestInput {
+  filterGroups: [FilterGroupInput]
+  filters: [FilterInput]
+  sort: [SortRequestInput]
+}
+
+"Input type for creating/updating an order"
+input OrderDtoInput {
+  items: [OrderItemDtoInput]
+  orderId: BigInteger
+  sessionId: String
+  totalAmount: BigDecimal
+}
+
+"Input item for an order line. Name is the product name sent by client."
+input OrderItemDtoInput {
+  name: String
+  quantity: Int
+  unitPrice: BigDecimal
+  "Selected product variant ID (UUID string)"
+  variant: String
+}
+
+input PageRequestInput {
+  pageIndex: Int!
+  pageSize: Int!
+}
+
+input ProductDtoInput {
+  "Brand"
+  brand: BrandDtoInput
+  "All categories this product belongs to"
+  categories: [CategoryDtoInput]
+  "Primary/first category (for backward compatibility)"
+  category: CategoryDtoInput
+  "Product created date/time"
+  createdAt: String
+  "Product description"
+  description: String
+  "Product ID (UUID as string)"
+  id: String
+  "Product name"
+  name: String
+  "Product type"
+  productType: String
+  "Product short description"
+  shortDescription: String
+  "Product slug"
+  slug: String
+  "Product status"
+  status: String
+  "Product variants"
+  variants: [ProductVariantDtoInput]
+}
+
+input ProductEntityInput {
+  brand: BrandEntityInput
+  categories: [CategoryEntityInput]
+  category: CategoryEntityInput
+  "ISO-8601"
+  createdAt: DateTime
+  description: String
+  id: String
+  isFeatured: Boolean!
+  name: String
+  productType: ProductTypeEn
+  shorDescription: String
+  slug: String
+  status: ProductStatusEn
+  variants: [ProductVariantEntityInput]
+}
+
+input ProductImageDtoInput {
+  "Image ID (UUID as string)"
+  id: String
+  "Image URL"
+  imageUrl: String
+  "Whether this image is featured"
+  isFeatured: Boolean!
+  "Sort order for display"
+  sortOrder: Int
+}
+
+input ProductImageEntityInput {
+  id: String
+  imageUrl: String
+  isFeatured: Boolean
+  productVariant: ProductVariantEntityInput
+  sortOrder: Int
+}
+
+input ProductInformationDtoInput {
+  "Product information"
+  product: ProductDtoInput
+  "List of variants for this product"
+  variants: [ProductVariantDtoInput]
+}
+
+input ProductVariantDtoInput {
+  attributesJson: String
+  "Product Variant ID (UUID as string)"
+  id: String
+  "Images attached to this variant"
+  images: [ProductImageDtoInput]
+  "All prices for this variant"
+  prices: [VariantPriceDtoInput]
+  "Parent product info"
+  product: ProductDtoInput
+  sku: String
+  "Variant status"
+  status: String
+  stockQuantity: Int
+  weightKg: BigDecimal
+}
+
+input ProductVariantEntityInput {
+  attributesJson: String
+  id: String
+  images: [ProductImageEntityInput]
+  prices: [VariantPricesEntityInput]
+  product: ProductEntityInput
+  sku: String
+  status: ProductStatusEn
+  stockQuantity: Int
+  weightKg: BigDecimal
+}
+
+input ShippingMethodDtoInput {
+  baseFee: BigDecimal
+  estimatedDays: String
+  id: String
+  isActive: Boolean!
+  name: String
+}
+
+input SortRequestInput {
+  direction: SortDirection
+  field: String
+}
+
+input StaffDtoInput {
+  active: Boolean!
+  "ISO-8601"
+  createdAt: DateTime
+  email: String
+  fullName: String
+  id: String
+  resetPassword: Boolean!
+  role: StaffRoleEn
+  temporaryPassword: String
+}
+
+input StoreSettingsDtoInput {
+  description: String
+  key: String
+  value: String
+}
+
+input VariantPriceDtoInput {
+  "Price ID (UUID as string)"
+  id: String
+  "Whether this price is currently active based on date range"
+  isActive: Boolean
+  "Price amount"
+  price: BigDecimal
+  "When this price expires (null = never expires) (ISO-8601)"
+  priceEndDate: DateTime
+  "When this price becomes active (null = always active) (ISO-8601)"
+  priceStartDate: DateTime
+  "Price type: RETAIL_PRICE, RETAIL_SALE_PRICE, WHOLESALE_PRICE, WHOLESALE_SALE_PRICE"
+  priceType: String
+  "Number of days remaining for sale prices (RETAIL_SALE_PRICE / WHOLESALE_SALE_PRICE); null for non-sale or no end date"
+  saleDaysRemaining: BigInteger
+}
+
+input VariantPricesEntityInput {
+  "ISO-8601"
+  createdAt: DateTime
+  createdBy: String
+  id: String
+  price: BigDecimal
+  "ISO-8601"
+  priceEndDate: DateTime
+  "ISO-8601"
+  priceStartDate: DateTime
+  priceType: PriceTypeEn
+  "ISO-8601"
+  updatedAt: DateTime
+  updatedBy: String
+  variant: ProductVariantEntityInput
+}
+
+input WholesaleCustomerDtoInput {
+  applicantEmail: String
+  companyEmail: String
+  companyName: String
+  companyPhone: String
+  email: String
+  financeContactEmail: String
+  financeContactName: String
+  financeContactPhone: String
+  firstName: String
+  id: String
+  lastName: String
+  notes: String
+  phone: String
+  physicalAddressLine1: String
+  physicalAddressLine2: String
+  physicalCity: String
+  physicalPostalCode: String
+  physicalProvince: String
+  physicalSuburb: String
+  postalAddressLine1: String
+  postalAddressLine2: String
+  postalCity: String
+  postalPostalCode: String
+  postalProvince: String
+  postalSuburb: String
+  purchaseOrderRequired: Boolean
+  regNumber: String
+  status: WholesaleCustomerStatusEn
+  tradingName: String
+  vatNumber: String
+}

@@ -1,2 +1,0 @@
-export { TimeInput } from './TimeInput';
-

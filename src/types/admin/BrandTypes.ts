@@ -1,1 +1,0 @@
-export type { Brand } from '@/types/shared/BrandTypes.ts';

@@ -1,1 +1,0 @@
-export {Menu, MenuTrigger, MenuList, MenuItem, MenuSeparator, MenuLabel, MenuSection} from './Menu'

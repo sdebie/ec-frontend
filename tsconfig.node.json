@@ -1,10 +1,32 @@
 {
   "compilerOptions": {
-    "composite": true,
+    "tsBuildInfoFile": "./node_modules/.tmp/tsconfig.node.tsbuildinfo",
+    "target": "es2023",
+    "lib": ["ES2023", "DOM"],
+    "types": ["node"],
     "skipLibCheck": true,
-    "module": "ESNext",
+
+    /* Bundler mode — matches tsconfig.app.json. vite.config.ts pulls in the dev-mock
+       plugin (src/mocks/devApiPlugin.ts) and its fixtures, which import app source via
+       @/; bundler resolution resolves the alias (and .ts/.js) the same way the app
+       project does, so no baseUrl is needed. */
+    "module": "esnext",
     "moduleResolution": "bundler",
-    "allowSyntheticDefaultImports": true
+    "allowImportingTsExtensions": true,
+    "verbatimModuleSyntax": true,
+    "moduleDetection": "force",
+    "noEmit": true,
+
+    /* Linting */
+    "noUnusedLocals": true,
+    "noUnusedParameters": true,
+    "erasableSyntaxOnly": true,
+    "noFallthroughCasesInSwitch": true,
+
+    /* Path alias for the app source reached via vite.config.ts → dev-mock plugin. */
+    "paths": {
+      "@/*": ["./src/*"]
+    }
   },
-  "include": ["vite.config.ts", "vitest.config.ts", "playwright.config.ts"]
+  "include": ["vite.config.ts"]
 }
