@@ -95,59 +95,13 @@ type CountrySettingsDto {
   locale: String
 }
 
-type CustomerAddressEntity {
-  addressLine1: String
-  addressLine2: String
-  addressType: AddressTypeEn
-  city: String
-  customer: CustomerEntity
-  id: String
-  isDefault: Boolean!
-  postalCode: String
-  province: String
-  suburb: String
-}
-
-type CustomerContactEntity {
-  contactRole: ContactRoleEn
-  customer: CustomerEntity
-  email: String
-  fullName: String
-  id: String
-  phone: String
-}
-
-type CustomerDetailDto {
-  email: String
-}
-
 type CustomerDto {
   email: String
-}
-
-type CustomerEntity {
-  addresses: [CustomerAddressEntity]
-  contacts: [CustomerContactEntity]
-  firstName: String
-  id: String
-  lastName: String
-  orderEntities: [OrderEntity]
-  phone: String
-  shopperType: CustomerTypeEn
-  status: CustomerStatusEn
-  user: UserEntity
-  wholesaleProfile: WholesaleProfileEntity
 }
 
 type FeaturedProductResultDto {
   featured: Boolean!
   productId: String
-}
-
-type ImageDetailDto {
-  id: String
-  imageUrl: String
-  sortOrder: Int
 }
 
 "Mutation root"
@@ -165,7 +119,6 @@ type Mutation {
   "Create an order"
   createOrder(order: OrderDtoInput): OrderResponseDto
   createWholesaleApplication(customer: WholesaleCustomerDtoInput): WholesaleCustomerDto
-  createWholesaleCustomer(applicationId: String): WholesaleCustomerDto
   deleteBrand(id: String): Void
   "Delete a category"
   deleteCategory(id: String): Void
@@ -181,8 +134,6 @@ type Mutation {
   updateBrand(brandDto: BrandDtoInput, id: String): Void
   "Update an existing category"
   updateCategory(categoryDto: CategoryDtoInput, id: String): Void
-  "Update customer information for the latest order in a session. For now only email is supported."
-  updateCustomerInformation(customer: CustomerDtoInput, sessionId: String): CustomerDto
   updateCustomerStatus(id: String, status: String): AdminCustomerListItemDto
   "Update the status of the latest order for a given sessionId"
   updateOrderStatus(sessionId: String, status: String): OrderResponseDto
@@ -199,7 +150,7 @@ type Mutation {
 type OrderDetailRespDto {
   "ISO-8601"
   createdAt: DateTime
-  customerEntity: CustomerDetailDto
+  customerEntity: CustomerDto
   id: String
   items: [OrderItemDetailDto]
   sessionId: String
@@ -214,25 +165,6 @@ type OrderDetailRespDto {
   totalAmount: BigDecimal
 }
 
-type OrderEntity {
-  city: String
-  contactEmail: String
-  contactFirstName: String
-  contactLastName: String
-  "ISO-8601"
-  createdAt: DateTime
-  customerEntity: CustomerEntity
-  id: String
-  items: [OrderItemEntity]
-  postalCode: String
-  province: String
-  sessionId: String
-  shippingMethod: ShippingMethodEntity
-  status: OrderStatusEn
-  streetAddress: String
-  totalAmount: BigDecimal
-}
-
 type OrderItemDetailDto {
   id: String
   quantity: Int
@@ -240,28 +172,12 @@ type OrderItemDetailDto {
   variant: ProductVariantDetailDto
 }
 
-type OrderItemEntity {
-  id: String
-  orderEntity: OrderEntity
-  quantity: Int
-  subtotal: BigDecimal
-  unitPrice: BigDecimal
-  variant: ProductVariantEntity
-}
-
-type OrderItemResponseDto {
-  id: String
-  quantity: Int
-  unitPrice: BigDecimal
-  variant: ProductVariantDto
-}
-
 type OrderResponseDto {
   createDate: String
   customer: CustomerDto
   id: String
   itemCount: Int
-  items: [OrderItemResponseDto]
+  items: [OrderItemDetailDto]
   sessionId: String
   status: String
   totalAmount: BigDecimal
@@ -273,7 +189,6 @@ type OrderStatusHistoryDetailRespDto {
   "ISO-8601"
   createdAt: DateTime
   id: String
-  order: OrderEntity
   status: OrderStatusEn
 }
 
@@ -497,7 +412,7 @@ type ProductUploadBatchDto {
 type ProductVariantDetailDto {
   attributesJson: String
   id: String
-  images: [ImageDetailDto]
+  images: [ProductImageDto]
   product: ProductDetailDto
   stockQuantity: Int
   weightKg: BigDecimal
@@ -667,14 +582,6 @@ type ShippingMethodDto {
   name: String
 }
 
-type ShippingMethodEntity {
-  baseFee: BigDecimal
-  estimatedDays: String
-  id: String
-  isActive: Boolean!
-  name: String
-}
-
 type StaffDto {
   active: Boolean!
   "ISO-8601"
@@ -691,29 +598,6 @@ type StoreSettingsDto {
   description: String
   key: String
   value: String
-}
-
-type UserEntity {
-  "ISO-8601"
-  createdAt: DateTime
-  customer: CustomerEntity
-  email: String
-  id: String
-  isActive: Boolean!
-  "ISO-8601"
-  lastLogin: DateTime
-  mfaEnabled: Boolean!
-  passwordHash: String
-  passwordResetCodeAttempts: Int!
-  "ISO-8601"
-  passwordResetCodeExpiry: DateTime
-  passwordResetCodeHash: String
-  "ISO-8601"
-  passwordResetCodeLockedUntil: DateTime
-  resetToken: String
-  "ISO-8601"
-  resetTokenExpiry: DateTime
-  roles: [String]
 }
 
 type VariantPriceDto {
@@ -801,8 +685,14 @@ type WholesaleApplicationListItemDto {
 }
 
 type WholesaleCustomerDto {
+  applicantEmail: String
+  companyEmail: String
   companyName: String
+  companyPhone: String
   email: String
+  financeContactEmail: String
+  financeContactName: String
+  financeContactPhone: String
   firstName: String
   id: String
   lastName: String
@@ -820,44 +710,11 @@ type WholesaleCustomerDto {
   postalPostalCode: String
   postalProvince: String
   postalSuburb: String
+  purchaseOrderRequired: Boolean
   regNumber: String
   status: WholesaleCustomerStatusEn
+  tradingName: String
   vatNumber: String
-}
-
-type WholesaleProfileEntity {
-  companyName: String
-  creditLimit: BigDecimal
-  customer: CustomerEntity
-  customerId: String
-  paymentTermsDays: Int!
-  regNumber: String
-  vatNumber: String
-}
-
-enum AddressTypeEn {
-  BILLING
-  PHYSICAL
-  POSTAL
-  SHIPPING
-}
-
-enum ContactRoleEn {
-  BUYER
-  FINANCE
-  MANAGER
-}
-
-enum CustomerStatusEn {
-  ACTIVE
-  DISABLED
-  PENDING
-}
-
-enum CustomerTypeEn {
-  GUEST
-  RETAILER
-  WHOLESALER
 }
 
 enum FilterOperator {
@@ -979,10 +836,6 @@ input CategoryEntityInput {
   parent: CategoryEntityInput
   products: [ProductEntityInput]
   slug: String
-}
-
-input CustomerDtoInput {
-  email: String
 }
 
 input FilterGroupInput {
