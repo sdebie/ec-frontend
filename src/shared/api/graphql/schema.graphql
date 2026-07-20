@@ -645,8 +645,6 @@ type Query {
   staffList(filterRequest: FilterRequestInput, pageRequest: PageRequestInput): [StaffDto]
   "Get all general store toggles"
   storeSettings: [StoreSettingsDto]
-  "Returns the number of rows in the 'public.test' table"
-  testRowCount: BigInteger!
   "Returns the top 10 best-selling products ranked by units sold in DELIVERED orders. Products can belong to multiple categories. If fewer than 10 delivered-order products exist, the list is padded with random products."
   topBestSellers: [ProductShoppingListItemDto]
   "Fetch product variants by a list of ids, including product relation and prices for the selected category"
