@@ -233,6 +233,19 @@ describe('CustomerDetailPage', () => {
       expect(screen.queryByRole('button', { name: 'Approve' })).not.toBeInTheDocument()
       expect(screen.queryByRole('button', { name: 'Reject' })).not.toBeInTheDocument()
     })
+
+    it('renders approve/reject buttons for ORDER_MANAGER but hides account actions', () => {
+      setupMocks({ data: mockCustomer, role: 'ORDER_MANAGER' })
+
+      renderPage()
+
+      expect(screen.getByRole('button', { name: 'Approve' })).toBeInTheDocument()
+      expect(screen.getByRole('button', { name: 'Reject' })).toBeInTheDocument()
+      // Account-status actions remain SUPER_ADMIN-only
+      expect(
+        screen.queryByTestId('customer-action-buttons'),
+      ).not.toBeInTheDocument()
+    })
   })
 
   describe('action buttons visibility', () => {

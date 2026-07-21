@@ -34,7 +34,11 @@ function formatTimestamp(dateString: string): string {
 export function WholesaleCustomerDetailPage() {
   const { customerId } = useParams<{ customerId: string }>()
   const { data, isLoading } = useWholesaleCustomerDetail(customerId!)
-  const canMutate = useAdminAuthStore((s) => s.role) === 'SUPER_ADMIN'
+  const role = useAdminAuthStore((s) => s.role)
+  // Account-status actions require SUPER_ADMIN (backend updateCustomerStatus);
+  // application decisions mirror approve/rejectWholesaleApplication's roles.
+  const canMutate = role === 'SUPER_ADMIN'
+  const canDecideApplication = role === 'SUPER_ADMIN' || role === 'ORDER_MANAGER'
   const statusAction = useWholesaleCustomerStatusAction()
   const applicationAction = useWholesaleApplicationAction()
 
@@ -259,7 +263,7 @@ export function WholesaleCustomerDetailPage() {
               <p className="text-sm text-(--c-text-muted)">
                 Submitted: {formatTimestamp(customer.wholesaleApplication.submittedAt)}
               </p>
-              {canMutate &&
+              {canDecideApplication &&
                 customer.wholesaleApplication.status === 'PENDING' && (
                   <div className="flex flex-wrap gap-3">
                     <Button
