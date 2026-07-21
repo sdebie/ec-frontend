@@ -58,30 +58,12 @@ type BrandDto {
   slug: String
 }
 
-type BrandEntity {
-  description: String
-  id: String
-  logoUrl: String
-  name: String
-  slug: String
-}
-
 type CategoryDto {
   description: String
   id: String
   imageUrl: String
   name: String
-  parent: CategoryEntity
-  slug: String
-}
-
-type CategoryEntity {
-  description: String
-  id: String
-  imageUrl: String
-  name: String
-  parent: CategoryEntity
-  products: [ProductEntity]
+  parent: CategoryDto
   slug: String
 }
 
@@ -290,23 +272,6 @@ type ProductDto {
   variants: [ProductVariantDto]
 }
 
-type ProductEntity {
-  brand: BrandEntity
-  categories: [CategoryEntity]
-  category: CategoryEntity
-  "ISO-8601"
-  createdAt: DateTime
-  description: String
-  id: String
-  isFeatured: Boolean!
-  name: String
-  productType: ProductTypeEn
-  shorDescription: String
-  slug: String
-  status: ProductStatusEn
-  variants: [ProductVariantEntity]
-}
-
 type ProductImageDto {
   "Whether this image is featured"
   featured: Boolean!
@@ -315,14 +280,6 @@ type ProductImageDto {
   "Image URL"
   imageUrl: String
   "Sort order for display"
-  sortOrder: Int
-}
-
-type ProductImageEntity {
-  id: String
-  imageUrl: String
-  isFeatured: Boolean
-  productVariant: ProductVariantEntity
   sortOrder: Int
 }
 
@@ -431,18 +388,6 @@ type ProductVariantDto {
   sku: String
   "Variant status"
   status: String
-  stockQuantity: Int
-  weightKg: BigDecimal
-}
-
-type ProductVariantEntity {
-  attributesJson: String
-  id: String
-  images: [ProductImageEntity]
-  prices: [VariantPricesEntity]
-  product: ProductEntity
-  sku: String
-  status: ProductStatusEn
   stockQuantity: Int
   weightKg: BigDecimal
 }
@@ -617,24 +562,6 @@ type VariantPriceDto {
   saleDaysRemaining: BigInteger
 }
 
-type VariantPricesEntity {
-  active: Boolean!
-  "ISO-8601"
-  createdAt: DateTime
-  createdBy: String
-  id: String
-  price: BigDecimal
-  "ISO-8601"
-  priceEndDate: DateTime
-  "ISO-8601"
-  priceStartDate: DateTime
-  priceType: PriceTypeEn
-  "ISO-8601"
-  updatedAt: DateTime
-  updatedBy: String
-  variant: ProductVariantEntity
-}
-
 type WholesaleApplicationDetailsDto {
   applicantEmail: String
   companyEmail: String
@@ -752,27 +679,9 @@ enum OrderStatusEn {
   SYSTEM_CANCELED
 }
 
-enum PriceTypeEn {
-  RETAIL_PRICE
-  RETAIL_SALE_PRICE
-  WHOLESALE_PRICE
-  WHOLESALE_SALE_PRICE
-}
-
 enum ProductImportValidationStatusEn {
   INVALID
   VALID
-}
-
-enum ProductStatusEn {
-  ACTIVE
-  DISABLED
-  PENDING
-}
-
-enum ProductTypeEn {
-  SIMPLE
-  VARIABLE
 }
 
 enum SortDirection {
@@ -811,30 +720,12 @@ input BrandDtoInput {
   slug: String
 }
 
-input BrandEntityInput {
-  description: String
-  id: String
-  logoUrl: String
-  name: String
-  slug: String
-}
-
 input CategoryDtoInput {
   description: String
   id: String
   imageUrl: String
   name: String
-  parent: CategoryEntityInput
-  slug: String
-}
-
-input CategoryEntityInput {
-  description: String
-  id: String
-  imageUrl: String
-  name: String
-  parent: CategoryEntityInput
-  products: [ProductEntityInput]
+  parent: CategoryDtoInput
   slug: String
 }
 
@@ -906,23 +797,6 @@ input ProductDtoInput {
   variants: [ProductVariantDtoInput]
 }
 
-input ProductEntityInput {
-  brand: BrandEntityInput
-  categories: [CategoryEntityInput]
-  category: CategoryEntityInput
-  "ISO-8601"
-  createdAt: DateTime
-  description: String
-  id: String
-  isFeatured: Boolean!
-  name: String
-  productType: ProductTypeEn
-  shorDescription: String
-  slug: String
-  status: ProductStatusEn
-  variants: [ProductVariantEntityInput]
-}
-
 input ProductImageDtoInput {
   "Image ID (UUID as string)"
   id: String
@@ -931,14 +805,6 @@ input ProductImageDtoInput {
   "Whether this image is featured"
   isFeatured: Boolean!
   "Sort order for display"
-  sortOrder: Int
-}
-
-input ProductImageEntityInput {
-  id: String
-  imageUrl: String
-  isFeatured: Boolean
-  productVariant: ProductVariantEntityInput
   sortOrder: Int
 }
 
@@ -962,18 +828,6 @@ input ProductVariantDtoInput {
   sku: String
   "Variant status"
   status: String
-  stockQuantity: Int
-  weightKg: BigDecimal
-}
-
-input ProductVariantEntityInput {
-  attributesJson: String
-  id: String
-  images: [ProductImageEntityInput]
-  prices: [VariantPricesEntityInput]
-  product: ProductEntityInput
-  sku: String
-  status: ProductStatusEn
   stockQuantity: Int
   weightKg: BigDecimal
 }
@@ -1024,23 +878,6 @@ input VariantPriceDtoInput {
   priceType: String
   "Number of days remaining for sale prices (RETAIL_SALE_PRICE / WHOLESALE_SALE_PRICE); null for non-sale or no end date"
   saleDaysRemaining: BigInteger
-}
-
-input VariantPricesEntityInput {
-  "ISO-8601"
-  createdAt: DateTime
-  createdBy: String
-  id: String
-  price: BigDecimal
-  "ISO-8601"
-  priceEndDate: DateTime
-  "ISO-8601"
-  priceStartDate: DateTime
-  priceType: PriceTypeEn
-  "ISO-8601"
-  updatedAt: DateTime
-  updatedBy: String
-  variant: ProductVariantEntityInput
 }
 
 input WholesaleCustomerDtoInput {
