@@ -194,7 +194,7 @@ export const adminMenuRoutes: AdminRouteList = [
     {
         key: 'admin.wholesale',
         path: '/admin/wholesale',
-        authority: ['SUPER_ADMIN', 'VIEWER'],
+        authority: ['SUPER_ADMIN', 'ORDER_MANAGER', 'VIEWER'],
         meta: {
             label: 'Wholesale',
             section: 'CUSTOMER MANAGEMENT',
@@ -211,7 +211,7 @@ export const adminMenuRoutes: AdminRouteList = [
                         default: m.WholesaleApplicationQueuePage,
                     }))
                 ),
-                authority: ['SUPER_ADMIN', 'VIEWER'],
+                authority: ['SUPER_ADMIN', 'ORDER_MANAGER', 'VIEWER'],
                 meta: {
                     label: 'Applications',
                     pageBackgroundType: 'plain',
@@ -227,7 +227,7 @@ export const adminMenuRoutes: AdminRouteList = [
                         default: m.WholesaleCustomerListPage,
                     }))
                 ),
-                authority: ['SUPER_ADMIN', 'VIEWER'],
+                authority: ['SUPER_ADMIN', 'ORDER_MANAGER', 'VIEWER'],
                 meta: {
                     label: 'Customers',
                     pageBackgroundType: 'plain',
