@@ -107,7 +107,11 @@ export interface BenefitsSectionProps {
 export interface CtaSectionProps {
   title: string
   description?: string
+  /** Small uppercase label above the title, e.g. "Business & Wholesale". */
+  eyebrow?: string
   cta: StorefrontActionLink
+  /** Outlined button rendered beside the primary CTA (distinct from secondaryLinks). */
+  secondaryCta?: StorefrontActionLink
   secondaryLinks?: StorefrontActionLink[]
   variant?: 'accent' | 'dark'
 }

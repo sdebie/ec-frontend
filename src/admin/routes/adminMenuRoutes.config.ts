@@ -177,6 +177,23 @@ export const adminMenuRoutes: AdminRouteList = [
         },
     },
     {
+        key: 'admin.quotes',
+        path: '/admin/quotes',
+        component: lazy(() =>
+            import('@/admin/pages/quotes/QuoteRequestQueuePage').then((m) => ({
+                default: m.QuoteRequestQueuePage,
+            }))
+        ),
+        authority: ['SUPER_ADMIN', 'ORDER_MANAGER', 'VIEWER'],
+        meta: {
+            label: 'Quote Requests',
+            section: 'ORDER MANAGEMENT',
+            pageBackgroundType: 'plain',
+            pageContainerType: 'contained',
+            icon: 'file-text',
+        },
+    },
+    {
         key: 'admin.customers',
         path: '/admin/customers',
         component: lazy(() =>

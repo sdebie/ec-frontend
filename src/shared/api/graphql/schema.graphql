@@ -123,10 +123,43 @@ type Mutation {
   updateProductInformation(input: ProductInformationDtoInput, productId: String): ProductInformationDto
   "Update a product's status. SUPER_ADMIN only."
   updateProductStatus(id: String, status: String): Void
+  updateQuoteRequestStatus(id: String, status: String): QuoteRequestDetailsDto
   updateSetting(key: String, value: String): StoreSettingsDto
   "Updates an existing staff user"
   updateStaffUser(id: String, staffDto: StaffDtoInput): Void
   updateWholesaleCustomer(customer: WholesaleCustomerDtoInput, id: String): WholesaleCustomerDto
+}
+
+type QuoteRequestDetailsDto {
+  company: String
+  "ISO-8601"
+  createdAt: DateTime
+  email: String
+  id: String
+  items: [QuoteRequestItemDto]
+  message: String
+  name: String
+  phone: String
+  status: QuoteRequestStatusEn
+  "ISO-8601"
+  statusChangedAt: DateTime
+}
+
+type QuoteRequestItemDto {
+  productNameSnapshot: String
+  quantity: Int!
+  variantId: String
+  variantSkuSnapshot: String
+}
+
+type QuoteRequestListItemDto {
+  company: String
+  "ISO-8601"
+  createdAt: DateTime
+  id: String
+  itemCount: Int!
+  name: String
+  status: QuoteRequestStatusEn
 }
 
 type OrderDetailRespDto {
@@ -405,6 +438,7 @@ type Query {
   allCustomers(filterRequest: FilterRequestInput, pageRequest: PageRequestInput): [AdminCustomerListItemDto]
   "Get all orders with paging, newest created orders first by default"
   allOrders(filterRequest: FilterRequestInput, pageRequest: PageRequestInput): [OrderResponseDto]
+  allQuoteRequests(filterRequest: FilterRequestInput, pageRequest: PageRequestInput): [QuoteRequestListItemDto]
   allWholesaleApplications(filterRequest: FilterRequestInput, pageRequest: PageRequestInput): [WholesaleApplicationListItemDto]
   brand(id: String): BrandDto
   brandCount(filterRequest: FilterRequestInput): BigInteger!
@@ -472,6 +506,8 @@ type Query {
   productPriceUploadBatches: [ProductUploadBatchDto]
   "Returns the list of all product upload batches"
   productUploadBatches: [ProductUploadBatchDto]
+  quoteRequest(id: String): QuoteRequestDetailsDto
+  quoteRequestCount(filterRequest: FilterRequestInput): BigInteger!
   "Returns shopping product cards that currently have active RETAIL_SALE_PRICE or WHOLESALE_SALE_PRICE values only."
   saleProductList(
     "When true, skips the default ACTIVE product and variant status restriction."
@@ -677,6 +713,12 @@ enum OrderStatusEn {
   PAID
   PENDING
   SYSTEM_CANCELED
+}
+
+enum QuoteRequestStatusEn {
+  CLOSED
+  IN_PROGRESS
+  NEW
 }
 
 enum ProductImportValidationStatusEn {

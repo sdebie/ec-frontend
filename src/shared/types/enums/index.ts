@@ -3,6 +3,10 @@ export { ProductStatus, ProductStatusOptions } from './ProductStatus'
 export { CustomerStatus } from './CustomerStatus'
 export { CustomerType } from './CustomerType'
 export { ProductType } from './ProductType'
+export {
+  QuoteRequestStatus,
+  QuoteRequestStatusOptions,
+} from './QuoteRequestStatus'
 export { StaffRoles } from './StaffRoles'
 export {
   WholesaleApplicationStatus,

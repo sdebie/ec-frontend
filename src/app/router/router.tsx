@@ -61,6 +61,10 @@ const ContactUsPage = lazy(() =>
 const AboutPage = lazy(() =>
     import('@/storefront/pages/AboutPage').then((m) => ({default: m.AboutPage})),
 )
+// eslint-disable-next-line react-refresh/only-export-components
+const QuoteRequestPage = lazy(() =>
+    import('@/storefront/quote/QuoteRequestPage').then((m) => ({default: m.QuoteRequestPage})),
+)
 
 export const router = createBrowserRouter([
     {
@@ -139,6 +143,9 @@ export const router = createBrowserRouter([
             },
             {
                 path: '/contact-us', element: <Suspense fallback={null}><ContactUsPage/></Suspense>
+            },
+            {
+                path: '/quote-request', element: <Suspense fallback={null}><QuoteRequestPage/></Suspense>
             },
             {
                 path: '/about-us', element: <Suspense fallback={null}><AboutPage/></Suspense>

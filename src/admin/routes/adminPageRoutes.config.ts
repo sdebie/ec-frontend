@@ -169,6 +169,20 @@ const adminPageOnlyRoutes: AdminRouteList = [
         },
     },
     {
+        key: 'admin.quotes.detail',
+        path: '/admin/quotes/:quoteRequestId',
+        component: lazy(() =>
+            import('@/admin/pages/quotes/QuoteRequestDetailPage').then((m) => ({
+                default: m.QuoteRequestDetailPage,
+            }))
+        ),
+        authority: ['SUPER_ADMIN', 'ORDER_MANAGER', 'VIEWER'],
+        meta: {
+            pageBackgroundType: 'plain',
+            pageContainerType: 'contained',
+        },
+    },
+    {
         key: 'admin.imports.products.upload',
         path: '/admin/imports/products/bulk-upload',
         component: lazy(() => import('@/admin/pages/imports/ProductImportUploadPage')),
