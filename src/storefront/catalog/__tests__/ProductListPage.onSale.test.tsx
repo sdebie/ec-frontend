@@ -205,9 +205,9 @@ describe('ProductListPage onSale — Property 4', () => {
         expect(screen.getByText('Sale Product 1')).toBeInTheDocument()
       })
 
-      // Change category filter
-      const categorySelect = screen.getByLabelText('Category')
-      await user.selectOptions(categorySelect, 'electronics')
+      // Change category filter via CategoryTreeFilter button
+      const categoryButton = screen.getByRole('button', { name: 'Electronics' })
+      await user.click(categoryButton)
 
       // After filter change, ALL calls must include onSale: true
       await waitFor(() => {

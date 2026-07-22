@@ -11,6 +11,7 @@ import { CartIcon } from '@/storefront/cart/CartIcon'
 import { WishlistIcon } from '@/storefront/customer/account/wishlist/WishlistIcon'
 import { CustomerLoginModal } from '@/storefront/customer/auth/components/CustomerLoginModal'
 import { ForgotPasswordModal } from '@/storefront/customer/auth/components/ForgotPasswordModal'
+import { CategoryMegaMenu } from './CategoryMegaMenu'
 
 export function StorefrontHeader() {
   const config = useStorefrontConfig()
@@ -80,6 +81,9 @@ export function StorefrontHeader() {
             ))}
           </nav>
         )}
+
+        {/* Category mega-menu — desktop only */}
+        <CategoryMegaMenu />
 
         {/* Search bar — centred, desktop only */}
         {navItems.length > 0 && (

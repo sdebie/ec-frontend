@@ -102,7 +102,6 @@ export function ProductListPage({ onSale = false }: ProductListPageProps) {
       <div className="flex flex-col gap-6 md:flex-row">
         {/* Sidebar — desktop inline, mobile drawer */}
         <FilterSidebar
-          categories={categories}
           brands={brands}
           activeFilters={{
             search,

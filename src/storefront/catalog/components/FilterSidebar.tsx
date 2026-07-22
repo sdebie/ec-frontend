@@ -1,7 +1,7 @@
 import { useState, useEffect, useCallback } from 'react'
+import { CategoryTreeFilter } from './CategoryTreeFilter'
 
 interface FilterSidebarProps {
-  categories: Array<{ id: string; name: string; slug: string }>
   brands: Array<{ id: string; name: string; slug: string }>
   activeFilters: {
     search: string
@@ -14,7 +14,6 @@ interface FilterSidebarProps {
 }
 
 function FilterContent({
-  categories,
   brands,
   activeFilters,
   setFilter,
@@ -62,24 +61,10 @@ function FilterContent({
         />
       </div>
 
-      {/* Category Dropdown */}
+      {/* Category Tree */}
       <div>
-        <label htmlFor="filter-category" className="block text-sm font-medium text-(--sf-text) mb-1">
-          Category
-        </label>
-        <select
-          id="filter-category"
-          value={activeFilters.category}
-          onChange={(e) => setFilter('category', e.target.value)}
-          className="w-full rounded-md border border-(--sf-border) px-3 py-2 text-sm focus:border-(--sf-ring) focus:outline-none focus:ring-1 focus:ring-(--sf-ring)"
-        >
-          <option value="">All Categories</option>
-          {categories.map((cat) => (
-            <option key={cat.id} value={cat.slug}>
-              {cat.name}
-            </option>
-          ))}
-        </select>
+        <span className="block text-sm font-medium text-(--sf-text) mb-1">Category</span>
+        <CategoryTreeFilter activeSlug={activeFilters.category} setFilter={setFilter} />
       </div>
 
       {/* Brand Dropdown */}
