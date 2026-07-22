@@ -130,38 +130,6 @@ type Mutation {
   updateWholesaleCustomer(customer: WholesaleCustomerDtoInput, id: String): WholesaleCustomerDto
 }
 
-type QuoteRequestDetailsDto {
-  company: String
-  "ISO-8601"
-  createdAt: DateTime
-  email: String
-  id: String
-  items: [QuoteRequestItemDto]
-  message: String
-  name: String
-  phone: String
-  status: QuoteRequestStatusEn
-  "ISO-8601"
-  statusChangedAt: DateTime
-}
-
-type QuoteRequestItemDto {
-  productNameSnapshot: String
-  quantity: Int!
-  variantId: String
-  variantSkuSnapshot: String
-}
-
-type QuoteRequestListItemDto {
-  company: String
-  "ISO-8601"
-  createdAt: DateTime
-  id: String
-  itemCount: Int!
-  name: String
-  status: QuoteRequestStatusEn
-}
-
 type OrderDetailRespDto {
   "ISO-8601"
   createdAt: DateTime
@@ -258,10 +226,8 @@ type ProductComparisonDto {
   currentStock: Int
   hasChanges: Boolean!
   imageErrors: String
-  isNewProduct: Boolean!
-  isNewVariant: Boolean!
-  isValidBrand: Boolean!
-  isValidCategory: Boolean!
+  newProduct: Boolean!
+  newVariant: Boolean!
   proposedAttributes: String
   proposedDescription: String
   proposedImages: String
@@ -270,6 +236,8 @@ type ProductComparisonDto {
   proposedStock: Int
   sku: String
   stagedId: String
+  validBrand: Boolean!
+  validCategory: Boolean!
   validationErrors: String
   validationStatus: ProductImportValidationStatusEn
 }
@@ -549,6 +517,38 @@ type Query {
   wholesaleApplicationCount(filterRequest: FilterRequestInput): BigInteger!
 }
 
+type QuoteRequestDetailsDto {
+  company: String
+  "ISO-8601"
+  createdAt: DateTime
+  email: String
+  id: String
+  items: [QuoteRequestItemDto]
+  message: String
+  name: String
+  phone: String
+  status: QuoteRequestStatusEn
+  "ISO-8601"
+  statusChangedAt: DateTime
+}
+
+type QuoteRequestItemDto {
+  productNameSnapshot: String
+  quantity: Int!
+  variantId: String
+  variantSkuSnapshot: String
+}
+
+type QuoteRequestListItemDto {
+  company: String
+  "ISO-8601"
+  createdAt: DateTime
+  id: String
+  itemCount: Int!
+  name: String
+  status: QuoteRequestStatusEn
+}
+
 type SettingsDto {
   countrySettings: [CountrySettingsDto]
   shippingMethods: [ShippingMethodDto]
@@ -582,10 +582,10 @@ type StoreSettingsDto {
 }
 
 type VariantPriceDto {
-  "Whether this price is currently active based on date range"
-  active: Boolean
   "Price ID (UUID as string)"
   id: String
+  "Whether this price is currently active based on date range"
+  isActive: Boolean
   "Price amount"
   price: BigDecimal
   "When this price expires (null = never expires) (ISO-8601)"
@@ -715,15 +715,15 @@ enum OrderStatusEn {
   SYSTEM_CANCELED
 }
 
+enum ProductImportValidationStatusEn {
+  INVALID
+  VALID
+}
+
 enum QuoteRequestStatusEn {
   CLOSED
   IN_PROGRESS
   NEW
-}
-
-enum ProductImportValidationStatusEn {
-  INVALID
-  VALID
 }
 
 enum SortDirection {
@@ -840,12 +840,12 @@ input ProductDtoInput {
 }
 
 input ProductImageDtoInput {
+  "Whether this image is featured"
+  featured: Boolean!
   "Image ID (UUID as string)"
   id: String
   "Image URL"
   imageUrl: String
-  "Whether this image is featured"
-  isFeatured: Boolean!
   "Sort order for display"
   sortOrder: Int
 }
@@ -875,10 +875,10 @@ input ProductVariantDtoInput {
 }
 
 input ShippingMethodDtoInput {
+  active: Boolean!
   baseFee: BigDecimal
   estimatedDays: String
   id: String
-  isActive: Boolean!
   name: String
 }
 
