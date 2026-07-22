@@ -99,7 +99,7 @@ export function QuoteProductSearch() {
           value={term}
           onChange={(e) => setTerm(e.target.value)}
           placeholder="Search products to add..."
-          className="w-full rounded-md border border-(--sf-border) bg-(--sf-surface) py-2 pl-9 pr-3 text-sm text-(--sf-text) placeholder:text-(--sf-muted-text) focus:border-(--sf-ring) focus:outline-none focus:ring-1 focus:ring-(--sf-ring)"
+          className="w-full rounded-md border border-(--sf-border) bg-(--sf-panel) py-2 pl-9 pr-3 text-sm text-(--sf-text) placeholder:text-(--sf-muted-text) focus:border-(--sf-ring) focus:outline-none focus:ring-1 focus:ring-(--sf-ring)"
           aria-label="Search products"
         />
       </div>
