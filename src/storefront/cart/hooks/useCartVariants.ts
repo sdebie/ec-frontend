@@ -5,7 +5,7 @@ import { useCustomerAuthStore } from '@/shared/auth/customerAuthStore'
 import { getDisplayPrice, priceTiersFromEntries } from '@/storefront/catalog/utils/pricing'
 
 interface VariantPrice {
-  active: boolean | null
+  isActive: boolean | null
   id: string
   price: number | null
   priceEndDate: string | null
@@ -50,7 +50,7 @@ const VARIANTS_BY_IDS = gql`
       sku
       status
       prices {
-        active
+        isActive
         id
         price
         priceEndDate
