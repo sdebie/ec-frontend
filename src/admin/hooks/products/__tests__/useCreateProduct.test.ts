@@ -111,7 +111,7 @@ describe('useCreateProduct — real mapping', () => {
         sku: string
         stockQuantity: number
         prices: Array<{ priceType: string; price: string }>
-        images?: Array<{ imageUrl: string; isFeatured: boolean; sortOrder: number }>
+        images?: Array<{ imageUrl: string; featured: boolean; sortOrder: number }>
       }>
     }
 
@@ -126,8 +126,8 @@ describe('useCreateProduct — real mapping', () => {
       { priceType: 'RETAIL_PRICE', price: '49.99' },
     ])
     expect(input.variants[0].images).toEqual([
-      { imageUrl: 'hero.jpg', isFeatured: true, sortOrder: 0 },
-      { imageUrl: 'detail.jpg', isFeatured: false, sortOrder: 1 },
+      { imageUrl: 'hero.jpg', featured: true, sortOrder: 0 },
+      { imageUrl: 'detail.jpg', featured: false, sortOrder: 1 },
     ])
 
     // Variant 1: same mapping, no images (images only on index 0)

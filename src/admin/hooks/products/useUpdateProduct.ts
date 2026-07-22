@@ -30,7 +30,7 @@ interface ProductPayload {
 interface ProductImageDtoInput {
   id?: string
   imageUrl: string
-  isFeatured: boolean
+  featured: boolean
   sortOrder: number
 }
 
@@ -94,7 +94,7 @@ const UPDATE_PRODUCT_INFORMATION = gql`
  * Maps the form's flat ProductPayload to the GraphQL ProductInformationDtoInput shape.
  * - Each variant's `price` → exactly one RETAIL_PRICE entry
  * - Each variant's `stock` → `stockQuantity`
- * - Product images are carried on payload variant index 0 with isFeatured/sortOrder
+ * - Product images are carried on payload variant index 0 with featured/sortOrder
  * - The server determines the actual DB image-owner variant; we do NOT infer it client-side
  */
 function toProductInformationInput(payload: ProductPayload): ProductInformationDtoInput {
@@ -117,7 +117,7 @@ function toProductInformationInput(payload: ProductPayload): ProductInformationD
       variant.images = payload.images.map((imageUrl, imgIndex) => ({
         ...(payload.imageIds?.[imageUrl] ? { id: payload.imageIds[imageUrl] } : {}),
         imageUrl,
-        isFeatured: imgIndex === 0,
+        featured: imgIndex === 0,
         sortOrder: imgIndex,
       }))
     }
