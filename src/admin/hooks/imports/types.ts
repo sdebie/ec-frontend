@@ -30,8 +30,8 @@ export interface ProductComparisonDto {
   validationErrors: string | null
   /** Single message, e.g. "Missing Images: a.jpg, b.jpg"; null when all images exist. */
   imageErrors: string | null
-  isNewProduct: boolean
-  isNewVariant: boolean
+  newProduct: boolean
+  newVariant: boolean
   hasChanges: boolean
   currentName: string | null
   proposedName: string | null

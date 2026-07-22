@@ -27,8 +27,8 @@ export function getValidationStatusColor(status: ValidationStatus): string {
  * Derives the change type label for a product staged row.
  */
 export function deriveChangeType(row: ProductComparisonDto): ChangeType {
-  if (row.isNewProduct) return 'New Product'
-  if (row.isNewVariant) return 'New Variant'
+  if (row.newProduct) return 'New Product'
+  if (row.newVariant) return 'New Variant'
   if (row.hasChanges) return 'Update'
   return 'No Change'
 }
@@ -55,7 +55,7 @@ export function computeProductReviewSummary(rows: ProductComparisonDto[]) {
     total: rows.length,
     valid: rows.filter(r => r.validationStatus === 'VALID').length,
     withErrors: rows.filter(r => r.validationStatus === 'INVALID').length,
-    newProducts: rows.filter(r => r.isNewProduct).length,
-    updates: rows.filter(r => r.hasChanges && !r.isNewProduct && !r.isNewVariant).length,
+    newProducts: rows.filter(r => r.newProduct).length,
+    updates: rows.filter(r => r.hasChanges && !r.newProduct && !r.newVariant).length,
   }
 }

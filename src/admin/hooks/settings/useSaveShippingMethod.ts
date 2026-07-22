@@ -10,7 +10,7 @@ const SAVE_SHIPPING_METHOD = gql`
     saveShippingMethod(methodDto: $methodDto) {
       id
       name
-      isActive: active
+      active
       baseFee
       estimatedDays
     }

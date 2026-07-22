@@ -60,8 +60,8 @@ export function ShippingMethodsPage() {
         header: 'Active',
         cell: ({ row }) => (
           <StatusBadge
-            label={row.original.isActive ? 'Active' : 'Inactive'}
-            color={row.original.isActive ? 'green' : 'gray'}
+            label={row.original.active ? 'Active' : 'Inactive'}
+            color={row.original.active ? 'green' : 'gray'}
           />
         ),
       },

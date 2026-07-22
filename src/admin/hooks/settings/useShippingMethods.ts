@@ -9,7 +9,7 @@ const SHIPPING_METHODS = gql`
     shippingMethods {
       id
       name
-      isActive: active
+      active
       baseFee
       estimatedDays
     }

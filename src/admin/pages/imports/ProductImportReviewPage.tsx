@@ -128,7 +128,7 @@ export default function ProductImportReviewPage() {
         cell: ({ row }) => (
           <span className="text-sm text-(--c-text) flex items-center gap-2">
             {row.original.sku}
-            {row.original.isNewProduct && (
+            {row.original.newProduct && (
               <StatusBadge color="green" label="NEW" className="text-[10px]" />
             )}
           </span>

@@ -9,8 +9,8 @@ import type { ProductComparisonDto, ValidationStatus } from '../types'
  * Property 4: Product review change-type derivation
  *
  * For any ProductComparisonDto, deriveChangeType SHALL return:
- * - 'New Product' when isNewProduct is true (regardless of other flags)
- * - 'New Variant' when isNewVariant is true (and isNewProduct is false)
+ * - 'New Product' when newProduct is true (regardless of other flags)
+ * - 'New Variant' when newVariant is true (and newProduct is false)
  * - 'Update' when hasChanges is true (and neither new flag is true)
  * - 'No Change' otherwise
  *
@@ -20,8 +20,8 @@ import type { ProductComparisonDto, ValidationStatus } from '../types'
 const validationStatusArb: fc.Arbitrary<ValidationStatus> = fc.constantFrom('VALID' as const, 'INVALID' as const)
 
 function buildProductComparisonDto(
-  isNewProduct: boolean,
-  isNewVariant: boolean,
+  newProduct: boolean,
+  newVariant: boolean,
   hasChanges: boolean,
 ): ProductComparisonDto {
   return {
@@ -30,8 +30,8 @@ function buildProductComparisonDto(
     validationStatus: 'VALID',
     validationErrors: null,
     imageErrors: null,
-    isNewProduct,
-    isNewVariant,
+    newProduct,
+    newVariant,
     hasChanges,
     currentName: null,
     proposedName: 'Product',
@@ -47,17 +47,17 @@ function buildProductComparisonDto(
 }
 
 describe('Feature: admin-product-import, Property 4: Product review change-type derivation', () => {
-  it('returns "New Product" when isNewProduct is true, regardless of other flags', () => {
+  it('returns "New Product" when newProduct is true, regardless of other flags', () => {
     fc.assert(
-      fc.property(fc.boolean(), fc.boolean(), (isNewVariant, hasChanges) => {
-        const row = buildProductComparisonDto(true, isNewVariant, hasChanges)
+      fc.property(fc.boolean(), fc.boolean(), (newVariant, hasChanges) => {
+        const row = buildProductComparisonDto(true, newVariant, hasChanges)
         expect(deriveChangeType(row)).toBe('New Product')
       }),
       { numRuns: 100 },
     )
   })
 
-  it('returns "New Variant" when isNewProduct is false and isNewVariant is true, regardless of hasChanges', () => {
+  it('returns "New Variant" when newProduct is false and newVariant is true, regardless of hasChanges', () => {
     fc.assert(
       fc.property(fc.boolean(), (hasChanges) => {
         const row = buildProductComparisonDto(false, true, hasChanges)
@@ -67,7 +67,7 @@ describe('Feature: admin-product-import, Property 4: Product review change-type 
     )
   })
 
-  it('returns "Update" when isNewProduct is false, isNewVariant is false, and hasChanges is true', () => {
+  it('returns "Update" when newProduct is false, newVariant is false, and hasChanges is true', () => {
     fc.assert(
       fc.property(validationStatusArb, (validationStatus) => {
         const row = buildProductComparisonDto(false, false, true)
@@ -91,13 +91,13 @@ describe('Feature: admin-product-import, Property 4: Product review change-type 
 
   it('priority order holds for any combination of boolean flags', () => {
     fc.assert(
-      fc.property(fc.boolean(), fc.boolean(), fc.boolean(), (isNewProduct, isNewVariant, hasChanges) => {
-        const row = buildProductComparisonDto(isNewProduct, isNewVariant, hasChanges)
+      fc.property(fc.boolean(), fc.boolean(), fc.boolean(), (newProduct, newVariant, hasChanges) => {
+        const row = buildProductComparisonDto(newProduct, newVariant, hasChanges)
         const result = deriveChangeType(row)
 
-        if (isNewProduct) {
+        if (newProduct) {
           expect(result).toBe('New Product')
-        } else if (isNewVariant) {
+        } else if (newVariant) {
           expect(result).toBe('New Variant')
         } else if (hasChanges) {
           expect(result).toBe('Update')
