@@ -126,6 +126,54 @@ describe('ContentSplitSection', () => {
         })
     })
 
+    describe('cards (e.g. Mission / Vision)', () => {
+        it('renders titled cards with letter badges and paragraphs in a two-up grid', () => {
+            const sectionWithCards: ContentSplitSectionConfig = {
+                ...baseSection,
+                props: {
+                    title: 'About',
+                    paragraphs: ['Intro paragraph.'],
+                    cards: [
+                        {badge: 'M', title: 'Mission', paragraphs: ['Mission text.']},
+                        {badge: 'V', title: 'Vision', paragraphs: ['Vision text one.', 'Vision text two.']},
+                    ],
+                },
+            }
+            const {container} = renderSplit(sectionWithCards)
+
+            const grid = [...container.querySelectorAll('.grid')].find(g => g.className.includes('sm:grid-cols-2'))
+            expect(grid).toBeInTheDocument()
+            const cards = grid!.querySelectorAll('article')
+            expect(cards).toHaveLength(2)
+
+            const mission = cards[0]
+            expect(mission.querySelector('h3')).toHaveTextContent('Mission')
+            const badge = mission.querySelector('span[aria-hidden]')
+            expect(badge).toHaveTextContent('M')
+            expect(badge?.className).toContain('bg-(--sf-accent)')
+            expect(cards[1].querySelectorAll('p')).toHaveLength(2)
+        })
+
+        it('renders no card grid when cards is absent', () => {
+            const {container} = renderSplit()
+            expect(container.querySelector('article')).not.toBeInTheDocument()
+        })
+
+        it('renders a footnote paragraph under the cards when provided', () => {
+            const sectionWithFootnote: ContentSplitSectionConfig = {
+                ...baseSection,
+                props: {
+                    title: 'About',
+                    paragraphs: ['Intro.'],
+                    cards: [{badge: 'M', title: 'Mission', paragraphs: ['Mission text.']}],
+                    footnote: [{text: 'Closing note under the blocks.'}],
+                },
+            }
+            renderSplit(sectionWithFootnote)
+            expect(screen.getByText('Closing note under the blocks.')).toBeInTheDocument()
+        })
+    })
+
     describe('null-on-empty', () => {
         it('renders nothing when paragraphs is empty', () => {
             const sectionEmpty: ContentSplitSectionConfig = {

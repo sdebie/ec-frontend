@@ -232,10 +232,21 @@ export interface StatsSectionProps {
 
 // --- Content Split section ---
 
+/** Titled card rendered below the paragraphs (e.g. Mission / Vision), with an optional letter badge. */
+export interface ContentSplitCard {
+  /** Short badge text rendered in an accent square beside the title — typically one letter. */
+  badge?: string
+  title: string
+  paragraphs: string[]
+}
+
 export interface ContentSplitSectionProps {
   eyebrow?: string
   title: string
   paragraphs: string[]
+  cards?: ContentSplitCard[]
+  /** Closing note under the cards — same segment shape as BenefitsSectionProps.footnote. */
+  footnote?: BenefitsFootnoteSegment[]
   imageUrl?: string
   imageAlt?: string
   imagePosition?: 'left' | 'right'  // default 'left'

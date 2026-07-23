@@ -1,11 +1,12 @@
 import {useState} from 'react'
+import {Link} from 'react-router-dom'
 import type {ContentSplitSectionConfig} from '@/shared/types/StorefrontConfig'
 import {resolveImageUrl} from '@/shared/utils/imageUrl'
 import {Section} from './shared/Section'
 import {SectionHeading} from './shared/SectionHeading'
 
 export function ContentSplitSection({section}: { section: ContentSplitSectionConfig }) {
-    const {eyebrow, title, paragraphs, imageUrl, imageAlt, imagePosition = 'left'} = section.props
+    const {eyebrow, title, paragraphs, cards, footnote, imageUrl, imageAlt, imagePosition = 'left'} = section.props
 
     const [imageFailed, setImageFailed] = useState(false)
 
@@ -53,6 +54,54 @@ export function ContentSplitSection({section}: { section: ContentSplitSectionCon
                         </p>
                     ))}
                 </div>
+            )}
+
+            {cards && cards.length > 0 && (
+                <div className="mt-8 grid gap-4 sm:grid-cols-2">
+                    {cards.map((card) => (
+                        <article
+                            key={card.title}
+                            className="rounded-lg border border-(--sf-border) bg-(--sf-panel) p-6 shadow-(--sf-shadow-sm)"
+                        >
+                            <div className="flex items-center gap-3">
+                                {card.badge && (
+                                    <span
+                                        aria-hidden="true"
+                                        className="flex h-10 w-10 shrink-0 items-center justify-center rounded-md bg-(--sf-accent) text-lg font-bold text-(--sf-accent-text)"
+                                    >
+                                        {card.badge}
+                                    </span>
+                                )}
+                                <h3 className="text-lg font-semibold text-(--sf-text)">{card.title}</h3>
+                            </div>
+                            <div className="mt-4 space-y-3">
+                                {card.paragraphs.map((paragraph, index) => (
+                                    <p key={index} className="text-sm leading-relaxed text-(--sf-muted-text)">
+                                        {paragraph}
+                                    </p>
+                                ))}
+                            </div>
+                        </article>
+                    ))}
+                </div>
+            )}
+
+            {footnote && footnote.length > 0 && (
+                <p className="mt-6 text-sm leading-relaxed text-(--sf-muted-text)">
+                    {footnote.map((segment, index) =>
+                        segment.to ? (
+                            <Link
+                                key={index}
+                                to={segment.to}
+                                className="font-medium text-(--sf-accent) hover:underline"
+                            >
+                                {segment.text}
+                            </Link>
+                        ) : (
+                            <span key={index}>{segment.text}</span>
+                        )
+                    )}
+                </p>
             )}
         </Section>
     )
