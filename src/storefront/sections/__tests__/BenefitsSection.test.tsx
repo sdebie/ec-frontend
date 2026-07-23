@@ -62,6 +62,38 @@ describe('BenefitsSection', () => {
         })
     })
 
+    describe('grid layout (count-aware — no orphaned card on desktop)', () => {
+        function benefitItems(count: number) {
+            return Array.from({length: count}, (_, i) => ({
+                title: `Benefit ${i + 1}`,
+                description: `Description ${i + 1}`,
+            }))
+        }
+
+        function gridEl(count: number) {
+            const {container} = render(
+                <BenefitsSection section={buildSection({items: benefitItems(count)})}/>,
+            )
+            return container.querySelector('.grid')
+        }
+
+        it('uses 4 desktop columns when the item count divides by 4', () => {
+            expect(gridEl(4)).toHaveClass('sm:grid-cols-2', 'lg:grid-cols-4')
+            expect(gridEl(8)).toHaveClass('lg:grid-cols-4')
+        })
+
+        it('uses 3 desktop columns for counts not divisible by 4', () => {
+            expect(gridEl(3)).toHaveClass('sm:grid-cols-2', 'lg:grid-cols-3')
+            expect(gridEl(6)).toHaveClass('lg:grid-cols-3')
+        })
+
+        it('stays at 2 columns for 2 or fewer items', () => {
+            const el = gridEl(2)
+            expect(el).toHaveClass('sm:grid-cols-2')
+            expect(el).not.toHaveClass('lg:grid-cols-3', 'lg:grid-cols-4')
+        })
+    })
+
     describe('benefit items', () => {
         it('renders all benefit items with title and description', () => {
             render(<BenefitsSection section={buildSection()}/>)

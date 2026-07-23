@@ -23,13 +23,24 @@ const iconMap: Record<string, ComponentType<SVGProps<SVGSVGElement>>> = {
   headphones: Headphones,
 }
 
+/**
+ * Item count is seed-driven and varies per client; the desktop column count
+ * must divide evenly where possible so no card is orphaned on its own row
+ * (4 items in a 3-column grid leaves a stranded card).
+ */
+function gridColsClass(count: number): string {
+  if (count <= 2) return 'sm:grid-cols-2'
+  if (count % 4 === 0) return 'sm:grid-cols-2 lg:grid-cols-4'
+  return 'sm:grid-cols-2 lg:grid-cols-3'
+}
+
 export function BenefitsSection({ section }: { section: BenefitsSectionConfig }) {
   const { title, eyebrow, items } = section.props
 
   return (
     <Section>
       <SectionHeading title={title} eyebrow={eyebrow} />
-      <div className="mt-6 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+      <div className={`mt-6 grid gap-4 ${gridColsClass(items.length)}`}>
         {items.map((item) => {
           const IconComponent = item.icon ? iconMap[item.icon] : undefined
 
