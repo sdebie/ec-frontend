@@ -56,6 +56,7 @@ export function useCheckout() {
       navigate(`/checkout?orderId=${data.orderId}`)
     },
     onError: (err) => {
+      console.error('[Checkout] order submission failed:', err)
       if (err.response?.status === 422) {
         const responseData = err.response.data as CheckoutError422
         setUnavailableVariantIds(responseData.unavailableVariantIds ?? [])

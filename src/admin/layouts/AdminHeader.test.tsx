@@ -32,7 +32,7 @@ describe('AdminHeader', () => {
     useAdminAuthStore.setState({
       isSignedIn: true,
       token: 'test-token',
-      role: 'ADMIN',
+      role: 'SUPER_ADMIN',
       authority: ['SUPER_ADMIN'],
       userName: 'TestUser',
       email: 'test@example.com',
