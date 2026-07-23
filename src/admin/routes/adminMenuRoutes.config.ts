@@ -329,6 +329,21 @@ export const adminMenuRoutes: AdminRouteList = [
         },
     },
     {
+        key: 'admin.storefront.testimonials',
+        path: '/admin/storefront/testimonials',
+        component: lazy(() =>
+            import('@/admin/pages/storefront-config/TestimonialsPage').then((m) => ({default: m.TestimonialsPage}))
+        ),
+        authority: ['SUPER_ADMIN', 'VIEWER'],
+        meta: {
+            label: 'Testimonials',
+            section: 'STOREFRONT',
+            pageBackgroundType: 'plain',
+            pageContainerType: 'contained',
+            icon: 'quote',
+        },
+    },
+    {
         key: 'admin.settings',
         path: '/admin/settings',
         authority: ['SUPER_ADMIN', 'CATALOG_MANAGER', 'ORDER_MANAGER', 'VIEWER'],

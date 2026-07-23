@@ -78,20 +78,10 @@ export interface CategoryPreviewSectionProps {
   items: CategoryPreviewItem[]
 }
 
-export interface TestimonialItem {
-  id: string
-  quote: string
-  name: string
-  role?: string
-  company?: string
-}
-
 export interface TestimonialsSectionProps {
-  title: string
-  subtitle?: string
+  heading?: string
   layout?: 'grid' | 'stacked'
   columns?: 1 | 2 | 3
-  items: TestimonialItem[]
 }
 
 export interface BenefitItem {
