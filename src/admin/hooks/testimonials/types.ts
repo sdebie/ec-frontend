@@ -17,4 +17,4 @@ export interface CreateTestimonialPayload {
     published: boolean
 }
 
-export interface UpdateTestimonialPayload extends CreateTestimonialPayload {}
+export type UpdateTestimonialPayload = CreateTestimonialPayload

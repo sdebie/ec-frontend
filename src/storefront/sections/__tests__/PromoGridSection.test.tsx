@@ -1,4 +1,4 @@
-import {render, screen} from '@testing-library/react'
+import {fireEvent, render, screen} from '@testing-library/react'
 import {MemoryRouter} from 'react-router-dom'
 import {describe, expect, it, vi} from 'vitest'
 import type {PromoGridSectionConfig} from '@/shared/types/StorefrontConfig'
@@ -132,6 +132,26 @@ describe('PromoGridSection', () => {
 
             const articles = container.querySelectorAll('article')
             expect(articles[0]).toHaveClass('lg:col-span-2')
+        })
+
+        it('collapses tile to text-only when image fails to load', () => {
+            const section = buildSection({
+                items: [
+                    {id: 'item-1', title: 'PPE', description: 'Equipment', imageUrl: 'promo/ppe.jpg'},
+                ],
+            })
+            const {container} = renderSection(section)
+
+            // Image initially present
+            const img = container.querySelector('img')
+            expect(img).toBeInTheDocument()
+
+            // Simulate load failure
+            fireEvent.error(img!)
+
+            // After error: no image, tile shows text-only with p-5 class
+            expect(container.querySelector('img')).not.toBeInTheDocument()
+            expect(screen.getByText('PPE')).toBeInTheDocument()
         })
     })
 })

@@ -58,14 +58,14 @@ describe('CategoryPreviewSection', () => {
     })
 
     describe('tiles layout', () => {
-        it('renders a grid container with the default grid-cols-3 class', () => {
+        it('renders a grid container with the default responsive 3-column classes', () => {
             const {container} = renderSection()
             const grid = container.querySelector('.grid')
             expect(grid).toBeInTheDocument()
-            expect(grid).toHaveClass('grid-cols-3')
+            expect(grid).toHaveClass('sm:grid-cols-2', 'lg:grid-cols-3')
         })
 
-        it('renders a grid container with grid-cols matching the columns prop', () => {
+        it('renders a grid container with responsive classes matching the columns prop', () => {
             const section: CategoryPreviewSectionConfig = {
                 ...baseSection,
                 props: {...baseSection.props, columns: 4},
@@ -73,7 +73,44 @@ describe('CategoryPreviewSection', () => {
             const {container} = renderSection(section)
             const grid = container.querySelector('.grid')
             expect(grid).toBeInTheDocument()
-            expect(grid).toHaveClass('grid-cols-4')
+            expect(grid).toHaveClass('sm:grid-cols-2', 'lg:grid-cols-4')
+        })
+
+        it('renders equal-height card links (h-full flex) with full descriptions (no line-clamp)', () => {
+            const {container} = renderSection()
+            const card = container.querySelector('a')
+            expect(card).toHaveClass('h-full', 'flex', 'flex-col')
+            expect(container.querySelector('.line-clamp-2')).not.toBeInTheDocument()
+        })
+
+        it('renders side-image cards (flex-row, left media column) when imagePosition is left', () => {
+            const section: CategoryPreviewSectionConfig = {
+                ...baseSection,
+                props: {
+                    ...baseSection.props,
+                    imagePosition: 'left',
+                    items: [{id: 'c1', label: 'Medical', to: '/products?category=medical', imageSrc: 'storefront/medical.png', description: 'Desc'}],
+                },
+            }
+            const {container} = renderSection(section)
+            const card = container.querySelector('a')
+            expect(card).toHaveClass('flex-row')
+            expect(card).not.toHaveClass('flex-col')
+            const media = card?.querySelector('div')
+            expect(media).toHaveClass('w-24', 'shrink-0', 'border-r')
+        })
+
+        it('applies data-variant and dark-inheritance classes only when variant is dark', () => {
+            const dark: CategoryPreviewSectionConfig = {
+                ...baseSection,
+                props: {...baseSection.props, variant: 'dark'},
+            }
+            const {container: darkC} = renderSection(dark)
+            expect(darkC.querySelector('section')).toHaveAttribute('data-variant', 'dark')
+            expect(darkC.querySelector('a')?.className).toContain('in-data-[variant=dark]:bg-white/5')
+
+            const {container: lightC} = renderSection()
+            expect(lightC.querySelector('section')).not.toHaveAttribute('data-variant')
         })
     })
 

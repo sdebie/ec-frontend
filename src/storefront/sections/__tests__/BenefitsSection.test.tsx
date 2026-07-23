@@ -1,4 +1,5 @@
 import {render, screen} from '@testing-library/react'
+import {MemoryRouter} from 'react-router-dom'
 import {describe, expect, it, vi} from 'vitest'
 import type {BenefitsSectionConfig} from '@/shared/types/StorefrontConfig'
 import {BenefitsSection} from '../BenefitsSection'
@@ -91,6 +92,92 @@ describe('BenefitsSection', () => {
             const el = gridEl(2)
             expect(el).toHaveClass('sm:grid-cols-2')
             expect(el).not.toHaveClass('lg:grid-cols-3', 'lg:grid-cols-4')
+        })
+
+        it('an explicit columns prop overrides the count-derived layout', () => {
+            const {container} = render(
+                <BenefitsSection
+                    section={buildSection({
+                        columns: 2,
+                        items: benefitItems(4),
+                    })}
+                />,
+            )
+            const el = container.querySelector('.grid')
+            expect(el).toHaveClass('sm:grid-cols-2')
+            expect(el).not.toHaveClass('lg:grid-cols-4')
+        })
+    })
+
+    describe('icon placement', () => {
+        it('renders icon and title on one line when iconPlacement is inline', () => {
+            const {container} = render(
+                <BenefitsSection
+                    section={buildSection({
+                        iconPlacement: 'inline',
+                        items: [{title: 'PPE', description: 'Desc', icon: 'hard-hat'}],
+                    })}
+                />,
+            )
+            const row = container.querySelector('.flex.items-center.gap-2')
+            expect(row).toBeInTheDocument()
+            expect(row?.querySelector('svg')).toBeInTheDocument()
+            expect(row?.querySelector('h3')).toHaveTextContent('PPE')
+        })
+
+        it('keeps the stacked icon-above-title layout by default', () => {
+            const {container} = render(
+                <BenefitsSection
+                    section={buildSection({
+                        items: [{title: 'PPE', description: 'Desc', icon: 'hard-hat'}],
+                    })}
+                />,
+            )
+            expect(container.querySelector('.flex.items-center.gap-2')).not.toBeInTheDocument()
+            expect(container.querySelector('svg')?.className.baseVal).toContain('mb-2')
+        })
+    })
+
+    describe('dark variant', () => {
+        it('applies data-variant and dark-inheritance card classes only when variant is dark', () => {
+            const {container: darkC} = render(
+                <BenefitsSection section={buildSection({variant: 'dark'})}/>,
+            )
+            expect(darkC.querySelector('section')).toHaveAttribute('data-variant', 'dark')
+            expect(darkC.querySelector('article')?.className).toContain('in-data-[variant=dark]:bg-white/5')
+
+            const {container: lightC} = render(<BenefitsSection section={buildSection()}/>)
+            expect(lightC.querySelector('section')).not.toHaveAttribute('data-variant')
+        })
+    })
+
+    describe('footnote', () => {
+        it('renders inline text and link segments after the grid', () => {
+            render(
+                <MemoryRouter>
+                    <BenefitsSection
+                        section={buildSection({
+                            footnote: [
+                                {text: 'For enquiries, visit our '},
+                                {text: 'Wholesale', to: '/wholesale-application'},
+                                {text: ' page or '},
+                                {text: 'contact us', to: '/contact-us'},
+                                {text: '.'},
+                            ],
+                        })}
+                    />
+                </MemoryRouter>,
+            )
+
+            const wholesale = screen.getByRole('link', {name: 'Wholesale'})
+            expect(wholesale).toHaveAttribute('href', '/wholesale-application')
+            expect(screen.getByRole('link', {name: 'contact us'})).toHaveAttribute('href', '/contact-us')
+            expect(screen.getByText(/For enquiries, visit our/)).toBeInTheDocument()
+        })
+
+        it('renders no footnote element when the prop is absent', () => {
+            const {container} = render(<BenefitsSection section={buildSection()}/>)
+            expect(container.querySelectorAll('section > div > p')).toHaveLength(0)
         })
     })
 

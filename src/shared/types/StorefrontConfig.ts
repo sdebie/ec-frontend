@@ -74,7 +74,11 @@ export interface CategoryPreviewSectionProps {
   title: string
   subtitle?: string
   eyebrow?: string
+  /** Surface variant — mirrors TestimonialsSectionProps naming. */
+  variant?: 'light' | 'dark'
   layout?: 'tiles' | 'list'
+  /** Tile-card media placement: image above the text (default) or beside it on the left. */
+  imagePosition?: 'top' | 'left'
   columns?: 2 | 3 | 4 | 6
   items: CategoryPreviewItem[]
 }
@@ -93,10 +97,23 @@ export interface BenefitItem {
   icon?: string
 }
 
+/** Inline sentence segment below the grid; segments with `to` render as links. */
+export interface BenefitsFootnoteSegment {
+  text: string
+  to?: string
+}
+
 export interface BenefitsSectionProps {
   title: string
   eyebrow?: string
+  /** Surface variant — mirrors TestimonialsSectionProps naming. */
+  variant?: 'light' | 'dark'
+  /** Where item icons sit relative to the title: above it (default) or on the same line. */
+  iconPlacement?: 'top' | 'inline'
+  /** Explicit desktop column count; absent → derived from the item count (no-orphan rule). */
+  columns?: 2 | 3 | 4
   items: BenefitItem[]
+  footnote?: BenefitsFootnoteSegment[]
 }
 
 export interface CtaSectionProps {
@@ -206,12 +223,17 @@ export interface StatItem {
 
 export interface StatsSectionProps {
   title?: string
+  /** Small uppercase label above the title — rendered only when title is present. */
+  eyebrow?: string
+  /** Surface variant — mirrors TestimonialsSectionProps naming. */
+  variant?: 'light' | 'dark'
   items: StatItem[]
 }
 
 // --- Content Split section ---
 
 export interface ContentSplitSectionProps {
+  eyebrow?: string
   title: string
   paragraphs: string[]
   imageUrl?: string
