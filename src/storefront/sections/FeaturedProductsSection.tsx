@@ -1,9 +1,10 @@
 import type {FeaturedProductsSectionConfig} from '@/shared/types/StorefrontConfig'
 import {ProductCard} from '@/storefront/catalog/components/ProductCard'
 import {useFeaturedShoppingProducts} from '@/storefront/hooks/useFeaturedShoppingProducts'
+import {Section, SectionHeading} from './shared'
 
 export function FeaturedProductsSection({section}: { section: FeaturedProductsSectionConfig }) {
-    const {title, category, limit} = section.props
+    const {title, eyebrow, category, limit} = section.props
 
     const effectiveLimit = limit ?? 8
 
@@ -14,8 +15,8 @@ export function FeaturedProductsSection({section}: { section: FeaturedProductsSe
 
     if (isLoading) {
         return (
-            <section className="py-12 px-6">
-                <h2 className="text-2xl font-bold mb-6 text-(--sf-text)">{title}</h2>
+            <Section>
+                <SectionHeading title={title} eyebrow={eyebrow} />
                 <div className="flex items-stretch gap-4 overflow-x-auto py-2">
                     {Array.from({length: effectiveLimit}).map((_, i) => (
                         <div key={i} className="w-56 shrink-0 animate-pulse">
@@ -25,14 +26,14 @@ export function FeaturedProductsSection({section}: { section: FeaturedProductsSe
                         </div>
                     ))}
                 </div>
-            </section>
+            </Section>
         )
     }
 
     if (isError) {
         return (
-            <section className="py-12 px-6">
-                <h2 className="text-2xl font-bold mb-6 text-(--sf-text)">{title}</h2>
+            <Section>
+                <SectionHeading title={title} eyebrow={eyebrow} />
                 <div className="text-center py-8">
                     <p className="text-red-600 mb-4">Failed to load featured products.</p>
                     <button
@@ -43,7 +44,7 @@ export function FeaturedProductsSection({section}: { section: FeaturedProductsSe
                         Try again
                     </button>
                 </div>
-            </section>
+            </Section>
         )
     }
 
@@ -52,8 +53,8 @@ export function FeaturedProductsSection({section}: { section: FeaturedProductsSe
     }
 
     return (
-        <section className="py-12 px-6">
-            <h2 className="text-2xl font-bold mb-6 text-(--sf-text)">{title}</h2>
+        <Section>
+            <SectionHeading title={title} eyebrow={eyebrow} />
             <div className="flex items-stretch gap-4 overflow-x-auto py-2">
                 {products.map((product) => (
                     <div key={product.id} className="w-56 shrink-0">
@@ -61,6 +62,6 @@ export function FeaturedProductsSection({section}: { section: FeaturedProductsSe
                     </div>
                 ))}
             </div>
-        </section>
+        </Section>
     )
 }

@@ -32,6 +32,31 @@ function renderSection(section: CategoryPreviewSectionConfig = baseSection) {
 }
 
 describe('CategoryPreviewSection', () => {
+    describe('Section frame', () => {
+        it('renders inside a <section> element with standardized rhythm classes', () => {
+            const {container} = renderSection()
+            const sectionEl = container.querySelector('section')
+            expect(sectionEl).toBeInTheDocument()
+            expect(sectionEl).toHaveClass('py-12', 'px-6', 'sm:px-8')
+        })
+
+        it('renders an inner container with mx-auto and max-w-5xl', () => {
+            const {container} = renderSection()
+            const sectionEl = container.querySelector('section')
+            const inner = sectionEl?.firstElementChild
+            expect(inner).toHaveClass('mx-auto', 'max-w-5xl')
+        })
+    })
+
+    describe('SectionHeading', () => {
+        it('renders title as an h2 with text-3xl font-bold via SectionHeading', () => {
+            renderSection()
+            const heading = screen.getByRole('heading', {level: 2})
+            expect(heading).toHaveTextContent('Shop by Category')
+            expect(heading).toHaveClass('text-3xl', 'font-bold')
+        })
+    })
+
     describe('tiles layout', () => {
         it('renders a grid container with the default grid-cols-3 class', () => {
             const {container} = renderSection()

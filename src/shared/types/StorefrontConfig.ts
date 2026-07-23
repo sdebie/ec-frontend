@@ -73,24 +73,29 @@ export interface CategoryPreviewItem {
 export interface CategoryPreviewSectionProps {
   title: string
   subtitle?: string
+  eyebrow?: string
   layout?: 'tiles' | 'list'
   columns?: 2 | 3 | 4 | 6
   items: CategoryPreviewItem[]
 }
 
 export interface TestimonialsSectionProps {
-  heading?: string
-  layout?: 'grid' | 'stacked'
+  title?: string
+  eyebrow?: string
+  variant?: 'light' | 'dark'
+  layout?: 'grid' | 'stacked' | 'carousel'
   columns?: 1 | 2 | 3
 }
 
 export interface BenefitItem {
   title: string
   description: string
+  icon?: string
 }
 
 export interface BenefitsSectionProps {
   title: string
+  eyebrow?: string
   items: BenefitItem[]
 }
 
@@ -110,6 +115,7 @@ export interface NewsletterSectionProps {
   title: string
   submitLabel: string
   description?: string
+  eyebrow?: string
   placeholder?: string
   legalText?: string
   secondaryLink?: StorefrontActionLink
@@ -121,12 +127,14 @@ export interface PromoGridItem {
   title: string
   description?: string
   eyebrow?: string
+  imageUrl?: string
   cta?: StorefrontActionLink
 }
 
 export interface PromoGridSectionProps {
   title: string
   subtitle?: string
+  eyebrow?: string
   layout?: 'cards' | 'feature-first'
   columns?: 2 | 3 | 4
   items: PromoGridItem[]
@@ -134,6 +142,7 @@ export interface PromoGridSectionProps {
 
 export interface FeaturedProductsSectionProps {
   title: string
+  eyebrow?: string
   category?: string
   limit?: number
 }
@@ -148,14 +157,16 @@ export interface AccreditorItem {
 }
 
 export interface AccreditorsSectionProps {
-  heading?: string
+  title?: string
+  eyebrow?: string
   items: AccreditorItem[]
 }
 
 // --- Brands section ---
 
 export interface BrandsSectionProps {
-  heading?: string
+  title?: string
+  eyebrow?: string
   limit?: number
 }
 
@@ -181,6 +192,7 @@ export interface CategoryShowcaseSectionProps {
 
 export interface SaleProductsSectionProps {
   title?: string
+  eyebrow?: string
   limit?: number
   category?: string
 }

@@ -2,6 +2,7 @@ import {Link} from 'react-router-dom'
 import {cn} from '@/shared/utils/cn'
 import {resolveImageUrl} from '@/shared/utils/imageUrl'
 import type {CategoryPreviewSectionConfig} from '@/shared/types/StorefrontConfig'
+import {Section, SectionHeading} from './shared'
 
 const gridColsClass: Record<2 | 3 | 4 | 6, string> = {
     2: 'grid-cols-2',
@@ -14,17 +15,15 @@ export function CategoryPreviewSection({section}: { section: CategoryPreviewSect
     const {
         title,
         subtitle,
+        eyebrow,
         layout = 'tiles',
         columns = 3,
         items,
     } = section.props
 
     return (
-        <section className="px-6 py-12">
-            <h2 className="text-2xl font-semibold text-(--sf-text)">{title}</h2>
-            {subtitle && (
-                <p className="mt-2 text-(--sf-muted-text)">{subtitle}</p>
-            )}
+        <Section>
+            <SectionHeading title={title} subtitle={subtitle} eyebrow={eyebrow} />
 
             {layout === 'list' ? (
                 <div className="mt-6 flex flex-col divide-y divide-(--sf-border)">
@@ -80,6 +79,6 @@ export function CategoryPreviewSection({section}: { section: CategoryPreviewSect
                     ))}
                 </div>
             )}
-        </section>
+        </Section>
     )
 }

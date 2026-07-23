@@ -23,8 +23,54 @@ function buildSection(overrides: Partial<AccreditorsSectionConfig['props']> = {}
 }
 
 describe('AccreditorsSection', () => {
+    describe('Section frame', () => {
+        it('renders inside a <section> with standardized rhythm classes', () => {
+            const section = buildSection({title: 'Accreditations'})
+            const {container} = render(<AccreditorsSection section={section}/>)
+
+            const sectionEl = container.querySelector('section')
+            expect(sectionEl).toBeInTheDocument()
+            expect(sectionEl).toHaveClass('py-12', 'px-6', 'sm:px-8')
+        })
+
+        it('renders an inner container with mx-auto and max-w-5xl', () => {
+            const section = buildSection({title: 'Accreditations'})
+            const {container} = render(<AccreditorsSection section={section}/>)
+
+            const sectionEl = container.querySelector('section')
+            const inner = sectionEl?.firstElementChild
+            expect(inner).toHaveClass('mx-auto', 'max-w-5xl')
+        })
+    })
+
+    describe('SectionHeading', () => {
+        it('renders title as an h2 with text-3xl font-bold via SectionHeading', () => {
+            const section = buildSection({title: 'Our Accreditations'})
+            render(<AccreditorsSection section={section}/>)
+
+            const heading = screen.getByRole('heading', {level: 2})
+            expect(heading).toHaveTextContent('Our Accreditations')
+            expect(heading).toHaveClass('text-3xl', 'font-bold')
+        })
+
+        it('renders eyebrow when provided', () => {
+            const section = buildSection({title: 'Accreditations', eyebrow: 'Certified & Compliant'})
+            render(<AccreditorsSection section={section}/>)
+
+            expect(screen.getByText('Certified & Compliant')).toBeInTheDocument()
+            expect(screen.getByText('Certified & Compliant')).toHaveClass('uppercase', 'tracking-widest')
+        })
+
+        it('does not render heading when title is absent', () => {
+            const section = buildSection({items: [{id: '1', name: 'SABS', logoUrl: 'accreditors/sabs.png'}]})
+            render(<AccreditorsSection section={section}/>)
+
+            expect(screen.queryByRole('heading', {level: 2})).not.toBeInTheDocument()
+        })
+    })
+
     it('renders heading when provided', () => {
-        const section = buildSection({heading: 'Our Accreditations'})
+        const section = buildSection({title: 'Our Accreditations'})
         render(<AccreditorsSection section={section}/>)
 
         expect(screen.getByRole('heading', {level: 2})).toHaveTextContent('Our Accreditations')
@@ -113,7 +159,7 @@ describe('AccreditorsSection', () => {
     })
 
     it('returns null when items is empty and heading is provided', () => {
-        const section = buildSection({items: [], heading: 'Accreditations'})
+        const section = buildSection({items: [], title: 'Accreditations'})
         const {container} = render(<AccreditorsSection section={section}/>)
 
         expect(container.innerHTML).toBe('')

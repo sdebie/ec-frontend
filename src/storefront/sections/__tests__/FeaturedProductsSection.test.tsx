@@ -98,6 +98,37 @@ describe('FeaturedProductsSection', () => {
         vi.clearAllMocks()
     })
 
+    describe('Section frame', () => {
+        it('renders inside a <section> with standardized rhythm classes', () => {
+            mockedRequest.mockReturnValue(new Promise(() => {}))
+
+            const {container} = renderComponent()
+            const sectionEl = container.querySelector('section')
+            expect(sectionEl).toBeInTheDocument()
+            expect(sectionEl).toHaveClass('py-12', 'px-6', 'sm:px-8')
+        })
+
+        it('renders an inner container with mx-auto and max-w-5xl', () => {
+            mockedRequest.mockReturnValue(new Promise(() => {}))
+
+            const {container} = renderComponent()
+            const sectionEl = container.querySelector('section')
+            const inner = sectionEl?.firstElementChild
+            expect(inner).toHaveClass('mx-auto', 'max-w-5xl')
+        })
+    })
+
+    describe('SectionHeading', () => {
+        it('renders title as an h2 with text-3xl font-bold via SectionHeading', () => {
+            mockedRequest.mockReturnValue(new Promise(() => {}))
+
+            renderComponent()
+            const heading = screen.getByRole('heading', {level: 2})
+            expect(heading).toHaveTextContent('Featured Products')
+            expect(heading).toHaveClass('text-3xl', 'font-bold')
+        })
+    })
+
     it('renders skeleton cards matching limit count during loading state', () => {
         mockedRequest.mockReturnValue(new Promise(() => {
         })) // Never resolves — stays in loading

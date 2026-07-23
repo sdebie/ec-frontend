@@ -1,6 +1,7 @@
 import {useState} from 'react'
 import type {AccreditorsSectionConfig} from '@/shared/types/StorefrontConfig'
 import {resolveImageUrl} from '@/shared/utils/imageUrl'
+import {Section, SectionHeading} from './shared'
 
 interface AccreditorTileProps {
     name: string
@@ -48,16 +49,14 @@ function AccreditorTile({name, logoUrl, url}: AccreditorTileProps) {
 }
 
 export function AccreditorsSection({section}: { section: AccreditorsSectionConfig }) {
-    const {heading, items} = section.props
+    const {title, eyebrow, items} = section.props
 
     if (items.length === 0) return null
 
     return (
-        <section className="py-12 px-6 sm:px-8">
-            {heading && (
-                <h2 className="mb-6 text-2xl font-semibold">{heading}</h2>
-            )}
-            <div className="mx-auto flex max-w-5xl flex-wrap items-center justify-center gap-4 sm:gap-5">
+        <Section>
+            {title && <SectionHeading title={title} eyebrow={eyebrow} />}
+            <div className="flex flex-wrap items-center justify-center gap-4 sm:gap-5">
                 {items.map((item) => (
                     <AccreditorTile
                         key={item.id}
@@ -67,6 +66,6 @@ export function AccreditorsSection({section}: { section: AccreditorsSectionConfi
                     />
                 ))}
             </div>
-        </section>
+        </Section>
     )
 }

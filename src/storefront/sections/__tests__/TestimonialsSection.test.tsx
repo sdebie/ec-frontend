@@ -1,10 +1,8 @@
-import { beforeEach, describe, expect, it, vi } from 'vitest'
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import { render, screen } from '@testing-library/react'
+import * as fc from 'fast-check'
 
-// Mock the hook at its real import path
-vi.mock('@/storefront/hooks/useTestimonials', () => ({
-  useTestimonials: vi.fn(),
-}))
+vi.mock('@/storefront/hooks/useTestimonials')
 
 import { useTestimonials } from '@/storefront/hooks/useTestimonials'
 import { TestimonialsSection } from '../TestimonialsSection'
@@ -12,23 +10,34 @@ import type { TestimonialsSectionConfig } from '@/shared/types/StorefrontConfig'
 
 const mockedUseTestimonials = vi.mocked(useTestimonials)
 
-const defaultSection: TestimonialsSectionConfig = {
-  id: 'testimonials-1',
-  type: 'testimonials',
-  props: {
-    heading: 'Customer Reviews',
-    layout: 'grid',
-    columns: 3,
-  },
-}
+// ResizeObserver is not available in jsdom — mock it globally
+let originalResizeObserver: typeof ResizeObserver
+beforeEach(() => {
+  originalResizeObserver = globalThis.ResizeObserver
+  globalThis.ResizeObserver = class MockResizeObserver {
+    observe() {}
+    unobserve() {}
+    disconnect() {}
+  } as unknown as typeof ResizeObserver
+})
+afterEach(() => {
+  globalThis.ResizeObserver = originalResizeObserver
+})
 
 const mockTestimonials = [
-  { id: '1', quote: 'Excellent service and products', authorName: 'John Smith', authorTitle: 'CEO, Test Corp' },
-  { id: '2', quote: 'Would recommend to anyone', authorName: 'Jane Doe', authorTitle: null },
+  { id: '1', quote: 'Great service!', authorName: 'John Doe', authorTitle: 'CEO' },
+  { id: '2', quote: 'Fast delivery.', authorName: 'Jane Smith', authorTitle: null },
+  { id: '3', quote: 'Excellent products.', authorName: 'Bob Jones', authorTitle: 'Manager' },
 ]
 
-function renderSection(section: TestimonialsSectionConfig = defaultSection) {
-  return render(<TestimonialsSection section={section} />)
+function makeSection(
+  props: Partial<TestimonialsSectionConfig['props']> = {},
+): TestimonialsSectionConfig {
+  return {
+    id: 'testimonials-1',
+    type: 'testimonials',
+    props: { title: 'Customer Reviews', layout: 'grid', columns: 3, ...props },
+  }
 }
 
 describe('TestimonialsSection', () => {
@@ -36,105 +45,271 @@ describe('TestimonialsSection', () => {
     vi.clearAllMocks()
   })
 
-  it('renders skeleton pulse placeholders while loading', () => {
-    mockedUseTestimonials.mockReturnValue({
-      data: undefined,
-      isLoading: true,
-      isError: false,
-    } as any)
-
-    const { container } = renderSection()
-    const skeletons = container.querySelectorAll('.animate-pulse')
-    expect(skeletons.length).toBeGreaterThan(0)
-  })
-
-  it('returns null when data is empty', () => {
-    mockedUseTestimonials.mockReturnValue({
-      data: [],
-      isLoading: false,
-      isError: false,
-    } as any)
-
-    const { container } = renderSection()
-    expect(container.innerHTML).toBe('')
-  })
-
-  it('returns null on error', () => {
-    mockedUseTestimonials.mockReturnValue({
-      data: undefined,
-      isLoading: false,
-      isError: true,
-    } as any)
-
-    const { container } = renderSection()
-    expect(container.innerHTML).toBe('')
-  })
-
-  it('renders testimonials from API data with heading', () => {
+  /**
+   * Validates: Requirements 6.2, 6.3, 6.4
+   *
+   * Property: all layout × variant combinations render without throwing,
+   * and dark classes only appear under variant="dark".
+   */
+  it('renders without error for all layout × variant combinations (fast-check)', () => {
     mockedUseTestimonials.mockReturnValue({
       data: mockTestimonials,
       isLoading: false,
       isError: false,
     } as any)
 
-    renderSection()
+    fc.assert(
+      fc.property(
+        fc.constantFrom('grid', 'stacked', 'carousel'),
+        fc.constantFrom('light', 'dark', undefined),
+        (layout, variant) => {
+          const section = makeSection({
+            layout: layout as 'grid' | 'stacked' | 'carousel',
+            variant: variant as 'light' | 'dark' | undefined,
+          })
+          const { container, unmount } = render(
+            <TestimonialsSection section={section} />,
+          )
 
-    expect(screen.getByText('Customer Reviews')).toBeInTheDocument()
-    expect(screen.getByText(/Excellent service and products/)).toBeInTheDocument()
-    expect(screen.getByText(/Would recommend to anyone/)).toBeInTheDocument()
-    expect(screen.getByText(/John Smith/)).toBeInTheDocument()
-    expect(screen.getByText(/Jane Doe/)).toBeInTheDocument()
-    expect(screen.getByText(/CEO, Test Corp/)).toBeInTheDocument()
+          // Should not throw — rendered something
+          expect(container.innerHTML).not.toBe('')
+
+          // Dark variant assertion: data-variant="dark" only present when variant is "dark"
+          const sectionEl = container.querySelector('section')
+          if (variant === 'dark') {
+            expect(sectionEl?.getAttribute('data-variant')).toBe('dark')
+          } else {
+            expect(sectionEl?.getAttribute('data-variant')).toBeNull()
+          }
+
+          unmount()
+        },
+      ),
+      { numRuns: 30 },
+    )
   })
 
-  it('uses default heading "Testimonials" when heading prop is absent', () => {
-    mockedUseTestimonials.mockReturnValue({
-      data: mockTestimonials,
-      isLoading: false,
-      isError: false,
-    } as any)
+  describe('carousel layout', () => {
+    beforeEach(() => {
+      mockedUseTestimonials.mockReturnValue({
+        data: mockTestimonials,
+        isLoading: false,
+        isError: false,
+      } as any)
+    })
 
-    const sectionNoHeading: TestimonialsSectionConfig = {
-      id: 'testimonials-1',
-      type: 'testimonials',
-      props: {},
-    }
+    it('renders a role="region" element with aria-label "Testimonials"', () => {
+      const section = makeSection({ layout: 'carousel' })
+      render(<TestimonialsSection section={section} />)
 
-    renderSection(sectionNoHeading)
+      const region = screen.getByRole('region', { name: 'Testimonials' })
+      expect(region).toBeInTheDocument()
+    })
 
-    expect(screen.getByText('Testimonials')).toBeInTheDocument()
+    it('renders cards inside snap-aligned cells', () => {
+      const section = makeSection({ layout: 'carousel' })
+      const { container } = render(<TestimonialsSection section={section} />)
+
+      const snapCells = container.querySelectorAll('.snap-start')
+      expect(snapCells.length).toBe(mockTestimonials.length)
+    })
   })
 
-  it('renders in stacked layout when layout prop is stacked', () => {
-    mockedUseTestimonials.mockReturnValue({
-      data: mockTestimonials,
-      isLoading: false,
-      isError: false,
-    } as any)
+  describe('grid and stacked layouts', () => {
+    beforeEach(() => {
+      mockedUseTestimonials.mockReturnValue({
+        data: mockTestimonials,
+        isLoading: false,
+        isError: false,
+      } as any)
+    })
 
-    const stackedSection: TestimonialsSectionConfig = {
-      id: 'testimonials-1',
-      type: 'testimonials',
-      props: { layout: 'stacked' },
-    }
+    it('grid renders items in a grid with column classes', () => {
+      const section = makeSection({ layout: 'grid', columns: 3 })
+      const { container } = render(<TestimonialsSection section={section} />)
 
-    const { container } = renderSection(stackedSection)
-    const grid = container.querySelector('.grid-cols-1')
-    expect(grid).toBeInTheDocument()
+      const grid = container.querySelector('.grid-cols-3')
+      expect(grid).toBeInTheDocument()
+    })
+
+    it('stacked renders in grid-cols-1', () => {
+      const section = makeSection({ layout: 'stacked' })
+      const { container } = render(<TestimonialsSection section={section} />)
+
+      const grid = container.querySelector('.grid-cols-1')
+      expect(grid).toBeInTheDocument()
+    })
   })
 
-  it('does not render authorTitle when it is null', () => {
-    mockedUseTestimonials.mockReturnValue({
-      data: [{ id: '1', quote: 'Great', authorName: 'Bob', authorTitle: null }],
-      isLoading: false,
-      isError: false,
-    } as any)
+  describe('card content', () => {
+    beforeEach(() => {
+      mockedUseTestimonials.mockReturnValue({
+        data: mockTestimonials,
+        isLoading: false,
+        isError: false,
+      } as any)
+    })
 
-    renderSection()
+    it('renders quote text in blockquote elements', () => {
+      const section = makeSection()
+      const { container } = render(<TestimonialsSection section={section} />)
 
-    expect(screen.getByText(/Bob/)).toBeInTheDocument()
-    // Should only show "Bob" without a comma separator
-    const authorEl = screen.getByText('Bob')
-    expect(authorEl.textContent).not.toContain(',')
+      const blockquotes = container.querySelectorAll('blockquote')
+      expect(blockquotes).toHaveLength(mockTestimonials.length)
+      expect(blockquotes[0].textContent).toContain('Great service!')
+    })
+
+    it('renders author name', () => {
+      const section = makeSection()
+      render(<TestimonialsSection section={section} />)
+
+      expect(screen.getByText(/John Doe/)).toBeInTheDocument()
+      expect(screen.getByText(/Jane Smith/)).toBeInTheDocument()
+      expect(screen.getByText(/Bob Jones/)).toBeInTheDocument()
+    })
+
+    it('renders author title when present', () => {
+      const section = makeSection()
+      render(<TestimonialsSection section={section} />)
+
+      expect(screen.getByText(/CEO/)).toBeInTheDocument()
+      expect(screen.getByText(/Manager/)).toBeInTheDocument()
+    })
+
+    it('does not render authorTitle separator when authorTitle is null', () => {
+      mockedUseTestimonials.mockReturnValue({
+        data: [{ id: '2', quote: 'Fast delivery.', authorName: 'Jane Smith', authorTitle: null }],
+        isLoading: false,
+        isError: false,
+      } as any)
+
+      const section = makeSection()
+      render(<TestimonialsSection section={section} />)
+
+      const authorEl = screen.getByText('Jane Smith')
+      expect(authorEl.textContent).not.toContain(',')
+    })
+  })
+
+  describe('no stars', () => {
+    it('does not render any star glyph or star-related icon in any layout/variant combination', () => {
+      mockedUseTestimonials.mockReturnValue({
+        data: mockTestimonials,
+        isLoading: false,
+        isError: false,
+      } as any)
+
+      const layouts = ['grid', 'stacked', 'carousel'] as const
+      const variants = ['light', 'dark', undefined] as const
+
+      for (const layout of layouts) {
+        for (const variant of variants) {
+          const section = makeSection({ layout, variant })
+          const { container, unmount } = render(
+            <TestimonialsSection section={section} />,
+          )
+
+          const html = container.innerHTML
+          // No star glyphs
+          expect(html).not.toContain('★')
+          expect(html).not.toContain('☆')
+          expect(html).not.toContain('⭐')
+          // No star SVG/icon references (word boundary to avoid false positives like "snap-start")
+          expect(html).not.toMatch(/\bstar\b/i)
+
+          unmount()
+        }
+      }
+    })
+  })
+
+  describe('null on empty/error', () => {
+    it('returns null when testimonials array is empty', () => {
+      mockedUseTestimonials.mockReturnValue({
+        data: [],
+        isLoading: false,
+        isError: false,
+      } as any)
+
+      const { container } = render(
+        <TestimonialsSection section={makeSection()} />,
+      )
+      expect(container.innerHTML).toBe('')
+    })
+
+    it('returns null when hook errors', () => {
+      mockedUseTestimonials.mockReturnValue({
+        data: undefined,
+        isLoading: false,
+        isError: true,
+      } as any)
+
+      const { container } = render(
+        <TestimonialsSection section={makeSection()} />,
+      )
+      expect(container.innerHTML).toBe('')
+    })
+
+    it('returns null when data is undefined', () => {
+      mockedUseTestimonials.mockReturnValue({
+        data: undefined,
+        isLoading: false,
+        isError: false,
+      } as any)
+
+      const { container } = render(
+        <TestimonialsSection section={makeSection()} />,
+      )
+      expect(container.innerHTML).toBe('')
+    })
+  })
+
+  describe('loading skeleton', () => {
+    it('shows skeleton with animate-pulse when isLoading', () => {
+      mockedUseTestimonials.mockReturnValue({
+        data: undefined,
+        isLoading: true,
+        isError: false,
+      } as any)
+
+      const { container } = render(
+        <TestimonialsSection section={makeSection()} />,
+      )
+      const skeletons = container.querySelectorAll('.animate-pulse')
+      expect(skeletons.length).toBeGreaterThan(0)
+    })
+
+    it('renders skeleton inside a Section with the correct variant', () => {
+      mockedUseTestimonials.mockReturnValue({
+        data: undefined,
+        isLoading: true,
+        isError: false,
+      } as any)
+
+      const { container } = render(
+        <TestimonialsSection section={makeSection({ variant: 'dark' })} />,
+      )
+      const sectionEl = container.querySelector('section')
+      expect(sectionEl?.getAttribute('data-variant')).toBe('dark')
+    })
+  })
+
+  describe('title default', () => {
+    it('uses "Testimonials" as fallback title when title prop is absent', () => {
+      mockedUseTestimonials.mockReturnValue({
+        data: mockTestimonials,
+        isLoading: false,
+        isError: false,
+      } as any)
+
+      const section: TestimonialsSectionConfig = {
+        id: 'testimonials-1',
+        type: 'testimonials',
+        props: {},
+      }
+
+      render(<TestimonialsSection section={section} />)
+      expect(screen.getByText('Testimonials')).toBeInTheDocument()
+    })
   })
 })

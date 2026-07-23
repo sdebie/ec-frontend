@@ -77,7 +77,7 @@ describe('CtaSection', () => {
 
         const eyebrowEl = screen.getByText('Business & Wholesale')
         expect(eyebrowEl).toBeInTheDocument()
-        // Eyebrow uses uppercase tracking-widest classes
+        // Eyebrow uses uppercase tracking-widestst classes
         expect(eyebrowEl).toHaveClass('uppercase', 'tracking-widest')
         // Styled with --sf-accent-text token
         expect(eyebrowEl).toHaveStyle({color: 'var(--sf-accent-text)'})
@@ -171,7 +171,7 @@ describe('CtaSection', () => {
         // Only the primary CTA and two secondary links should render
         const links = screen.getAllByRole('link')
         expect(links).toHaveLength(3) // primary + 2 secondaryLinks
-        // No element with uppercase tracking-widest (eyebrow)
+        // No element with uppercase tracking-widestst (eyebrow)
         expect(screen.queryByText(/Business/)).not.toBeInTheDocument()
     })
 })
