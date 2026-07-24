@@ -3,10 +3,26 @@ import {ChevronLeft, ChevronRight} from 'lucide-react'
 
 interface CarouselProps {
     ariaLabel: string
+    /** Whole cards visible per view at desktop width (default 3). */
+    perView?: 2 | 3 | 4
+    /**
+     * 'gutter' (default): arrows sit outside the deck at xl+ (needs the section
+     * gutter to be free). 'overlay': arrows always overlay the deck edges — use
+     * when content flanks the deck (e.g. a showcase side image).
+     */
+    arrowPlacement?: 'gutter' | 'overlay'
     children: React.ReactNode
 }
 
-export function Carousel({ariaLabel, children}: CarouselProps) {
+// Cell widths are exact fractions of the viewport minus the gaps (gap-6 =
+// 1.5rem), so the desktop view shows precisely `perView` whole cards.
+const CELL_BASIS: Record<2 | 3 | 4, string> = {
+    2: 'w-[85%] md:w-[calc((100%-1.5rem)/2)]',
+    3: 'w-[85%] md:w-[calc((100%-1.5rem)/2)] lg:w-[calc((100%-3rem)/3)]',
+    4: 'w-[85%] md:w-[calc((100%-1.5rem)/2)] lg:w-[calc((100%-4.5rem)/4)]',
+}
+
+export function Carousel({ariaLabel, perView = 3, arrowPlacement = 'gutter', children}: CarouselProps) {
     const scrollRef = useRef<HTMLDivElement>(null)
     const [showButtons, setShowButtons] = useState(false)
 
@@ -50,12 +66,10 @@ export function Carousel({ariaLabel, children}: CarouselProps) {
                 ref={scrollRef}
                 className="flex gap-6 overflow-x-auto snap-x snap-mandatory scroll-smooth [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]"
             >
-                {/* Cell widths are exact fractions of the viewport minus the gaps
-                    (gap-6 = 1.5rem), so lg shows precisely three whole cards. */}
                 {React.Children.map(children, (child, index) => (
                     <div
                         key={index}
-                        className="flex snap-start shrink-0 w-[85%] md:w-[calc((100%-1.5rem)/2)] lg:w-[calc((100%-3rem)/3)]"
+                        className={`flex snap-start shrink-0 ${CELL_BASIS[perView]}`}
                     >
                         {child}
                     </div>
@@ -72,7 +86,7 @@ export function Carousel({ariaLabel, children}: CarouselProps) {
                         type="button"
                         aria-label="Previous"
                         onClick={scrollPrev}
-                        className="absolute left-2 xl:-left-14 top-1/2 -translate-y-1/2 rounded-full bg-(--sf-accent) p-2 text-white shadow-md hover:opacity-90 transition-opacity"
+                        className={`absolute left-2 top-1/2 -translate-y-1/2 rounded-full bg-(--sf-accent) p-2 text-white shadow-md hover:opacity-90 transition-opacity ${arrowPlacement === 'gutter' ? 'xl:-left-14' : ''}`}
                     >
                         <ChevronLeft className="h-5 w-5"/>
                     </button>
@@ -80,7 +94,7 @@ export function Carousel({ariaLabel, children}: CarouselProps) {
                         type="button"
                         aria-label="Next"
                         onClick={scrollNext}
-                        className="absolute right-2 xl:-right-14 top-1/2 -translate-y-1/2 rounded-full bg-(--sf-accent) p-2 text-white shadow-md hover:opacity-90 transition-opacity"
+                        className={`absolute right-2 top-1/2 -translate-y-1/2 rounded-full bg-(--sf-accent) p-2 text-white shadow-md hover:opacity-90 transition-opacity ${arrowPlacement === 'gutter' ? 'xl:-right-14' : ''}`}
                     >
                         <ChevronRight className="h-5 w-5"/>
                     </button>

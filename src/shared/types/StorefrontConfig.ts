@@ -178,6 +178,12 @@ export interface FeaturedProductsSectionProps {
   eyebrow?: string
   /** Surface variant — mirrors TestimonialsSectionProps naming. */
   variant?: 'light' | 'dark'
+  /** 'row' (default): free-scrolling strip. 'carousel': snap deck with arrows. */
+  layout?: 'row' | 'carousel'
+  /** Whole cards visible per carousel view at desktop width (carousel layout only; default 3). */
+  columns?: 2 | 3 | 4
+  /** Label rendered as an accent pill on each card (e.g. "Best Seller"). */
+  badgeLabel?: string
   category?: string
   limit?: number
 }
@@ -202,6 +208,8 @@ export interface AccreditorsSectionProps {
 export interface BrandsSectionProps {
   title?: string
   eyebrow?: string
+  /** Surface variant — mirrors TestimonialsSectionProps naming. */
+  variant?: 'light' | 'dark'
   limit?: number
 }
 
@@ -211,6 +219,10 @@ export interface CategoryShowcaseSectionProps {
   title: string
   categorySlug: string
   themeColor: string
+  /** 'row' (default): free-scrolling strip. 'carousel': snap deck with overlay arrows. */
+  layout?: 'row' | 'carousel'
+  /** Whole cards visible per carousel view at desktop width (carousel layout only; default 3). */
+  columns?: 2 | 3 | 4
   /**
    * Optional full CSS `background` value (typically a `linear-gradient(...)` string)
    * that overrides the themeColor-derived gradient. Lets each row carry its own

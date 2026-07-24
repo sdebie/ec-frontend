@@ -39,11 +39,11 @@ export function BrandsSection({section}: { section: BrandsSectionConfig }) {
     if (isLoading && brands.length === 0) return null
     if (brands.length === 0) return null
 
-    const {title, eyebrow, limit} = section.props
+    const {title, eyebrow, variant, limit} = section.props
     const displayBrands = limit ? brands.slice(0, limit) : brands
 
     return (
-        <Section className="py-6">
+        <Section variant={variant} className="py-6">
             {title && <SectionHeading title={title} eyebrow={eyebrow} className="mb-4" />}
             <div
                 className="grid grid-cols-3 gap-3 sm:grid-cols-4 sm:gap-4 md:grid-cols-6 lg:gap-3">

@@ -3,6 +3,7 @@ import {resolveImageUrl} from '@/shared/utils/imageUrl'
 import {useCategories} from '@/storefront/catalog/hooks/useCategories'
 import {useProducts} from '@/storefront/catalog/hooks/useProducts'
 import {ProductCard} from '@/storefront/catalog/components/ProductCard'
+import {Carousel} from './shared'
 
 /** Default fallback colour when themeColor validation fails */
 const DEFAULT_THEME_COLOR = '#6b7280'
@@ -20,7 +21,7 @@ function resolveThemeColor(raw: string): string {
 }
 
 export function CategoryShowcaseSection({section}: { section: CategoryShowcaseSectionConfig }) {
-    const {title, categorySlug, themeColor, gradient, imageUrl, limit} = section.props
+    const {title, categorySlug, themeColor, layout = 'row', columns, gradient, imageUrl, limit} = section.props
 
     // Step 1: resolve slug → category ID
     const {categories, isLoading: categoriesLoading} = useCategories()
@@ -94,13 +95,25 @@ export function CategoryShowcaseSection({section}: { section: CategoryShowcaseSe
                             />
                         </div>
                     )}
-                    <div className="flex min-w-0 flex-1 items-stretch gap-4 overflow-x-auto py-2">
-                        {displayProducts.map((product) => (
-                            <div key={product.id} className="w-56 shrink-0">
-                                <ProductCard product={product} variantId={product.variantId}/>
-                            </div>
-                        ))}
-                    </div>
+                    {layout === 'carousel' ? (
+                        <div className="min-w-0 flex-1 py-2">
+                            {/* Overlay arrows: the side image flanks the deck, so gutter
+                                placement would collide with it. */}
+                            <Carousel ariaLabel={title} perView={columns} arrowPlacement="overlay">
+                                {displayProducts.map((product) => (
+                                    <ProductCard key={product.id} product={product} variantId={product.variantId}/>
+                                ))}
+                            </Carousel>
+                        </div>
+                    ) : (
+                        <div className="flex min-w-0 flex-1 items-stretch gap-4 overflow-x-auto py-2">
+                            {displayProducts.map((product) => (
+                                <div key={product.id} className="w-56 shrink-0">
+                                    <ProductCard product={product} variantId={product.variantId}/>
+                                </div>
+                            ))}
+                        </div>
+                    )}
                 </div>
             </div>
         </section>

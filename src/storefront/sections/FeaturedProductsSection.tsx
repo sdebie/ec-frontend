@@ -1,10 +1,10 @@
 import type {FeaturedProductsSectionConfig} from '@/shared/types/StorefrontConfig'
 import {ProductCard} from '@/storefront/catalog/components/ProductCard'
 import {useFeaturedShoppingProducts} from '@/storefront/hooks/useFeaturedShoppingProducts'
-import {Section, SectionHeading} from './shared'
+import {Carousel, Section, SectionHeading} from './shared'
 
 export function FeaturedProductsSection({section}: { section: FeaturedProductsSectionConfig }) {
-    const {title, eyebrow, variant, category, limit} = section.props
+    const {title, eyebrow, variant, layout = 'row', columns, badgeLabel, category, limit} = section.props
 
     const effectiveLimit = limit ?? 8
 
@@ -55,13 +55,21 @@ export function FeaturedProductsSection({section}: { section: FeaturedProductsSe
     return (
         <Section variant={variant}>
             <SectionHeading title={title} eyebrow={eyebrow} />
-            <div className="flex items-stretch gap-4 overflow-x-auto py-2">
-                {products.map((product) => (
-                    <div key={product.id} className="w-56 shrink-0">
-                        <ProductCard product={product} variantId={product.variantId}/>
-                    </div>
-                ))}
-            </div>
+            {layout === 'carousel' ? (
+                <Carousel ariaLabel={title} perView={columns}>
+                    {products.map((product) => (
+                        <ProductCard key={product.id} product={product} variantId={product.variantId} badge={badgeLabel}/>
+                    ))}
+                </Carousel>
+            ) : (
+                <div className="flex items-stretch gap-4 overflow-x-auto py-2">
+                    {products.map((product) => (
+                        <div key={product.id} className="w-56 shrink-0">
+                            <ProductCard product={product} variantId={product.variantId} badge={badgeLabel}/>
+                        </div>
+                    ))}
+                </div>
+            )}
         </Section>
     )
 }

@@ -24,7 +24,7 @@ export function CtaSection({section}: { section: CtaSectionConfig }) {
                     {secondaryCta && (
                         <Link
                             to={secondaryCta.to}
-                            className="inline-block rounded-md border-2 border-current bg-transparent px-6 py-3 text-sm font-semibold transition-opacity hover:opacity-80"
+                            className="inline-block rounded-md border-2 border-(--sf-accent) bg-transparent px-6 py-3 text-sm font-semibold transition-colors hover:bg-[color-mix(in_srgb,var(--sf-accent)_80%,white)] hover:text-(--sf-accent-text)"
                         >
                             {secondaryCta.label}
                         </Link>

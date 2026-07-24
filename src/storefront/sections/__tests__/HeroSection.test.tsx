@@ -36,7 +36,7 @@ describe('HeroSection', () => {
             props: {...baseSection.props, height: 'tall'},
         })
         const section = screen.getByRole('region', {name: 'Welcome to our store'})
-        expect(section).toHaveClass('min-h-[max(560px,72vh)]')
+        expect(section).toHaveClass('min-h-[max(480px,calc(100vh-360px))]')
         expect(section).not.toHaveClass('min-h-[480px]')
     })
 
@@ -79,7 +79,13 @@ describe('HeroSection', () => {
 
         const {container} = renderHero(sectionWithBg)
 
-        const overlay = container.querySelector('[aria-hidden="true"]')
+        // Background renders as an explicit <img> filling the band via object-cover
+        const bgImage = container.querySelector('img[aria-hidden="true"]')
+        expect(bgImage).toBeInTheDocument()
+        expect(bgImage).toHaveAttribute('src', 'https://example.com/hero.jpg')
+        expect(bgImage).toHaveClass('absolute', 'inset-0', 'h-full', 'w-full', 'object-cover')
+
+        const overlay = container.querySelector('div[aria-hidden="true"]')
         expect(overlay).toBeInTheDocument()
         expect(overlay).toHaveStyle({opacity: '0.6'})
     })
