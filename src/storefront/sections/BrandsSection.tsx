@@ -16,7 +16,7 @@ function BrandTile({name, logoUrl}: BrandTileProps) {
 
     return (
         <div
-            className="flex h-16 items-center justify-center rounded-2xl border border-(--sf-border) bg-(--sf-panel) p-3 sm:h-20 sm:p-4 lg:h-24">
+            className="flex h-14 items-center justify-center rounded-2xl border border-(--sf-border) bg-(--sf-panel) p-3 sm:h-16 sm:p-4 lg:h-20">
             {showImage ? (
                 <img
                     src={src}
@@ -43,8 +43,8 @@ export function BrandsSection({section}: { section: BrandsSectionConfig }) {
     const displayBrands = limit ? brands.slice(0, limit) : brands
 
     return (
-        <Section className="py-8">
-            {title && <SectionHeading title={title} eyebrow={eyebrow} />}
+        <Section className="py-6">
+            {title && <SectionHeading title={title} eyebrow={eyebrow} className="mb-4" />}
             <div
                 className="grid grid-cols-3 gap-3 sm:grid-cols-4 sm:gap-4 md:grid-cols-6 lg:gap-3">
                 {displayBrands.map((brand) => (

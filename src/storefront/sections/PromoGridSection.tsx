@@ -5,10 +5,12 @@ import { resolveImageUrl } from '@/shared/utils/imageUrl'
 import type { PromoGridSectionConfig } from '@/shared/types/StorefrontConfig'
 import { Section, SectionHeading } from './shared'
 
-const gridColsClass: Record<2 | 3 | 4, string> = {
-  2: 'grid-cols-2',
-  3: 'grid-cols-3',
-  4: 'grid-cols-4',
+// Single-column base so tiles stack on phones; `columns` sets the desktop count.
+const gridColsClass: Record<2 | 3 | 4 | 5, string> = {
+  2: 'sm:grid-cols-2',
+  3: 'sm:grid-cols-2 lg:grid-cols-3',
+  4: 'sm:grid-cols-2 lg:grid-cols-4',
+  5: 'sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5',
 }
 
 export function PromoGridSection({ section }: { section: PromoGridSectionConfig }) {
@@ -16,7 +18,9 @@ export function PromoGridSection({ section }: { section: PromoGridSectionConfig 
     title,
     subtitle,
     eyebrow,
+    icon,
     layout = 'cards',
+    compact = false,
     columns = 3,
     items,
   } = section.props
@@ -26,8 +30,14 @@ export function PromoGridSection({ section }: { section: PromoGridSectionConfig 
   const [failedImageIds, setFailedImageIds] = useState<ReadonlySet<string>>(new Set())
 
   return (
-    <Section>
-      <SectionHeading title={title} subtitle={subtitle} eyebrow={eyebrow} />
+    <Section className={compact ? 'py-8' : undefined}>
+      <SectionHeading
+        title={title}
+        subtitle={subtitle}
+        eyebrow={eyebrow}
+        icon={icon}
+        className={compact ? 'mb-4' : undefined}
+      />
 
       <div className={cn('grid gap-4', gridColsClass[columns])}>
         {items.map((item, index) => {

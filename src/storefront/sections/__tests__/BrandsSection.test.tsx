@@ -51,8 +51,9 @@ describe('BrandsSection', () => {
 
             const sectionEl = container.querySelector('section')
             expect(sectionEl).toBeInTheDocument()
-            // Brands deliberately overrides the standard py-12 rhythm with a compact py-8
-            expect(sectionEl).toHaveClass('py-8', 'px-6', 'sm:px-8')
+            // Brands deliberately overrides the standard py-12 rhythm with a compact py-6
+            // (owner call 2026-07-24: slimmer brands band).
+            expect(sectionEl).toHaveClass('py-6', 'px-6', 'sm:px-8')
         })
 
         it('renders an inner container with mx-auto and max-w-5xl', () => {

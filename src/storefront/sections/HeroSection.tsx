@@ -40,11 +40,20 @@ const SURFACE_BACKGROUND_STYLE: Partial<Record<HeroContentSurface, CSSProperties
     dark: {background: 'var(--sf-surface-dark, var(--sf-nav-background, #111827))'},
 }
 
+// Band height per the `height` display hint. 'tall' is viewport-relative so a
+// landing hero fills toward the fold regardless of screen size; the px floor
+// keeps short windows from collapsing the band below a usable minimum.
+const HEIGHT_CLASS: Record<'standard' | 'tall', string> = {
+    standard: 'min-h-[480px]',
+    tall: 'min-h-[max(560px,72vh)]',
+}
+
 export function HeroSection({section}: { section: HeroSectionConfig }) {
     const {
         title,
         subtitle,
         kicker,
+        height = 'standard',
         primaryCta,
         secondaryCta,
         backgroundImageUrl,
@@ -76,7 +85,7 @@ export function HeroSection({section}: { section: HeroSectionConfig }) {
     return (
         <section
             aria-label={title}
-            className={cn('relative flex items-center justify-center min-h-[480px] px-6 py-20 overflow-hidden', {
+            className={cn('relative flex items-center px-6 sm:px-8 py-20 overflow-hidden', HEIGHT_CLASS[height], {
                 'bg-cover bg-center': hasImage,
                 'bg-(--sf-panel)': !hasImage && surface === 'default',
             })}
@@ -89,9 +98,13 @@ export function HeroSection({section}: { section: HeroSectionConfig }) {
                     aria-hidden="true"
                 />
             )}
+            {/* Content rides the house max-w-5xl grid so a left-aligned hero starts at
+                the same gutter as every other section (a centered narrow column made
+                "left" alignment float mid-page). The text block stays copy-width. */}
+            <div className="relative z-10 mx-auto w-full max-w-5xl">
             <div
                 className={cn(
-                    'relative z-10 w-full max-w-2xl',
+                    'max-w-2xl',
                     isBoundedPanel && 'rounded-2xl border border-(--sf-accent-text)/15 bg-black/10 px-8 py-10 sm:px-10 sm:py-12 shadow-(--sf-shadow-lg) backdrop-blur-sm',
                     contentAlignment === 'center' && 'text-center mx-auto',
                     contentAlignment === 'right' && 'text-right ml-auto',
@@ -151,6 +164,7 @@ export function HeroSection({section}: { section: HeroSectionConfig }) {
                         )}
                     </div>
                 )}
+            </div>
             </div>
         </section>
     )

@@ -50,10 +50,12 @@ export function Carousel({ariaLabel, children}: CarouselProps) {
                 ref={scrollRef}
                 className="flex gap-6 overflow-x-auto snap-x snap-mandatory scroll-smooth [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]"
             >
+                {/* Cell widths are exact fractions of the viewport minus the gaps
+                    (gap-6 = 1.5rem), so lg shows precisely three whole cards. */}
                 {React.Children.map(children, (child, index) => (
                     <div
                         key={index}
-                        className="flex snap-start shrink-0 w-[85%] md:w-[40%] lg:w-[30%]"
+                        className="flex snap-start shrink-0 w-[85%] md:w-[calc((100%-1.5rem)/2)] lg:w-[calc((100%-3rem)/3)]"
                     >
                         {child}
                     </div>
@@ -62,11 +64,15 @@ export function Carousel({ariaLabel, children}: CarouselProps) {
 
             {showButtons && (
                 <>
+                    {/* At xl+ the arrows sit in the section gutter OUTSIDE the deck
+                        (max-w-5xl content leaves ≥128px of gutter from 1280px up);
+                        narrower viewports have too little gutter, so they overlay
+                        the deck edges instead. */}
                     <button
                         type="button"
                         aria-label="Previous"
                         onClick={scrollPrev}
-                        className="absolute left-2 top-1/2 -translate-y-1/2 rounded-full bg-(--sf-accent) p-2 text-white shadow-md hover:opacity-90 transition-opacity"
+                        className="absolute left-2 xl:-left-14 top-1/2 -translate-y-1/2 rounded-full bg-(--sf-accent) p-2 text-white shadow-md hover:opacity-90 transition-opacity"
                     >
                         <ChevronLeft className="h-5 w-5"/>
                     </button>
@@ -74,7 +80,7 @@ export function Carousel({ariaLabel, children}: CarouselProps) {
                         type="button"
                         aria-label="Next"
                         onClick={scrollNext}
-                        className="absolute right-2 top-1/2 -translate-y-1/2 rounded-full bg-(--sf-accent) p-2 text-white shadow-md hover:opacity-90 transition-opacity"
+                        className="absolute right-2 xl:-right-14 top-1/2 -translate-y-1/2 rounded-full bg-(--sf-accent) p-2 text-white shadow-md hover:opacity-90 transition-opacity"
                     >
                         <ChevronRight className="h-5 w-5"/>
                     </button>

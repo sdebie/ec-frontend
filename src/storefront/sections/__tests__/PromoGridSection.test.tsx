@@ -76,12 +76,20 @@ describe('PromoGridSection', () => {
     })
 
     describe('grid tiles', () => {
-        it('renders a 3-column grid by default', () => {
+        it('renders the responsive 3-column grid by default', () => {
             const {container} = renderSection()
 
             const grid = container.querySelector('.grid')
             expect(grid).toBeInTheDocument()
-            expect(grid).toHaveClass('grid-cols-3')
+            expect(grid).toHaveClass('sm:grid-cols-2', 'lg:grid-cols-3')
+        })
+
+        it('renders five responsive columns with compact rhythm and a heading icon when configured', () => {
+            const {container} = renderSection(buildSection({columns: 5, compact: true, icon: 'package'}))
+
+            expect(container.querySelector('.grid')).toHaveClass('lg:grid-cols-5')
+            expect(container.querySelector('section')).toHaveClass('py-8')
+            expect(container.querySelector('h2 svg')).toBeInTheDocument()
         })
 
         it('renders tile titles', () => {

@@ -1,33 +1,9 @@
-import { Truck, Tag, Users, ShieldCheck, Award, Package, Clock, Headphones, HardHat, SprayCan, Stethoscope, Factory } from 'lucide-react'
-import type { ComponentType, SVGProps } from 'react'
 import { Link } from 'react-router-dom'
 
 import type { BenefitsSectionConfig } from '@/shared/types/StorefrontConfig'
 
 import { Section, SectionHeading } from './shared'
-
-/**
- * Local named-icon map for BenefitsSection.
- * Registered icon names (these are the vocabulary for seed `item.icon` values):
- *   truck, tag, users, shield-check, award, package, clock, headphones,
- *   hard-hat, spray-can, stethoscope, factory
- *
- * Unregistered names produce a dev-only console.warn and render no icon slot.
- */
-const iconMap: Record<string, ComponentType<SVGProps<SVGSVGElement>>> = {
-  truck: Truck,
-  tag: Tag,
-  users: Users,
-  'shield-check': ShieldCheck,
-  award: Award,
-  package: Package,
-  clock: Clock,
-  headphones: Headphones,
-  'hard-hat': HardHat,
-  'spray-can': SprayCan,
-  stethoscope: Stethoscope,
-  factory: Factory,
-}
+import { resolveSectionIcon } from './shared/sectionIcons'
 
 const explicitColsClass: Record<2 | 3 | 4, string> = {
   2: 'sm:grid-cols-2',
@@ -56,13 +32,7 @@ export function BenefitsSection({ section }: { section: BenefitsSectionConfig })
       <SectionHeading title={title} eyebrow={eyebrow} />
       <div className={`mt-6 grid gap-4 ${gridColsClass(items.length, columns)}`}>
         {items.map((item) => {
-          const IconComponent = item.icon ? iconMap[item.icon] : undefined
-
-          if (item.icon && !IconComponent && import.meta.env.DEV) {
-            console.warn(
-              `[BenefitsSection] Unknown icon name: "${item.icon}". Registered names: ${Object.keys(iconMap).join(', ')}`
-            )
-          }
+          const IconComponent = resolveSectionIcon(item.icon, 'BenefitsSection')
 
           return (
             <article

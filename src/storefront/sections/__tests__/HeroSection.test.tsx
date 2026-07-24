@@ -24,6 +24,22 @@ function renderHero(section: HeroSectionConfig = baseSection) {
 }
 
 describe('HeroSection', () => {
+    it('uses the standard fixed minimum height by default', () => {
+        renderHero()
+        expect(screen.getByRole('region', {name: 'Welcome to our store'}))
+            .toHaveClass('min-h-[480px]')
+    })
+
+    it('uses the viewport-relative band when height is tall', () => {
+        renderHero({
+            ...baseSection,
+            props: {...baseSection.props, height: 'tall'},
+        })
+        const section = screen.getByRole('region', {name: 'Welcome to our store'})
+        expect(section).toHaveClass('min-h-[max(560px,72vh)]')
+        expect(section).not.toHaveClass('min-h-[480px]')
+    })
+
     it('renders title as <h2> inside a <section> with aria-label', () => {
         renderHero()
 

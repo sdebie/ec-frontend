@@ -1,9 +1,12 @@
 import {cn} from '@/shared/utils/cn'
+import {sectionIconMap} from './sectionIcons'
 
 interface SectionHeadingProps {
     eyebrow?: string
     title: string
     subtitle?: string
+    /** Named icon from the shared section registry, rendered beside the title. */
+    icon?: string
     /** Layout-only adjustments from the consumer (e.g. `lg:mb-0` in a split row) — never colors. */
     className?: string
 }
@@ -18,7 +21,16 @@ interface SectionHeadingProps {
  * so they pick up the dark text colour set by Section's inline style; in light
  * mode, explicit --sf-text/--sf-muted-text tokens apply.
  */
-export function SectionHeading({eyebrow, title, subtitle, className}: SectionHeadingProps) {
+export function SectionHeading({eyebrow, title, subtitle, icon, className}: SectionHeadingProps) {
+    // Direct map access (not a call) — the react-hooks/static-components rule
+    // false-positives on function-call lookups of component references.
+    const IconComponent = icon ? sectionIconMap[icon] : undefined
+    if (icon && !IconComponent && import.meta.env.DEV) {
+        console.warn(
+            `[SectionHeading] Unknown icon name: "${icon}". Registered names: ${Object.keys(sectionIconMap).join(', ')}`
+        )
+    }
+
     return (
         <div className={cn('mb-8', className)}>
             {eyebrow && (
@@ -28,7 +40,10 @@ export function SectionHeading({eyebrow, title, subtitle, className}: SectionHea
                 </p>
             )}
 
-            <h2 className="text-3xl font-bold text-(--sf-text) in-data-[variant=dark]:text-inherit">
+            <h2 className="flex items-center gap-3 text-3xl font-bold text-(--sf-text) in-data-[variant=dark]:text-inherit">
+                {IconComponent && (
+                    <IconComponent className="h-7 w-7 shrink-0 text-(--sf-accent)" aria-hidden="true"/>
+                )}
                 {title}
             </h2>
 

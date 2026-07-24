@@ -4,7 +4,7 @@ import {useFeaturedShoppingProducts} from '@/storefront/hooks/useFeaturedShoppin
 import {Section, SectionHeading} from './shared'
 
 export function FeaturedProductsSection({section}: { section: FeaturedProductsSectionConfig }) {
-    const {title, eyebrow, category, limit} = section.props
+    const {title, eyebrow, variant, category, limit} = section.props
 
     const effectiveLimit = limit ?? 8
 
@@ -15,14 +15,14 @@ export function FeaturedProductsSection({section}: { section: FeaturedProductsSe
 
     if (isLoading) {
         return (
-            <Section>
+            <Section variant={variant}>
                 <SectionHeading title={title} eyebrow={eyebrow} />
                 <div className="flex items-stretch gap-4 overflow-x-auto py-2">
                     {Array.from({length: effectiveLimit}).map((_, i) => (
                         <div key={i} className="w-56 shrink-0 animate-pulse">
-                            <div className="bg-(--sf-surface-muted) aspect-square rounded-lg"/>
-                            <div className="mt-3 h-4 bg-(--sf-surface-muted) rounded w-3/4"/>
-                            <div className="mt-2 h-4 bg-(--sf-surface-muted) rounded w-1/3"/>
+                            <div className="bg-(--sf-surface-muted) in-data-[variant=dark]:bg-white/10 aspect-square rounded-lg"/>
+                            <div className="mt-3 h-4 bg-(--sf-surface-muted) in-data-[variant=dark]:bg-white/10 rounded w-3/4"/>
+                            <div className="mt-2 h-4 bg-(--sf-surface-muted) in-data-[variant=dark]:bg-white/10 rounded w-1/3"/>
                         </div>
                     ))}
                 </div>
@@ -32,7 +32,7 @@ export function FeaturedProductsSection({section}: { section: FeaturedProductsSe
 
     if (isError) {
         return (
-            <Section>
+            <Section variant={variant}>
                 <SectionHeading title={title} eyebrow={eyebrow} />
                 <div className="text-center py-8">
                     <p className="text-red-600 mb-4">Failed to load featured products.</p>
@@ -53,7 +53,7 @@ export function FeaturedProductsSection({section}: { section: FeaturedProductsSe
     }
 
     return (
-        <Section>
+        <Section variant={variant}>
             <SectionHeading title={title} eyebrow={eyebrow} />
             <div className="flex items-stretch gap-4 overflow-x-auto py-2">
                 {products.map((product) => (

@@ -13,7 +13,7 @@ export function useUploadImage() {
   return useMutation({
     mutationFn: async ({ file, directory }: UploadImageParams) => {
       const formData = new FormData()
-      formData.append('image', file)
+      formData.append('file', file)
       formData.append('destinationDirectory', directory)
 
       // No Content-Type header — let the browser set multipart/form-data with the correct boundary

@@ -44,6 +44,11 @@ export interface HeroSectionProps {
   subtitle?: string
   /** Small uppercase label above the title, e.g. "ABOUT UVH HOLDINGS". */
   kicker?: string
+  /**
+   * Band height: 'standard' (default, fixed minimum) or 'tall' — viewport-filling,
+   * for landing heroes whose background image composition needs the vertical room.
+   */
+  height?: 'standard' | 'tall'
   primaryCta?: StorefrontActionLink
   secondaryCta?: StorefrontActionLink
   backgroundImageUrl?: string
@@ -152,14 +157,20 @@ export interface PromoGridSectionProps {
   title: string
   subtitle?: string
   eyebrow?: string
+  /** Named icon from the shared section registry, rendered beside the heading title. */
+  icon?: string
   layout?: 'cards' | 'feature-first'
-  columns?: 2 | 3 | 4
+  /** Tighter band rhythm (py-8) and heading margin for a slimmer section. */
+  compact?: boolean
+  columns?: 2 | 3 | 4 | 5
   items: PromoGridItem[]
 }
 
 export interface FeaturedProductsSectionProps {
   title: string
   eyebrow?: string
+  /** Surface variant — mirrors TestimonialsSectionProps naming. */
+  variant?: 'light' | 'dark'
   category?: string
   limit?: number
 }
