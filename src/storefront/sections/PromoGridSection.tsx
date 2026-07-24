@@ -6,11 +6,22 @@ import type { PromoGridSectionConfig } from '@/shared/types/StorefrontConfig'
 import { Section, SectionHeading } from './shared'
 
 // Single-column base so tiles stack on phones; `columns` sets the desktop count.
+// Used by the 'feature-first' layout, which needs a real grid for its col-span.
 const gridColsClass: Record<2 | 3 | 4 | 5, string> = {
   2: 'sm:grid-cols-2',
   3: 'sm:grid-cols-2 lg:grid-cols-3',
   4: 'sm:grid-cols-2 lg:grid-cols-4',
   5: 'sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5',
+}
+
+// The 'cards' layout wraps with flex so an incomplete last row centers itself
+// (e.g. 5 tiles at 3 columns → 3 + 2 centered). Basis values are exact column
+// fractions minus the gap-4 share so full rows match the grid exactly.
+const cardBasisClass: Record<2 | 3 | 4 | 5, string> = {
+  2: 'sm:basis-[calc((100%-1rem)/2)]',
+  3: 'sm:basis-[calc((100%-1rem)/2)] lg:basis-[calc((100%-2rem)/3)]',
+  4: 'sm:basis-[calc((100%-1rem)/2)] lg:basis-[calc((100%-3rem)/4)]',
+  5: 'sm:basis-[calc((100%-1rem)/2)] md:basis-[calc((100%-2rem)/3)] lg:basis-[calc((100%-4rem)/5)]',
 }
 
 export function PromoGridSection({ section }: { section: PromoGridSectionConfig }) {
@@ -39,7 +50,14 @@ export function PromoGridSection({ section }: { section: PromoGridSectionConfig 
         className={compact ? 'mb-4' : undefined}
       />
 
-      <div className={cn('grid gap-4', gridColsClass[columns])}>
+      <div
+        className={cn(
+          'gap-4',
+          layout === 'feature-first'
+            ? cn('grid', gridColsClass[columns])
+            : 'flex flex-wrap justify-center',
+        )}
+      >
         {items.map((item, index) => {
           const resolvedImage =
             item.imageUrl && !failedImageIds.has(item.id) ? resolveImageUrl(item.imageUrl) : null
@@ -50,6 +68,7 @@ export function PromoGridSection({ section }: { section: PromoGridSectionConfig 
               className={cn(
                 'overflow-hidden rounded-lg border border-(--sf-border) bg-(--sf-panel) shadow-sm',
                 layout === 'feature-first' && index === 0 && 'lg:col-span-2',
+                layout === 'cards' && cn('w-full grow-0', cardBasisClass[columns]),
                 !resolvedImage && 'p-5',
               )}
             >

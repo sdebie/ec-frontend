@@ -109,10 +109,17 @@ export interface BenefitsFootnoteSegment {
 }
 
 export interface BenefitsSectionProps {
-  title: string
+  /** Optional so a heading-less 'strip' can render as a pure band (the stats-band effect). */
+  title?: string
   eyebrow?: string
   /** Surface variant — mirrors TestimonialsSectionProps naming. */
   variant?: 'light' | 'dark'
+  /**
+   * 'cards' (default): bordered panel cards. 'strip': collapses items into a
+   * compact divided band (the StatsSection treatment) — icon + title + description
+   * centered per block; pairs well with `variant: "dark"` directly under a hero.
+   */
+  layout?: 'cards' | 'strip'
   /** Where item icons sit relative to the title: above it (default) or on the same line. */
   iconPlacement?: 'top' | 'inline'
   /** Explicit desktop column count; absent → derived from the item count (no-orphan rule). */

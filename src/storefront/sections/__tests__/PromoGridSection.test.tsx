@@ -76,20 +76,26 @@ describe('PromoGridSection', () => {
     })
 
     describe('grid tiles', () => {
-        it('renders the responsive 3-column grid by default', () => {
+        it('renders cards in a centering flex-wrap row (incomplete rows center themselves)', () => {
             const {container} = renderSection()
 
-            const grid = container.querySelector('.grid')
-            expect(grid).toBeInTheDocument()
-            expect(grid).toHaveClass('sm:grid-cols-2', 'lg:grid-cols-3')
+            const row = container.querySelector('.flex.flex-wrap')
+            expect(row).toBeInTheDocument()
+            expect(row).toHaveClass('justify-center')
+            const card = row!.querySelector('article')
+            expect(card).toHaveClass('lg:basis-[calc((100%-2rem)/3)]')
         })
 
-        it('renders five responsive columns with compact rhythm and a heading icon when configured', () => {
-            const {container} = renderSection(buildSection({columns: 5, compact: true, icon: 'package'}))
+        it('applies compact rhythm and a heading icon when configured', () => {
+            const {container} = renderSection(buildSection({compact: true, icon: 'package'}))
 
-            expect(container.querySelector('.grid')).toHaveClass('lg:grid-cols-5')
             expect(container.querySelector('section')).toHaveClass('py-8')
             expect(container.querySelector('h2 svg')).toBeInTheDocument()
+        })
+
+        it('keeps a real grid for the feature-first layout (col-span support)', () => {
+            const {container} = renderSection(buildSection({layout: 'feature-first'}))
+            expect(container.querySelector('.grid')).toHaveClass('sm:grid-cols-2', 'lg:grid-cols-3')
         })
 
         it('renders tile titles', () => {

@@ -109,6 +109,34 @@ describe('BenefitsSection', () => {
         })
     })
 
+    describe('strip layout', () => {
+        it('collapses items into a divided band with no cards and no heading when title is absent', () => {
+            const {container} = render(
+                <BenefitsSection
+                    section={buildSection({
+                        layout: 'strip',
+                        variant: 'dark',
+                        title: undefined,
+                        items: [
+                            {title: 'Nationwide Delivery', description: 'Fast delivery.', icon: 'truck'},
+                            {title: 'Wholesale & Retail', description: 'Competitive pricing.', icon: 'tag'},
+                            {title: 'Account Manager', description: 'Dedicated support.', icon: 'users'},
+                            {title: 'Quality Assured', description: 'Standards met.', icon: 'shield-check'},
+                        ],
+                    })}
+                />,
+            )
+
+            expect(container.querySelector('h2')).not.toBeInTheDocument()
+            expect(container.querySelector('article')).not.toBeInTheDocument()
+            const band = container.querySelector('.divide-y')
+            expect(band).toHaveClass('lg:grid-cols-4', 'sm:divide-x')
+            expect(band?.querySelectorAll('h3')).toHaveLength(4)
+            expect(band?.querySelectorAll('svg')).toHaveLength(4)
+            expect(container.querySelector('section')).toHaveAttribute('data-variant', 'dark')
+        })
+    })
+
     describe('icon placement', () => {
         it('renders icon and title on one line when iconPlacement is inline', () => {
             const {container} = render(
