@@ -7,6 +7,12 @@ interface SectionHeadingProps {
     subtitle?: string
     /** Named icon from the shared section registry, rendered beside the title. */
     icon?: string
+    /**
+     * Heading level. Defaults to `h2` (a section inside a page). Pages that use
+     * this as their page title pass `h1` so the document keeps exactly one —
+     * visual treatment is identical either way.
+     */
+    as?: 'h1' | 'h2'
     /** Layout-only adjustments from the consumer (e.g. `lg:mb-0` in a split row) — never colors. */
     className?: string
 }
@@ -21,7 +27,8 @@ interface SectionHeadingProps {
  * so they pick up the dark text colour set by Section's inline style; in light
  * mode, explicit --sf-text/--sf-muted-text tokens apply.
  */
-export function SectionHeading({eyebrow, title, subtitle, icon, className}: SectionHeadingProps) {
+export function SectionHeading({eyebrow, title, subtitle, icon, as = 'h2', className}: SectionHeadingProps) {
+    const Heading = as
     // Direct map access (not a call) — the react-hooks/static-components rule
     // false-positives on function-call lookups of component references.
     const IconComponent = icon ? sectionIconMap[icon] : undefined
@@ -40,12 +47,13 @@ export function SectionHeading({eyebrow, title, subtitle, icon, className}: Sect
                 </p>
             )}
 
-            <h2 className="flex items-center gap-3 text-3xl font-bold text-(--sf-text) in-data-[variant=dark]:text-inherit">
+            <Heading
+                className="flex items-center gap-3 text-3xl font-bold text-(--sf-text) in-data-[variant=dark]:text-inherit">
                 {IconComponent && (
                     <IconComponent className="h-7 w-7 shrink-0 text-(--sf-accent)" aria-hidden="true"/>
                 )}
                 {title}
-            </h2>
+            </Heading>
 
             <span className="mt-2 block h-1 w-12 rounded-full bg-(--sf-accent)" aria-hidden="true"/>
 

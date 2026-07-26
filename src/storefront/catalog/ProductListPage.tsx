@@ -1,4 +1,5 @@
 import { useCallback } from 'react'
+import { Section, SectionHeading } from '@/storefront/sections/shared'
 import { useSearchParams } from 'react-router-dom'
 import { useCategories } from './hooks/useCategories'
 import { useBrands } from './hooks/useBrands'
@@ -96,8 +97,8 @@ export function ProductListPage({ onSale = false }: ProductListPageProps) {
   const emptyCopy = onSale ? 'No specials match your filters.' : 'No products found. Try adjusting your filters.'
 
   return (
-    <div className="mx-auto max-w-7xl px-4 py-6 sm:px-6 lg:px-8">
-      <h1 className="mb-6 text-2xl font-bold text-(--sf-text)">{pageTitle}</h1>
+    <Section as="div" width="wide">
+      <SectionHeading as="h1" title={pageTitle} />
 
       <div className="flex flex-col gap-6 md:flex-row">
         {/* Sidebar — desktop inline, mobile drawer */}
@@ -162,6 +163,6 @@ export function ProductListPage({ onSale = false }: ProductListPageProps) {
           )}
         </div>
       </div>
-    </div>
+    </Section>
   )
 }

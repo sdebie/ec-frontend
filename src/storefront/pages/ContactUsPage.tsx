@@ -1,4 +1,5 @@
 import { useState } from 'react'
+import { Section } from '@/storefront/sections/shared'
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { z } from 'zod'
@@ -112,9 +113,11 @@ function ContactDetailsSection({ contact }: { contact: ContactConfig }) {
         {emails.length > 0 && (
           <ContactDetail label="Email">
             <span className="flex flex-col items-start gap-1">
-              {emails.map((email) => (
+              {/* Keyed by position: this list is operator-editable config and may
+                  legitimately repeat a value, which a value-key cannot survive. */}
+              {emails.map((email, index) => (
                 <a
-                  key={email}
+                  key={index}
                   href={`mailto:${email}`}
                   className="break-all underline decoration-current/50 underline-offset-4 hover:opacity-75"
                 >
@@ -365,7 +368,7 @@ export function ContactUsPage() {
   const hasRightColumn = showForm || showMapEmbed
 
   return (
-    <main className="mx-auto max-w-6xl px-4 py-12 sm:py-16">
+    <Section as="div" width="wide">
       <div className="overflow-hidden rounded-2xl border border-(--sf-border) bg-(--sf-panel) shadow-(--sf-shadow-lg)">
         <div className={hasRightColumn ? 'grid lg:grid-cols-2' : ''}>
           {/* Left: contact details */}
@@ -418,6 +421,6 @@ export function ContactUsPage() {
           </section>
         )}
       </div>
-    </main>
+    </Section>
   )
 }

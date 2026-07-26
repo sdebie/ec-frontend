@@ -124,12 +124,10 @@ describe('WishlistPage', () => {
 
       renderPage()
 
-      expect(screen.getByRole('heading', { name: 'Wishlist' }).parentElement).toHaveClass(
-        'mx-auto',
-        'max-w-6xl',
-        'px-4',
-        'py-8',
-      )
+      // Signed out, the page owns the shared shell: <main> rhythm > width cap > spacing
+      const spacing = screen.getByRole('heading', { name: 'Wishlist' }).closest('.space-y-6')
+      expect(spacing?.parentElement).toHaveClass('mx-auto', 'max-w-7xl')
+      expect(spacing?.parentElement?.parentElement).toHaveClass('py-12', 'px-6', 'sm:px-8')
       expect(document.querySelector('.grid')).toHaveClass(
         'grid-cols-2',
         'md:grid-cols-3',

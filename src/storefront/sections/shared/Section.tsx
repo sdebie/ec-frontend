@@ -4,6 +4,12 @@ import type {ReactNode} from 'react'
 export interface SectionProps {
     variant?: 'light' | 'dark'
     width?: 'narrow' | 'default' | 'wide'
+    /**
+     * Rendered element. Defaults to `section` for the stacked page bands this
+     * was built for; pages that adopt the same rhythm pass `main` so the
+     * document keeps one top-level landmark.
+     */
+    as?: 'section' | 'main' | 'div'
     className?: string
     children: ReactNode
 }
@@ -25,13 +31,15 @@ const widthMap: Record<NonNullable<SectionProps['width']>, string> = {
 export function Section({
                             variant = 'light',
                             width = 'default',
+                            as = 'section',
                             className,
                             children,
                         }: SectionProps) {
     const isDark = variant === 'dark'
+    const Tag = as
 
     return (
-        <section
+        <Tag
             data-variant={isDark ? 'dark' : undefined}
             className={cn('py-12 px-6 sm:px-8', className)}
             style={
@@ -46,6 +54,6 @@ export function Section({
             <div className={cn('mx-auto', widthMap[width])}>
                 {children}
             </div>
-        </section>
+        </Tag>
     )
 }

@@ -73,10 +73,14 @@ describe('CartPage', () => {
             expect(screen.queryByText('Estimated subtotal')).not.toBeInTheDocument()
         })
 
-        it('uses the storefront page gutter and vertical spacing', () => {
+        it('uses the shared storefront page shell (Section rhythm + width cap)', () => {
             const {container} = renderCartPage()
 
-            expect(container.firstElementChild).toHaveClass('mx-auto', 'max-w-4xl', 'px-4', 'py-8', 'sm:py-12')
+            // StorefrontLayout owns the <main> landmark, so the page shell is a div
+            const shell = container.firstElementChild
+            expect(shell?.tagName).toBe('DIV')
+            expect(shell).toHaveClass('py-12', 'px-6', 'sm:px-8')
+            expect(shell?.firstElementChild).toHaveClass('mx-auto', 'max-w-5xl')
         })
     })
 
@@ -137,10 +141,14 @@ describe('CartPage', () => {
             expect(screen.getByText('Your Cart')).toBeInTheDocument()
         })
 
-        it('uses the storefront page gutter and vertical spacing', () => {
+        it('uses the shared storefront page shell (Section rhythm + width cap)', () => {
             const {container} = renderCartPage()
 
-            expect(container.firstElementChild).toHaveClass('mx-auto', 'max-w-4xl', 'px-4', 'py-8', 'sm:py-12')
+            // StorefrontLayout owns the <main> landmark, so the page shell is a div
+            const shell = container.firstElementChild
+            expect(shell?.tagName).toBe('DIV')
+            expect(shell).toHaveClass('py-12', 'px-6', 'sm:px-8')
+            expect(shell?.firstElementChild).toHaveClass('mx-auto', 'max-w-5xl')
         })
     })
 

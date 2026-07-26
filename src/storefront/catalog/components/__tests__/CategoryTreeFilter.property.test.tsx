@@ -1,6 +1,6 @@
 import { describe, it, expect, vi, afterEach } from 'vitest'
 import * as fc from 'fast-check'
-import { render, cleanup } from '@testing-library/react'
+import { render, cleanup, fireEvent } from '@testing-library/react'
 import type { CategoryNode } from '@/storefront/catalog/hooks/useCategoryTree'
 
 /**
@@ -139,6 +139,16 @@ describe('Feature: category-navigation, Property 6: FilterSidebar tree indentati
         const { container, unmount } = render(
           <CategoryTreeFilter activeSlug="" setFilter={vi.fn()} />,
         )
+
+        // The tree ships collapsed (sidebar-height fix), so expand every node
+        // before asserting — the property is about indentation, not visibility.
+        for (;;) {
+          const toggles = Array.from(
+            container.querySelectorAll<HTMLButtonElement>('button[aria-expanded="false"]'),
+          )
+          if (toggles.length === 0) break
+          toggles.forEach((toggle) => fireEvent.click(toggle))
+        }
 
         // Collect all parent-child pairs from the tree with their expected depths
         const pairs = collectParentChildPairs(tree, 0)

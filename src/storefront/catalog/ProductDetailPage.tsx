@@ -1,5 +1,6 @@
 import {useEffect, useMemo, useRef, useState} from 'react'
 import {Link, useLocation, useParams} from 'react-router-dom'
+import {Section} from '@/storefront/sections/shared'
 import {useProductDetail} from './hooks/useProductDetail'
 import {useCustomerAuthStore} from '@/shared/auth/customerAuthStore'
 import {useStorefrontConfig} from '@/shared/config/storefrontConfig.context'
@@ -88,7 +89,7 @@ export function ProductDetailPage() {
         null
 
     return (
-        <div className="mx-auto max-w-7xl px-4 py-6 sm:px-6 lg:px-8">
+        <Section as="div" width="wide">
             {/* Breadcrumb */}
             <nav aria-label="Breadcrumb" className="mb-6">
                 <ol className="flex items-center gap-2 text-sm text-(--sf-muted-text)">
@@ -202,6 +203,6 @@ export function ProductDetailPage() {
                     </div>
                 </details>
             )}
-        </div>
+        </Section>
     )
 }

@@ -33,6 +33,19 @@ const mockTree = [
   },
 ]
 
+/**
+ * The tree renders collapsed (roots only). Expanding every chevron in document
+ * order reveals the whole taxonomy, which the depth/indent assertions need.
+ */
+async function expandAll(user: ReturnType<typeof userEvent.setup>) {
+  // Each expansion reveals the next level, so re-query until none remain.
+  for (;;) {
+    const toggles = screen.queryAllByRole('button', { name: /^Expand / })
+    if (toggles.length === 0) return
+    await user.click(toggles[0])
+  }
+}
+
 describe('CategoryTreeFilter', () => {
   const defaultProps = {
     activeSlug: '',
@@ -56,28 +69,35 @@ describe('CategoryTreeFilter', () => {
       expect(electronicsButton.className).toContain('pl-0')
     })
 
-    it('applies pl-4 to depth 1 children', () => {
+    it('applies pl-4 to depth 1 children', async () => {
+      const user = userEvent.setup()
       render(<CategoryTreeFilter {...defaultProps} />)
+      await expandAll(user)
 
       const phonesButton = screen.getByRole('button', { name: 'Phones' })
       expect(phonesButton.className).toContain('pl-4')
     })
 
-    it('applies pl-8 to depth 2 children', () => {
+    it('applies pl-8 to depth 2 children', async () => {
+      const user = userEvent.setup()
       render(<CategoryTreeFilter {...defaultProps} />)
+      await expandAll(user)
 
       const smartphonesButton = screen.getByRole('button', { name: 'Smartphones' })
       expect(smartphonesButton.className).toContain('pl-8')
     })
 
-    it('caps indentation at pl-12 for depth 3+ children', () => {
+    it('caps indentation at pl-12 for depth 3+ children', async () => {
+      const user = userEvent.setup()
       render(<CategoryTreeFilter {...defaultProps} />)
+      await expandAll(user)
 
       const androidButton = screen.getByRole('button', { name: 'Android' })
       expect(androidButton.className).toContain('pl-12')
     })
 
-    it('caps indentation at pl-12 for depth 4+ children', () => {
+    it('caps indentation at pl-12 for depth 4+ children', async () => {
+      const user = userEvent.setup()
       const deepTree = [
         {
           id: '1',
@@ -116,6 +136,7 @@ describe('CategoryTreeFilter', () => {
       })
 
       render(<CategoryTreeFilter {...defaultProps} />)
+      await expandAll(user)
 
       const level4Button = screen.getByRole('button', { name: 'Level 4' })
       expect(level4Button.className).toContain('pl-12')
@@ -138,6 +159,7 @@ describe('CategoryTreeFilter', () => {
       const user = userEvent.setup()
       const setFilter = vi.fn()
       render(<CategoryTreeFilter {...defaultProps} setFilter={setFilter} />)
+      await expandAll(user)
 
       await user.click(screen.getByRole('button', { name: 'Phones' }))
 
@@ -206,6 +228,33 @@ describe('CategoryTreeFilter', () => {
       const buttons = screen.getAllByRole('button')
       expect(buttons).toHaveLength(1)
       expect(buttons[0]).toHaveTextContent('All Categories')
+    })
+  })
+
+  describe('collapsed by default (sidebar height fix)', () => {
+    it('renders only root categories until expanded, then reveals children', async () => {
+      const user = userEvent.setup()
+      render(<CategoryTreeFilter {...defaultProps} />)
+
+      expect(screen.getByRole('button', { name: 'Electronics' })).toBeInTheDocument()
+      expect(screen.queryByRole('button', { name: 'Phones' })).not.toBeInTheDocument()
+
+      await user.click(screen.getByRole('button', { name: 'Expand Electronics' }))
+      expect(screen.getByRole('button', { name: 'Phones' })).toBeInTheDocument()
+    })
+
+    it('keeps the active category path expanded so the selection stays visible', () => {
+      render(<CategoryTreeFilter {...defaultProps} activeSlug="smartphones" />)
+
+      expect(screen.getByRole('button', { name: 'Phones' })).toBeInTheDocument()
+      const active = screen.getByRole('button', { name: 'Smartphones' })
+      expect(active.className).toContain('font-semibold')
+    })
+
+    it('caps its own height so a large taxonomy cannot outgrow the product grid', () => {
+      const { container } = render(<CategoryTreeFilter {...defaultProps} />)
+
+      expect(container.firstElementChild).toHaveClass('max-h-96', 'overflow-y-auto')
     })
   })
 })
