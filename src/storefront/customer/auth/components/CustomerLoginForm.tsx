@@ -1,12 +1,11 @@
-import { useState } from 'react'
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { z } from 'zod'
 import { GoogleLogin, type CredentialResponse } from '@react-oauth/google'
 import { useCustomerLogin } from '@/storefront/customer/auth/hooks/useCustomerLogin'
 import { useCustomerGoogleLogin } from '@/storefront/customer/auth/hooks/useCustomerGoogleLogin'
-import { Eye, EyeOff } from 'lucide-react'
 import { InputField } from '@/shared/ui/components/form/InputField'
+import { PasswordField } from '@/shared/ui/components/form/PasswordField'
 
 const loginSchema = z.object({
   email: z.string().email('Please enter a valid email address'),
@@ -47,7 +46,6 @@ export interface CustomerLoginFormProps {
 export function CustomerLoginForm({ onSuccess, onForgotPassword }: CustomerLoginFormProps) {
   const { mutate: login, isPending, isError, error } = useCustomerLogin()
   const { mutate: googleLogin } = useCustomerGoogleLogin()
-  const [showPassword, setShowPassword] = useState(false)
 
   const {
     register,
@@ -101,24 +99,12 @@ export function CustomerLoginForm({ onSuccess, onForgotPassword }: CustomerLogin
         </div>
 
         <div>
-          <InputField
+          <PasswordField
             id="password"
-            type={showPassword ? 'text' : 'password'}
             autoComplete="current-password"
             label="Password"
             error={errors.password?.message}
             aria-invalid={errors.password ? 'true' : undefined}
-            rightIconInteractive
-            rightIcon={
-              <button
-                type="button"
-                onClick={() => setShowPassword(!showPassword)}
-                className="text-(--c-text-muted) hover:text-(--c-text)"
-                aria-label={showPassword ? 'Hide password' : 'Show password'}
-              >
-                {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
-              </button>
-            }
             {...register('password')}
           />
         </div>

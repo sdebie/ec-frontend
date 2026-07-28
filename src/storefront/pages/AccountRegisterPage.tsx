@@ -1,14 +1,16 @@
-import { useEffect, useState } from 'react'
+import { useEffect } from 'react'
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { z } from 'zod'
 import { Link, useNavigate, useSearchParams } from 'react-router-dom'
 import { GoogleLogin, type CredentialResponse } from '@react-oauth/google'
-import { Eye, EyeOff, Loader2 } from 'lucide-react'
+import { Loader2 } from 'lucide-react'
 import { useCustomerRegister } from '@/storefront/customer/auth/hooks/useCustomerRegister'
 import { useCustomerGoogleLogin } from '@/storefront/customer/auth/hooks/useCustomerGoogleLogin'
 import { useCustomerAuthStore } from '@/shared/auth/customerAuthStore'
 import { isRelativePath } from '@/storefront/customer/auth/utils/urlValidation'
+import { InputField } from '@/shared/ui/components/form/InputField'
+import { PasswordField } from '@/shared/ui/components/form/PasswordField'
 
 const registerSchema = z
   .object({
@@ -32,8 +34,6 @@ export function AccountRegisterPage() {
   const { mutate: register, isPending, isError, error, reset: resetMutation } = useCustomerRegister()
   const { mutate: googleLogin } = useCustomerGoogleLogin()
 
-  const [showPassword, setShowPassword] = useState(false)
-  const [showConfirmPassword, setShowConfirmPassword] = useState(false)
 
   function handleGoogleSuccess(response: CredentialResponse) {
     if (response.credential) {
@@ -70,7 +70,7 @@ export function AccountRegisterPage() {
 
     if (axiosError.response?.status === 409) {
       return (
-        <p className="text-sm text-red-600" role="alert">
+        <p className="text-sm text-(--c-error)" role="alert">
           An account with this email already exists.{' '}
           <Link to="/account/login" className="font-medium text-(--sf-accent) underline hover:opacity-80">
             Sign in instead
@@ -80,7 +80,7 @@ export function AccountRegisterPage() {
     }
 
     return (
-      <p className="text-sm text-red-600" role="alert">
+      <p className="text-sm text-(--c-error)" role="alert">
         Something went wrong. Please try again.
       </p>
     )
@@ -123,127 +123,60 @@ export function AccountRegisterPage() {
 
           {/* First name */}
           <div>
-            <label htmlFor="firstName" className="block text-sm font-medium text-(--sf-text)">
-              First name
-            </label>
-            <input
+            <InputField
               id="firstName"
               type="text"
               autoComplete="given-name"
-              aria-describedby={errors.firstName ? 'firstName-error' : undefined}
-              aria-invalid={!!errors.firstName}
-              className="mt-1 block w-full rounded-md border border-(--sf-border) px-3 py-2 text-sm shadow-sm focus:border-(--sf-ring) focus:outline-none focus:ring-1 focus:ring-(--sf-ring)"
+              label="First name"
+              error={errors.firstName?.message}
               {...registerField('firstName')}
             />
-            {errors.firstName && (
-              <p id="firstName-error" className="mt-1 text-sm text-red-600" role="alert">
-                {errors.firstName.message}
-              </p>
-            )}
           </div>
 
           {/* Last name */}
           <div>
-            <label htmlFor="lastName" className="block text-sm font-medium text-(--sf-text)">
-              Last name
-            </label>
-            <input
+            <InputField
               id="lastName"
               type="text"
               autoComplete="family-name"
-              aria-describedby={errors.lastName ? 'lastName-error' : undefined}
-              aria-invalid={!!errors.lastName}
-              className="mt-1 block w-full rounded-md border border-(--sf-border) px-3 py-2 text-sm shadow-sm focus:border-(--sf-ring) focus:outline-none focus:ring-1 focus:ring-(--sf-ring)"
+              label="Last name"
+              error={errors.lastName?.message}
               {...registerField('lastName')}
             />
-            {errors.lastName && (
-              <p id="lastName-error" className="mt-1 text-sm text-red-600" role="alert">
-                {errors.lastName.message}
-              </p>
-            )}
           </div>
 
           {/* Email */}
           <div>
-            <label htmlFor="email" className="block text-sm font-medium text-(--sf-text)">
-              Email address
-            </label>
-            <input
+            <InputField
               id="email"
               type="email"
               autoComplete="email"
-              aria-describedby={errors.email ? 'email-error' : undefined}
-              aria-invalid={!!errors.email}
-              className="mt-1 block w-full rounded-md border border-(--sf-border) px-3 py-2 text-sm shadow-sm focus:border-(--sf-ring) focus:outline-none focus:ring-1 focus:ring-(--sf-ring)"
+              label="Email address"
+              error={errors.email?.message}
               {...registerField('email')}
             />
-            {errors.email && (
-              <p id="email-error" className="mt-1 text-sm text-red-600" role="alert">
-                {errors.email.message}
-              </p>
-            )}
           </div>
 
           {/* Password */}
           <div>
-            <label htmlFor="password" className="block text-sm font-medium text-(--sf-text)">
-              Password
-            </label>
-            <div className="relative mt-1">
-              <input
-                id="password"
-                type={showPassword ? 'text' : 'password'}
-                autoComplete="new-password"
-                aria-describedby={errors.password ? 'password-error' : undefined}
-                aria-invalid={!!errors.password}
-                className="block w-full rounded-md border border-(--sf-border) px-3 py-2 pr-10 text-sm shadow-sm focus:border-(--sf-ring) focus:outline-none focus:ring-1 focus:ring-(--sf-ring)"
-                {...registerField('password')}
-              />
-              <button
-                type="button"
-                onClick={() => setShowPassword((prev) => !prev)}
-                className="absolute inset-y-0 right-0 flex items-center pr-3 text-(--sf-muted-text) hover:text-(--sf-text)"
-                aria-label={showPassword ? 'Hide password' : 'Show password'}
-              >
-                {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
-              </button>
-            </div>
-            {errors.password && (
-              <p id="password-error" className="mt-1 text-sm text-red-600" role="alert">
-                {errors.password.message}
-              </p>
-            )}
+            <PasswordField
+              id="password"
+              autoComplete="new-password"
+              label="Password"
+              error={errors.password?.message}
+              {...registerField('password')}
+            />
           </div>
 
           {/* Confirm password */}
           <div>
-            <label htmlFor="confirmPassword" className="block text-sm font-medium text-(--sf-text)">
-              Confirm password
-            </label>
-            <div className="relative mt-1">
-              <input
-                id="confirmPassword"
-                type={showConfirmPassword ? 'text' : 'password'}
-                autoComplete="new-password"
-                aria-describedby={errors.confirmPassword ? 'confirmPassword-error' : undefined}
-                aria-invalid={!!errors.confirmPassword}
-                className="block w-full rounded-md border border-(--sf-border) px-3 py-2 pr-10 text-sm shadow-sm focus:border-(--sf-ring) focus:outline-none focus:ring-1 focus:ring-(--sf-ring)"
-                {...registerField('confirmPassword')}
-              />
-              <button
-                type="button"
-                onClick={() => setShowConfirmPassword((prev) => !prev)}
-                className="absolute inset-y-0 right-0 flex items-center pr-3 text-(--sf-muted-text) hover:text-(--sf-text)"
-                aria-label={showConfirmPassword ? 'Hide password' : 'Show password'}
-              >
-                {showConfirmPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
-              </button>
-            </div>
-            {errors.confirmPassword && (
-              <p id="confirmPassword-error" className="mt-1 text-sm text-red-600" role="alert">
-                {errors.confirmPassword.message}
-              </p>
-            )}
+            <PasswordField
+              id="confirmPassword"
+              autoComplete="new-password"
+              label="Confirm password"
+              error={errors.confirmPassword?.message}
+              {...registerField('confirmPassword')}
+            />
           </div>
 
           {/* Submit */}

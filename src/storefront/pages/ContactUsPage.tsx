@@ -8,6 +8,8 @@ import { useStorefrontConfig } from '@/shared/config/storefrontConfig.context'
 import { isApprovedMapEmbedUrl, isValidHttpsUrl } from '@/shared/utils/contactMapUrls'
 import { useSubmitEnquiry } from './hooks/useSubmitEnquiry'
 import { toast } from '@/shared/ui/components/toast'
+import { InputField } from '@/shared/ui/components/form/InputField'
+import { Textarea } from '@/shared/ui/components/form/Textarea'
 import type { ContactConfig } from '@/shared/types/StorefrontConfig'
 
 // --- Helpers ---
@@ -234,105 +236,70 @@ function EnquiryForm() {
 
       {/* Name */}
       <div>
-        <label htmlFor="enquiry-name" className="block text-sm font-medium text-(--sf-text)">
-          Name
-        </label>
-        <input
+        <InputField
           id="enquiry-name"
           type="text"
           autoComplete="name"
-          aria-describedby={errors.name ? 'enquiry-name-error' : undefined}
-          aria-invalid={!!errors.name}
-          className="mt-1 block w-full rounded-md border border-(--sf-border) px-3 py-2 text-sm shadow-sm focus:border-(--sf-ring) focus:outline-none focus:ring-1 focus:ring-(--sf-ring)"
+          label="Name"
+          error={errors.name?.message}
           {...register('name')}
         />
-        {errors.name && (
-          <p id="enquiry-name-error" className="mt-1 text-sm text-red-600" role="alert">
-            {errors.name.message}
-          </p>
-        )}
       </div>
 
       {/* Email */}
       <div>
-        <label htmlFor="enquiry-email" className="block text-sm font-medium text-(--sf-text)">
-          Email
-        </label>
-        <input
+        <InputField
           id="enquiry-email"
           type="email"
           autoComplete="email"
-          aria-describedby={errors.email ? 'enquiry-email-error' : undefined}
-          aria-invalid={!!errors.email}
-          className="mt-1 block w-full rounded-md border border-(--sf-border) px-3 py-2 text-sm shadow-sm focus:border-(--sf-ring) focus:outline-none focus:ring-1 focus:ring-(--sf-ring)"
+          label="Email"
+          error={errors.email?.message}
           {...register('email')}
         />
-        {errors.email && (
-          <p id="enquiry-email-error" className="mt-1 text-sm text-red-600" role="alert">
-            {errors.email.message}
-          </p>
-        )}
       </div>
 
       {/* Phone */}
       <div>
-        <label htmlFor="enquiry-phone" className="block text-sm font-medium text-(--sf-text)">
-          Phone
-        </label>
-        <input
+        <InputField
           id="enquiry-phone"
           type="tel"
           autoComplete="tel"
           required
-          aria-describedby={errors.phone ? 'enquiry-phone-error' : undefined}
-          aria-invalid={!!errors.phone}
-          className="mt-1 block w-full rounded-md border border-(--sf-border) px-3 py-2 text-sm shadow-sm focus:border-(--sf-ring) focus:outline-none focus:ring-1 focus:ring-(--sf-ring)"
+          // This form marks no field with an asterisk; only `phone` carries the
+          // HTML attribute (Req 4.5), so an indicator here alone misreads.
+          showRequiredIndicator={false}
+          label="Phone"
+          error={errors.phone?.message}
           {...register('phone')}
         />
-        {errors.phone && (
-          <p id="enquiry-phone-error" className="mt-1 text-sm text-red-600" role="alert">
-            {errors.phone.message}
-          </p>
-        )}
       </div>
 
       {/* Company (optional) */}
       <div>
-        <label htmlFor="enquiry-company" className="block text-sm font-medium text-(--sf-text)">
-          Company <span className="text-(--sf-muted-text)">(optional)</span>
-        </label>
-        <input
+        <InputField
           id="enquiry-company"
           type="text"
           autoComplete="organization"
-          className="mt-1 block w-full rounded-md border border-(--sf-border) px-3 py-2 text-sm shadow-sm focus:border-(--sf-ring) focus:outline-none focus:ring-1 focus:ring-(--sf-ring)"
+          label={
+            <>
+              Company <span className="text-(--sf-muted-text)">(optional)</span>
+            </>
+          }
+          error={errors.company?.message}
           {...register('company')}
         />
-        {errors.company && (
-          <p className="mt-1 text-sm text-red-600" role="alert">
-            {errors.company.message}
-          </p>
-        )}
       </div>
 
       {/* Message */}
       <div>
-        <label htmlFor="enquiry-message" className="block text-sm font-medium text-(--sf-text)">
-          Message
-        </label>
-        <textarea
+        <Textarea
           id="enquiry-message"
           rows={5}
-          aria-describedby={errors.message ? 'enquiry-message-error' : undefined}
-          aria-invalid={!!errors.message}
-          className="mt-1 block w-full resize-y rounded-md border border-(--sf-border) px-3 py-2 text-sm shadow-sm focus:border-(--sf-ring) focus:outline-none focus:ring-1 focus:ring-(--sf-ring)"
+          className="resize-y"
+          label="Message"
+          error={errors.message?.message}
           {...register('message')}
         />
-        {errors.message && (
-          <p id="enquiry-message-error" className="mt-1 text-sm text-red-600" role="alert">
-            {errors.message.message}
-          </p>
-        )}
       </div>
 
       {/* Submit */}

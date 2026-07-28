@@ -2,6 +2,7 @@ import { useForm } from 'react-hook-form'
 import { useLocation, useNavigate } from 'react-router-dom'
 import { useAdminResetPassword } from '@/admin/hooks/auth/useAdminResetPassword'
 import { useAdminLogin } from '@/admin/hooks/auth/useAdminLogin'
+import { PasswordField } from '@/shared/ui/components'
 
 interface ResetFormValues {
   password: string
@@ -51,8 +52,16 @@ export function AdminResetPasswordPage() {
     )
   }
 
+  // This page rendered outside AdminLayout with no data-surface at all, so --c-*
+  // fell through to :root and --c-control-h-* (defined only under [data-density])
+  // was undefined. Both attributes are load-bearing for the shared components.
   return (
-    <div className="flex min-h-screen items-center justify-center" style={{ background: 'var(--c-bg)' }}>
+    <div
+      data-surface="admin"
+      data-density="comfortable"
+      className="flex min-h-screen items-center justify-center"
+      style={{ background: 'var(--c-bg)' }}
+    >
       <div
         className="w-full max-w-sm rounded-xl p-8 shadow-lg"
         style={{ background: 'var(--c-surface)', border: '1px solid var(--c-border)' }}
@@ -65,60 +74,34 @@ export function AdminResetPasswordPage() {
         </p>
 
         <form onSubmit={handleSubmit(onSubmit)} noValidate className="flex flex-col gap-4">
-          <div className="flex flex-col gap-1">
-            <label className="text-sm font-medium" style={{ color: 'var(--c-text)' }}>
-              New password
-            </label>
-            <input
-              type="password"
+          <div>
+            <PasswordField
+              id="password"
               autoComplete="new-password"
+              label="New password"
+              toggleNoun="new password"
+              placeholder="••••••••"
+              error={errors.password?.message}
               {...register('password', {
                 required: 'New password is required',
                 minLength: { value: 8, message: 'Minimum 8 characters' },
               })}
-              className="rounded-lg px-3 py-2 text-sm outline-none transition"
-              style={{
-                background: 'var(--c-input-bg, var(--c-bg))',
-                border: errors.password
-                  ? '1px solid var(--c-status-red-border)'
-                  : '1px solid var(--c-border)',
-                color: 'var(--c-text)',
-              }}
-              placeholder="••••••••"
             />
-            {errors.password && (
-              <span className="text-xs" style={{ color: 'var(--c-status-red-text)' }}>
-                {errors.password.message}
-              </span>
-            )}
           </div>
 
-          <div className="flex flex-col gap-1">
-            <label className="text-sm font-medium" style={{ color: 'var(--c-text)' }}>
-              Confirm password
-            </label>
-            <input
-              type="password"
+          <div>
+            <PasswordField
+              id="confirmPassword"
               autoComplete="new-password"
+              label="Confirm password"
+              toggleNoun="confirm password"
+              placeholder="••••••••"
+              error={errors.confirmPassword?.message}
               {...register('confirmPassword', {
                 required: 'Please confirm your password',
                 validate: (v) => v === watch('password') || 'Passwords do not match',
               })}
-              className="rounded-lg px-3 py-2 text-sm outline-none transition"
-              style={{
-                background: 'var(--c-input-bg, var(--c-bg))',
-                border: errors.confirmPassword
-                  ? '1px solid var(--c-status-red-border)'
-                  : '1px solid var(--c-border)',
-                color: 'var(--c-text)',
-              }}
-              placeholder="••••••••"
             />
-            {errors.confirmPassword && (
-              <span className="text-xs" style={{ color: 'var(--c-status-red-text)' }}>
-                {errors.confirmPassword.message}
-              </span>
-            )}
           </div>
 
           {serverError && (

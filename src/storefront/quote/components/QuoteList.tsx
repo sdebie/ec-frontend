@@ -87,7 +87,7 @@ export function QuoteList() {
             type="button"
             onClick={() => remove(item.variantId)}
             aria-label={`Remove ${item.productName} from quote`}
-            className="flex h-7 w-7 items-center justify-center rounded text-(--sf-muted-text) hover:text-red-600"
+            className="flex h-7 w-7 items-center justify-center rounded text-(--sf-muted-text) hover:text-(--c-error)"
           >
             <Trash2 className="h-4 w-4" />
           </button>
