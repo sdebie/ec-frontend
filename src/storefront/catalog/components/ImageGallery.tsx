@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { pickFeaturedImage } from '../utils/imageUtils'
+import { pickFeaturedImage } from '../utils/productImage'
 import { resolveImageUrl } from '@/shared/utils/imageUrl'
 
 interface ImageGalleryProps {

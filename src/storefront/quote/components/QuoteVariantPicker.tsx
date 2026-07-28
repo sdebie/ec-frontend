@@ -1,6 +1,6 @@
 import { Check, Loader2 } from 'lucide-react'
 import { useProductDetail } from '@/storefront/catalog/hooks/useProductDetail'
-import { parseAttributes } from '@/storefront/catalog/utils/imageUtils'
+import { parseAttributes } from '@/storefront/catalog/utils/variantAttributes'
 import { getDisplayPrice } from '@/storefront/catalog/utils/pricing'
 import { useCustomerAuthStore } from '@/shared/auth/customerAuthStore'
 import { useStorefrontConfig } from '@/shared/config/storefrontConfig.context'

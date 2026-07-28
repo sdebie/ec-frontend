@@ -8,7 +8,19 @@ export function StorefrontLayout() {
   const { isRestoring } = useRestoreCustomerSession()
 
   return (
-    <div className="flex min-h-screen flex-col bg-(--sf-background) text-(--sf-text)">
+    /*
+      data-surface/data-density are what bind the shared `--c-*` component
+      vocabulary to this client's `--sf-*` branding (tokens.css). Without them
+      the [data-surface='storefront'] block never matches, `--c-*` falls through
+      :root to the ADMIN palette, and `--c-control-h-*` — which exists only under
+      [data-density] — is undefined entirely. Any shared/ui component rendered on
+      the storefront depends on these two attributes being here.
+    */
+    <div
+      data-surface="storefront"
+      data-density="comfortable"
+      className="flex min-h-screen flex-col bg-(--sf-background) text-(--sf-text)"
+    >
       <AnnouncementBanner />
       <StorefrontHeader />
       {/*

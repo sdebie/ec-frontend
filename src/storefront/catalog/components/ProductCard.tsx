@@ -3,7 +3,7 @@ import {useStorefrontConfig} from '@/shared/config/storefrontConfig.context'
 import {useCustomerAuthStore} from '@/shared/auth/customerAuthStore'
 import {formatAmount} from '@/shared/utils/formatAmount'
 import {getDisplayPrice} from '../utils/pricing'
-import {pickFeaturedImage} from '../utils/imageUtils'
+import {pickFeaturedImage} from '../utils/productImage'
 import {WishlistButton} from '@/storefront/customer/account/wishlist/WishlistButton'
 
 interface PriceTier {

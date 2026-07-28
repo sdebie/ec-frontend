@@ -1,5 +1,6 @@
 import {describe, expect, it} from 'vitest'
-import {parseAttributes, pickFeaturedImage, type ProductImage} from '../imageUtils'
+import {pickFeaturedImage, type ProductImage} from '../productImage'
+import {parseAttributes} from '../variantAttributes'
 
 describe('pickFeaturedImage', () => {
     it('returns null when images array is empty', () => {

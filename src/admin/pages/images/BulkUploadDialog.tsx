@@ -3,7 +3,7 @@ import { useRef, useState } from 'react'
 import { Dialog, DialogContent, DialogFooter, DialogHeader, Select, Upload, toast } from '@/shared/ui/components'
 import { Button } from '@/shared/ui/primitives'
 import { useBulkUpload, useImageDirectories } from '@/admin/hooks/images'
-import { isImageFile } from './imageUtils'
+import { isImageFile } from './imageFileValidation'
 
 interface BulkUploadDialogProps {
     open: boolean
