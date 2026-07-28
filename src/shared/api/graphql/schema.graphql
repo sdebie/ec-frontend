@@ -98,8 +98,6 @@ type Mutation {
   createBrand(brandDto: BrandDtoInput): Void
   "Create a new category"
   createCategory(categoryDto: CategoryDtoInput): Void
-  "Create an order"
-  createOrder(order: OrderDtoInput): OrderResponseDto
   createWholesaleApplication(customer: WholesaleCustomerDtoInput): WholesaleCustomerDto
   deleteBrand(id: String): Void
   "Delete a category"
@@ -291,25 +289,6 @@ type ProductInformationDto {
   variants: [ProductVariantDto]
 }
 
-type ProductListItemDto {
-  "Brand Name"
-  brandName: String
-  "All category names this product belongs to"
-  categoryNames: [String]
-  "Short description"
-  description: String
-  "Product ID (UUID as string)"
-  id: String
-  "Featured variant image URL"
-  imageName: String
-  "Product name"
-  name: String
-  "Product status"
-  status: String
-  "All variant IDs for this product"
-  variantIds: [String]
-}
-
 type ProductPriceComparisonDto {
   currentRetailPrice: BigDecimal
   currentWholesalePrice: BigDecimal
@@ -448,28 +427,6 @@ type Query {
     "When true, skips the default ACTIVE product and variant status restriction."
     ignoreStatus: Boolean = false
   ): BigInteger!
-  "Returns a paged list of products with active retail or wholesale pricing. Category scoping is not applied in this endpoint."
-  productList(filterRequest: FilterRequestInput, pageRequest: PageRequestInput): [ProductListItemDto]
-  "Returns a paged list of products linked to a mandatory brand."
-  productListByBrand(
-    "Required brand UUID."
-    brandId: String,
-    filterRequest: FilterRequestInput,
-    "When true, skips the default ACTIVE product and variant status restriction."
-    ignoreStatus: Boolean = false,
-    pageRequest: PageRequestInput
-  ): [ProductListItemDto]
-  "Returns a paged list of products for a mandatory category. Optionally includes categories under the same parent scope."
-  productListByCategory(
-    "Required category UUID."
-    categoryId: String,
-    filterRequest: FilterRequestInput,
-    "When true, skips the default ACTIVE product and variant status restriction."
-    ignoreStatus: Boolean = false,
-    "When true, products in the selected category and related parent-scope categories are included."
-    includeSubCategories: Boolean = true,
-    pageRequest: PageRequestInput
-  ): [ProductListItemDto]
   "Returns the list of all product price upload batches"
   productPriceUploadBatches: [ProductUploadBatchDto]
   "Returns the list of all product upload batches"
@@ -788,23 +745,6 @@ input FilterRequestInput {
   filterGroups: [FilterGroupInput]
   filters: [FilterInput]
   sort: [SortRequestInput]
-}
-
-"Input type for creating/updating an order"
-input OrderDtoInput {
-  items: [OrderItemDtoInput]
-  orderId: BigInteger
-  sessionId: String
-  totalAmount: BigDecimal
-}
-
-"Input item for an order line. Name is the product name sent by client."
-input OrderItemDtoInput {
-  name: String
-  quantity: Int
-  unitPrice: BigDecimal
-  "Selected product variant ID (UUID string)"
-  variant: String
 }
 
 input PageRequestInput {
