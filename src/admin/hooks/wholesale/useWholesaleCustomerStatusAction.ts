@@ -1,37 +1,14 @@
-import { useMutation, useQueryClient } from '@tanstack/react-query'
-import { ClientError, gql } from 'graphql-request'
-import { toast } from '@/shared/ui/components/toast'
+import { useUpdateCustomerStatus } from '@/admin/hooks/customers/useUpdateCustomerStatus'
 
-import { adminGraphqlClient } from '@/shared/api/graphql/adminGraphqlClient'
-import type { WholesaleCustomerStatusPayload } from './types'
-
-const UPDATE_CUSTOMER_STATUS = gql`
-  mutation UpdateCustomerStatus($id: String!, $status: String!) {
-    updateCustomerStatus(id: $id, status: $status) {
-      id
-      status
-    }
-  }
-`
-
-export function useWholesaleCustomerStatusAction() {
-  const queryClient = useQueryClient()
-
-  return useMutation({
-    mutationFn: async ({ customerId, status }: WholesaleCustomerStatusPayload) => {
-      await adminGraphqlClient.request(UPDATE_CUSTOMER_STATUS, {
-        id: customerId,
-        status,
-      })
-    },
-    onSuccess: (_data, { customerId }) => {
-      queryClient.invalidateQueries({ queryKey: ['admin', 'wholesale-customers'] })
-      queryClient.invalidateQueries({ queryKey: ['admin', 'wholesale-customers', customerId] })
-      toast.success('Customer status updated')
-    },
-    onError: (error) => {
-      console.error(error instanceof ClientError ? error.response.errors?.[0]?.message : error)
-      toast.error('Failed to update wholesale customer status', { duration: 0 })
-    },
-  })
-}
+/**
+ * Wholesale customer status changes go through the same `updateCustomerStatus`
+ * mutation as any other customer — there was never a second endpoint, only a
+ * second copy of the hook.
+ *
+ * Kept as a named alias so the wholesale pages read in their own vocabulary,
+ * but it is deliberately **not** a second implementation: the duplicate used to
+ * invalidate `['admin','wholesale-customers']` while its twin invalidated
+ * `['admin','customers']`, so whichever screen you were not on kept showing the
+ * old status. One implementation means one invalidation.
+ */
+export const useWholesaleCustomerStatusAction = useUpdateCustomerStatus

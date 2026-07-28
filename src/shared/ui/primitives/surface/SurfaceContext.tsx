@@ -1,6 +1,14 @@
 import { createContext, useContext, useMemo, type ReactNode } from 'react'
 
-export type SurfaceElevation = 'admin' | 'storefront' | 'wholesaler'
+/**
+ * The two surfaces this platform has. Wholesale is a customer *tier*
+ * (`shopperType`), not a surface — wholesale shoppers browse the same storefront
+ * and differ only in which price tier is primary. A third `'wholesaler'` member
+ * was removed 2026-07-28: nothing ever set it, and every `--ws-*` token its
+ * stylesheet block referenced was undefined, so the block resolved to the
+ * storefront values it was meant to override.
+ */
+export type SurfaceElevation = 'admin' | 'storefront'
 export type Density = 'compact' | 'comfortable'
 
 interface SurfaceContextValue {

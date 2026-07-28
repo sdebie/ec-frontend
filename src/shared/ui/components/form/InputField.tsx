@@ -17,6 +17,11 @@ export interface InputFieldProps
   error?: React.ReactNode
   leftIcon?: React.ReactNode
   rightIcon?: React.ReactNode
+  /**
+   * Lets `rightIcon` receive clicks (password show/hide toggles, clear buttons).
+   * Defaults to false so decorative icons stay click-through as before.
+   */
+  rightIconInteractive?: boolean
   fullWidth?: boolean
   variant?: InputProps['variant']
   size?: InputProps['size']
@@ -33,6 +38,7 @@ export const InputField = React.forwardRef<HTMLInputElement, InputFieldProps>(
       required,
       leftIcon,
       rightIcon,
+      rightIconInteractive = false,
       fullWidth = true,
       disabled,
       variant,
@@ -44,6 +50,16 @@ export const InputField = React.forwardRef<HTMLInputElement, InputFieldProps>(
     const generatedId = React.useId()
     const inputId = id || generatedId
     const hasError = !!error
+
+    // Wire the message to the control for assistive tech. `role="alert"` alone
+    // announces the message but leaves it unassociated with the field, so a
+    // screen-reader user tabbing back to the input hears no error. Callers may
+    // still pass their own aria-describedby/aria-invalid to override.
+    const messageId = hasError
+      ? `${inputId}-error`
+      : helperText
+        ? `${inputId}-helper`
+        : undefined
 
     return (
       <>
@@ -65,21 +81,30 @@ export const InputField = React.forwardRef<HTMLInputElement, InputFieldProps>(
             disabled={disabled}
             variant={hasError ? 'error' : (variant ?? 'default')}
             size={size}
+            aria-invalid={hasError || undefined}
+            aria-describedby={messageId}
             className={cn(leftIcon && 'pl-10', rightIcon && 'pr-10', className)}
             {...props}
           />
           {rightIcon && (
-            <div className="absolute right-3 text-(--c-text-muted) flex items-center pointer-events-none">
+            <div
+              className={cn(
+                'absolute right-3 text-(--c-text-muted) flex items-center',
+                !rightIconInteractive && 'pointer-events-none'
+              )}
+            >
               {rightIcon}
             </div>
           )}
         </div>
         {error ? (
-          <p className="text-sm text-(--c-error) mt-1" role="alert">
+          <p id={messageId} className="text-sm text-(--c-error) mt-1" role="alert">
             {error}
           </p>
         ) : helperText ? (
-          <p className="text-sm text-(--c-text-muted) mt-1">{helperText}</p>
+          <p id={messageId} className="text-sm text-(--c-text-muted) mt-1">
+            {helperText}
+          </p>
         ) : null}
       </>
     )
