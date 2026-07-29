@@ -35,7 +35,7 @@ jobs:
         uses: docker/build-push-action@v6
         with:
           context: ./ec-frontend
-          file: ./ec-frontend/Dockerfile.prod
+          file: ./ec-frontend/Dockerfile,jvm
           push: true
           # 🚀 GHCR tags must follow: ghcr.io/owner/image-name:tag
           tags: ghcr.io/${{ github.repository_owner }}/ec-frontend:latest
