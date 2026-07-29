@@ -16,18 +16,9 @@ const adminPageOnlyRoutes: AdminRouteList = [
             pageContainerType: 'contained',
         },
     },
-    {
-        key: 'admin.reset-password',
-        path: '/admin/reset-password',
-        component: lazy(() =>
-            import('@/admin/pages/AdminResetPasswordPage').then((m) => ({default: m.AdminResetPasswordPage}))
-        ),
-        authority: [],
-        meta: {
-            pageBackgroundType: 'plain',
-            pageContainerType: 'contained',
-        },
-    },
+    // '/admin/reset-password' is intentionally absent: it is registered as a top-level
+    // route in router.tsx, outside AdminGuard. AdminGuard redirects to it when an account
+    // must change its password, so a route inside the guarded subtree would loop.
     {
         key: 'admin.products.new',
         path: '/admin/products/new',

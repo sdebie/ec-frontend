@@ -13,10 +13,12 @@ interface AdminMeResponse {
   authority: string[]
   userName: string
   email: string
+  /** Optional on the wire so an older backend cannot silently unlock the portal. */
+  resetPassword?: boolean
 }
 
 export function AdminGuard({ children }: Props) {
-  const { token, role, setSession, clearSession } = useAdminAuthStore()
+  const { token, role, mustResetPassword, setSession, clearSession } = useAdminAuthStore()
   const needsRehydration = !!token && !role
   const [rehydrating, setRehydrating] = useState(needsRehydration)
   const [rehydrated, setRehydrated] = useState(false)
@@ -29,7 +31,16 @@ export function AdminGuard({ children }: Props) {
     adminHttpClient
       .get<AdminMeResponse>('/admin/me')
       .then(({ data }) => {
-        setSession({ token, ...data, userId: data.id })
+        // Absent flag ⇒ treat as "must reset". mustResetPassword is deliberately
+        // unpersisted, so this response is the only thing that can re-establish the
+        // state after a reload; defaulting to false here would let a flagged user
+        // bypass the change by reloading the page.
+        setSession({
+          token,
+          ...data,
+          userId: data.id,
+          mustResetPassword: data.resetPassword ?? true,
+        })
         setRehydrated(true)
       })
       .catch(() => {
@@ -43,6 +54,9 @@ export function AdminGuard({ children }: Props) {
   if (!token) return <Navigate to="/admin/login" replace />
   if (rehydrating) return <AdminLoadingIndicator />
   if (!role && !rehydrated) return <AdminLoadingIndicator />
+  // Checked after rehydration so the flag is authoritative, and before children so a
+  // flagged account never renders portal content.
+  if (mustResetPassword) return <Navigate to="/admin/reset-password" replace />
 
   return <>{children}</>
 }

@@ -62,14 +62,14 @@ export function StorefrontHeader() {
       <div className="mx-auto flex max-w-7xl items-center gap-4 px-4 py-3">
         {/* Logo / Store name */}
         <Link to="/" className="flex shrink-0 items-center gap-2">
-          {config.branding.logo ? (
+          {config.branding?.logo ? (
             <img
               src={resolveImageUrl(config.branding.logo.src) ?? config.branding.logo.src}
               alt={config.branding.logo.alt}
               className="h-8 w-auto"
             />
           ) : (
-            <span className="text-lg font-semibold">{config.branding.name}</span>
+            <span className="text-lg font-semibold">{config.branding?.name ?? config.clientName}</span>
           )}
         </Link>
 

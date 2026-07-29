@@ -20,6 +20,7 @@ interface AdminMeResponse {
     authority: string[]
     userName: string
     email: string
+    resetPassword?: boolean
 }
 
 export function useAdminLogin() {
@@ -31,31 +32,41 @@ export function useAdminLogin() {
                 .post<AdminLoginResponse>('/admin/auth/login', credentials)
                 .then((r) => r.data),
         onSuccess: async (data) => {
-            if (!data.resetPassword) {
-                // Set token immediately so subsequent requests are authenticated
+            // The session is established even when a password change is required.
+            // The reset endpoint is authenticated, so discarding the token here left
+            // the request anonymous and the forced-change flow could never complete.
+            // AdminGuard keeps the portal closed while mustResetPassword is true.
+            setSession({
+                token: data.token,
+                email: data.email,
+                role: data.role,
+                authority: [data.role],
+                userName: data.email,
+                mustResetPassword: data.resetPassword,
+            })
+
+            if (data.resetPassword) {
+                // Nothing further to enrich — the user cannot reach any screen that
+                // needs userId until the password change completes.
+                return
+            }
+
+            // Fetch userId from /admin/me — required for self-edit detection
+            try {
+                const me = await adminHttpClient
+                    .get<AdminMeResponse>('/admin/me')
+                    .then((r) => r.data)
                 setSession({
                     token: data.token,
-                    email: data.email,
-                    role: data.role,
-                    authority: [data.role],
-                    userName: data.email,
+                    email: me.email,
+                    role: me.role,
+                    authority: me.authority,
+                    userName: me.userName,
+                    userId: me.id,
+                    mustResetPassword: me.resetPassword ?? true,
                 })
-                // Fetch userId from /admin/me — required for self-edit detection
-                try {
-                    const me = await adminHttpClient
-                        .get<AdminMeResponse>('/admin/me')
-                        .then((r) => r.data)
-                    setSession({
-                        token: data.token,
-                        email: me.email,
-                        role: me.role,
-                        authority: me.authority,
-                        userName: me.userName,
-                        userId: me.id,
-                    })
-                } catch {
-                    // Non-fatal: userId remains null; self-edit guard treats null as non-self
-                }
+            } catch {
+                // Non-fatal: userId remains null; self-edit guard treats null as non-self
             }
         },
     })

@@ -2,6 +2,7 @@ import { useForm } from 'react-hook-form'
 import { useLocation, useNavigate } from 'react-router-dom'
 import { useAdminResetPassword } from '@/admin/hooks/auth/useAdminResetPassword'
 import { useAdminLogin } from '@/admin/hooks/auth/useAdminLogin'
+import { useAdminAuthStore } from '@/shared/auth/adminAuthStore'
 import { PasswordField } from '@/shared/ui/components'
 
 interface ResetFormValues {
@@ -12,7 +13,11 @@ interface ResetFormValues {
 export function AdminResetPasswordPage() {
   const navigate = useNavigate()
   const location = useLocation()
-  const email = (location.state as { email?: string } | null)?.email ?? ''
+  const sessionEmail = useAdminAuthStore((s) => s.email)
+  // Router state carries the email on the hop straight from sign-in, but it does not
+  // survive a reload — and AdminGuard sends flagged accounts here on every load. Fall
+  // back to the session so a refresh does not bounce the user back to the login page.
+  const email = (location.state as { email?: string } | null)?.email ?? sessionEmail ?? ''
 
   const { mutate: resetPassword, isPending, error } = useAdminResetPassword()
   const { mutate: login } = useAdminLogin()

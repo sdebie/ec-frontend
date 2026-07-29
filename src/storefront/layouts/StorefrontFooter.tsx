@@ -84,7 +84,8 @@ export function StorefrontFooter() {
 
   if (!config.footer) return null
 
-  const { branding, footer } = config
+  const { footer } = config
+  const branding = config.branding ?? { name: config.clientName }
 
   return (
     <footer style={{ backgroundColor: 'var(--sf-nav-background)', color: 'var(--sf-nav-text)' }}>
