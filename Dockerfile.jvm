@@ -18,6 +18,7 @@
 ## Using npm start for dev; for production, we'd use a multi-stage build with Nginx
 #CMD ["npm", "run", "dev", "--", "--host"]
 
+# Stage 1: Build static React bundle
 FROM node:20-alpine AS builder
 WORKDIR /app
 
@@ -26,13 +27,11 @@ RUN npm ci
 
 COPY . .
 
-# 🚀 Declare build arguments sent from GitHub Actions
 ARG VITE_API_URL
 ARG VITE_IMAGE_BASE_URL
 ARG VITE_API_BASE_URL
 ARG VITE_PROXY_TARGET
 
-# 🚀 Export them as environment variables so Vite can read them during "npm run build"
 ENV VITE_API_URL=$VITE_API_URL
 ENV VITE_IMAGE_BASE_URL=$VITE_IMAGE_BASE_URL
 ENV VITE_API_BASE_URL=$VITE_API_BASE_URL
@@ -42,7 +41,10 @@ RUN npm run build
 
 # Stage 2: Serve using NGINX
 FROM nginx:alpine
-COPY --from=builder /app/build /usr/share/nginx/html
+COPY --from=builder /app/dist /usr/share/nginx/html
+
+# 🚀 COPY YOUR NGINX ROUTING CONFIG HERE:
+COPY nginx.conf /etc/nginx/conf.d/default.conf
 
 EXPOSE 80
 CMD ["nginx", "-g", "daemon off;"]
