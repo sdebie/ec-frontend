@@ -44,6 +44,11 @@ export interface HeroSectionProps {
   subtitle?: string
   /** Small uppercase label above the title, e.g. "ABOUT UVH HOLDINGS". */
   kicker?: string
+  /**
+   * Band height: 'standard' (default, fixed minimum) or 'tall' — viewport-filling,
+   * for landing heroes whose background image composition needs the vertical room.
+   */
+  height?: 'standard' | 'tall'
   primaryCta?: StorefrontActionLink
   secondaryCta?: StorefrontActionLink
   backgroundImageUrl?: string
@@ -73,41 +78,64 @@ export interface CategoryPreviewItem {
 export interface CategoryPreviewSectionProps {
   title: string
   subtitle?: string
+  eyebrow?: string
+  /** Surface variant — mirrors TestimonialsSectionProps naming. */
+  variant?: 'light' | 'dark'
   layout?: 'tiles' | 'list'
+  /** Tile-card media placement: image above the text (default) or beside it on the left. */
+  imagePosition?: 'top' | 'left'
   columns?: 2 | 3 | 4 | 6
   items: CategoryPreviewItem[]
 }
 
-export interface TestimonialItem {
-  id: string
-  quote: string
-  name: string
-  role?: string
-  company?: string
-}
-
 export interface TestimonialsSectionProps {
-  title: string
-  subtitle?: string
-  layout?: 'grid' | 'stacked'
+  title?: string
+  eyebrow?: string
+  variant?: 'light' | 'dark'
+  layout?: 'grid' | 'stacked' | 'carousel'
   columns?: 1 | 2 | 3
-  items: TestimonialItem[]
 }
 
 export interface BenefitItem {
   title: string
   description: string
+  icon?: string
+}
+
+/** Inline sentence segment below the grid; segments with `to` render as links. */
+export interface BenefitsFootnoteSegment {
+  text: string
+  to?: string
 }
 
 export interface BenefitsSectionProps {
-  title: string
+  /** Optional so a heading-less 'strip' can render as a pure band (the stats-band effect). */
+  title?: string
+  eyebrow?: string
+  /** Surface variant — mirrors TestimonialsSectionProps naming. */
+  variant?: 'light' | 'dark'
+  /**
+   * 'cards' (default): bordered panel cards. 'strip': collapses items into a
+   * compact divided band (the StatsSection treatment) — icon + title + description
+   * centered per block; pairs well with `variant: "dark"` directly under a hero.
+   */
+  layout?: 'cards' | 'strip'
+  /** Where item icons sit relative to the title: above it (default) or on the same line. */
+  iconPlacement?: 'top' | 'inline'
+  /** Explicit desktop column count; absent → derived from the item count (no-orphan rule). */
+  columns?: 2 | 3 | 4
   items: BenefitItem[]
+  footnote?: BenefitsFootnoteSegment[]
 }
 
 export interface CtaSectionProps {
   title: string
   description?: string
+  /** Small uppercase label above the title, e.g. "Business & Wholesale". */
+  eyebrow?: string
   cta: StorefrontActionLink
+  /** Outlined button rendered beside the primary CTA (distinct from secondaryLinks). */
+  secondaryCta?: StorefrontActionLink
   secondaryLinks?: StorefrontActionLink[]
   variant?: 'accent' | 'dark'
 }
@@ -116,6 +144,7 @@ export interface NewsletterSectionProps {
   title: string
   submitLabel: string
   description?: string
+  eyebrow?: string
   placeholder?: string
   legalText?: string
   secondaryLink?: StorefrontActionLink
@@ -127,19 +156,34 @@ export interface PromoGridItem {
   title: string
   description?: string
   eyebrow?: string
+  imageUrl?: string
   cta?: StorefrontActionLink
 }
 
 export interface PromoGridSectionProps {
   title: string
   subtitle?: string
+  eyebrow?: string
+  /** Named icon from the shared section registry, rendered beside the heading title. */
+  icon?: string
   layout?: 'cards' | 'feature-first'
-  columns?: 2 | 3 | 4
+  /** Tighter band rhythm (py-8) and heading margin for a slimmer section. */
+  compact?: boolean
+  columns?: 2 | 3 | 4 | 5
   items: PromoGridItem[]
 }
 
 export interface FeaturedProductsSectionProps {
   title: string
+  eyebrow?: string
+  /** Surface variant — mirrors TestimonialsSectionProps naming. */
+  variant?: 'light' | 'dark'
+  /** 'row' (default): free-scrolling strip. 'carousel': snap deck with arrows. */
+  layout?: 'row' | 'carousel'
+  /** Whole cards visible per carousel view at desktop width (carousel layout only; default 3). */
+  columns?: 2 | 3 | 4
+  /** Label rendered as an accent pill on each card (e.g. "Best Seller"). */
+  badgeLabel?: string
   category?: string
   limit?: number
 }
@@ -154,14 +198,18 @@ export interface AccreditorItem {
 }
 
 export interface AccreditorsSectionProps {
-  heading?: string
+  title?: string
+  eyebrow?: string
   items: AccreditorItem[]
 }
 
 // --- Brands section ---
 
 export interface BrandsSectionProps {
-  heading?: string
+  title?: string
+  eyebrow?: string
+  /** Surface variant — mirrors TestimonialsSectionProps naming. */
+  variant?: 'light' | 'dark'
   limit?: number
 }
 
@@ -171,6 +219,10 @@ export interface CategoryShowcaseSectionProps {
   title: string
   categorySlug: string
   themeColor: string
+  /** 'row' (default): free-scrolling strip. 'carousel': snap deck with overlay arrows. */
+  layout?: 'row' | 'carousel'
+  /** Whole cards visible per carousel view at desktop width (carousel layout only; default 3). */
+  columns?: 2 | 3 | 4
   /**
    * Optional full CSS `background` value (typically a `linear-gradient(...)` string)
    * that overrides the themeColor-derived gradient. Lets each row carry its own
@@ -187,6 +239,7 @@ export interface CategoryShowcaseSectionProps {
 
 export interface SaleProductsSectionProps {
   title?: string
+  eyebrow?: string
   limit?: number
   category?: string
 }
@@ -200,14 +253,30 @@ export interface StatItem {
 
 export interface StatsSectionProps {
   title?: string
+  /** Small uppercase label above the title — rendered only when title is present. */
+  eyebrow?: string
+  /** Surface variant — mirrors TestimonialsSectionProps naming. */
+  variant?: 'light' | 'dark'
   items: StatItem[]
 }
 
 // --- Content Split section ---
 
-export interface ContentSplitSectionProps {
+/** Titled card rendered below the paragraphs (e.g. Mission / Vision), with an optional letter badge. */
+export interface ContentSplitCard {
+  /** Short badge text rendered in an accent square beside the title — typically one letter. */
+  badge?: string
   title: string
   paragraphs: string[]
+}
+
+export interface ContentSplitSectionProps {
+  eyebrow?: string
+  title: string
+  paragraphs: string[]
+  cards?: ContentSplitCard[]
+  /** Closing note under the cards — same segment shape as BenefitsSectionProps.footnote. */
+  footnote?: BenefitsFootnoteSegment[]
   imageUrl?: string
   imageAlt?: string
   imagePosition?: 'left' | 'right'  // default 'left'

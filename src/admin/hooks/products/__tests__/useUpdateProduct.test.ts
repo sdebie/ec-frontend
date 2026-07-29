@@ -117,7 +117,7 @@ describe('useUpdateProduct — real mapping', () => {
         sku: string
         stockQuantity: number
         prices: Array<{ priceType: string; price: string }>
-        images?: Array<{ imageUrl: string; isFeatured: boolean; sortOrder: number }>
+        images?: Array<{ imageUrl: string; featured: boolean; sortOrder: number }>
       }>
     } }).input
 
@@ -131,8 +131,8 @@ describe('useUpdateProduct — real mapping', () => {
     expect(input.variants[0].stockQuantity).toBe(20)
     expect(input.variants[0].prices).toEqual([{ priceType: 'RETAIL_PRICE', price: '100.50' }])
     expect(input.variants[0].images).toEqual([
-      { imageUrl: 'img-a.jpg', isFeatured: true, sortOrder: 0 },
-      { imageUrl: 'img-b.jpg', isFeatured: false, sortOrder: 1 },
+      { imageUrl: 'img-a.jpg', featured: true, sortOrder: 0 },
+      { imageUrl: 'img-b.jpg', featured: false, sortOrder: 1 },
     ])
 
     // Variant 1 (new, no id)

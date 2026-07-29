@@ -80,12 +80,14 @@ interface UseProductsParams {
 const SHOPPING_PRODUCT_LIST = gql`
     query ShoppingProductList(
         $filterRequest: FilterRequestInput
+        $categoryId: String
         $pageIndex: Int
         $pageSize: Int
         $onSale: Boolean
     ) {
         shoppingProductList(
             filterRequest: $filterRequest
+            categoryId: $categoryId
             pageIndex: $pageIndex
             pageSize: $pageSize
             onSale: $onSale
@@ -120,15 +122,12 @@ const PAGE_SIZE = 20
 // --- FilterRequest builder ---
 
 function buildFilterRequest(params: UseProductsParams): FilterRequest {
-    const {search, categoryId, brandId, sort} = params
+    const {search, brandId, sort} = params
 
     const filterRequest: FilterRequest = {}
 
-    // Build top-level EQUALS filters for category and brand
+    // Build top-level EQUALS filters for brand
     const filters: FilterItem[] = []
-    if (categoryId) {
-        filters.push({key: 'category.id', value: categoryId, operator: 'EQUALS'})
-    }
     if (brandId) {
         filters.push({key: 'brand.id', value: brandId, operator: 'EQUALS'})
     }
@@ -179,6 +178,7 @@ export function useProducts(params: UseProductsParams = {}) {
         queryFn: () =>
             graphqlClient.request<ShoppingProductListResponse>(SHOPPING_PRODUCT_LIST, {
                 filterRequest,
+                categoryId: params.categoryId || null,
                 pageIndex,
                 pageSize: PAGE_SIZE,
                 onSale,

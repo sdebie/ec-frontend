@@ -7,7 +7,7 @@ import {ProductListPage} from '../ProductListPage'
 // --- Mocks ---
 
 const mockCategories = [
-    {id: '1', name: 'Electronics', slug: 'electronics'},
+    {id: '1', name: 'Electronics', slug: 'electronics', parent: null},
 ]
 
 const mockBrands = [
@@ -38,6 +38,16 @@ const mockProducts = [
 vi.mock('../hooks/useCategories', () => ({
     useCategories: () => ({
         categories: mockCategories,
+        isLoading: false,
+        isError: false,
+    }),
+}))
+
+vi.mock('../hooks/useCategoryTree', () => ({
+    useCategoryTree: () => ({
+        tree: [
+            { id: '1', name: 'Electronics', slug: 'electronics', children: [] },
+        ],
         isLoading: false,
         isError: false,
     }),
@@ -130,9 +140,9 @@ describe('ProductListPage integration', () => {
             const user = userEvent.setup()
             renderWithRouter(['/products?page=2'])
 
-            // Select a category from the sidebar dropdown
-            const categorySelect = screen.getByLabelText('Category')
-            await user.selectOptions(categorySelect, 'electronics')
+            // Click a category button in the CategoryTreeFilter
+            const electronicsButton = screen.getByRole('button', {name: 'Electronics'})
+            await user.click(electronicsButton)
 
             // After category change, useProducts should be called with page 1
             const lastCall = mockUseProducts.mock.calls[mockUseProducts.mock.calls.length - 1][0]

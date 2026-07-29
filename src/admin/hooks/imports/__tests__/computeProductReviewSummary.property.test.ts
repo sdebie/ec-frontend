@@ -15,8 +15,8 @@ describe('computeProductReviewSummary — Property Tests', () => {
     validationStatus: fc.constantFrom<ValidationStatus>('VALID', 'INVALID'),
     validationErrors: fc.option(fc.string(), { nil: null }),
     imageErrors: fc.option(fc.string(), { nil: null }),
-    isNewProduct: fc.boolean(),
-    isNewVariant: fc.boolean(),
+    newProduct: fc.boolean(),
+    newVariant: fc.boolean(),
     hasChanges: fc.boolean(),
     currentName: fc.option(fc.string(), { nil: null }),
     proposedName: fc.option(fc.string(), { nil: null }),
@@ -62,22 +62,22 @@ describe('computeProductReviewSummary — Property Tests', () => {
     )
   })
 
-  it('newProducts equals count of rows with isNewProduct true', () => {
+  it('newProducts equals count of rows with newProduct true', () => {
     fc.assert(
       fc.property(fc.array(productComparisonArbitrary), (rows) => {
         const summary = computeProductReviewSummary(rows)
-        const expectedNewProducts = rows.filter(r => r.isNewProduct).length
+        const expectedNewProducts = rows.filter(r => r.newProduct).length
         expect(summary.newProducts).toBe(expectedNewProducts)
       }),
       { numRuns: 100 },
     )
   })
 
-  it('updates equals count where hasChanges is true but not isNewProduct and not isNewVariant', () => {
+  it('updates equals count where hasChanges is true but not newProduct and not newVariant', () => {
     fc.assert(
       fc.property(fc.array(productComparisonArbitrary), (rows) => {
         const summary = computeProductReviewSummary(rows)
-        const expectedUpdates = rows.filter(r => r.hasChanges && !r.isNewProduct && !r.isNewVariant).length
+        const expectedUpdates = rows.filter(r => r.hasChanges && !r.newProduct && !r.newVariant).length
         expect(summary.updates).toBe(expectedUpdates)
       }),
       { numRuns: 100 },

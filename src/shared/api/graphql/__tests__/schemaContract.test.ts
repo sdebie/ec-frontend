@@ -167,4 +167,12 @@ describe('GraphQL schema contract', () => {
       }
     },
   )
+
+  it('contains no entity types in the SDL (entity-boundary-cleanup regression guard)', () => {
+    schema ??= buildContractSchema(schemaSDL)
+    const entityTypes = Object.keys(schema.getTypeMap())
+      .filter((name) => !name.startsWith('__'))
+      .filter((name) => /Entity(Input)?$/.test(name))
+    expect(entityTypes).toEqual([])
+  })
 })

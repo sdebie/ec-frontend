@@ -16,8 +16,8 @@ const IMPORT_ROWS = gql`
       validationStatus
       validationErrors
       imageErrors
-      isNewProduct
-      isNewVariant
+      newProduct
+      newVariant
       hasChanges
       currentName
       proposedName

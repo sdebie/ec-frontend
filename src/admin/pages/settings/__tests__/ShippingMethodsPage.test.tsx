@@ -5,8 +5,8 @@ import { useAdminAuthStore } from '@/shared/auth/adminAuthStore'
 import { useShippingMethods } from '@/admin/hooks/settings'
 
 const mockShippingMethods = [
-  { id: '1', name: 'Standard Delivery', baseFee: 5000, isActive: true, estimatedDays: '3-5 business days' },
-  { id: '2', name: 'Express Delivery', baseFee: 15000, isActive: false, estimatedDays: '1-2 business days' },
+  { id: '1', name: 'Standard Delivery', baseFee: 5000, active: true, estimatedDays: '3-5 business days' },
+  { id: '2', name: 'Express Delivery', baseFee: 15000, active: false, estimatedDays: '1-2 business days' },
 ]
 
 vi.mock('@/admin/hooks/settings', () => ({

@@ -20,8 +20,8 @@ describe('Wholesale route configuration', () => {
       expect(wholesaleEntry!.path).toBe('/admin/wholesale')
     })
 
-    it('admin.wholesale has authority ["SUPER_ADMIN", "VIEWER"]', () => {
-      expect(wholesaleEntry!.authority).toEqual(['SUPER_ADMIN', 'VIEWER'])
+    it('admin.wholesale has authority ["SUPER_ADMIN", "ORDER_MANAGER", "VIEWER"]', () => {
+      expect(wholesaleEntry!.authority).toEqual(['SUPER_ADMIN', 'ORDER_MANAGER', 'VIEWER'])
     })
 
     it('admin.wholesale has meta.section "CUSTOMER MANAGEMENT"', () => {
@@ -54,8 +54,8 @@ describe('Wholesale route configuration', () => {
         expect(applicationsEntry!.meta.menuMatch).toBe('exact')
       })
 
-      it('has authority ["SUPER_ADMIN", "VIEWER"]', () => {
-        expect(applicationsEntry!.authority).toEqual(['SUPER_ADMIN', 'VIEWER'])
+      it('has authority ["SUPER_ADMIN", "ORDER_MANAGER", "VIEWER"]', () => {
+        expect(applicationsEntry!.authority).toEqual(['SUPER_ADMIN', 'ORDER_MANAGER', 'VIEWER'])
       })
     })
 
@@ -72,8 +72,8 @@ describe('Wholesale route configuration', () => {
         expect(customersEntry!.path).toBe('/admin/wholesale/customers')
       })
 
-      it('has authority ["SUPER_ADMIN", "VIEWER"]', () => {
-        expect(customersEntry!.authority).toEqual(['SUPER_ADMIN', 'VIEWER'])
+      it('has authority ["SUPER_ADMIN", "ORDER_MANAGER", "VIEWER"]', () => {
+        expect(customersEntry!.authority).toEqual(['SUPER_ADMIN', 'ORDER_MANAGER', 'VIEWER'])
       })
     })
   })
@@ -91,8 +91,8 @@ describe('Wholesale route configuration', () => {
       expect(detailRoute!.path).toBe('/admin/wholesale/customers/:customerId')
     })
 
-    it('has authority ["SUPER_ADMIN", "VIEWER"]', () => {
-      expect(detailRoute!.authority).toEqual(['SUPER_ADMIN', 'VIEWER'])
+    it('has authority ["SUPER_ADMIN", "ORDER_MANAGER", "VIEWER"]', () => {
+      expect(detailRoute!.authority).toEqual(['SUPER_ADMIN', 'ORDER_MANAGER', 'VIEWER'])
     })
   })
 

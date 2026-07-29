@@ -6,6 +6,7 @@ interface Category {
   id: string
   name: string
   slug: string
+  parent?: { id: string; name: string; slug: string } | null
 }
 
 interface GetCategoriesResponse {
@@ -22,6 +23,7 @@ const GET_CATEGORIES = gql`
         id
         name
         slug
+        parent { id name slug }
       }
       totalElements
     }

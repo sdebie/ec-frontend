@@ -58,30 +58,12 @@ type BrandDto {
   slug: String
 }
 
-type BrandEntity {
-  description: String
-  id: String
-  logoUrl: String
-  name: String
-  slug: String
-}
-
 type CategoryDto {
   description: String
   id: String
   imageUrl: String
   name: String
-  parent: CategoryEntity
-  slug: String
-}
-
-type CategoryEntity {
-  description: String
-  id: String
-  imageUrl: String
-  name: String
-  parent: CategoryEntity
-  products: [ProductEntity]
+  parent: CategoryDto
   slug: String
 }
 
@@ -95,59 +77,13 @@ type CountrySettingsDto {
   locale: String
 }
 
-type CustomerAddressEntity {
-  addressLine1: String
-  addressLine2: String
-  addressType: AddressTypeEn
-  city: String
-  customer: CustomerEntity
-  id: String
-  isDefault: Boolean!
-  postalCode: String
-  province: String
-  suburb: String
-}
-
-type CustomerContactEntity {
-  contactRole: ContactRoleEn
-  customer: CustomerEntity
-  email: String
-  fullName: String
-  id: String
-  phone: String
-}
-
-type CustomerDetailDto {
-  email: String
-}
-
 type CustomerDto {
   email: String
-}
-
-type CustomerEntity {
-  addresses: [CustomerAddressEntity]
-  contacts: [CustomerContactEntity]
-  firstName: String
-  id: String
-  lastName: String
-  orderEntities: [OrderEntity]
-  phone: String
-  shopperType: CustomerTypeEn
-  status: CustomerStatusEn
-  user: UserEntity
-  wholesaleProfile: WholesaleProfileEntity
 }
 
 type FeaturedProductResultDto {
   featured: Boolean!
   productId: String
-}
-
-type ImageDetailDto {
-  id: String
-  imageUrl: String
-  sortOrder: Int
 }
 
 "Mutation root"
@@ -165,7 +101,6 @@ type Mutation {
   "Create an order"
   createOrder(order: OrderDtoInput): OrderResponseDto
   createWholesaleApplication(customer: WholesaleCustomerDtoInput): WholesaleCustomerDto
-  createWholesaleCustomer(applicationId: String): WholesaleCustomerDto
   deleteBrand(id: String): Void
   "Delete a category"
   deleteCategory(id: String): Void
@@ -181,8 +116,6 @@ type Mutation {
   updateBrand(brandDto: BrandDtoInput, id: String): Void
   "Update an existing category"
   updateCategory(categoryDto: CategoryDtoInput, id: String): Void
-  "Update customer information for the latest order in a session. For now only email is supported."
-  updateCustomerInformation(customer: CustomerDtoInput, sessionId: String): CustomerDto
   updateCustomerStatus(id: String, status: String): AdminCustomerListItemDto
   "Update the status of the latest order for a given sessionId"
   updateOrderStatus(sessionId: String, status: String): OrderResponseDto
@@ -190,6 +123,7 @@ type Mutation {
   updateProductInformation(input: ProductInformationDtoInput, productId: String): ProductInformationDto
   "Update a product's status. SUPER_ADMIN only."
   updateProductStatus(id: String, status: String): Void
+  updateQuoteRequestStatus(id: String, status: String): QuoteRequestDetailsDto
   updateSetting(key: String, value: String): StoreSettingsDto
   "Updates an existing staff user"
   updateStaffUser(id: String, staffDto: StaffDtoInput): Void
@@ -199,7 +133,7 @@ type Mutation {
 type OrderDetailRespDto {
   "ISO-8601"
   createdAt: DateTime
-  customerEntity: CustomerDetailDto
+  customerEntity: CustomerDto
   id: String
   items: [OrderItemDetailDto]
   sessionId: String
@@ -214,25 +148,6 @@ type OrderDetailRespDto {
   totalAmount: BigDecimal
 }
 
-type OrderEntity {
-  city: String
-  contactEmail: String
-  contactFirstName: String
-  contactLastName: String
-  "ISO-8601"
-  createdAt: DateTime
-  customerEntity: CustomerEntity
-  id: String
-  items: [OrderItemEntity]
-  postalCode: String
-  province: String
-  sessionId: String
-  shippingMethod: ShippingMethodEntity
-  status: OrderStatusEn
-  streetAddress: String
-  totalAmount: BigDecimal
-}
-
 type OrderItemDetailDto {
   id: String
   quantity: Int
@@ -240,28 +155,12 @@ type OrderItemDetailDto {
   variant: ProductVariantDetailDto
 }
 
-type OrderItemEntity {
-  id: String
-  orderEntity: OrderEntity
-  quantity: Int
-  subtotal: BigDecimal
-  unitPrice: BigDecimal
-  variant: ProductVariantEntity
-}
-
-type OrderItemResponseDto {
-  id: String
-  quantity: Int
-  unitPrice: BigDecimal
-  variant: ProductVariantDto
-}
-
 type OrderResponseDto {
   createDate: String
   customer: CustomerDto
   id: String
   itemCount: Int
-  items: [OrderItemResponseDto]
+  items: [OrderItemDetailDto]
   sessionId: String
   status: String
   totalAmount: BigDecimal
@@ -273,7 +172,6 @@ type OrderStatusHistoryDetailRespDto {
   "ISO-8601"
   createdAt: DateTime
   id: String
-  order: OrderEntity
   status: OrderStatusEn
 }
 
@@ -328,10 +226,8 @@ type ProductComparisonDto {
   currentStock: Int
   hasChanges: Boolean!
   imageErrors: String
-  isNewProduct: Boolean!
-  isNewVariant: Boolean!
-  isValidBrand: Boolean!
-  isValidCategory: Boolean!
+  newProduct: Boolean!
+  newVariant: Boolean!
   proposedAttributes: String
   proposedDescription: String
   proposedImages: String
@@ -340,6 +236,8 @@ type ProductComparisonDto {
   proposedStock: Int
   sku: String
   stagedId: String
+  validBrand: Boolean!
+  validCategory: Boolean!
   validationErrors: String
   validationStatus: ProductImportValidationStatusEn
 }
@@ -375,23 +273,6 @@ type ProductDto {
   variants: [ProductVariantDto]
 }
 
-type ProductEntity {
-  brand: BrandEntity
-  categories: [CategoryEntity]
-  category: CategoryEntity
-  "ISO-8601"
-  createdAt: DateTime
-  description: String
-  id: String
-  isFeatured: Boolean!
-  name: String
-  productType: ProductTypeEn
-  shorDescription: String
-  slug: String
-  status: ProductStatusEn
-  variants: [ProductVariantEntity]
-}
-
 type ProductImageDto {
   "Whether this image is featured"
   featured: Boolean!
@@ -400,14 +281,6 @@ type ProductImageDto {
   "Image URL"
   imageUrl: String
   "Sort order for display"
-  sortOrder: Int
-}
-
-type ProductImageEntity {
-  id: String
-  imageUrl: String
-  isFeatured: Boolean
-  productVariant: ProductVariantEntity
   sortOrder: Int
 }
 
@@ -497,7 +370,7 @@ type ProductUploadBatchDto {
 type ProductVariantDetailDto {
   attributesJson: String
   id: String
-  images: [ImageDetailDto]
+  images: [ProductImageDto]
   product: ProductDetailDto
   stockQuantity: Int
   weightKg: BigDecimal
@@ -520,18 +393,6 @@ type ProductVariantDto {
   weightKg: BigDecimal
 }
 
-type ProductVariantEntity {
-  attributesJson: String
-  id: String
-  images: [ProductImageEntity]
-  prices: [VariantPricesEntity]
-  product: ProductEntity
-  sku: String
-  status: ProductStatusEn
-  stockQuantity: Int
-  weightKg: BigDecimal
-}
-
 "Query root"
 type Query {
   adminCustomer(id: String): AdminCustomerDetailDto
@@ -545,6 +406,7 @@ type Query {
   allCustomers(filterRequest: FilterRequestInput, pageRequest: PageRequestInput): [AdminCustomerListItemDto]
   "Get all orders with paging, newest created orders first by default"
   allOrders(filterRequest: FilterRequestInput, pageRequest: PageRequestInput): [OrderResponseDto]
+  allQuoteRequests(filterRequest: FilterRequestInput, pageRequest: PageRequestInput): [QuoteRequestListItemDto]
   allWholesaleApplications(filterRequest: FilterRequestInput, pageRequest: PageRequestInput): [WholesaleApplicationListItemDto]
   brand(id: String): BrandDto
   brandCount(filterRequest: FilterRequestInput): BigInteger!
@@ -612,6 +474,8 @@ type Query {
   productPriceUploadBatches: [ProductUploadBatchDto]
   "Returns the list of all product upload batches"
   productUploadBatches: [ProductUploadBatchDto]
+  quoteRequest(id: String): QuoteRequestDetailsDto
+  quoteRequestCount(filterRequest: FilterRequestInput): BigInteger!
   "Returns shopping product cards that currently have active RETAIL_SALE_PRICE or WHOLESALE_SALE_PRICE values only."
   saleProductList(
     "When true, skips the default ACTIVE product and variant status restriction."
@@ -653,6 +517,38 @@ type Query {
   wholesaleApplicationCount(filterRequest: FilterRequestInput): BigInteger!
 }
 
+type QuoteRequestDetailsDto {
+  company: String
+  "ISO-8601"
+  createdAt: DateTime
+  email: String
+  id: String
+  items: [QuoteRequestItemDto]
+  message: String
+  name: String
+  phone: String
+  status: QuoteRequestStatusEn
+  "ISO-8601"
+  statusChangedAt: DateTime
+}
+
+type QuoteRequestItemDto {
+  productNameSnapshot: String
+  quantity: Int!
+  variantId: String
+  variantSkuSnapshot: String
+}
+
+type QuoteRequestListItemDto {
+  company: String
+  "ISO-8601"
+  createdAt: DateTime
+  id: String
+  itemCount: Int!
+  name: String
+  status: QuoteRequestStatusEn
+}
+
 type SettingsDto {
   countrySettings: [CountrySettingsDto]
   shippingMethods: [ShippingMethodDto]
@@ -664,14 +560,6 @@ type ShippingMethodDto {
   baseFee: BigDecimal
   estimatedDays: String
   id: String
-  name: String
-}
-
-type ShippingMethodEntity {
-  baseFee: BigDecimal
-  estimatedDays: String
-  id: String
-  isActive: Boolean!
   name: String
 }
 
@@ -693,34 +581,11 @@ type StoreSettingsDto {
   value: String
 }
 
-type UserEntity {
-  "ISO-8601"
-  createdAt: DateTime
-  customer: CustomerEntity
-  email: String
-  id: String
-  isActive: Boolean!
-  "ISO-8601"
-  lastLogin: DateTime
-  mfaEnabled: Boolean!
-  passwordHash: String
-  passwordResetCodeAttempts: Int!
-  "ISO-8601"
-  passwordResetCodeExpiry: DateTime
-  passwordResetCodeHash: String
-  "ISO-8601"
-  passwordResetCodeLockedUntil: DateTime
-  resetToken: String
-  "ISO-8601"
-  resetTokenExpiry: DateTime
-  roles: [String]
-}
-
 type VariantPriceDto {
-  "Whether this price is currently active based on date range"
-  active: Boolean
   "Price ID (UUID as string)"
   id: String
+  "Whether this price is currently active based on date range"
+  isActive: Boolean
   "Price amount"
   price: BigDecimal
   "When this price expires (null = never expires) (ISO-8601)"
@@ -731,24 +596,6 @@ type VariantPriceDto {
   priceType: String
   "Number of days remaining for sale prices (RETAIL_SALE_PRICE / WHOLESALE_SALE_PRICE); null for non-sale or no end date"
   saleDaysRemaining: BigInteger
-}
-
-type VariantPricesEntity {
-  active: Boolean!
-  "ISO-8601"
-  createdAt: DateTime
-  createdBy: String
-  id: String
-  price: BigDecimal
-  "ISO-8601"
-  priceEndDate: DateTime
-  "ISO-8601"
-  priceStartDate: DateTime
-  priceType: PriceTypeEn
-  "ISO-8601"
-  updatedAt: DateTime
-  updatedBy: String
-  variant: ProductVariantEntity
 }
 
 type WholesaleApplicationDetailsDto {
@@ -801,8 +648,14 @@ type WholesaleApplicationListItemDto {
 }
 
 type WholesaleCustomerDto {
+  applicantEmail: String
+  companyEmail: String
   companyName: String
+  companyPhone: String
   email: String
+  financeContactEmail: String
+  financeContactName: String
+  financeContactPhone: String
   firstName: String
   id: String
   lastName: String
@@ -820,44 +673,11 @@ type WholesaleCustomerDto {
   postalPostalCode: String
   postalProvince: String
   postalSuburb: String
+  purchaseOrderRequired: Boolean
   regNumber: String
   status: WholesaleCustomerStatusEn
+  tradingName: String
   vatNumber: String
-}
-
-type WholesaleProfileEntity {
-  companyName: String
-  creditLimit: BigDecimal
-  customer: CustomerEntity
-  customerId: String
-  paymentTermsDays: Int!
-  regNumber: String
-  vatNumber: String
-}
-
-enum AddressTypeEn {
-  BILLING
-  PHYSICAL
-  POSTAL
-  SHIPPING
-}
-
-enum ContactRoleEn {
-  BUYER
-  FINANCE
-  MANAGER
-}
-
-enum CustomerStatusEn {
-  ACTIVE
-  DISABLED
-  PENDING
-}
-
-enum CustomerTypeEn {
-  GUEST
-  RETAILER
-  WHOLESALER
 }
 
 enum FilterOperator {
@@ -895,27 +715,15 @@ enum OrderStatusEn {
   SYSTEM_CANCELED
 }
 
-enum PriceTypeEn {
-  RETAIL_PRICE
-  RETAIL_SALE_PRICE
-  WHOLESALE_PRICE
-  WHOLESALE_SALE_PRICE
-}
-
 enum ProductImportValidationStatusEn {
   INVALID
   VALID
 }
 
-enum ProductStatusEn {
-  ACTIVE
-  DISABLED
-  PENDING
-}
-
-enum ProductTypeEn {
-  SIMPLE
-  VARIABLE
+enum QuoteRequestStatusEn {
+  CLOSED
+  IN_PROGRESS
+  NEW
 }
 
 enum SortDirection {
@@ -954,35 +762,13 @@ input BrandDtoInput {
   slug: String
 }
 
-input BrandEntityInput {
-  description: String
-  id: String
-  logoUrl: String
-  name: String
-  slug: String
-}
-
 input CategoryDtoInput {
   description: String
   id: String
   imageUrl: String
   name: String
-  parent: CategoryEntityInput
+  parent: CategoryDtoInput
   slug: String
-}
-
-input CategoryEntityInput {
-  description: String
-  id: String
-  imageUrl: String
-  name: String
-  parent: CategoryEntityInput
-  products: [ProductEntityInput]
-  slug: String
-}
-
-input CustomerDtoInput {
-  email: String
 }
 
 input FilterGroupInput {
@@ -1053,39 +839,14 @@ input ProductDtoInput {
   variants: [ProductVariantDtoInput]
 }
 
-input ProductEntityInput {
-  brand: BrandEntityInput
-  categories: [CategoryEntityInput]
-  category: CategoryEntityInput
-  "ISO-8601"
-  createdAt: DateTime
-  description: String
-  id: String
-  isFeatured: Boolean!
-  name: String
-  productType: ProductTypeEn
-  shorDescription: String
-  slug: String
-  status: ProductStatusEn
-  variants: [ProductVariantEntityInput]
-}
-
 input ProductImageDtoInput {
+  "Whether this image is featured"
+  featured: Boolean!
   "Image ID (UUID as string)"
   id: String
   "Image URL"
   imageUrl: String
-  "Whether this image is featured"
-  isFeatured: Boolean!
   "Sort order for display"
-  sortOrder: Int
-}
-
-input ProductImageEntityInput {
-  id: String
-  imageUrl: String
-  isFeatured: Boolean
-  productVariant: ProductVariantEntityInput
   sortOrder: Int
 }
 
@@ -1113,23 +874,11 @@ input ProductVariantDtoInput {
   weightKg: BigDecimal
 }
 
-input ProductVariantEntityInput {
-  attributesJson: String
-  id: String
-  images: [ProductImageEntityInput]
-  prices: [VariantPricesEntityInput]
-  product: ProductEntityInput
-  sku: String
-  status: ProductStatusEn
-  stockQuantity: Int
-  weightKg: BigDecimal
-}
-
 input ShippingMethodDtoInput {
+  active: Boolean!
   baseFee: BigDecimal
   estimatedDays: String
   id: String
-  isActive: Boolean!
   name: String
 }
 
@@ -1171,23 +920,6 @@ input VariantPriceDtoInput {
   priceType: String
   "Number of days remaining for sale prices (RETAIL_SALE_PRICE / WHOLESALE_SALE_PRICE); null for non-sale or no end date"
   saleDaysRemaining: BigInteger
-}
-
-input VariantPricesEntityInput {
-  "ISO-8601"
-  createdAt: DateTime
-  createdBy: String
-  id: String
-  price: BigDecimal
-  "ISO-8601"
-  priceEndDate: DateTime
-  "ISO-8601"
-  priceStartDate: DateTime
-  priceType: PriceTypeEn
-  "ISO-8601"
-  updatedAt: DateTime
-  updatedBy: String
-  variant: ProductVariantEntityInput
 }
 
 input WholesaleCustomerDtoInput {

@@ -1,4 +1,4 @@
-import {render, screen} from '@testing-library/react'
+import {fireEvent, render, screen} from '@testing-library/react'
 import {describe, expect, it, vi} from 'vitest'
 import fc from 'fast-check'
 import type {ContentSplitSectionConfig} from '@/shared/types/StorefrontConfig'
@@ -30,85 +30,173 @@ function renderSplit(section: ContentSplitSectionConfig = baseSection) {
 }
 
 describe('ContentSplitSection', () => {
-    it('renders title and all paragraphs from props', () => {
-        renderSplit()
+    describe('Section frame', () => {
+        it('renders inside a <section> with standardized rhythm classes', () => {
+            const {container} = renderSplit()
 
-        expect(screen.getByRole('heading', {level: 2})).toHaveTextContent('Our Story')
-        expect(screen.getByText('We simplify procurement through a modern platform.')).toBeInTheDocument()
-        expect(screen.getByText('Our mission is to supply what customers need.')).toBeInTheDocument()
+            const sectionEl = container.querySelector('section')
+            expect(sectionEl).toBeInTheDocument()
+            expect(sectionEl).toHaveClass('py-12', 'px-6', 'sm:px-8')
+        })
+
+        it('renders an inner container with mx-auto and max-w-5xl', () => {
+            const {container} = renderSplit()
+
+            const sectionEl = container.querySelector('section')
+            const inner = sectionEl?.firstElementChild
+            expect(inner).toHaveClass('mx-auto', 'max-w-5xl')
+        })
     })
 
-    it('renders nothing when paragraphs is empty', () => {
-        const sectionEmpty: ContentSplitSectionConfig = {
-            ...baseSection,
-            props: {...baseSection.props, paragraphs: []},
-        }
-        const {container} = renderSplit(sectionEmpty)
+    describe('SectionHeading', () => {
+        it('renders title as an h2 with text-3xl font-bold (unconditional — title is required)', () => {
+            renderSplit()
 
-        expect(container.innerHTML).toBe('')
+            const heading = screen.getByRole('heading', {level: 2})
+            expect(heading).toHaveTextContent('Our Story')
+            expect(heading).toHaveClass('text-3xl', 'font-bold')
+        })
+
+        it('renders eyebrow when provided', () => {
+            const sectionWithEyebrow: ContentSplitSectionConfig = {
+                ...baseSection,
+                props: {...baseSection.props, eyebrow: 'About Us'},
+            }
+            renderSplit(sectionWithEyebrow)
+
+            expect(screen.getByText('About Us')).toBeInTheDocument()
+            expect(screen.getByText('About Us')).toHaveClass('uppercase', 'tracking-widest')
+        })
     })
 
-    it('defaults imagePosition to left (no md:order-2 ancestor)', () => {
-        const {container} = renderSplit()
+    describe('image position', () => {
+        it('defaults imagePosition to left (no md:order-2 on image wrapper)', () => {
+            const {container} = renderSplit()
 
-        const img = container.querySelector('img')!
-        expect(img.closest('.md\\:order-2')).not.toBeInTheDocument()
+            const img = container.querySelector('img')!
+            expect(img.closest('.md\\:order-2')).not.toBeInTheDocument()
+        })
+
+        it('applies md:order-2 on the image wrapper when imagePosition is right', () => {
+            const sectionRight: ContentSplitSectionConfig = {
+                ...baseSection,
+                props: {...baseSection.props, imagePosition: 'right'},
+            }
+            const {container} = renderSplit(sectionRight)
+
+            const img = container.querySelector('img')!
+            expect(img.closest('.md\\:order-2')).toBeInTheDocument()
+        })
     })
 
-    it('applies md:order-2 on the image wrapper when imagePosition is right', () => {
-        const sectionRight: ContentSplitSectionConfig = {
-            ...baseSection,
-            props: {...baseSection.props, imagePosition: 'right'},
-        }
-        const {container} = renderSplit(sectionRight)
+    describe('image fallback', () => {
+        it('collapses to text-only layout when image fails to load', () => {
+            const {container} = renderSplit()
 
-        const img = container.querySelector('img')!
-        expect(img.closest('.md\\:order-2')).toBeInTheDocument()
+            // Image initially present
+            const img = container.querySelector('img')
+            expect(img).toBeInTheDocument()
+
+            // Simulate load failure
+            fireEvent.error(img!)
+
+            // After error: no image, no grid-cols-2, paragraphs full-width (no prose cap)
+            expect(container.querySelector('img')).not.toBeInTheDocument()
+            expect(container.querySelector('.md\\:grid-cols-2')).not.toBeInTheDocument()
+            expect(container.querySelector('.max-w-prose')).not.toBeInTheDocument()
+            expect(container.querySelector('.space-y-4')).toBeInTheDocument()
+        })
     })
 
-    it('renders the image inside a consistent 4:3 aspect-ratio wrapper', () => {
-        const {container} = renderSplit()
+    describe('no-image layout', () => {
+        it('renders text-only full-width when imageUrl is absent (no img, no grid-cols-2, no prose cap)', () => {
+            const sectionNoImage: ContentSplitSectionConfig = {
+                ...baseSection,
+                props: {
+                    title: 'Text Only',
+                    paragraphs: ['A paragraph.'],
+                },
+            }
+            const {container} = renderSplit(sectionNoImage)
 
-        const img = container.querySelector('img')!
-        expect(img.closest('.aspect-\\[4\\/3\\]')).toBeInTheDocument()
+            expect(container.querySelector('img')).not.toBeInTheDocument()
+            expect(container.querySelector('.md\\:grid-cols-2')).not.toBeInTheDocument()
+            expect(container.querySelector('.max-w-prose')).not.toBeInTheDocument()
+            expect(container.querySelector('.space-y-4')).toBeInTheDocument()
+        })
     })
 
-    it('passes imageUrl through resolveImageUrl', () => {
-        const {container} = renderSplit()
+    describe('cards (e.g. Mission / Vision)', () => {
+        it('renders titled cards with letter badges and paragraphs in a two-up grid', () => {
+            const sectionWithCards: ContentSplitSectionConfig = {
+                ...baseSection,
+                props: {
+                    title: 'About',
+                    paragraphs: ['Intro paragraph.'],
+                    cards: [
+                        {badge: 'M', title: 'Mission', paragraphs: ['Mission text.']},
+                        {badge: 'V', title: 'Vision', paragraphs: ['Vision text one.', 'Vision text two.']},
+                    ],
+                },
+            }
+            const {container} = renderSplit(sectionWithCards)
 
-        const img = container.querySelector('img')!
-        expect(img).toHaveAttribute('src', '/static/images/about/company.jpg')
+            const grid = [...container.querySelectorAll('.grid')].find(g => g.className.includes('sm:grid-cols-2'))
+            expect(grid).toBeInTheDocument()
+            const cards = grid!.querySelectorAll('article')
+            expect(cards).toHaveLength(2)
+
+            const mission = cards[0]
+            expect(mission.querySelector('h3')).toHaveTextContent('Mission')
+            const badge = mission.querySelector('span[aria-hidden]')
+            expect(badge).toHaveTextContent('M')
+            expect(badge?.className).toContain('bg-(--sf-accent)')
+            expect(cards[1].querySelectorAll('p')).toHaveLength(2)
+        })
+
+        it('renders no card grid when cards is absent', () => {
+            const {container} = renderSplit()
+            expect(container.querySelector('article')).not.toBeInTheDocument()
+        })
+
+        it('renders a footnote paragraph under the cards when provided', () => {
+            const sectionWithFootnote: ContentSplitSectionConfig = {
+                ...baseSection,
+                props: {
+                    title: 'About',
+                    paragraphs: ['Intro.'],
+                    cards: [{badge: 'M', title: 'Mission', paragraphs: ['Mission text.']}],
+                    footnote: [{text: 'Closing note under the blocks.'}],
+                },
+            }
+            renderSplit(sectionWithFootnote)
+            expect(screen.getByText('Closing note under the blocks.')).toBeInTheDocument()
+        })
     })
 
-    it('does not render img element when imageUrl is absent', () => {
-        const sectionNoImage: ContentSplitSectionConfig = {
-            ...baseSection,
-            props: {
-                title: 'Text Only',
-                paragraphs: ['A paragraph.'],
-            },
-        }
-        const {container} = renderSplit(sectionNoImage)
+    describe('null-on-empty', () => {
+        it('renders nothing when paragraphs is empty', () => {
+            const sectionEmpty: ContentSplitSectionConfig = {
+                ...baseSection,
+                props: {...baseSection.props, paragraphs: []},
+            }
+            const {container} = renderSplit(sectionEmpty)
 
-        expect(container.querySelector('img')).not.toBeInTheDocument()
+            expect(container.innerHTML).toBe('')
+        })
     })
 
-    it('renders full-width text when no image (no grid-cols-2)', () => {
-        const sectionNoImage: ContentSplitSectionConfig = {
-            ...baseSection,
-            props: {
-                title: 'Text Only',
-                paragraphs: ['A paragraph.'],
-            },
-        }
-        const {container} = renderSplit(sectionNoImage)
+    describe('image rendering', () => {
+        it('renders image with resolved URL and loading="lazy"', () => {
+            const {container} = renderSplit()
 
-        const wrapper = container.querySelector('.max-w-3xl')
-        expect(wrapper).toBeInTheDocument()
-        expect(container.querySelector('.md\\:grid-cols-2')).not.toBeInTheDocument()
+            const img = container.querySelector('img')!
+            expect(img).toHaveAttribute('src', '/static/images/about/company.jpg')
+            expect(img).toHaveAttribute('loading', 'lazy')
+        })
     })
 
-    // Feature: about-page, Property 5: Content-split section renders all text content
+    // Property: Content-split section renders all text content
     it('property: renders title and every paragraph for any non-empty title + paragraphs', () => {
         const titleArb = fc.string({minLength: 1, maxLength: 50})
         const paragraphArb = fc.string({minLength: 1, maxLength: 100})

@@ -1,29 +1,19 @@
 import {Link} from 'react-router-dom'
+import type {SaleProductsSectionConfig} from '@/shared/types/StorefrontConfig'
 import {ProductCard} from '@/storefront/catalog/components/ProductCard'
 import {useSaleShoppingProducts} from '@/storefront/sections/hooks/useSaleShoppingProducts'
-
-interface SaleProductsSectionProps {
-    title?: string
-    limit?: number
-    category?: string
-}
-
-interface SaleProductsSectionConfig {
-    id: string
-    type: 'sale-products'
-    props: SaleProductsSectionProps
-}
+import {Section, SectionHeading} from './shared'
 
 export function SaleProductsSection({section}: { section: SaleProductsSectionConfig }) {
-    const {title = 'Specials', limit = 8} = section.props
+    const {title = 'Specials', eyebrow, limit = 8} = section.props
 
     const {products, isLoading, isError} = useSaleShoppingProducts({limit})
 
     if (isLoading) {
         return (
-            <section className="py-12 px-6">
-                <div className="mb-6 flex items-center justify-between">
-                    <h2 className="text-2xl font-bold text-(--sf-text)">{title}</h2>
+            <Section>
+                <SectionHeading title={title} eyebrow={eyebrow} />
+                <div className="mb-4 flex justify-end">
                     <Link to="/specials" className="text-sm font-medium text-(--sf-accent) hover:opacity-80">
                         View all →
                     </Link>
@@ -37,7 +27,7 @@ export function SaleProductsSection({section}: { section: SaleProductsSectionCon
                         </div>
                     ))}
                 </div>
-            </section>
+            </Section>
         )
     }
 
@@ -46,9 +36,9 @@ export function SaleProductsSection({section}: { section: SaleProductsSectionCon
     }
 
     return (
-        <section className="py-12 px-6">
-            <div className="mb-6 flex items-center justify-between">
-                <h2 className="text-2xl font-bold text-(--sf-text)">{title}</h2>
+        <Section>
+            <SectionHeading title={title} eyebrow={eyebrow} />
+            <div className="mb-4 flex justify-end">
                 <Link to="/specials" className="text-sm font-medium text-(--sf-accent) hover:opacity-80">
                     View all →
                 </Link>
@@ -60,6 +50,6 @@ export function SaleProductsSection({section}: { section: SaleProductsSectionCon
                     </div>
                 ))}
             </div>
-        </section>
+        </Section>
     )
 }

@@ -278,7 +278,7 @@
 }
 
 .page-content-prose a {
-    color: var(--sf-primary, #2563eb);
+    color: var(--sf-accent);
     text-decoration: underline;
 }
 
@@ -288,4 +288,31 @@
 
 .page-content-prose em {
     font-style: italic;
+}
+
+/* ─────────────────────────────────────────────────────────────
+   Dark section variant text treatment (Section component)
+   Scoped to [data-variant="dark"] — consumers never hand-pick
+   dark-mode classes; the Section frame handles it.
+   ───────────────────────────────────────────────────────────── */
+[data-variant="dark"] {
+    color: rgba(255, 255, 255, 0.92);
+}
+
+[data-variant="dark"] h1,
+[data-variant="dark"] h2,
+[data-variant="dark"] h3,
+[data-variant="dark"] h4,
+[data-variant="dark"] h5,
+[data-variant="dark"] h6 {
+    color: rgba(255, 255, 255, 0.95);
+}
+
+[data-variant="dark"] p,
+[data-variant="dark"] blockquote {
+    color: rgba(255, 255, 255, 0.82);
+}
+
+[data-variant="dark"] .text-muted {
+    color: rgba(255, 255, 255, 0.6);
 }

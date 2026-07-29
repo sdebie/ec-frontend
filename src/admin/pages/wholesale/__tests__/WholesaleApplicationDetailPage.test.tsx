@@ -4,6 +4,7 @@ import { MemoryRouter, Route, Routes } from 'react-router-dom'
 
 import { WholesaleApplicationDetailPage } from '../WholesaleApplicationDetailPage'
 import type { WholesaleApplicationDetail } from '@/admin/hooks/wholesale/useWholesaleApplicationDetail'
+import { useAdminAuthStore } from '@/shared/auth/adminAuthStore'
 
 // --- Mocks ---
 
@@ -86,6 +87,8 @@ function renderDetailPage(applicationId = 'app-123') {
 describe('WholesaleApplicationDetailPage', () => {
   beforeEach(() => {
     vi.clearAllMocks()
+    // Decision buttons are role-gated; default to a mutating role
+    useAdminAuthStore.setState({ role: 'SUPER_ADMIN' })
   })
 
   it('renders loading spinner while data is loading', () => {
@@ -172,6 +175,40 @@ describe('WholesaleApplicationDetailPage', () => {
     expect(
       screen.getByRole('button', { name: 'Reject' }),
     ).toBeInTheDocument()
+  })
+
+  it('does NOT show Approve/Reject to VIEWER even when status is PENDING', () => {
+    useAdminAuthStore.setState({ role: 'VIEWER' })
+    vi.mocked(useWholesaleApplicationDetail).mockReturnValue({
+      data: createPendingApplication(),
+      isLoading: false,
+    } as unknown as ReturnType<typeof useWholesaleApplicationDetail>)
+
+    renderDetailPage()
+
+    expect(screen.queryByTestId('decision-actions')).not.toBeInTheDocument()
+    expect(
+      screen.queryByRole('button', { name: 'Approve' }),
+    ).not.toBeInTheDocument()
+    expect(
+      screen.queryByRole('button', { name: 'Reject' }),
+    ).not.toBeInTheDocument()
+  })
+
+  it('shows Approve and Reject buttons to ORDER_MANAGER when status is PENDING', () => {
+    useAdminAuthStore.setState({ role: 'ORDER_MANAGER' })
+    vi.mocked(useWholesaleApplicationDetail).mockReturnValue({
+      data: createPendingApplication(),
+      isLoading: false,
+    } as unknown as ReturnType<typeof useWholesaleApplicationDetail>)
+
+    renderDetailPage()
+
+    expect(screen.getByTestId('decision-actions')).toBeInTheDocument()
+    expect(
+      screen.getByRole('button', { name: 'Approve' }),
+    ).toBeInTheDocument()
+    expect(screen.getByRole('button', { name: 'Reject' })).toBeInTheDocument()
   })
 
   it('does NOT show Approve/Reject for APPROVED status and shows processed date', () => {

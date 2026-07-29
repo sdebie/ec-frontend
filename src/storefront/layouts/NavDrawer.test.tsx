@@ -5,6 +5,11 @@ import { MemoryRouter, Routes, Route, Link } from 'react-router-dom'
 import { NavDrawer } from './NavDrawer'
 import type { NavItem } from '@/shared/types/StorefrontConfig'
 
+// Mock useCategoryTree so CategoryDrawerSection doesn't need a real GraphQL client
+vi.mock('@/storefront/catalog/hooks/useCategoryTree', () => ({
+  useCategoryTree: () => ({ tree: [], isLoading: false, isError: false }),
+}))
+
 const mockNavigate = vi.fn()
 vi.mock('react-router-dom', async () => {
   const actual = await vi.importActual('react-router-dom')

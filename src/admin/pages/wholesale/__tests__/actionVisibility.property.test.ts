@@ -9,10 +9,12 @@ import type { CustomerStatus, WholesaleStatus } from '@/admin/hooks/customers/ty
  *
  * For any combination of staff role and entity status (either CustomerStatus
  * for customer actions or WholesaleStatus for application actions), action
- * controls SHALL be rendered if and only if `role === 'SUPER_ADMIN'` AND
- * the entity has available transitions (for customers:
- * `getAvailableActions(status).length > 0`; for applications:
- * `status === 'PENDING'`).
+ * controls SHALL be rendered if and only if the role may mutate AND the
+ * entity has available transitions. Customer account actions require
+ * `role === 'SUPER_ADMIN'` (backend updateCustomerStatus) with
+ * `getAvailableActions(status).length > 0`; application decisions require
+ * `SUPER_ADMIN` or `ORDER_MANAGER` (backend approve/rejectWholesaleApplication,
+ * widened 2026-07-21) with `status === 'PENDING'`.
  *
  * **Validates: Requirements 1.6, 1.7, 2.6, 2.7, 3.8, 3.9, 8.2**
  */
@@ -20,6 +22,8 @@ import type { CustomerStatus, WholesaleStatus } from '@/admin/hooks/customers/ty
 // Arbitrary that generates a wide variety of role values including edge cases
 const roleArb = fc.oneof(
   fc.constant('SUPER_ADMIN'),
+  fc.constant('ORDER_MANAGER'),
+  fc.constant('CATALOG_MANAGER'),
   fc.constant('VIEWER'),
   fc.constant('ADMIN'),
   fc.constant(''),
@@ -39,10 +43,10 @@ function shouldShowCustomerActions(role: string, status: CustomerStatus): boolea
 
 /**
  * Pure derivation matching production logic for application actions:
- * `canMutate && status === 'PENDING'`
+ * `canDecideApplication && status === 'PENDING'`
  */
 function shouldShowApplicationActions(role: string, status: WholesaleStatus): boolean {
-  return role === 'SUPER_ADMIN' && status === 'PENDING'
+  return (role === 'SUPER_ADMIN' || role === 'ORDER_MANAGER') && status === 'PENDING'
 }
 
 describe('Feature: admin-wholesale-management, Property 2: Action visibility rule', () => {
@@ -57,11 +61,13 @@ describe('Feature: admin-wholesale-management, Property 2: Action visibility rul
     )
   })
 
-  it('application actions visible iff SUPER_ADMIN AND status === PENDING', () => {
+  it('application actions visible iff (SUPER_ADMIN or ORDER_MANAGER) AND status === PENDING', () => {
     fc.assert(
       fc.property(roleArb, wholesaleStatusArb, (role, status) => {
         const visible = shouldShowApplicationActions(role, status)
-        const expected = role === 'SUPER_ADMIN' && status === 'PENDING'
+        const expected =
+          (role === 'SUPER_ADMIN' || role === 'ORDER_MANAGER') &&
+          status === 'PENDING'
         expect(visible).toBe(expected)
       }),
       { numRuns: 100 },

@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react'
+import { Section, SectionHeading } from '@/storefront/sections/shared'
 import { useSearchParams, useNavigate, Link } from 'react-router-dom'
 import { useForm, FormProvider } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
@@ -144,8 +145,8 @@ export function CheckoutPage() {
   }
 
   return (
-    <div className="mx-auto max-w-5xl px-4 py-8">
-      <h1 className="text-2xl font-bold text-(--sf-text) mb-8">Checkout</h1>
+    <Section as="div">
+      <SectionHeading as="h1" title="Checkout" />
 
       <FormProvider {...methods}>
         <form onSubmit={handleSubmit(onSubmit)} noValidate>
@@ -194,6 +195,6 @@ export function CheckoutPage() {
           </div>
         </form>
       </FormProvider>
-    </div>
+    </Section>
   )
 }

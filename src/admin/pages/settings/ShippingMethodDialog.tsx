@@ -29,13 +29,13 @@ export function ShippingMethodDialog({ open, mode, method, onClose }: ShippingMe
             name: method.name ?? '',
             baseFee: method.baseFee ?? 0,
             estimatedDays: method.estimatedDays ?? '',
-            isActive: method.isActive ?? true,
+            active: method.active ?? true,
           }
         : {
             name: '',
             baseFee: 0,
             estimatedDays: '',
-            isActive: true,
+            active: true,
           },
   })
 
@@ -45,7 +45,7 @@ export function ShippingMethodDialog({ open, mode, method, onClose }: ShippingMe
       name: values.name,
       baseFee: values.baseFee,
       estimatedDays: values.estimatedDays,
-      isActive: values.isActive,
+      active: values.active,
     }
 
     mutation.mutate(methodDto, {
@@ -104,11 +104,11 @@ export function ShippingMethodDialog({ open, mode, method, onClose }: ShippingMe
 
           <FormItem
             label="Active"
-            invalid={!!errors.isActive}
-            errorMessage={errors.isActive?.message}
+            invalid={!!errors.active}
+            errorMessage={errors.active?.message}
           >
             <Controller
-              name="isActive"
+              name="active"
               control={control}
               render={({ field }) => (
                 <Switcher

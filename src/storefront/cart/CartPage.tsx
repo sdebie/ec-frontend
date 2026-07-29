@@ -1,4 +1,5 @@
 import { Link } from 'react-router-dom'
+import { Section, SectionHeading } from '@/storefront/sections/shared'
 import { Minus, Plus, Trash2 } from 'lucide-react'
 import { useCartStore } from './cartStore'
 import { useCartVariants } from './hooks/useCartVariants'
@@ -69,9 +70,9 @@ export function CartPage() {
 
   if (items.length === 0) {
     return (
-      <div className="mx-auto max-w-4xl px-4 py-8 sm:py-12">
+      <Section as="div">
         <CartEmptyState />
-      </div>
+      </Section>
     )
   }
 
@@ -87,8 +88,8 @@ export function CartPage() {
   }, 0)
 
   return (
-    <div className="mx-auto max-w-4xl px-4 py-8 sm:py-12">
-      <h1 className="text-2xl font-bold text-(--sf-text) mb-6">Your Cart</h1>
+    <Section as="div">
+      <SectionHeading as="h1" title="Your Cart" />
 
       {/* Line items */}
       <div className="divide-y divide-(--sf-border) border-t border-b border-(--sf-border)">
@@ -201,6 +202,6 @@ export function CartPage() {
           </p>
         )}
       </div>
-    </div>
+    </Section>
   )
 }

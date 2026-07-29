@@ -88,7 +88,7 @@ export const storefrontConfigFixture: StorefrontConfig = {
       id: 'brands-1',
       type: 'brands',
       props: {
-        heading: 'Our Brands',
+        title: 'Our Brands',
       },
     },
     {
@@ -117,7 +117,7 @@ export const storefrontConfigFixture: StorefrontConfig = {
     },
     {
       id: 'accreditors-1', type: 'accreditors', props: {
-        heading: 'Accreditors', items: [
+        title: 'Accreditors', items: [
           { id: 'acc-sabs', name: 'SABS', logoUrl: 'storefront/sabs-logo.png', url: 'https://www.sabs.co.za' },
           { id: 'acc-sahpra', name: 'SAHPRA', logoUrl: 'storefront/sahpra-logo.png', url: 'https://www.sahpra.org.za' },
           { id: 'acc-safripol', name: 'Safripol', logoUrl: 'storefront/safripol-logo.png', url: 'https://www.safripol.com' },

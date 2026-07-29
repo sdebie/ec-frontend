@@ -11,6 +11,7 @@ import {
   useWholesaleApplicationDetail,
   useWholesaleApplicationAction,
 } from '@/admin/hooks/wholesale'
+import { useAdminAuthStore } from '@/shared/auth/adminAuthStore'
 import { RejectApplicationDialog } from '@/admin/components/RejectApplicationDialog'
 
 function formatTimestamp(dateString: string): string {
@@ -44,6 +45,9 @@ export function WholesaleApplicationDetailPage() {
   const { applicationId } = useParams<{ applicationId: string }>()
   const { data, isLoading } = useWholesaleApplicationDetail(applicationId!)
   const applicationAction = useWholesaleApplicationAction()
+  const role = useAdminAuthStore((s) => s.role)
+  // Mirrors the backend @RolesAllowed on approve/rejectWholesaleApplication
+  const hasAccess = role === 'SUPER_ADMIN' || role === 'ORDER_MANAGER'
 
   const [approveDialogOpen, setApproveDialogOpen] = useState(false)
   const [rejectDialogOpen, setRejectDialogOpen] = useState(false)
@@ -132,8 +136,9 @@ export function WholesaleApplicationDetailPage() {
         </div>
       </div>
 
-      {/* Decision buttons (PENDING only) or processed info */}
+      {/* Decision buttons (PENDING + mutating role only) or processed info */}
       {isPending ? (
+        hasAccess && (
         <div className="flex flex-wrap gap-3" data-testid="decision-actions">
           <Button
             variant="solid"
@@ -152,6 +157,7 @@ export function WholesaleApplicationDetailPage() {
             Reject
           </Button>
         </div>
+        )
       ) : (
         <div className="flex flex-col gap-1 text-sm text-(--c-text-muted)">
           {application.processedAt && (

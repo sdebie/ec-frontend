@@ -1,7 +1,7 @@
 export interface ShippingMethod {
   id: string | null
   name: string | null
-  isActive: boolean | null
+  active: boolean | null
   baseFee: number | null
   estimatedDays: string | null
 }

@@ -159,11 +159,9 @@ describe('ProductDetailPage — cart integration', () => {
     it('uses the standard constrained storefront page layout', () => {
         renderProductDetailPage()
 
-        expect(screen.getByRole('navigation', {name: /breadcrumb/i}).parentElement).toHaveClass(
-            'mx-auto',
-            'max-w-7xl',
-            'px-4',
-        )
+        const inner = screen.getByRole('navigation', {name: /breadcrumb/i}).parentElement
+        expect(inner).toHaveClass('mx-auto', 'max-w-7xl')
+        expect(inner?.parentElement).toHaveClass('py-12', 'px-6', 'sm:px-8')
     })
 
     it('shows confirmation message with "View cart" link after adding to cart', () => {

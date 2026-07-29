@@ -1,9 +1,10 @@
 import type {FeaturedProductsSectionConfig} from '@/shared/types/StorefrontConfig'
 import {ProductCard} from '@/storefront/catalog/components/ProductCard'
 import {useFeaturedShoppingProducts} from '@/storefront/hooks/useFeaturedShoppingProducts'
+import {Carousel, Section, SectionHeading} from './shared'
 
 export function FeaturedProductsSection({section}: { section: FeaturedProductsSectionConfig }) {
-    const {title, category, limit} = section.props
+    const {title, eyebrow, variant, layout = 'row', columns, badgeLabel, category, limit} = section.props
 
     const effectiveLimit = limit ?? 8
 
@@ -14,25 +15,25 @@ export function FeaturedProductsSection({section}: { section: FeaturedProductsSe
 
     if (isLoading) {
         return (
-            <section className="py-12 px-6">
-                <h2 className="text-2xl font-bold mb-6 text-(--sf-text)">{title}</h2>
+            <Section variant={variant}>
+                <SectionHeading title={title} eyebrow={eyebrow} />
                 <div className="flex items-stretch gap-4 overflow-x-auto py-2">
                     {Array.from({length: effectiveLimit}).map((_, i) => (
                         <div key={i} className="w-56 shrink-0 animate-pulse">
-                            <div className="bg-(--sf-surface-muted) aspect-square rounded-lg"/>
-                            <div className="mt-3 h-4 bg-(--sf-surface-muted) rounded w-3/4"/>
-                            <div className="mt-2 h-4 bg-(--sf-surface-muted) rounded w-1/3"/>
+                            <div className="bg-(--sf-surface-muted) in-data-[variant=dark]:bg-white/10 aspect-square rounded-lg"/>
+                            <div className="mt-3 h-4 bg-(--sf-surface-muted) in-data-[variant=dark]:bg-white/10 rounded w-3/4"/>
+                            <div className="mt-2 h-4 bg-(--sf-surface-muted) in-data-[variant=dark]:bg-white/10 rounded w-1/3"/>
                         </div>
                     ))}
                 </div>
-            </section>
+            </Section>
         )
     }
 
     if (isError) {
         return (
-            <section className="py-12 px-6">
-                <h2 className="text-2xl font-bold mb-6 text-(--sf-text)">{title}</h2>
+            <Section variant={variant}>
+                <SectionHeading title={title} eyebrow={eyebrow} />
                 <div className="text-center py-8">
                     <p className="text-red-600 mb-4">Failed to load featured products.</p>
                     <button
@@ -43,7 +44,7 @@ export function FeaturedProductsSection({section}: { section: FeaturedProductsSe
                         Try again
                     </button>
                 </div>
-            </section>
+            </Section>
         )
     }
 
@@ -52,15 +53,23 @@ export function FeaturedProductsSection({section}: { section: FeaturedProductsSe
     }
 
     return (
-        <section className="py-12 px-6">
-            <h2 className="text-2xl font-bold mb-6 text-(--sf-text)">{title}</h2>
-            <div className="flex items-stretch gap-4 overflow-x-auto py-2">
-                {products.map((product) => (
-                    <div key={product.id} className="w-56 shrink-0">
-                        <ProductCard product={product} variantId={product.variantId}/>
-                    </div>
-                ))}
-            </div>
-        </section>
+        <Section variant={variant}>
+            <SectionHeading title={title} eyebrow={eyebrow} />
+            {layout === 'carousel' ? (
+                <Carousel ariaLabel={title} perView={columns}>
+                    {products.map((product) => (
+                        <ProductCard key={product.id} product={product} variantId={product.variantId} badge={badgeLabel}/>
+                    ))}
+                </Carousel>
+            ) : (
+                <div className="flex items-stretch gap-4 overflow-x-auto py-2">
+                    {products.map((product) => (
+                        <div key={product.id} className="w-56 shrink-0">
+                            <ProductCard product={product} variantId={product.variantId} badge={badgeLabel}/>
+                        </div>
+                    ))}
+                </div>
+            )}
+        </Section>
     )
 }

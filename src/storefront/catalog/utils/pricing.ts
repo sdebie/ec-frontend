@@ -37,26 +37,26 @@ export function getDisplayPrice(
 
 /**
  * A single price row as returned by the GraphQL `prices` field on a variant.
- * The backend emits one row per tier; sale rows carry an `active` flag.
+ * The backend emits one row per tier; sale rows carry an `isActive` flag.
  */
 export interface VariantPriceEntry {
   price: number | null
   priceType: string | null
-  active: boolean | null
+  isActive: boolean | null
 }
 
 /**
  * Adapts the variant `prices[]` array (GraphQL shape) into the flat
  * {@link VariantPriceTiers} that {@link getDisplayPrice} consumes.
  *
- * Sale tiers are only taken when their row is `active === true`; base tiers are
+ * Sale tiers are only taken when their row is `isActive === true`; base tiers are
  * taken as-is. This keeps all tier-selection semantics in `getDisplayPrice`
  * rather than re-deriving them per call site.
  */
 export function priceTiersFromEntries(entries: VariantPriceEntry[]): VariantPriceTiers {
   const base = (type: string) => entries.find((e) => e.priceType === type)?.price ?? null
   const activeSale = (type: string) =>
-    entries.find((e) => e.priceType === type && e.active === true)?.price ?? null
+    entries.find((e) => e.priceType === type && e.isActive === true)?.price ?? null
 
   return {
     retailPrice: base('RETAIL_PRICE'),

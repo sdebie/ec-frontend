@@ -26,22 +26,27 @@ interface ProductCardProps {
         wholesaleSalePrice: PriceTier | null
     }
     variantId?: string | null
+    /** Optional label rendered as an accent pill over the image (e.g. "Best Seller"). */
+    badge?: string
 }
 
-export function ProductCard({product, variantId}: ProductCardProps) {
+export function ProductCard({product, variantId, badge}: ProductCardProps) {
     const {currency, locale} = useStorefrontConfig()
     const customerType = useCustomerAuthStore((state) => state.customerType)
 
     const imageUrl = pickFeaturedImage(product.images)
-    const {price, originalPrice} = getDisplayPrice(
-        {
-            retailPrice: product.retailPrice?.price ?? null,
-            wholesalePrice: product.wholesalePrice?.price ?? null,
-            retailSalePrice: product.retailSalePrice?.price ?? null,
-            wholesaleSalePrice: product.wholesaleSalePrice?.price ?? null,
-        },
-        customerType,
-    )
+    const priceTiers = {
+        retailPrice: product.retailPrice?.price ?? null,
+        wholesalePrice: product.wholesalePrice?.price ?? null,
+        retailSalePrice: product.retailSalePrice?.price ?? null,
+        wholesaleSalePrice: product.wholesaleSalePrice?.price ?? null,
+    }
+    const {price, originalPrice} = getDisplayPrice(priceTiers, customerType)
+
+    // Secondary wholesale line for non-wholesale shoppers — the effective
+    // wholesale price comes from the same selector (the client never calculates).
+    const wholesaleDisplay =
+        customerType !== 'WHOLESALE' ? getDisplayPrice(priceTiers, 'WHOLESALE').price : null
 
     return (
         <Link
@@ -76,6 +81,11 @@ export function ProductCard({product, variantId}: ProductCardProps) {
                         </svg>
                     </div>
                 )}
+                {badge && (
+                    <span className="absolute left-2 top-2 rounded-full bg-(--sf-accent) px-2.5 py-1 text-xs font-semibold text-(--sf-accent-text) shadow-sm">
+                        {badge}
+                    </span>
+                )}
                 {variantId && (
                     <WishlistButton
                         variantId={variantId}
@@ -89,14 +99,27 @@ export function ProductCard({product, variantId}: ProductCardProps) {
                     {product.name}
                 </h3>
 
-                <div className="mt-auto flex items-center gap-2 pt-2">
-                    {originalPrice != null && (
-                        <span className="line-through text-(--sf-muted-text)">
-                            {formatAmount(originalPrice, currency, locale)}
+                <div className="mt-auto pt-2">
+                    <div className="flex items-baseline gap-2">
+                        {originalPrice != null && (
+                            <span className="line-through text-(--sf-muted-text)">
+                                {formatAmount(originalPrice, currency, locale)}
+                            </span>
+                        )}
+                        <span className="font-semibold">
+                            {formatAmount(price, currency, locale)}
                         </span>
+                        {price != null && (
+                            <span className="text-xs text-(--sf-muted-text)">ex. VAT</span>
+                        )}
+                    </div>
+                    {wholesaleDisplay != null && (
+                        <p className="mt-0.5 text-xs text-(--sf-muted-text)">
+                            Wholesale: {formatAmount(wholesaleDisplay, currency, locale)} ex. VAT
+                        </p>
                     )}
-                    <span className="font-semibold">
-                        {formatAmount(price, currency, locale)}
+                    <span className="mt-3 flex w-full items-center justify-center rounded-md bg-(--sf-accent) px-3 py-2 text-xs font-semibold text-(--sf-accent-text) shadow-(--sf-shadow-sm) transition-opacity group-hover:opacity-90">
+                        View product
                     </span>
                 </div>
             </div>

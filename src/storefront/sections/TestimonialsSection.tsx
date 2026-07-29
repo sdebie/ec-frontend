@@ -1,14 +1,18 @@
 import { cn } from '@/shared/utils/cn'
 import type { TestimonialsSectionConfig } from '@/shared/types/StorefrontConfig'
+import { useTestimonials } from '@/storefront/hooks/useTestimonials'
+import { Section, SectionHeading, Carousel } from './shared'
 
 export function TestimonialsSection({ section }: { section: TestimonialsSectionConfig }) {
   const {
-    title,
-    subtitle,
     layout = 'grid',
     columns = 3,
-    items,
+    title = 'Testimonials',
+    eyebrow,
+    variant,
   } = section.props
+
+  const { data: testimonials, isLoading, isError } = useTestimonials()
 
   const columnClasses: Record<1 | 2 | 3, string> = {
     1: 'grid-cols-1',
@@ -17,34 +21,89 @@ export function TestimonialsSection({ section }: { section: TestimonialsSectionC
   }
 
   const isStacked = layout === 'stacked'
+  const isDark = variant === 'dark'
 
-  return (
-    <section className="px-6 py-16">
-      <div className="max-w-5xl mx-auto">
-        <h2 className="text-3xl font-bold text-(--sf-text)">{title}</h2>
-        {subtitle && (
-          <p className="mt-2 text-lg text-(--sf-muted-text)">{subtitle}</p>
-        )}
+  if (isLoading) {
+    return (
+      <Section variant={variant}>
+        <div className="h-8 w-48 rounded bg-(--sf-panel) animate-pulse mx-auto" />
         <div
           className={cn(
             'mt-10 grid gap-8',
             isStacked ? 'grid-cols-1' : columnClasses[columns],
           )}
         >
-          {items.map((item) => (
-            <div key={item.id} className="flex flex-col gap-4">
-              <blockquote className="text-(--sf-text) italic">
-                &ldquo;{item.quote}&rdquo;
-              </blockquote>
-              <p className="text-sm font-medium text-(--sf-text)">
-                {item.name}
-                {item.role && `, ${item.role}`}
-                {item.company && ` at ${item.company}`}
-              </p>
+          {Array.from({ length: columns }).map((_, i) => (
+            <div key={i} className="flex flex-col gap-4">
+              <div className="h-20 rounded bg-(--sf-panel) animate-pulse" />
+              <div className="h-4 w-32 rounded bg-(--sf-panel) animate-pulse" />
             </div>
           ))}
         </div>
+      </Section>
+    )
+  }
+
+  if (isError || !testimonials || testimonials.length === 0) {
+    return null
+  }
+
+  const renderCard = (item: (typeof testimonials)[number]) => {
+    if (isDark) {
+      return (
+        <div
+          key={item.id}
+          className="flex h-full w-full flex-col rounded-lg border p-6"
+          style={{
+            background: 'color-mix(in srgb, white 4%, transparent)',
+            borderColor: 'color-mix(in srgb, white 12%, transparent)',
+          }}
+        >
+          <blockquote className="flex-1 italic text-white/90">
+            &ldquo;{item.quote}&rdquo;
+          </blockquote>
+          <p className="mt-4 text-sm font-medium text-white/80">
+            {item.authorName}
+            {item.authorTitle && `, ${item.authorTitle}`}
+          </p>
+        </div>
+      )
+    }
+
+    return (
+      <div
+        key={item.id}
+        className="flex h-full w-full flex-col rounded-lg border border-(--sf-border) bg-(--sf-panel) p-6"
+      >
+        <blockquote className="flex-1 italic text-(--sf-text)">
+          &ldquo;{item.quote}&rdquo;
+        </blockquote>
+        <p className="mt-4 text-sm font-medium text-(--sf-text)">
+          {item.authorName}
+          {item.authorTitle && `, ${item.authorTitle}`}
+        </p>
       </div>
-    </section>
+    )
+  }
+
+  return (
+    <Section variant={variant}>
+      <SectionHeading eyebrow={eyebrow} title={title} />
+
+      {layout === 'carousel' ? (
+        <Carousel ariaLabel="Testimonials">
+          {testimonials.map((item) => renderCard(item))}
+        </Carousel>
+      ) : (
+        <div
+          className={cn(
+            'grid gap-8',
+            isStacked ? 'grid-cols-1' : columnClasses[columns],
+          )}
+        >
+          {testimonials.map((item) => renderCard(item))}
+        </div>
+      )}
+    </Section>
   )
 }

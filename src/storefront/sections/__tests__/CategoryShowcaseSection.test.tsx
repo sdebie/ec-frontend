@@ -44,6 +44,45 @@ describe('CategoryShowcaseSection', () => {
         vi.clearAllMocks()
     })
 
+    it('renders products in the shared Carousel with overlay arrows when layout is carousel', () => {
+        // Carousel needs ResizeObserver, which jsdom lacks
+        const original = globalThis.ResizeObserver
+        globalThis.ResizeObserver = class {
+            observe() {}
+            unobserve() {}
+            disconnect() {}
+        } as unknown as typeof ResizeObserver
+
+        try {
+            mockedUseCategories.mockReturnValue({
+                categories: [{id: 'cat-1', name: 'Medical', slug: 'medical'}],
+                isLoading: false,
+                isError: false,
+            })
+            mockedUseProducts.mockReturnValue({
+                products: [
+                    {id: 'p1', name: 'Gauze', slug: 'gauze', shortDescription: '', images: [], retailPrice: null, wholesalePrice: null, retailSalePrice: null, wholesaleSalePrice: null, variantId: null},
+                    {id: 'p2', name: 'Gloves', slug: 'gloves', shortDescription: '', images: [], retailPrice: null, wholesalePrice: null, retailSalePrice: null, wholesaleSalePrice: null, variantId: null},
+                ],
+                totalElements: 2,
+                totalPages: 1,
+                isLoading: false,
+                isError: false,
+                refetch: vi.fn(),
+            })
+
+            const {container} = render(
+                <CategoryShowcaseSection section={buildSection({layout: 'carousel'})}/>,
+            )
+
+            expect(screen.getByRole('region', {name: 'Medical Supplies'})).toBeInTheDocument()
+            expect(container.querySelectorAll('.snap-start')).toHaveLength(2)
+            expect(container.querySelector('.w-56')).not.toBeInTheDocument()
+        } finally {
+            globalThis.ResizeObserver = original
+        }
+    })
+
     it('returns null when categories loaded but slug not matched', () => {
         mockedUseCategories.mockReturnValue({
             categories: [{id: 'cat-1', name: 'PPE', slug: 'ppe'}],

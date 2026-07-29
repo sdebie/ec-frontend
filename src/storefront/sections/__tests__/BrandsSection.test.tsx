@@ -45,8 +45,45 @@ describe('BrandsSection', () => {
         })
     })
 
+    describe('Section frame', () => {
+        it('renders inside a <section> with standardized rhythm classes', () => {
+            const {container} = render(<BrandsSection section={makeSection({title: 'Our Brands'})}/>)
+
+            const sectionEl = container.querySelector('section')
+            expect(sectionEl).toBeInTheDocument()
+            // Brands deliberately overrides the standard py-12 rhythm with a compact py-6
+            // (owner call 2026-07-24: slimmer brands band).
+            expect(sectionEl).toHaveClass('py-6', 'px-6', 'sm:px-8')
+        })
+
+        it('renders an inner container with mx-auto and max-w-5xl', () => {
+            const {container} = render(<BrandsSection section={makeSection({title: 'Our Brands'})}/>)
+
+            const sectionEl = container.querySelector('section')
+            const inner = sectionEl?.firstElementChild
+            expect(inner).toHaveClass('mx-auto', 'max-w-5xl')
+        })
+    })
+
+    describe('SectionHeading', () => {
+        it('renders title as an h2 with text-3xl font-bold via SectionHeading', () => {
+            render(<BrandsSection section={makeSection({title: 'Our Brands'})}/>)
+
+            const heading = screen.getByRole('heading', {level: 2})
+            expect(heading).toHaveTextContent('Our Brands')
+            expect(heading).toHaveClass('text-3xl', 'font-bold')
+        })
+
+        it('renders eyebrow when provided', () => {
+            render(<BrandsSection section={makeSection({title: 'Our Brands', eyebrow: 'Trusted Partners'})}/>)
+
+            expect(screen.getByText('Trusted Partners')).toBeInTheDocument()
+            expect(screen.getByText('Trusted Partners')).toHaveClass('uppercase', 'tracking-widest')
+        })
+    })
+
     it('renders heading when provided', () => {
-        render(<BrandsSection section={makeSection({heading: 'Our Brands'})}/>)
+        render(<BrandsSection section={makeSection({title: 'Our Brands'})}/>)
 
         expect(
             screen.getByRole('heading', {name: 'Our Brands'}),

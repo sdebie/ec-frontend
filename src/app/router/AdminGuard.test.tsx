@@ -62,7 +62,7 @@ describe('AdminGuard', () => {
     useAdminAuthStore.setState({ token: 'valid-token', role: null })
     mockedGet.mockResolvedValue({
       data: {
-        role: 'ADMIN',
+        role: 'SUPER_ADMIN',
         authority: ['ORDER_READ'],
         userName: 'Admin User',
         email: 'admin@test.com',
@@ -90,7 +90,7 @@ describe('AdminGuard', () => {
   it('renders children immediately (no fetch) when token and role are both already set', () => {
     useAdminAuthStore.setState({
       token: 'valid-token',
-      role: 'ADMIN',
+      role: 'SUPER_ADMIN',
       isSignedIn: true,
       authority: ['ORDER_READ'],
       userName: 'Admin User',

@@ -69,6 +69,49 @@ describe('SaleProductsSection', () => {
         vi.clearAllMocks()
     })
 
+    describe('Section frame', () => {
+        it('renders inside a <section> with standardized rhythm classes', () => {
+            mockedUseSaleShoppingProducts.mockReturnValue({
+                products: mockProducts,
+                isLoading: false,
+                isError: false,
+            })
+
+            const {container} = renderSection()
+            const sectionEl = container.querySelector('section')
+            expect(sectionEl).toBeInTheDocument()
+            expect(sectionEl).toHaveClass('py-12', 'px-6', 'sm:px-8')
+        })
+
+        it('renders an inner container with mx-auto and max-w-5xl', () => {
+            mockedUseSaleShoppingProducts.mockReturnValue({
+                products: mockProducts,
+                isLoading: false,
+                isError: false,
+            })
+
+            const {container} = renderSection()
+            const sectionEl = container.querySelector('section')
+            const inner = sectionEl?.firstElementChild
+            expect(inner).toHaveClass('mx-auto', 'max-w-5xl')
+        })
+    })
+
+    describe('SectionHeading', () => {
+        it('renders title as an h2 with text-3xl font-bold via SectionHeading', () => {
+            mockedUseSaleShoppingProducts.mockReturnValue({
+                products: mockProducts,
+                isLoading: false,
+                isError: false,
+            })
+
+            renderSection()
+            const heading = screen.getByRole('heading', {level: 2})
+            expect(heading).toHaveTextContent('Specials')
+            expect(heading).toHaveClass('text-3xl', 'font-bold')
+        })
+    })
+
     it('renders a row of ProductCards when products are returned', () => {
         mockedUseSaleShoppingProducts.mockReturnValue({
             products: mockProducts,

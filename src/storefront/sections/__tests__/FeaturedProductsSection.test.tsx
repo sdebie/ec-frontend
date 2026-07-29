@@ -1,4 +1,4 @@
-import {beforeEach, describe, expect, it, vi} from 'vitest'
+import {afterEach, beforeEach, describe, expect, it, vi} from 'vitest'
 import {render, screen, waitFor} from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import {MemoryRouter} from 'react-router-dom'
@@ -7,6 +7,20 @@ import {StorefrontConfigContext} from '@/shared/config/storefrontConfig.context.
 import type {FeaturedProductsSectionConfig, StorefrontConfig} from '@/shared/types/StorefrontConfig.ts'
 import {FeaturedProductsSection} from '../FeaturedProductsSection.tsx'
 import {graphqlClient} from '@/shared/api/graphql/graphqlClient.ts'
+
+// ResizeObserver is not available in jsdom — the Carousel layout needs it
+let originalResizeObserver: typeof ResizeObserver
+beforeEach(() => {
+    originalResizeObserver = globalThis.ResizeObserver
+    globalThis.ResizeObserver = class MockResizeObserver {
+        observe() {}
+        unobserve() {}
+        disconnect() {}
+    } as unknown as typeof ResizeObserver
+})
+afterEach(() => {
+    globalThis.ResizeObserver = originalResizeObserver
+})
 
 // The section fetches via useFeaturedShoppingProducts, which calls
 // graphqlClient.request(SHOPPING_FEATURED_PRODUCT_LIST). Mock at that boundary.
@@ -98,6 +112,37 @@ describe('FeaturedProductsSection', () => {
         vi.clearAllMocks()
     })
 
+    describe('Section frame', () => {
+        it('renders inside a <section> with standardized rhythm classes', () => {
+            mockedRequest.mockReturnValue(new Promise(() => {}))
+
+            const {container} = renderComponent()
+            const sectionEl = container.querySelector('section')
+            expect(sectionEl).toBeInTheDocument()
+            expect(sectionEl).toHaveClass('py-12', 'px-6', 'sm:px-8')
+        })
+
+        it('renders an inner container with mx-auto and max-w-5xl', () => {
+            mockedRequest.mockReturnValue(new Promise(() => {}))
+
+            const {container} = renderComponent()
+            const sectionEl = container.querySelector('section')
+            const inner = sectionEl?.firstElementChild
+            expect(inner).toHaveClass('mx-auto', 'max-w-5xl')
+        })
+    })
+
+    describe('SectionHeading', () => {
+        it('renders title as an h2 with text-3xl font-bold via SectionHeading', () => {
+            mockedRequest.mockReturnValue(new Promise(() => {}))
+
+            renderComponent()
+            const heading = screen.getByRole('heading', {level: 2})
+            expect(heading).toHaveTextContent('Featured Products')
+            expect(heading).toHaveClass('text-3xl', 'font-bold')
+        })
+    })
+
     it('renders skeleton cards matching limit count during loading state', () => {
         mockedRequest.mockReturnValue(new Promise(() => {
         })) // Never resolves — stays in loading
@@ -137,6 +182,24 @@ describe('FeaturedProductsSection', () => {
         await waitFor(() => {
             expect(mockedRequest).toHaveBeenCalledTimes(2)
         })
+    })
+
+    it('renders products in the shared Carousel when layout is carousel', async () => {
+        mockedRequest.mockResolvedValueOnce(resolve(mockProducts))
+
+        const {container} = renderComponent({
+            ...section,
+            props: {...section.props, layout: 'carousel'},
+        })
+
+        await waitFor(() => {
+            expect(screen.getByText('Product One')).toBeInTheDocument()
+        })
+
+        // Carousel region with snap cells replaces the free-scroll strip
+        expect(screen.getByRole('region', {name: 'Featured Products'})).toBeInTheDocument()
+        expect(container.querySelectorAll('.snap-start')).toHaveLength(2)
+        expect(container.querySelector('.w-56')).not.toBeInTheDocument()
     })
 
     it('renders nothing when the list is empty', async () => {

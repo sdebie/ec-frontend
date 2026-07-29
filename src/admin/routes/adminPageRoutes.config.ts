@@ -148,7 +148,7 @@ const adminPageOnlyRoutes: AdminRouteList = [
                 default: m.WholesaleCustomerDetailPage,
             }))
         ),
-        authority: ['SUPER_ADMIN', 'VIEWER'],
+        authority: ['SUPER_ADMIN', 'ORDER_MANAGER', 'VIEWER'],
         meta: {
             pageBackgroundType: 'plain',
             pageContainerType: 'contained',
@@ -162,7 +162,21 @@ const adminPageOnlyRoutes: AdminRouteList = [
                 default: m.WholesaleApplicationDetailPage,
             }))
         ),
-        authority: ['SUPER_ADMIN', 'VIEWER'],
+        authority: ['SUPER_ADMIN', 'ORDER_MANAGER', 'VIEWER'],
+        meta: {
+            pageBackgroundType: 'plain',
+            pageContainerType: 'contained',
+        },
+    },
+    {
+        key: 'admin.quotes.detail',
+        path: '/admin/quotes/:quoteRequestId',
+        component: lazy(() =>
+            import('@/admin/pages/quotes/QuoteRequestDetailPage').then((m) => ({
+                default: m.QuoteRequestDetailPage,
+            }))
+        ),
+        authority: ['SUPER_ADMIN', 'ORDER_MANAGER', 'VIEWER'],
         meta: {
             pageBackgroundType: 'plain',
             pageContainerType: 'contained',

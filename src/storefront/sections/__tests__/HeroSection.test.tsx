@@ -24,6 +24,22 @@ function renderHero(section: HeroSectionConfig = baseSection) {
 }
 
 describe('HeroSection', () => {
+    it('uses the standard fixed minimum height by default', () => {
+        renderHero()
+        expect(screen.getByRole('region', {name: 'Welcome to our store'}))
+            .toHaveClass('min-h-[480px]')
+    })
+
+    it('uses the viewport-relative band when height is tall', () => {
+        renderHero({
+            ...baseSection,
+            props: {...baseSection.props, height: 'tall'},
+        })
+        const section = screen.getByRole('region', {name: 'Welcome to our store'})
+        expect(section).toHaveClass('min-h-[max(480px,calc(100vh-360px))]')
+        expect(section).not.toHaveClass('min-h-[480px]')
+    })
+
     it('renders title as <h2> inside a <section> with aria-label', () => {
         renderHero()
 
@@ -63,7 +79,13 @@ describe('HeroSection', () => {
 
         const {container} = renderHero(sectionWithBg)
 
-        const overlay = container.querySelector('[aria-hidden="true"]')
+        // Background renders as an explicit <img> filling the band via object-cover
+        const bgImage = container.querySelector('img[aria-hidden="true"]')
+        expect(bgImage).toBeInTheDocument()
+        expect(bgImage).toHaveAttribute('src', 'https://example.com/hero.jpg')
+        expect(bgImage).toHaveClass('absolute', 'inset-0', 'h-full', 'w-full', 'object-cover')
+
+        const overlay = container.querySelector('div[aria-hidden="true"]')
         expect(overlay).toBeInTheDocument()
         expect(overlay).toHaveStyle({opacity: '0.6'})
     })

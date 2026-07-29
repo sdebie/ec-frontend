@@ -177,6 +177,23 @@ export const adminMenuRoutes: AdminRouteList = [
         },
     },
     {
+        key: 'admin.quotes',
+        path: '/admin/quotes',
+        component: lazy(() =>
+            import('@/admin/pages/quotes/QuoteRequestQueuePage').then((m) => ({
+                default: m.QuoteRequestQueuePage,
+            }))
+        ),
+        authority: ['SUPER_ADMIN', 'ORDER_MANAGER', 'VIEWER'],
+        meta: {
+            label: 'Quote Requests',
+            section: 'ORDER MANAGEMENT',
+            pageBackgroundType: 'plain',
+            pageContainerType: 'contained',
+            icon: 'file-text',
+        },
+    },
+    {
         key: 'admin.customers',
         path: '/admin/customers',
         component: lazy(() =>
@@ -194,7 +211,7 @@ export const adminMenuRoutes: AdminRouteList = [
     {
         key: 'admin.wholesale',
         path: '/admin/wholesale',
-        authority: ['SUPER_ADMIN', 'VIEWER'],
+        authority: ['SUPER_ADMIN', 'ORDER_MANAGER', 'VIEWER'],
         meta: {
             label: 'Wholesale',
             section: 'CUSTOMER MANAGEMENT',
@@ -211,7 +228,7 @@ export const adminMenuRoutes: AdminRouteList = [
                         default: m.WholesaleApplicationQueuePage,
                     }))
                 ),
-                authority: ['SUPER_ADMIN', 'VIEWER'],
+                authority: ['SUPER_ADMIN', 'ORDER_MANAGER', 'VIEWER'],
                 meta: {
                     label: 'Applications',
                     pageBackgroundType: 'plain',
@@ -227,7 +244,7 @@ export const adminMenuRoutes: AdminRouteList = [
                         default: m.WholesaleCustomerListPage,
                     }))
                 ),
-                authority: ['SUPER_ADMIN', 'VIEWER'],
+                authority: ['SUPER_ADMIN', 'ORDER_MANAGER', 'VIEWER'],
                 meta: {
                     label: 'Customers',
                     pageBackgroundType: 'plain',
@@ -309,6 +326,21 @@ export const adminMenuRoutes: AdminRouteList = [
             pageBackgroundType: 'plain',
             pageContainerType: 'contained',
             icon: 'mail',
+        },
+    },
+    {
+        key: 'admin.storefront.testimonials',
+        path: '/admin/storefront/testimonials',
+        component: lazy(() =>
+            import('@/admin/pages/storefront-config/TestimonialsPage').then((m) => ({default: m.TestimonialsPage}))
+        ),
+        authority: ['SUPER_ADMIN', 'VIEWER'],
+        meta: {
+            label: 'Testimonials',
+            section: 'STOREFRONT',
+            pageBackgroundType: 'plain',
+            pageContainerType: 'contained',
+            icon: 'quote',
         },
     },
     {

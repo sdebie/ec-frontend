@@ -39,6 +39,55 @@ function renderCard(productOverrides: Partial<Parameters<typeof ProductCard>[0][
 }
 
 describe('ProductCard', () => {
+    describe('standardized card contract (2026-07-24)', () => {
+        it('renders the display price with an ex. VAT label', () => {
+            renderCard()
+            expect(screen.getByText('ex. VAT')).toBeInTheDocument()
+        })
+
+        it('renders the wholesale price as small secondary text for non-wholesale shoppers', () => {
+            renderCard()
+            expect(screen.getByText(/Wholesale:/)).toBeInTheDocument()
+        })
+
+        it('omits the wholesale line when no wholesale price exists', () => {
+            renderCard({wholesalePrice: null, wholesaleSalePrice: null})
+            expect(screen.queryByText(/Wholesale:/)).not.toBeInTheDocument()
+        })
+
+        it('renders a View product affordance', () => {
+            renderCard()
+            expect(screen.getByText('View product')).toBeInTheDocument()
+        })
+
+        it('renders a badge pill over the image when the badge prop is set, and none otherwise', () => {
+            const product = {
+                id: '1',
+                name: 'Badged',
+                slug: 'badged',
+                images: [],
+                retailPrice: {price: 10},
+                wholesalePrice: null,
+                retailSalePrice: null,
+                wholesaleSalePrice: null,
+            }
+            const {rerender} = render(
+                <MemoryRouter>
+                    <ProductCard product={product} badge="Best Seller"/>
+                </MemoryRouter>,
+            )
+            const pill = screen.getByText('Best Seller')
+            expect(pill).toHaveClass('bg-(--sf-accent)')
+
+            rerender(
+                <MemoryRouter>
+                    <ProductCard product={product}/>
+                </MemoryRouter>,
+            )
+            expect(screen.queryByText('Best Seller')).not.toBeInTheDocument()
+        })
+    })
+
     describe('sale price display', () => {
         it('renders both sale price and original price with strikethrough when sale is active', () => {
             renderCard({

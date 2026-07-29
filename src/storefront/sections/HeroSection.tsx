@@ -24,10 +24,16 @@ const SURFACE_KICKER_CLASS: Record<HeroContentSurface, string> = {
     dark: 'text-(--sf-accent-text)/90',
 }
 
+// Secondary CTAs are accent-outlined and fill with an accent-derived tint on
+// hover (color-mix with white — same accent-derivation family as the Section
+// dark glow; no literal palette). On the dark surface the label stays light
+// (owner UX call 2026-07-24); on the light `default` surface it must be accent
+// (a light label would vanish). `brand` keeps accent-text styling because an
+// accent outline would vanish on the accent band itself.
 const SURFACE_SECONDARY_CTA_CLASS: Record<HeroContentSurface, string> = {
-    default: 'border-(--sf-border) text-(--sf-text) hover:bg-(--sf-panel)',
+    default: 'border-(--sf-accent) text-(--sf-accent) hover:bg-[color-mix(in_srgb,var(--sf-accent)_80%,white)] hover:text-(--sf-accent-text)',
     brand: 'border-(--sf-accent-text)/50 text-(--sf-accent-text) hover:bg-(--sf-accent-text)/10',
-    dark: 'border-(--sf-accent-text)/50 text-(--sf-accent-text) hover:bg-(--sf-accent-text)/10',
+    dark: 'border-(--sf-accent) text-(--sf-accent-text) hover:bg-[color-mix(in_srgb,var(--sf-accent)_80%,white)] hover:text-(--sf-accent-text)',
 }
 
 // Background for surfaces that have no photo behind them. `default` is a
@@ -40,11 +46,21 @@ const SURFACE_BACKGROUND_STYLE: Partial<Record<HeroContentSurface, CSSProperties
     dark: {background: 'var(--sf-surface-dark, var(--sf-nav-background, #111827))'},
 }
 
+// Band height per the `height` display hint. 'tall' is viewport-relative but
+// reserves ~360px for the page chrome plus the band that follows the hero, so
+// the next section's top edge stays visible above the fold; the px floor keeps
+// short windows from collapsing the band below a usable minimum.
+const HEIGHT_CLASS: Record<'standard' | 'tall', string> = {
+    standard: 'min-h-[480px]',
+    tall: 'min-h-[max(480px,calc(100vh-360px))]',
+}
+
 export function HeroSection({section}: { section: HeroSectionConfig }) {
     const {
         title,
         subtitle,
         kicker,
+        height = 'standard',
         primaryCta,
         secondaryCta,
         backgroundImageUrl,
@@ -76,22 +92,35 @@ export function HeroSection({section}: { section: HeroSectionConfig }) {
     return (
         <section
             aria-label={title}
-            className={cn('relative flex items-center justify-center min-h-[480px] px-6 py-20 overflow-hidden', {
-                'bg-cover bg-center': hasImage,
+            className={cn('relative flex items-center px-6 sm:px-8 py-20 overflow-hidden', HEIGHT_CLASS[height], {
                 'bg-(--sf-panel)': !hasImage && surface === 'default',
             })}
-            style={hasImage ? {backgroundImage: `url(${resolvedBackground})`} : SURFACE_BACKGROUND_STYLE[surface]}
+            style={hasImage ? undefined : SURFACE_BACKGROUND_STYLE[surface]}
         >
             {hasImage && (
-                <div
-                    className="absolute inset-0 bg-black"
-                    style={{opacity: overlayOpacity}}
-                    aria-hidden="true"
-                />
+                <>
+                    {/* Explicit <img> + object-cover (not a CSS background) so the image
+                        always fills the band exactly — no warp, no container-size drift. */}
+                    <img
+                        src={resolvedBackground}
+                        alt=""
+                        aria-hidden="true"
+                        className="absolute inset-0 h-full w-full object-cover object-center"
+                    />
+                    <div
+                        className="absolute inset-0 bg-black"
+                        style={{opacity: overlayOpacity}}
+                        aria-hidden="true"
+                    />
+                </>
             )}
+            {/* Content rides the house max-w-5xl grid so a left-aligned hero starts at
+                the same gutter as every other section (a centered narrow column made
+                "left" alignment float mid-page). The text block stays copy-width. */}
+            <div className="relative z-10 mx-auto w-full max-w-5xl">
             <div
                 className={cn(
-                    'relative z-10 w-full max-w-2xl',
+                    'max-w-2xl',
                     isBoundedPanel && 'rounded-2xl border border-(--sf-accent-text)/15 bg-black/10 px-8 py-10 sm:px-10 sm:py-12 shadow-(--sf-shadow-lg) backdrop-blur-sm',
                     contentAlignment === 'center' && 'text-center mx-auto',
                     contentAlignment === 'right' && 'text-right ml-auto',
@@ -151,6 +180,7 @@ export function HeroSection({section}: { section: HeroSectionConfig }) {
                         )}
                     </div>
                 )}
+            </div>
             </div>
         </section>
     )

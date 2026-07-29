@@ -4,6 +4,7 @@ import { useLocation } from 'react-router-dom'
 import type { NavItem } from '@/shared/types/StorefrontConfig'
 import { SearchBar } from './SearchBar'
 import { StorefrontNavLink } from './StorefrontNavLink'
+import { CategoryDrawerSection } from './CategoryDrawerSection'
 
 interface NavDrawerProps {
   open: boolean
@@ -51,11 +52,18 @@ export function NavDrawer({ open, onClose, items }: NavDrawerProps) {
         <div className="px-4 pb-4">
           <SearchBar className="w-full" />
         </div>
-        <nav aria-label="Main navigation" className="flex flex-col gap-2 px-4">
-          {items.map(item => (
-            <StorefrontNavLink key={item.id} item={item} />
-          ))}
-        </nav>
+        {/* Scroll container: a deep category tree must not clip against the
+            fixed-height drawer. */}
+        <div className="flex-1 overflow-y-auto pb-4">
+          <nav aria-label="Main navigation" className="flex flex-col gap-2 px-4">
+            {items.map(item => (
+              <StorefrontNavLink key={item.id} item={item} />
+            ))}
+          </nav>
+          <div className="px-4">
+            <CategoryDrawerSection onClose={onClose} />
+          </div>
+        </div>
       </div>
     </>,
     document.body,
