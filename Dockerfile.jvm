@@ -32,6 +32,8 @@ COPY . .
 ARG VITE_API_URL
 ENV VITE_API_URL=$VITE_API_URL
 
+ENV HOST=0.0.0.0
+
 RUN npm run build
 
 # Step 2: Serve stage with NGINX
@@ -40,5 +42,5 @@ FROM nginx:alpine
 COPY --from=builder /app/build /usr/share/nginx/html
 
 # Expose HTTP port
-EXPOSE 80
+EXPOSE 3000
 CMD ["nginx", "-g", "daemon off;"]
