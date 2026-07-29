@@ -1,46 +1,48 @@
-FROM node:20-alpine
-
-WORKDIR /app
-
-# Install dependencies
-COPY package.json package-lock.json* ./
-RUN npm install
-
-# Copy source code
-COPY . .
-
-# Ensure the app binds to 0.0.0.0 so the Cloudflare Tunnel can reach it
-ENV HOST=0.0.0.0
-# If using Vite, you might need: ENV VITE_HOST=0.0.0.0
-
-EXPOSE 3000
-
-# Using npm start for dev; for production, we'd use a multi-stage build with Nginx
-CMD ["npm", "run", "dev", "--", "--host"]
-
-## Step 1: Build stage
-#FROM node:20-alpine AS builder
+#FROM node:20-alpine
+#
 #WORKDIR /app
 #
 ## Install dependencies
-#COPY package*.json ./
-#RUN npm ci
+#COPY package.json package-lock.json* ./
+#RUN npm install
 #
-## Copy code and compile Vite static files
+## Copy source code
 #COPY . .
-## Pass build-time env variables
-#ARG VITE_API_URL
-#ENV VITE_API_URL=$VITE_API_URL
 #
+## Ensure the app binds to 0.0.0.0 so the Cloudflare Tunnel can reach it
 #ENV HOST=0.0.0.0
+## If using Vite, you might need: ENV VITE_HOST=0.0.0.0
 #
-#RUN npm run build
-#
-## Step 2: Serve stage with NGINX
-#FROM nginx:alpine
-## Copy compiled output to NGINX standard directory
-#COPY --from=builder /app/build /usr/share/nginx/html
-#
-## Expose HTTP port
 #EXPOSE 3000
-#CMD ["nginx", "-g", "daemon off;"]
+#
+## Using npm start for dev; for production, we'd use a multi-stage build with Nginx
+#CMD ["npm", "run", "dev", "--", "--host"]
+
+FROM node:20-alpine AS builder
+WORKDIR /app
+
+COPY package*.json ./
+RUN npm ci
+
+COPY . .
+
+# 🚀 Declare build arguments sent from GitHub Actions
+ARG VITE_API_URL
+ARG VITE_IMAGE_BASE_URL
+ARG VITE_API_BASE_URL
+ARG VITE_PROXY_TARGET
+
+# 🚀 Export them as environment variables so Vite can read them during "npm run build"
+ENV VITE_API_URL=$VITE_API_URL
+ENV VITE_IMAGE_BASE_URL=$VITE_IMAGE_BASE_URL
+ENV VITE_API_BASE_URL=$VITE_API_BASE_URL
+ENV VITE_PROXY_TARGET=$VITE_PROXY_TARGET
+
+RUN npm run build
+
+# Stage 2: Serve using NGINX
+FROM nginx:alpine
+COPY --from=builder /app/build /usr/share/nginx/html
+
+EXPOSE 80
+CMD ["nginx", "-g", "daemon off;"]

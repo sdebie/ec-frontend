@@ -19,6 +19,7 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
 
+      # Formats upper-case GitHub usernames/repos (e.g., "ShawnDeBie") to lower-case for Docker rules
       - name: Lowercase Repository Name
         id: string
         run: |
@@ -37,9 +38,12 @@ jobs:
       - name: Build and Push Docker Image
         uses: docker/build-push-action@v6
         with:
-          context: .               # 🚀 FIX: Root directory of the repository
-          file: ./Dockerfile.jvm    # 🚀 FIX: Path relative to repository root
+          context: .
+          file: ./Dockerfile.jvm
           push: true
           tags: ghcr.io/${{ steps.string.outputs.REPO_LC }}:latest
           build-args: |
             VITE_API_URL=https://ecapi.sdebiehome.co.za
+            VITE_IMAGE_BASE_URL=/static/images/
+            VITE_API_BASE_URL=/
+            VITE_PROXY_TARGET=http://ec-backend:8080
