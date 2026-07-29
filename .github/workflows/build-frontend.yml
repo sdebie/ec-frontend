@@ -6,7 +6,7 @@ on:
       - main
     paths:
       - 'ec-frontend/**'
-      - '.github/workflows/frontend-ci.yml'
+      - '.github/workflows/build-frontend.yml'
 
 jobs:
   build-and-push:
