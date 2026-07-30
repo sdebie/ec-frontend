@@ -151,11 +151,12 @@ describe('HomePage (regression pin for SectionList extraction)', () => {
         )
     })
 
-    it('renders empty main when config has no sections', () => {
+    it('renders an empty shell when config has no sections', () => {
         const {container} = renderHomePage([])
 
-        const main = container.querySelector('main')
-        expect(main).toBeInTheDocument()
+        // The page shell is a div — StorefrontLayout owns the single <main> landmark
+        expect(container.querySelector('main')).not.toBeInTheDocument()
+        expect(container.firstElementChild).toBeInTheDocument()
 
         const renderedSections = container.querySelectorAll('section')
         expect(renderedSections).toHaveLength(0)

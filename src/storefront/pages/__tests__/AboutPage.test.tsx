@@ -99,11 +99,12 @@ describe('AboutPage', () => {
         expect(screen.getByRole('link', {name: 'Contact Us'})).toHaveAttribute('href', '/contact-us')
     })
 
-    it('tolerates aboutSections: undefined — renders main without sections and without error', () => {
+    it('tolerates aboutSections: undefined — renders the shell without sections and without error', () => {
         const {container} = renderAboutPage(undefined)
 
-        const main = container.querySelector('main')
-        expect(main).toBeInTheDocument()
+        // The page shell is a div — StorefrontLayout owns the single <main> landmark
+        expect(container.querySelector('main')).not.toBeInTheDocument()
+        expect(container.firstElementChild).toBeInTheDocument()
 
         const renderedSections = container.querySelectorAll('section')
         expect(renderedSections).toHaveLength(0)

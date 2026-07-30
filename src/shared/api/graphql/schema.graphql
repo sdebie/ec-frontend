@@ -445,7 +445,7 @@ type Query {
   shippingMethods: [ShippingMethodDto]
   "Returns featured ACTIVE products as shopping DTOs for the storefront. Publicly accessible."
   shoppingFeaturedProductList(categorySlug: String, limit: Int = 8): [ProductShoppingListItemDto]
-  "Returns paginated shopping product cards with variant count, image list, and active lowest prices by type. Products can belong to multiple categories. Supports optional category scope and includeSubCategories. NOTE: filterRequest.sort is ignored by this resolver; use the sortBy argument instead, which is authoritative for ordering."
+  "Returns paginated shopping product cards with variant count, image list, and active lowest prices by type. Products can belong to multiple categories. Supports optional category scope and includeSubCategories."
   shoppingProductList(
     "Optional main category UUID. If omitted or ALL, returns products across all categories."
     categoryId: String,
@@ -456,9 +456,7 @@ type Query {
     includeSubCategories: Boolean = true,
     onSale: Boolean = false,
     pageIndex: Int = 0,
-    pageSize: Int = 20,
-    priceBasis: PriceBasisEn = RETAIL,
-    sortBy: CatalogueSortEn = NAME_ASC
+    pageSize: Int = 20
   ): PageResponse_ProductShoppingListItemDto
   "Returns a staff member by ID"
   staffById(id: String): StaffDto
@@ -639,12 +637,6 @@ type WholesaleCustomerDto {
   vatNumber: String
 }
 
-enum CatalogueSortEn {
-  NAME_ASC
-  PRICE_ASC
-  PRICE_DESC
-}
-
 enum FilterOperator {
   BETWEEN
   EQUALS
@@ -678,11 +670,6 @@ enum OrderStatusEn {
   PAID
   PENDING
   SYSTEM_CANCELED
-}
-
-enum PriceBasisEn {
-  RETAIL
-  WHOLESALE
 }
 
 enum ProductImportValidationStatusEn {

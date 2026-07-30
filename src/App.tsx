@@ -1,9 +1,12 @@
 import {RouterProvider} from 'react-router-dom'
 import {router} from '@/app/router/router'
+import {MaintenanceBoundary} from '@/app/maintenance/MaintenanceBoundary'
 
 function App() {
     return (
-        <RouterProvider router={router}/>
+        <MaintenanceBoundary>
+            <RouterProvider router={router}/>
+        </MaintenanceBoundary>
     )
 }
 

@@ -5,8 +5,8 @@ export function HomePage() {
     const config = useStorefrontConfig()
 
     return (
-        <main>
+        <div>
             <SectionList sections={config.sections} />
-        </main>
+        </div>
     )
 }
