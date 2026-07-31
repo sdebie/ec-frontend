@@ -23,3 +23,4 @@ jobs:
         env:
           OPENAI_KEY: ${{ secrets.OPENAI_API_KEY }}
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          PR_REVIEWER.EXTRA_INSTRUCTIONS: "React Code Review: Check React Hooks dependency arrays, proper useEffect cleanup, stable key props in lists, semantic HTML for accessibility (a11y), proper handling of async loading/error states, and prevent unnecessary inline object re-renders. Ignore linting/formatting."
