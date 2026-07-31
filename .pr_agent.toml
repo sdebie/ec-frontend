@@ -9,3 +9,7 @@ React Code Review:
 - Prevent unnecessary inline object re-renders.
 - Ignore general linting or formatting issues.
 """
+
+[github_action_config]
+# Force PR-Agent to run on 'synchronize' (pushes to an existing PR)
+handle_push_trigger = true
