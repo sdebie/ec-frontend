@@ -1,0 +1,11 @@
+[pr_reviewer]
+extra_instructions = """
+React Code Review:
+- Check React Hooks dependency arrays for missing or unnecessary variables.
+- Ensure proper useEffect cleanup functions exist for event listeners or subscriptions.
+- Flag unstable key props in lists (e.g. using array index as key).
+- Verify semantic HTML for accessibility (a11y).
+- Check proper handling of async loading and error states.
+- Prevent unnecessary inline object re-renders.
+- Ignore general linting or formatting issues.
+"""
