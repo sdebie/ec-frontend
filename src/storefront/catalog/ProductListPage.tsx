@@ -23,7 +23,11 @@ export function ProductListPage({ onSale = false }: ProductListPageProps) {
   const search = params.get('q') ?? params.get('search') ?? ''
   const categorySlug = params.get('category') ?? ''
   const brandSlug = params.get('brand') ?? ''
-  const sort = (params.get('sort') ?? 'name') as SortOption
+  const VALID_SORT_OPTIONS: SortOption[] = ['name', 'price-asc', 'price-desc']
+  const rawSort = params.get('sort') ?? 'name'
+  const sort: SortOption = VALID_SORT_OPTIONS.includes(rawSort as SortOption)
+    ? (rawSort as SortOption)
+    : 'name'
   const page = Number(params.get('page') ?? '1')
 
   const { categories } = useCategories()

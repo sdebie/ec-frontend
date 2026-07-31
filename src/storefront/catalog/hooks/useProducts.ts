@@ -1,9 +1,8 @@
 import {useQuery} from '@tanstack/react-query'
 import {gql} from 'graphql-request'
-import {useMemo} from 'react'
 import {graphqlClient} from '@/shared/api/graphql/graphqlClient'
 import {useCustomerAuthStore} from '@/shared/auth/customerAuthStore'
-import {getDisplayPrice} from '../utils/pricing'
+import {priceBasisFor} from '../utils/pricing'
 
 // --- Types ---
 
@@ -18,15 +17,9 @@ interface FilterGroup {
     operator: 'OR' | 'AND'
 }
 
-interface SortItem {
-    field: string
-    direction: 'ASC' | 'DESC'
-}
-
 interface FilterRequest {
     filters?: FilterItem[]
     filterGroups?: FilterGroup[]
-    sort?: SortItem[]
 }
 
 interface ProductImage {
@@ -84,6 +77,8 @@ const SHOPPING_PRODUCT_LIST = gql`
         $pageIndex: Int
         $pageSize: Int
         $onSale: Boolean
+        $sortBy: CatalogueSortEn
+        $priceBasis: PriceBasisEn
     ) {
         shoppingProductList(
             filterRequest: $filterRequest
@@ -91,6 +86,8 @@ const SHOPPING_PRODUCT_LIST = gql`
             pageIndex: $pageIndex
             pageSize: $pageSize
             onSale: $onSale
+            sortBy: $sortBy
+            priceBasis: $priceBasis
         ) {
             content {
                 id
@@ -119,10 +116,26 @@ const SHOPPING_PRODUCT_LIST = gql`
 
 const PAGE_SIZE = 20
 
+/** Stable-identity empty array so consumers don't re-render on referential inequality. */
+const EMPTY_PRODUCTS: Product[] = []
+
+// --- SortOption → GraphQL enum mapping ---
+
+function toGraphQLSort(sort: SortOption): 'NAME_ASC' | 'PRICE_ASC' | 'PRICE_DESC' {
+    switch (sort) {
+        case 'price-asc':
+            return 'PRICE_ASC'
+        case 'price-desc':
+            return 'PRICE_DESC'
+        default:
+            return 'NAME_ASC'
+    }
+}
+
 // --- FilterRequest builder ---
 
 function buildFilterRequest(params: UseProductsParams): FilterRequest {
-    const {search, brandId, sort} = params
+    const {search, brandId} = params
 
     const filterRequest: FilterRequest = {}
 
@@ -148,11 +161,6 @@ function buildFilterRequest(params: UseProductsParams): FilterRequest {
         ]
     }
 
-    // Server-side sort for 'name' only; price sorts are client-side
-    if (!sort || sort === 'name') {
-        filterRequest.sort = [{field: 'name', direction: 'ASC'}]
-    }
-
     return filterRequest
 }
 
@@ -162,6 +170,8 @@ export function useProducts(params: UseProductsParams = {}) {
     const {sort = 'name', page = 1, enabled = true, onSale} = params
     const customerType = useCustomerAuthStore((state) => state.customerType)
 
+    const priceBasis = priceBasisFor(customerType)
+    const sortBy = toGraphQLSort(sort)
     const filterRequest = buildFilterRequest(params)
     const pageIndex = page - 1
 
@@ -171,7 +181,8 @@ export function useProducts(params: UseProductsParams = {}) {
             params.search,
             params.categoryId,
             params.brandId,
-            sort,
+            sortBy,
+            priceBasis,
             page,
             onSale,
         ],
@@ -182,47 +193,13 @@ export function useProducts(params: UseProductsParams = {}) {
                 pageIndex,
                 pageSize: PAGE_SIZE,
                 onSale,
+                sortBy,
+                priceBasis,
             }),
         enabled,
     })
 
-    // Apply client-side price sort when needed
-    const products = useMemo(() => {
-        const content = data?.shoppingProductList.content ?? []
-
-        if (sort === 'price-asc' || sort === 'price-desc') {
-            const sorted = [...content].sort((a, b) => {
-                const priceA = getDisplayPrice(
-                    {
-                        retailPrice: a.retailPrice?.price ?? null,
-                        wholesalePrice: a.wholesalePrice?.price ?? null,
-                        retailSalePrice: a.retailSalePrice?.price ?? null,
-                        wholesaleSalePrice: a.wholesaleSalePrice?.price ?? null,
-                    },
-                    customerType,
-                ).price
-                const priceB = getDisplayPrice(
-                    {
-                        retailPrice: b.retailPrice?.price ?? null,
-                        wholesalePrice: b.wholesalePrice?.price ?? null,
-                        retailSalePrice: b.retailSalePrice?.price ?? null,
-                        wholesaleSalePrice: b.wholesaleSalePrice?.price ?? null,
-                    },
-                    customerType,
-                ).price
-
-                // Null prices sort to the end
-                if (priceA == null && priceB == null) return 0
-                if (priceA == null) return 1
-                if (priceB == null) return -1
-
-                return sort === 'price-asc' ? priceA - priceB : priceB - priceA
-            })
-            return sorted
-        }
-
-        return content
-    }, [data, sort, customerType])
+    const products = data?.shoppingProductList.content ?? EMPTY_PRODUCTS
 
     return {
         products,

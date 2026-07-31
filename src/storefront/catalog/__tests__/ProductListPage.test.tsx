@@ -192,6 +192,48 @@ describe('ProductListPage integration', () => {
         })
     })
 
+    describe('URL sort validation', () => {
+        it('falls back to "name" for an unknown ?sort= value', () => {
+            renderWithRouter(['/products?sort=invalid'])
+
+            expect(mockUseProducts).toHaveBeenCalledWith(
+                expect.objectContaining({
+                    sort: 'name',
+                }),
+            )
+        })
+
+        it('falls back to "name" for ?sort=unknown-value', () => {
+            renderWithRouter(['/products?sort=unknown-value'])
+
+            expect(mockUseProducts).toHaveBeenCalledWith(
+                expect.objectContaining({
+                    sort: 'name',
+                }),
+            )
+        })
+
+        it('accepts valid sort option "price-asc"', () => {
+            renderWithRouter(['/products?sort=price-asc'])
+
+            expect(mockUseProducts).toHaveBeenCalledWith(
+                expect.objectContaining({
+                    sort: 'price-asc',
+                }),
+            )
+        })
+
+        it('accepts valid sort option "price-desc"', () => {
+            renderWithRouter(['/products?sort=price-desc'])
+
+            expect(mockUseProducts).toHaveBeenCalledWith(
+                expect.objectContaining({
+                    sort: 'price-desc',
+                }),
+            )
+        })
+    })
+
     describe('?q= search param support', () => {
         it('passes search value to useProducts when ?q= is present', () => {
             renderWithRouter(['/products?q=sneakers'])

@@ -423,9 +423,7 @@ type Query {
     brandId: String,
     "Optional category UUID. Includes products in this category and all subcategories. Pass null or omit for all categories."
     categoryId: String,
-    filterRequest: FilterRequestInput,
-    "When true, skips the default ACTIVE product and variant status restriction."
-    ignoreStatus: Boolean = false
+    filterRequest: FilterRequestInput
   ): BigInteger!
   "Returns the list of all product price upload batches"
   productPriceUploadBatches: [ProductUploadBatchDto]
@@ -445,18 +443,18 @@ type Query {
   shippingMethods: [ShippingMethodDto]
   "Returns featured ACTIVE products as shopping DTOs for the storefront. Publicly accessible."
   shoppingFeaturedProductList(categorySlug: String, limit: Int = 8): [ProductShoppingListItemDto]
-  "Returns paginated shopping product cards with variant count, image list, and active lowest prices by type. Products can belong to multiple categories. Supports optional category scope and includeSubCategories."
+  "Returns paginated shopping product cards with variant count, image list, and active lowest prices by type. Products can belong to multiple categories. Supports optional category scope and includeSubCategories. Note: filterRequest.sort is ignored by this resolver; sortBy is authoritative for ordering."
   shoppingProductList(
     "Optional main category UUID. If omitted or ALL, returns products across all categories."
     categoryId: String,
     filterRequest: FilterRequestInput,
-    "When true, skips the default ACTIVE product and variant status restriction."
-    ignoreStatus: Boolean = false,
     "When true, includes products linked to the selected category and all descendant categories. When false, only products linked directly to the selected category are returned."
     includeSubCategories: Boolean = true,
     onSale: Boolean = false,
     pageIndex: Int = 0,
-    pageSize: Int = 20
+    pageSize: Int = 20,
+    priceBasis: PriceBasisEn = RETAIL,
+    sortBy: CatalogueSortEn = NAME_ASC
   ): PageResponse_ProductShoppingListItemDto
   "Returns a staff member by ID"
   staffById(id: String): StaffDto
@@ -637,6 +635,12 @@ type WholesaleCustomerDto {
   vatNumber: String
 }
 
+enum CatalogueSortEn {
+  NAME_ASC
+  PRICE_ASC
+  PRICE_DESC
+}
+
 enum FilterOperator {
   BETWEEN
   EQUALS
@@ -670,6 +674,11 @@ enum OrderStatusEn {
   PAID
   PENDING
   SYSTEM_CANCELED
+}
+
+enum PriceBasisEn {
+  RETAIL
+  WHOLESALE
 }
 
 enum ProductImportValidationStatusEn {
