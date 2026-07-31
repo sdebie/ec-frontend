@@ -1,15 +1,20 @@
+[config]
+# Automatically run review when a PR is created
+auto_review = true
+
+[github_action]
+# MUST be [github_action] (not github_action_config)
+handle_push_trigger = true
+
 [pr_reviewer]
 extra_instructions = """
-React Code Review:
-- Check React Hooks dependency arrays for missing or unnecessary variables.
-- Ensure proper useEffect cleanup functions exist for event listeners or subscriptions.
-- Flag unstable key props in lists (e.g. using array index as key).
+React Code Review Guidelines:
+- Check React Hooks dependency arrays (useEffect, useCallback, useMemo) for missing or unnecessary variables.
+- Ensure proper useEffect cleanup functions exist for event listeners, intervals, or subscriptions.
+- Flag unstable key props in lists (e.g. using array index as a key).
 - Verify semantic HTML for accessibility (a11y).
 - Check proper handling of async loading and error states.
-- Prevent unnecessary inline object re-renders.
-- Ignore general linting or formatting issues.
+- Prevent unnecessary inline object/function re-renders.
+- Ignore general linting or formatting issues handled by Prettier/ESLint.
 """
-
-[github_action_config]
-# Force PR-Agent to run on 'synchronize' (pushes to an existing PR)
-handle_push_trigger = true
+inline_suggestions_range = [1, 8]
