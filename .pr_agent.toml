@@ -1,9 +1,7 @@
 [config]
-# Automatically run review when a PR is created
 auto_review = true
 
 [github_action]
-# MUST be [github_action] (not github_action_config)
 handle_push_trigger = true
 
 [pr_reviewer]
