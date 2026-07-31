@@ -1,9 +1,6 @@
 [config]
 auto_review = true
 
-[github_action]
-handle_push_trigger = true
-
 [pr_reviewer]
 extra_instructions = """
 React Code Review Guidelines:
@@ -15,4 +12,3 @@ React Code Review Guidelines:
 - Prevent unnecessary inline object/function re-renders.
 - Ignore general linting or formatting issues handled by Prettier/ESLint.
 """
-inline_suggestions_range = [1, 8]
