@@ -94,8 +94,11 @@ export function CatalogToolbar({
             {/* Sort select — shared form-layer Select so every storefront dropdown
             shares one styled control (native <select> option lists are
             OS-rendered and can never match the design system) */}
+            {/* Sort row — mobile: label left, dropdown fills the remaining width,
+                view toggle pinned right at its fixed width; desktop: compact row
+                pushed to the right edge */}
             <div className="flex items-center gap-2 sm:ml-auto">
-          <span className="text-sm text-(--sf-muted-text)" aria-hidden="true">
+          <span className="shrink-0 text-sm text-(--sf-muted-text)" aria-hidden="true">
             Sort by
           </span>
                 <Select
@@ -104,11 +107,11 @@ export function CatalogToolbar({
                     value={sort}
                     onChange={(value) => onSortChange(value as SortOption)}
                     fullWidth={false}
-                    className="w-36 sm:w-44"
+                    className="min-w-0 flex-1 sm:flex-none sm:w-44"
                 />
 
                 {/* View toggle slot (task 5.1) */}
-                {viewToggle}
+                <div className="shrink-0">{viewToggle}</div>
             </div>
         </div>
     )
