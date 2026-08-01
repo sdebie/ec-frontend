@@ -41,11 +41,12 @@ export function CatalogToolbar({
     return (
         <div className="mb-5 flex flex-col gap-3 border-b border-(--sf-border) pb-4 sm:flex-row sm:flex-wrap sm:items-center">
             {/* Mobile line 1: Filters button + Clear all; dissolves into the desktop row */}
-            <div className="flex items-center justify-between gap-3 sm:contents">
+            {/* Mobile line 2 (order-2 puts it below the sort row); dissolves into the desktop row */}
+            <div className="order-2 flex items-center justify-between gap-3 sm:order-none sm:contents">
                 <button
                     type="button"
                     onClick={onFilterToggle}
-                    className="inline-flex items-center gap-2 rounded-md border border-(--sf-border) bg-(--sf-panel) px-3 py-2 text-sm font-medium text-(--sf-text) hover:bg-(--sf-surface-muted) transition-colors"
+                    className="inline-flex flex-1 items-center justify-center gap-2 rounded-md border border-(--sf-border) bg-(--sf-panel) px-3 py-2 text-sm font-medium text-(--sf-text) hover:bg-(--sf-surface-muted) transition-colors sm:flex-none sm:justify-start"
                     aria-label={
                         activeFilterCount > 0
                             ? `Filters (${activeFilterCount} active)`
@@ -97,7 +98,7 @@ export function CatalogToolbar({
             {/* Sort row — mobile: label left, dropdown fills the remaining width,
                 view toggle pinned right at its fixed width; desktop: compact row
                 pushed to the right edge */}
-            <div className="flex items-center gap-2 sm:ml-auto">
+            <div className="order-1 flex items-center gap-2 sm:order-none sm:ml-auto">
           <span className="shrink-0 text-sm text-(--sf-muted-text)" aria-hidden="true">
             Sort by
           </span>
