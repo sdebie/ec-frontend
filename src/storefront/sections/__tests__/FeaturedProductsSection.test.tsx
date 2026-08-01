@@ -232,11 +232,16 @@ describe('FeaturedProductsSection', () => {
         const priceElements = screen.getAllByText(/R/)
         expect(priceElements.length).toBeGreaterThanOrEqual(2)
 
-        // Each ProductCard is itself a link to the product detail page.
+        // Each ProductCard renders discrete image + title links to the product detail page,
+        // plus a "Select options" link for VARIABLE products (no variantId in mock data).
         const links = screen.getAllByRole('link')
-        expect(links).toHaveLength(2)
+        expect(links).toHaveLength(6) // 2 products × 3 links each (image + title + Select options)
         expect(links[0]).toHaveAttribute('href', '/products/product-one')
-        expect(links[1]).toHaveAttribute('href', '/products/product-two')
+        expect(links[1]).toHaveAttribute('href', '/products/product-one')
+        expect(links[2]).toHaveAttribute('href', '/products/product-one')
+        expect(links[3]).toHaveAttribute('href', '/products/product-two')
+        expect(links[4]).toHaveAttribute('href', '/products/product-two')
+        expect(links[5]).toHaveAttribute('href', '/products/product-two')
     })
 
     it('renders product images with loading="lazy" and alt set to product name', async () => {

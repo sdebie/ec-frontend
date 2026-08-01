@@ -26,6 +26,8 @@ export interface FeaturedProduct {
     retailSalePrice: PriceTier | null
     wholesaleSalePrice: PriceTier | null
     variantId: string | null
+    sku?: string | null
+    inStock?: boolean | null
 }
 
 interface ShoppingFeaturedProductListResponse {
@@ -42,6 +44,8 @@ const SHOPPING_FEATURED_PRODUCT_LIST = gql`
             slug
             shortDescription
             variantId
+            sku
+            inStock
             images {
                 id
                 imageUrl

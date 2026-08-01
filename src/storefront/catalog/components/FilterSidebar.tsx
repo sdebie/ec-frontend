@@ -1,5 +1,7 @@
-import { useState, useEffect, useCallback } from 'react'
+import { useState, useEffect } from 'react'
 import { CategoryTreeFilter } from './CategoryTreeFilter'
+import { FilterGroup } from './FilterGroup'
+import { AvailabilityFilter } from './AvailabilityFilter'
 
 interface FilterSidebarProps {
   brands: Array<{ id: string; name: string; slug: string }>
@@ -7,10 +9,16 @@ interface FilterSidebarProps {
     search: string
     category: string
     brand: string
-    sort: string
+    available?: boolean
   }
   setFilter: (key: string, value: string) => void
   onClearAll: () => void
+  /** Controlled drawer state (mobile) — driven by CatalogToolbar's filter button */
+  drawerOpen?: boolean
+  /** Callback to close the drawer */
+  onDrawerClose?: () => void
+  /** Controls desktop sidebar visibility (toggled by toolbar filter button on md+) */
+  sidebarVisible?: boolean
 }
 
 function FilterContent({
@@ -18,7 +26,7 @@ function FilterContent({
   activeFilters,
   setFilter,
   onClearAll,
-}: FilterSidebarProps) {
+}: Omit<FilterSidebarProps, 'drawerOpen' | 'onDrawerClose'>) {
   const [searchValue, setSearchValue] = useState(activeFilters.search)
   const [debouncedValue, setDebouncedValue] = useState(activeFilters.search)
 
@@ -62,14 +70,13 @@ function FilterContent({
       </div>
 
       {/* Category Tree */}
-      <div>
-        <span className="block text-sm font-medium text-(--sf-text) mb-1">Category</span>
+      <FilterGroup title="Category" defaultOpen isActive={!!activeFilters.category}>
         <CategoryTreeFilter activeSlug={activeFilters.category} setFilter={setFilter} />
-      </div>
+      </FilterGroup>
 
       {/* Brand Dropdown */}
-      <div>
-        <label htmlFor="filter-brand" className="block text-sm font-medium text-(--sf-text) mb-1">
+      <FilterGroup title="Brand" defaultOpen={false} isActive={!!activeFilters.brand}>
+        <label htmlFor="filter-brand" className="sr-only">
           Brand
         </label>
         <select
@@ -85,24 +92,15 @@ function FilterContent({
             </option>
           ))}
         </select>
-      </div>
+      </FilterGroup>
 
-      {/* Sort Select */}
-      <div>
-        <label htmlFor="filter-sort" className="block text-sm font-medium text-(--sf-text) mb-1">
-          Sort by
-        </label>
-        <select
-          id="filter-sort"
-          value={activeFilters.sort}
-          onChange={(e) => setFilter('sort', e.target.value)}
-          className="w-full rounded-md border border-(--sf-border) px-3 py-2 text-sm focus:border-(--sf-ring) focus:outline-none focus:ring-1 focus:ring-(--sf-ring)"
-        >
-          <option value="name">Name A–Z</option>
-          <option value="price-asc">Price Low–High</option>
-          <option value="price-desc">Price High–Low</option>
-        </select>
-      </div>
+      {/* Availability */}
+      <FilterGroup title="Availability" defaultOpen={false} isActive={!!activeFilters.available}>
+        <AvailabilityFilter
+          checked={!!activeFilters.available}
+          onChange={(checked) => setFilter('available', checked ? '1' : '')}
+        />
+      </FilterGroup>
 
       {/* Clear All Filters */}
       <button
@@ -117,87 +115,54 @@ function FilterContent({
 }
 
 export function FilterSidebar(props: FilterSidebarProps) {
-  const [drawerOpen, setDrawerOpen] = useState(false)
+  const { drawerOpen = false, onDrawerClose, sidebarVisible = true } = props
+  const filterContentProps = {
+    brands: props.brands,
+    activeFilters: props.activeFilters,
+    setFilter: props.setFilter,
+    onClearAll: props.onClearAll,
+  }
 
-  const handleClose = useCallback(() => {
-    setDrawerOpen(false)
-  }, [])
+  const handleClose = () => {
+    onDrawerClose?.()
+  }
 
   return (
     <>
-      {/* Desktop: inline sidebar (visible md+) */}
-      <aside className="hidden md:block w-64 shrink-0">
-        <FilterContent {...props} />
-      </aside>
+      {/* Desktop: inline sidebar (visible md+ when sidebarVisible is true) */}
+      {sidebarVisible && (
+        <aside className="hidden md:block w-64 shrink-0">
+          <FilterContent {...filterContentProps} />
+        </aside>
+      )}
 
-      {/* Mobile: Filters button + drawer (visible below md) */}
-      <div className="md:hidden">
-        <button
-          type="button"
-          onClick={() => setDrawerOpen(true)}
-          className="inline-flex items-center gap-2 rounded-md border border-(--sf-border) bg-(--sf-panel) px-4 py-2 text-sm font-medium text-(--sf-text) hover:bg-(--sf-surface-muted)"
-        >
-          <svg
-            xmlns="http://www.w3.org/2000/svg"
-            className="h-4 w-4"
-            fill="none"
-            viewBox="0 0 24 24"
-            stroke="currentColor"
+      {/* Mobile: Drawer (controlled by toolbar's filter button) */}
+      {drawerOpen && (
+        <div className="fixed inset-0 z-50 flex md:hidden">
+          {/* Backdrop */}
+          <div
+            className="fixed inset-0 bg-black/40"
+            onClick={handleClose}
             aria-hidden="true"
-          >
-            <path
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              strokeWidth={2}
-              d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2.586a1 1 0 01-.293.707l-6.414 6.414a1 1 0 00-.293.707V17l-4 4v-6.586a1 1 0 00-.293-.707L3.293 7.293A1 1 0 013 6.586V4z"
-            />
-          </svg>
-          Filters
-        </button>
+          />
 
-        {/* Drawer overlay */}
-        {drawerOpen && (
-          <div className="fixed inset-0 z-50 flex">
-            {/* Backdrop */}
-            <div
-              className="fixed inset-0 bg-black/40"
-              onClick={handleClose}
-              aria-hidden="true"
-            />
-
-            {/* Drawer panel */}
-            <div className="relative ml-auto flex h-full w-full max-w-xs flex-col overflow-y-auto bg-(--sf-panel) p-6 shadow-xl">
-              <div className="flex items-center justify-between mb-6">
-                <h2 className="text-lg font-semibold text-(--sf-text)">Filters</h2>
-                <button
-                  type="button"
-                  onClick={handleClose}
-                  className="rounded-md p-1 text-(--sf-muted-text) hover:text-(--sf-text)"
-                  aria-label="Close filters"
-                >
-                  <svg
-                    xmlns="http://www.w3.org/2000/svg"
-                    className="h-5 w-5"
-                    fill="none"
-                    viewBox="0 0 24 24"
-                    stroke="currentColor"
-                    aria-hidden="true"
-                  >
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      strokeWidth={2}
-                      d="M6 18L18 6M6 6l12 12"
-                    />
-                  </svg>
-                </button>
-              </div>
-
-              <FilterContent {...props} />
+          {/* Drawer panel */}
+          <div className="relative ml-auto flex h-full w-full max-w-xs flex-col overflow-y-auto bg-(--sf-panel) p-6 shadow-xl">
+            <div className="flex items-center justify-between mb-6">
+              <h2 className="text-lg font-semibold text-(--sf-text)">Filters</h2>
+              <button
+                type="button"
+                onClick={handleClose}
+                className="rounded-md px-3 py-1.5 text-sm font-medium text-(--sf-accent) hover:text-(--sf-accent)/80 transition-colors"
+              >
+                View results
+              </button>
             </div>
+
+            <FilterContent {...filterContentProps} />
           </div>
-        )}
-      </div>
+        </div>
+      )}
     </>
   )
 }

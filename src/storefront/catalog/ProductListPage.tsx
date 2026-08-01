@@ -1,13 +1,17 @@
-import { useCallback } from 'react'
+import { useCallback, useRef, useState } from 'react'
 import { Section, SectionHeading } from '@/storefront/sections/shared'
 import { useSearchParams } from 'react-router-dom'
 import { useCategories } from './hooks/useCategories'
 import { useBrands } from './hooks/useBrands'
 import { useProducts, type SortOption } from './hooks/useProducts'
+import { useViewPreference } from './hooks/useViewPreference'
 import { ProductGrid } from './components/ProductGrid'
 import { FilterSidebar } from './components/FilterSidebar'
 import { ActiveFilterChips } from './components/ActiveFilterChips'
 import { CatalogPagination } from './components/CatalogPagination'
+import { CatalogToolbar } from './components/CatalogToolbar'
+import { ViewToggle } from './components/ViewToggle'
+import { QuickViewModal, type QuickViewModalProps } from './components/QuickViewModal'
 
 const PAGE_SIZE = 20
 
@@ -17,6 +21,11 @@ interface ProductListPageProps {
 
 export function ProductListPage({ onSale = false }: ProductListPageProps) {
   const [params, setParams] = useSearchParams()
+  const [drawerOpen, setDrawerOpen] = useState(false)
+  const [sidebarVisible, setSidebarVisible] = useState(true)
+  const [quickViewProduct, setQuickViewProduct] = useState<QuickViewModalProps['product'] | null>(null)
+  const quickViewTriggerRef = useRef<HTMLElement | null>(null)
+  const [view, setView] = useViewPreference()
 
   // Read filter state from URL params
   // Support both ?q= (from SearchBar navigation) and ?search= (legacy/sidebar filter)
@@ -29,6 +38,7 @@ export function ProductListPage({ onSale = false }: ProductListPageProps) {
     ? (rawSort as SortOption)
     : 'name'
   const page = Number(params.get('page') ?? '1')
+  const available = params.get('available') === '1'
 
   const { categories } = useCategories()
   const { brands } = useBrands()
@@ -48,6 +58,7 @@ export function ProductListPage({ onSale = false }: ProductListPageProps) {
     sort,
     page,
     onSale,
+    inStockOnly: available,
     enabled: !categorySlug || categories.length > 0, // only wait for slug resolution when a category filter is active
   })
 
@@ -83,6 +94,19 @@ export function ProductListPage({ onSale = false }: ProductListPageProps) {
     window.scrollTo({ top: 0, behavior: 'smooth' })
   }
 
+  // Sort change handler — updates URL and resets page
+  const handleSortChange = useCallback(
+    (newSort: SortOption) => {
+      setParams((prev) => {
+        const next = new URLSearchParams(prev)
+        next.set('sort', newSort)
+        next.set('page', '1')
+        return next
+      })
+    },
+    [setParams],
+  )
+
   // Callbacks for ActiveFilterChips
   const onClearSearch = useCallback(() => {
     setParams((prev) => {
@@ -95,6 +119,24 @@ export function ProductListPage({ onSale = false }: ProductListPageProps) {
   }, [setParams])
   const onClearCategory = useCallback(() => setFilter('category', ''), [setFilter])
   const onClearBrand = useCallback(() => setFilter('brand', ''), [setFilter])
+  const onClearAvailability = useCallback(() => setFilter('available', ''), [setFilter])
+
+  // Compute active filter count (search, category, brand, availability — each counting one)
+  const activeFilterCount =
+    (search ? 1 : 0) +
+    (categorySlug ? 1 : 0) +
+    (brandSlug ? 1 : 0) +
+    (available ? 1 : 0)
+
+  // Filter toggle: opens drawer below md, toggles sidebar visibility on md+
+  const handleFilterToggle = useCallback(() => {
+    const isDesktop = window.matchMedia('(min-width: 768px)').matches
+    if (isDesktop) {
+      setSidebarVisible((prev) => !prev)
+    } else {
+      setDrawerOpen((prev) => !prev)
+    }
+  }, [])
 
   // Page title: "Specials" when on-sale, otherwise active category name or "All Products"
   const pageTitle = onSale ? 'Specials' : (activeCategory?.name ?? 'All Products')
@@ -104,6 +146,27 @@ export function ProductListPage({ onSale = false }: ProductListPageProps) {
     <Section as="div" width="wide">
       <SectionHeading as="h1" title={pageTitle} />
 
+      {/* Toolbar — above the grid, contains filter button, chips, sort, view toggle */}
+      <CatalogToolbar
+        activeFilterCount={activeFilterCount}
+        sort={sort}
+        onSortChange={handleSortChange}
+        onFilterToggle={handleFilterToggle}
+        chips={
+          <ActiveFilterChips
+            search={search}
+            categoryName={activeCategory?.name ?? null}
+            brandName={activeBrand?.name ?? null}
+            available={available}
+            onClearSearch={onClearSearch}
+            onClearCategory={onClearCategory}
+            onClearBrand={onClearBrand}
+            onClearAvailability={onClearAvailability}
+          />
+        }
+        viewToggle={<ViewToggle view={view} onViewChange={setView} />}
+      />
+
       <div className="flex flex-col gap-6 md:flex-row">
         {/* Sidebar — desktop inline, mobile drawer */}
         <FilterSidebar
@@ -112,26 +175,17 @@ export function ProductListPage({ onSale = false }: ProductListPageProps) {
             search,
             category: categorySlug,
             brand: brandSlug,
-            sort,
+            available,
           }}
           setFilter={setFilter}
           onClearAll={handleClearAll}
+          drawerOpen={drawerOpen}
+          onDrawerClose={() => setDrawerOpen(false)}
+          sidebarVisible={sidebarVisible}
         />
 
         {/* Main content area */}
         <div className="min-w-0 flex-1">
-          {/* Active filter chips */}
-          <div className="mb-4">
-            <ActiveFilterChips
-              search={search}
-              categoryName={activeCategory?.name ?? null}
-              brandName={activeBrand?.name ?? null}
-              onClearSearch={onClearSearch}
-              onClearCategory={onClearCategory}
-              onClearBrand={onClearBrand}
-            />
-          </div>
-
           {/* Error state */}
           {isError && (
             <div className="mb-4 rounded-md border border-red-200 bg-red-50 p-4">
@@ -151,7 +205,16 @@ export function ProductListPage({ onSale = false }: ProductListPageProps) {
           {/* Product grid */}
           {!isError && (
             <>
-              <ProductGrid products={products} isLoading={isLoading} emptyMessage={emptyCopy} />
+              <ProductGrid
+                products={products}
+                isLoading={isLoading}
+                emptyMessage={emptyCopy}
+                view={view}
+                onQuickView={(product, triggerRef) => {
+                  quickViewTriggerRef.current = triggerRef.current
+                  setQuickViewProduct(product)
+                }}
+              />
 
               {/* Pagination */}
               {!isLoading && totalPages > 0 && (
@@ -167,6 +230,16 @@ export function ProductListPage({ onSale = false }: ProductListPageProps) {
           )}
         </div>
       </div>
+
+      {/* Quick view modal */}
+      {quickViewProduct && (
+        <QuickViewModal
+          product={quickViewProduct}
+          variantId={quickViewProduct.variantId ?? null}
+          triggerRef={quickViewTriggerRef}
+          onClose={() => setQuickViewProduct(null)}
+        />
+      )}
     </Section>
   )
 }

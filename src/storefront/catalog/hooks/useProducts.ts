@@ -44,6 +44,8 @@ export interface Product {
     retailSalePrice: PriceTier | null
     wholesaleSalePrice: PriceTier | null
     variantId: string | null
+    sku: string | null
+    inStock: boolean | null
 }
 
 interface ShoppingProductListResponse {
@@ -65,6 +67,7 @@ interface UseProductsParams {
     sort?: SortOption
     page?: number
     onSale?: boolean
+    inStockOnly?: boolean
     enabled?: boolean
 }
 
@@ -77,6 +80,7 @@ const SHOPPING_PRODUCT_LIST = gql`
         $pageIndex: Int
         $pageSize: Int
         $onSale: Boolean
+        $inStockOnly: Boolean
         $sortBy: CatalogueSortEn
         $priceBasis: PriceBasisEn
     ) {
@@ -86,6 +90,7 @@ const SHOPPING_PRODUCT_LIST = gql`
             pageIndex: $pageIndex
             pageSize: $pageSize
             onSale: $onSale
+            inStockOnly: $inStockOnly
             sortBy: $sortBy
             priceBasis: $priceBasis
         ) {
@@ -95,6 +100,8 @@ const SHOPPING_PRODUCT_LIST = gql`
                 slug
                 shortDescription
                 variantId
+                sku
+                inStock
                 images {
                     id
                     imageUrl
@@ -167,7 +174,7 @@ function buildFilterRequest(params: UseProductsParams): FilterRequest {
 // --- Hook ---
 
 export function useProducts(params: UseProductsParams = {}) {
-    const {sort = 'name', page = 1, enabled = true, onSale} = params
+    const {sort = 'name', page = 1, enabled = true, onSale, inStockOnly} = params
     const customerType = useCustomerAuthStore((state) => state.customerType)
 
     const priceBasis = priceBasisFor(customerType)
@@ -185,6 +192,7 @@ export function useProducts(params: UseProductsParams = {}) {
             priceBasis,
             page,
             onSale,
+            inStockOnly,
         ],
         queryFn: () =>
             graphqlClient.request<ShoppingProductListResponse>(SHOPPING_PRODUCT_LIST, {
@@ -193,6 +201,7 @@ export function useProducts(params: UseProductsParams = {}) {
                 pageIndex,
                 pageSize: PAGE_SIZE,
                 onSale,
+                inStockOnly: inStockOnly || undefined,
                 sortBy,
                 priceBasis,
             }),

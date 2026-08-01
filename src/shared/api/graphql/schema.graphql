@@ -306,6 +306,8 @@ type ProductShoppingListItemDto {
   id: String
   "Product images including featured flag"
   images: [ProductImageDto]
+  "True when any variant in this response's variant set has stock quantity > 0"
+  inStock: Boolean
   "Product name"
   name: String
   "Product type (e.g. SIMPLE or VARIABLE)"
@@ -316,6 +318,8 @@ type ProductShoppingListItemDto {
   retailSalePrice: VariantPriceDto
   "Product short description"
   shortDescription: String
+  "Variant SKU for SIMPLE products; null for non-SIMPLE products"
+  sku: String
   "URL slug for routing to the product detail page"
   slug: String
   "Product status"
@@ -450,6 +454,7 @@ type Query {
     filterRequest: FilterRequestInput,
     "When true, includes products linked to the selected category and all descendant categories. When false, only products linked directly to the selected category are returned."
     includeSubCategories: Boolean = true,
+    inStockOnly: Boolean = false,
     onSale: Boolean = false,
     pageIndex: Int = 0,
     pageSize: Int = 20,

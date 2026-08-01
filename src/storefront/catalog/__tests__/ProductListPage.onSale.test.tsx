@@ -230,7 +230,10 @@ describe('ProductListPage onSale — Property 4', () => {
         expect(screen.getByText('Sale Product 1')).toBeInTheDocument()
       })
 
-      // Change brand filter
+      // Change brand filter — expand the Brand filter group first
+      const brandGroup = screen.getAllByRole('button', { name: /brand/i })[0]
+      await user.click(brandGroup)
+
       const brandSelect = screen.getByLabelText('Brand')
       await user.selectOptions(brandSelect, 'nike')
 

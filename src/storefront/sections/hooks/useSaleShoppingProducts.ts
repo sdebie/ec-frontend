@@ -26,6 +26,8 @@ export interface SaleProduct {
     retailSalePrice: PriceTier | null
     wholesaleSalePrice: PriceTier | null
     variantId: string | null
+    sku?: string | null
+    inStock?: boolean | null
 }
 
 interface ShoppingProductListResponse {
@@ -51,6 +53,8 @@ const SHOPPING_PRODUCT_LIST_ON_SALE = gql`
                 slug
                 shortDescription
                 variantId
+                sku
+                inStock
                 images {
                     id
                     imageUrl

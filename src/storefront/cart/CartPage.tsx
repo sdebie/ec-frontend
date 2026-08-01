@@ -1,11 +1,12 @@
 import { Link } from 'react-router-dom'
 import { Section, SectionHeading } from '@/storefront/sections/shared'
-import { Minus, Plus, Trash2 } from 'lucide-react'
+import { Trash2 } from 'lucide-react'
 import { useCartStore } from './cartStore'
 import { useCartVariants } from './hooks/useCartVariants'
 import { useCheckout } from './hooks/useCheckout'
 import { useStorefrontConfig } from '@/shared/config/storefrontConfig.context'
 import { formatAmount } from '@/shared/utils/formatAmount'
+import { QuantityStepper } from '@/storefront/catalog/components/QuantityStepper'
 
 function CartEmptyState() {
   return (
@@ -30,36 +31,7 @@ function PriceSkeleton() {
   )
 }
 
-interface QuantityStepperProps {
-  quantity: number
-  onIncrement: () => void
-  onDecrement: () => void
-}
 
-function QuantityStepper({ quantity, onIncrement, onDecrement }: QuantityStepperProps) {
-  return (
-    <div className="flex items-center gap-2">
-      <button
-        type="button"
-        onClick={onDecrement}
-        disabled={quantity <= 1}
-        aria-label="Decrease quantity"
-        className="p-1 rounded border border-(--sf-border) text-(--sf-muted-text) hover:bg-(--sf-surface-muted) disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
-      >
-        <Minus className="h-4 w-4" />
-      </button>
-      <span className="w-8 text-center text-sm font-medium">{quantity}</span>
-      <button
-        type="button"
-        onClick={onIncrement}
-        aria-label="Increase quantity"
-        className="p-1 rounded border border-(--sf-border) text-(--sf-muted-text) hover:bg-(--sf-surface-muted) transition-colors"
-      >
-        <Plus className="h-4 w-4" />
-      </button>
-    </div>
-  )
-}
 
 export function CartPage() {
   const { items, updateQty, remove } = useCartStore()
