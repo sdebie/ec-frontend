@@ -10,7 +10,9 @@ interface NotesSectionProps {
 export function NotesSection({register, errors}: NotesSectionProps) {
     return (
         <section>
-            <h2 className="mb-4 border-b border-(--sf-border) pb-2 text-base font-semibold text-(--sf-text)">Additional Notes</h2>
+            <h2 className="mb-4 border-b border-(--sf-border) pb-2 text-base font-semibold text-(--sf-text)">
+                Additional Notes
+            </h2>
             <div>
                 <Textarea
                     id="notes"
@@ -20,7 +22,9 @@ export function NotesSection({register, errors}: NotesSectionProps) {
                     placeholder="Tell us about your business, expected order volumes, or any other relevant details..."
                     {...register('notes')}
                 />
-                <p className="mt-1 text-xs text-(--sf-muted-text)">Maximum 1000 characters</p>
+                <p className="mt-1 text-xs text-(--sf-muted-text)">
+                    Maximum 1000 characters
+                </p>
             </div>
         </section>
     )

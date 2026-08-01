@@ -1,9 +1,6 @@
-import {useWatch, type Control, type FieldErrors, type UseFormRegister} from 'react-hook-form'
+import {type Control, type FieldErrors, type UseFormRegister, useWatch} from 'react-hook-form'
 import {InputField} from '@/shared/ui/components'
-import type {
-    WholesaleApplicationFormInput,
-    WholesaleApplicationFormValues,
-} from '../wholesaleApplicationSchema'
+import type {WholesaleApplicationFormInput, WholesaleApplicationFormValues,} from '../wholesaleApplicationSchema'
 
 /** Mirrored delivery fields are disabled while they reflect the company address. */
 const DISABLED_CLASSES = 'disabled:bg-(--sf-surface-muted) disabled:text-(--sf-muted-text)'
@@ -37,7 +34,9 @@ export function PostalAddressSection({register, control, errors, sameAsPhysical}
 
     return (
         <section>
-            <h2 className="mb-4 border-b border-(--sf-border) pb-2 text-base font-semibold text-(--sf-text)">Delivery address</h2>
+            <h2 className="mb-4 border-b border-(--sf-border) pb-2 text-base font-semibold text-(--sf-text)">
+                Delivery Address
+            </h2>
             <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
                 {fields.map((field) => (
                     <div key={field.id} className={field.wide ? 'sm:col-span-2' : undefined}>

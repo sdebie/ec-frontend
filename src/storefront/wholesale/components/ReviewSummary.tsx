@@ -42,7 +42,9 @@ export function ReviewSummary({values, onEdit}: ReviewSummaryProps) {
 
     return (
         <section>
-            <h2 className="mb-4 border-b border-(--sf-border) pb-2 text-base font-semibold text-(--sf-text)">Review your details</h2>
+            <h2 className="mb-4 border-b border-(--sf-border) pb-2 text-base font-semibold text-(--sf-text)">
+                Review your details
+            </h2>
             <dl className="divide-y divide-(--sf-border) rounded-md border border-(--sf-border)">
                 {groups.map((group) => (
                     <div key={group.label} className="flex items-center justify-between gap-4 px-4 py-3">

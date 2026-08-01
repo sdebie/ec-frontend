@@ -10,7 +10,9 @@ interface FinanceContactSectionProps {
 export function FinanceContactSection({register, errors}: FinanceContactSectionProps) {
     return (
         <section>
-            <h2 className="mb-4 border-b border-(--sf-border) pb-2 text-base font-semibold text-(--sf-text)">Financial / Accounts Contact</h2>
+            <h2 className="mb-4 border-b border-(--sf-border) pb-2 text-base font-semibold text-(--sf-text)">
+                Financial / Accounts Contact
+            </h2>
             <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
                 <div className="sm:col-span-2">
                     <InputField

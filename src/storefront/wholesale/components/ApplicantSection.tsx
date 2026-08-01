@@ -13,8 +13,9 @@ interface ApplicantSectionProps {
 export function ApplicantSection({register, errors, isSignedIn}: ApplicantSectionProps) {
     return (
         <section>
-            <h2 className="mb-4 border-b border-(--sf-border) pb-2 text-base font-semibold text-(--sf-text)">Applicant
-                Details</h2>
+            <h2 className="mb-4 border-b border-(--sf-border) pb-2 text-base font-semibold text-(--sf-text)">
+                Applicant Details
+            </h2>
             <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
                 <div>
                     <InputField
