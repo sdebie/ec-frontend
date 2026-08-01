@@ -11,6 +11,15 @@ const validInput = {
     physicalCity: 'Johannesburg',
     physicalProvince: 'Gauteng',
     physicalPostalCode: '2196',
+    // Mirror the company address so the minimal fixture carries no delivery address.
+    sameAsPhysical: true,
+}
+
+const validDeliveryAddress = {
+    postalAddressLine1: '789 Depot Rd',
+    postalCity: 'Durban',
+    postalProvince: 'KwaZulu-Natal',
+    postalPostalCode: '4001',
 }
 
 describe('wholesaleApplicationSchema', () => {
@@ -169,11 +178,60 @@ describe('wholesaleApplicationSchema', () => {
     })
 
     it('defaults sameAsPhysical to false when not provided', () => {
-        const result = wholesaleApplicationSchema.safeParse(validInput)
+        // Omitting sameAsPhysical means the delivery address is required, so provide one.
+        const {sameAsPhysical: _omitted, ...withoutFlag} = validInput
+        const result = wholesaleApplicationSchema.safeParse({...withoutFlag, ...validDeliveryAddress})
         expect(result.success).toBe(true)
         if (result.success) {
             expect(result.data.sameAsPhysical).toBe(false)
         }
+    })
+
+    describe('delivery address requirement', () => {
+        it('rejects a missing delivery address when sameAsPhysical is false', () => {
+            const result = wholesaleApplicationSchema.safeParse({...validInput, sameAsPhysical: false})
+            expect(result.success).toBe(false)
+            if (!result.success) {
+                const paths = result.error.issues.map((i) => i.path[0])
+                expect(paths).toContain('postalAddressLine1')
+                expect(paths).toContain('postalCity')
+                expect(paths).toContain('postalProvince')
+                expect(paths).toContain('postalPostalCode')
+            }
+        })
+
+        it('rejects whitespace-only delivery fields when sameAsPhysical is false', () => {
+            const result = wholesaleApplicationSchema.safeParse({
+                ...validInput,
+                sameAsPhysical: false,
+                postalAddressLine1: '   ',
+                postalCity: ' ',
+                postalProvince: 'KwaZulu-Natal',
+                postalPostalCode: '4001',
+            })
+            expect(result.success).toBe(false)
+            if (!result.success) {
+                const paths = result.error.issues.map((i) => i.path[0])
+                expect(paths).toContain('postalAddressLine1')
+                expect(paths).toContain('postalCity')
+                expect(paths).not.toContain('postalProvince')
+                expect(paths).not.toContain('postalPostalCode')
+            }
+        })
+
+        it('accepts a filled delivery address when sameAsPhysical is false', () => {
+            const result = wholesaleApplicationSchema.safeParse({
+                ...validInput,
+                sameAsPhysical: false,
+                ...validDeliveryAddress,
+            })
+            expect(result.success).toBe(true)
+        })
+
+        it('requires no delivery address when sameAsPhysical is true', () => {
+            const result = wholesaleApplicationSchema.safeParse(validInput)
+            expect(result.success).toBe(true)
+        })
     })
 
     it('defaults purchaseOrderRequired to false when not provided', () => {

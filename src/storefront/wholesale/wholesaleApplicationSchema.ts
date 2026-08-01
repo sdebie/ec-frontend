@@ -42,6 +42,21 @@ export const wholesaleApplicationSchema = z.object({
 
     // Notes
     notes: z.string().max(1000, 'Notes must be 1000 characters or fewer').optional(),
+}).superRefine((values, ctx) => {
+    // Delivery address is only entered when it does not mirror the company
+    // address — then it carries the same required fields the company address does.
+    if (values.sameAsPhysical) return
+    const required = [
+        ['postalAddressLine1', 'Address line 1 is required'],
+        ['postalCity', 'City is required'],
+        ['postalProvince', 'Province is required'],
+        ['postalPostalCode', 'Postal code is required'],
+    ] as const
+    for (const [field, message] of required) {
+        if (!values[field]?.trim()) {
+            ctx.addIssue({code: z.ZodIssueCode.custom, path: [field], message})
+        }
+    }
 })
 
 // `.default()` makes the schema's input and output types differ (sameAsPhysical and

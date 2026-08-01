@@ -9,8 +9,8 @@ interface CompanySectionProps {
 
 export function CompanySection({register, errors}: CompanySectionProps) {
     return (
-        <section className="rounded-lg border border-(--sf-border) bg-(--sf-panel) p-6 shadow-sm">
-            <h2 className="mb-4 text-lg font-semibold text-(--sf-text)">Company Details</h2>
+        <section>
+            <h2 className="mb-4 border-b border-(--sf-border) pb-2 text-base font-semibold text-(--sf-text)">Company Details</h2>
             <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
                 <div className="sm:col-span-2">
                     <InputField

@@ -11,8 +11,8 @@ interface PurchaseOrderSectionProps {
 
 export function PurchaseOrderSection({control}: PurchaseOrderSectionProps) {
     return (
-        <section className="rounded-lg border border-(--sf-border) bg-(--sf-panel) p-6 shadow-sm">
-            <h2 className="mb-4 text-lg font-semibold text-(--sf-text)">Purchase Orders</h2>
+        <section>
+            <h2 className="mb-4 border-b border-(--sf-border) pb-2 text-base font-semibold text-(--sf-text)">Purchase Orders</h2>
             <Controller
                 control={control}
                 name="purchaseOrderRequired"
