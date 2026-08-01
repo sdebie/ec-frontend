@@ -28,7 +28,7 @@ vi.mock('@/shared/ui/components/toast', () => ({
 
 import { graphqlClient } from '@/shared/api/graphql/graphqlClient'
 import { toast } from '@/shared/ui/components/toast'
-import { useWholesaleApplicationSubmit } from '../useWholesaleApplicationSubmit'
+import { useWholesaleApplicationSubmit } from '../hooks/useWholesaleApplicationSubmit'
 
 function createWrapper() {
   const queryClient = new QueryClient({

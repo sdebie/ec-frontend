@@ -11,7 +11,7 @@ import { MemoryRouter } from 'react-router-dom'
 
 const mockMutate = vi.fn()
 
-vi.mock('../useWholesaleApplicationSubmit', () => ({
+vi.mock('../hooks/useWholesaleApplicationSubmit', () => ({
   useWholesaleApplicationSubmit: () => ({
     mutate: mockMutate,
     isPending: false,
