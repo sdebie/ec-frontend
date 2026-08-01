@@ -1,11 +1,11 @@
-import { useState } from 'react'
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { z } from 'zod'
 import { GoogleLogin, type CredentialResponse } from '@react-oauth/google'
 import { useCustomerLogin } from '@/storefront/customer/auth/hooks/useCustomerLogin'
 import { useCustomerGoogleLogin } from '@/storefront/customer/auth/hooks/useCustomerGoogleLogin'
-import { Eye, EyeOff } from 'lucide-react'
+import { InputField } from '@/shared/ui/components/form/InputField'
+import { PasswordField } from '@/shared/ui/components/form/PasswordField'
 
 const loginSchema = z.object({
   email: z.string().email('Please enter a valid email address'),
@@ -46,7 +46,6 @@ export interface CustomerLoginFormProps {
 export function CustomerLoginForm({ onSuccess, onForgotPassword }: CustomerLoginFormProps) {
   const { mutate: login, isPending, isError, error } = useCustomerLogin()
   const { mutate: googleLogin } = useCustomerGoogleLogin()
-  const [showPassword, setShowPassword] = useState(false)
 
   const {
     register,
@@ -81,70 +80,33 @@ export function CustomerLoginForm({ onSuccess, onForgotPassword }: CustomerLogin
         {isError && (
           <div
             role="alert"
-            className="rounded-md bg-red-50 p-3 text-sm text-red-700"
+            className="rounded-md bg-(--c-error)/10 p-3 text-sm text-(--c-error)"
           >
             {getErrorMessage(error)}
           </div>
         )}
 
         <div>
-          <label
-            htmlFor="email"
-            className="block text-sm font-medium text-(--sf-text)"
-          >
-            Email address
-          </label>
-          <input
+          <InputField
             id="email"
             type="email"
             autoComplete="email"
-            aria-describedby={errors.email ? 'email-error' : undefined}
+            label="Email address"
+            error={errors.email?.message}
             aria-invalid={errors.email ? 'true' : undefined}
-            className="mt-1 block w-full rounded-md border border-(--sf-border) px-3 py-2 text-sm shadow-sm placeholder:text-(--sf-muted-text) focus:border-(--sf-ring) focus:outline-none focus:ring-1 focus:ring-(--sf-ring)"
             {...register('email')}
           />
-          {errors.email && (
-            <p id="email-error" className="mt-1 text-sm text-red-600">
-              {errors.email.message}
-            </p>
-          )}
         </div>
 
         <div>
-          <label
-            htmlFor="password"
-            className="block text-sm font-medium text-(--sf-text)"
-          >
-            Password
-          </label>
-          <div className="relative mt-1">
-            <input
-              id="password"
-              type={showPassword ? 'text' : 'password'}
-              autoComplete="current-password"
-              aria-describedby={errors.password ? 'password-error' : undefined}
-              aria-invalid={errors.password ? 'true' : undefined}
-              className="block w-full rounded-md border border-(--sf-border) px-3 py-2 pr-10 text-sm shadow-sm placeholder:text-(--sf-muted-text) focus:border-(--sf-ring) focus:outline-none focus:ring-1 focus:ring-(--sf-ring)"
-              {...register('password')}
-            />
-            <button
-              type="button"
-              onClick={() => setShowPassword(!showPassword)}
-              className="absolute inset-y-0 right-0 flex items-center pr-3 text-(--sf-muted-text) hover:text-(--sf-text)"
-              aria-label={showPassword ? 'Hide password' : 'Show password'}
-            >
-              {showPassword ? (
-                <EyeOff className="h-4 w-4" />
-              ) : (
-                <Eye className="h-4 w-4" />
-              )}
-            </button>
-          </div>
-          {errors.password && (
-            <p id="password-error" className="mt-1 text-sm text-red-600">
-              {errors.password.message}
-            </p>
-          )}
+          <PasswordField
+            id="password"
+            autoComplete="current-password"
+            label="Password"
+            error={errors.password?.message}
+            aria-invalid={errors.password ? 'true' : undefined}
+            {...register('password')}
+          />
         </div>
 
         {onForgotPassword && (

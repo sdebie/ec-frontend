@@ -11,9 +11,11 @@ vi.mock('@/shared/api/graphql/graphqlClient', () => ({
   },
 }))
 
+let mockCustomerType = 'RETAIL'
+
 vi.mock('@/shared/auth/customerAuthStore', () => ({
   useCustomerAuthStore: (selector: (state: { customerType: string }) => unknown) =>
-    selector({ customerType: 'RETAIL' }),
+    selector({ customerType: mockCustomerType }),
 }))
 
 import { useProducts } from '../useProducts'
@@ -28,171 +30,263 @@ function createWrapper() {
 
 const mockProductListResponse = {
   shoppingProductList: {
-    content: [],
-    totalElements: 0,
-    totalPages: 0,
+    content: [
+      { id: 'p1', name: 'Alpha' },
+      { id: 'p2', name: 'Beta' },
+      { id: 'p3', name: 'Gamma' },
+    ],
+    totalElements: 3,
+    totalPages: 1,
     pageSize: 20,
     pageIndex: 0,
   },
 }
 
-describe('useProducts — category argument reroute', () => {
+describe('useProducts — sortBy and priceBasis', () => {
   beforeEach(() => {
     vi.clearAllMocks()
+    mockCustomerType = 'RETAIL'
     mockRequest.mockResolvedValue(mockProductListResponse)
   })
 
-  it('passes categoryId in variables when a category is active', async () => {
-    renderHook(
-      () => useProducts({ categoryId: 'cat-uuid-123' }),
-      { wrapper: createWrapper() },
-    )
+  describe('sortBy mapping', () => {
+    it('sends sortBy=NAME_ASC when sort is "name"', async () => {
+      renderHook(
+        () => useProducts({ sort: 'name' }),
+        { wrapper: createWrapper() },
+      )
 
-    await waitFor(() => {
-      expect(mockRequest).toHaveBeenCalledTimes(1)
+      await waitFor(() => {
+        expect(mockRequest).toHaveBeenCalledTimes(1)
+      })
+
+      const [, variables] = mockRequest.mock.calls[0] as [unknown, Record<string, unknown>]
+      expect(variables.sortBy).toBe('NAME_ASC')
     })
 
-    const [, variables] = mockRequest.mock.calls[0] as [unknown, Record<string, unknown>]
+    it('sends sortBy=NAME_ASC when sort is omitted (default)', async () => {
+      renderHook(
+        () => useProducts({}),
+        { wrapper: createWrapper() },
+      )
 
-    // categoryId should be passed as a top-level variable
-    expect(variables.categoryId).toBe('cat-uuid-123')
+      await waitFor(() => {
+        expect(mockRequest).toHaveBeenCalledTimes(1)
+      })
 
-    // filterRequest should NOT contain a category.id filter
-    const filterRequest = variables.filterRequest as { filters?: Array<{ key: string }> } | undefined
-    const categoryFilter = filterRequest?.filters?.find(
-      (f) => f.key === 'category.id'
-    )
-    expect(categoryFilter).toBeUndefined()
-  })
-
-  it('passes categoryId as null when no category is provided', async () => {
-    renderHook(
-      () => useProducts({}),
-      { wrapper: createWrapper() },
-    )
-
-    await waitFor(() => {
-      expect(mockRequest).toHaveBeenCalledTimes(1)
+      const [, variables] = mockRequest.mock.calls[0] as [unknown, Record<string, unknown>]
+      expect(variables.sortBy).toBe('NAME_ASC')
     })
 
-    const [, variables] = mockRequest.mock.calls[0] as [unknown, Record<string, unknown>]
+    it('sends sortBy=PRICE_ASC when sort is "price-asc"', async () => {
+      renderHook(
+        () => useProducts({ sort: 'price-asc' }),
+        { wrapper: createWrapper() },
+      )
 
-    expect(variables.categoryId).toBeNull()
-  })
+      await waitFor(() => {
+        expect(mockRequest).toHaveBeenCalledTimes(1)
+      })
 
-  it('passes categoryId as null when categoryId is explicitly undefined', async () => {
-    renderHook(
-      () => useProducts({ categoryId: undefined }),
-      { wrapper: createWrapper() },
-    )
-
-    await waitFor(() => {
-      expect(mockRequest).toHaveBeenCalledTimes(1)
+      const [, variables] = mockRequest.mock.calls[0] as [unknown, Record<string, unknown>]
+      expect(variables.sortBy).toBe('PRICE_ASC')
     })
 
-    const [, variables] = mockRequest.mock.calls[0] as [unknown, Record<string, unknown>]
+    it('sends sortBy=PRICE_DESC when sort is "price-desc"', async () => {
+      renderHook(
+        () => useProducts({ sort: 'price-desc' }),
+        { wrapper: createWrapper() },
+      )
 
-    expect(variables.categoryId).toBeNull()
-  })
+      await waitFor(() => {
+        expect(mockRequest).toHaveBeenCalledTimes(1)
+      })
 
-  it('includes brand filter in filterRequest when brandId is provided alongside categoryId', async () => {
-    renderHook(
-      () => useProducts({ categoryId: 'cat-uuid-123', brandId: 'brand-uuid-456' }),
-      { wrapper: createWrapper() },
-    )
-
-    await waitFor(() => {
-      expect(mockRequest).toHaveBeenCalledTimes(1)
-    })
-
-    const [, variables] = mockRequest.mock.calls[0] as [unknown, Record<string, unknown>]
-
-    // categoryId goes as a variable
-    expect(variables.categoryId).toBe('cat-uuid-123')
-
-    // brand stays in filterRequest
-    const filterRequest = variables.filterRequest as {
-      filters?: Array<{ key: string; value: string; operator: string }>
-    }
-    expect(filterRequest.filters).toContainEqual({
-      key: 'brand.id',
-      value: 'brand-uuid-456',
-      operator: 'EQUALS',
-    })
-
-    // No category.id in filterRequest
-    const categoryFilter = filterRequest.filters?.find((f) => f.key === 'category.id')
-    expect(categoryFilter).toBeUndefined()
-  })
-
-  it('includes search filter groups in filterRequest when search is provided', async () => {
-    renderHook(
-      () => useProducts({ search: 'shoes', categoryId: 'cat-uuid-123' }),
-      { wrapper: createWrapper() },
-    )
-
-    await waitFor(() => {
-      expect(mockRequest).toHaveBeenCalledTimes(1)
-    })
-
-    const [, variables] = mockRequest.mock.calls[0] as [unknown, Record<string, unknown>]
-
-    // categoryId goes as variable
-    expect(variables.categoryId).toBe('cat-uuid-123')
-
-    // search ILIKE filter goes in filterRequest.filterGroups
-    const filterRequest = variables.filterRequest as {
-      filterGroups?: Array<{
-        filters: Array<{ key: string; value: string; operator: string }>
-        operator: string
-      }>
-    }
-    expect(filterRequest.filterGroups).toBeDefined()
-    expect(filterRequest.filterGroups).toHaveLength(1)
-    expect(filterRequest.filterGroups![0].operator).toBe('OR')
-    expect(filterRequest.filterGroups![0].filters).toContainEqual({
-      key: 'name',
-      value: '%shoes%',
-      operator: 'ILIKE',
+      const [, variables] = mockRequest.mock.calls[0] as [unknown, Record<string, unknown>]
+      expect(variables.sortBy).toBe('PRICE_DESC')
     })
   })
 
-  it('includes sort in filterRequest when sort is name (default)', async () => {
-    renderHook(
-      () => useProducts({ sort: 'name' }),
-      { wrapper: createWrapper() },
-    )
+  describe('priceBasis from customerType', () => {
+    it('sends priceBasis=RETAIL when customerType is RETAIL', async () => {
+      mockCustomerType = 'RETAIL'
+      renderHook(
+        () => useProducts({}),
+        { wrapper: createWrapper() },
+      )
 
-    await waitFor(() => {
-      expect(mockRequest).toHaveBeenCalledTimes(1)
+      await waitFor(() => {
+        expect(mockRequest).toHaveBeenCalledTimes(1)
+      })
+
+      const [, variables] = mockRequest.mock.calls[0] as [unknown, Record<string, unknown>]
+      expect(variables.priceBasis).toBe('RETAIL')
     })
 
-    const [, variables] = mockRequest.mock.calls[0] as [unknown, Record<string, unknown>]
+    it('sends priceBasis=WHOLESALE when customerType is WHOLESALE', async () => {
+      mockCustomerType = 'WHOLESALE'
+      renderHook(
+        () => useProducts({}),
+        { wrapper: createWrapper() },
+      )
 
-    const filterRequest = variables.filterRequest as {
-      sort?: Array<{ field: string; direction: string }>
-    }
-    expect(filterRequest.sort).toContainEqual({
-      field: 'name',
-      direction: 'ASC',
+      await waitFor(() => {
+        expect(mockRequest).toHaveBeenCalledTimes(1)
+      })
+
+      const [, variables] = mockRequest.mock.calls[0] as [unknown, Record<string, unknown>]
+      expect(variables.priceBasis).toBe('WHOLESALE')
+    })
+
+    it('sends priceBasis=RETAIL when customerType is GUEST', async () => {
+      mockCustomerType = 'GUEST'
+      renderHook(
+        () => useProducts({}),
+        { wrapper: createWrapper() },
+      )
+
+      await waitFor(() => {
+        expect(mockRequest).toHaveBeenCalledTimes(1)
+      })
+
+      const [, variables] = mockRequest.mock.calls[0] as [unknown, Record<string, unknown>]
+      expect(variables.priceBasis).toBe('RETAIL')
     })
   })
 
-  it('does not include sort in filterRequest for price-based sorts (client-side)', async () => {
-    renderHook(
-      () => useProducts({ sort: 'price-asc' }),
-      { wrapper: createWrapper() },
-    )
+  describe('query key includes sortBy and priceBasis', () => {
+    it('includes sortBy in the query key', async () => {
+      const queryClient = new QueryClient({
+        defaultOptions: { queries: { retry: false } },
+      })
+      const wrapper = ({ children }: { children: React.ReactNode }) =>
+        createElement(QueryClientProvider, { client: queryClient }, children)
 
-    await waitFor(() => {
-      expect(mockRequest).toHaveBeenCalledTimes(1)
+      renderHook(
+        () => useProducts({ sort: 'price-asc' }),
+        { wrapper },
+      )
+
+      await waitFor(() => {
+        expect(mockRequest).toHaveBeenCalledTimes(1)
+      })
+
+      // Check query cache has the key containing sortBy
+      const cache = queryClient.getQueryCache()
+      const queries = cache.getAll()
+      expect(queries).toHaveLength(1)
+      const queryKey = queries[0].queryKey as unknown[]
+      expect(queryKey).toContain('PRICE_ASC')
     })
 
-    const [, variables] = mockRequest.mock.calls[0] as [unknown, Record<string, unknown>]
+    it('includes priceBasis in the query key', async () => {
+      mockCustomerType = 'WHOLESALE'
+      const queryClient = new QueryClient({
+        defaultOptions: { queries: { retry: false } },
+      })
+      const wrapper = ({ children }: { children: React.ReactNode }) =>
+        createElement(QueryClientProvider, { client: queryClient }, children)
 
-    const filterRequest = variables.filterRequest as {
-      sort?: Array<{ field: string; direction: string }>
-    }
-    expect(filterRequest.sort).toBeUndefined()
+      renderHook(
+        () => useProducts({}),
+        { wrapper },
+      )
+
+      await waitFor(() => {
+        expect(mockRequest).toHaveBeenCalledTimes(1)
+      })
+
+      const cache = queryClient.getQueryCache()
+      const queries = cache.getAll()
+      expect(queries).toHaveLength(1)
+      const queryKey = queries[0].queryKey as unknown[]
+      expect(queryKey).toContain('WHOLESALE')
+    })
+  })
+
+  describe('server order untouched (regression guard)', () => {
+    it('returns products in the exact order the server sent them', async () => {
+      const orderedResponse = {
+        shoppingProductList: {
+          content: [
+            { id: 'p3', name: 'Gamma' },
+            { id: 'p1', name: 'Alpha' },
+            { id: 'p2', name: 'Beta' },
+          ],
+          totalElements: 3,
+          totalPages: 1,
+          pageSize: 20,
+          pageIndex: 0,
+        },
+      }
+      mockRequest.mockResolvedValue(orderedResponse)
+
+      const { result } = renderHook(
+        () => useProducts({ sort: 'price-asc' }),
+        { wrapper: createWrapper() },
+      )
+
+      await waitFor(() => {
+        expect(result.current.products).toHaveLength(3)
+      })
+
+      // The hook must NOT reorder — products come back in server order
+      expect(result.current.products[0].id).toBe('p3')
+      expect(result.current.products[1].id).toBe('p1')
+      expect(result.current.products[2].id).toBe('p2')
+    })
+
+    it('returns empty stable array when no data', async () => {
+      mockRequest.mockResolvedValue({
+        shoppingProductList: {
+          content: [],
+          totalElements: 0,
+          totalPages: 0,
+          pageSize: 20,
+          pageIndex: 0,
+        },
+      })
+
+      const { result } = renderHook(
+        () => useProducts({}),
+        { wrapper: createWrapper() },
+      )
+
+      await waitFor(() => {
+        expect(result.current.isLoading).toBe(false)
+      })
+
+      expect(result.current.products).toEqual([])
+    })
+  })
+
+  describe('category argument handling', () => {
+    it('passes categoryId in variables when a category is active', async () => {
+      renderHook(
+        () => useProducts({ categoryId: 'cat-uuid-123' }),
+        { wrapper: createWrapper() },
+      )
+
+      await waitFor(() => {
+        expect(mockRequest).toHaveBeenCalledTimes(1)
+      })
+
+      const [, variables] = mockRequest.mock.calls[0] as [unknown, Record<string, unknown>]
+      expect(variables.categoryId).toBe('cat-uuid-123')
+    })
+
+    it('passes categoryId as null when no category is provided', async () => {
+      renderHook(
+        () => useProducts({}),
+        { wrapper: createWrapper() },
+      )
+
+      await waitFor(() => {
+        expect(mockRequest).toHaveBeenCalledTimes(1)
+      })
+
+      const [, variables] = mockRequest.mock.calls[0] as [unknown, Record<string, unknown>]
+      expect(variables.categoryId).toBeNull()
+    })
   })
 })

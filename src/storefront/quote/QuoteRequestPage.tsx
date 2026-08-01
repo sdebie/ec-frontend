@@ -21,7 +21,7 @@ export function QuoteRequestPage() {
 
     if (submitted) {
         return (
-            <main className="mx-auto w-full max-w-5xl px-4 py-12 sm:py-16">
+            <div className="mx-auto w-full max-w-5xl px-4 py-12 sm:py-16">
                 <div className="flex flex-col items-center justify-center py-16 text-center">
                     <div className="rounded-full bg-(--sf-accent)/10 p-3">
                         <svg
@@ -52,12 +52,12 @@ export function QuoteRequestPage() {
                         Submit another quote request
                     </button>
                 </div>
-            </main>
+            </div>
         )
     }
 
     return (
-        <main className="mx-auto w-full max-w-5xl px-4 py-12 sm:py-16">
+        <div className="mx-auto w-full max-w-5xl px-4 py-12 sm:py-16">
             <h1 className="text-3xl font-bold tracking-tight text-(--sf-text) sm:text-4xl">
                 Request a Quote
             </h1>
@@ -117,6 +117,6 @@ export function QuoteRequestPage() {
                     </div>
                 </section>
             </div>
-        </main>
+        </div>
     )
 }

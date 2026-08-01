@@ -48,15 +48,17 @@ describe('QuoteRequestPage', () => {
     ).toBeInTheDocument()
   })
 
-  // Regression guard: the page main must carry w-full — the storefront layout
+  // Regression guard: the page shell must carry w-full — the storefront layout
   // centres children by content width, so without it the whole page shrinks
   // when the quote list is empty (jsdom does no layout; assert the class).
-  it('page main always takes full width up to its max-width cap', () => {
+  // The shell is a div: StorefrontLayout owns the single <main> landmark.
+  it('page shell always takes full width up to its max-width cap', () => {
     const { container } = render(<QuoteRequestPage />, { wrapper: createWrapper() })
 
-    const main = container.querySelector('main')
-    expect(main?.className).toContain('w-full')
-    expect(main?.className).toContain('max-w-5xl')
+    expect(container.querySelector('main')).not.toBeInTheDocument()
+    const shell = container.firstElementChild
+    expect(shell?.className).toContain('w-full')
+    expect(shell?.className).toContain('max-w-5xl')
   })
 
   // Regression guard: the REAL QuoteProductSearch must be mounted and always

@@ -1,4 +1,4 @@
-import {render, screen} from '@testing-library/react'
+import {render, screen, cleanup} from '@testing-library/react'
 import {MemoryRouter} from 'react-router-dom'
 import {ProductCard} from '../ProductCard'
 import {formatAmount} from '@/shared/utils/formatAmount'
@@ -9,14 +9,25 @@ vi.mock('@/shared/config/storefrontConfig.context', () => ({
 }))
 
 vi.mock('@/shared/auth/customerAuthStore', () => ({
-    useCustomerAuthStore: (selector: (state: { customerType: string }) => string) =>
-        selector({customerType: 'RETAIL'}),
+    useCustomerAuthStore: (selector?: (state: { customerType: string; isSignedIn: boolean }) => unknown) => {
+        const state = {customerType: 'RETAIL', isSignedIn: false}
+        return selector ? selector(state) : state
+    },
+}))
+
+vi.mock('@/storefront/customer/account/wishlist/WishlistButton', () => ({
+    WishlistButton: ({variantId, className}: { variantId: string; className?: string }) => (
+        <button type="button" aria-label={`Wishlist ${variantId}`} className={className}>♡</button>
+    ),
 }))
 
 // Intl.NumberFormat uses non-breaking spaces — custom normalizer preserves them
 const normalizer = (text: string) => text.trim()
 
-function renderCard(productOverrides: Partial<Parameters<typeof ProductCard>[0]['product']> = {}) {
+function renderCard(
+    productOverrides: Partial<Parameters<typeof ProductCard>[0]['product']> = {},
+    props: Partial<Omit<Parameters<typeof ProductCard>[0], 'product'>> = {},
+) {
     const defaultProduct = {
         id: '1',
         name: 'Test Product',
@@ -33,7 +44,7 @@ function renderCard(productOverrides: Partial<Parameters<typeof ProductCard>[0][
 
     return render(
         <MemoryRouter>
-            <ProductCard product={defaultProduct}/>
+            <ProductCard product={defaultProduct} {...props}/>
         </MemoryRouter>,
     )
 }
@@ -55,9 +66,10 @@ describe('ProductCard', () => {
             expect(screen.queryByText(/Wholesale:/)).not.toBeInTheDocument()
         })
 
-        it('renders a View product affordance', () => {
+        it('renders discrete navigation links (image and title) to the PDP', () => {
             renderCard()
-            expect(screen.getByText('View product')).toBeInTheDocument()
+            const links = screen.getAllByRole('link')
+            expect(links.length).toBeGreaterThanOrEqual(2)
         })
 
         it('renders a badge pill over the image when the badge prop is set, and none otherwise', () => {
@@ -85,6 +97,128 @@ describe('ProductCard', () => {
                 </MemoryRouter>,
             )
             expect(screen.queryByText('Best Seller')).not.toBeInTheDocument()
+        })
+    })
+
+    describe('layout prop (Req 7.2, 7.4)', () => {
+        it('defaults to grid layout when layout prop is not passed', () => {
+            const {container} = renderCard()
+            const root = container.firstElementChild as HTMLElement
+            expect(root.getAttribute('data-layout')).toBe('grid')
+        })
+
+        it('renders grid layout with data-layout="grid" when layout="grid"', () => {
+            const {container} = renderCard({}, {layout: 'grid'})
+            const root = container.firstElementChild as HTMLElement
+            expect(root.getAttribute('data-layout')).toBe('grid')
+        })
+
+        it('renders row layout with data-layout="row" when layout="row"', () => {
+            const {container} = renderCard({}, {layout: 'row'})
+            const root = container.firstElementChild as HTMLElement
+            expect(root.getAttribute('data-layout')).toBe('row')
+        })
+
+        it('both layouts render the same product name', () => {
+            renderCard({name: 'Widget Pro'}, {layout: 'grid'})
+            expect(screen.getByText('Widget Pro')).toBeInTheDocument()
+            cleanup()
+
+            renderCard({name: 'Widget Pro'}, {layout: 'row'})
+            expect(screen.getByText('Widget Pro')).toBeInTheDocument()
+        })
+
+        it('both layouts render the same SKU line', () => {
+            renderCard({sku: 'WDG-100'}, {layout: 'grid'})
+            expect(screen.getByText('SKU: WDG-100')).toBeInTheDocument()
+            cleanup()
+
+            renderCard({sku: 'WDG-100'}, {layout: 'row'})
+            expect(screen.getByText('SKU: WDG-100')).toBeInTheDocument()
+        })
+
+        it('both layouts render the same stock indicator', () => {
+            renderCard({inStock: true}, {layout: 'grid'})
+            expect(screen.getByText('In stock')).toBeInTheDocument()
+            cleanup()
+
+            renderCard({inStock: true}, {layout: 'row'})
+            expect(screen.getByText('In stock')).toBeInTheDocument()
+        })
+
+        it('both layouts render the same price', () => {
+            const expectedPrice = formatAmount(199.99, 'ZAR', 'en-ZA')
+            renderCard({retailPrice: {price: 199.99}}, {layout: 'grid'})
+            expect(screen.getByText(expectedPrice, {normalizer})).toBeInTheDocument()
+            cleanup()
+
+            renderCard({retailPrice: {price: 199.99}}, {layout: 'row'})
+            expect(screen.getByText(expectedPrice, {normalizer})).toBeInTheDocument()
+        })
+
+        it('both layouts render the same number of links (image + title)', () => {
+            renderCard({}, {layout: 'grid'})
+            const gridLinks = screen.getAllByRole('link')
+            cleanup()
+
+            renderCard({}, {layout: 'row'})
+            const rowLinks = screen.getAllByRole('link')
+            expect(rowLinks.length).toBe(gridLinks.length)
+        })
+
+        it('both layouts have the same interactive buttons (CardActions + Wishlist)', () => {
+            renderCard({inStock: true}, {layout: 'grid', variantId: 'v-1'})
+            const gridButtons = screen.getAllByRole('button')
+            const gridButtonCount = gridButtons.length
+            cleanup()
+
+            renderCard({inStock: true}, {layout: 'row', variantId: 'v-1'})
+            const rowButtons = screen.getAllByRole('button')
+            expect(rowButtons.length).toBe(gridButtonCount)
+        })
+
+        it('row layout renders shortDescription', () => {
+            renderCard(
+                {shortDescription: 'A powerful widget for professionals'},
+                {layout: 'row'},
+            )
+            expect(screen.getByTestId('short-description')).toHaveTextContent(
+                'A powerful widget for professionals',
+            )
+        })
+
+        it('grid layout does NOT render shortDescription', () => {
+            renderCard(
+                {shortDescription: 'A powerful widget for professionals'},
+                {layout: 'grid'},
+            )
+            expect(screen.queryByTestId('short-description')).not.toBeInTheDocument()
+        })
+
+        it('row layout root element is a div, not a link', () => {
+            const {container} = renderCard({}, {layout: 'row'})
+            const root = container.firstElementChild
+            expect(root?.tagName).toBe('DIV')
+        })
+
+        it('row layout stays horizontal on mobile with a compact image rail (owner adjustment 2026-08-01)', () => {
+            // The original design stacked the whole row to a column below `sm`,
+            // which rendered a viewport-wide square image per row on phones.
+            // Now: the root stays a row at every width, the image is a small
+            // fixed square (w-28, sm:w-40), and only the inner content wrapper
+            // stacks identity above price/actions on mobile.
+            const {container} = renderCard({}, {layout: 'row'})
+            const root = container.firstElementChild as HTMLElement
+            expect(root.className).toContain('flex-row')
+            expect(root.className).not.toContain('flex-col')
+
+            const imageRail = root.firstElementChild as HTMLElement
+            expect(imageRail.className).toContain('w-28')
+            expect(imageRail.className).toContain('sm:w-40')
+
+            const contentWrapper = imageRail.nextElementSibling as HTMLElement
+            expect(contentWrapper.className).toContain('flex-col')
+            expect(contentWrapper.className).toContain('sm:flex-row')
         })
     })
 
@@ -119,11 +253,22 @@ describe('ProductCard', () => {
     })
 
     describe('Link target', () => {
-        it('links to /products/{slug}', () => {
+        it('renders discrete image and title links to /products/{slug}', () => {
             renderCard({slug: 'test-product'})
 
-            const link = screen.getByRole('link')
-            expect(link).toHaveAttribute('href', '/products/test-product')
+            const links = screen.getAllByRole('link')
+            expect(links.length).toBeGreaterThanOrEqual(2)
+            // Both image and title link to the PDP
+            links.forEach((link) => {
+                expect(link).toHaveAttribute('href', '/products/test-product')
+            })
+        })
+
+        it('root element is not a link', () => {
+            const {container} = renderCard()
+            // The root element is a div, not an anchor
+            const root = container.firstElementChild
+            expect(root?.tagName).toBe('DIV')
         })
     })
 
@@ -138,6 +283,114 @@ describe('ProductCard', () => {
 
             const expectedFormatted = formatAmount(199.99, 'ZAR', 'en-ZA')
             expect(screen.getByText(expectedFormatted, {normalizer})).toBeInTheDocument()
+        })
+    })
+
+    describe('SKU line (Req 4.5)', () => {
+        it('renders "SKU: xxx" when product.sku is a non-empty string', () => {
+            renderCard({sku: 'ABC-123'})
+            expect(screen.getByText('SKU: ABC-123')).toBeInTheDocument()
+        })
+
+        it('renders nothing when product.sku is null', () => {
+            renderCard({sku: null})
+            expect(screen.queryByText(/^SKU:/)).not.toBeInTheDocument()
+        })
+
+        it('renders nothing when product.sku is undefined (field not selected)', () => {
+            renderCard({})
+            expect(screen.queryByText(/^SKU:/)).not.toBeInTheDocument()
+        })
+
+        it('renders nothing when product.sku is an empty string', () => {
+            renderCard({sku: ''})
+            expect(screen.queryByText(/^SKU:/)).not.toBeInTheDocument()
+        })
+    })
+
+    describe('stock indicator tri-state (Req 4.6)', () => {
+        it('renders "In stock" with green text when inStock is true', () => {
+            renderCard({inStock: true})
+            const indicator = screen.getByText('In stock')
+            expect(indicator).toBeInTheDocument()
+            expect(indicator).toHaveClass('text-green-600')
+        })
+
+        it('renders "Out of stock" with muted text when inStock is false', () => {
+            renderCard({inStock: false})
+            const indicator = screen.getByText('Out of stock')
+            expect(indicator).toBeInTheDocument()
+            expect(indicator).toHaveClass('text-(--sf-muted-text)')
+        })
+
+        it('renders no indicator when inStock is null', () => {
+            renderCard({inStock: null})
+            expect(screen.queryByText('In stock')).not.toBeInTheDocument()
+            expect(screen.queryByText('Out of stock')).not.toBeInTheDocument()
+        })
+
+        it('renders no indicator when inStock is undefined (field not selected)', () => {
+            renderCard({})
+            expect(screen.queryByText('In stock')).not.toBeInTheDocument()
+            expect(screen.queryByText('Out of stock')).not.toBeInTheDocument()
+        })
+    })
+
+    describe('existing-consumer shape (neither sku nor inStock supplied)', () => {
+        it('renders without crash and shows no SKU line or stock indicator', () => {
+            // Simulate a consumer (featured, wishlist, category showcase) that does
+            // not select sku/inStock — the product object simply omits the fields.
+            const consumerProduct = {
+                id: '99',
+                name: 'Featured Item',
+                slug: 'featured-item',
+                images: [{imageUrl: 'https://example.com/feat.jpg', featured: true, sortOrder: 1}],
+                retailPrice: {price: 59.99},
+                wholesalePrice: null,
+                retailSalePrice: null,
+                wholesaleSalePrice: null,
+                // No sku, no inStock — fields not present at all
+            }
+
+            render(
+                <MemoryRouter>
+                    <ProductCard product={consumerProduct}/>
+                </MemoryRouter>,
+            )
+
+            // Card renders its core content
+            expect(screen.getByText('Featured Item')).toBeInTheDocument()
+            // No SKU line, no stock indicator
+            expect(screen.queryByText(/^SKU:/)).not.toBeInTheDocument()
+            expect(screen.queryByText('In stock')).not.toBeInTheDocument()
+            expect(screen.queryByText('Out of stock')).not.toBeInTheDocument()
+        })
+
+        it('SIMPLE product with a price but no inStock field stays purchasable, never "Out of stock"', () => {
+            // The audit-found defect shape: featured/sale sections pass variantId
+            // (SIMPLE) and a price, but their queries may not select inStock.
+            // Unknown stock must NOT render the disabled Out-of-stock button —
+            // CardActions gates on inStock === false strictly.
+            const consumerProduct = {
+                id: '100',
+                name: 'Featured Simple Item',
+                slug: 'featured-simple-item',
+                images: [{imageUrl: 'https://example.com/feat2.jpg', featured: true, sortOrder: 1}],
+                retailPrice: {price: 59.99},
+                wholesalePrice: null,
+                retailSalePrice: null,
+                wholesaleSalePrice: null,
+                // No inStock — field not selected by this consumer
+            }
+
+            render(
+                <MemoryRouter>
+                    <ProductCard product={consumerProduct} variantId="v-100"/>
+                </MemoryRouter>,
+            )
+
+            expect(screen.getByRole('button', {name: 'Add to cart'})).toBeInTheDocument()
+            expect(screen.queryByText('Out of stock')).not.toBeInTheDocument()
         })
     })
 })

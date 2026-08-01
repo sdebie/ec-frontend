@@ -192,6 +192,186 @@ describe('ProductListPage integration', () => {
         })
     })
 
+    describe('sort change resets page', () => {
+        it('changing sort from toolbar resets page to 1', async () => {
+            const user = userEvent.setup()
+            renderWithRouter(['/products?sort=name&page=3'])
+
+            // The toolbar sort is the shared Select (button + portal listbox)
+            await user.click(screen.getByRole('button', { name: /sort by/i }))
+            await user.click(screen.getByRole('option', { name: 'Price: low–high' }))
+
+            // After sort change, useProducts should be called with page 1
+            const lastCall = mockUseProducts.mock.calls[mockUseProducts.mock.calls.length - 1][0]
+            expect(lastCall.page).toBe(1)
+            expect(lastCall.sort).toBe('price-asc')
+        })
+
+        it('changing sort to price-desc writes sort URL param and resets page', async () => {
+            const user = userEvent.setup()
+            renderWithRouter(['/products?sort=name&page=5'])
+
+            await user.click(screen.getByRole('button', { name: /sort by/i }))
+            await user.click(screen.getByRole('option', { name: 'Price: high–low' }))
+
+            const lastCall = mockUseProducts.mock.calls[mockUseProducts.mock.calls.length - 1][0]
+            expect(lastCall.page).toBe(1)
+            expect(lastCall.sort).toBe('price-desc')
+        })
+    })
+
+    describe('URL sort validation', () => {
+        it('falls back to "name" for an unknown ?sort= value', () => {
+            renderWithRouter(['/products?sort=invalid'])
+
+            expect(mockUseProducts).toHaveBeenCalledWith(
+                expect.objectContaining({
+                    sort: 'name',
+                }),
+            )
+        })
+
+        it('falls back to "name" for ?sort=unknown-value', () => {
+            renderWithRouter(['/products?sort=unknown-value'])
+
+            expect(mockUseProducts).toHaveBeenCalledWith(
+                expect.objectContaining({
+                    sort: 'name',
+                }),
+            )
+        })
+
+        it('accepts valid sort option "price-asc"', () => {
+            renderWithRouter(['/products?sort=price-asc'])
+
+            expect(mockUseProducts).toHaveBeenCalledWith(
+                expect.objectContaining({
+                    sort: 'price-asc',
+                }),
+            )
+        })
+
+        it('accepts valid sort option "price-desc"', () => {
+            renderWithRouter(['/products?sort=price-desc'])
+
+            expect(mockUseProducts).toHaveBeenCalledWith(
+                expect.objectContaining({
+                    sort: 'price-desc',
+                }),
+            )
+        })
+    })
+
+    describe('no duplicate chips render', () => {
+        it('filter chips render only once (in the toolbar, not also in the sidebar)', () => {
+            renderWithRouter(['/products?category=electronics&brand=nike&q=shoes'])
+
+            // Each chip should appear exactly once
+            const categoryChips = screen.getAllByText('Category: Electronics')
+            expect(categoryChips).toHaveLength(1)
+
+            const brandChips = screen.getAllByText('Brand: Nike')
+            expect(brandChips).toHaveLength(1)
+
+            const searchChips = screen.getAllByText('Search: shoes')
+            expect(searchChips).toHaveLength(1)
+        })
+    })
+
+    describe('sidebar visibility toggle', () => {
+        it('clicking filter button on desktop (md+) hides the sidebar', async () => {
+            // Simulate desktop viewport for matchMedia
+            Object.defineProperty(window, 'matchMedia', {
+                writable: true,
+                value: vi.fn().mockImplementation((query: string) => ({
+                    matches: query === '(min-width: 768px)',
+                    media: query,
+                    onchange: null,
+                    addListener: vi.fn(),
+                    removeListener: vi.fn(),
+                    addEventListener: vi.fn(),
+                    removeEventListener: vi.fn(),
+                    dispatchEvent: vi.fn(),
+                })),
+            })
+
+            const user = userEvent.setup()
+            renderWithRouter(['/products'])
+
+            // Sidebar should be present initially
+            expect(screen.getByRole('complementary')).toBeInTheDocument()
+
+            // Click the filter toggle button (toolbar button has aria-label "Filters" with no active count)
+            const filterButton = screen.getByLabelText('Filters')
+            await user.click(filterButton)
+
+            // Sidebar should be hidden
+            expect(screen.queryByRole('complementary')).not.toBeInTheDocument()
+        })
+
+        it('clicking filter button again on desktop shows the sidebar', async () => {
+            Object.defineProperty(window, 'matchMedia', {
+                writable: true,
+                value: vi.fn().mockImplementation((query: string) => ({
+                    matches: query === '(min-width: 768px)',
+                    media: query,
+                    onchange: null,
+                    addListener: vi.fn(),
+                    removeListener: vi.fn(),
+                    addEventListener: vi.fn(),
+                    removeEventListener: vi.fn(),
+                    dispatchEvent: vi.fn(),
+                })),
+            })
+
+            const user = userEvent.setup()
+            renderWithRouter(['/products'])
+
+            const filterButton = screen.getByLabelText('Filters')
+
+            // Hide
+            await user.click(filterButton)
+            expect(screen.queryByRole('complementary')).not.toBeInTheDocument()
+
+            // Show again
+            await user.click(filterButton)
+            expect(screen.getByRole('complementary')).toBeInTheDocument()
+        })
+
+        it('clicking filter button on mobile opens the drawer instead of toggling sidebar', async () => {
+            // Simulate mobile viewport
+            Object.defineProperty(window, 'matchMedia', {
+                writable: true,
+                value: vi.fn().mockImplementation((query: string) => ({
+                    matches: false, // below md
+                    media: query,
+                    onchange: null,
+                    addListener: vi.fn(),
+                    removeListener: vi.fn(),
+                    addEventListener: vi.fn(),
+                    removeEventListener: vi.fn(),
+                    dispatchEvent: vi.fn(),
+                })),
+            })
+
+            const user = userEvent.setup()
+            renderWithRouter(['/products'])
+
+            // Sidebar should remain present (it's controlled by CSS md:block in real browsers)
+            expect(screen.getByRole('complementary')).toBeInTheDocument()
+
+            // Click the filter toggle button
+            const filterButton = screen.getByLabelText('Filters')
+            await user.click(filterButton)
+
+            // Sidebar should still be there (sidebarVisible didn't change)
+            expect(screen.getByRole('complementary')).toBeInTheDocument()
+
+            // Drawer should open — look for the "View results" button
+            expect(screen.getByRole('button', {name: /view results/i})).toBeInTheDocument()
+        })
+    })
+
     describe('?q= search param support', () => {
         it('passes search value to useProducts when ?q= is present', () => {
             renderWithRouter(['/products?q=sneakers'])

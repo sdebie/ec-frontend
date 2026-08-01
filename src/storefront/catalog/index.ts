@@ -3,5 +3,6 @@
 
 export { ProductDetailPage } from './ProductDetailPage'
 export { ProductListPage } from './ProductListPage'
-export { pickFeaturedImage, parseAttributes } from './utils/imageUtils'
-export type { ProductImage } from './utils/imageUtils'
+export { pickFeaturedImage } from './utils/productImage'
+export type { ProductImage } from './utils/productImage'
+export { parseAttributes } from './utils/variantAttributes'

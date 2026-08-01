@@ -98,8 +98,6 @@ type Mutation {
   createBrand(brandDto: BrandDtoInput): Void
   "Create a new category"
   createCategory(categoryDto: CategoryDtoInput): Void
-  "Create an order"
-  createOrder(order: OrderDtoInput): OrderResponseDto
   createWholesaleApplication(customer: WholesaleCustomerDtoInput): WholesaleCustomerDto
   deleteBrand(id: String): Void
   "Delete a category"
@@ -291,25 +289,6 @@ type ProductInformationDto {
   variants: [ProductVariantDto]
 }
 
-type ProductListItemDto {
-  "Brand Name"
-  brandName: String
-  "All category names this product belongs to"
-  categoryNames: [String]
-  "Short description"
-  description: String
-  "Product ID (UUID as string)"
-  id: String
-  "Featured variant image URL"
-  imageName: String
-  "Product name"
-  name: String
-  "Product status"
-  status: String
-  "All variant IDs for this product"
-  variantIds: [String]
-}
-
 type ProductPriceComparisonDto {
   currentRetailPrice: BigDecimal
   currentWholesalePrice: BigDecimal
@@ -327,6 +306,8 @@ type ProductShoppingListItemDto {
   id: String
   "Product images including featured flag"
   images: [ProductImageDto]
+  "True when any variant in this response's variant set has stock quantity > 0"
+  inStock: Boolean
   "Product name"
   name: String
   "Product type (e.g. SIMPLE or VARIABLE)"
@@ -337,6 +318,8 @@ type ProductShoppingListItemDto {
   retailSalePrice: VariantPriceDto
   "Product short description"
   shortDescription: String
+  "Variant SKU for SIMPLE products; null for non-SIMPLE products"
+  sku: String
   "URL slug for routing to the product detail page"
   slug: String
   "Product status"
@@ -444,32 +427,8 @@ type Query {
     brandId: String,
     "Optional category UUID. Includes products in this category and all subcategories. Pass null or omit for all categories."
     categoryId: String,
-    filterRequest: FilterRequestInput,
-    "When true, skips the default ACTIVE product and variant status restriction."
-    ignoreStatus: Boolean = false
+    filterRequest: FilterRequestInput
   ): BigInteger!
-  "Returns a paged list of products with active retail or wholesale pricing. Category scoping is not applied in this endpoint."
-  productList(filterRequest: FilterRequestInput, pageRequest: PageRequestInput): [ProductListItemDto]
-  "Returns a paged list of products linked to a mandatory brand."
-  productListByBrand(
-    "Required brand UUID."
-    brandId: String,
-    filterRequest: FilterRequestInput,
-    "When true, skips the default ACTIVE product and variant status restriction."
-    ignoreStatus: Boolean = false,
-    pageRequest: PageRequestInput
-  ): [ProductListItemDto]
-  "Returns a paged list of products for a mandatory category. Optionally includes categories under the same parent scope."
-  productListByCategory(
-    "Required category UUID."
-    categoryId: String,
-    filterRequest: FilterRequestInput,
-    "When true, skips the default ACTIVE product and variant status restriction."
-    ignoreStatus: Boolean = false,
-    "When true, products in the selected category and related parent-scope categories are included."
-    includeSubCategories: Boolean = true,
-    pageRequest: PageRequestInput
-  ): [ProductListItemDto]
   "Returns the list of all product price upload batches"
   productPriceUploadBatches: [ProductUploadBatchDto]
   "Returns the list of all product upload batches"
@@ -488,18 +447,19 @@ type Query {
   shippingMethods: [ShippingMethodDto]
   "Returns featured ACTIVE products as shopping DTOs for the storefront. Publicly accessible."
   shoppingFeaturedProductList(categorySlug: String, limit: Int = 8): [ProductShoppingListItemDto]
-  "Returns paginated shopping product cards with variant count, image list, and active lowest prices by type. Products can belong to multiple categories. Supports optional category scope and includeSubCategories."
+  "Returns paginated shopping product cards with variant count, image list, and active lowest prices by type. Products can belong to multiple categories. Supports optional category scope and includeSubCategories. Note: filterRequest.sort is ignored by this resolver; sortBy is authoritative for ordering."
   shoppingProductList(
     "Optional main category UUID. If omitted or ALL, returns products across all categories."
     categoryId: String,
     filterRequest: FilterRequestInput,
-    "When true, skips the default ACTIVE product and variant status restriction."
-    ignoreStatus: Boolean = false,
     "When true, includes products linked to the selected category and all descendant categories. When false, only products linked directly to the selected category are returned."
     includeSubCategories: Boolean = true,
+    inStockOnly: Boolean = false,
     onSale: Boolean = false,
     pageIndex: Int = 0,
-    pageSize: Int = 20
+    pageSize: Int = 20,
+    priceBasis: PriceBasisEn = RETAIL,
+    sortBy: CatalogueSortEn = NAME_ASC
   ): PageResponse_ProductShoppingListItemDto
   "Returns a staff member by ID"
   staffById(id: String): StaffDto
@@ -680,6 +640,12 @@ type WholesaleCustomerDto {
   vatNumber: String
 }
 
+enum CatalogueSortEn {
+  NAME_ASC
+  PRICE_ASC
+  PRICE_DESC
+}
+
 enum FilterOperator {
   BETWEEN
   EQUALS
@@ -713,6 +679,11 @@ enum OrderStatusEn {
   PAID
   PENDING
   SYSTEM_CANCELED
+}
+
+enum PriceBasisEn {
+  RETAIL
+  WHOLESALE
 }
 
 enum ProductImportValidationStatusEn {
@@ -788,23 +759,6 @@ input FilterRequestInput {
   filterGroups: [FilterGroupInput]
   filters: [FilterInput]
   sort: [SortRequestInput]
-}
-
-"Input type for creating/updating an order"
-input OrderDtoInput {
-  items: [OrderItemDtoInput]
-  orderId: BigInteger
-  sessionId: String
-  totalAmount: BigDecimal
-}
-
-"Input item for an order line. Name is the product name sent by client."
-input OrderItemDtoInput {
-  name: String
-  quantity: Int
-  unitPrice: BigDecimal
-  "Selected product variant ID (UUID string)"
-  variant: String
 }
 
 input PageRequestInput {

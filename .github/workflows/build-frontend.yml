@@ -17,7 +17,7 @@ jobs:
 
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
 
       # Formats upper-case GitHub usernames/repos (e.g., "ShawnDeBie") to lower-case for Docker rules
       - name: Lowercase Repository Name

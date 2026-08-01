@@ -9,7 +9,10 @@ import {
 } from './wholesaleApplicationSchema'
 import {useWholesaleApplicationSubmit} from './useWholesaleApplicationSubmit'
 import {toDto} from './mappers'
-import {Checkbox} from '@/shared/ui/components'
+import {Checkbox, InputField, Textarea} from '@/shared/ui/components'
+
+/** Delivery-address fields are disabled while they mirror the company address. */
+const DISABLED_CLASSES = 'disabled:bg-(--sf-surface-muted) disabled:text-(--sf-muted-text)'
 
 // ---------------------------------------------------------------------------
 // Types
@@ -31,9 +34,9 @@ function SuccessCard() {
     return (
         <div className="mx-auto max-w-lg px-4 py-16 text-center">
             <div className="rounded-lg border border-(--sf-border) bg-(--sf-panel) p-8 shadow-sm">
-                <div className="mx-auto mb-4 flex h-12 w-12 items-center justify-center rounded-full bg-green-100">
+                <div className="mx-auto mb-4 flex h-12 w-12 items-center justify-center rounded-full bg-(--c-success)/10">
                     <svg
-                        className="h-6 w-6 text-green-600"
+                        className="h-6 w-6 text-(--c-success)"
                         fill="none"
                         viewBox="0 0 24 24"
                         strokeWidth={2}
@@ -77,76 +80,57 @@ function ApplicantSection({form}: SectionProps) {
             <h2 className="mb-4 text-lg font-semibold text-(--sf-text)">Applicant Details</h2>
             <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
                 <div>
-                    <label htmlFor="firstName" className="block text-sm font-medium text-(--sf-text)">
-                        First Name <span className="text-red-500">*</span>
-                    </label>
-                    <input
+                    <InputField
                         id="firstName"
                         type="text"
+                        required
+                        label="First Name"
+                        error={errors.firstName?.message}
                         {...register('firstName')}
-                        className="mt-1 block w-full rounded-md border border-(--sf-border) px-3 py-2 text-sm shadow-sm focus:border-(--sf-accent) focus:ring-1 focus:ring-(--sf-ring) focus:outline-none"
                     />
-                    {errors.firstName && (
-                        <p className="mt-1 text-sm text-red-600">{errors.firstName.message}</p>
-                    )}
                 </div>
 
                 <div>
-                    <label htmlFor="lastName" className="block text-sm font-medium text-(--sf-text)">
-                        Last Name <span className="text-red-500">*</span>
-                    </label>
-                    <input
+                    <InputField
                         id="lastName"
                         type="text"
+                        required
+                        label="Last Name"
+                        error={errors.lastName?.message}
                         {...register('lastName')}
-                        className="mt-1 block w-full rounded-md border border-(--sf-border) px-3 py-2 text-sm shadow-sm focus:border-(--sf-accent) focus:ring-1 focus:ring-(--sf-ring) focus:outline-none"
                     />
-                    {errors.lastName && (
-                        <p className="mt-1 text-sm text-red-600">{errors.lastName.message}</p>
-                    )}
                 </div>
 
                 <div>
-                    <label htmlFor="applicantEmail" className="block text-sm font-medium text-(--sf-text)">
-                        Email <span className="text-red-500">*</span>
-                    </label>
-                    <input
+                    <InputField
                         id="applicantEmail"
                         type="email"
+                        required
+                        label="Email"
+                        error={errors.applicantEmail?.message}
                         {...register('applicantEmail')}
-                        className="mt-1 block w-full rounded-md border border-(--sf-border) px-3 py-2 text-sm shadow-sm focus:border-(--sf-accent) focus:ring-1 focus:ring-(--sf-ring) focus:outline-none"
                     />
-                    {errors.applicantEmail && (
-                        <p className="mt-1 text-sm text-red-600">{errors.applicantEmail.message}</p>
-                    )}
                 </div>
 
                 <div>
-                    <label htmlFor="accountEmail" className="block text-sm font-medium text-(--sf-text)">
-                        Existing website account email (recommended)
-                    </label>
-                    <input
+                    <InputField
                         id="accountEmail"
                         type="email"
+                        label="Existing website account email (recommended)"
+                        error={errors.accountEmail?.message}
                         {...register('accountEmail')}
-                        className="mt-1 block w-full rounded-md border border-(--sf-border) px-3 py-2 text-sm shadow-sm focus:border-(--sf-accent) focus:ring-1 focus:ring-(--sf-ring) focus:outline-none"
                     />
-                    {errors.accountEmail && (
-                        <p className="mt-1 text-sm text-red-600">{errors.accountEmail.message}</p>
-                    )}
                 </div>
 
                 <div>
-                    <label htmlFor="phone" className="block text-sm font-medium text-(--sf-text)">
-                        Phone <span className="text-red-500">*</span>
-                    </label>
-                    <input
+                    <InputField
                         id="phone"
                         type="tel"
+                        required
+                        label="Phone"
+                        error={errors.phone?.message}
                         {...register('phone')}
-                        className="mt-1 block w-full rounded-md border border-(--sf-border) px-3 py-2 text-sm shadow-sm focus:border-(--sf-accent) focus:ring-1 focus:ring-(--sf-ring) focus:outline-none"
                     />
-                    {errors.phone && <p className="mt-1 text-sm text-red-600">{errors.phone.message}</p>}
                 </div>
             </div>
         </section>
@@ -168,87 +152,62 @@ function CompanySection({form}: SectionProps) {
             <h2 className="mb-4 text-lg font-semibold text-(--sf-text)">Company Details</h2>
             <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
                 <div className="sm:col-span-2">
-                    <label htmlFor="companyName" className="block text-sm font-medium text-(--sf-text)">
-                        Company Name <span className="text-red-500">*</span>
-                    </label>
-                    <input
+                    <InputField
                         id="companyName"
                         type="text"
+                        required
+                        label="Company Name"
+                        error={errors.companyName?.message}
                         {...register('companyName')}
-                        className="mt-1 block w-full rounded-md border border-(--sf-border) px-3 py-2 text-sm shadow-sm focus:border-(--sf-accent) focus:ring-1 focus:ring-(--sf-ring) focus:outline-none"
                     />
-                    {errors.companyName && (
-                        <p className="mt-1 text-sm text-red-600">{errors.companyName.message}</p>
-                    )}
                 </div>
 
                 <div className="sm:col-span-2">
-                    <label htmlFor="tradingName" className="block text-sm font-medium text-(--sf-text)">
-                        Trading name (if different)
-                    </label>
-                    <input
+                    <InputField
                         id="tradingName"
                         type="text"
+                        label="Trading name (if different)"
                         {...register('tradingName')}
-                        className="mt-1 block w-full rounded-md border border-(--sf-border) px-3 py-2 text-sm shadow-sm focus:border-(--sf-accent) focus:ring-1 focus:ring-(--sf-ring) focus:outline-none"
                     />
                 </div>
 
                 <div>
-                    <label htmlFor="companyPhone" className="block text-sm font-medium text-(--sf-text)">
-                        Company phone
-                    </label>
-                    <input
+                    <InputField
                         id="companyPhone"
                         type="text"
+                        label="Company phone"
                         {...register('companyPhone')}
-                        className="mt-1 block w-full rounded-md border border-(--sf-border) px-3 py-2 text-sm shadow-sm focus:border-(--sf-accent) focus:ring-1 focus:ring-(--sf-ring) focus:outline-none"
                     />
                 </div>
 
                 <div>
-                    <label htmlFor="companyEmail" className="block text-sm font-medium text-(--sf-text)">
-                        Company email
-                    </label>
-                    <input
+                    <InputField
                         id="companyEmail"
                         type="email"
+                        label="Company email"
+                        error={errors.companyEmail?.message}
                         {...register('companyEmail')}
-                        className="mt-1 block w-full rounded-md border border-(--sf-border) px-3 py-2 text-sm shadow-sm focus:border-(--sf-accent) focus:ring-1 focus:ring-(--sf-ring) focus:outline-none"
                     />
-                    {errors.companyEmail && (
-                        <p className="mt-1 text-sm text-red-600">{errors.companyEmail.message}</p>
-                    )}
                 </div>
 
                 <div>
-                    <label htmlFor="vatNumber" className="block text-sm font-medium text-(--sf-text)">
-                        VAT Number
-                    </label>
-                    <input
+                    <InputField
                         id="vatNumber"
                         type="text"
+                        label="VAT Number"
+                        error={errors.vatNumber?.message}
                         {...register('vatNumber')}
-                        className="mt-1 block w-full rounded-md border border-(--sf-border) px-3 py-2 text-sm shadow-sm focus:border-(--sf-accent) focus:ring-1 focus:ring-(--sf-ring) focus:outline-none"
                     />
-                    {errors.vatNumber && (
-                        <p className="mt-1 text-sm text-red-600">{errors.vatNumber.message}</p>
-                    )}
                 </div>
 
                 <div>
-                    <label htmlFor="regNumber" className="block text-sm font-medium text-(--sf-text)">
-                        Registration Number
-                    </label>
-                    <input
+                    <InputField
                         id="regNumber"
                         type="text"
+                        label="Registration Number"
+                        error={errors.regNumber?.message}
                         {...register('regNumber')}
-                        className="mt-1 block w-full rounded-md border border-(--sf-border) px-3 py-2 text-sm shadow-sm focus:border-(--sf-accent) focus:ring-1 focus:ring-(--sf-ring) focus:outline-none"
                     />
-                    {errors.regNumber && (
-                        <p className="mt-1 text-sm text-red-600">{errors.regNumber.message}</p>
-                    )}
                 </div>
             </div>
         </section>
@@ -270,90 +229,66 @@ function PhysicalAddressSection({form}: SectionProps) {
             <h2 className="mb-4 text-lg font-semibold text-(--sf-text)">Company Address</h2>
             <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
                 <div className="sm:col-span-2">
-                    <label htmlFor="physicalAddressLine1" className="block text-sm font-medium text-(--sf-text)">
-                        Address Line 1 <span className="text-red-500">*</span>
-                    </label>
-                    <input
+                    <InputField
                         id="physicalAddressLine1"
                         type="text"
+                        required
+                        label="Address Line 1"
+                        error={errors.physicalAddressLine1?.message}
                         {...register('physicalAddressLine1')}
-                        className="mt-1 block w-full rounded-md border border-(--sf-border) px-3 py-2 text-sm shadow-sm focus:border-(--sf-accent) focus:ring-1 focus:ring-(--sf-ring) focus:outline-none"
                     />
-                    {errors.physicalAddressLine1 && (
-                        <p className="mt-1 text-sm text-red-600">{errors.physicalAddressLine1.message}</p>
-                    )}
                 </div>
 
                 <div className="sm:col-span-2">
-                    <label htmlFor="physicalAddressLine2" className="block text-sm font-medium text-(--sf-text)">
-                        Address Line 2
-                    </label>
-                    <input
+                    <InputField
                         id="physicalAddressLine2"
                         type="text"
+                        label="Address Line 2"
                         {...register('physicalAddressLine2')}
-                        className="mt-1 block w-full rounded-md border border-(--sf-border) px-3 py-2 text-sm shadow-sm focus:border-(--sf-accent) focus:ring-1 focus:ring-(--sf-ring) focus:outline-none"
                     />
                 </div>
 
                 <div>
-                    <label htmlFor="physicalSuburb" className="block text-sm font-medium text-(--sf-text)">
-                        Suburb
-                    </label>
-                    <input
+                    <InputField
                         id="physicalSuburb"
                         type="text"
+                        label="Suburb"
+                        error={errors.physicalSuburb?.message}
                         {...register('physicalSuburb')}
-                        className="mt-1 block w-full rounded-md border border-(--sf-border) px-3 py-2 text-sm shadow-sm focus:border-(--sf-accent) focus:ring-1 focus:ring-(--sf-ring) focus:outline-none"
                     />
-                    {errors.physicalSuburb && (
-                        <p className="mt-1 text-sm text-red-600">{errors.physicalSuburb.message}</p>
-                    )}
                 </div>
 
                 <div>
-                    <label htmlFor="physicalCity" className="block text-sm font-medium text-(--sf-text)">
-                        City <span className="text-red-500">*</span>
-                    </label>
-                    <input
+                    <InputField
                         id="physicalCity"
                         type="text"
+                        required
+                        label="City"
+                        error={errors.physicalCity?.message}
                         {...register('physicalCity')}
-                        className="mt-1 block w-full rounded-md border border-(--sf-border) px-3 py-2 text-sm shadow-sm focus:border-(--sf-accent) focus:ring-1 focus:ring-(--sf-ring) focus:outline-none"
                     />
-                    {errors.physicalCity && (
-                        <p className="mt-1 text-sm text-red-600">{errors.physicalCity.message}</p>
-                    )}
                 </div>
 
                 <div>
-                    <label htmlFor="physicalProvince" className="block text-sm font-medium text-(--sf-text)">
-                        Province <span className="text-red-500">*</span>
-                    </label>
-                    <input
+                    <InputField
                         id="physicalProvince"
                         type="text"
+                        required
+                        label="Province"
+                        error={errors.physicalProvince?.message}
                         {...register('physicalProvince')}
-                        className="mt-1 block w-full rounded-md border border-(--sf-border) px-3 py-2 text-sm shadow-sm focus:border-(--sf-accent) focus:ring-1 focus:ring-(--sf-ring) focus:outline-none"
                     />
-                    {errors.physicalProvince && (
-                        <p className="mt-1 text-sm text-red-600">{errors.physicalProvince.message}</p>
-                    )}
                 </div>
 
                 <div>
-                    <label htmlFor="physicalPostalCode" className="block text-sm font-medium text-(--sf-text)">
-                        Postal Code <span className="text-red-500">*</span>
-                    </label>
-                    <input
+                    <InputField
                         id="physicalPostalCode"
                         type="text"
+                        required
+                        label="Postal Code"
+                        error={errors.physicalPostalCode?.message}
                         {...register('physicalPostalCode')}
-                        className="mt-1 block w-full rounded-md border border-(--sf-border) px-3 py-2 text-sm shadow-sm focus:border-(--sf-accent) focus:ring-1 focus:ring-(--sf-ring) focus:outline-none"
                     />
-                    {errors.physicalPostalCode && (
-                        <p className="mt-1 text-sm text-red-600">{errors.physicalPostalCode.message}</p>
-                    )}
                 </div>
             </div>
         </section>
@@ -367,6 +302,7 @@ function PhysicalAddressSection({form}: SectionProps) {
 function PostalAddressSection({form, sameAsPhysical}: PostalSectionProps) {
     const {
         register,
+        control,
         formState: {errors},
     } = form
 
@@ -375,107 +311,89 @@ function PostalAddressSection({form, sameAsPhysical}: PostalSectionProps) {
             <h2 className="mb-4 text-lg font-semibold text-(--sf-text)">Delivery Address (if different from company
                 address)</h2>
 
-            <label className="mb-4 flex items-center gap-2 text-sm text-(--sf-text)">
-                <input
-                    type="checkbox"
-                    {...register('sameAsPhysical')}
-                    className="h-4 w-4 rounded border-(--sf-border) accent-(--sf-accent) focus:ring-(--sf-ring)"
-                />
-                Same as company address
-            </label>
+            <Controller
+                control={control}
+                name="sameAsPhysical"
+                render={({field}) => (
+                    <Checkbox
+                        className="mb-4"
+                        label="Same as company address"
+                        checked={!!field.value}
+                        onChange={field.onChange}
+                    />
+                )}
+            />
 
             <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
                 <div className="sm:col-span-2">
-                    <label htmlFor="postalAddressLine1" className="block text-sm font-medium text-(--sf-text)">
-                        Address Line 1
-                    </label>
-                    <input
+                    <InputField
                         id="postalAddressLine1"
                         type="text"
                         disabled={sameAsPhysical}
+                        label="Address Line 1"
+                        className={DISABLED_CLASSES}
+                        error={errors.postalAddressLine1?.message}
                         {...register('postalAddressLine1')}
-                        className="mt-1 block w-full rounded-md border border-(--sf-border) px-3 py-2 text-sm shadow-sm focus:border-(--sf-accent) focus:ring-1 focus:ring-(--sf-ring) focus:outline-none disabled:cursor-not-allowed disabled:bg-(--sf-surface-muted) disabled:text-(--sf-muted-text)"
                     />
-                    {errors.postalAddressLine1 && (
-                        <p className="mt-1 text-sm text-red-600">{errors.postalAddressLine1.message}</p>
-                    )}
                 </div>
 
                 <div className="sm:col-span-2">
-                    <label htmlFor="postalAddressLine2" className="block text-sm font-medium text-(--sf-text)">
-                        Address Line 2
-                    </label>
-                    <input
+                    <InputField
                         id="postalAddressLine2"
                         type="text"
                         disabled={sameAsPhysical}
+                        label="Address Line 2"
+                        className={DISABLED_CLASSES}
                         {...register('postalAddressLine2')}
-                        className="mt-1 block w-full rounded-md border border-(--sf-border) px-3 py-2 text-sm shadow-sm focus:border-(--sf-accent) focus:ring-1 focus:ring-(--sf-ring) focus:outline-none disabled:cursor-not-allowed disabled:bg-(--sf-surface-muted) disabled:text-(--sf-muted-text)"
                     />
                 </div>
 
                 <div>
-                    <label htmlFor="postalSuburb" className="block text-sm font-medium text-(--sf-text)">
-                        Suburb
-                    </label>
-                    <input
+                    <InputField
                         id="postalSuburb"
                         type="text"
                         disabled={sameAsPhysical}
+                        label="Suburb"
+                        className={DISABLED_CLASSES}
+                        error={errors.postalSuburb?.message}
                         {...register('postalSuburb')}
-                        className="mt-1 block w-full rounded-md border border-(--sf-border) px-3 py-2 text-sm shadow-sm focus:border-(--sf-accent) focus:ring-1 focus:ring-(--sf-ring) focus:outline-none disabled:cursor-not-allowed disabled:bg-(--sf-surface-muted) disabled:text-(--sf-muted-text)"
                     />
-                    {errors.postalSuburb && (
-                        <p className="mt-1 text-sm text-red-600">{errors.postalSuburb.message}</p>
-                    )}
                 </div>
 
                 <div>
-                    <label htmlFor="postalCity" className="block text-sm font-medium text-(--sf-text)">
-                        City
-                    </label>
-                    <input
+                    <InputField
                         id="postalCity"
                         type="text"
                         disabled={sameAsPhysical}
+                        label="City"
+                        className={DISABLED_CLASSES}
+                        error={errors.postalCity?.message}
                         {...register('postalCity')}
-                        className="mt-1 block w-full rounded-md border border-(--sf-border) px-3 py-2 text-sm shadow-sm focus:border-(--sf-accent) focus:ring-1 focus:ring-(--sf-ring) focus:outline-none disabled:cursor-not-allowed disabled:bg-(--sf-surface-muted) disabled:text-(--sf-muted-text)"
                     />
-                    {errors.postalCity && (
-                        <p className="mt-1 text-sm text-red-600">{errors.postalCity.message}</p>
-                    )}
                 </div>
 
                 <div>
-                    <label htmlFor="postalProvince" className="block text-sm font-medium text-(--sf-text)">
-                        Province
-                    </label>
-                    <input
+                    <InputField
                         id="postalProvince"
                         type="text"
                         disabled={sameAsPhysical}
+                        label="Province"
+                        className={DISABLED_CLASSES}
+                        error={errors.postalProvince?.message}
                         {...register('postalProvince')}
-                        className="mt-1 block w-full rounded-md border border-(--sf-border) px-3 py-2 text-sm shadow-sm focus:border-(--sf-accent) focus:ring-1 focus:ring-(--sf-ring) focus:outline-none disabled:cursor-not-allowed disabled:bg-(--sf-surface-muted) disabled:text-(--sf-muted-text)"
                     />
-                    {errors.postalProvince && (
-                        <p className="mt-1 text-sm text-red-600">{errors.postalProvince.message}</p>
-                    )}
                 </div>
 
                 <div>
-                    <label htmlFor="postalPostalCode" className="block text-sm font-medium text-(--sf-text)">
-                        Postal Code
-                    </label>
-                    <input
+                    <InputField
                         id="postalPostalCode"
                         type="text"
                         disabled={sameAsPhysical}
+                        label="Postal Code"
+                        className={DISABLED_CLASSES}
+                        error={errors.postalPostalCode?.message}
                         {...register('postalPostalCode')}
-                        className="mt-1 block w-full rounded-md border border-(--sf-border) px-3 py-2 text-sm shadow-sm focus:border-(--sf-accent) focus:ring-1 focus:ring-(--sf-ring) focus:outline-none disabled:cursor-not-allowed disabled:bg-(--sf-surface-muted) disabled:text-(--sf-muted-text)"
                     />
-                    {errors.postalPostalCode && (
-                        <p className="mt-1 text-sm text-red-600">{errors.postalPostalCode.message}</p>
-                    )}
                 </div>
             </div>
         </section>
@@ -497,48 +415,33 @@ function FinanceContactSection({form}: SectionProps) {
             <h2 className="mb-4 text-lg font-semibold text-(--sf-text)">Financial / Accounts Contact</h2>
             <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
                 <div className="sm:col-span-2">
-                    <label htmlFor="financeContactName" className="block text-sm font-medium text-(--sf-text)">
-                        Financial / accounts contact name
-                    </label>
-                    <input
+                    <InputField
                         id="financeContactName"
                         type="text"
+                        label="Financial / accounts contact name"
+                        error={errors.financeContactName?.message}
                         {...register('financeContactName')}
-                        className="mt-1 block w-full rounded-md border border-(--sf-border) px-3 py-2 text-sm shadow-sm focus:border-(--sf-accent) focus:ring-1 focus:ring-(--sf-ring) focus:outline-none"
                     />
-                    {errors.financeContactName && (
-                        <p className="mt-1 text-sm text-red-600">{errors.financeContactName.message}</p>
-                    )}
                 </div>
 
                 <div>
-                    <label htmlFor="financeContactEmail" className="block text-sm font-medium text-(--sf-text)">
-                        Financial / accounts email
-                    </label>
-                    <input
+                    <InputField
                         id="financeContactEmail"
                         type="email"
+                        label="Financial / accounts email"
+                        error={errors.financeContactEmail?.message}
                         {...register('financeContactEmail')}
-                        className="mt-1 block w-full rounded-md border border-(--sf-border) px-3 py-2 text-sm shadow-sm focus:border-(--sf-accent) focus:ring-1 focus:ring-(--sf-ring) focus:outline-none"
                     />
-                    {errors.financeContactEmail && (
-                        <p className="mt-1 text-sm text-red-600">{errors.financeContactEmail.message}</p>
-                    )}
                 </div>
 
                 <div>
-                    <label htmlFor="financeContactPhone" className="block text-sm font-medium text-(--sf-text)">
-                        Financial / accounts phone
-                    </label>
-                    <input
+                    <InputField
                         id="financeContactPhone"
                         type="tel"
+                        label="Financial / accounts phone"
+                        error={errors.financeContactPhone?.message}
                         {...register('financeContactPhone')}
-                        className="mt-1 block w-full rounded-md border border-(--sf-border) px-3 py-2 text-sm shadow-sm focus:border-(--sf-accent) focus:ring-1 focus:ring-(--sf-ring) focus:outline-none"
                     />
-                    {errors.financeContactPhone && (
-                        <p className="mt-1 text-sm text-red-600">{errors.financeContactPhone.message}</p>
-                    )}
                 </div>
             </div>
         </section>
@@ -584,17 +487,14 @@ function NotesSection({form}: SectionProps) {
         <section className="rounded-lg border border-(--sf-border) bg-(--sf-panel) p-6 shadow-sm">
             <h2 className="mb-4 text-lg font-semibold text-(--sf-text)">Additional Notes</h2>
             <div>
-                <label htmlFor="notes" className="block text-sm font-medium text-(--sf-text)">
-                    Notes
-                </label>
-                <textarea
+                <Textarea
                     id="notes"
                     rows={4}
-                    {...register('notes')}
-                    className="mt-1 block w-full rounded-md border border-(--sf-border) px-3 py-2 text-sm shadow-sm focus:border-(--sf-accent) focus:ring-1 focus:ring-(--sf-ring) focus:outline-none"
+                    label="Notes"
+                    error={errors.notes?.message}
                     placeholder="Tell us about your business, expected order volumes, or any other relevant details..."
+                    {...register('notes')}
                 />
-                {errors.notes && <p className="mt-1 text-sm text-red-600">{errors.notes.message}</p>}
                 <p className="mt-1 text-xs text-(--sf-muted-text)">Maximum 1000 characters</p>
             </div>
         </section>

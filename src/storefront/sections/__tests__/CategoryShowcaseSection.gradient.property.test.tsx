@@ -32,7 +32,7 @@ describe('CategoryShowcaseSection configuration property', () => {
             isError: false,
         })
         mockedUseProducts.mockReturnValue({
-            products: [{id: 'product-1', name: 'Product', slug: 'product', shortDescription: '', images: [], retailPrice: null, wholesalePrice: null, retailSalePrice: null, wholesaleSalePrice: null, variantId: null}],
+            products: [{id: 'product-1', name: 'Product', slug: 'product', shortDescription: '', images: [], retailPrice: null, wholesalePrice: null, retailSalePrice: null, wholesaleSalePrice: null, variantId: null, sku: null, inStock: null}],
             totalElements: 1,
             totalPages: 1,
             isLoading: false,

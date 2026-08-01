@@ -27,6 +27,7 @@ function renderGuard() {
           }
         />
         <Route path="/admin/login" element={<div>Admin Login Page</div>} />
+        <Route path="/admin/reset-password" element={<div>Admin Reset Password Page</div>} />
       </Routes>
     </MemoryRouter>
   )
@@ -42,6 +43,7 @@ describe('AdminGuard', () => {
       authority: [],
       userName: null,
       email: null,
+      mustResetPassword: false,
     })
   })
 
@@ -66,6 +68,7 @@ describe('AdminGuard', () => {
         authority: ['ORDER_READ'],
         userName: 'Admin User',
         email: 'admin@test.com',
+        resetPassword: false,
       },
     })
 
@@ -74,6 +77,50 @@ describe('AdminGuard', () => {
     await waitFor(() => {
       expect(screen.getByText('Protected Content')).toBeInTheDocument()
     })
+  })
+
+  it('redirects to the reset screen when the account must change its password', async () => {
+    useAdminAuthStore.setState({ token: 'valid-token', role: null })
+    mockedGet.mockResolvedValue({
+      data: {
+        role: 'SUPER_ADMIN',
+        authority: ['ORDER_READ'],
+        userName: 'Admin User',
+        email: 'admin@test.com',
+        resetPassword: true,
+      },
+    })
+
+    renderGuard()
+
+    await waitFor(() => {
+      expect(screen.getByText('Admin Reset Password Page')).toBeInTheDocument()
+    })
+    expect(screen.queryByText('Protected Content')).not.toBeInTheDocument()
+  })
+
+  /**
+   * Fails closed. `mustResetPassword` is deliberately not persisted, so /admin/me is the
+   * only thing that can re-establish it after a reload. If an absent field defaulted to
+   * "no reset required", a flagged account would bypass the forced change by reloading.
+   */
+  it('denies access when /admin/me omits the forced-change flag', async () => {
+    useAdminAuthStore.setState({ token: 'valid-token', role: null })
+    mockedGet.mockResolvedValue({
+      data: {
+        role: 'SUPER_ADMIN',
+        authority: ['ORDER_READ'],
+        userName: 'Admin User',
+        email: 'admin@test.com',
+      },
+    })
+
+    renderGuard()
+
+    await waitFor(() => {
+      expect(screen.getByText('Admin Reset Password Page')).toBeInTheDocument()
+    })
+    expect(screen.queryByText('Protected Content')).not.toBeInTheDocument()
   })
 
   it('redirects to /admin/login on rehydration failure', async () => {

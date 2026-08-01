@@ -1,4 +1,5 @@
 import { useState } from 'react'
+import { InputField } from '@/shared/ui/components/form/InputField'
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { z } from 'zod'
@@ -141,35 +142,21 @@ export function ForgotPasswordForm({ onBackToLogin }: ForgotPasswordFormProps) {
           {requestMutation.isError && (
             <div
               role="alert"
-              className="rounded-md bg-red-50 p-3 text-sm text-red-700"
+              className="rounded-md bg-(--c-error)/10 p-3 text-sm text-(--c-error)"
             >
               {extractErrorMessage(requestMutation.error)}
             </div>
           )}
 
           <div>
-            <label
-              htmlFor="request-email"
-              className="block text-sm font-medium text-(--sf-text)"
-            >
-              Email address
-            </label>
-            <input
+            <InputField
               id="request-email"
               type="email"
               autoComplete="email"
-              aria-describedby={
-                requestForm.formState.errors.email ? 'request-email-error' : undefined
-              }
-              aria-invalid={requestForm.formState.errors.email ? 'true' : undefined}
-              className="mt-1 block w-full rounded-md border border-(--sf-border) px-3 py-2 text-sm shadow-sm placeholder:text-(--sf-muted-text) focus:border-(--sf-ring) focus:outline-none focus:ring-1 focus:ring-(--sf-ring)"
+              label="Email address"
+              error={requestForm.formState.errors.email?.message}
               {...requestForm.register('email')}
             />
-            {requestForm.formState.errors.email && (
-              <p id="request-email-error" className="mt-1 text-sm text-red-600">
-                {requestForm.formState.errors.email.message}
-              </p>
-            )}
           </div>
 
           <button
@@ -217,38 +204,24 @@ export function ForgotPasswordForm({ onBackToLogin }: ForgotPasswordFormProps) {
           {verifyMutation.isError && (
             <div
               role="alert"
-              className="rounded-md bg-red-50 p-3 text-sm text-red-700"
+              className="rounded-md bg-(--c-error)/10 p-3 text-sm text-(--c-error)"
             >
               {extractErrorMessage(verifyMutation.error)}
             </div>
           )}
 
           <div>
-            <label
-              htmlFor="verify-code"
-              className="block text-sm font-medium text-(--sf-text)"
-            >
-              Verification code
-            </label>
-            <input
+            <InputField
               id="verify-code"
               type="text"
               inputMode="numeric"
               maxLength={6}
               autoComplete="one-time-code"
-              aria-describedby={
-                verifyForm.formState.errors.code ? 'verify-code-error' : undefined
-              }
-              aria-invalid={verifyForm.formState.errors.code ? 'true' : undefined}
-              className="mt-1 block w-full rounded-md border border-(--sf-border) px-3 py-2 text-sm shadow-sm placeholder:text-(--sf-muted-text) focus:border-(--sf-ring) focus:outline-none focus:ring-1 focus:ring-(--sf-ring)"
+              label="Verification code"
               placeholder="000000"
+              error={verifyForm.formState.errors.code?.message}
               {...verifyForm.register('code')}
             />
-            {verifyForm.formState.errors.code && (
-              <p id="verify-code-error" className="mt-1 text-sm text-red-600">
-                {verifyForm.formState.errors.code.message}
-              </p>
-            )}
           </div>
 
           <button
@@ -297,68 +270,32 @@ export function ForgotPasswordForm({ onBackToLogin }: ForgotPasswordFormProps) {
           {completeMutation.isError && (
             <div
               role="alert"
-              className="rounded-md bg-red-50 p-3 text-sm text-red-700"
+              className="rounded-md bg-(--c-error)/10 p-3 text-sm text-(--c-error)"
             >
               {extractErrorMessage(completeMutation.error)}
             </div>
           )}
 
           <div>
-            <label
-              htmlFor="new-password"
-              className="block text-sm font-medium text-(--sf-text)"
-            >
-              New password
-            </label>
-            <input
+            <InputField
               id="new-password"
               type="password"
               autoComplete="new-password"
-              aria-describedby={
-                completeForm.formState.errors.newPassword
-                  ? 'new-password-error'
-                  : undefined
-              }
-              aria-invalid={
-                completeForm.formState.errors.newPassword ? 'true' : undefined
-              }
-              className="mt-1 block w-full rounded-md border border-(--sf-border) px-3 py-2 text-sm shadow-sm placeholder:text-(--sf-muted-text) focus:border-(--sf-ring) focus:outline-none focus:ring-1 focus:ring-(--sf-ring)"
+              label="New password"
+              error={completeForm.formState.errors.newPassword?.message}
               {...completeForm.register('newPassword')}
             />
-            {completeForm.formState.errors.newPassword && (
-              <p id="new-password-error" className="mt-1 text-sm text-red-600">
-                {completeForm.formState.errors.newPassword.message}
-              </p>
-            )}
           </div>
 
           <div>
-            <label
-              htmlFor="confirm-password"
-              className="block text-sm font-medium text-(--sf-text)"
-            >
-              Confirm password
-            </label>
-            <input
+            <InputField
               id="confirm-password"
               type="password"
               autoComplete="new-password"
-              aria-describedby={
-                completeForm.formState.errors.confirmPassword
-                  ? 'confirm-password-error'
-                  : undefined
-              }
-              aria-invalid={
-                completeForm.formState.errors.confirmPassword ? 'true' : undefined
-              }
-              className="mt-1 block w-full rounded-md border border-(--sf-border) px-3 py-2 text-sm shadow-sm placeholder:text-(--sf-muted-text) focus:border-(--sf-ring) focus:outline-none focus:ring-1 focus:ring-(--sf-ring)"
+              label="Confirm password"
+              error={completeForm.formState.errors.confirmPassword?.message}
               {...completeForm.register('confirmPassword')}
             />
-            {completeForm.formState.errors.confirmPassword && (
-              <p id="confirm-password-error" className="mt-1 text-sm text-red-600">
-                {completeForm.formState.errors.confirmPassword.message}
-              </p>
-            )}
           </div>
 
           <button

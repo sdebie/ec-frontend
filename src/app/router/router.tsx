@@ -19,6 +19,7 @@ const AccountDashboardPage = lazyPage(() => import('@/storefront/customer/accoun
 const NotFoundPage = lazyPage(() => import('@/storefront/pages/NotFoundPage'), 'NotFoundPage')
 const AdminLoginPage = lazyPage(() => import('@/admin/pages/AdminLoginPage'), 'AdminLoginPage')
 const AdminNotFoundPage = lazyPage(() => import('@/admin/pages/AdminNotFoundPage'), 'AdminNotFoundPage')
+const AdminResetPasswordPage = lazyPage(() => import('@/admin/pages/AdminResetPasswordPage'), 'AdminResetPasswordPage')
 const OrderHistoryPage = lazyPage(() => import('@/storefront/customer/account/orders/OrderHistoryPage'), 'OrderHistoryPage')
 const OrderDetailPage = lazyPage(() => import('@/storefront/customer/account/orders/OrderDetailPage'), 'OrderDetailPage')
 const ProfilePage = lazyPage(() => import('@/storefront/customer/account/profile/ProfilePage'), 'ProfilePage')
@@ -172,6 +173,19 @@ export const router = createBrowserRouter([
         element: (
             <Suspense fallback={null}>
                 <AdminLoginPage/>
+            </Suspense>
+        ),
+    },
+    {
+        // Deliberately OUTSIDE AdminGuard. The guard redirects here when an account
+        // must change its password, so a guarded route would redirect into itself
+        // forever. It is also a standalone full-screen card, not admin chrome, so it
+        // does not belong inside AdminLayout either. Access is still authenticated —
+        // the reset request carries the token the login flow now retains.
+        path: '/admin/reset-password',
+        element: (
+            <Suspense fallback={null}>
+                <AdminResetPasswordPage/>
             </Suspense>
         ),
     },

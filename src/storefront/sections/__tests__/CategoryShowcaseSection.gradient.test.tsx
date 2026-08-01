@@ -58,6 +58,8 @@ function setupMocksForRendering() {
                 retailSalePrice: null,
                 wholesaleSalePrice: null,
                 variantId: null,
+                sku: null,
+                inStock: null,
             },
         ],
         totalElements: 1,

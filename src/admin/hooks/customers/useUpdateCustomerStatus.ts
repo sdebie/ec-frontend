@@ -29,9 +29,12 @@ export function useUpdateCustomerStatus() {
         status,
       })
     },
-    onSuccess: (_data, { customerId }) => {
+    onSuccess: () => {
+      // Prefix-matching: this single call covers the customer list, the count,
+      // the customer detail, AND the wholesale list/detail — all of which live
+      // under ['admin','customers', …] by design. The second, narrower call this
+      // replaced was always redundant.
       queryClient.invalidateQueries({ queryKey: ['admin', 'customers'] })
-      queryClient.invalidateQueries({ queryKey: ['admin', 'customers', customerId] })
       toast.success('Customer status updated')
     },
     onError: (error) => {

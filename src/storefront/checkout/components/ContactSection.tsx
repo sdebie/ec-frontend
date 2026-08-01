@@ -1,5 +1,6 @@
 import { Controller, type Control } from 'react-hook-form'
 import { Link } from 'react-router-dom'
+import { InputField } from '@/shared/ui/components/form/InputField'
 import type { CheckoutFormValues } from '../checkoutFormSchema'
 
 interface ContactSectionProps {
@@ -7,6 +8,13 @@ interface ContactSectionProps {
   isAuthenticated: boolean
   customerProfile: { email: string; firstName: string; lastName: string } | null
 }
+
+/**
+ * Signed-in shoppers get their profile values back read-only; the muted
+ * treatment signals that without disabling the control (a disabled field
+ * would drop out of the tab order and out of the submitted form).
+ */
+const READ_ONLY_CLASSES = 'bg-(--sf-surface-muted) text-(--sf-muted-text) cursor-not-allowed'
 
 export function ContactSection({ control, isAuthenticated, customerProfile }: ContactSectionProps) {
   return (
@@ -36,25 +44,15 @@ export function ContactSection({ control, isAuthenticated, customerProfile }: Co
           control={control}
           render={({ field, fieldState }) => (
             <div>
-              <label htmlFor="email" className="block text-sm font-medium text-(--sf-text)">
-                Email address
-              </label>
-              <input
+              <InputField
                 {...field}
                 id="email"
                 type="email"
+                label="Email address"
                 readOnly={isAuthenticated}
-                aria-invalid={!!fieldState.error}
-                aria-describedby={fieldState.error ? 'email-error' : undefined}
-                className={`mt-1 block w-full rounded-md border px-3 py-2 text-sm shadow-sm focus:outline-none focus:ring-2 focus:ring-(--sf-ring) ${
-                  isAuthenticated ? 'bg-(--sf-surface-muted) text-(--sf-muted-text) cursor-not-allowed' : 'bg-(--sf-panel)'
-                } ${fieldState.error ? 'border-red-500' : 'border-(--sf-border)'}`}
+                className={isAuthenticated ? READ_ONLY_CLASSES : undefined}
+                error={fieldState.error?.message}
               />
-              {fieldState.error && (
-                <p id="email-error" className="mt-1 text-sm text-red-600">
-                  {fieldState.error.message}
-                </p>
-              )}
             </div>
           )}
         />
@@ -65,25 +63,15 @@ export function ContactSection({ control, isAuthenticated, customerProfile }: Co
             control={control}
             render={({ field, fieldState }) => (
               <div>
-                <label htmlFor="firstName" className="block text-sm font-medium text-(--sf-text)">
-                  First name
-                </label>
-                <input
+                <InputField
                   {...field}
                   id="firstName"
                   type="text"
+                  label="First name"
                   readOnly={isAuthenticated}
-                  aria-invalid={!!fieldState.error}
-                  aria-describedby={fieldState.error ? 'firstName-error' : undefined}
-                  className={`mt-1 block w-full rounded-md border px-3 py-2 text-sm shadow-sm focus:outline-none focus:ring-2 focus:ring-(--sf-ring) ${
-                    isAuthenticated ? 'bg-(--sf-surface-muted) text-(--sf-muted-text) cursor-not-allowed' : 'bg-(--sf-panel)'
-                  } ${fieldState.error ? 'border-red-500' : 'border-(--sf-border)'}`}
+                  className={isAuthenticated ? READ_ONLY_CLASSES : undefined}
+                  error={fieldState.error?.message}
                 />
-                {fieldState.error && (
-                  <p id="firstName-error" className="mt-1 text-sm text-red-600">
-                    {fieldState.error.message}
-                  </p>
-                )}
               </div>
             )}
           />
@@ -93,25 +81,15 @@ export function ContactSection({ control, isAuthenticated, customerProfile }: Co
             control={control}
             render={({ field, fieldState }) => (
               <div>
-                <label htmlFor="lastName" className="block text-sm font-medium text-(--sf-text)">
-                  Last name
-                </label>
-                <input
+                <InputField
                   {...field}
                   id="lastName"
                   type="text"
+                  label="Last name"
                   readOnly={isAuthenticated}
-                  aria-invalid={!!fieldState.error}
-                  aria-describedby={fieldState.error ? 'lastName-error' : undefined}
-                  className={`mt-1 block w-full rounded-md border px-3 py-2 text-sm shadow-sm focus:outline-none focus:ring-2 focus:ring-(--sf-ring) ${
-                    isAuthenticated ? 'bg-(--sf-surface-muted) text-(--sf-muted-text) cursor-not-allowed' : 'bg-(--sf-panel)'
-                  } ${fieldState.error ? 'border-red-500' : 'border-(--sf-border)'}`}
+                  className={isAuthenticated ? READ_ONLY_CLASSES : undefined}
+                  error={fieldState.error?.message}
                 />
-                {fieldState.error && (
-                  <p id="lastName-error" className="mt-1 text-sm text-red-600">
-                    {fieldState.error.message}
-                  </p>
-                )}
               </div>
             )}
           />

@@ -2,14 +2,28 @@ import { useEffect, useState } from 'react'
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { z } from 'zod'
-import { Eye, EyeOff, Loader2 } from 'lucide-react'
+import { Loader2 } from 'lucide-react'
 import { useCustomerProfile } from '../hooks/useCustomerProfile'
 import { useUpdateProfile } from '../hooks/useUpdateProfile'
 import { useChangePassword } from '../hooks/useChangePassword'
+import { InputField } from '@/shared/ui/components/form/InputField'
+import { PasswordField } from '@/shared/ui/components/form/PasswordField'
 import type { AxiosError } from 'axios'
 import type { UpdateProfileRequest } from '../types'
 
 const phoneRegex = /^(\+?\d[\d\s\-()]{6,})$/
+
+/** Muted "(optional)" suffix used on the non-required field labels. */
+function OptionalLabel({ children }: { children: React.ReactNode }) {
+  return (
+    <>
+      {children} <span className="text-(--sf-muted-text)">(optional)</span>
+    </>
+  )
+}
+
+/** Postal fields are disabled while they mirror the physical address. */
+const DISABLED_CLASSES = 'disabled:bg-(--sf-surface-muted) disabled:text-(--sf-muted-text)'
 
 const profileSchema = z.object({
   firstName: z.string().min(1, 'This field is required'),
@@ -187,15 +201,15 @@ export function ProfilePage() {
       <form onSubmit={handleSubmit(onSubmit)} noValidate className="space-y-8">
         {/* Success message */}
         {successMessage && (
-          <div className="rounded-md bg-green-50 p-3" role="status">
-            <p className="text-sm font-medium text-green-800">{successMessage}</p>
+          <div className="rounded-md bg-(--c-success)/10 p-3" role="status">
+            <p className="text-sm font-medium text-(--c-success)">{successMessage}</p>
           </div>
         )}
 
         {/* Error message */}
         {updateProfile.isError && (
-          <div className="rounded-md bg-red-50 p-3" role="alert">
-            <p className="text-sm font-medium text-red-800">
+          <div className="rounded-md bg-(--c-error)/10 p-3" role="alert">
+            <p className="text-sm font-medium text-(--c-error)">
               Something went wrong updating your profile. Please try again.
             </p>
           </div>
@@ -207,81 +221,52 @@ export function ProfilePage() {
 
           {/* Email (read-only) */}
           <div>
-            <label htmlFor="email" className="block text-sm font-medium text-(--sf-text)">
-              Email address
-            </label>
-            <input
+            <InputField
               id="email"
               type="email"
               value={profile?.email ?? ''}
               readOnly
               disabled
-              className="mt-1 block w-full rounded-md border border-(--sf-border) bg-(--sf-surface-muted) px-3 py-2 text-sm text-(--sf-muted-text) shadow-sm"
+              label="Email address"
+              helperText="Email cannot be changed."
+              className="bg-(--sf-surface-muted) text-(--sf-muted-text)"
             />
-            <p className="mt-1 text-xs text-(--sf-muted-text)">Email cannot be changed.</p>
           </div>
 
           {/* First Name */}
           <div>
-            <label htmlFor="firstName" className="block text-sm font-medium text-(--sf-text)">
-              First name
-            </label>
-            <input
+            <InputField
               id="firstName"
               type="text"
               autoComplete="given-name"
-              aria-describedby={errors.firstName ? 'firstName-error' : undefined}
-              aria-invalid={!!errors.firstName}
-              className="mt-1 block w-full rounded-md border border-(--sf-border) px-3 py-2 text-sm shadow-sm focus:border-(--sf-ring) focus:outline-none focus:ring-1 focus:ring-(--sf-ring)"
+              label="First name"
+              error={errors.firstName?.message}
               {...register('firstName')}
             />
-            {errors.firstName && (
-              <p id="firstName-error" className="mt-1 text-sm text-red-600" role="alert">
-                {errors.firstName.message}
-              </p>
-            )}
           </div>
 
           {/* Last Name */}
           <div>
-            <label htmlFor="lastName" className="block text-sm font-medium text-(--sf-text)">
-              Last name
-            </label>
-            <input
+            <InputField
               id="lastName"
               type="text"
               autoComplete="family-name"
-              aria-describedby={errors.lastName ? 'lastName-error' : undefined}
-              aria-invalid={!!errors.lastName}
-              className="mt-1 block w-full rounded-md border border-(--sf-border) px-3 py-2 text-sm shadow-sm focus:border-(--sf-ring) focus:outline-none focus:ring-1 focus:ring-(--sf-ring)"
+              label="Last name"
+              error={errors.lastName?.message}
               {...register('lastName')}
             />
-            {errors.lastName && (
-              <p id="lastName-error" className="mt-1 text-sm text-red-600" role="alert">
-                {errors.lastName.message}
-              </p>
-            )}
           </div>
 
           {/* Phone */}
           <div>
-            <label htmlFor="phone" className="block text-sm font-medium text-(--sf-text)">
-              Phone number <span className="text-(--sf-muted-text)">(optional)</span>
-            </label>
-            <input
+            <InputField
               id="phone"
               type="tel"
               autoComplete="tel"
-              aria-describedby={errors.phone ? 'phone-error' : undefined}
-              aria-invalid={!!errors.phone}
-              className="mt-1 block w-full rounded-md border border-(--sf-border) px-3 py-2 text-sm shadow-sm focus:border-(--sf-ring) focus:outline-none focus:ring-1 focus:ring-(--sf-ring)"
+              label={<OptionalLabel>Phone number</OptionalLabel>}
+              error={errors.phone?.message}
               {...register('phone')}
             />
-            {errors.phone && (
-              <p id="phone-error" className="mt-1 text-sm text-red-600" role="alert">
-                {errors.phone.message}
-              </p>
-            )}
           </div>
         </fieldset>
 
@@ -291,78 +276,60 @@ export function ProfilePage() {
 
           <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
             <div className="sm:col-span-2">
-              <label htmlFor="physicalLine1" className="block text-sm font-medium text-(--sf-text)">
-                Address line 1
-              </label>
-              <input
+              <InputField
                 id="physicalLine1"
                 type="text"
                 autoComplete="address-line1"
-                className="mt-1 block w-full rounded-md border border-(--sf-border) px-3 py-2 text-sm shadow-sm focus:border-(--sf-ring) focus:outline-none focus:ring-1 focus:ring-(--sf-ring)"
+                label="Address line 1"
                 {...register('physicalLine1')}
               />
             </div>
 
             <div className="sm:col-span-2">
-              <label htmlFor="physicalLine2" className="block text-sm font-medium text-(--sf-text)">
-                Address line 2 <span className="text-(--sf-muted-text)">(optional)</span>
-              </label>
-              <input
+              <InputField
                 id="physicalLine2"
                 type="text"
                 autoComplete="address-line2"
-                className="mt-1 block w-full rounded-md border border-(--sf-border) px-3 py-2 text-sm shadow-sm focus:border-(--sf-ring) focus:outline-none focus:ring-1 focus:ring-(--sf-ring)"
+                label={<OptionalLabel>Address line 2</OptionalLabel>}
                 {...register('physicalLine2')}
               />
             </div>
 
             <div>
-              <label htmlFor="physicalSuburb" className="block text-sm font-medium text-(--sf-text)">
-                Suburb <span className="text-(--sf-muted-text)">(optional)</span>
-              </label>
-              <input
+              <InputField
                 id="physicalSuburb"
                 type="text"
-                className="mt-1 block w-full rounded-md border border-(--sf-border) px-3 py-2 text-sm shadow-sm focus:border-(--sf-ring) focus:outline-none focus:ring-1 focus:ring-(--sf-ring)"
+                label={<OptionalLabel>Suburb</OptionalLabel>}
                 {...register('physicalSuburb')}
               />
             </div>
 
             <div>
-              <label htmlFor="physicalCity" className="block text-sm font-medium text-(--sf-text)">
-                City
-              </label>
-              <input
+              <InputField
                 id="physicalCity"
                 type="text"
                 autoComplete="address-level2"
-                className="mt-1 block w-full rounded-md border border-(--sf-border) px-3 py-2 text-sm shadow-sm focus:border-(--sf-ring) focus:outline-none focus:ring-1 focus:ring-(--sf-ring)"
+                label="City"
                 {...register('physicalCity')}
               />
             </div>
 
             <div>
-              <label htmlFor="physicalProvince" className="block text-sm font-medium text-(--sf-text)">
-                Province
-              </label>
-              <input
+              <InputField
                 id="physicalProvince"
                 type="text"
                 autoComplete="address-level1"
-                className="mt-1 block w-full rounded-md border border-(--sf-border) px-3 py-2 text-sm shadow-sm focus:border-(--sf-ring) focus:outline-none focus:ring-1 focus:ring-(--sf-ring)"
+                label="Province"
                 {...register('physicalProvince')}
               />
             </div>
 
             <div>
-              <label htmlFor="physicalPostalCode" className="block text-sm font-medium text-(--sf-text)">
-                Postal code
-              </label>
-              <input
+              <InputField
                 id="physicalPostalCode"
                 type="text"
                 autoComplete="postal-code"
-                className="mt-1 block w-full rounded-md border border-(--sf-border) px-3 py-2 text-sm shadow-sm focus:border-(--sf-ring) focus:outline-none focus:ring-1 focus:ring-(--sf-ring)"
+                label="Postal code"
                 {...register('physicalPostalCode')}
               />
             </div>
@@ -387,84 +354,72 @@ export function ProfilePage() {
 
           <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
             <div className="sm:col-span-2">
-              <label htmlFor="postalLine1" className="block text-sm font-medium text-(--sf-text)">
-                Address line 1
-              </label>
-              <input
+              <InputField
                 id="postalLine1"
                 type="text"
                 autoComplete="address-line1"
                 disabled={postalSameAsPhysical}
-                className="mt-1 block w-full rounded-md border border-(--sf-border) px-3 py-2 text-sm shadow-sm focus:border-(--sf-ring) focus:outline-none focus:ring-1 focus:ring-(--sf-ring) disabled:bg-(--sf-surface-muted) disabled:text-(--sf-muted-text)"
+                label="Address line 1"
+                className={DISABLED_CLASSES}
                 {...register('postalLine1')}
               />
             </div>
 
             <div className="sm:col-span-2">
-              <label htmlFor="postalLine2" className="block text-sm font-medium text-(--sf-text)">
-                Address line 2 <span className="text-(--sf-muted-text)">(optional)</span>
-              </label>
-              <input
+              <InputField
                 id="postalLine2"
                 type="text"
                 autoComplete="address-line2"
                 disabled={postalSameAsPhysical}
-                className="mt-1 block w-full rounded-md border border-(--sf-border) px-3 py-2 text-sm shadow-sm focus:border-(--sf-ring) focus:outline-none focus:ring-1 focus:ring-(--sf-ring) disabled:bg-(--sf-surface-muted) disabled:text-(--sf-muted-text)"
+                label={<OptionalLabel>Address line 2</OptionalLabel>}
+                className={DISABLED_CLASSES}
                 {...register('postalLine2')}
               />
             </div>
 
             <div>
-              <label htmlFor="postalSuburb" className="block text-sm font-medium text-(--sf-text)">
-                Suburb <span className="text-(--sf-muted-text)">(optional)</span>
-              </label>
-              <input
+              <InputField
                 id="postalSuburb"
                 type="text"
                 disabled={postalSameAsPhysical}
-                className="mt-1 block w-full rounded-md border border-(--sf-border) px-3 py-2 text-sm shadow-sm focus:border-(--sf-ring) focus:outline-none focus:ring-1 focus:ring-(--sf-ring) disabled:bg-(--sf-surface-muted) disabled:text-(--sf-muted-text)"
+                label={<OptionalLabel>Suburb</OptionalLabel>}
+                className={DISABLED_CLASSES}
                 {...register('postalSuburb')}
               />
             </div>
 
             <div>
-              <label htmlFor="postalCity" className="block text-sm font-medium text-(--sf-text)">
-                City
-              </label>
-              <input
+              <InputField
                 id="postalCity"
                 type="text"
                 autoComplete="address-level2"
                 disabled={postalSameAsPhysical}
-                className="mt-1 block w-full rounded-md border border-(--sf-border) px-3 py-2 text-sm shadow-sm focus:border-(--sf-ring) focus:outline-none focus:ring-1 focus:ring-(--sf-ring) disabled:bg-(--sf-surface-muted) disabled:text-(--sf-muted-text)"
+                label="City"
+                className={DISABLED_CLASSES}
                 {...register('postalCity')}
               />
             </div>
 
             <div>
-              <label htmlFor="postalProvince" className="block text-sm font-medium text-(--sf-text)">
-                Province
-              </label>
-              <input
+              <InputField
                 id="postalProvince"
                 type="text"
                 autoComplete="address-level1"
                 disabled={postalSameAsPhysical}
-                className="mt-1 block w-full rounded-md border border-(--sf-border) px-3 py-2 text-sm shadow-sm focus:border-(--sf-ring) focus:outline-none focus:ring-1 focus:ring-(--sf-ring) disabled:bg-(--sf-surface-muted) disabled:text-(--sf-muted-text)"
+                label="Province"
+                className={DISABLED_CLASSES}
                 {...register('postalProvince')}
               />
             </div>
 
             <div>
-              <label htmlFor="postalPostalCode" className="block text-sm font-medium text-(--sf-text)">
-                Postal code
-              </label>
-              <input
+              <InputField
                 id="postalPostalCode"
                 type="text"
                 autoComplete="postal-code"
                 disabled={postalSameAsPhysical}
-                className="mt-1 block w-full rounded-md border border-(--sf-border) px-3 py-2 text-sm shadow-sm focus:border-(--sf-ring) focus:outline-none focus:ring-1 focus:ring-(--sf-ring) disabled:bg-(--sf-surface-muted) disabled:text-(--sf-muted-text)"
+                label="Postal code"
+                className={DISABLED_CLASSES}
                 {...register('postalPostalCode')}
               />
             </div>
@@ -512,9 +467,6 @@ function PasswordSection({ hasPassword }: { hasPassword: boolean }) {
   const changePassword = useChangePassword()
   const [successMessage, setSuccessMessage] = useState<string | null>(null)
   const [apiError, setApiError] = useState<string | null>(null)
-  const [showCurrentPassword, setShowCurrentPassword] = useState(false)
-  const [showNewPassword, setShowNewPassword] = useState(false)
-  const [showConfirmPassword, setShowConfirmPassword] = useState(false)
 
   const {
     register,
@@ -578,160 +530,54 @@ function PasswordSection({ hasPassword }: { hasPassword: boolean }) {
       >
         {/* Success message */}
         {successMessage && (
-          <div className="rounded-md bg-green-50 p-3" role="status">
-            <p className="text-sm font-medium text-green-800">{successMessage}</p>
+          <div className="rounded-md bg-(--c-success)/10 p-3" role="status">
+            <p className="text-sm font-medium text-(--c-success)">{successMessage}</p>
           </div>
         )}
 
         {/* API error message */}
         {apiError && (
-          <div className="rounded-md bg-red-50 p-3" role="alert">
-            <p className="text-sm font-medium text-red-800">{apiError}</p>
+          <div className="rounded-md bg-(--c-error)/10 p-3" role="alert">
+            <p className="text-sm font-medium text-(--c-error)">{apiError}</p>
           </div>
         )}
 
         {/* Current Password — only for registered users with a password */}
         {hasPassword && (
           <div>
-            <label
-              htmlFor="currentPassword"
-              className="block text-sm font-medium text-(--sf-text)"
-            >
-              Current password
-            </label>
-            <div className="relative mt-1">
-              <input
-                id="currentPassword"
-                type={showCurrentPassword ? 'text' : 'password'}
-                autoComplete="current-password"
-                aria-describedby={
-                  errors.currentPassword ? 'currentPassword-error' : undefined
-                }
-                aria-invalid={!!errors.currentPassword}
-                className="block w-full rounded-md border border-(--sf-border) px-3 py-2 pr-10 text-sm shadow-sm focus:border-(--sf-ring) focus:outline-none focus:ring-1 focus:ring-(--sf-ring)"
-                {...register('currentPassword')}
-              />
-              <button
-                type="button"
-                className="absolute inset-y-0 right-0 flex items-center pr-3 text-(--sf-muted-text) hover:text-(--sf-text)"
-                onClick={() => setShowCurrentPassword((v) => !v)}
-                aria-label={
-                  showCurrentPassword
-                    ? 'Hide current password'
-                    : 'Show current password'
-                }
-              >
-                {showCurrentPassword ? (
-                  <EyeOff className="h-4 w-4" />
-                ) : (
-                  <Eye className="h-4 w-4" />
-                )}
-              </button>
-            </div>
-            {errors.currentPassword && (
-              <p
-                id="currentPassword-error"
-                className="mt-1 text-sm text-red-600"
-                role="alert"
-              >
-                {errors.currentPassword.message}
-              </p>
-            )}
+            <PasswordField
+              id="currentPassword"
+              autoComplete="current-password"
+              label="Current password"
+              toggleNoun="current password"
+              error={errors.currentPassword?.message}
+              {...register('currentPassword')}
+            />
           </div>
         )}
 
         {/* New Password */}
         <div>
-          <label
-            htmlFor="newPassword"
-            className="block text-sm font-medium text-(--sf-text)"
-          >
-            New password
-          </label>
-          <div className="relative mt-1">
-            <input
-              id="newPassword"
-              type={showNewPassword ? 'text' : 'password'}
-              autoComplete="new-password"
-              aria-describedby={
-                errors.newPassword ? 'newPassword-error' : undefined
-              }
-              aria-invalid={!!errors.newPassword}
-              className="block w-full rounded-md border border-(--sf-border) px-3 py-2 pr-10 text-sm shadow-sm focus:border-(--sf-ring) focus:outline-none focus:ring-1 focus:ring-(--sf-ring)"
-              {...register('newPassword')}
-            />
-            <button
-              type="button"
-              className="absolute inset-y-0 right-0 flex items-center pr-3 text-(--sf-muted-text) hover:text-(--sf-text)"
-              onClick={() => setShowNewPassword((v) => !v)}
-              aria-label={
-                showNewPassword ? 'Hide new password' : 'Show new password'
-              }
-            >
-              {showNewPassword ? (
-                <EyeOff className="h-4 w-4" />
-              ) : (
-                <Eye className="h-4 w-4" />
-              )}
-            </button>
-          </div>
-          {errors.newPassword && (
-            <p
-              id="newPassword-error"
-              className="mt-1 text-sm text-red-600"
-              role="alert"
-            >
-              {errors.newPassword.message}
-            </p>
-          )}
+          <PasswordField
+            id="newPassword"
+            autoComplete="new-password"
+            label="New password"
+            toggleNoun="new password"
+            error={errors.newPassword?.message}
+            {...register('newPassword')}
+          />
         </div>
 
         {/* Confirm Password */}
         <div>
-          <label
-            htmlFor="confirmPassword"
-            className="block text-sm font-medium text-(--sf-text)"
-          >
-            Confirm new password
-          </label>
-          <div className="relative mt-1">
-            <input
-              id="confirmPassword"
-              type={showConfirmPassword ? 'text' : 'password'}
-              autoComplete="new-password"
-              aria-describedby={
-                errors.confirmPassword ? 'confirmPassword-error' : undefined
-              }
-              aria-invalid={!!errors.confirmPassword}
-              className="block w-full rounded-md border border-(--sf-border) px-3 py-2 pr-10 text-sm shadow-sm focus:border-(--sf-ring) focus:outline-none focus:ring-1 focus:ring-(--sf-ring)"
-              {...register('confirmPassword')}
-            />
-            <button
-              type="button"
-              className="absolute inset-y-0 right-0 flex items-center pr-3 text-(--sf-muted-text) hover:text-(--sf-text)"
-              onClick={() => setShowConfirmPassword((v) => !v)}
-              aria-label={
-                showConfirmPassword
-                  ? 'Hide confirm password'
-                  : 'Show confirm password'
-              }
-            >
-              {showConfirmPassword ? (
-                <EyeOff className="h-4 w-4" />
-              ) : (
-                <Eye className="h-4 w-4" />
-              )}
-            </button>
-          </div>
-          {errors.confirmPassword && (
-            <p
-              id="confirmPassword-error"
-              className="mt-1 text-sm text-red-600"
-              role="alert"
-            >
-              {errors.confirmPassword.message}
-            </p>
-          )}
+          <PasswordField
+            id="confirmPassword"
+            autoComplete="new-password"
+            label="Confirm new password"
+            toggleNoun="confirm password"
+            error={errors.confirmPassword?.message}
+            {...register('confirmPassword')}
+          />
         </div>
 
         {/* Submit */}

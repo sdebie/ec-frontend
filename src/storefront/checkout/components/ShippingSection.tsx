@@ -6,6 +6,7 @@ import { useStorefrontConfig } from '@/shared/config/storefrontConfig.context'
 import { formatAmount } from '@/shared/utils/formatAmount'
 import type { CheckoutFormValues } from '../checkoutFormSchema'
 import { isDeliveryMethod } from '../utils/isDeliveryMethod'
+import { InputField } from '@/shared/ui/components/form/InputField'
 
 interface ShippingSectionProps {
   control: Control<CheckoutFormValues>
@@ -53,12 +54,12 @@ export function ShippingSection({ control, watch, errors, setValue }: ShippingSe
         <h2 id="shipping-heading" className="text-lg font-semibold mb-4">
           Shipping method
         </h2>
-        <div className="text-red-600 text-sm">
+        <div className="text-(--c-error) text-sm">
           Unable to load shipping options.{' '}
           <button
             type="button"
             onClick={() => refetch()}
-            className="underline font-medium hover:text-red-800"
+            className="underline font-medium hover:opacity-80"
           >
             Retry
           </button>
@@ -116,7 +117,7 @@ export function ShippingSection({ control, watch, errors, setValue }: ShippingSe
               ))}
             </div>
             {errors.shippingMethodId && (
-              <p className="mt-1 text-sm text-red-600">{errors.shippingMethodId.message}</p>
+              <p className="mt-1 text-sm text-(--c-error)">{errors.shippingMethodId.message}</p>
             )}
           </fieldset>
         )}
@@ -126,26 +127,22 @@ export function ShippingSection({ control, watch, errors, setValue }: ShippingSe
         <div className="mt-4 space-y-3">
           <h3 className="text-sm font-medium text-(--sf-text)">Delivery address</h3>
 
+          {/* Named by aria-label + placeholder rather than a visible <Label>,
+              preserving the existing compact address block. */}
           <div>
             <Controller
               name="streetAddress"
               control={control}
               render={({ field }) => (
-                <input
+                <InputField
                   {...field}
                   type="text"
                   placeholder="Street address"
                   aria-label="Street address"
-                  aria-invalid={!!errors.streetAddress}
-                  className={`w-full px-3 py-2 border rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-(--sf-ring) ${
-                    errors.streetAddress ? 'border-red-500' : 'border-(--sf-border)'
-                  }`}
+                  error={errors.streetAddress?.message}
                 />
               )}
             />
-            {errors.streetAddress && (
-              <p className="mt-1 text-sm text-red-600">{errors.streetAddress.message}</p>
-            )}
           </div>
 
           <div>
@@ -153,21 +150,15 @@ export function ShippingSection({ control, watch, errors, setValue }: ShippingSe
               name="city"
               control={control}
               render={({ field }) => (
-                <input
+                <InputField
                   {...field}
                   type="text"
                   placeholder="City"
                   aria-label="City"
-                  aria-invalid={!!errors.city}
-                  className={`w-full px-3 py-2 border rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-(--sf-ring) ${
-                    errors.city ? 'border-red-500' : 'border-(--sf-border)'
-                  }`}
+                  error={errors.city?.message}
                 />
               )}
             />
-            {errors.city && (
-              <p className="mt-1 text-sm text-red-600">{errors.city.message}</p>
-            )}
           </div>
 
           <div>
@@ -175,21 +166,15 @@ export function ShippingSection({ control, watch, errors, setValue }: ShippingSe
               name="province"
               control={control}
               render={({ field }) => (
-                <input
+                <InputField
                   {...field}
                   type="text"
                   placeholder="Province"
                   aria-label="Province"
-                  aria-invalid={!!errors.province}
-                  className={`w-full px-3 py-2 border rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-(--sf-ring) ${
-                    errors.province ? 'border-red-500' : 'border-(--sf-border)'
-                  }`}
+                  error={errors.province?.message}
                 />
               )}
             />
-            {errors.province && (
-              <p className="mt-1 text-sm text-red-600">{errors.province.message}</p>
-            )}
           </div>
 
           <div>
@@ -197,21 +182,15 @@ export function ShippingSection({ control, watch, errors, setValue }: ShippingSe
               name="postalCode"
               control={control}
               render={({ field }) => (
-                <input
+                <InputField
                   {...field}
                   type="text"
                   placeholder="Postal code"
                   aria-label="Postal code"
-                  aria-invalid={!!errors.postalCode}
-                  className={`w-full px-3 py-2 border rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-(--sf-ring) ${
-                    errors.postalCode ? 'border-red-500' : 'border-(--sf-border)'
-                  }`}
+                  error={errors.postalCode?.message}
                 />
               )}
             />
-            {errors.postalCode && (
-              <p className="mt-1 text-sm text-red-600">{errors.postalCode.message}</p>
-            )}
           </div>
         </div>
       )}

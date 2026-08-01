@@ -61,8 +61,8 @@ describe('CategoryShowcaseSection', () => {
             })
             mockedUseProducts.mockReturnValue({
                 products: [
-                    {id: 'p1', name: 'Gauze', slug: 'gauze', shortDescription: '', images: [], retailPrice: null, wholesalePrice: null, retailSalePrice: null, wholesaleSalePrice: null, variantId: null},
-                    {id: 'p2', name: 'Gloves', slug: 'gloves', shortDescription: '', images: [], retailPrice: null, wholesalePrice: null, retailSalePrice: null, wholesaleSalePrice: null, variantId: null},
+                    {id: 'p1', name: 'Gauze', slug: 'gauze', shortDescription: '', images: [], retailPrice: null, wholesalePrice: null, retailSalePrice: null, wholesaleSalePrice: null, variantId: null, sku: null, inStock: null},
+                    {id: 'p2', name: 'Gloves', slug: 'gloves', shortDescription: '', images: [], retailPrice: null, wholesalePrice: null, retailSalePrice: null, wholesaleSalePrice: null, variantId: null, sku: null, inStock: null},
                 ],
                 totalElements: 2,
                 totalPages: 1,
@@ -140,6 +140,8 @@ describe('CategoryShowcaseSection', () => {
                     retailSalePrice: null,
                     wholesaleSalePrice: null,
                     variantId: null,
+                    sku: null,
+                    inStock: null,
                 },
                 {
                     id: 'p2',
@@ -152,6 +154,8 @@ describe('CategoryShowcaseSection', () => {
                     retailSalePrice: null,
                     wholesaleSalePrice: null,
                     variantId: null,
+                    sku: null,
+                    inStock: null,
                 },
             ],
             totalElements: 2,
@@ -210,6 +214,8 @@ describe('CategoryShowcaseSection', () => {
                     retailSalePrice: null,
                     wholesaleSalePrice: null,
                     variantId: null,
+                    sku: null,
+                    inStock: null,
                 },
             ],
             totalElements: 1,

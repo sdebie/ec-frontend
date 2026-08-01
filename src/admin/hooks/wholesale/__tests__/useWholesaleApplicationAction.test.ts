@@ -80,28 +80,42 @@ describe('useWholesaleApplicationAction', () => {
     expect(toast.success).toHaveBeenCalledWith('Wholesale application rejected')
   })
 
-  it('invalidates wholesale caches and the detail key when no customerId is supplied', async () => {
-    vi.mocked(adminGraphqlClient.request).mockResolvedValue({
-      approveWholesaleApplication: { id: 'app-1', status: 'APPROVED' },
-    })
-    const queryClient = makeClient()
-    const invalidateSpy = vi.spyOn(queryClient, 'invalidateQueries')
+  // These two tests previously asserted the OLD split-cache behaviour — including
+  // that the customer caches were NOT invalidated without a customerId, which was
+  // the staleness bug written down as a requirement. Approving an application
+  // changes the customer's tier wherever it is displayed, so every customer cache
+  // must refresh regardless of which screen invoked it.
+  it('invalidates every customer cache with one prefix, with or without a customerId', async () => {
+    for (const payload of [
+      { applicationId: 'app-1', action: 'approve' as const },
+      { applicationId: 'app-1', action: 'approve' as const, customerId: 'cust-9' },
+    ]) {
+      vi.mocked(adminGraphqlClient.request).mockResolvedValue({
+        approveWholesaleApplication: { id: 'app-1', status: 'APPROVED' },
+      })
+      const queryClient = makeClient()
+      const invalidateSpy = vi.spyOn(queryClient, 'invalidateQueries')
 
-    const { result } = renderHook(() => useWholesaleApplicationAction(), {
-      wrapper: wrapperFor(queryClient),
-    })
+      const { result } = renderHook(() => useWholesaleApplicationAction(), {
+        wrapper: wrapperFor(queryClient),
+      })
 
-    result.current.mutate({ applicationId: 'app-1', action: 'approve' })
-    await waitFor(() => expect(result.current.isSuccess).toBe(true))
+      result.current.mutate(payload)
+      await waitFor(() => expect(result.current.isSuccess).toBe(true))
 
-    const keys = invalidateSpy.mock.calls.map((c) => JSON.stringify(c[0]?.queryKey))
-    expect(keys).toContain(JSON.stringify(['admin', 'wholesale-applications']))
-    expect(keys).toContain(JSON.stringify(['admin', 'wholesale-customers']))
-    expect(keys).toContain(JSON.stringify(['admin', 'wholesale-application', 'app-1']))
-    expect(keys.some((k) => k?.includes('"customers"'))).toBe(false)
+      const keys = invalidateSpy.mock.calls.map((c) => JSON.stringify(c[0]?.queryKey))
+      expect(keys).toContain(JSON.stringify(['admin', 'wholesale-applications']))
+      expect(keys).toContain(JSON.stringify(['admin', 'wholesale-application', 'app-1']))
+      // The bare ['admin','customers'] prefix — this is what reaches the customer
+      // list, the count, the customer detail AND the wholesale list/detail.
+      expect(keys).toContain(JSON.stringify(['admin', 'customers']))
+    }
   })
 
-  it('also invalidates the customer caches and detail key when a customerId is supplied', async () => {
+  it('no longer references the retired wholesale-customers key family', async () => {
+    // Regression guard for the consolidation: the wholesale hooks share the
+    // ['admin','customers', …] family now, so invalidating a separate
+    // 'wholesale-customers' family would silently refresh nothing.
     vi.mocked(adminGraphqlClient.request).mockResolvedValue({
       approveWholesaleApplication: { id: 'app-1', status: 'APPROVED' },
     })
@@ -116,11 +130,7 @@ describe('useWholesaleApplicationAction', () => {
     await waitFor(() => expect(result.current.isSuccess).toBe(true))
 
     const keys = invalidateSpy.mock.calls.map((c) => JSON.stringify(c[0]?.queryKey))
-    expect(keys).toContain(JSON.stringify(['admin', 'wholesale-applications']))
-    expect(keys).toContain(JSON.stringify(['admin', 'wholesale-customers']))
-    expect(keys).toContain(JSON.stringify(['admin', 'wholesale-application', 'app-1']))
-    expect(keys).toContain(JSON.stringify(['admin', 'customers', 'cust-9']))
-    expect(keys).toContain(JSON.stringify(['admin', 'customers', 'list']))
+    expect(keys.some((k) => k?.includes('wholesale-customers'))).toBe(false)
   })
 
   it('surfaces the server error message and logs on failure', async () => {

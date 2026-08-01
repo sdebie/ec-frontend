@@ -138,10 +138,10 @@ describe('WholesaleApplicationPage', () => {
         await user.type(screen.getByLabelText(/Company Name/), 'Acme Ltd')
 
         // Fill required physical address fields
-        await user.type(screen.getByLabelText('Address Line 1 *'), '123 Main St')
-        await user.type(screen.getByLabelText('City *'), 'Johannesburg')
-        await user.type(screen.getByLabelText('Province *'), 'Gauteng')
-        await user.type(screen.getByLabelText('Postal Code *'), '2196')
+        await user.type(screen.getByLabelText('Address Line 1*'), '123 Main St')
+        await user.type(screen.getByLabelText('City*'), 'Johannesburg')
+        await user.type(screen.getByLabelText('Province*'), 'Gauteng')
+        await user.type(screen.getByLabelText('Postal Code*'), '2196')
 
         await user.click(screen.getByRole('button', {name: 'Submit Application'}))
 
@@ -167,10 +167,10 @@ describe('WholesaleApplicationPage', () => {
         await user.type(screen.getByLabelText(/^Email/), 'john@example.com')
         await user.type(screen.getByLabelText(/^Phone/), '0821234567')
         await user.type(screen.getByLabelText(/Company Name/), 'Acme Ltd')
-        await user.type(screen.getByLabelText('Address Line 1 *'), '123 Main St')
-        await user.type(screen.getByLabelText('City *'), 'Johannesburg')
-        await user.type(screen.getByLabelText('Province *'), 'Gauteng')
-        await user.type(screen.getByLabelText('Postal Code *'), '2196')
+        await user.type(screen.getByLabelText('Address Line 1*'), '123 Main St')
+        await user.type(screen.getByLabelText('City*'), 'Johannesburg')
+        await user.type(screen.getByLabelText('Province*'), 'Gauteng')
+        await user.type(screen.getByLabelText('Postal Code*'), '2196')
 
         await user.click(screen.getByRole('button', {name: 'Submit Application'}))
 

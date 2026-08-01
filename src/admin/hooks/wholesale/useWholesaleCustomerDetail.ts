@@ -121,7 +121,11 @@ function mapToWholesaleCustomerDetail(raw: AdminCustomerRawResponse): WholesaleC
 
 export function useWholesaleCustomerDetail(customerId: string) {
   const { data, isLoading, error } = useQuery({
-    queryKey: ['admin', 'wholesale-customers', customerId],
+    // Sits under the shared ['admin','customers', …] prefix so a single
+    // invalidateQueries(['admin','customers']) reaches it. It keeps its own
+    // leaf ('wholesale-detail') because this query selects a superset of
+    // useCustomerDetail's fields — same key would mean two shapes in one entry.
+    queryKey: ['admin', 'customers', 'wholesale-detail', customerId],
     queryFn: () =>
       adminGraphqlClient.request<AdminCustomerResponse>(ADMIN_CUSTOMER, { id: customerId }),
     enabled: !!customerId,

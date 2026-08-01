@@ -1,3 +1,4 @@
+import { useRef } from 'react'
 import { ProductCard } from './ProductCard'
 
 interface PriceTier {
@@ -15,12 +16,18 @@ interface Product {
   retailSalePrice: PriceTier | null
   wholesaleSalePrice: PriceTier | null
   variantId?: string | null
+  sku?: string | null
+  inStock?: boolean | null
 }
 
 interface ProductGridProps {
   products: Product[]
   isLoading: boolean
   emptyMessage?: string
+  /** Display mode: 'grid' (responsive multi-column) or 'list' (single-column rows). Default: 'grid'. */
+  view?: 'grid' | 'list'
+  /** Called with a product when its Quick view trigger is clicked. */
+  onQuickView?: (product: Product, triggerRef: React.RefObject<HTMLButtonElement | null>) => void
 }
 
 function SkeletonCard() {
@@ -35,7 +42,7 @@ function SkeletonCard() {
   )
 }
 
-export function ProductGrid({ products, isLoading, emptyMessage }: ProductGridProps) {
+export function ProductGrid({ products, isLoading, emptyMessage, view = 'grid', onQuickView }: ProductGridProps) {
   if (isLoading) {
     return (
       <div className="grid grid-cols-2 gap-3 sm:gap-4 md:grid-cols-3 xl:grid-cols-4">
@@ -54,11 +61,44 @@ export function ProductGrid({ products, isLoading, emptyMessage }: ProductGridPr
     )
   }
 
+  const containerClass =
+    view === 'list'
+      ? 'flex flex-col gap-4'
+      : 'grid grid-cols-2 gap-3 sm:gap-4 md:grid-cols-3 xl:grid-cols-4'
+
   return (
-    <div className="grid grid-cols-2 gap-3 sm:gap-4 md:grid-cols-3 xl:grid-cols-4">
+    <div className={containerClass} data-view={view}>
       {products.map((product) => (
-        <ProductCard key={product.id} product={product} variantId={product.variantId} />
+        <ProductGridItem
+          key={product.id}
+          product={product}
+          view={view}
+          onQuickView={onQuickView}
+        />
       ))}
     </div>
+  )
+}
+
+/** Individual grid item — owns the trigger ref so each card has its own ref instance. */
+function ProductGridItem({
+  product,
+  view,
+  onQuickView,
+}: {
+  product: Product
+  view: 'grid' | 'list'
+  onQuickView?: (product: Product, triggerRef: React.RefObject<HTMLButtonElement | null>) => void
+}) {
+  const triggerRef = useRef<HTMLButtonElement | null>(null)
+
+  return (
+    <ProductCard
+      product={product}
+      variantId={product.variantId}
+      layout={view === 'list' ? 'row' : 'grid'}
+      onQuickView={onQuickView ? () => onQuickView(product, triggerRef) : undefined}
+      quickViewRef={triggerRef}
+    />
   )
 }

@@ -65,7 +65,7 @@ export function PageContentPage({slug}: { slug: string }) {
     }
 
     return (
-        <main className="mx-auto max-w-6xl px-4 py-12">
+        <div className="mx-auto max-w-6xl px-4 py-12">
             <h1 className="text-2xl font-bold text-(--sf-text)">{data.title}</h1>
             <p className="mt-2 text-sm text-(--sf-muted-text)">
                 Last updated: {formatDate(data.publishedAt)}
@@ -74,6 +74,6 @@ export function PageContentPage({slug}: { slug: string }) {
                 className="page-content-prose max-w-none text-(--sf-text) mt-4"
                 dangerouslySetInnerHTML={{__html: DOMPurify.sanitize(data.content)}}
             />
-        </main>
+        </div>
     )
 }

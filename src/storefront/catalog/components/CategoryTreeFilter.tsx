@@ -95,7 +95,7 @@ export function CategoryTreeFilter({ activeSlug, setFilter }: CategoryTreeFilter
   }
 
   return (
-    <div className="max-h-96 overflow-y-auto">
+    <div className="max-h-96 overflow-y-auto overscroll-contain pr-1">
       <button
         type="button"
         onClick={() => setFilter('category', '')}

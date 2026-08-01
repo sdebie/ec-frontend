@@ -1,79 +1,31 @@
-import { useQuery } from '@tanstack/react-query'
-import { gql } from 'graphql-request'
-
-import { adminGraphqlClient } from '@/shared/api/graphql/adminGraphqlClient'
+import { useCustomers } from '@/admin/hooks/customers/useCustomers'
 import type { UseWholesaleCustomersParams, WholesaleCustomerListItem } from './types'
 
-const ALL_CUSTOMERS = gql`
-  query AllCustomers($pageRequest: PageRequestInput!, $filterRequest: FilterRequestInput) {
-    allCustomers(pageRequest: $pageRequest, filterRequest: $filterRequest) {
-      id
-      firstName
-      lastName
-      email
-      status
-      shopperType
-      registeredAt
-      wholesaleApplicationStatus
-    }
-  }
-`
-
-const CUSTOMER_COUNT = gql`
-  query CustomerCount($filterRequest: FilterRequestInput) {
-    customerCount(filterRequest: $filterRequest)
-  }
-`
-
-interface AllCustomersResponse {
-  allCustomers: WholesaleCustomerListItem[]
-}
-
-interface CustomerCountResponse {
-  customerCount: number
-}
-
-function buildFilterRequest(params: UseWholesaleCustomersParams) {
-  const filters: Array<{ key: string; operator: string; value: string }> = [
-    { key: 'shopperType', operator: 'EQUALS', value: 'WHOLESALER' },
-  ]
-
-  if (params.status && params.status !== 'ALL') {
-    filters.push({ key: 'status', operator: 'EQUALS', value: params.status })
-  }
-
-  if (params.search?.trim()) {
-    filters.push({ key: 'search', operator: 'LIKE', value: params.search.trim() })
-  }
-
-  return { filters }
-}
-
+/**
+ * Wholesale customers are the customer list scoped to `shopperType = WHOLESALER`
+ * — not a separate resource. This delegates to {@link useCustomers} rather than
+ * issuing its own `AllCustomers`/`CustomerCount` pair.
+ *
+ * **That delegation is load-bearing, not tidiness.** Until 2026-07-28 this hook
+ * was a copy of `useCustomers` with its own React Query key family
+ * (`['admin','wholesale-customers',…]`) over the *same* server rows, so a status
+ * change made on one screen left the other screen showing the stale value —
+ * every mutation invalidated only its own family. Sharing one key family makes
+ * invalidation correct by construction instead of by remembering.
+ *
+ * If this ever needs to diverge, change the *arguments*, never the key family.
+ */
 export function useWholesaleCustomers(params: UseWholesaleCustomersParams) {
-  const pageRequest = { pageIndex: params.page - 1, pageSize: params.pageSize }
-  const filterRequest = buildFilterRequest(params)
-
-  const listQuery = useQuery({
-    queryKey: ['admin', 'wholesale-customers', params],
-    queryFn: () =>
-      adminGraphqlClient.request<AllCustomersResponse>(ALL_CUSTOMERS, {
-        pageRequest,
-        filterRequest,
-      }),
+  const { data, isLoading } = useCustomers({
+    ...params,
+    shopperType: 'WHOLESALER',
   })
-
-  const countQuery = useQuery({
-    queryKey: ['admin', 'wholesale-customers', 'count', params],
-    queryFn: () =>
-      adminGraphqlClient.request<CustomerCountResponse>(CUSTOMER_COUNT, { filterRequest }),
-  })
-
-  const data: WholesaleCustomerListItem[] | undefined = listQuery.data?.allCustomers
-  const total = countQuery.data?.customerCount ?? 0
 
   return {
-    data,
-    total,
-    isLoading: listQuery.isLoading || countQuery.isLoading,
+    // The list shape is a subset of AdminCustomerSummary; the extra fields the
+    // shared query selects are simply unread here.
+    data: data?.data as WholesaleCustomerListItem[] | undefined,
+    total: data?.total ?? 0,
+    isLoading,
   }
 }

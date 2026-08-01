@@ -4,7 +4,7 @@ import { useProducts, type Product } from '@/storefront/catalog/hooks/useProduct
 import { useCustomerAuthStore } from '@/shared/auth/customerAuthStore'
 import { useStorefrontConfig } from '@/shared/config/storefrontConfig.context'
 import { getDisplayPrice } from '@/storefront/catalog/utils/pricing'
-import { pickFeaturedImage } from '@/storefront/catalog/utils/imageUtils'
+import { pickFeaturedImage } from '@/storefront/catalog/utils/productImage'
 import { formatAmount } from '@/shared/utils/formatAmount'
 import { useQuoteStore } from '../quoteStore'
 import { QuoteVariantPicker } from './QuoteVariantPicker'

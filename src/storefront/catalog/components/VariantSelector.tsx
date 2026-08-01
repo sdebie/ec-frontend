@@ -1,5 +1,5 @@
 import { useState, useMemo } from 'react'
-import { parseAttributes } from '../utils/imageUtils'
+import { parseAttributes } from '../utils/variantAttributes'
 
 interface Variant {
   id: string

@@ -5,8 +5,8 @@ export function AboutPage() {
     const config = useStorefrontConfig()
 
     return (
-        <main>
+        <div>
             <SectionList sections={config.aboutSections} />
-        </main>
+        </div>
     )
 }

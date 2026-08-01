@@ -2,20 +2,24 @@ interface ActiveFilterChipsProps {
   search: string
   categoryName: string | null
   brandName: string | null
+  available?: boolean
   onClearSearch: () => void
   onClearCategory: () => void
   onClearBrand: () => void
+  onClearAvailability?: () => void
 }
 
 export function ActiveFilterChips({
   search,
   categoryName,
   brandName,
+  available,
   onClearSearch,
   onClearCategory,
   onClearBrand,
+  onClearAvailability,
 }: ActiveFilterChipsProps) {
-  const hasFilters = search.length > 0 || categoryName != null || brandName != null
+  const hasFilters = search.length > 0 || categoryName != null || brandName != null || !!available
 
   if (!hasFilters) return null
 
@@ -29,6 +33,9 @@ export function ActiveFilterChips({
       )}
       {brandName != null && (
         <FilterChip label={`Brand: ${brandName}`} onClear={onClearBrand} />
+      )}
+      {available && onClearAvailability && (
+        <FilterChip label="In stock" onClear={onClearAvailability} />
       )}
     </div>
   )

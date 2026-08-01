@@ -1,10 +1,5 @@
 [config]
-# Automatically run review when a PR is created
 auto_review = true
-
-[github_action]
-# MUST be [github_action] (not github_action_config)
-handle_push_trigger = true
 
 [pr_reviewer]
 extra_instructions = """
@@ -17,4 +12,3 @@ React Code Review Guidelines:
 - Prevent unnecessary inline object/function re-renders.
 - Ignore general linting or formatting issues handled by Prettier/ESLint.
 """
-inline_suggestions_range = [1, 8]

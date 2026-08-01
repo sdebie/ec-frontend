@@ -22,6 +22,9 @@ export interface SelectProps {
     required?: boolean
     className?: string
     fullWidth?: boolean
+    /** Accessible name for the trigger button when no visible `label` is rendered
+     *  (e.g. toolbar/inline usage where a stacked Label breaks the layout). */
+    ariaLabel?: string
 }
 
 export const Select = React.forwardRef<HTMLDivElement, SelectProps>(
@@ -38,6 +41,7 @@ export const Select = React.forwardRef<HTMLDivElement, SelectProps>(
             required,
             className,
             fullWidth = true,
+            ariaLabel,
             ...props
         },
         ref
@@ -143,6 +147,7 @@ export const Select = React.forwardRef<HTMLDivElement, SelectProps>(
                         )}
                         aria-haspopup="listbox"
                         aria-expanded={isOpen}
+                        aria-label={ariaLabel}
                     >
             <span className="truncate">
               {selectedOption ? selectedOption.label : placeholder}

@@ -80,21 +80,29 @@ describe('WishlistButton', () => {
   })
 
   describe('optimistic icon flip (Req 1.2, 7.1)', () => {
-    it('renders heart with fill="none" when item is NOT in wishlist', () => {
+    it('renders accent heart, unfilled with hover-fill classes, when item is NOT in wishlist', () => {
+      // Owner polish 2026-08-01: the heart is always accent-coloured; fill is
+      // class-driven — transparent at rest, filled on button hover (named
+      // group/wishlist so the card root's own `group` cannot trigger it).
       renderButton('variant-1')
 
       const button = screen.getByRole('button', { name: /add to wishlist/i })
       const svg = button.querySelector('svg')
-      expect(svg).toHaveAttribute('fill', 'none')
+      expect(svg).toHaveClass('text-(--sf-accent)')
+      expect(svg).toHaveClass('fill-transparent')
+      expect(svg).toHaveClass('group-hover/wishlist:fill-current')
+      expect(svg).not.toHaveClass('fill-current')
     })
 
-    it('renders heart with fill="currentColor" when item IS in wishlist', () => {
+    it('renders heart filled with the accent (fill-current) when item IS in wishlist', () => {
       mockedUseEffectiveWishlist.mockReturnValue({ variantIds: new Set(['variant-1']), count: 1, isLoading: false })
       renderButton('variant-1')
 
       const button = screen.getByRole('button', { name: /remove from wishlist/i })
       const svg = button.querySelector('svg')
-      expect(svg).toHaveAttribute('fill', 'currentColor')
+      expect(svg).toHaveClass('text-(--sf-accent)')
+      expect(svg).toHaveClass('fill-current')
+      expect(svg).not.toHaveClass('fill-transparent')
     })
 
     it('sets aria-pressed=false when item is NOT in wishlist', () => {

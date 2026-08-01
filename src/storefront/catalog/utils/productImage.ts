@@ -14,11 +14,3 @@ export function pickFeaturedImage(images: ProductImage[]): string | null {
     : [...images].sort((a, b) => a.sortOrder - b.sortOrder)[0].imageUrl
   return resolveImageUrl(raw)
 }
-
-export function parseAttributes(json: string): Record<string, string> {
-  try {
-    return JSON.parse(json)
-  } catch {
-    return {}
-  }
-}

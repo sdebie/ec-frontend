@@ -36,6 +36,18 @@ export function getDisplayPrice(
 }
 
 /**
+ * Derives which price basis the catalogue should be ordered by for the given
+ * customer type. Branches on the same condition as {@link getDisplayPrice} so
+ * the ordering and the displayed primary price cannot diverge.
+ *
+ * The server does NOT enforce that the ordering basis matches the shopper's
+ * tier — this single derivation point is the only guard against drift.
+ */
+export function priceBasisFor(customerType: CustomerType | null): 'RETAIL' | 'WHOLESALE' {
+  return customerType === 'WHOLESALE' ? 'WHOLESALE' : 'RETAIL'
+}
+
+/**
  * A single price row as returned by the GraphQL `prices` field on a variant.
  * The backend emits one row per tier; sale rows carry an `isActive` flag.
  */

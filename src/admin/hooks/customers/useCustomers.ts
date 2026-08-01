@@ -33,13 +33,18 @@ interface CustomerCountResponse {
   customerCount: number
 }
 
+/** `'ALL'` is the UI's "no filter" sentinel — it must never reach the backend. */
+function isFiltering(value: string | undefined): value is string {
+  return !!value && value !== 'ALL'
+}
+
 function buildFilterRequest(params: UseCustomersParams) {
   const filters: Array<{ key: string; operator: string; value: string }> = []
 
-  if (params.shopperType) {
+  if (isFiltering(params.shopperType)) {
     filters.push({ key: 'shopperType', operator: 'EQUALS', value: params.shopperType })
   }
-  if (params.status) {
+  if (isFiltering(params.status)) {
     filters.push({ key: 'status', operator: 'EQUALS', value: params.status })
   }
   if (params.search?.trim()) {
