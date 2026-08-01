@@ -1,4 +1,6 @@
-import {render, screen} from '@testing-library/react'
+import {render as rtlRender, screen} from '@testing-library/react'
+import {MemoryRouter} from 'react-router-dom'
+import type {ReactElement} from 'react'
 import type {BrandsSectionConfig} from '@/shared/types/StorefrontConfig.ts'
 import {BrandsSection} from '../BrandsSection.tsx'
 import {useBrands} from '@/storefront/catalog/hooks/useBrands.ts'
@@ -14,6 +16,11 @@ vi.mock('@/storefront/catalog/hooks/useBrands', () => ({
 }))
 
 const mockedUseBrands = useBrands as ReturnType<typeof vi.fn>
+
+// Brand tiles are links, so every render needs a router context
+function render(ui: ReactElement) {
+    return rtlRender(ui, {wrapper: MemoryRouter})
+}
 
 function makeBrands(count: number) {
     return Array.from({length: count}, (_, i) => ({
@@ -114,6 +121,28 @@ describe('BrandsSection', () => {
         const images = screen.getAllByRole('img')
         images.forEach((img, i) => {
             expect(img).toHaveAttribute('alt', `Brand ${i + 1}`)
+        })
+    })
+
+    it('constrains each logo to its tile', () => {
+        const {container} = render(<BrandsSection section={makeSection()}/>)
+
+        const tiles = container.querySelectorAll('.overflow-hidden')
+        expect(tiles).toHaveLength(4)
+
+        screen.getAllByRole('img').forEach((img) => {
+            expect(img).toHaveClass('h-full', 'w-full', 'object-contain')
+        })
+    })
+
+    it('each tile links to the product list filtered by that brand', () => {
+        render(<BrandsSection section={makeSection()}/>)
+
+        const links = screen.getAllByRole('link')
+        expect(links).toHaveLength(4)
+        links.forEach((link, i) => {
+            expect(link).toHaveAttribute('href', `/products?brand=brand-${i + 1}`)
+            expect(link).toHaveAccessibleName(`Shop Brand ${i + 1} products`)
         })
     })
 

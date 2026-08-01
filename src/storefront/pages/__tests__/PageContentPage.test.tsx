@@ -90,6 +90,99 @@ describe('PageContentPage', () => {
     expect(screen.getByRole('generic', { busy: true })).toBeInTheDocument()
   })
 
+  it('splits content on <h2> into numbered sections, lifting authored numbers into badges', () => {
+    mockUsePublicPageContent.mockReturnValue({
+      data: {
+        slug: 'privacy-policy',
+        title: 'Privacy Policy',
+        content:
+          '<p><strong>Intro copy.</strong></p>' +
+          '<h2>1. About us</h2><p>Who we are.</p>' +
+          '<h2>2. Orders and contract</h2><ul><li><p>Bullet one.</p></li></ul>',
+        publishedAt: '2024-06-15T10:00:00Z',
+      },
+      isLoading: false,
+      error: null,
+      isNotFound: false,
+      refetch: vi.fn(),
+    })
+
+    renderPage()
+
+    // Authored numbers move into the badges; headings keep the wording only.
+    expect(screen.getByText('01')).toBeInTheDocument()
+    expect(screen.getByText('02')).toBeInTheDocument()
+    expect(screen.getByRole('heading', { level: 2, name: 'About us' })).toBeInTheDocument()
+    expect(
+      screen.getByRole('heading', { level: 2, name: 'Orders and contract' })
+    ).toBeInTheDocument()
+    // Section bodies and intro copy are preserved verbatim.
+    expect(screen.getByText('Intro copy.')).toBeInTheDocument()
+    expect(screen.getByText('Who we are.')).toBeInTheDocument()
+    expect(screen.getByText('Bullet one.')).toBeInTheDocument()
+  })
+
+  it('numbers unnumbered <h2> headings by position', () => {
+    mockUsePublicPageContent.mockReturnValue({
+      data: {
+        slug: 'delivery-and-returns',
+        title: 'Delivery & Returns',
+        content: '<h2>Shipping</h2><p>We ship.</p><h2>Returns</h2><p>We accept returns.</p>',
+        publishedAt: '2024-06-15T10:00:00Z',
+      },
+      isLoading: false,
+      error: null,
+      isNotFound: false,
+      refetch: vi.fn(),
+    })
+
+    renderPage('delivery-and-returns')
+
+    expect(screen.getByText('01')).toBeInTheDocument()
+    expect(screen.getByText('02')).toBeInTheDocument()
+    expect(screen.getByRole('heading', { level: 2, name: 'Shipping' })).toBeInTheDocument()
+    expect(screen.getByRole('heading', { level: 2, name: 'Returns' })).toBeInTheDocument()
+  })
+
+  it('renders content without <h2> sections as plain prose in the card body', () => {
+    mockUsePublicPageContent.mockReturnValue({
+      data: {
+        slug: 'privacy-policy',
+        title: 'Privacy Policy',
+        content: '<p>Placeholder privacy policy.</p>',
+        publishedAt: '2024-06-15T10:00:00Z',
+      },
+      isLoading: false,
+      error: null,
+      isNotFound: false,
+      refetch: vi.fn(),
+    })
+
+    renderPage()
+
+    expect(screen.getByText('Placeholder privacy policy.')).toBeInTheDocument()
+    expect(screen.queryByRole('heading', { level: 2 })).not.toBeInTheDocument()
+  })
+
+  it('renders the Legal & Privacy eyebrow in the document header', () => {
+    mockUsePublicPageContent.mockReturnValue({
+      data: {
+        slug: 'privacy-policy',
+        title: 'Privacy Policy',
+        content: '<p>We respect your privacy.</p>',
+        publishedAt: '2024-06-15T10:00:00Z',
+      },
+      isLoading: false,
+      error: null,
+      isNotFound: false,
+      refetch: vi.fn(),
+    })
+
+    renderPage()
+
+    expect(screen.getByText('Legal & Privacy')).toBeInTheDocument()
+  })
+
   it('does not render <script> tags in content (DOMPurify sanitisation)', () => {
     mockUsePublicPageContent.mockReturnValue({
       data: {

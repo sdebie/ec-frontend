@@ -54,21 +54,29 @@ export function FeaturedProductsSection({section}: { section: FeaturedProductsSe
 
     return (
         <Section variant={variant}>
-            <SectionHeading title={title} eyebrow={eyebrow} />
             {layout === 'carousel' ? (
-                <Carousel ariaLabel={title} perView={columns}>
+                // Header-controls mode: prev/next sit beside the heading (md+),
+                // mobile paginates via dots + swipe — no floating arrows over cards.
+                <Carousel
+                    ariaLabel={title}
+                    perView={columns}
+                    header={<SectionHeading title={title} eyebrow={eyebrow} className="mb-0"/>}
+                >
                     {products.map((product) => (
                         <ProductCard key={product.id} product={product} variantId={product.variantId} badge={badgeLabel}/>
                     ))}
                 </Carousel>
             ) : (
-                <div className="flex items-stretch gap-4 overflow-x-auto py-2">
-                    {products.map((product) => (
-                        <div key={product.id} className="w-56 shrink-0">
-                            <ProductCard product={product} variantId={product.variantId} badge={badgeLabel}/>
-                        </div>
-                    ))}
-                </div>
+                <>
+                    <SectionHeading title={title} eyebrow={eyebrow}/>
+                    <div className="flex items-stretch gap-4 overflow-x-auto py-2">
+                        {products.map((product) => (
+                            <div key={product.id} className="w-56 shrink-0">
+                                <ProductCard product={product} variantId={product.variantId} badge={badgeLabel}/>
+                            </div>
+                        ))}
+                    </div>
+                </>
             )}
         </Section>
     )

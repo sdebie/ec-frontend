@@ -155,7 +155,7 @@ describe('WholesaleApplicationPage', () => {
             await fillCompanyStep(user)
             await clickNext(user)
             expect(screen.getByText('Company Address')).toBeInTheDocument()
-            expect(screen.getByText('Delivery address')).toBeInTheDocument()
+            expect(screen.getByText('Delivery Address')).toBeInTheDocument()
             // Defaults to using the company address: delivery fields visible but disabled.
             expect(screen.getByRole('checkbox', {name: 'Use company address for delivery'})).toBeChecked()
             expect(screen.getByLabelText('Address Line 1')).toBeDisabled()
@@ -199,7 +199,7 @@ describe('WholesaleApplicationPage', () => {
             // Scoped to the Delivery section: editable delivery labels carry the same
             // required asterisks as the company address, so global exact queries collide.
             const delivery = () =>
-                within(screen.getByText('Delivery address').closest('section') as HTMLElement)
+                within(screen.getByText('Delivery Address').closest('section') as HTMLElement)
 
             // Checked (default): disabled and mirroring the company address (no asterisk while read-only).
             expect(delivery().getByLabelText('Address Line 1')).toBeDisabled()
@@ -243,7 +243,7 @@ describe('WholesaleApplicationPage', () => {
 
             // Filling the delivery address clears the block.
             const delivery = () =>
-                within(screen.getByText('Delivery address').closest('section') as HTMLElement)
+                within(screen.getByText('Delivery Address').closest('section') as HTMLElement)
             await user.type(delivery().getByLabelText('Address Line 1*'), '789 Depot Rd')
             await user.type(delivery().getByLabelText('City*'), 'Durban')
             await user.type(delivery().getByLabelText('Province*'), 'KwaZulu-Natal')
