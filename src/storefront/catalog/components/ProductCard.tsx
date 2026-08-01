@@ -62,19 +62,20 @@ export function ProductCard({product, variantId, badge, layout = 'grid', onQuick
     if (layout === 'row') {
         return (
             <div
-                className="group flex flex-col sm:flex-row rounded-lg border border-(--sf-border) bg-(--sf-panel) overflow-hidden transition-shadow hover:shadow-md"
+                className="group flex flex-row rounded-lg border border-(--sf-border)/60 bg-(--sf-panel) overflow-hidden transition-all hover:shadow-md hover:border-(--sf-accent) md:hover:scale-[1.02]"
                 data-layout="row"
             >
-                {/* Image — left */}
+                {/* Image — left; stays a compact square rail on mobile (a full-width
+                    image would turn each "row" into a ~viewport-tall card) */}
                 <div
-                    className="relative w-full sm:w-40 aspect-square sm:aspect-square shrink-0 overflow-hidden bg-(--sf-surface-muted)">
+                    className="relative w-28 sm:w-40 aspect-square shrink-0 self-start overflow-hidden bg-(--sf-surface-muted)">
                     <Link to={productUrl} className="block h-full w-full">
                         {imageUrl ? (
                             <img
                                 src={imageUrl}
                                 alt={product.name}
                                 loading="lazy"
-                                className="h-full w-full object-cover transition-transform group-hover:scale-105"
+                                className="h-full w-full object-contain p-2 sm:p-3 transition-transform group-hover:scale-105"
                             />
                         ) : (
                             <div
@@ -97,6 +98,16 @@ export function ProductCard({product, variantId, badge, layout = 'grid', onQuick
                             </div>
                         )}
                     </Link>
+                    {/* Quick-view hover treatment: a semi-transparent dark wash over the
+                        image (documented overlay exception) so the revealed button and
+                        card stand out. Only where quick view exists, only md+ where it
+                        shows, and before the overlays below so they stack above it. */}
+                    {onQuickView && (
+                        <div
+                            aria-hidden="true"
+                            className="pointer-events-none absolute inset-0 hidden md:block bg-black/40 opacity-0 transition-opacity group-hover:opacity-100"
+                        />
+                    )}
                     {badge && (
                         <span
                             className="absolute left-2 top-2 rounded-full bg-(--sf-accent) px-2.5 py-1 text-xs font-semibold text-(--sf-accent-text) shadow-sm">
@@ -114,15 +125,18 @@ export function ProductCard({product, variantId, badge, layout = 'grid', onQuick
                             ref={quickViewRef}
                             type="button"
                             onClick={onQuickView}
-                            className="absolute bottom-2 left-1/2 -translate-x-1/2 hidden md:inline-flex items-center justify-center rounded-md bg-(--sf-panel)/90 px-3 py-1.5 text-xs font-medium text-(--sf-text) shadow-sm backdrop-blur-sm opacity-0 transition-opacity group-hover:opacity-100 focus-visible:opacity-100"
+                            className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 hidden md:inline-flex items-center justify-center rounded-md bg-(--sf-panel)/90 px-3 py-1.5 text-xs font-medium text-(--sf-text) shadow-sm backdrop-blur-sm opacity-0 transition-opacity group-hover:opacity-100 focus-visible:opacity-100"
                         >
                             Quick view
                         </button>
                     )}
                 </div>
 
+                {/* Content — stacks under the name on mobile, splits into
+                    identity | price+actions columns from sm up */}
+                <div className="flex min-w-0 flex-1 flex-col sm:flex-row">
                 {/* Identity — centre */}
-                <div className="flex flex-1 flex-col p-4">
+                <div className="flex min-w-0 flex-1 flex-col p-3 sm:p-4">
                     <Link to={productUrl} className="hover:underline">
                         <h3 className="text-sm font-medium text-(--sf-text) line-clamp-2">
                             {product.name}
@@ -147,14 +161,14 @@ export function ProductCard({product, variantId, badge, layout = 'grid', onQuick
                     )}
 
                     {product.shortDescription && (
-                        <p className="mt-2 text-xs text-(--sf-muted-text) line-clamp-3" data-testid="short-description">
+                        <p className="mt-2 text-xs text-(--sf-muted-text) line-clamp-2 sm:line-clamp-3" data-testid="short-description">
                             {product.shortDescription}
                         </p>
                     )}
                 </div>
 
                 {/* Price + actions — right */}
-                <div className="flex shrink-0 flex-col justify-center p-4 sm:w-48 sm:border-l sm:border-(--sf-border)">
+                <div className="flex shrink-0 flex-col justify-center px-3 pb-3 sm:p-4 sm:w-48 sm:border-l sm:border-(--sf-border)">
                     <div className="flex items-baseline gap-2">
                         {originalPrice != null && (
                             <span className="line-through text-(--sf-muted-text)">
@@ -181,13 +195,14 @@ export function ProductCard({product, variantId, badge, layout = 'grid', onQuick
                         hasPrice={price != null}
                     />
                 </div>
+                </div>
             </div>
         )
     }
 
     return (
         <div
-            className="group flex h-full flex-col rounded-lg border border-(--sf-border) bg-(--sf-panel) overflow-hidden transition-shadow hover:shadow-md"
+            className="group flex h-full flex-col rounded-lg border border-(--sf-border)/60 bg-(--sf-panel) overflow-hidden transition-all hover:shadow-md hover:border-(--sf-accent) md:hover:scale-[1.02]"
             data-layout="grid"
         >
             <div className="relative aspect-square w-full overflow-hidden bg-(--sf-surface-muted)">
@@ -197,7 +212,7 @@ export function ProductCard({product, variantId, badge, layout = 'grid', onQuick
                             src={imageUrl}
                             alt={product.name}
                             loading="lazy"
-                            className="h-full w-full object-cover transition-transform group-hover:scale-105"
+                            className="h-full w-full object-contain p-2 sm:p-4 transition-transform group-hover:scale-105"
                         />
                     ) : (
                         <div
@@ -220,6 +235,13 @@ export function ProductCard({product, variantId, badge, layout = 'grid', onQuick
                         </div>
                     )}
                 </Link>
+                {/* Quick-view hover treatment — see the row-layout comment above */}
+                {onQuickView && (
+                    <div
+                        aria-hidden="true"
+                        className="pointer-events-none absolute inset-0 hidden md:block bg-black/40 opacity-0 transition-opacity group-hover:opacity-100"
+                    />
+                )}
                 {badge && (
                     <span
                         className="absolute left-2 top-2 rounded-full bg-(--sf-accent) px-2.5 py-1 text-xs font-semibold text-(--sf-accent-text) shadow-sm">
@@ -237,16 +259,17 @@ export function ProductCard({product, variantId, badge, layout = 'grid', onQuick
                         ref={quickViewRef}
                         type="button"
                         onClick={onQuickView}
-                        className="absolute bottom-2 left-1/2 -translate-x-1/2 hidden md:inline-flex items-center justify-center rounded-md bg-(--sf-panel)/90 px-3 py-1.5 text-xs font-medium text-(--sf-text) shadow-sm backdrop-blur-sm opacity-0 transition-opacity group-hover:opacity-100 focus-visible:opacity-100"
+                        className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 hidden md:inline-flex items-center justify-center rounded-md bg-(--sf-panel)/90 px-3 py-1.5 text-xs font-medium text-(--sf-text) shadow-sm backdrop-blur-sm opacity-0 transition-opacity group-hover:opacity-100 focus-visible:opacity-100"
                     >
                         Quick view
                     </button>
                 )}
             </div>
 
-            <div className="flex flex-1 flex-col p-4">
+            <div className="flex flex-1 flex-col p-3 sm:p-4">
                 <Link to={productUrl} className="hover:underline">
-                    <h3 className="text-sm font-medium text-(--sf-text) line-clamp-2">
+                    {/* min-h reserves two lines so SKU/stock/price rows align across cards */}
+                    <h3 className="min-h-10 text-sm font-medium text-(--sf-text) line-clamp-2">
                         {product.name}
                     </h3>
                 </Link>

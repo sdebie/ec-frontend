@@ -234,8 +234,14 @@ describe('ProductListPage onSale — Property 4', () => {
       const brandGroup = screen.getAllByRole('button', { name: /brand/i })[0]
       await user.click(brandGroup)
 
-      const brandSelect = screen.getByLabelText('Brand')
-      await user.selectOptions(brandSelect, 'nike')
+      // The brand filter is the shared Select (button + portal listbox). Two
+      // buttons are named "Brand" — the FilterGroup header and the Select
+      // trigger — so pick the trigger by its listbox popup attribute.
+      const brandTrigger = screen
+        .getAllByRole('button', { name: 'Brand' })
+        .find((b) => b.getAttribute('aria-haspopup') === 'listbox')!
+      await user.click(brandTrigger)
+      await user.click(screen.getByRole('option', { name: 'Nike' }))
 
       // After filter change, ALL calls must include onSale: true
       await waitFor(() => {

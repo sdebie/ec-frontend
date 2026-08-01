@@ -163,7 +163,7 @@ export function QuickViewModal({ product, variantId, triggerRef, onClose }: Quic
               <img
                 src={imageUrl}
                 alt={product.name}
-                className="h-full w-full object-cover"
+                className="h-full w-full object-contain p-4"
               />
             ) : (
               <div className="flex h-full w-full items-center justify-center text-(--sf-muted-text)">

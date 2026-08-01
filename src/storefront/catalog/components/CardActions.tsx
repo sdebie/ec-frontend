@@ -90,7 +90,7 @@ export function CardActions({variantId, productName, productSlug, inStock, hasPr
     }
 
     return (
-        <div className="mt-3 flex items-center gap-2">
+        <div className="mt-3 flex flex-col gap-2">
             <QuantityStepper
                 quantity={quantity}
                 onIncrement={() => setQuantity((q) => q + 1)}
@@ -99,7 +99,7 @@ export function CardActions({variantId, productName, productSlug, inStock, hasPr
             <button
                 type="button"
                 onClick={handleAddToCart}
-                className="flex-1 rounded-lg px-4 py-2 text-sm font-medium bg-(--sf-accent) text-(--sf-accent-text) hover:opacity-90 transition-colors cursor-pointer"
+                className="w-full rounded-lg px-4 py-2 text-sm font-medium bg-(--sf-accent) text-(--sf-accent-text) hover:opacity-90 transition-colors cursor-pointer"
             >
                 {showConfirmation ? 'Added \u2713' : 'Add to cart'}
             </button>

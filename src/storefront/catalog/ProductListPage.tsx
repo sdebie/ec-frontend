@@ -144,7 +144,7 @@ export function ProductListPage({ onSale = false }: ProductListPageProps) {
 
   return (
     <Section as="div" width="wide">
-      <SectionHeading as="h1" title={pageTitle} />
+      <SectionHeading as="h1" title={pageTitle} className="mb-4" />
 
       {/* Toolbar — above the grid, contains filter button, chips, sort, view toggle */}
       <CatalogToolbar
@@ -152,6 +152,7 @@ export function ProductListPage({ onSale = false }: ProductListPageProps) {
         sort={sort}
         onSortChange={handleSortChange}
         onFilterToggle={handleFilterToggle}
+        onClearAll={handleClearAll}
         chips={
           <ActiveFilterChips
             search={search}

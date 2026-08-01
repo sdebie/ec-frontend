@@ -201,11 +201,24 @@ describe('ProductCard', () => {
             expect(root?.tagName).toBe('DIV')
         })
 
-        it('row layout uses responsive flex classes for stacking on narrow viewports', () => {
+        it('row layout stays horizontal on mobile with a compact image rail (owner adjustment 2026-08-01)', () => {
+            // The original design stacked the whole row to a column below `sm`,
+            // which rendered a viewport-wide square image per row on phones.
+            // Now: the root stays a row at every width, the image is a small
+            // fixed square (w-28, sm:w-40), and only the inner content wrapper
+            // stacks identity above price/actions on mobile.
             const {container} = renderCard({}, {layout: 'row'})
             const root = container.firstElementChild as HTMLElement
-            expect(root.className).toContain('flex-col')
-            expect(root.className).toContain('sm:flex-row')
+            expect(root.className).toContain('flex-row')
+            expect(root.className).not.toContain('flex-col')
+
+            const imageRail = root.firstElementChild as HTMLElement
+            expect(imageRail.className).toContain('w-28')
+            expect(imageRail.className).toContain('sm:w-40')
+
+            const contentWrapper = imageRail.nextElementSibling as HTMLElement
+            expect(contentWrapper.className).toContain('flex-col')
+            expect(contentWrapper.className).toContain('sm:flex-row')
         })
     })
 

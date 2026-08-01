@@ -56,12 +56,15 @@ describe('CatalogToolbar', () => {
     })
   })
 
+  // The sort control is the shared form-layer Select (owner standardisation
+  // 2026-08-01): a button that opens a portal listbox, not a native <select>.
   describe('sort select', () => {
     it('renders with "Name A–Z" selected by default', () => {
       renderToolbar({ sort: 'name' })
 
-      const sortSelect = screen.getByRole('combobox', { name: /sort by/i })
-      expect(sortSelect).toHaveValue('name')
+      const trigger = screen.getByRole('button', { name: /sort by/i })
+      expect(trigger).toHaveTextContent('Name A–Z')
+      expect(trigger).toHaveAttribute('aria-haspopup', 'listbox')
     })
 
     it('calls onSortChange with the new sort value when changed', async () => {
@@ -69,17 +72,18 @@ describe('CatalogToolbar', () => {
       const onSortChange = vi.fn()
       renderToolbar({ sort: 'name', onSortChange })
 
-      const sortSelect = screen.getByRole('combobox', { name: /sort by/i })
-      await user.selectOptions(sortSelect, 'price-asc')
+      await user.click(screen.getByRole('button', { name: /sort by/i }))
+      await user.click(screen.getByRole('option', { name: 'Price: low–high' }))
 
       expect(onSortChange).toHaveBeenCalledWith('price-asc')
     })
 
-    it('offers exactly three options: Name A–Z, Price: low–high, Price: high–low', () => {
+    it('offers exactly three options: Name A–Z, Price: low–high, Price: high–low', async () => {
+      const user = userEvent.setup()
       renderToolbar()
 
-      const sortSelect = screen.getByRole('combobox', { name: /sort by/i })
-      const options = sortSelect.querySelectorAll('option')
+      await user.click(screen.getByRole('button', { name: /sort by/i }))
+      const options = screen.getAllByRole('option')
       expect(options).toHaveLength(3)
       expect(options[0]).toHaveTextContent('Name A–Z')
       expect(options[1]).toHaveTextContent('Price: low–high')
@@ -95,8 +99,8 @@ describe('CatalogToolbar', () => {
       const onSortChange = vi.fn()
       renderToolbar({ sort: 'name', onSortChange })
 
-      const sortSelect = screen.getByRole('combobox', { name: /sort by/i })
-      await user.selectOptions(sortSelect, 'price-desc')
+      await user.click(screen.getByRole('button', { name: /sort by/i }))
+      await user.click(screen.getByRole('option', { name: 'Price: high–low' }))
 
       expect(onSortChange).toHaveBeenCalledWith('price-desc')
     })
@@ -116,8 +120,12 @@ describe('CatalogToolbar', () => {
   })
 
   describe('chips slot', () => {
-    it('renders chips when provided', () => {
+    it('renders chips when provided and filters are active', () => {
+      // The chips group renders only while activeFilterCount > 0 — the real page
+      // produces chips iff filters are active (ActiveFilterChips returns null
+      // otherwise), so an empty group never occupies a stacked mobile line.
       renderToolbar({
+        activeFilterCount: 1,
         chips: <div data-testid="test-chips">Chip content</div>,
       })
 
@@ -147,6 +155,7 @@ describe('CatalogToolbar', () => {
     // The toolbar should be the single location for chips.
     it('chips are rendered only within the toolbar, not duplicated elsewhere', () => {
       const { container } = renderToolbar({
+        activeFilterCount: 1,
         chips: <span data-testid="chip-in-toolbar">Active chip</span>,
       })
 

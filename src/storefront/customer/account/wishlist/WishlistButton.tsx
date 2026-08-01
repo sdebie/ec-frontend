@@ -26,11 +26,15 @@ export function WishlistButton({
       onClick={handleClick}
       aria-label={isInWishlist ? 'Remove from wishlist' : 'Add to wishlist'}
       aria-pressed={isInWishlist}
-      className={className}
+      // Named group: the card root already carries `group` (image zoom, quick-view
+      // reveal), so a bare group-hover here would fill the heart from anywhere on
+      // the card. group/wishlist scopes the hover fill to this button alone.
+      className={`group/wishlist ${className ?? ''}`}
     >
       <Heart
-        fill={isInWishlist ? 'currentColor' : 'none'}
-        className={`h-5 w-5 ${isInWishlist ? 'text-(--sf-accent)' : ''}`}
+        className={`h-5 w-5 text-(--sf-accent) transition-colors ${
+          isInWishlist ? 'fill-current' : 'fill-transparent group-hover/wishlist:fill-current'
+        }`}
       />
     </button>
   )

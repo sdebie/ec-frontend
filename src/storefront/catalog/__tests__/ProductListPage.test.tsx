@@ -197,9 +197,9 @@ describe('ProductListPage integration', () => {
             const user = userEvent.setup()
             renderWithRouter(['/products?sort=name&page=3'])
 
-            // Find the toolbar sort select (sr-only label "Sort by")
-            const sortSelect = screen.getByRole('combobox', { name: /sort by/i })
-            await user.selectOptions(sortSelect, 'price-asc')
+            // The toolbar sort is the shared Select (button + portal listbox)
+            await user.click(screen.getByRole('button', { name: /sort by/i }))
+            await user.click(screen.getByRole('option', { name: 'Price: low–high' }))
 
             // After sort change, useProducts should be called with page 1
             const lastCall = mockUseProducts.mock.calls[mockUseProducts.mock.calls.length - 1][0]
@@ -211,8 +211,8 @@ describe('ProductListPage integration', () => {
             const user = userEvent.setup()
             renderWithRouter(['/products?sort=name&page=5'])
 
-            const sortSelect = screen.getByRole('combobox', { name: /sort by/i })
-            await user.selectOptions(sortSelect, 'price-desc')
+            await user.click(screen.getByRole('button', { name: /sort by/i }))
+            await user.click(screen.getByRole('option', { name: 'Price: high–low' }))
 
             const lastCall = mockUseProducts.mock.calls[mockUseProducts.mock.calls.length - 1][0]
             expect(lastCall.page).toBe(1)

@@ -63,11 +63,16 @@ describe('FilterSidebar', () => {
       expect(onDrawerClose).toHaveBeenCalledTimes(1)
     })
 
-    it('does not render an X icon close button in the drawer', () => {
-      render(<FilterSidebar {...defaultProps} drawerOpen={true} />)
+    it('renders an X close button in the drawer header that closes the drawer (owner adjustment 2026-08-01)', async () => {
+      // The original design had "View results" as the drawer's only closer;
+      // the owner then asked for a clear header close button as well — both
+      // close, the sticky footer "View results" remains the primary action.
+      const user = userEvent.setup()
+      const onDrawerClose = vi.fn()
+      render(<FilterSidebar {...defaultProps} drawerOpen={true} onDrawerClose={onDrawerClose} />)
 
-      // The old X button had aria-label "Close filters"
-      expect(screen.queryByLabelText('Close filters')).not.toBeInTheDocument()
+      await user.click(screen.getByLabelText('Close filters'))
+      expect(onDrawerClose).toHaveBeenCalledTimes(1)
     })
   })
 
