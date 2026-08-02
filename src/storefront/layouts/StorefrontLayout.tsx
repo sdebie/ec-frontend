@@ -1,11 +1,17 @@
 import { Outlet } from 'react-router-dom'
 import { useRestoreCustomerSession } from '@/storefront/customer/auth/hooks/useRestoreCustomerSession'
+import { useExpireStaleCheckoutSession } from '@/storefront/checkout/hooks/useExpireStaleCheckoutSession'
 import { AnnouncementBanner } from './AnnouncementBanner'
 import { StorefrontFooter } from './StorefrontFooter'
 import { StorefrontHeader } from './StorefrontHeader'
 
 export function StorefrontLayout() {
   const { isRestoring } = useRestoreCustomerSession()
+
+  // Mounted here, not on the checkout page: the cart is written from the
+  // catalogue, the product page and the wishlist too, and a session that no
+  // longer matches the cart must expire wherever it was invalidated.
+  useExpireStaleCheckoutSession()
 
   return (
     /*
