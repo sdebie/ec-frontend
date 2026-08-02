@@ -101,8 +101,13 @@ export function ProductCard({product, variantId, variantLabel, badge, layout = '
 
     if (layout === 'row') {
         return (
+            /* A grid below sm, a flex row from sm up, so ONE set of nodes reflows.
+               Mobile: [image][identity] with the price and actions spanning both
+               columns as a bar underneath — otherwise they stack ragged-left,
+               indented past the image rail. From sm the three children lay out as
+               the row always has: image | identity | price column. */
             <div
-                className="group flex flex-row rounded-lg border border-(--sf-border)/60 bg-(--sf-panel) overflow-hidden transition-all hover:shadow-md hover:border-(--sf-accent) md:hover:scale-[1.02]"
+                className="group grid grid-cols-[auto_1fr] items-start rounded-lg border border-(--sf-border)/60 bg-(--sf-panel) overflow-hidden transition-all hover:shadow-md hover:border-(--sf-accent) sm:flex sm:flex-row sm:items-stretch md:hover:scale-[1.02]"
                 data-layout="row"
             >
                 {/* Image — left; stays a compact square rail on mobile (a full-width
@@ -172,11 +177,8 @@ export function ProductCard({product, variantId, variantLabel, badge, layout = '
                     )}
                 </div>
 
-                {/* Content — stacks under the name on mobile, splits into
-                    identity | price+actions columns from sm up */}
-                <div className="flex min-w-0 flex-1 flex-col sm:flex-row">
-                {/* Identity — centre */}
-                <div className="flex min-w-0 flex-1 flex-col p-3 sm:p-4">
+                {/* Identity — beside the image at every size */}
+                <div className="flex min-w-0 flex-col p-3 sm:flex-1 sm:p-4">
                     <Link to={productUrl} className="hover:underline">
                         <h3 className="text-sm font-medium text-(--sf-text) line-clamp-2">
                             {product.name}
@@ -213,26 +215,35 @@ export function ProductCard({product, variantId, variantLabel, badge, layout = '
                     )}
                 </div>
 
-                {/* Price + actions — right */}
-                <div className="flex shrink-0 flex-col justify-center px-3 pb-3 sm:p-4 sm:w-48 sm:border-l sm:border-(--sf-border)">
-                    <div className="flex items-baseline gap-2">
-                        {originalPrice != null && (
-                            <span className="line-through text-(--sf-muted-text)">
-                                {formatAmount(originalPrice, currency, locale)}
+                {/* Price + actions. Mobile: a full-width bar under the image and
+                    identity, divided from it — price and stepper share the first
+                    line, and the full-width button wraps onto its own line
+                    beneath them (CardActions `bar` mode hands its controls to
+                    this flex container below sm). From sm: the right-hand column
+                    the row has always had. */}
+                <div
+                    className="col-span-2 flex flex-wrap items-end justify-between gap-3 border-t border-(--sf-border)/60 p-3 sm:col-span-1 sm:w-48 sm:shrink-0 sm:flex-col sm:flex-nowrap sm:items-stretch sm:justify-center sm:border-t-0 sm:border-l sm:border-(--sf-border) sm:p-4">
+                    <div className="min-w-0">
+                        <div className="flex items-baseline gap-2">
+                            {originalPrice != null && (
+                                <span className="line-through text-(--sf-muted-text)">
+                                    {formatAmount(originalPrice, currency, locale)}
+                                </span>
+                            )}
+                            <span className="font-semibold">
+                                {formatAmount(price, currency, locale)}
                             </span>
-                        )}
-                        <span className="font-semibold">
-                            {formatAmount(price, currency, locale)}
-                        </span>
-                        {price != null && (
-                            <span className="text-xs text-(--sf-muted-text)">ex. VAT</span>
+                            {price != null && (
+                                <span className="text-xs text-(--sf-muted-text)">ex. VAT</span>
+                            )}
+                        </div>
+                        {wholesaleDisplay != null && (
+                            <p className="mt-0.5 text-xs text-(--sf-muted-text)">
+                                Wholesale: {formatAmount(wholesaleDisplay, currency, locale)} ex. VAT
+                            </p>
                         )}
                     </div>
-                    {wholesaleDisplay != null && (
-                        <p className="mt-0.5 text-xs text-(--sf-muted-text)">
-                            Wholesale: {formatAmount(wholesaleDisplay, currency, locale)} ex. VAT
-                        </p>
-                    )}
+
                     <CardActions
                         variantId={variantId ?? null}
                         productName={product.name}
@@ -242,8 +253,8 @@ export function ProductCard({product, variantId, variantLabel, badge, layout = '
                         outOfStockAction={outOfStockAction}
                         variantLabel={variantLabel}
                         onRequestAdd={onRequestAdd}
+                        layout="bar"
                     />
-                </div>
                 </div>
             </div>
         )

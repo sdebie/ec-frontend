@@ -201,24 +201,41 @@ describe('ProductCard', () => {
             expect(root?.tagName).toBe('DIV')
         })
 
-        it('row layout stays horizontal on mobile with a compact image rail (owner adjustment 2026-08-01)', () => {
+        it('row layout keeps a compact image rail beside the identity on mobile (owner adjustment 2026-08-01)', () => {
             // The original design stacked the whole row to a column below `sm`,
-            // which rendered a viewport-wide square image per row on phones.
-            // Now: the root stays a row at every width, the image is a small
-            // fixed square (w-28, sm:w-40), and only the inner content wrapper
-            // stacks identity above price/actions on mobile.
+            // which rendered a viewport-wide square image per row on phones. The
+            // image must stay a small fixed square at every width, with the
+            // identity beside it — never above or below it.
             const {container} = renderCard({}, {layout: 'row'})
             const root = container.firstElementChild as HTMLElement
-            expect(root.className).toContain('flex-row')
-            expect(root.className).not.toContain('flex-col')
 
             const imageRail = root.firstElementChild as HTMLElement
             expect(imageRail.className).toContain('w-28')
             expect(imageRail.className).toContain('sm:w-40')
 
-            const contentWrapper = imageRail.nextElementSibling as HTMLElement
-            expect(contentWrapper.className).toContain('flex-col')
-            expect(contentWrapper.className).toContain('sm:flex-row')
+            // Below sm: a two-column grid puts the image and identity side by
+            // side. From sm: the same nodes lay out as a flex row.
+            expect(root.className).toContain('grid-cols-[auto_1fr]')
+            expect(root.className).toContain('sm:flex-row')
+            expect(root.className).not.toContain('flex-col')
+        })
+
+        it('row layout puts price and actions in a bar spanning both columns on mobile, a column from sm', () => {
+            // Three direct children — image, identity, price/actions — so one set
+            // of nodes reflows between breakpoints instead of being duplicated.
+            const {container} = renderCard({}, {layout: 'row'})
+            const root = container.firstElementChild as HTMLElement
+            expect(root.children).toHaveLength(3)
+
+            const actions = root.children[2] as HTMLElement
+            // Mobile: full-width bar, divided from the identity above.
+            expect(actions.className).toContain('col-span-2')
+            expect(actions.className).toContain('border-t')
+            // From sm: the right-hand column with its left divider.
+            expect(actions.className).toContain('sm:col-span-1')
+            expect(actions.className).toContain('sm:w-48')
+            expect(actions.className).toContain('sm:border-l')
+            expect(actions.className).toContain('sm:border-t-0')
         })
     })
 

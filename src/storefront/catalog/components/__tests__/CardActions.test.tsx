@@ -334,4 +334,47 @@ describe('CardActions', () => {
       expect(items[0].variantLabel).toBe('')
     })
   })
+
+  describe('layout prop', () => {
+    it('defaults to stack: the component paints its own column', () => {
+      const { container } = renderCardActions({ variantId: 'v1', inStock: true, hasPrice: true })
+
+      const root = container.firstElementChild as HTMLElement
+      expect(root.className).toBe('mt-3 flex flex-col gap-2')
+    })
+
+    it('bar mode drops the box below sm so the controls join the parent layout', () => {
+      const { container } = renderCardActions({
+        variantId: 'v1',
+        inStock: true,
+        hasPrice: true,
+        layout: 'bar',
+      })
+
+      const root = container.firstElementChild as HTMLElement
+      // display:contents below sm; the original column returns from sm.
+      expect(root.className).toContain('contents')
+      expect(root.className).toContain('sm:flex')
+      expect(root.className).toContain('sm:flex-col')
+      expect(root.className).toContain('sm:gap-2')
+      expect(root.className).toContain('sm:mt-3')
+      // Both controls are still this component's children — the parent only
+      // borrows them for layout, it never owns the quantity state.
+      expect(root.querySelector('[aria-label="Increase quantity"]')).toBeInTheDocument()
+      expect(root.querySelector('button.w-full')).toBeInTheDocument()
+    })
+
+    it('bar mode also applies to the single-control branches', () => {
+      const { container } = renderCardActions({
+        variantId: 'v1',
+        inStock: false,
+        hasPrice: true,
+        layout: 'bar',
+      })
+
+      const root = container.firstElementChild as HTMLElement
+      expect(root.className).toBe('contents sm:mt-3 sm:block')
+      expect(screen.getByRole('button', { name: /out of stock/i })).toBeDisabled()
+    })
+  })
 })

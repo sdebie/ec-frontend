@@ -7,9 +7,12 @@ export function WishlistSkeleton({view}: { view: ViewMode }) {
     if (view === 'list') {
         return (
             <div className="flex flex-col gap-3" data-layout="row">
+                {/* Heights track the real row: taller below sm, where the price
+                    and actions wrap to their own bar under the identity. */}
                 {Array.from({length: 6})
                     .map((_, i) => (
-                        <div key={i} className="h-20 animate-pulse rounded-lg bg-(--sf-surface-muted)"/>
+                        <div key={i}
+                             className="h-56 animate-pulse rounded-lg bg-(--sf-surface-muted) sm:h-44"/>
                     ))}
             </div>
         )

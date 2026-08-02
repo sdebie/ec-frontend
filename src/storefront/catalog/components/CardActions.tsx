@@ -19,9 +19,23 @@ interface CardActionsProps {
      * adds to the cart directly, which is the catalogue's behaviour.
      */
     onRequestAdd?: (quantity: number) => void
+    /**
+     * How the controls sit in their parent.
+     *
+     * `stack` (default) — this component paints its own column: stepper above a
+     * full-width button.
+     *
+     * `bar` — below `sm` the component contributes NO box of its own
+     * (`display: contents`), so the stepper and the button become items of the
+     * parent's layout. A parent that wraps can then put the stepper beside its
+     * own content and let the full-width button fall onto the line below. From
+     * `sm` it stacks exactly as `stack` does. Used by the row layout, whose
+     * mobile bar shares a line with the price.
+     */
+    layout?: 'stack' | 'bar'
 }
 
-export function CardActions({variantId, productName, productSlug, inStock, hasPrice, outOfStockAction = 'disabled', variantLabel = '', onRequestAdd}: CardActionsProps) {
+export function CardActions({variantId, productName, productSlug, inStock, hasPrice, outOfStockAction = 'disabled', variantLabel = '', onRequestAdd, layout = 'stack'}: CardActionsProps) {
     const [quantity, setQuantity] = useState(1)
     const [showConfirmation, setShowConfirmation] = useState(false)
     const confirmationTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null)
@@ -34,10 +48,20 @@ export function CardActions({variantId, productName, productSlug, inStock, hasPr
         }
     }, [])
 
+    // In `bar` mode the wrapper disappears below sm so the controls inside it
+    // become items of the PARENT's layout; from sm the original box returns.
+    // Complete literal class strings — an interpolated `sm:${…}` never reaches
+    // Tailwind's scanner and would emit no CSS.
+    const singleClass = layout === 'bar' ? 'contents sm:mt-3 sm:block' : 'mt-3'
+    const stackClass =
+        layout === 'bar'
+            ? 'contents sm:mt-3 sm:flex sm:flex-col sm:gap-2'
+            : 'mt-3 flex flex-col gap-2'
+
     // No price → just a link to PDP
     if (!hasPrice) {
         return (
-            <div className="mt-3">
+            <div className={singleClass}>
                 <Link
                     to={`/products/${productSlug}`}
                     className="inline-block text-sm font-medium text-(--sf-accent) hover:underline"
@@ -51,7 +75,7 @@ export function CardActions({variantId, productName, productSlug, inStock, hasPr
     // VARIABLE product (variantId is null) → Select options link
     if (variantId == null) {
         return (
-            <div className="mt-3">
+            <div className={singleClass}>
                 <Link
                     to={`/products/${productSlug}`}
                     className="inline-flex w-full items-center justify-center rounded-lg border border-(--sf-border) px-4 py-2 text-sm font-medium text-(--sf-text) hover:bg-(--sf-surface-muted) transition-colors"
@@ -68,7 +92,7 @@ export function CardActions({variantId, productName, productSlug, inStock, hasPr
     if (inStock === false) {
         if (outOfStockAction === 'viewProduct') {
             return (
-                <div className="mt-3">
+                <div className={singleClass}>
                     <Link
                         to={`/products/${productSlug}`}
                         className="inline-flex w-full items-center justify-center rounded-lg border border-(--sf-border) px-4 py-2 text-sm font-medium text-(--sf-text) hover:bg-(--sf-surface-muted) transition-colors"
@@ -80,7 +104,7 @@ export function CardActions({variantId, productName, productSlug, inStock, hasPr
         }
 
         return (
-            <div className="mt-3">
+            <div className={singleClass}>
                 <button
                     type="button"
                     disabled
@@ -118,7 +142,7 @@ export function CardActions({variantId, productName, productSlug, inStock, hasPr
     }
 
     return (
-        <div className="mt-3 flex flex-col gap-2">
+        <div className={stackClass}>
             <QuantityStepper
                 quantity={quantity}
                 onIncrement={() => setQuantity((q) => q + 1)}
