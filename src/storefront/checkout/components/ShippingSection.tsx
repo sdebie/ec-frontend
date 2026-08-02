@@ -48,7 +48,7 @@ export function ShippingSection({control, errors}: ShippingSectionProps) {
     if (isError) {
         return (
             <CheckoutSection id="shipping" title="Delivery method">
-                <div className="text-sm text-red-600">
+                <div className="text-sm text-(--sf-error)">
                     Unable to load delivery options.{' '}
                     <button
                         type="button"
@@ -106,7 +106,7 @@ export function ShippingSection({control, errors}: ShippingSectionProps) {
                             ))}
                         </div>
                         {errors.shippingMethodId && (
-                            <p className="mt-1 text-sm text-red-600">
+                            <p className="mt-1 text-sm text-(--sf-error)">
                                 {errors.shippingMethodId.message}
                             </p>
                         )}

@@ -93,7 +93,7 @@ export function PaymentSection({control, paymentMethods}: PaymentSectionProps) {
                                 ))}
                             </div>
                             {fieldState.error && (
-                                <p className="mt-1 text-sm text-red-600">
+                                <p className="mt-1 text-sm text-(--sf-error)">
                                     {fieldState.error.message}
                                 </p>
                             )}

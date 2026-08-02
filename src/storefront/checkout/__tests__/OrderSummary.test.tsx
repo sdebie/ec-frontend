@@ -1,5 +1,6 @@
 import {beforeEach, describe, expect, it, vi} from 'vitest'
 import {render, screen, within} from '@testing-library/react'
+import {MemoryRouter} from 'react-router-dom'
 import {StorefrontConfigContext} from '@/shared/config/storefrontConfig.context'
 import type {StorefrontConfig} from '@/shared/types/StorefrontConfig'
 import {useCheckoutSessionStore} from '../store/checkoutSessionStore'
@@ -43,9 +44,11 @@ function renderOrderSummary(
     {config = mockStorefrontConfig, selectedShippingFee = 89 as number | null} = {},
 ) {
     return render(
-        <StorefrontConfigContext.Provider value={config}>
-            <OrderSummary selectedShippingFee={selectedShippingFee}/>
-        </StorefrontConfigContext.Provider>
+        <MemoryRouter>
+            <StorefrontConfigContext.Provider value={config}>
+                <OrderSummary selectedShippingFee={selectedShippingFee}/>
+            </StorefrontConfigContext.Provider>
+        </MemoryRouter>
     )
 }
 

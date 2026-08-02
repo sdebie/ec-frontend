@@ -48,7 +48,7 @@ export function CartItemRow({row, isLoading, onQuantityChange, onRemove}: CartIt
                spanning both columns underneath. sm+: the actions return to a
                third column beside the identity. */
             className={`relative grid grid-cols-[auto_1fr] items-start gap-3 rounded-lg border bg-(--sf-panel) p-3 transition-colors sm:grid-cols-[auto_1fr_auto] sm:gap-4 sm:p-4 ${
-                row.isOrderable ? 'border-(--sf-border)/60' : 'border-red-300'
+                row.isOrderable ? 'border-(--sf-border)/60' : 'border-(--sf-error-border)'
             }`}
         >
             {/* Thumbnail — same object-contain stage as the catalogue card, so a
@@ -96,27 +96,27 @@ export function CartItemRow({row, isLoading, onQuantityChange, onRemove}: CartIt
 
                     {/* Stock state — one line, highest-severity message wins */}
                     {row.isUnavailable ? (
-                        <p className="mt-1 text-xs font-medium text-red-600">
+                        <p className="mt-1 text-xs font-medium text-(--sf-error)">
                             No longer available — remove it to continue
                         </p>
                     ) : row.isCheckoutFlagged ? (
-                        <p className="mt-1 text-xs font-medium text-red-600">
+                        <p className="mt-1 text-xs font-medium text-(--sf-error)">
                             Couldn't be confirmed at checkout — remove it to continue
                         </p>
                     ) : row.isOutOfStock ? (
-                        <p className="mt-1 text-xs font-medium text-red-600">
+                        <p className="mt-1 text-xs font-medium text-(--sf-error)">
                             Out of stock — remove it to continue
                         </p>
                     ) : row.exceedsStock ? (
-                        <p className="mt-1 text-xs font-medium text-red-600">
+                        <p className="mt-1 text-xs font-medium text-(--sf-error)">
                             Only {row.stockQuantity} in stock — reduce the quantity to continue
                         </p>
                     ) : !isLoading && row.unitPrice === null ? (
-                        <p className="mt-1 text-xs font-medium text-red-600">
+                        <p className="mt-1 text-xs font-medium text-(--sf-error)">
                             Price unavailable — remove it to continue
                         </p>
                     ) : row.stockQuantity != null && row.stockQuantity > 0 ? (
-                        <p className="mt-1 text-xs font-medium text-green-600">In stock</p>
+                        <p className="mt-1 text-xs font-medium text-(--sf-success)">In stock</p>
                     ) : null}
                 </div>
 

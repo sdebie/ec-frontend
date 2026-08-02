@@ -204,7 +204,7 @@ export function QuickViewModal({ product, variantId, triggerRef, onClose }: Quic
 
             {/* Stock indicator */}
             {product.inStock === true && (
-              <p className="mt-1 text-sm font-medium text-green-600">In stock</p>
+              <p className="mt-1 text-sm font-medium text-(--sf-success)">In stock</p>
             )}
             {product.inStock === false && (
               <p className="mt-1 text-sm font-medium text-(--sf-muted-text)">Out of stock</p>

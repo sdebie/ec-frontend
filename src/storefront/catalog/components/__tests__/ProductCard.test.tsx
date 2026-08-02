@@ -330,7 +330,9 @@ describe('ProductCard', () => {
             renderCard({inStock: true})
             const indicator = screen.getByText('In stock')
             expect(indicator).toBeInTheDocument()
-            expect(indicator).toHaveClass('text-green-600')
+            // Themed status token, not a palette class — the storefront surface
+            // binds --c-success/--sf-success so a client can brand it.
+            expect(indicator).toHaveClass('text-(--sf-success)')
         })
 
         it('renders "Out of stock" with muted text when inStock is false', () => {

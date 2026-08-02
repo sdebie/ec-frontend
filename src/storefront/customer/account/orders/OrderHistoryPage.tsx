@@ -24,13 +24,13 @@ export function OrderHistoryPage() {
     return (
       <div className="space-y-6">
         <h1 className="text-2xl font-semibold text-(--sf-text)">Order History</h1>
-        <div className="rounded-lg border border-red-200 bg-red-50 p-6 text-center">
-          <p className="text-sm text-red-700">
+        <div className="rounded-lg border border-(--sf-error-border) bg-(--sf-error-surface) p-6 text-center">
+          <p className="text-sm text-(--sf-error)">
             Something went wrong while loading your orders.
           </p>
           <button
             onClick={() => refetch()}
-            className="mt-3 rounded-md bg-red-100 px-4 py-2 text-sm font-medium text-red-800 hover:bg-red-200 transition-colors"
+            className="mt-3 rounded-md border border-(--sf-error-border) bg-(--sf-error-surface) px-4 py-2 text-sm font-medium text-(--sf-error) hover:opacity-80 transition-colors"
           >
             Retry
           </button>

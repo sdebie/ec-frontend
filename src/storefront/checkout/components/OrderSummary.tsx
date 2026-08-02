@@ -1,3 +1,4 @@
+import {Link} from 'react-router-dom'
 import {useCheckoutSessionStore} from '../store/checkoutSessionStore'
 import {useStorefrontConfig} from '@/shared/config/storefrontConfig.context'
 import {formatAmount} from '@/shared/utils/formatAmount'
@@ -44,9 +45,20 @@ export function OrderSummary({selectedShippingFee}: OrderSummaryProps) {
             aria-labelledby="order-summary-heading"
             className="rounded-lg border border-(--sf-border) bg-(--sf-panel) p-5 lg:sticky lg:top-24 lg:p-6"
         >
-            <h2 id="order-summary-heading" className="text-sm font-semibold text-(--sf-text)">
-                Order Summary
-            </h2>
+            {/* The edit route sits beside the items themselves, which is where a
+                shopper realises something is wrong. The toolbar's "Back to cart"
+                is the navigational twin; this one is the contextual one. */}
+            <div className="flex items-baseline justify-between gap-4">
+                <h2 id="order-summary-heading" className="text-sm font-semibold text-(--sf-text)">
+                    Order Summary
+                </h2>
+                <Link
+                    to="/cart"
+                    className="text-xs font-medium text-(--sf-muted-text) underline-offset-4 transition-colors hover:text-(--sf-text) hover:underline"
+                >
+                    Edit
+                </Link>
+            </div>
 
             {/* Below lg the lines are hidden and replaced by a count: the shopper
                 reviewed them on the cart one step ago, and every row here pushes

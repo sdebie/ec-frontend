@@ -103,6 +103,16 @@
   --c-ring: var(--sf-ring, var(--sf-accent));
   --c-radius: var(--sf-radius, 0.5rem);
   --c-shadow-sm: var(--sf-shadow-sm, 0 1px 2px rgba(0, 0, 0, 0.05));
+
+  /*
+    Status colours were missing from this block, so every shared component that
+    reports one — InputField's error message on every storefront form — fell
+    through to :root and rendered in the ADMIN palette. Binding them here means
+    the shared form layer follows the storefront's own theme, and a client that
+    seeds `error`/`success` brands its validation too.
+  */
+  --c-error: var(--sf-error);
+  --c-success: var(--sf-success);
 }
 
 /* Density modifiers */

@@ -182,7 +182,7 @@ export function ProductDetailPage() {
                     </div>
 
                     {showConfirmation && (
-                        <p className="text-sm text-green-600">
+                        <p className="text-sm text-(--sf-success)">
                             Added to cart!{' '}
                             <Link to="/cart" className="underline font-medium">
                                 View cart

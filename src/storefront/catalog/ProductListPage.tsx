@@ -189,14 +189,14 @@ export function ProductListPage({ onSale = false }: ProductListPageProps) {
         <div className="min-w-0 flex-1">
           {/* Error state */}
           {isError && (
-            <div className="mb-4 rounded-md border border-red-200 bg-red-50 p-4">
-              <p className="text-sm text-red-700">
+            <div className="mb-4 rounded-md border border-(--sf-error-border) bg-(--sf-error-surface) p-4">
+              <p className="text-sm text-(--sf-error)">
                 Something went wrong while loading products.
               </p>
               <button
                 type="button"
                 onClick={() => refetch()}
-                className="mt-2 rounded-md bg-red-100 px-3 py-1.5 text-sm font-medium text-red-800 hover:bg-red-200 transition-colors"
+                className="mt-2 rounded-md border border-(--sf-error-border) bg-(--sf-error-surface) px-3 py-1.5 text-sm font-medium text-(--sf-error) hover:opacity-80 transition-colors"
               >
                 Try again
               </button>

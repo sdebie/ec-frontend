@@ -243,7 +243,7 @@ export function ForgotPasswordForm({ onBackToLogin }: ForgotPasswordFormProps) {
             {requestMutation.isPending ? 'Resending…' : 'Resend code'}
           </button>
           {resendMessage && (
-            <p className="text-sm text-green-600">{resendMessage}</p>
+            <p className="text-sm text-(--sf-success)">{resendMessage}</p>
           )}
         </div>
       </div>

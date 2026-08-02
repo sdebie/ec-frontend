@@ -95,7 +95,7 @@ export function CartSummary({
 
             <div className="mt-5 flex flex-col gap-3 lg:mt-6">
                 {checkoutError && (
-                    <p role="alert" className="text-sm text-red-600">
+                    <p role="alert" className="text-sm text-(--sf-error)">
                         {checkoutError}
                     </p>
                 )}
@@ -113,7 +113,7 @@ export function CartSummary({
                     reason the button will not move. The reassurance lives in the
                     footer below. */}
                 {blockedCount > 0 && (
-                    <p className="text-center text-xs text-red-600">
+                    <p className="text-center text-xs text-(--sf-error)">
                         {blockedCount === 1
                             ? 'Fix the flagged item above to continue.'
                             : `Fix the ${blockedCount} flagged items above to continue.`}

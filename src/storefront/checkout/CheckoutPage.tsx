@@ -1,5 +1,6 @@
 import {useEffect} from 'react'
-import {useSearchParams} from 'react-router-dom'
+import {Link, useSearchParams} from 'react-router-dom'
+import {ChevronLeft} from 'lucide-react'
 import {FormProvider, useForm} from 'react-hook-form'
 import {zodResolver} from '@hookform/resolvers/zod'
 import {CheckoutShell} from './components/CheckoutShell'
@@ -99,15 +100,34 @@ export function CheckoutPage() {
         )
     }
 
+    const unitCount = session.lines.reduce((sum, line) => sum + line.quantity, 0)
+
     return (
         <CheckoutShell>
+            {/* Toolbar row — the catalogue's, wishlist's and cart's rhythm: one
+                line of context above a divider. Here it also carries the way
+                back: a shopper who spots something wrong in the summary must not
+                have to use the browser's back button to fix it. */}
+            <div className="mt-3 flex items-center justify-between gap-4 border-b border-(--sf-border) pb-4">
+                <Link
+                    to="/cart"
+                    className="inline-flex items-center gap-1 text-sm font-medium text-(--sf-muted-text) underline-offset-4 transition-colors hover:text-(--sf-text) hover:underline"
+                >
+                    <ChevronLeft className="h-4 w-4" aria-hidden="true"/>
+                    Back to cart
+                </Link>
+                <p className="text-sm text-(--sf-muted-text)">
+                    {unitCount} {unitCount === 1 ? 'item' : 'items'} in this order
+                </p>
+            </div>
+
             <FormProvider {...methods}>
                 <form onSubmit={handleSubmit(placeOrder)} noValidate>
-                    {/* 3/5 form, 2/5 summary on lg+. The form's fields do not
+                    {/* 5/9 form, 4/9 summary on lg+. The form's fields do not
                         benefit from extra width, while the summary carries line
-                        items whose names wrap at a third of the page. */}
-                    <div className="mt-6 grid grid-cols-1 gap-6 lg:grid-cols-5 lg:gap-8">
-                        <div className="space-y-6 lg:col-span-3">
+                        items whose names wrap when the column is narrow. */}
+                    <div className="grid grid-cols-1 gap-6 lg:grid-cols-9 lg:gap-8">
+                        <div className="space-y-4 lg:col-span-5">
                             <ContactSection
                                 control={control}
                                 isAuthenticated={isSignedIn}
@@ -123,7 +143,7 @@ export function CheckoutPage() {
                             <PaymentSection control={control} paymentMethods={paymentMethods ?? []}/>
 
                             {submitError && (
-                                <p className="text-sm text-red-600" role="alert">
+                                <p className="text-sm text-(--sf-error)" role="alert">
                                     {submitError}
                                 </p>
                             )}
@@ -144,7 +164,7 @@ export function CheckoutPage() {
 
                         {/* Summary first below lg, as the cart and wishlist do, so the
                             total stays reachable without scrolling past the form. */}
-                        <div className="order-first lg:order-none lg:col-span-2">
+                        <div className="order-first lg:order-none lg:col-span-4">
                             <OrderSummary selectedShippingFee={selectedMethod?.baseFee ?? null}/>
                         </div>
                     </div>

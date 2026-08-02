@@ -35,7 +35,7 @@ export function FeaturedProductsSection({section}: { section: FeaturedProductsSe
             <Section variant={variant}>
                 <SectionHeading title={title} eyebrow={eyebrow} />
                 <div className="text-center py-8">
-                    <p className="text-red-600 mb-4">Failed to load featured products.</p>
+                    <p className="text-(--sf-error) mb-4">Failed to load featured products.</p>
                     <button
                         type="button"
                         onClick={() => refetch()}

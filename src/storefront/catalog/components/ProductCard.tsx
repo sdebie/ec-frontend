@@ -3,7 +3,7 @@ import {useStorefrontConfig} from '@/shared/config/storefrontConfig.context'
 import {useCustomerAuthStore} from '@/shared/auth/customerAuthStore'
 import {formatAmount} from '@/shared/utils/formatAmount'
 import {getDisplayPrice} from '../utils/pricing'
-import {pickFeaturedImage} from '../utils/productImage'
+import {pickFeaturedImage} from '@/storefront/catalog'
 import {WishlistButton} from '@/storefront/customer/account/wishlist/components/WishlistButton'
 import {CardActions} from './CardActions'
 
@@ -198,7 +198,7 @@ export function ProductCard({product, variantId, variantLabel, badge, layout = '
                     )}
 
                     {product.inStock === true && (
-                        <p className="mt-1 text-xs font-medium text-green-600">
+                        <p className="mt-1 text-xs font-medium text-(--sf-success)">
                             In stock
                         </p>
                     )}
@@ -347,7 +347,7 @@ export function ProductCard({product, variantId, variantLabel, badge, layout = '
                 )}
 
                 {product.inStock === true && (
-                    <p className="mt-1 text-xs font-medium text-green-600">
+                    <p className="mt-1 text-xs font-medium text-(--sf-success)">
                         In stock
                     </p>
                 )}
