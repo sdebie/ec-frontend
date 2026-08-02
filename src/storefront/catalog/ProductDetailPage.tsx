@@ -28,35 +28,6 @@ const ACTION_BUTTON_BASE =
     'flex-1 rounded-lg px-6 py-2 text-sm font-medium text-center'
 
 /**
- * One row of the product's identifying detail. Rendered only when the value
- * exists, so a catalogue without brands or SKUs simply shows fewer rows rather
- * than a column of dashes.
- */
-function DetailRow({label, children, stacked = false}: {
-    label: string
-    children: React.ReactNode
-    /** Puts the value on its own full-width line under the label — for values
-     *  that wrap (a list of category badges) rather than sitting on one line. */
-    stacked?: boolean
-}) {
-    if (stacked) {
-        return (
-            <div className="text-sm">
-                <dt className="text-(--sf-muted-text)">{label}</dt>
-                <dd className="mt-2">{children}</dd>
-            </div>
-        )
-    }
-
-    return (
-        <div className="flex items-baseline justify-between gap-4 text-sm">
-            <dt className="shrink-0 text-(--sf-muted-text)">{label}</dt>
-            <dd className="min-w-0 text-right font-medium text-(--sf-text)">{children}</dd>
-        </div>
-    )
-}
-
-/**
  * Availability for the selected variant. Uses the semantic status tokens
  * (a documented law-2 exception — there is no `--sf-*` token for "in stock").
  * `null` stock is UNKNOWN, not out of stock: stock is import-derived and
@@ -174,10 +145,13 @@ export function ProductDetailPage() {
             <SectionHeading as="h1" title="Product Detail" className="mb-4"/>
 
             {/* Divider — same rhythm as the catalogue's toolbar rule */}
-            <div className="mb-6 border-t border-(--sf-border)"/>
+            <div className="mb-3 border-t border-(--sf-border)"/>
 
-            {/* Breadcrumb */}
-            <nav aria-label="Breadcrumb" className="mb-4">
+            {/* Breadcrumb — desktop only (owner directive 2026-08-02). At 375px the
+                trail wrapped into a ragged three-line block, and the page heading
+                plus the panel already name the product; the header's back paths
+                serve navigation on a phone. */}
+            <nav aria-label="Breadcrumb" className="mb-4 hidden sm:block">
                 <ol className="flex items-center gap-2 text-sm text-(--sf-muted-text)">
                     <li>
                         <Link to="/products" className="hover:text-(--sf-text)">
@@ -191,7 +165,7 @@ export function ProductDetailPage() {
                         </>
                     )}
                     <li aria-hidden="true">/</li>
-                    <li className="text-(--sf-text) font-medium">{product.name}</li>
+                    <li className="min-w-0 truncate font-medium text-(--sf-text)">{product.name}</li>
                 </ol>
             </nav>
 
@@ -217,62 +191,53 @@ export function ProductDetailPage() {
 
                     {/* Right: purchase information */}
                     <div aria-labelledby="product-purchase-heading" className="space-y-5 p-5 lg:p-6">
-                        <div className="flex items-start justify-between gap-4">
+                        {/* Header: name + availability on the left, price with the
+                            brand beneath it on the right. Stacks below `sm` — beside
+                            a price column the name was wrapping to four lines on a
+                            phone. */}
+                        <div className="flex flex-col gap-3 sm:flex-row sm:justify-between sm:gap-4">
                             <div className="min-w-0 space-y-3">
                                 <h2 id="product-purchase-heading" className="text-lg font-semibold text-(--sf-text)">
                                     {product.name}
                                 </h2>
                                 <StockBadge stockQuantity={selectedVariant?.stockQuantity}/>
                             </div>
-                            <div className="flex shrink-0 items-baseline gap-2">
-                                {originalPrice != null && (
-                                    <span className="text-sm text-(--sf-muted-text) line-through">
-                                        {formatAmount(originalPrice, currency, locale)}
+                            <div className="flex shrink-0 items-baseline justify-between gap-3 sm:flex-col sm:items-end sm:justify-between">
+                                <div className="flex items-baseline gap-2">
+                                    {originalPrice != null && (
+                                        <span className="text-sm text-(--sf-muted-text) line-through">
+                                            {formatAmount(originalPrice, currency, locale)}
+                                        </span>
+                                    )}
+                                    <span className="text-2xl font-bold text-(--sf-text)">
+                                        {price != null ? formatAmount(price, currency, locale) : '\u2014'}
+                                    </span>
+                                </div>
+                                {product.brand && (
+                                    <span className="text-base font-semibold text-(--sf-text)">
+                                        {product.brand.name}
                                     </span>
                                 )}
-                                <span className="text-2xl font-bold text-(--sf-text)">
-                                    {price != null ? formatAmount(price, currency, locale) : '—'}
-                                </span>
                             </div>
                         </div>
 
-                        {/* Description sits above the identifying detail. Falls back
-                            to the long description when no summary exists — every
-                            live product has one and not the other. */}
-                        {panelDescription && (
+                        {/* Description, with the SKU tucked bottom-right of the same
+                            block — it identifies the selected variant rather than
+                            competing with the product's own copy. */}
+                        {(panelDescription || selectedVariant?.sku) && (
                             <div className="border-t border-(--sf-border) pt-4">
                                 <h3 className="text-sm font-semibold text-(--sf-text)">Description</h3>
-                                <p className="mt-2 whitespace-pre-line text-sm leading-relaxed text-(--sf-muted-text)">
-                                    {panelDescription}
-                                </p>
-                            </div>
-                        )}
-
-                        {(selectedVariant?.sku || categories.length > 0 || product.brand) && (
-                            <dl className="space-y-2 border-t border-(--sf-border) pt-4">
+                                {panelDescription && (
+                                    <p className="mt-2 whitespace-pre-line text-sm leading-relaxed text-(--sf-muted-text)">
+                                        {panelDescription}
+                                    </p>
+                                )}
                                 {selectedVariant?.sku && (
-                                    <DetailRow label="SKU">{selectedVariant.sku}</DetailRow>
+                                    <p className="mt-3 text-right text-xs text-(--sf-muted-text)">
+                                        SKU: <span className="font-medium text-(--sf-text)">{selectedVariant.sku}</span>
+                                    </p>
                                 )}
-                                {product.brand && <DetailRow label="Brand">{product.brand.name}</DetailRow>}
-                                {categories.length > 0 && (
-                                    <DetailRow
-                                        stacked
-                                        label={categories.length > 1 ? 'Categories' : 'Category'}
-                                    >
-                                        <span className="flex flex-wrap gap-2">
-                                            {categories.map((category) => (
-                                                <Link
-                                                    key={category.id}
-                                                    to={`/products?category=${encodeURIComponent(category.slug)}`}
-                                                    className={`inline-flex items-center rounded-full border border-(--sf-border) px-3 py-1 text-sm font-medium text-(--sf-text) transition-colors hover:border-(--sf-accent) hover:bg-[color-mix(in_srgb,var(--sf-accent)_8%,var(--sf-panel))] ${SF_FOCUS_RING_PAGE}`}
-                                                >
-                                                    {category.name}
-                                                </Link>
-                                            ))}
-                                        </span>
-                                    </DetailRow>
-                                )}
-                            </dl>
+                            </div>
                         )}
 
                         <div className="border-t border-(--sf-border) pt-4">
@@ -282,6 +247,25 @@ export function ProductDetailPage() {
                                 onSelectionChange={setSelectedAttrs}
                             />
                         </div>
+
+                        {categories.length > 0 && (
+                            <div className="border-t border-(--sf-border) pt-4">
+                                <h3 className="text-sm font-semibold text-(--sf-text)">
+                                    {categories.length > 1 ? 'Categories' : 'Category'}
+                                </h3>
+                                <div className="mt-2 flex flex-wrap gap-2">
+                                    {categories.map((category) => (
+                                        <Link
+                                            key={category.id}
+                                            to={`/products?category=${encodeURIComponent(category.slug)}`}
+                                            className={`inline-flex items-center rounded-full border border-(--sf-border) px-3 py-1 text-sm font-medium text-(--sf-text) transition-colors hover:border-(--sf-accent) hover:bg-[color-mix(in_srgb,var(--sf-accent)_8%,var(--sf-panel))] ${SF_FOCUS_RING_PAGE}`}
+                                        >
+                                            {category.name}
+                                        </Link>
+                                    ))}
+                                </div>
+                            </div>
+                        )}
 
                         <div className="space-y-3 border-t border-(--sf-border) pt-4">
                             <div className="flex items-center gap-3">
