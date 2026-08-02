@@ -5,7 +5,7 @@ import { PageContentPage } from '../PageContentPage'
 
 const mockUsePublicPageContent = vi.fn()
 
-vi.mock('@/storefront/hooks/usePublicPageContent', () => ({
+vi.mock('@/storefront/page-content/hooks/usePublicPageContent', () => ({
   usePublicPageContent: (...args: unknown[]) => mockUsePublicPageContent(...args),
 }))
 

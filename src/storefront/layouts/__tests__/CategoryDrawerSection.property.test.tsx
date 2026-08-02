@@ -27,8 +27,13 @@ const nameArb = fc.stringMatching(/^[a-zA-Z][a-zA-Z0-9 ]{0,14}[a-zA-Z0-9]$/)
 const slugArb = fc.stringMatching(/^[a-z][a-z0-9-]{0,14}[a-z0-9]$/)
 
 /**
- * Generate a tree with unique IDs where at least one root node has children.
- * Uses a counter-based ID scheme to guarantee uniqueness across the tree.
+ * Generate a tree with unique IDs AND unique slugs where at least one root
+ * node has children. Uses a counter-based scheme to guarantee uniqueness
+ * across the tree. Slug uniqueness is a real system invariant
+ * (categories.slug is UNIQUE NOT NULL) and the assertions below locate a
+ * node's link by slug — generated slug collisions made this test flake
+ * (~1% of seeds; e.g. seed 309 pre-fix). Names stay duplicable: the DB has
+ * no unique constraint on category name.
  */
 const treeWithParents: fc.Arbitrary<CategoryNode[]> = fc
   .tuple(
@@ -62,17 +67,19 @@ const treeWithParents: fc.Arbitrary<CategoryNode[]> = fc
       childNames: string[],
       childSlugs: string[],
     ): CategoryNode {
-      const id = `node-${idCounter++}`
+      const seq = idCounter++
+      const id = `node-${seq}`
       const children: CategoryNode[] = []
       for (let i = 0; i < childCount; i++) {
+        const childSeq = idCounter++
         children.push({
-          id: `node-${idCounter++}`,
+          id: `node-${childSeq}`,
           name: childNames[i] || `child${i}`,
-          slug: childSlugs[i] || `child-${i}`,
+          slug: `${childSlugs[i] || 'child'}-${childSeq}`,
           children: [],
         })
       }
-      return { id, name, slug, children }
+      return { id, name, slug: `${slug}-${seq}`, children }
     }
 
     const nodes: CategoryNode[] = [
@@ -87,6 +94,29 @@ const treeWithParents: fc.Arbitrary<CategoryNode[]> = fc
     ]
     return nodes
   })
+
+/**
+ * Permanent regression example, distilled from the 2026-08-02 flake's shrunk
+ * counterexample (seed 309). The invalid part of that counterexample — two
+ * roots sharing one slug — can't occur in the real system, so what's pinned
+ * is the realistic near-miss it exposed: duplicate NAMES across nodes (leaf
+ * root between two parents) with unique slugs.
+ */
+const duplicateNamesExample: CategoryNode[] = [
+  {
+    id: 'node-1',
+    name: 'aa',
+    slug: 'aa-1',
+    children: [{ id: 'node-2', name: 'aa', slug: 'aa-2', children: [] }],
+  },
+  { id: 'node-3', name: 'aa', slug: 'aa-3', children: [] },
+  {
+    id: 'node-4',
+    name: 'aa',
+    slug: 'aa-4',
+    children: [{ id: 'node-5', name: 'aa', slug: 'aa-5', children: [] }],
+  },
+]
 
 describe('Feature: category-navigation, Property 5: Drawer parent nodes have dual affordances', () => {
   afterEach(() => {
@@ -120,19 +150,19 @@ describe('Feature: category-navigation, Property 5: Drawer parent nodes have dua
           // Verify link text contains the category name
           expect(link.textContent?.trim()).toBe(parent.name)
 
-          // 2. A button for expand/collapse with aria-label referencing the category name
-          const expandButton = container.querySelector<HTMLButtonElement>(
-            `button[aria-label="Expand ${parent.name}"]`,
-          )
+          // 2. A button for expand/collapse in the SAME row as the link (scoped to
+          // the row so duplicate category names can't satisfy this vacuously)
+          const expandButton = link.closest('div')?.querySelector<HTMLButtonElement>('button')
           expect(expandButton).not.toBeNull()
+          expect(expandButton!.getAttribute('aria-label')).toBe(`Expand ${parent.name}`)
 
           // 3. They are distinct elements
-          expect(link).not.toBe(expandButton)
+          expect(link as Element).not.toBe(expandButton)
         }
 
         unmount()
       }),
-      { numRuns: 100 },
+      { numRuns: 100, examples: [[duplicateNamesExample]] },
     )
   }, 30000)
 })
