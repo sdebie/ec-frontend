@@ -14,7 +14,7 @@ vi.mock('react-router-dom', async () => {
   return { ...actual, useNavigate: () => mockNavigate }
 })
 
-vi.mock('@/storefront/customer/account/wishlist/WishlistIcon', () => ({
+vi.mock('@/storefront/customer/account/wishlist/components/WishlistIcon', () => ({
   WishlistIcon: () => <div data-testid="wishlist-icon" />,
 }))
 

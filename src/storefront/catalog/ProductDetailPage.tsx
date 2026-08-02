@@ -11,7 +11,7 @@ import {parseAttributes} from './utils/variantAttributes'
 import {ImageGallery} from './components/ImageGallery'
 import {VariantSelector} from './components/VariantSelector'
 import {ProductDetailSkeleton} from './components/ProductDetailSkeleton'
-import {WishlistButton} from '@/storefront/customer/account/wishlist/WishlistButton'
+import {WishlistButton} from '@/storefront/customer/account/wishlist/components/WishlistButton'
 
 function ProductNotFound() {
     return (

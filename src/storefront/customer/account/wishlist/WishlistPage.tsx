@@ -2,22 +2,23 @@ import {type ReactNode, useEffect, useRef, useState} from 'react'
 import {Section, SectionHeading} from '@/storefront/sections/shared'
 import {Link} from 'react-router-dom'
 import {Heart} from 'lucide-react'
-import {useEffectiveWishlist} from './useEffectiveWishlist'
-import {type HydratedWishlistItem, useWishlistHydration} from './useWishlistHydration'
-import {useLocalWishlistStore} from './localWishlistStore'
+import {useEffectiveWishlist} from './hooks/useEffectiveWishlist'
+import {useWishlistHydration} from './hooks/useWishlistHydration'
+import type {HydratedWishlistItem} from './types'
+import {useLocalWishlistStore} from './store/localWishlistStore'
 import {useCustomerAuthStore} from '@/shared/auth/customerAuthStore'
 import {ProductCard} from '@/storefront/catalog/components/ProductCard'
 import {ViewToggle} from '@/storefront/catalog/components/ViewToggle'
 import {useViewPreference} from '@/storefront/catalog/hooks/useViewPreference'
-import {toWishlistCardProduct} from './wishlistCardAdapter'
+import {toWishlistCardProduct} from './mappers'
 import {parseVariantLabel} from '@/storefront/catalog/utils/variantLabel'
-import {UnavailableItemRow} from './UnavailableItemRow'
-import {WishlistSummary} from './WishlistSummary'
-import {useToggleEffective} from './useToggleEffective'
+import {UnavailableItemRow} from './components/UnavailableItemRow'
+import {WishlistSummary} from './components/WishlistSummary'
+import {useToggleEffective} from './hooks/useToggleEffective'
 import {useCartStore} from '@/storefront/cart/cartStore'
 import {getDisplayPrice} from '@/storefront/catalog/utils/pricing'
 import {ConfirmationDialog} from '@/shared/ui/components'
-import {WishlistItemActions} from './WishlistItemActions'
+import {WishlistItemActions} from './components/WishlistItemActions'
 
 /** What the page is currently asking the user to confirm. */
 type DialogRequest =
@@ -45,7 +46,11 @@ function WishlistShell({isSignedIn, children}: { isSignedIn: boolean; children: 
 
 export function WishlistPage() {
     const {variantIds, isLoading: wishlistLoading} = useEffectiveWishlist()
-    const {data: items, isLoading: hydrationLoading, isError: hydrationError} = useWishlistHydration(Array.from(variantIds))
+    const {
+        data: items,
+        isLoading: hydrationLoading,
+        isError: hydrationError
+    } = useWishlistHydration(Array.from(variantIds))
     const isSignedIn = useCustomerAuthStore((s) => s.isSignedIn)
     const [view, setView] = useViewPreference('wishlist-view-preference')
     const {toggle} = useToggleEffective()
@@ -219,7 +224,7 @@ export function WishlistPage() {
             {/* Toolbar row — ViewToggle right-aligned above a divider, matching the
                 catalogue's toolbar rhythm (CatalogToolbar uses the same classes). */}
             <div className="flex items-center justify-end border-b border-(--sf-border) pb-4">
-                <ViewToggle view={view} onViewChange={setView} />
+                <ViewToggle view={view} onViewChange={setView}/>
             </div>
 
             {/* Items beside a sticky summary on lg+; on smaller screens the summary
@@ -245,20 +250,20 @@ export function WishlistPage() {
                         <div className="flex flex-col gap-3" data-layout="row">
                             {availableItems.map((item) => (
                                 <div key={item.variantId} className="relative">
-                                <ProductCard
-                                    product={toWishlistCardProduct(item)}
-                                    variantId={item.variantId}
-                                    variantLabel={parseVariantLabel(item.variantLabel)}
-                                    outOfStockAction="viewProduct"
-                                    mobileImage="thumbnail"
-                                    showWishlistButton={false}
-                                    onRequestAdd={(quantity) => setDialog({kind: 'moveItem', item, quantity})}
-                                    layout="row"
-                                />
-                                <WishlistItemActions
-                                    productName={item.productName}
-                                    onRemove={() => setDialog({kind: 'removeItem', item})}
-                                />
+                                    <ProductCard
+                                        product={toWishlistCardProduct(item)}
+                                        variantId={item.variantId}
+                                        variantLabel={parseVariantLabel(item.variantLabel)}
+                                        outOfStockAction="viewProduct"
+                                        mobileImage="thumbnail"
+                                        showWishlistButton={false}
+                                        onRequestAdd={(quantity) => setDialog({kind: 'moveItem', item, quantity})}
+                                        layout="row"
+                                    />
+                                    <WishlistItemActions
+                                        productName={item.productName}
+                                        onRemove={() => setDialog({kind: 'removeItem', item})}
+                                    />
                                 </div>
                             ))}
                         </div>
@@ -266,21 +271,21 @@ export function WishlistPage() {
                         <div className="grid grid-cols-2 gap-3 sm:gap-4 lg:grid-cols-3" data-layout="grid">
                             {availableItems.map((item) => (
                                 <div key={item.variantId} className="relative">
-                                <ProductCard
-                                    product={toWishlistCardProduct(item)}
-                                    variantId={item.variantId}
-                                    variantLabel={parseVariantLabel(item.variantLabel)}
-                                    outOfStockAction="viewProduct"
-                                    mobileImage="thumbnail"
-                                    showWishlistButton={false}
-                                    onRequestAdd={(quantity) => setDialog({kind: 'moveItem', item, quantity})}
-                                    imageAspect="landscape"
-                                    layout="grid"
-                                />
-                                <WishlistItemActions
-                                    productName={item.productName}
-                                    onRemove={() => setDialog({kind: 'removeItem', item})}
-                                />
+                                    <ProductCard
+                                        product={toWishlistCardProduct(item)}
+                                        variantId={item.variantId}
+                                        variantLabel={parseVariantLabel(item.variantLabel)}
+                                        outOfStockAction="viewProduct"
+                                        mobileImage="thumbnail"
+                                        showWishlistButton={false}
+                                        onRequestAdd={(quantity) => setDialog({kind: 'moveItem', item, quantity})}
+                                        imageAspect="landscape"
+                                        layout="grid"
+                                    />
+                                    <WishlistItemActions
+                                        productName={item.productName}
+                                        onRemove={() => setDialog({kind: 'removeItem', item})}
+                                    />
                                 </div>
                             ))}
                         </div>

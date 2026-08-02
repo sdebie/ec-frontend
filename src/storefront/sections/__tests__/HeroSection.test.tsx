@@ -1,8 +1,8 @@
 import {describe, expect, it} from 'vitest'
 import {render, screen} from '@testing-library/react'
 import {MemoryRouter} from 'react-router-dom'
-import type {HeroSectionConfig} from '@/shared/types/StorefrontConfig.ts'
-import {HeroSection} from '../HeroSection.tsx'
+import type {HeroSectionConfig} from '@/shared/types/StorefrontConfig'
+import {HeroSection} from '../HeroSection'
 
 const baseSection: HeroSectionConfig = {
     id: 'hero-1',

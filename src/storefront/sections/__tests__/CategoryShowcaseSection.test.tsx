@@ -1,8 +1,8 @@
 import {render, screen} from '@testing-library/react'
-import {CategoryShowcaseSection} from '../CategoryShowcaseSection.tsx'
-import type {CategoryShowcaseSectionConfig} from '@/shared/types/StorefrontConfig.ts'
-import {useCategories} from '@/storefront/catalog/hooks/useCategories.ts'
-import {useProducts} from '@/storefront/catalog/hooks/useProducts.ts'
+import {CategoryShowcaseSection} from '../CategoryShowcaseSection'
+import type {CategoryShowcaseSectionConfig} from '@/shared/types/StorefrontConfig'
+import {useCategories} from '@/storefront/catalog/hooks/useCategories'
+import {useProducts} from '@/storefront/catalog/hooks/useProducts'
 import {beforeEach, describe, expect, it, vi} from 'vitest'
 
 vi.mock('@/shared/utils/imageUrl', () => ({

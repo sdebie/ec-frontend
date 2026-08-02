@@ -1,7 +1,7 @@
 import { Link } from 'react-router-dom'
 import { useCustomerProfile } from './hooks/useCustomerProfile'
 import { useMyOrders } from './hooks/useMyOrders'
-import { useWishlist } from './hooks/useWishlist'
+import { useWishlist } from './wishlist/hooks/useWishlist.ts'
 import { formatAmount } from '@/shared/utils/formatAmount'
 import { orderStatusBadgeClasses } from './orderStatusBadge'
 

@@ -2,9 +2,9 @@ import {afterEach, describe, expect, it, vi} from 'vitest'
 import {cleanup, render} from '@testing-library/react'
 import fc from 'fast-check'
 import {MemoryRouter, Route, Routes} from 'react-router-dom'
-import {OrderDetailPage} from '../OrderDetailPage.tsx'
-import {formatAmount} from '@/shared/utils/formatAmount.ts'
-import type {OrderDetail} from '../../hooks/useOrderDetail.ts'
+import {OrderDetailPage} from '../OrderDetailPage'
+import {formatAmount} from '@/shared/utils/formatAmount'
+import type {OrderDetail} from '../../hooks/useOrderDetail'
 
 const mockUseOrderDetail = vi.fn()
 

@@ -1,9 +1,9 @@
 import {render as rtlRender, screen} from '@testing-library/react'
 import {MemoryRouter} from 'react-router-dom'
 import type {ReactElement} from 'react'
-import type {BrandsSectionConfig} from '@/shared/types/StorefrontConfig.ts'
-import {BrandsSection} from '../BrandsSection.tsx'
-import {useBrands} from '@/storefront/catalog/hooks/useBrands.ts'
+import type {BrandsSectionConfig} from '@/shared/types/StorefrontConfig'
+import {BrandsSection} from '../BrandsSection'
+import {useBrands} from '@/storefront/catalog/hooks/useBrands'
 import {beforeEach, describe, expect, it, vi} from 'vitest'
 
 vi.mock('@/shared/utils/imageUrl', () => ({

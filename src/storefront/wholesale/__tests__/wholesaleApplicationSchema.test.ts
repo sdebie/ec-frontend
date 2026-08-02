@@ -1,5 +1,5 @@
 import {describe, expect, it} from 'vitest'
-import {wholesaleApplicationSchema} from '../wholesaleApplicationSchema.ts'
+import {wholesaleApplicationSchema} from '../wholesaleApplicationSchema'
 
 const validInput = {
     firstName: 'Jane',

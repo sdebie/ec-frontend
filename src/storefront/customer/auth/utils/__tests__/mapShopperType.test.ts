@@ -1,6 +1,6 @@
 import {describe, expect, it} from 'vitest'
 import fc from 'fast-check'
-import {mapShopperType} from '../mapShopperType.ts'
+import {mapShopperType} from '../mapShopperType'
 
 describe('mapShopperType', () => {
     describe('unit tests', () => {

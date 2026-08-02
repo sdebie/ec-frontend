@@ -1,5 +1,5 @@
 import {describe, expect, it} from 'vitest'
-import {isRelativePath} from '../urlValidation.ts'
+import {isRelativePath} from '../urlValidation'
 
 describe('isRelativePath', () => {
     it('returns true for /account', () => {

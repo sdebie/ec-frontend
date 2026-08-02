@@ -1,6 +1,6 @@
 import {render, screen, fireEvent} from '@testing-library/react'
-import {AccreditorsSection} from '../AccreditorsSection.tsx'
-import type {AccreditorsSectionConfig} from '@/shared/types/StorefrontConfig.ts'
+import {AccreditorsSection} from '../AccreditorsSection'
+import type {AccreditorsSectionConfig} from '@/shared/types/StorefrontConfig'
 import {describe, expect, it, vi} from 'vitest'
 
 vi.mock('@/shared/utils/imageUrl', () => ({

@@ -1,8 +1,8 @@
 import {describe, expect, it} from 'vitest'
 import {render, screen} from '@testing-library/react'
 import {MemoryRouter} from 'react-router-dom'
-import type {CategoryPreviewSectionConfig} from '@/shared/types/StorefrontConfig.ts'
-import {CategoryPreviewSection} from '../CategoryPreviewSection.tsx'
+import type {CategoryPreviewSectionConfig} from '@/shared/types/StorefrontConfig'
+import {CategoryPreviewSection} from '../CategoryPreviewSection'
 
 const baseSection: CategoryPreviewSectionConfig = {
     id: 'cat-preview-1',

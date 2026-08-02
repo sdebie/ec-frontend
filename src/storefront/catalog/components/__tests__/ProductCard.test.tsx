@@ -15,7 +15,7 @@ vi.mock('@/shared/auth/customerAuthStore', () => ({
     },
 }))
 
-vi.mock('@/storefront/customer/account/wishlist/WishlistButton', () => ({
+vi.mock('@/storefront/customer/account/wishlist/components/WishlistButton', () => ({
     WishlistButton: ({variantId, className}: { variantId: string; className?: string }) => (
         <button type="button" aria-label={`Wishlist ${variantId}`} className={className}>♡</button>
     ),

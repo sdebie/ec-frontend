@@ -1,6 +1,23 @@
 import { X } from 'lucide-react'
 import * as React from 'react'
+import { createPortal } from 'react-dom'
 import { cn } from '@/shared/utils/cn'
+
+/**
+ * Theming attributes the dialog must carry across the portal boundary.
+ *
+ * `--c-*` tokens are scoped by these attributes on a LAYOUT element
+ * (`[data-surface='admin']`, `[data-density='compact']`, …), not on <html>.
+ * Rendering into document.body leaves that subtree, so without copying them the
+ * cascade never reaches the dialog: colours fall back to the wrong palette and
+ * `--c-control-h-*` — defined only under `[data-density]` — becomes undefined,
+ * which renders any shared form control inside a dialog at height 0.
+ *
+ * Admin's ThemeApplier mirrors surface/theme/preset onto <body> for portalled
+ * components, but NOT density, and the storefront mirrors nothing — so the
+ * dialog resolves all four itself rather than depending on either.
+ */
+const THEME_ATTRS = ['data-surface', 'data-theme', 'data-preset', 'data-density'] as const
 
 interface DialogContextValue {
   onClose: () => void
@@ -23,6 +40,29 @@ export interface DialogProps {
 }
 
 export function Dialog({ open, onClose, children, size = 'md', className }: DialogProps) {
+  // An anchor rendered at the dialog's ORIGINAL position in the caller's tree.
+  // The portalled content cannot see that tree, so the anchor is what tells us
+  // which surface/density the dialog was opened from — a global lookup would
+  // guess wrong for one of the two portals (admin vs storefront).
+  const anchorRef = React.useRef<HTMLSpanElement>(null)
+  const [themeAttrs, setThemeAttrs] = React.useState<Record<string, string>>({})
+
+  // useLayoutEffect, not useEffect: this runs before paint, so the portal is
+  // re-rendered with its theming attributes in the same frame and there is no
+  // flash of an unthemed dialog.
+  React.useLayoutEffect(() => {
+    if (!open) return
+    const node = anchorRef.current
+    if (!node) return
+
+    const resolved: Record<string, string> = {}
+    for (const attr of THEME_ATTRS) {
+      const value = node.closest(`[${attr}]`)?.getAttribute(attr)
+      if (value) resolved[attr] = value
+    }
+    setThemeAttrs(resolved)
+  }, [open])
+
   React.useEffect(() => {
     function handleKeyDown(e: KeyboardEvent) {
       if (e.key === 'Escape') onClose()
@@ -65,38 +105,48 @@ export function Dialog({ open, onClose, children, size = 'md', className }: Dial
 
   return (
     <DialogContext.Provider value={{ onClose }}>
-      {/* Overlay.
-          `m-0!` is load-bearing, not decoration: this dialog renders INLINE in the
-          caller's tree, so a page-level spacing utility on an ancestor leaks into
-          it. Tailwind's `space-y-*` emits `> :not(:last-child) { margin-block-end }`,
-          which applied a 24px bottom margin here — and because the overlay is
-          `fixed` with `top:0; bottom:0`, that margin is subtracted from its used
-          height (viewport 720 → 696), leaving an unblurred strip along the bottom
-          edge. Neutralising the margin pins it to the full viewport regardless of
-          what the host page does. (The deeper fix is to portal the dialog out of
-          the page tree; see the note in the component's docs.) */}
-      <div
-        className="fixed inset-0 z-100 m-0! bg-[#00000080] backdrop-blur-sm transition-opacity"
-        aria-hidden="true"
-        onClick={onClose}
-      />
+      {/* Zero-size anchor marking where the dialog was opened from. It carries the
+          `hidden` attribute deliberately: that already removes it from the
+          accessibility tree (so no `aria-hidden` is needed), and Tailwind's
+          `space-y-*` targets `> :not([hidden]) ~ :not([hidden])`, so a hidden
+          anchor cannot disturb the host page's spacing rhythm either. */}
+      <span ref={anchorRef} hidden />
 
-      {/* Container — same margin immunity, so the panel stays centred on the
-          true viewport rather than a margin-shrunk box. */}
-      <div className="fixed inset-0 z-100 m-0! flex items-center justify-center p-4 pointer-events-none">
-        <div
-          role="dialog"
-          aria-modal="true"
-          className={cn(
-            'flex flex-col w-full bg-(--c-panel) border border-(--c-border) rounded-xl shadow-2xl pointer-events-auto overflow-hidden animate-in fade-in zoom-in-95 duration-200 max-h-[calc(100vh-6rem)]',
-            sizes[size],
-            className
-          )}
-          onClick={(e) => e.stopPropagation()}
-        >
-          {children}
-        </div>
-      </div>
+      {createPortal(
+        /* Portalled to document.body so no ancestor of the call site can impose
+           layout on the modal. This is what fixes the class of bug where a page
+           utility leaked in — a `space-y-*` parent was applying a bottom margin
+           to the fixed overlay, shrinking it below the viewport and leaving an
+           unblurred strip. Escaping the tree also immunises the dialog against
+           ancestor transforms (which would re-root `position: fixed`), `overflow:
+           hidden` clipping, and stacking contexts that could trap its z-index.
+           The cost is the cascade, which `themeAttrs` restores. */
+        <div {...themeAttrs}>
+          {/* Overlay */}
+          <div
+            className="fixed inset-0 z-100 bg-[#00000080] backdrop-blur-sm transition-opacity"
+            aria-hidden="true"
+            onClick={onClose}
+          />
+
+          {/* Container */}
+          <div className="fixed inset-0 z-100 flex items-center justify-center p-4 pointer-events-none">
+            <div
+              role="dialog"
+              aria-modal="true"
+              className={cn(
+                'flex flex-col w-full bg-(--c-panel) border border-(--c-border) rounded-xl shadow-2xl pointer-events-auto overflow-hidden animate-in fade-in zoom-in-95 duration-200 max-h-[calc(100vh-6rem)]',
+                sizes[size],
+                className
+              )}
+              onClick={(e) => e.stopPropagation()}
+            >
+              {children}
+            </div>
+          </div>
+        </div>,
+        document.body
+      )}
     </DialogContext.Provider>
   )
 }

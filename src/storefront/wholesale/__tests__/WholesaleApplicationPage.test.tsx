@@ -4,7 +4,7 @@ import type {UserEvent} from '@testing-library/user-event'
 import {afterEach, beforeEach, describe, expect, it, vi} from 'vitest'
 import {MemoryRouter} from 'react-router-dom'
 import {useCustomerAuthStore} from '@/shared/auth/customerAuthStore'
-import {WholesaleApplicationPage} from '../WholesaleApplicationPage.tsx'
+import {WholesaleApplicationPage} from '../WholesaleApplicationPage'
 
 const mockMutate = vi.fn()
 let mockState: { mutate: typeof mockMutate; isPending: boolean } = {

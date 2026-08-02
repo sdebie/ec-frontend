@@ -4,7 +4,7 @@ import {useCustomerAuthStore} from '@/shared/auth/customerAuthStore'
 import {formatAmount} from '@/shared/utils/formatAmount'
 import {getDisplayPrice} from '../utils/pricing'
 import {pickFeaturedImage} from '../utils/productImage'
-import {WishlistButton} from '@/storefront/customer/account/wishlist/WishlistButton'
+import {WishlistButton} from '@/storefront/customer/account/wishlist/components/WishlistButton'
 import {CardActions} from './CardActions'
 
 interface PriceTier {
