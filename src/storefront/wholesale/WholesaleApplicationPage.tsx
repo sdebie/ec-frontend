@@ -1,7 +1,7 @@
 import {useEffect, useState} from 'react'
 import {type FieldPath, useForm} from 'react-hook-form'
 import {zodResolver} from '@hookform/resolvers/zod'
-import {Section, SectionHeading} from '@/storefront/sections/shared'
+import {ACCENT_BUTTON_HOVER, SF_FOCUS_RING_PAGE, Section, SectionHeading} from '@/storefront/sections/shared'
 import {Stepper} from '@/shared/ui/components'
 import {useCustomerAuthStore} from '@/shared/auth/customerAuthStore'
 import {
@@ -164,7 +164,7 @@ export function WholesaleApplicationPage() {
                                 <button
                                     type="submit"
                                     disabled={isPending}
-                                    className="rounded-md bg-(--sf-accent) px-5 py-2.5 text-sm font-medium text-(--sf-accent-text) hover:opacity-90 disabled:cursor-not-allowed disabled:opacity-50"
+                                    className={`rounded-md bg-(--sf-accent) px-5 py-2.5 text-sm font-medium text-(--sf-accent-text) transition-colors ${ACCENT_BUTTON_HOVER} ${SF_FOCUS_RING_PAGE} disabled:cursor-not-allowed disabled:opacity-50`}
                                 >
                                     {isPending ? 'Submitting...' : 'Submit Application'}
                                 </button>
@@ -172,7 +172,7 @@ export function WholesaleApplicationPage() {
                                 <button
                                     type="button"
                                     onClick={handleNext}
-                                    className="rounded-md bg-(--sf-accent) px-5 py-2.5 text-sm font-medium text-(--sf-accent-text) hover:opacity-90"
+                                    className={`rounded-md bg-(--sf-accent) px-5 py-2.5 text-sm font-medium text-(--sf-accent-text) transition-colors ${ACCENT_BUTTON_HOVER} ${SF_FOCUS_RING_PAGE}`}
                                 >
                                     Next
                                 </button>

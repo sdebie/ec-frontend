@@ -8,6 +8,7 @@ import { useUpdateProfile } from '../hooks/useUpdateProfile'
 import { useChangePassword } from '../hooks/useChangePassword'
 import { InputField } from '@/shared/ui/components/form/InputField'
 import { PasswordField } from '@/shared/ui/components/form/PasswordField'
+import { ACCENT_BUTTON_HOVER, SF_FOCUS_RING_PAGE } from '@/storefront/sections/shared'
 import type { AxiosError } from 'axios'
 import type { UpdateProfileRequest } from '../types'
 
@@ -431,7 +432,7 @@ export function ProfilePage() {
           <button
             type="submit"
             disabled={isSubmitting || updateProfile.isPending}
-            className="inline-flex items-center rounded-md bg-(--sf-accent) px-4 py-2 text-sm font-medium text-(--sf-accent-text) shadow-sm hover:opacity-90 focus:outline-none focus:ring-2 focus:ring-(--sf-ring) focus:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
+            className={`inline-flex items-center rounded-md bg-(--sf-accent) px-4 py-2 text-sm font-medium text-(--sf-accent-text) shadow-sm transition-colors ${ACCENT_BUTTON_HOVER} ${SF_FOCUS_RING_PAGE} disabled:cursor-not-allowed disabled:opacity-50`}
           >
             {updateProfile.isPending && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
             {updateProfile.isPending ? 'Saving…' : 'Save changes'}
@@ -585,7 +586,7 @@ function PasswordSection({ hasPassword }: { hasPassword: boolean }) {
           <button
             type="submit"
             disabled={changePassword.isPending}
-            className="inline-flex items-center rounded-md bg-(--sf-accent) px-4 py-2 text-sm font-medium text-(--sf-accent-text) shadow-sm hover:opacity-90 focus:outline-none focus:ring-2 focus:ring-(--sf-ring) focus:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
+            className={`inline-flex items-center rounded-md bg-(--sf-accent) px-4 py-2 text-sm font-medium text-(--sf-accent-text) shadow-sm transition-colors ${ACCENT_BUTTON_HOVER} ${SF_FOCUS_RING_PAGE} disabled:cursor-not-allowed disabled:opacity-50`}
           >
             {changePassword.isPending && (
               <Loader2 className="mr-2 h-4 w-4 animate-spin" />

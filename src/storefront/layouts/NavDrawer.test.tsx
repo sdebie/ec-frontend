@@ -20,6 +20,7 @@ const sampleItems: NavItem[] = [
   { id: '1', label: 'Products', path: '/products', external: false, sortOrder: 0 },
   { id: '2', label: 'About', path: '/about', external: false, sortOrder: 1 },
   { id: '3', label: 'Wholesale Portal', path: 'https://wholesale.example.com', external: true, sortOrder: 2 },
+  { id: '4', label: 'Request a Quote', path: '/quote-request', external: false, sortOrder: 3, emphasis: 'cta' as const },
 ]
 
 function renderNavDrawer(
@@ -156,6 +157,27 @@ describe('NavDrawer', () => {
       )
 
       expect(screen.queryByRole('dialog')).not.toBeInTheDocument()
+    })
+  })
+
+  describe('emphasis: "cta" drawer variant', () => {
+    it('renders CTA item with full-width chip classes', () => {
+      renderNavDrawer()
+
+      const ctaLink = screen.getByRole('link', { name: 'Request a Quote' })
+      expect(ctaLink.className).toContain('rounded-full')
+      expect(ctaLink.className).toContain('border-(--sf-accent)')
+      expect(ctaLink.className).toContain('w-full')
+      expect(ctaLink.className).toContain('text-center')
+    })
+
+    it('renders default items without chip classes in drawer', () => {
+      renderNavDrawer()
+
+      const defaultLink = screen.getByRole('link', { name: 'Products' })
+      expect(defaultLink.className).not.toContain('rounded-full')
+      expect(defaultLink.className).not.toContain('border-(--sf-accent)')
+      expect(defaultLink.className).not.toContain('w-full')
     })
   })
 })

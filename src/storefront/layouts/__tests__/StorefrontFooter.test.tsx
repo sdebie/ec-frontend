@@ -3,7 +3,7 @@ import { render, screen } from '@testing-library/react'
 import { MemoryRouter } from 'react-router-dom'
 import { StorefrontConfigContext } from '@/shared/config/storefrontConfig.context'
 import { StorefrontFooter } from '../StorefrontFooter'
-import type { StorefrontConfig } from '@/shared/types/StorefrontConfig'
+import type { StorefrontConfig, ContactConfig } from '@/shared/types/StorefrontConfig'
 
 const baseConfig: StorefrontConfig = {
   clientId: 'test-client',
@@ -178,6 +178,173 @@ describe('StorefrontFooter', () => {
     socialLinks.forEach((link) => {
       const elements = screen.getAllByRole('link', { name: link.label })
       expect(elements).toHaveLength(1)
+    })
+  })
+
+  describe('focus recipe on footer links (task 1.6)', () => {
+    it('navigation column links have the nav focus ring classes', () => {
+      renderFooter(baseConfig)
+
+      const internalLink = screen.getByRole('link', { name: 'Category A' })
+      expect(internalLink.className).toContain('focus-visible:ring-2')
+      expect(internalLink.className).toContain('focus-visible:ring-offset-(--sf-nav-background)')
+
+      const externalLink = screen.getByRole('link', { name: 'External Link' })
+      expect(externalLink.className).toContain('focus-visible:ring-2')
+      expect(externalLink.className).toContain('focus-visible:ring-offset-(--sf-nav-background)')
+    })
+
+    it('legal links have the nav focus ring classes', () => {
+      renderFooter(baseConfig)
+
+      const privacyLink = screen.getByRole('link', { name: 'Privacy Policy' })
+      expect(privacyLink.className).toContain('focus-visible:ring-2')
+      expect(privacyLink.className).toContain('focus-visible:ring-offset-(--sf-nav-background)')
+
+      const termsLink = screen.getByRole('link', { name: 'External Terms' })
+      expect(termsLink.className).toContain('focus-visible:ring-2')
+      expect(termsLink.className).toContain('focus-visible:ring-offset-(--sf-nav-background)')
+    })
+
+    it('social icon links have the nav focus ring classes', () => {
+      renderFooter(baseConfig)
+
+      const facebookLink = screen.getByRole('link', { name: 'Facebook' })
+      expect(facebookLink.className).toContain('focus-visible:ring-2')
+      expect(facebookLink.className).toContain('focus-visible:ring-offset-(--sf-nav-background)')
+    })
+  })
+})
+
+
+describe('FooterContactBlock', () => {
+  const fullContact: ContactConfig = {
+    phones: ['+27 11 123 4567'],
+    whatsapp: '+27 82 555 1234',
+    emails: ['info@store.co.za'],
+    physicalAddress: '123 Main Road, Johannesburg',
+    businessHours: 'Mon–Fri 8:00–17:00',
+  }
+
+  function renderWithContact(contact: ContactConfig | undefined) {
+    const config: StorefrontConfig = {
+      ...baseConfig,
+      contact,
+    }
+    return render(
+      <StorefrontConfigContext.Provider value={config}>
+        <MemoryRouter>
+          <StorefrontFooter />
+        </MemoryRouter>
+      </StorefrontConfigContext.Provider>
+    )
+  }
+
+  describe('full contact', () => {
+    it('renders phone as tel: link', () => {
+      renderWithContact(fullContact)
+
+      const phoneLink = screen.getByRole('link', { name: '+27 11 123 4567' })
+      expect(phoneLink).toHaveAttribute('href', 'tel:+27 11 123 4567')
+    })
+
+    it('renders whatsapp as wa.me link with digits only', () => {
+      renderWithContact(fullContact)
+
+      const waLink = screen.getByRole('link', { name: 'WhatsApp' })
+      expect(waLink).toHaveAttribute('href', 'https://wa.me/27825551234')
+      expect(waLink).toHaveAttribute('target', '_blank')
+      expect(waLink).toHaveAttribute('rel', 'noopener noreferrer')
+    })
+
+    it('renders email as mailto: link', () => {
+      renderWithContact(fullContact)
+
+      const emailLink = screen.getByRole('link', { name: 'info@store.co.za' })
+      expect(emailLink).toHaveAttribute('href', 'mailto:info@store.co.za')
+    })
+
+    it('renders physical address as text', () => {
+      renderWithContact(fullContact)
+
+      expect(screen.getByText('123 Main Road, Johannesburg')).toBeInTheDocument()
+    })
+
+    it('renders business hours as text', () => {
+      renderWithContact(fullContact)
+
+      expect(screen.getByText('Mon–Fri 8:00–17:00')).toBeInTheDocument()
+    })
+
+    it('applies focus recipe classes to links', () => {
+      renderWithContact(fullContact)
+
+      const phoneLink = screen.getByRole('link', { name: '+27 11 123 4567' })
+      expect(phoneLink.className).toContain('focus-visible:ring-2')
+      expect(phoneLink.className).toContain('focus-visible:ring-offset-(--sf-nav-background)')
+    })
+
+    it('renders contact block with data-testid', () => {
+      renderWithContact(fullContact)
+
+      expect(screen.getByTestId('footer-contact-block')).toBeInTheDocument()
+    })
+  })
+
+  describe('partial contact', () => {
+    it('renders only phone when only phone is present', () => {
+      renderWithContact({ phones: ['+27 11 999 0000'] })
+
+      expect(screen.getByRole('link', { name: '+27 11 999 0000' })).toBeInTheDocument()
+      expect(screen.queryByRole('link', { name: 'WhatsApp' })).not.toBeInTheDocument()
+      expect(screen.queryByText('123 Main Road')).not.toBeInTheDocument()
+    })
+
+    it('renders only whatsapp when only whatsapp is present', () => {
+      renderWithContact({ whatsapp: '+27821234567' })
+
+      expect(screen.getByRole('link', { name: 'WhatsApp' })).toBeInTheDocument()
+      expect(screen.queryByRole('link', { name: /tel:/ })).not.toBeInTheDocument()
+    })
+
+    it('renders only email when only email is present', () => {
+      renderWithContact({ emails: ['hello@example.com'] })
+
+      const emailLink = screen.getByRole('link', { name: 'hello@example.com' })
+      expect(emailLink).toHaveAttribute('href', 'mailto:hello@example.com')
+      expect(screen.queryByRole('link', { name: 'WhatsApp' })).not.toBeInTheDocument()
+    })
+  })
+
+  describe('empty contact', () => {
+    it('does not render contact block when contact is undefined', () => {
+      renderWithContact(undefined)
+
+      expect(screen.queryByTestId('footer-contact-block')).not.toBeInTheDocument()
+    })
+
+    it('does not render contact block when contact is empty object', () => {
+      renderWithContact({})
+
+      expect(screen.queryByTestId('footer-contact-block')).not.toBeInTheDocument()
+    })
+
+    it('does not render contact block when all fields are blank strings', () => {
+      renderWithContact({
+        phones: ['  '],
+        whatsapp: '  ',
+        emails: ['  '],
+        physicalAddress: '  ',
+        businessHours: '  ',
+      })
+
+      expect(screen.queryByTestId('footer-contact-block')).not.toBeInTheDocument()
+    })
+
+    it('does not render contact block when phones is empty array', () => {
+      renderWithContact({ phones: [] })
+
+      expect(screen.queryByTestId('footer-contact-block')).not.toBeInTheDocument()
     })
   })
 })

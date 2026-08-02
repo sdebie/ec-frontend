@@ -6,6 +6,7 @@ import {getDisplayPrice} from '../utils/pricing'
 import {pickFeaturedImage} from '@/storefront/catalog'
 import {WishlistButton} from '@/storefront/customer/account/wishlist/components/WishlistButton'
 import {CardActions} from './CardActions'
+import {SF_FOCUS_RING} from '@/storefront/sections/shared/focusRing'
 
 interface PriceTier {
     price: number | null
@@ -94,10 +95,17 @@ export function ProductCard({product, variantId, variantLabel, badge, layout = '
     }
     const {price, originalPrice} = getDisplayPrice(priceTiers, customerType)
 
-    // Secondary wholesale line for non-wholesale shoppers — the effective
-    // wholesale price comes from the same selector (the client never calculates).
-    const wholesaleDisplay =
-        customerType !== 'WHOLESALE' ? getDisplayPrice(priceTiers, 'WHOLESALE').price : null
+    // Secondary wholesale line for non-wholesale shoppers — shown only when the
+    // wholesale display price exists AND differs from the retail display price.
+    // Selection + comparison only: the client never calculates (design C10).
+    const wholesaleDisplay = (() => {
+        if (customerType === 'WHOLESALE') return null
+        const retailDisplay = getDisplayPrice(priceTiers, 'RETAIL').price
+        const wholesalePrice = getDisplayPrice(priceTiers, 'WHOLESALE').price
+        if (retailDisplay == null || wholesalePrice == null) return null
+        if (retailDisplay === wholesalePrice) return null
+        return wholesalePrice
+    })()
 
     if (layout === 'row') {
         return (
@@ -114,7 +122,7 @@ export function ProductCard({product, variantId, variantLabel, badge, layout = '
                     image would turn each "row" into a ~viewport-tall card) */}
                 <div
                     className={`relative ${mobileImage === 'thumbnail' ? 'w-20' : 'w-28'} sm:w-40 aspect-square shrink-0 self-start overflow-hidden bg-(--sf-surface-muted)`}>
-                    <Link to={productUrl} className="block h-full w-full">
+                    <Link to={productUrl} className={`block h-full w-full ${SF_FOCUS_RING.page} rounded-sm`}>
                         {imageUrl ? (
                             <img
                                 src={imageUrl}
@@ -179,7 +187,7 @@ export function ProductCard({product, variantId, variantLabel, badge, layout = '
 
                 {/* Identity — beside the image at every size */}
                 <div className="flex min-w-0 flex-col p-3 sm:flex-1 sm:p-4">
-                    <Link to={productUrl} className="hover:underline">
+                    <Link to={productUrl} className={`hover:underline ${SF_FOCUS_RING.page} rounded-sm`}>
                         <h3 className="text-sm font-medium text-(--sf-text) line-clamp-2">
                             {product.name}
                         </h3>
@@ -266,7 +274,7 @@ export function ProductCard({product, variantId, variantLabel, badge, layout = '
             data-layout="grid"
         >
             <div className={`relative ${gridImageStageClass} overflow-hidden bg-(--sf-surface-muted)`}>
-                <Link to={productUrl} className="block h-full w-full">
+                <Link to={productUrl} className={`block h-full w-full ${SF_FOCUS_RING.page} rounded-sm`}>
                     {imageUrl ? (
                         <img
                             src={imageUrl}
@@ -327,7 +335,7 @@ export function ProductCard({product, variantId, variantLabel, badge, layout = '
             </div>
 
             <div className="flex flex-1 flex-col p-3 sm:p-4">
-                <Link to={productUrl} className="hover:underline">
+                <Link to={productUrl} className={`hover:underline ${SF_FOCUS_RING.page} rounded-sm`}>
                     {/* min-h reserves two lines so SKU/stock/price rows align across cards */}
                     <h3 className="min-h-10 text-sm font-medium text-(--sf-text) line-clamp-2">
                         {product.name}

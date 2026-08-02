@@ -6,6 +6,7 @@ import { z } from 'zod'
 import { useRequestPasswordReset } from '@/storefront/customer/auth/hooks/useRequestPasswordReset'
 import { useVerifyPasswordResetCode } from '@/storefront/customer/auth/hooks/useVerifyPasswordResetCode'
 import { useCompletePasswordReset } from '@/storefront/customer/auth/hooks/useCompletePasswordReset'
+import { ACCENT_BUTTON_HOVER, SF_FOCUS_RING_PAGE } from '@/storefront/sections/shared'
 
 type ResetStep = 'request' | 'verify' | 'complete' | 'success'
 
@@ -162,7 +163,7 @@ export function ForgotPasswordForm({ onBackToLogin }: ForgotPasswordFormProps) {
           <button
             type="submit"
             disabled={requestMutation.isPending}
-            className="flex w-full justify-center rounded-md bg-(--sf-accent) px-3 py-2 text-sm font-semibold text-(--sf-accent-text) shadow-sm hover:opacity-90 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-(--sf-ring) disabled:cursor-not-allowed disabled:opacity-50"
+            className={`flex w-full justify-center rounded-md bg-(--sf-accent) px-3 py-2 text-sm font-semibold text-(--sf-accent-text) shadow-sm transition-colors ${ACCENT_BUTTON_HOVER} ${SF_FOCUS_RING_PAGE} disabled:cursor-not-allowed disabled:opacity-50`}
           >
             {requestMutation.isPending ? 'Sending…' : 'Send code'}
           </button>
@@ -227,7 +228,7 @@ export function ForgotPasswordForm({ onBackToLogin }: ForgotPasswordFormProps) {
           <button
             type="submit"
             disabled={verifyMutation.isPending}
-            className="flex w-full justify-center rounded-md bg-(--sf-accent) px-3 py-2 text-sm font-semibold text-(--sf-accent-text) shadow-sm hover:opacity-90 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-(--sf-ring) disabled:cursor-not-allowed disabled:opacity-50"
+            className={`flex w-full justify-center rounded-md bg-(--sf-accent) px-3 py-2 text-sm font-semibold text-(--sf-accent-text) shadow-sm transition-colors ${ACCENT_BUTTON_HOVER} ${SF_FOCUS_RING_PAGE} disabled:cursor-not-allowed disabled:opacity-50`}
           >
             {verifyMutation.isPending ? 'Verifying…' : 'Verify code'}
           </button>
@@ -301,7 +302,7 @@ export function ForgotPasswordForm({ onBackToLogin }: ForgotPasswordFormProps) {
           <button
             type="submit"
             disabled={completeMutation.isPending}
-            className="flex w-full justify-center rounded-md bg-(--sf-accent) px-3 py-2 text-sm font-semibold text-(--sf-accent-text) shadow-sm hover:opacity-90 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-(--sf-ring) disabled:cursor-not-allowed disabled:opacity-50"
+            className={`flex w-full justify-center rounded-md bg-(--sf-accent) px-3 py-2 text-sm font-semibold text-(--sf-accent-text) shadow-sm transition-colors ${ACCENT_BUTTON_HOVER} ${SF_FOCUS_RING_PAGE} disabled:cursor-not-allowed disabled:opacity-50`}
           >
             {completeMutation.isPending ? 'Resetting…' : 'Reset password'}
           </button>

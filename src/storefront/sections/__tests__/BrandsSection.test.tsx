@@ -158,4 +158,72 @@ describe('BrandsSection', () => {
         const images = screen.getAllByRole('img')
         expect(images).toHaveLength(3)
     })
+
+    describe('minItems prop (design C9)', () => {
+        it('default (minItems=1) with 1 brand renders the section', () => {
+            mockedUseBrands.mockReturnValue({
+                brands: makeBrands(1),
+                isLoading: false,
+                isError: false,
+            })
+
+            const {container} = render(<BrandsSection section={makeSection()}/>)
+            expect(container.querySelector('section')).toBeInTheDocument()
+            expect(screen.getByRole('img')).toBeInTheDocument()
+        })
+
+        it('minItems: 4 with 3 brands renders nothing', () => {
+            mockedUseBrands.mockReturnValue({
+                brands: makeBrands(3),
+                isLoading: false,
+                isError: false,
+            })
+
+            const {container} = render(
+                <BrandsSection section={makeSection({minItems: 4})}/>
+            )
+            expect(container.innerHTML).toBe('')
+        })
+
+        it('minItems: 4 with 4 brands renders the section', () => {
+            mockedUseBrands.mockReturnValue({
+                brands: makeBrands(4),
+                isLoading: false,
+                isError: false,
+            })
+
+            const {container} = render(
+                <BrandsSection section={makeSection({minItems: 4})}/>
+            )
+            expect(container.querySelector('section')).toBeInTheDocument()
+            expect(screen.getAllByRole('img')).toHaveLength(4)
+        })
+
+        it('loading state unchanged — returns null when loading with no brands', () => {
+            mockedUseBrands.mockReturnValue({
+                brands: [],
+                isLoading: true,
+                isError: false,
+            })
+
+            const {container} = render(
+                <BrandsSection section={makeSection({minItems: 2})}/>
+            )
+            expect(container.innerHTML).toBe('')
+        })
+
+        it('error state unchanged — renders brands if available despite error', () => {
+            mockedUseBrands.mockReturnValue({
+                brands: makeBrands(3),
+                isLoading: false,
+                isError: true,
+            })
+
+            const {container} = render(
+                <BrandsSection section={makeSection({minItems: 2})}/>
+            )
+            expect(container.querySelector('section')).toBeInTheDocument()
+            expect(screen.getAllByRole('img')).toHaveLength(3)
+        })
+    })
 })

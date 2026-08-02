@@ -1,4 +1,5 @@
 import {Link} from 'react-router-dom'
+import {ACCENT_BUTTON_HOVER, SF_FOCUS_RING_PAGE} from '@/storefront/sections/shared'
 
 /**
  * Empty cart. Framed as a stage in shopping rather than a dead end: one clear
@@ -17,7 +18,7 @@ export function CartEmptyState() {
             </p>
             <Link
                 to="/products"
-                className="inline-block rounded-lg bg-(--sf-accent) px-6 py-3 font-medium text-(--sf-accent-text) transition-colors hover:opacity-90"
+                className={`inline-block rounded-lg bg-(--sf-accent) px-6 py-3 font-medium text-(--sf-accent-text) transition-colors ${ACCENT_BUTTON_HOVER} ${SF_FOCUS_RING_PAGE}`}
             >
                 Continue shopping
             </Link>

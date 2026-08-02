@@ -1,6 +1,7 @@
 import {Link} from 'react-router-dom'
 import {useStorefrontConfig} from '@/shared/config/storefrontConfig.context'
 import {formatAmount} from '@/shared/utils/formatAmount'
+import {ACCENT_BUTTON_HOVER, SF_FOCUS_RING_PAGE} from '@/storefront/sections/shared'
 
 interface CartSummaryProps {
     /** Distinct lines in the cart. */
@@ -104,7 +105,7 @@ export function CartSummary({
                     type="button"
                     disabled={!canCheckout}
                     onClick={onCheckout}
-                    className="min-h-11 w-full cursor-pointer rounded-lg bg-(--sf-accent) px-4 py-2 text-sm font-medium text-(--sf-accent-text) transition-colors hover:opacity-90 disabled:cursor-not-allowed disabled:opacity-50"
+                    className={`min-h-11 w-full cursor-pointer rounded-lg bg-(--sf-accent) px-4 py-2 text-sm font-medium text-(--sf-accent-text) transition-colors ${ACCENT_BUTTON_HOVER} ${SF_FOCUS_RING_PAGE} disabled:cursor-not-allowed disabled:opacity-50`}
                 >
                     {checkoutLoading ? 'Processing...' : 'Proceed to checkout'}
                 </button>

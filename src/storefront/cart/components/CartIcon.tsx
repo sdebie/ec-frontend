@@ -1,6 +1,7 @@
 import {Link} from 'react-router-dom'
 import {ShoppingCart} from 'lucide-react'
 import {useCartStore} from '../store/cartStore'
+import {SF_FOCUS_RING} from '@/storefront/sections/shared/focusRing'
 
 interface CartIconProps {
     className?: string
@@ -12,7 +13,7 @@ export function CartIcon({className}: CartIconProps) {
     return (
         <Link
             to="/cart"
-            className={`relative flex items-center justify-center rounded-md p-2 text-(--sf-nav-icon-text) hover:text-(--sf-nav-icon-text-hover) hover:bg-(--sf-nav-border) ${className ?? ''}`}
+            className={`relative flex items-center justify-center rounded-md p-2 text-(--sf-nav-icon-text) hover:text-(--sf-nav-icon-text-hover) hover:bg-(--sf-nav-border) ${SF_FOCUS_RING.nav} ${className ?? ''}`}
             aria-label={itemCount > 0 ? `Cart with ${itemCount} items` : 'Cart'}
         >
             <ShoppingCart className="h-5 w-5" aria-hidden="true"/>

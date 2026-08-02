@@ -3,6 +3,7 @@ import {Link} from 'react-router-dom'
 import {InputField} from '@/shared/ui/components/form/InputField'
 import type {CheckoutFormValues} from '../checkoutFormSchema'
 import {CheckoutSection} from './CheckoutSection'
+import {ACCENT_LINK_HOVER} from '@/storefront/sections/shared'
 
 interface ContactSectionProps {
     control: Control<CheckoutFormValues>
@@ -30,7 +31,7 @@ export function ContactSection({control, isAuthenticated, customerProfile}: Cont
             {!isAuthenticated && (
                 <p className="mt-1 text-sm text-(--sf-muted-text)">
                     Have an account?{' '}
-                    <Link to="/account/login" className="text-(--sf-accent) hover:opacity-90 underline">
+                    <Link to="/account/login" className={`text-(--sf-accent) ${ACCENT_LINK_HOVER} underline`}>
                         Sign in
                     </Link>
                 </p>
@@ -96,7 +97,7 @@ export function ContactSection({control, isAuthenticated, customerProfile}: Cont
 
             {!isAuthenticated && (
                 <p className="mt-3 text-sm text-(--sf-muted-text)">
-                    <Link to="/register" className="text-(--sf-accent) hover:opacity-90 underline">
+                    <Link to="/register" className={`text-(--sf-accent) ${ACCENT_LINK_HOVER} underline`}>
                         Create an account
                     </Link>
                 </p>

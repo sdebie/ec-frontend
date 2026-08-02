@@ -1,6 +1,7 @@
 import {useEffect, useRef, useState} from 'react'
 import {Link} from 'react-router-dom'
 import {useCartStore} from '@/storefront/cart/store/cartStore'
+import {ACCENT_BUTTON_HOVER, SF_FOCUS_RING_PAGE} from '@/storefront/sections/shared'
 import {QuantityStepper} from './QuantityStepper'
 
 interface CardActionsProps {
@@ -151,7 +152,7 @@ export function CardActions({variantId, productName, productSlug, inStock, hasPr
             <button
                 type="button"
                 onClick={handleAddClick}
-                className="w-full rounded-lg px-4 py-2 text-sm font-medium bg-(--sf-accent) text-(--sf-accent-text) hover:opacity-90 transition-colors cursor-pointer"
+                className={`w-full rounded-lg px-4 py-2 text-sm font-medium bg-(--sf-accent) text-(--sf-accent-text) transition-colors cursor-pointer ${ACCENT_BUTTON_HOVER} ${SF_FOCUS_RING_PAGE}`}
             >
                 {showConfirmation ? 'Added \u2713' : 'Add to cart'}
             </button>

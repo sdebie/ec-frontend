@@ -20,7 +20,7 @@ function BrandTile({name, slug, logoUrl}: BrandTileProps) {
         <Link
             to={`/products?brand=${encodeURIComponent(slug)}`}
             aria-label={`Shop ${name} products`}
-            className="flex h-16 items-center justify-center overflow-hidden rounded-2xl border border-(--sf-border) bg-(--sf-panel) p-3 transition-all hover:-translate-y-0.5 hover:border-(--sf-accent) hover:bg-[color-mix(in_srgb,var(--sf-accent)_88%,var(--sf-panel))] hover:shadow-md sm:h-16 sm:p-4 lg:h-20">
+            className="flex h-16 items-center justify-center overflow-hidden rounded-2xl border border-(--sf-border) bg-(--sf-panel) p-3 transition-all hover:-translate-y-0.5 hover:border-(--sf-accent) hover:bg-[color-mix(in_srgb,var(--sf-accent)_8%,var(--sf-panel))] hover:shadow-md sm:h-16 sm:p-4 lg:h-20">
             {showImage ? (
                 <img
                     src={src}
@@ -40,10 +40,11 @@ function BrandTile({name, slug, logoUrl}: BrandTileProps) {
 export function BrandsSection({section}: { section: BrandsSectionConfig }) {
     const {brands, isLoading} = useBrands()
 
-    if (isLoading && brands.length === 0) return null
-    if (brands.length === 0) return null
+    const {title, eyebrow, variant, limit, minItems = 1} = section.props
 
-    const {title, eyebrow, variant, limit} = section.props
+    if (isLoading && brands.length === 0) return null
+    if (brands.length < minItems) return null
+
     const displayBrands = limit ? brands.slice(0, limit) : brands
 
     return (

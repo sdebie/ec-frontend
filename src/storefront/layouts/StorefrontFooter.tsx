@@ -1,26 +1,11 @@
-import { Globe } from 'lucide-react'
+import { Globe, Phone, MessageCircle, Mail, MapPin, Clock } from 'lucide-react'
 import { Link } from 'react-router-dom'
 import { useStorefrontConfig } from '@/shared/config/storefrontConfig.context'
 import { resolveImageUrl } from '@/shared/utils/imageUrl'
-import {
-  IconFacebook,
-  IconInstagram,
-  IconLinkedIn,
-  IconXTwitter,
-  IconYouTube,
-  IconTikTok,
-} from '@/shared/ui/icons'
-import type { FooterColumn, FooterLegalLink, FooterSocialLink } from '@/shared/types/StorefrontConfig'
-
-const socialIconMap: Record<string, React.ComponentType<React.SVGProps<SVGSVGElement>>> = {
-  facebook: IconFacebook,
-  instagram: IconInstagram,
-  linkedin: IconLinkedIn,
-  x: IconXTwitter,
-  twitter: IconXTwitter,
-  youtube: IconYouTube,
-  tiktok: IconTikTok,
-}
+import { waMeUrl } from '@/shared/utils/waMeUrl'
+import { socialIconMap } from '@/shared/ui/icons'
+import { SF_FOCUS_RING } from '@/storefront/sections/shared/focusRing'
+import type { ContactConfig, FooterColumn, FooterLegalLink, FooterSocialLink } from '@/shared/types/StorefrontConfig'
 
 function SocialIcon({ link }: { link: FooterSocialLink }) {
   const IconComponent = socialIconMap[link.icon] ?? null
@@ -31,7 +16,7 @@ function SocialIcon({ link }: { link: FooterSocialLink }) {
       target="_blank"
       rel="noopener noreferrer"
       aria-label={link.label}
-      className="transition-colors"
+      className={`transition-colors ${SF_FOCUS_RING.nav} rounded-sm`}
       style={{ color: 'var(--sf-nav-icon-text)' }}
     >
       {IconComponent ? (
@@ -40,6 +25,81 @@ function SocialIcon({ link }: { link: FooterSocialLink }) {
         <Globe size={20} aria-hidden="true" />
       )}
     </a>
+  )
+}
+
+/**
+ * Returns true when contact has data relevant for the footer block:
+ * phones[0], whatsapp, emails[0], physicalAddress, or businessHours.
+ */
+function hasFooterContact(contact: ContactConfig | undefined): boolean {
+  if (!contact) return false
+  return !!(
+    contact.phones?.[0]?.trim() ||
+    contact.whatsapp?.trim() ||
+    contact.emails?.[0]?.trim() ||
+    contact.physicalAddress?.trim() ||
+    contact.businessHours?.trim()
+  )
+}
+
+export function FooterContactBlock({ contact }: { contact: ContactConfig }) {
+  const phone = contact.phones?.[0]?.trim()
+  const whatsapp = contact.whatsapp?.trim()
+  const email = contact.emails?.[0]?.trim()
+  const address = contact.physicalAddress?.trim()
+  const hours = contact.businessHours?.trim()
+
+  return (
+    <div className="mb-4 space-y-2 text-sm" data-testid="footer-contact-block">
+      {phone && (
+        <div className="flex items-center gap-2">
+          <Phone size={16} aria-hidden="true" className="shrink-0 opacity-70" />
+          <a
+            href={`tel:${phone}`}
+            className={`transition-colors hover:[color:var(--sf-nav-text-hover)] ${SF_FOCUS_RING.nav} rounded-sm`}
+          >
+            {phone}
+          </a>
+        </div>
+      )}
+      {whatsapp && (
+        <div className="flex items-center gap-2">
+          <MessageCircle size={16} aria-hidden="true" className="shrink-0 opacity-70" />
+          <a
+            href={waMeUrl(whatsapp)}
+            target="_blank"
+            rel="noopener noreferrer"
+            className={`transition-colors hover:[color:var(--sf-nav-text-hover)] ${SF_FOCUS_RING.nav} rounded-sm`}
+          >
+            WhatsApp
+          </a>
+        </div>
+      )}
+      {email && (
+        <div className="flex items-center gap-2">
+          <Mail size={16} aria-hidden="true" className="shrink-0 opacity-70" />
+          <a
+            href={`mailto:${email}`}
+            className={`transition-colors hover:[color:var(--sf-nav-text-hover)] ${SF_FOCUS_RING.nav} rounded-sm`}
+          >
+            {email}
+          </a>
+        </div>
+      )}
+      {address && (
+        <div className="flex items-center gap-2">
+          <MapPin size={16} aria-hidden="true" className="shrink-0 opacity-70" />
+          <span>{address}</span>
+        </div>
+      )}
+      {hours && (
+        <div className="flex items-center gap-2">
+          <Clock size={16} aria-hidden="true" className="shrink-0 opacity-70" />
+          <span>{hours}</span>
+        </div>
+      )}
+    </div>
   )
 }
 
@@ -57,7 +117,7 @@ function NavigationColumns({ columns }: { columns: FooterColumn[] }) {
                     href={link.to}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="text-sm transition-colors hover:[color:var(--sf-nav-text-hover)]"
+                    className={`text-sm transition-colors hover:[color:var(--sf-nav-text-hover)] ${SF_FOCUS_RING.nav} rounded-sm`}
                   >
                     {link.label}
                   </a>
@@ -65,7 +125,7 @@ function NavigationColumns({ columns }: { columns: FooterColumn[] }) {
                   <Link
                     to={link.to}
                     onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
-                    className="text-sm transition-colors hover:[color:var(--sf-nav-text-hover)]"
+                    className={`text-sm transition-colors hover:[color:var(--sf-nav-text-hover)] ${SF_FOCUS_RING.nav} rounded-sm`}
                   >
                     {link.label}
                   </Link>
@@ -118,6 +178,10 @@ export function StorefrontFooter() {
               </div>
             )}
 
+            {hasFooterContact(config.contact) && (
+              <FooterContactBlock contact={config.contact!} />
+            )}
+
             {footer.socialLinks && footer.socialLinks.length > 0 && (
               <div className="flex items-center gap-3">
                 {footer.socialLinks.map((link) => (
@@ -153,7 +217,7 @@ export function StorefrontFooter() {
                     href={link.to}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="text-sm transition-colors hover:[color:var(--sf-nav-text-hover)]"
+                    className={`text-sm transition-colors hover:[color:var(--sf-nav-text-hover)] ${SF_FOCUS_RING.nav} rounded-sm`}
                   >
                     {link.label}
                   </a>
@@ -162,7 +226,7 @@ export function StorefrontFooter() {
                     key={link.id}
                     to={link.to}
                     onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
-                    className="text-sm transition-colors hover:[color:var(--sf-nav-text-hover)]"
+                    className={`text-sm transition-colors hover:[color:var(--sf-nav-text-hover)] ${SF_FOCUS_RING.nav} rounded-sm`}
                   >
                     {link.label}
                   </Link>

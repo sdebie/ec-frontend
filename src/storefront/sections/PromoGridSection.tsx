@@ -4,6 +4,7 @@ import { cn } from '@/shared/utils/cn'
 import { resolveImageUrl } from '@/shared/utils/imageUrl'
 import type { PromoGridSectionConfig } from '@/shared/types/StorefrontConfig'
 import { Section, SectionHeading } from './shared'
+import { sectionIconMap } from './shared/sectionIcons'
 
 // Single-column base so tiles stack on phones; `columns` sets the desktop count.
 // Used by the 'feature-first' layout, which needs a real grid for its col-span.
@@ -33,6 +34,7 @@ export function PromoGridSection({ section }: { section: PromoGridSectionConfig 
     layout = 'cards',
     compact = false,
     columns = 3,
+    rowAlign = 'center',
     items,
   } = section.props
 
@@ -55,12 +57,15 @@ export function PromoGridSection({ section }: { section: PromoGridSectionConfig 
           'gap-4',
           layout === 'feature-first'
             ? cn('grid', gridColsClass[columns])
-            : 'flex flex-wrap justify-center',
+            : cn('flex flex-wrap', rowAlign === 'start' ? 'justify-start' : 'justify-center'),
         )}
       >
         {items.map((item, index) => {
           const resolvedImage =
             item.imageUrl && !failedImageIds.has(item.id) ? resolveImageUrl(item.imageUrl) : null
+          // Direct map access (not a call) — the react-hooks/static-components
+          // rule false-positives on function-call lookups of component refs.
+          const TileIcon = item.icon ? sectionIconMap[item.icon] : undefined
 
           return (
             <article
@@ -87,6 +92,14 @@ export function PromoGridSection({ section }: { section: PromoGridSectionConfig 
                   <p className="text-xs font-semibold uppercase tracking-wide text-(--sf-muted-text)">
                     {item.eyebrow}
                   </p>
+                )}
+                {TileIcon && (
+                  <span
+                    className="mb-3 inline-flex h-10 w-10 items-center justify-center rounded-lg bg-[color-mix(in_srgb,var(--sf-accent)_10%,transparent)]"
+                    aria-hidden="true"
+                  >
+                    <TileIcon className="h-5 w-5 text-(--sf-accent)" />
+                  </span>
                 )}
                 <h3 className="mt-1 font-medium">{item.title}</h3>
                 {item.description && (

@@ -49,12 +49,12 @@ function AccreditorTile({name, logoUrl, url}: AccreditorTileProps) {
 }
 
 export function AccreditorsSection({section}: { section: AccreditorsSectionConfig }) {
-    const {title, eyebrow, items} = section.props
+    const {title, eyebrow, variant, items} = section.props
 
     if (items.length === 0) return null
 
     return (
-        <Section>
+        <Section variant={variant}>
             {title && <SectionHeading title={title} eyebrow={eyebrow} />}
             <div className="flex flex-wrap items-center justify-center gap-4 sm:gap-5">
                 {items.map((item) => (

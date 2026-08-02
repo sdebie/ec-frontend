@@ -212,3 +212,166 @@ describe('HeroSection', () => {
         })
     })
 })
+
+describe('HeroSection footnote (design C8)', () => {
+    it('renders nothing when footnote is absent (byte-identical to today)', () => {
+        const {container} = renderHero()
+        // The footnote container has both mt-4 and text-sm; no such element should exist
+        const footnoteEl = container.querySelector('.mt-4.text-sm')
+        expect(footnoteEl).not.toBeInTheDocument()
+    })
+
+    it('renders nothing when footnote is an empty array', () => {
+        const {container} = renderHero({
+            ...baseSection,
+            props: {...baseSection.props, footnote: []},
+        })
+        // The footnote container has both mt-4 and text-sm; the subtitle has mt-4 but not text-sm
+        const footnoteEl = container.querySelector('.mt-4.text-sm')
+        expect(footnoteEl).not.toBeInTheDocument()
+    })
+
+    it('renders text-only segments as spans within a styled paragraph', () => {
+        const section: HeroSectionConfig = {
+            ...baseSection,
+            props: {
+                ...baseSection.props,
+                footnote: [
+                    {text: 'Competitive bulk pricing'},
+                    {text: ' — quotes within 1 business day.'},
+                ],
+            },
+        }
+
+        renderHero(section)
+
+        expect(screen.getByText('Competitive bulk pricing')).toBeInTheDocument()
+        expect(screen.getByText('— quotes within 1 business day.', {exact: false})).toBeInTheDocument()
+        // Both should be spans, not links
+        expect(screen.getByText('Competitive bulk pricing').tagName).toBe('SPAN')
+        expect(screen.getByText('— quotes within 1 business day.', {exact: false}).tagName).toBe('SPAN')
+    })
+
+    it('renders segments with `to` as internal Link elements with underline and focus recipe', () => {
+        const section: HeroSectionConfig = {
+            ...baseSection,
+            props: {
+                ...baseSection.props,
+                footnote: [
+                    {text: 'Need a quote?'},
+                    {text: ' Request one here', to: '/quote-request'},
+                ],
+            },
+        }
+
+        renderHero(section)
+
+        expect(screen.getByText('Need a quote?')).toBeInTheDocument()
+        expect(screen.getByText('Need a quote?').tagName).toBe('SPAN')
+
+        const link = screen.getByRole('link', {name: /Request one here/})
+        expect(link).toHaveAttribute('href', '/quote-request')
+        expect(link).toHaveClass('underline')
+        // Focus recipe applied
+        expect(link).toHaveClass('outline-none')
+        expect(link).toHaveClass('focus-visible:ring-2')
+        expect(link).toHaveClass('focus-visible:ring-(--sf-ring)')
+    })
+
+    it('uses SURFACE_SUBTITLE_CLASS colour from the default surface', () => {
+        const section: HeroSectionConfig = {
+            ...baseSection,
+            props: {
+                ...baseSection.props,
+                footnote: [{text: 'Trust line'}],
+            },
+        }
+
+        const {container} = renderHero(section)
+        const footnoteParagraph = container.querySelector('.mt-4.text-sm')
+        expect(footnoteParagraph).toBeInTheDocument()
+        expect(footnoteParagraph).toHaveClass('text-(--sf-muted-text)')
+    })
+
+    it('uses SURFACE_SUBTITLE_CLASS colour from the brand surface', () => {
+        const section: HeroSectionConfig = {
+            ...baseSection,
+            props: {
+                ...baseSection.props,
+                contentSurface: 'brand',
+                footnote: [{text: 'Trust line'}],
+            },
+        }
+
+        const {container} = renderHero(section)
+        const footnoteParagraph = container.querySelector('.mt-4.text-sm')
+        expect(footnoteParagraph).toBeInTheDocument()
+        expect(footnoteParagraph).toHaveClass('text-(--sf-accent-text)/80')
+    })
+
+    it('uses SURFACE_SUBTITLE_CLASS colour from the dark surface', () => {
+        const section: HeroSectionConfig = {
+            ...baseSection,
+            props: {
+                ...baseSection.props,
+                backgroundImageUrl: 'https://example.com/hero.jpg',
+                contentSurface: 'dark',
+                footnote: [{text: 'Trust line'}],
+            },
+        }
+
+        const {container} = renderHero(section)
+        const footnoteParagraph = container.querySelector('.mt-4.text-sm')
+        expect(footnoteParagraph).toBeInTheDocument()
+        expect(footnoteParagraph).toHaveClass('text-(--sf-accent-text)/80')
+    })
+
+    it('aligns left when contentAlignment is left', () => {
+        const section: HeroSectionConfig = {
+            ...baseSection,
+            props: {
+                ...baseSection.props,
+                contentAlignment: 'left',
+                footnote: [{text: 'Trust line'}],
+            },
+        }
+
+        const {container} = renderHero(section)
+        const footnoteParagraph = container.querySelector('.mt-4.text-sm')
+        expect(footnoteParagraph).toBeInTheDocument()
+        expect(footnoteParagraph).not.toHaveClass('text-center')
+        expect(footnoteParagraph).not.toHaveClass('text-right')
+    })
+
+    it('aligns center when contentAlignment is center', () => {
+        const section: HeroSectionConfig = {
+            ...baseSection,
+            props: {
+                ...baseSection.props,
+                contentAlignment: 'center',
+                footnote: [{text: 'Trust line'}],
+            },
+        }
+
+        const {container} = renderHero(section)
+        const footnoteParagraph = container.querySelector('.mt-4.text-sm')
+        expect(footnoteParagraph).toBeInTheDocument()
+        expect(footnoteParagraph).toHaveClass('text-center')
+    })
+
+    it('aligns right when contentAlignment is right', () => {
+        const section: HeroSectionConfig = {
+            ...baseSection,
+            props: {
+                ...baseSection.props,
+                contentAlignment: 'right',
+                footnote: [{text: 'Trust line'}],
+            },
+        }
+
+        const {container} = renderHero(section)
+        const footnoteParagraph = container.querySelector('.mt-4.text-sm')
+        expect(footnoteParagraph).toBeInTheDocument()
+        expect(footnoteParagraph).toHaveClass('text-right')
+    })
+})

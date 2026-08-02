@@ -10,7 +10,15 @@ export function TestimonialsSection({section}: { section: TestimonialsSectionCon
         title = 'Testimonials',
         eyebrow,
         variant,
+        carouselControls,
     } = section.props
+
+    // Resolve the carousel hint — default is 'gutter' (current treatment).
+    // Unknown values fall back to 'gutter' rather than throwing.
+    const resolvedControls: 'header' | 'gutter' | 'overlay' =
+        carouselControls === 'header' || carouselControls === 'overlay'
+            ? carouselControls
+            : 'gutter'
 
     const {data: testimonials, isLoading, isError} = useTestimonials()
 
@@ -88,10 +96,23 @@ export function TestimonialsSection({section}: { section: TestimonialsSectionCon
 
     return (
         <Section variant={variant}>
-            <SectionHeading eyebrow={eyebrow} title={title}/>
+            {layout === 'carousel' && resolvedControls !== 'header' && (
+                <SectionHeading eyebrow={eyebrow} title={title}/>
+            )}
+
+            {layout !== 'carousel' && (
+                <SectionHeading eyebrow={eyebrow} title={title}/>
+            )}
 
             {layout === 'carousel' ? (
-                <Carousel ariaLabel="Testimonials">
+                <Carousel
+                    ariaLabel={title}
+                    {...(resolvedControls === 'header'
+                        ? {header: <SectionHeading eyebrow={eyebrow} title={title} className="mb-0"/>}
+                        : resolvedControls === 'overlay'
+                            ? {arrowPlacement: resolvedControls}
+                            : {})}
+                >
                     {testimonials.map((item) => renderCard(item))}
                 </Carousel>
             ) : (

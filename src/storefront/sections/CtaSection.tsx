@@ -1,6 +1,6 @@
 import {Link} from 'react-router-dom'
 import type {CtaSectionConfig} from '@/shared/types/StorefrontConfig'
-import {Section, SectionHeading} from './shared'
+import {ACCENT_BUTTON_HOVER, SF_FOCUS_RING_PAGE, Section, SectionHeading} from './shared'
 
 export function CtaSection({section}: { section: CtaSectionConfig }) {
     const {title, description, eyebrow, cta, secondaryCta, secondaryLinks = [], variant = 'accent'} = section.props
@@ -17,7 +17,7 @@ export function CtaSection({section}: { section: CtaSectionConfig }) {
                     <div className="flex flex-wrap items-center gap-4 lg:shrink-0">
                     <Link
                         to={cta.to}
-                        className="inline-block rounded-md border-2 border-transparent bg-(--sf-accent) px-6 py-3 text-sm font-semibold text-(--sf-accent-text) shadow-sm transition-opacity hover:opacity-90"
+                        className={`inline-block rounded-md border-2 border-transparent bg-(--sf-accent) px-6 py-3 text-sm font-semibold text-(--sf-accent-text) shadow-sm transition-colors ${ACCENT_BUTTON_HOVER} ${SF_FOCUS_RING_PAGE}`}
                     >
                         {cta.label}
                     </Link>

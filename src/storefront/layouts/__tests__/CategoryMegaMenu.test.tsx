@@ -2,6 +2,7 @@ import { describe, it, expect, vi, afterEach } from 'vitest'
 import { render, screen, fireEvent, cleanup } from '@testing-library/react'
 import { MemoryRouter } from 'react-router-dom'
 import type { CategoryNode } from '@/storefront/catalog/hooks/useCategoryTree'
+import { SF_FOCUS_RING } from '@/storefront/sections/shared/focusRing'
 
 const mockUseCategoryTree = vi.fn<() => { tree: CategoryNode[]; isLoading: boolean; isError: boolean }>()
 
@@ -297,6 +298,125 @@ describe('CategoryMegaMenu', () => {
 
       // No "View all" link
       expect(screen.queryByRole('link', { name: 'View all' })).not.toBeInTheDocument()
+    })
+  })
+})
+
+
+describe('CategoryMegaMenu — open state (C4)', () => {
+  afterEach(() => {
+    cleanup()
+    mockUseCategoryTree.mockReset()
+  })
+
+  const NAV_FOCUS_CLASSES = SF_FOCUS_RING.nav.split(' ')
+
+  function setupTree(): CategoryNode[] {
+    return [
+      {
+        id: '1',
+        name: 'PPE',
+        slug: 'ppe',
+        children: [
+          { id: '2', name: 'Gloves', slug: 'gloves', children: [] },
+        ],
+      },
+    ]
+  }
+
+  function renderMegaMenu() {
+    return render(
+      <MemoryRouter>
+        <CategoryMegaMenu />
+      </MemoryRouter>,
+    )
+  }
+
+  describe('held trigger background paired with aria-expanded', () => {
+    it('trigger has bg-(--sf-nav-border) when aria-expanded=true', () => {
+      mockUseCategoryTree.mockReturnValue({ tree: setupTree(), isLoading: false, isError: false })
+      renderMegaMenu()
+
+      const trigger = screen.getByRole('button', { name: /shop by category/i })
+      fireEvent.click(trigger)
+
+      expect(trigger).toHaveAttribute('aria-expanded', 'true')
+      expect(trigger.className).toContain('bg-(--sf-nav-border)')
+    })
+
+    it('trigger does NOT have bg-(--sf-nav-border) when aria-expanded=false', () => {
+      mockUseCategoryTree.mockReturnValue({ tree: setupTree(), isLoading: false, isError: false })
+      renderMegaMenu()
+
+      const trigger = screen.getByRole('button', { name: /shop by category/i })
+      expect(trigger).toHaveAttribute('aria-expanded', 'false')
+
+      // The held background class should not be in the static class string
+      // (it IS in hover:bg-(...) but not as a standalone applied class)
+      const classes = trigger.className.split(' ').filter((c) => c === 'bg-(--sf-nav-border)')
+      expect(classes).toHaveLength(0)
+    })
+  })
+
+  describe('chevron rotation paired with aria-expanded', () => {
+    it('chevron has rotate-180 and transition-transform when panel open', () => {
+      mockUseCategoryTree.mockReturnValue({ tree: setupTree(), isLoading: false, isError: false })
+      renderMegaMenu()
+
+      const trigger = screen.getByRole('button', { name: /shop by category/i })
+      fireEvent.click(trigger)
+
+      const chevron = trigger.querySelector('svg')!
+      expect(chevron.classList.contains('rotate-180')).toBe(true)
+      expect(chevron.classList.contains('transition-transform')).toBe(true)
+    })
+
+    it('chevron does NOT have rotate-180 when panel closed', () => {
+      mockUseCategoryTree.mockReturnValue({ tree: setupTree(), isLoading: false, isError: false })
+      renderMegaMenu()
+
+      const trigger = screen.getByRole('button', { name: /shop by category/i })
+      const chevron = trigger.querySelector('svg')!
+      expect(chevron.classList.contains('rotate-180')).toBe(false)
+      expect(chevron.classList.contains('transition-transform')).toBe(true)
+    })
+  })
+
+  describe('focus recipe on trigger', () => {
+    it('trigger has SF_FOCUS_RING.nav classes', () => {
+      mockUseCategoryTree.mockReturnValue({ tree: setupTree(), isLoading: false, isError: false })
+      renderMegaMenu()
+
+      const trigger = screen.getByRole('button', { name: /shop by category/i })
+      for (const cls of NAV_FOCUS_CLASSES) {
+        expect(trigger.className).toContain(cls)
+      }
+    })
+  })
+
+  describe('focus recipe on panel links', () => {
+    it('root category links have SF_FOCUS_RING.nav classes', () => {
+      mockUseCategoryTree.mockReturnValue({ tree: setupTree(), isLoading: false, isError: false })
+      renderMegaMenu()
+
+      fireEvent.click(screen.getByRole('button', { name: /shop by category/i }))
+
+      const rootLink = screen.getByRole('link', { name: 'PPE' })
+      for (const cls of NAV_FOCUS_CLASSES) {
+        expect(rootLink.className).toContain(cls)
+      }
+    })
+
+    it('child category links have SF_FOCUS_RING.nav classes', () => {
+      mockUseCategoryTree.mockReturnValue({ tree: setupTree(), isLoading: false, isError: false })
+      renderMegaMenu()
+
+      fireEvent.click(screen.getByRole('button', { name: /shop by category/i }))
+
+      const childLink = screen.getByRole('link', { name: 'Gloves' })
+      for (const cls of NAV_FOCUS_CLASSES) {
+        expect(childLink.className).toContain(cls)
+      }
     })
   })
 })

@@ -1,4 +1,5 @@
 import {Link} from 'react-router-dom'
+import {ACCENT_BUTTON_HOVER, SF_FOCUS_RING_PAGE} from '@/storefront/sections/shared'
 
 export function SuccessCard() {
     return (
@@ -29,7 +30,7 @@ export function SuccessCard() {
                 </p>
                 <Link
                     to="/"
-                    className="mt-6 inline-block rounded-md bg-(--sf-accent) px-5 py-2.5 text-sm font-medium text-(--sf-accent-text) hover:opacity-90"
+                    className={`mt-6 inline-block rounded-md bg-(--sf-accent) px-5 py-2.5 text-sm font-medium text-(--sf-accent-text) transition-colors ${ACCENT_BUTTON_HOVER} ${SF_FOCUS_RING_PAGE}`}
                 >
                     Return to home
                 </Link>

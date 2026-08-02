@@ -1,6 +1,7 @@
 import {useEffect, useState} from 'react'
 import {ChevronRight, X} from 'lucide-react'
 import {Select} from '@/shared/ui/components/form/Select'
+import {ACCENT_BUTTON_HOVER, SF_FOCUS_RING_PAGE} from '@/storefront/sections/shared'
 import {BrandPickerSheet} from './BrandPickerSheet'
 import {CategoryTreeFilter} from './CategoryTreeFilter'
 import {FilterGroup} from './FilterGroup'
@@ -197,7 +198,7 @@ export function FilterSidebar(props: FilterSidebarProps) {
                             <button
                                 type="button"
                                 onClick={handleClose}
-                                className="w-full rounded-lg bg-(--sf-accent) px-4 py-2.5 text-sm font-semibold text-(--sf-accent-text) hover:opacity-90 transition-opacity"
+                                className={`w-full rounded-lg bg-(--sf-accent) px-4 py-2.5 text-sm font-semibold text-(--sf-accent-text) transition-colors ${ACCENT_BUTTON_HOVER} ${SF_FOCUS_RING_PAGE}`}
                             >
                                 View results
                             </button>

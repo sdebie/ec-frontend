@@ -112,6 +112,86 @@ describe('FeaturedProductsSection', () => {
         vi.clearAllMocks()
     })
 
+    describe('carouselControls display hint', () => {
+        it('default (no hint) renders header-controls mode when layout is carousel', async () => {
+            mockedRequest.mockResolvedValueOnce(resolve(mockProducts))
+
+            renderComponent({
+                ...section,
+                props: {...section.props, layout: 'carousel'},
+            })
+
+            await waitFor(() => {
+                expect(screen.getByText('Product One')).toBeInTheDocument()
+            })
+
+            // Header-controls mode: Carousel renders a region; the heading is INSIDE it
+            const region = screen.getByRole('region', {name: 'Featured Products'})
+            expect(region).toBeInTheDocument()
+            const heading = screen.getByRole('heading', {level: 2})
+            expect(heading).toHaveTextContent('Featured Products')
+            // In header mode the heading is a child of the region element
+            expect(region.contains(heading)).toBe(true)
+        })
+
+        it('carouselControls="overlay" renders arrowPlacement mode (heading outside carousel)', async () => {
+            mockedRequest.mockResolvedValueOnce(resolve(mockProducts))
+
+            renderComponent({
+                ...section,
+                props: {...section.props, layout: 'carousel', carouselControls: 'overlay'},
+            })
+
+            await waitFor(() => {
+                expect(screen.getByText('Product One')).toBeInTheDocument()
+            })
+
+            // Overlay mode: SectionHeading is rendered OUTSIDE the carousel region
+            const heading = screen.getByRole('heading', {level: 2})
+            expect(heading).toHaveTextContent('Featured Products')
+            const region = screen.getByRole('region', {name: 'Featured Products'})
+            expect(region.contains(heading)).toBe(false)
+        })
+
+        it('carouselControls="gutter" renders arrowPlacement mode (heading outside carousel)', async () => {
+            mockedRequest.mockResolvedValueOnce(resolve(mockProducts))
+
+            renderComponent({
+                ...section,
+                props: {...section.props, layout: 'carousel', carouselControls: 'gutter'},
+            })
+
+            await waitFor(() => {
+                expect(screen.getByText('Product One')).toBeInTheDocument()
+            })
+
+            // Gutter mode: SectionHeading is rendered OUTSIDE the carousel region
+            const heading = screen.getByRole('heading', {level: 2})
+            expect(heading).toHaveTextContent('Featured Products')
+            const region = screen.getByRole('region', {name: 'Featured Products'})
+            expect(region.contains(heading)).toBe(false)
+        })
+
+        it('unknown carouselControls value falls back to header-controls (default)', async () => {
+            mockedRequest.mockResolvedValueOnce(resolve(mockProducts))
+
+            renderComponent({
+                ...section,
+                props: {...section.props, layout: 'carousel', carouselControls: 'bogus' as 'header'},
+            })
+
+            await waitFor(() => {
+                expect(screen.getByText('Product One')).toBeInTheDocument()
+            })
+
+            // Falls back to header-controls mode — heading is inside the region
+            const region = screen.getByRole('region', {name: 'Featured Products'})
+            expect(region).toBeInTheDocument()
+            const heading = screen.getByRole('heading', {level: 2})
+            expect(region.contains(heading)).toBe(true)
+        })
+    })
+
     describe('Section frame', () => {
         it('renders inside a <section> with standardized rhythm classes', () => {
             mockedRequest.mockReturnValue(new Promise(() => {}))

@@ -1,6 +1,6 @@
 import {useEffect, useMemo, useRef, useState} from 'react'
 import {Link, useLocation, useParams} from 'react-router-dom'
-import {Section} from '@/storefront/sections/shared'
+import {ACCENT_BUTTON_HOVER, SF_FOCUS_RING_PAGE, Section} from '@/storefront/sections/shared'
 import {useProductDetail} from './hooks/useProductDetail'
 import {useCustomerAuthStore} from '@/shared/auth/customerAuthStore'
 import {useStorefrontConfig} from '@/shared/config/storefrontConfig.context'
@@ -165,7 +165,7 @@ export function ProductDetailPage() {
                                 onClick={handleAddToCart}
                                 className={`px-6 py-3 rounded-lg font-medium transition-colors ${
                                     selectedVariant
-                                        ? 'bg-(--sf-accent) text-(--sf-accent-text) hover:opacity-90 cursor-pointer'
+                                        ? `bg-(--sf-accent) text-(--sf-accent-text) ${ACCENT_BUTTON_HOVER} ${SF_FOCUS_RING_PAGE} cursor-pointer`
                                         : 'bg-(--sf-surface-muted) text-(--sf-muted-text) cursor-not-allowed'
                                 }`}
                             >

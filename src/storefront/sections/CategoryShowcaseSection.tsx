@@ -1,3 +1,4 @@
+import {useState} from 'react'
 import type {CategoryShowcaseSectionConfig} from '@/shared/types/StorefrontConfig'
 import {resolveImageUrl} from '@/shared/utils/imageUrl'
 import {useCategories} from '@/storefront/catalog/hooks/useCategories'
@@ -21,7 +22,18 @@ function resolveThemeColor(raw: string): string {
 }
 
 export function CategoryShowcaseSection({section}: { section: CategoryShowcaseSectionConfig }) {
-    const {title, categorySlug, themeColor, layout = 'row', columns, gradient, imageUrl, limit} = section.props
+    const {title, categorySlug, themeColor, layout = 'row', columns, gradient, imageUrl, limit, carouselControls} = section.props
+
+    // Resolve the carousel hint — unknown values fall back to the default ('overlay')
+    const hint = (carouselControls === 'header' || carouselControls === 'gutter' || carouselControls === 'overlay')
+        ? carouselControls
+        : 'overlay'
+
+    // A seeded imageUrl can point at a file that was never uploaded (the
+    // hospitality retarget shipped ahead of its artwork). Degrade text-first
+    // rather than leaving a broken graphic + a 404 on every page load.
+    // Declared before the early returns below — Rules of Hooks.
+    const [imageFailed, setImageFailed] = useState(false)
 
     // Step 1: resolve slug → category ID
     const {categories, isLoading: categoriesLoading} = useCategories()
@@ -78,28 +90,56 @@ export function CategoryShowcaseSection({section}: { section: CategoryShowcaseSe
     }
 
     const resolvedImageSrc = resolveImageUrl(imageUrl ?? null)
+    const showImage = !!resolvedImageSrc && !imageFailed
+
+    // Below `md` the graphic rides inline with the heading as a small icon (the
+    // `w-64` side rail is `hidden md:flex`, so it never crushes the deck on a
+    // phone) — icon first, then the title.
+    const mobileIcon = showImage ? (
+        <img
+            src={resolvedImageSrc}
+            alt=""
+            aria-hidden="true"
+            onError={() => setImageFailed(true)}
+            className="h-8 w-8 shrink-0 object-contain md:hidden"
+        />
+    ) : null
 
     return (
         <section style={gradientStyle}>
             <div className="max-w-7xl mx-auto px-4 py-10">
-                <h2 className="text-2xl font-bold mb-4 text-(--sf-accent-text) drop-shadow-md">{title}</h2>
+                {/* The heading spans the full band width above the image + deck row, so
+                    it shares a left margin with the desktop icon rail below it rather
+                    than starting inset by the rail's width. It renders here for every
+                    carousel hint — under 'header' the Carousel keeps only its arrow
+                    row, so the title is never duplicated. Colour is the accent-text
+                    token because the band is a client-authored dark gradient. */}
+                <h2 className="text-2xl font-bold mb-4 text-(--sf-accent-text) drop-shadow-md flex items-center gap-2">
+                    {mobileIcon}
+                    {title}
+                </h2>
 
                 <div className="mb-4 flex items-stretch gap-8">
-                    {resolvedImageSrc && (
-                        <div className="flex w-64 shrink-0 items-center justify-center">
+                    {showImage && (
+                        <div className="hidden md:flex w-64 shrink-0 items-center justify-center">
                             <img
                                 src={resolvedImageSrc}
                                 alt=""
                                 aria-hidden="true"
+                                onError={() => setImageFailed(true)}
                                 className="max-h-112 w-full object-contain"
                             />
                         </div>
                     )}
                     {layout === 'carousel' ? (
                         <div className="min-w-0 flex-1 py-2">
-                            {/* Overlay arrows: the side image flanks the deck, so gutter
-                                placement would collide with it. */}
-                            <Carousel ariaLabel={title} perView={columns} arrowPlacement="overlay">
+                            <Carousel
+                                ariaLabel={title}
+                                perView={columns}
+                                {...(hint === 'header'
+                                    ? {header: <span className="sr-only">{title}</span>}
+                                    : {arrowPlacement: hint})}
+                            >
                                 {displayProducts.map((product) => (
                                     <ProductCard key={product.id} product={product} variantId={product.variantId}/>
                                 ))}

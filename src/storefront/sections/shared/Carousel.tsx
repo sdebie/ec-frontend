@@ -1,5 +1,6 @@
 import React, {useCallback, useEffect, useRef, useState} from 'react'
 import {ChevronLeft, ChevronRight} from 'lucide-react'
+import {ACCENT_BUTTON_HOVER, SF_FOCUS_RING_PAGE} from './focusRing'
 
 interface CarouselProps {
     ariaLabel: string
@@ -101,7 +102,7 @@ export function Carousel({ariaLabel, perView = 3, arrowPlacement = 'gutter', hea
                                 aria-label="Previous"
                                 onClick={() => pageBy(-1)}
                                 disabled={!canPrev}
-                                className="rounded-full bg-(--sf-accent) p-2 text-(--sf-accent-text) shadow-sm transition-opacity hover:opacity-90 disabled:opacity-40 disabled:hover:opacity-40"
+                                className={`rounded-full bg-(--sf-accent) p-2 text-(--sf-accent-text) shadow-sm transition-colors ${ACCENT_BUTTON_HOVER} ${SF_FOCUS_RING_PAGE} disabled:opacity-40 disabled:hover:bg-(--sf-accent)`}
                             >
                                 <ChevronLeft className="h-5 w-5"/>
                             </button>
@@ -110,7 +111,7 @@ export function Carousel({ariaLabel, perView = 3, arrowPlacement = 'gutter', hea
                                 aria-label="Next"
                                 onClick={() => pageBy(1)}
                                 disabled={!canNext}
-                                className="rounded-full bg-(--sf-accent) p-2 text-(--sf-accent-text) shadow-sm transition-opacity hover:opacity-90 disabled:opacity-40 disabled:hover:opacity-40"
+                                className={`rounded-full bg-(--sf-accent) p-2 text-(--sf-accent-text) shadow-sm transition-colors ${ACCENT_BUTTON_HOVER} ${SF_FOCUS_RING_PAGE} disabled:opacity-40 disabled:hover:bg-(--sf-accent)`}
                             >
                                 <ChevronRight className="h-5 w-5"/>
                             </button>
@@ -149,7 +150,7 @@ export function Carousel({ariaLabel, perView = 3, arrowPlacement = 'gutter', hea
                             type="button"
                             aria-label="Previous"
                             onClick={() => pageBy(-1)}
-                            className={`absolute left-2 top-1/2 -translate-y-1/2 rounded-full bg-(--sf-accent) p-2 text-white shadow-md hover:opacity-90 transition-opacity ${arrowPlacement === 'gutter' ? 'xl:-left-14' : ''}`}
+                            className={`absolute left-2 top-1/2 -translate-y-1/2 rounded-full bg-(--sf-accent) p-2 text-white shadow-md transition-colors ${ACCENT_BUTTON_HOVER} ${SF_FOCUS_RING_PAGE} ${arrowPlacement === 'gutter' ? 'xl:-left-14' : ''}`}
                         >
                             <ChevronLeft className="h-5 w-5"/>
                         </button>
@@ -157,7 +158,7 @@ export function Carousel({ariaLabel, perView = 3, arrowPlacement = 'gutter', hea
                             type="button"
                             aria-label="Next"
                             onClick={() => pageBy(1)}
-                            className={`absolute right-2 top-1/2 -translate-y-1/2 rounded-full bg-(--sf-accent) p-2 text-white shadow-md hover:opacity-90 transition-opacity ${arrowPlacement === 'gutter' ? 'xl:-right-14' : ''}`}
+                            className={`absolute right-2 top-1/2 -translate-y-1/2 rounded-full bg-(--sf-accent) p-2 text-white shadow-md transition-colors ${ACCENT_BUTTON_HOVER} ${SF_FOCUS_RING_PAGE} ${arrowPlacement === 'gutter' ? 'xl:-right-14' : ''}`}
                         >
                             <ChevronRight className="h-5 w-5"/>
                         </button>

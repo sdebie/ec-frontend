@@ -1,3 +1,5 @@
+import {ACCENT_BUTTON_HOVER, SF_FOCUS_RING_PAGE} from '@/storefront/sections/shared'
+
 export function PageContentErrorCard({onRetry}: { onRetry: () => void }) {
     return (
         <div className="mx-auto max-w-3xl px-4 py-12">
@@ -7,7 +9,7 @@ export function PageContentErrorCard({onRetry}: { onRetry: () => void }) {
                 </p>
                 <button
                     onClick={onRetry}
-                    className="mt-4 rounded bg-(--sf-accent) px-4 py-2 text-sm text-(--sf-accent-text) hover:opacity-90"
+                    className={`mt-4 rounded bg-(--sf-accent) px-4 py-2 text-sm text-(--sf-accent-text) transition-colors ${ACCENT_BUTTON_HOVER} ${SF_FOCUS_RING_PAGE}`}
                 >
                     Try again
                 </button>

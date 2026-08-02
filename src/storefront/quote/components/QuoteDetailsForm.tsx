@@ -6,6 +6,7 @@ import { useQuoteStore } from '../quoteStore'
 import { useSubmitQuoteRequest } from '../hooks/useSubmitQuoteRequest'
 import { InputField } from '@/shared/ui/components/form/InputField'
 import { Textarea } from '@/shared/ui/components/form/Textarea'
+import { ACCENT_BUTTON_HOVER, SF_FOCUS_RING_PAGE } from '@/storefront/sections/shared'
 
 /** Muted "(optional)" suffix used on the non-required field labels. */
 function OptionalLabel({ children }: { children: React.ReactNode }) {
@@ -176,7 +177,7 @@ export function QuoteDetailsForm({ onSuccess }: QuoteDetailsFormProps) {
       <button
         type="submit"
         disabled={isSubmitDisabled}
-        className="flex w-full items-center justify-center rounded-md bg-(--sf-accent) px-4 py-2.5 text-sm font-medium text-(--sf-accent-text) shadow-sm hover:opacity-90 focus:outline-none focus:ring-2 focus:ring-(--sf-ring) focus:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
+        className={`flex w-full items-center justify-center rounded-md bg-(--sf-accent) px-4 py-2.5 text-sm font-medium text-(--sf-accent-text) shadow-sm transition-colors ${ACCENT_BUTTON_HOVER} ${SF_FOCUS_RING_PAGE} disabled:cursor-not-allowed disabled:opacity-50`}
       >
         {isPending && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
         {isPending ? 'Submitting…' : 'Request quote'}

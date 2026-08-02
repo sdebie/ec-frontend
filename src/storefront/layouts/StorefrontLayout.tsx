@@ -4,9 +4,14 @@ import { useExpireStaleCheckoutSession } from '@/storefront/checkout/hooks/useEx
 import { AnnouncementBanner } from './AnnouncementBanner'
 import { StorefrontFooter } from './StorefrontFooter'
 import { StorefrontHeader } from './StorefrontHeader'
+import { useChromeHeight } from './useChromeHeight'
 
 export function StorefrontLayout() {
   const { isRestoring } = useRestoreCustomerSession()
+
+  // Publishes --sf-chrome-h so a `height: 'full'` hero can fill exactly the
+  // space below the bar + header (HeroSection HEIGHT_CLASS).
+  const { rootRef, mainRef } = useChromeHeight()
 
   // Mounted here, not on the checkout page: the cart is written from the
   // catalogue, the product page and the wishlist too, and a session that no
@@ -23,6 +28,7 @@ export function StorefrontLayout() {
       the storefront depends on these two attributes being here.
     */
     <div
+      ref={rootRef}
       data-surface="storefront"
       data-density="comfortable"
       className="flex min-h-screen flex-col bg-(--sf-background) text-(--sf-text)"
@@ -35,7 +41,7 @@ export function StorefrontLayout() {
         never reached for them — but a wholesale customer must not be shown
         retail prices for the frame or two before the tier arrives.
       */}
-      <main className="flex flex-1 flex-col">
+      <main ref={mainRef} className="flex flex-1 flex-col">
         {isRestoring ? <div aria-busy="true" aria-label="Loading" /> : <Outlet />}
       </main>
       <StorefrontFooter />

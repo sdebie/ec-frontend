@@ -2,18 +2,21 @@ import {render, screen, cleanup} from '@testing-library/react'
 import {MemoryRouter} from 'react-router-dom'
 import {ProductCard} from '../ProductCard'
 import {formatAmount} from '@/shared/utils/formatAmount'
-import {describe, expect, it, vi} from 'vitest'
+import {describe, expect, it, vi, afterEach} from 'vitest'
 
 vi.mock('@/shared/config/storefrontConfig.context', () => ({
     useStorefrontConfig: () => ({currency: 'ZAR', locale: 'en-ZA'}),
 }))
 
+const {mockCustomerType} = vi.hoisted(() => ({mockCustomerType: {value: 'RETAIL'}}))
+
 vi.mock('@/shared/auth/customerAuthStore', () => ({
     useCustomerAuthStore: (selector?: (state: { customerType: string; isSignedIn: boolean }) => unknown) => {
-        const state = {customerType: 'RETAIL', isSignedIn: false}
+        const state = {customerType: mockCustomerType.value, isSignedIn: mockCustomerType.value !== 'GUEST'}
         return selector ? selector(state) : state
     },
 }))
+
 
 vi.mock('@/storefront/customer/account/wishlist/components/WishlistButton', () => ({
     WishlistButton: ({variantId, className}: { variantId: string; className?: string }) => (
@@ -50,14 +53,18 @@ function renderCard(
 }
 
 describe('ProductCard', () => {
+    afterEach(() => {
+        mockCustomerType.value = 'RETAIL'
+    })
+
     describe('standardized card contract (2026-07-24)', () => {
         it('renders the display price with an ex. VAT label', () => {
             renderCard()
             expect(screen.getByText('ex. VAT')).toBeInTheDocument()
         })
 
-        it('renders the wholesale price as small secondary text for non-wholesale shoppers', () => {
-            renderCard()
+        it('renders the wholesale price as small secondary text when prices differ', () => {
+            renderCard({retailPrice: {price: 199.99}, wholesalePrice: {price: 149.99}})
             expect(screen.getByText(/Wholesale:/)).toBeInTheDocument()
         })
 
@@ -256,6 +263,52 @@ describe('ProductCard', () => {
 
             const originalPriceEl = screen.getByText(formattedOriginalPrice, {normalizer})
             expect(originalPriceEl).toHaveClass('line-through')
+        })
+    })
+
+    describe('wholesale-line suppression (Req 7, design C10)', () => {
+        it('suppresses the wholesale line when retail and wholesale display prices are equal', () => {
+            renderCard({
+                retailPrice: {price: 179},
+                wholesalePrice: {price: 179},
+                retailSalePrice: null,
+                wholesaleSalePrice: null,
+            })
+            expect(screen.queryByText(/Wholesale:/)).not.toBeInTheDocument()
+        })
+
+        it('renders the wholesale line when retail and wholesale display prices differ', () => {
+            renderCard({
+                retailPrice: {price: 199.99},
+                wholesalePrice: {price: 149.99},
+                retailSalePrice: null,
+                wholesaleSalePrice: null,
+            })
+            expect(screen.getByText(/Wholesale:/)).toBeInTheDocument()
+        })
+
+        it('suppresses the wholesale line when wholesale price is missing/null', () => {
+            renderCard({
+                retailPrice: {price: 199.99},
+                wholesalePrice: null,
+                retailSalePrice: null,
+                wholesaleSalePrice: null,
+            })
+            expect(screen.queryByText(/Wholesale:/)).not.toBeInTheDocument()
+        })
+
+        it('wholesale-customer path unchanged — line never renders for WHOLESALE shoppers', () => {
+            mockCustomerType.value = 'WHOLESALE'
+
+            renderCard({
+                retailPrice: {price: 199.99},
+                wholesalePrice: {price: 149.99},
+                retailSalePrice: null,
+                wholesaleSalePrice: null,
+            })
+            expect(screen.queryByText(/Wholesale:/)).not.toBeInTheDocument()
+
+            mockCustomerType.value = 'RETAIL'
         })
     })
 
@@ -617,6 +670,42 @@ describe('ProductCard', () => {
             const undefinedHtml = undefinedContainer.innerHTML
 
             expect(absentHtml).toBe(undefinedHtml)
+        })
+    })
+
+    describe('focus recipe on root links (task 1.6)', () => {
+        it('grid layout image link has the page focus ring classes', () => {
+            const {container} = renderCard({}, {layout: 'grid'})
+            const links = container.querySelectorAll('a[href="/products/test-product"]')
+            // First link is the image link
+            const imageLink = links[0] as HTMLElement
+            expect(imageLink.className).toContain('focus-visible:ring-2')
+            expect(imageLink.className).toContain('focus-visible:ring-offset-(--sf-background)')
+        })
+
+        it('grid layout title link has the page focus ring classes', () => {
+            const {container} = renderCard({}, {layout: 'grid'})
+            const links = container.querySelectorAll('a[href="/products/test-product"]')
+            // Second link is the title link
+            const titleLink = links[1] as HTMLElement
+            expect(titleLink.className).toContain('focus-visible:ring-2')
+            expect(titleLink.className).toContain('focus-visible:ring-offset-(--sf-background)')
+        })
+
+        it('row layout image link has the page focus ring classes', () => {
+            const {container} = renderCard({}, {layout: 'row'})
+            const links = container.querySelectorAll('a[href="/products/test-product"]')
+            const imageLink = links[0] as HTMLElement
+            expect(imageLink.className).toContain('focus-visible:ring-2')
+            expect(imageLink.className).toContain('focus-visible:ring-offset-(--sf-background)')
+        })
+
+        it('row layout title link has the page focus ring classes', () => {
+            const {container} = renderCard({}, {layout: 'row'})
+            const links = container.querySelectorAll('a[href="/products/test-product"]')
+            const titleLink = links[1] as HTMLElement
+            expect(titleLink.className).toContain('focus-visible:ring-2')
+            expect(titleLink.className).toContain('focus-visible:ring-offset-(--sf-background)')
         })
     })
 })

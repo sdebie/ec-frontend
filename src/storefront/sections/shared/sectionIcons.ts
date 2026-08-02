@@ -1,4 +1,4 @@
-import { Truck, Tag, Users, ShieldCheck, Award, Package, Clock, Headphones, HardHat, SprayCan, Stethoscope, Factory } from 'lucide-react'
+import { Truck, Tag, Users, ShieldCheck, Award, Package, Clock, Headphones, HardHat, SprayCan, Stethoscope, Factory, UtensilsCrossed, House } from 'lucide-react'
 import type { ComponentType, SVGProps } from 'react'
 
 /**
@@ -22,6 +22,8 @@ export const sectionIconMap: Record<string, ComponentType<SVGProps<SVGSVGElement
   'spray-can': SprayCan,
   stethoscope: Stethoscope,
   factory: Factory,
+  utensils: UtensilsCrossed,
+  house: House,
 }
 
 export function resolveSectionIcon(

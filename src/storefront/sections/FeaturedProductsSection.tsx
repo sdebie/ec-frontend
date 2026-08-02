@@ -4,7 +4,14 @@ import {useFeaturedShoppingProducts} from '@/storefront/hooks/useFeaturedShoppin
 import {Carousel, Section, SectionHeading} from './shared'
 
 export function FeaturedProductsSection({section}: { section: FeaturedProductsSectionConfig }) {
-    const {title, eyebrow, variant, layout = 'row', columns, badgeLabel, category, limit} = section.props
+    const {title, eyebrow, variant, layout = 'row', columns, badgeLabel, category, limit, carouselControls} = section.props
+
+    // Resolve the carousel treatment: default is 'header' (current behaviour).
+    // Unknown values fall back to the default rather than throwing.
+    const VALID_HINTS = ['header', 'gutter', 'overlay'] as const
+    const resolvedHint = VALID_HINTS.includes(carouselControls as typeof VALID_HINTS[number])
+        ? (carouselControls as typeof VALID_HINTS[number])
+        : 'header'
 
     const effectiveLimit = limit ?? 8
 
@@ -55,17 +62,32 @@ export function FeaturedProductsSection({section}: { section: FeaturedProductsSe
     return (
         <Section variant={variant}>
             {layout === 'carousel' ? (
-                // Header-controls mode: prev/next sit beside the heading (md+),
-                // mobile paginates via dots + swipe — no floating arrows over cards.
-                <Carousel
-                    ariaLabel={title}
-                    perView={columns}
-                    header={<SectionHeading title={title} eyebrow={eyebrow} className="mb-0"/>}
-                >
-                    {products.map((product) => (
-                        <ProductCard key={product.id} product={product} variantId={product.variantId} badge={badgeLabel}/>
-                    ))}
-                </Carousel>
+                // The hint drives the treatment: 'header' passes the title into the
+                // Carousel header prop; 'gutter'/'overlay' pass arrowPlacement.
+                resolvedHint === 'header' ? (
+                    <Carousel
+                        ariaLabel={title}
+                        perView={columns}
+                        header={<SectionHeading title={title} eyebrow={eyebrow} className="mb-0"/>}
+                    >
+                        {products.map((product) => (
+                            <ProductCard key={product.id} product={product} variantId={product.variantId} badge={badgeLabel}/>
+                        ))}
+                    </Carousel>
+                ) : (
+                    <>
+                        <SectionHeading title={title} eyebrow={eyebrow}/>
+                        <Carousel
+                            ariaLabel={title}
+                            perView={columns}
+                            arrowPlacement={resolvedHint}
+                        >
+                            {products.map((product) => (
+                                <ProductCard key={product.id} product={product} variantId={product.variantId} badge={badgeLabel}/>
+                            ))}
+                        </Carousel>
+                    </>
+                )
             ) : (
                 <>
                     <SectionHeading title={title} eyebrow={eyebrow}/>

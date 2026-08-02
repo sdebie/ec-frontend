@@ -1,4 +1,5 @@
 import {Link} from 'react-router-dom'
+import {ACCENT_BUTTON_HOVER, SF_FOCUS_RING_PAGE} from '@/storefront/sections/shared'
 
 interface CheckoutNoticeProps {
     heading: string
@@ -37,7 +38,7 @@ export function CheckoutNotice({heading, body, action, busy = false}: CheckoutNo
             {action && (
                 <Link
                     to={action.to}
-                    className="mt-6 inline-block rounded-lg bg-(--sf-accent) px-6 py-3 font-medium text-(--sf-accent-text) transition-colors hover:opacity-90"
+                    className={`mt-6 inline-block rounded-lg bg-(--sf-accent) px-6 py-3 font-medium text-(--sf-accent-text) transition-colors ${ACCENT_BUTTON_HOVER} ${SF_FOCUS_RING_PAGE}`}
                 >
                     {action.label}
                 </Link>

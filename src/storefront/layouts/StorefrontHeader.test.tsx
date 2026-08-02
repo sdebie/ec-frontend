@@ -286,13 +286,16 @@ describe('StorefrontHeader', () => {
       { id: '1', label: 'Shop', path: '/products', external: false, sortOrder: 0 },
     ]
 
-    it('renders search bar container with hidden md:flex classes (visible on desktop only)', () => {
+    it('renders desktop search bar container with hidden md:flex classes (visible on desktop only)', () => {
       renderHeader({ nav: navItems })
 
-      const searchForm = screen.getByRole('search')
-      const searchContainer = searchForm.closest('div')!
-      expect(searchContainer.className).toContain('hidden')
-      expect(searchContainer.className).toMatch(/md:flex/)
+      const searchForms = screen.getAllByRole('search')
+      const desktopSearch = searchForms.find(
+        (form) => form.parentElement?.className.includes('md:flex')
+      )
+      expect(desktopSearch).toBeDefined()
+      expect(desktopSearch!.parentElement!.className).toContain('hidden')
+      expect(desktopSearch!.parentElement!.className).toMatch(/md:flex/)
     })
   })
 
@@ -358,6 +361,77 @@ describe('StorefrontHeader', () => {
       renderHeader({ nav: undefined })
 
       expect(screen.queryByRole('navigation', { name: /main navigation/i })).not.toBeInTheDocument()
+    })
+  })
+
+  describe('mobile search row (design C7)', () => {
+    const navItems: NavItem[] = [
+      { id: '1', label: 'Shop', path: '/products', external: false, sortOrder: 0 },
+      { id: '2', label: 'About', path: '/about', external: false, sortOrder: 1 },
+    ]
+
+    it('renders a mobile search row when nav items are present', () => {
+      renderHeader({ nav: navItems })
+
+      const searchForms = screen.getAllByRole('search')
+      // Two search bars: one desktop (hidden md:flex wrapper), one mobile (md:hidden wrapper)
+      expect(searchForms.length).toBe(2)
+    })
+
+    it('does not render a mobile search row when nav items are empty', () => {
+      renderHeader({ nav: [] })
+
+      expect(screen.queryByRole('search')).not.toBeInTheDocument()
+    })
+
+    it('applies md:hidden class to the mobile search row wrapper', () => {
+      renderHeader({ nav: navItems })
+
+      const searchForms = screen.getAllByRole('search')
+      // The mobile search row is the one whose parent wrapper has md:hidden
+      const mobileSearch = searchForms.find(
+        (form) => form.parentElement?.className.includes('md:hidden')
+      )
+      expect(mobileSearch).toBeDefined()
+      expect(mobileSearch!.parentElement!.className).toContain('md:hidden')
+      expect(mobileSearch!.parentElement!.className).toContain('px-4')
+      expect(mobileSearch!.parentElement!.className).toContain('pb-3')
+    })
+
+    it('desktop search markup remains unchanged (hidden md:flex wrapper with max-w-sm)', () => {
+      renderHeader({ nav: navItems })
+
+      const searchForms = screen.getAllByRole('search')
+      // The desktop search is the one whose parent has md:flex
+      const desktopSearch = searchForms.find(
+        (form) => form.parentElement?.className.includes('md:flex')
+      )
+      expect(desktopSearch).toBeDefined()
+      expect(desktopSearch!.parentElement!.className).toContain('hidden')
+      expect(desktopSearch!.parentElement!.className).toContain('md:flex')
+      expect(desktopSearch!.className).toContain('max-w-sm')
+    })
+  })
+
+  describe('sign-in icon (design C5)', () => {
+    it('renders User icon on the signed-out page-style link', () => {
+      renderHeader({ auth: { loginStyle: 'page' } })
+
+      const signInLink = screen.getByRole('link', { name: /sign in/i })
+      const icon = signInLink.querySelector('svg')
+      expect(icon).toBeInTheDocument()
+      expect(icon).toHaveClass('h-5', 'w-5')
+      expect(icon).toHaveAttribute('aria-hidden', 'true')
+    })
+
+    it('renders User icon on the signed-out modal-style button', () => {
+      renderHeader({ auth: { loginStyle: 'modal' } })
+
+      const signInButton = screen.getByRole('button', { name: /sign in/i })
+      const icon = signInButton.querySelector('svg')
+      expect(icon).toBeInTheDocument()
+      expect(icon).toHaveClass('h-5', 'w-5')
+      expect(icon).toHaveAttribute('aria-hidden', 'true')
     })
   })
 

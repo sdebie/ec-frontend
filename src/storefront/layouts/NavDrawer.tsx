@@ -57,7 +57,7 @@ export function NavDrawer({ open, onClose, items }: NavDrawerProps) {
         <div className="flex-1 overflow-y-auto pb-4">
           <nav aria-label="Main navigation" className="flex flex-col gap-2 px-4">
             {items.map(item => (
-              <StorefrontNavLink key={item.id} item={item} />
+              <StorefrontNavLink key={item.id} item={item} variant="drawer" />
             ))}
           </nav>
           <div className="px-4">

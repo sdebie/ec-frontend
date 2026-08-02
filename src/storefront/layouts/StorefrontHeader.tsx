@@ -4,6 +4,7 @@ import { Menu, User } from 'lucide-react'
 import { useStorefrontConfig } from '@/shared/config/storefrontConfig.context'
 import { resolveImageUrl } from '@/shared/utils/imageUrl'
 import { useCustomerAuthStore } from '@/shared/auth/customerAuthStore'
+import { SF_FOCUS_RING } from '@/storefront/sections/shared/focusRing'
 import { SearchBar } from './SearchBar'
 import { StorefrontNavLink } from './StorefrontNavLink'
 import { NavDrawer } from './NavDrawer'
@@ -101,7 +102,7 @@ export function StorefrontHeader() {
                 aria-expanded={dropdownOpen}
                 aria-haspopup="menu"
                 aria-controls="customer-account-menu"
-                className="flex items-center gap-2 rounded-md px-3 py-2 text-sm font-medium text-(--sf-nav-icon-text) hover:text-(--sf-nav-icon-text-hover) hover:bg-(--sf-nav-border)"
+                className={`flex items-center gap-2 rounded-md px-3 py-2 text-sm font-medium text-(--sf-nav-icon-text) hover:text-(--sf-nav-icon-text-hover) hover:bg-(--sf-nav-border) ${SF_FOCUS_RING.nav}`}
               >
                 <User className="h-5 w-5" aria-hidden="true" />
                 <span>{firstName ?? 'My Account'}</span>
@@ -134,8 +135,9 @@ export function StorefrontHeader() {
             <>
               <button
                 onClick={() => setIsLoginOpen(true)}
-                className="flex items-center gap-2 rounded-md px-3 py-2 text-sm font-medium text-(--sf-nav-icon-text) hover:text-(--sf-nav-icon-text-hover) hover:bg-(--sf-nav-border)"
+                className={`flex items-center gap-2 rounded-md px-3 py-2 text-sm font-medium text-(--sf-nav-icon-text) hover:text-(--sf-nav-icon-text-hover) hover:bg-(--sf-nav-border) ${SF_FOCUS_RING.nav}`}
               >
+                <User className="h-5 w-5" aria-hidden="true" />
                 Sign in
               </button>
               <CustomerLoginModal
@@ -158,8 +160,9 @@ export function StorefrontHeader() {
           ) : (
             <Link
               to="/account/login"
-              className="flex items-center gap-2 rounded-md px-3 py-2 text-sm font-medium text-(--sf-nav-icon-text) hover:text-(--sf-nav-icon-text-hover) hover:bg-(--sf-nav-border)"
+              className={`flex items-center gap-2 rounded-md px-3 py-2 text-sm font-medium text-(--sf-nav-icon-text) hover:text-(--sf-nav-icon-text-hover) hover:bg-(--sf-nav-border) ${SF_FOCUS_RING.nav}`}
             >
+              <User className="h-5 w-5" aria-hidden="true" />
               Sign in
             </Link>
           )}
@@ -173,7 +176,7 @@ export function StorefrontHeader() {
           {/* Burger button — mobile only */}
           {navItems.length > 0 && (
             <button
-              className="md:hidden text-(--sf-nav-icon-text) hover:text-(--sf-nav-icon-text-hover)"
+              className={`md:hidden text-(--sf-nav-icon-text) hover:text-(--sf-nav-icon-text-hover) rounded-md p-2 ${SF_FOCUS_RING.nav}`}
               onClick={() => setDrawerOpen(true)}
               aria-label="Open navigation"
               aria-expanded={drawerOpen}
@@ -183,6 +186,13 @@ export function StorefrontHeader() {
           )}
         </div>
       </div>
+
+      {/* Mobile search row — below main row, visible only below md */}
+      {navItems.length > 0 && (
+        <div className="md:hidden px-4 pb-3">
+          <SearchBar tone="nav" className="w-full" />
+        </div>
+      )}
 
       {/* Mobile nav drawer */}
       {navItems.length > 0 && (

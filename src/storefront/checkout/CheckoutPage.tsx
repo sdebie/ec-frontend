@@ -16,6 +16,7 @@ import {useCheckoutSessionStore} from './store/checkoutSessionStore'
 import {useCustomerAuthStore} from '@/shared/auth/customerAuthStore'
 import {checkoutFormSchema, type CheckoutFormValues} from './checkoutFormSchema'
 import {isDeliveryMethod} from './utils/isDeliveryMethod'
+import {ACCENT_BUTTON_HOVER, SF_FOCUS_RING_PAGE} from '@/storefront/sections/shared'
 
 /**
  * Orchestrates checkout: owns the form and the only writes to it, and delegates
@@ -152,7 +153,7 @@ export function CheckoutPage() {
                                 <button
                                     type="submit"
                                     disabled={isSubmitting || paymentMethods?.length === 0}
-                                    className="min-h-11 w-full cursor-pointer rounded-lg bg-(--sf-accent) px-6 py-3 text-sm font-medium text-(--sf-accent-text) transition-colors hover:opacity-90 disabled:cursor-not-allowed disabled:opacity-50"
+                                    className={`min-h-11 w-full cursor-pointer rounded-lg bg-(--sf-accent) px-6 py-3 text-sm font-medium text-(--sf-accent-text) transition-colors ${ACCENT_BUTTON_HOVER} ${SF_FOCUS_RING_PAGE} disabled:cursor-not-allowed disabled:opacity-50`}
                                 >
                                     {isSubmitting ? 'Processing…' : 'Place order'}
                                 </button>
