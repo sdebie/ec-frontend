@@ -1,7 +1,7 @@
 import {Heart} from 'lucide-react'
-
 import {useEffectiveWishlist} from '../hooks/useEffectiveWishlist'
 import {useToggleEffective} from '../hooks/useToggleEffective'
+import React from "react";
 
 export function WishlistButton({
                                    variantId,
