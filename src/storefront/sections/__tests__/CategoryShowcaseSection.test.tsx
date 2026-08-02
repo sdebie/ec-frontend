@@ -1,4 +1,6 @@
-import {fireEvent, render, screen} from '@testing-library/react'
+import {fireEvent, render as rtlRender, screen} from '@testing-library/react'
+import {MemoryRouter} from 'react-router-dom'
+import type {ReactElement} from 'react'
 import {CategoryShowcaseSection} from '../CategoryShowcaseSection'
 import type {CategoryShowcaseSectionConfig} from '@/shared/types/StorefrontConfig'
 import {useCategories} from '@/storefront/catalog/hooks/useCategories'
@@ -22,6 +24,12 @@ vi.mock('@/storefront/catalog/components/ProductCard', () => ({
         <div data-testid={`product-card-${product.id}`}>{product.name}</div>
     ),
 }))
+
+// The section links its category logo into the filtered catalogue, so every
+// render needs a router in context.
+function renderWithRouter(ui: ReactElement) {
+    return rtlRender(ui, {wrapper: MemoryRouter})
+}
 
 const mockedUseCategories = vi.mocked(useCategories)
 const mockedUseProducts = vi.mocked(useProducts)
@@ -81,7 +89,7 @@ describe('CategoryShowcaseSection', () => {
     it('renders its own h2 at the default (overlay) treatment in carousel layout', () => {
         setupLoadedState()
 
-        const {container} = render(
+        const {container} = renderWithRouter(
             <CategoryShowcaseSection section={buildSection({layout: 'carousel'})}/>,
         )
 
@@ -95,7 +103,7 @@ describe('CategoryShowcaseSection', () => {
     it('passes arrowPlacement="overlay" to Carousel at the default treatment', () => {
         setupLoadedState()
 
-        const {container} = render(
+        const {container} = renderWithRouter(
             <CategoryShowcaseSection section={buildSection({layout: 'carousel'})}/>,
         )
 
@@ -109,7 +117,7 @@ describe('CategoryShowcaseSection', () => {
     it('renders overlay treatment when carouselControls is explicitly "overlay"', () => {
         setupLoadedState()
 
-        const {container} = render(
+        const {container} = renderWithRouter(
             <CategoryShowcaseSection section={buildSection({layout: 'carousel', carouselControls: 'overlay'})}/>,
         )
 
@@ -121,7 +129,7 @@ describe('CategoryShowcaseSection', () => {
     it('renders its own h2 above the row and keeps the Carousel in header-controls mode', () => {
         setupLoadedState()
 
-        const {container} = render(
+        const {container} = renderWithRouter(
             <CategoryShowcaseSection section={buildSection({layout: 'carousel', carouselControls: 'header'})}/>,
         )
 
@@ -142,7 +150,7 @@ describe('CategoryShowcaseSection', () => {
     it('renders own h2 when carouselControls is "gutter" and passes gutter arrowPlacement', () => {
         setupLoadedState()
 
-        const {container} = render(
+        const {container} = renderWithRouter(
             <CategoryShowcaseSection section={buildSection({layout: 'carousel', carouselControls: 'gutter'})}/>,
         )
 
@@ -156,7 +164,7 @@ describe('CategoryShowcaseSection', () => {
     it('falls back to overlay for unknown carouselControls values', () => {
         setupLoadedState()
 
-        const {container} = render(
+        const {container} = renderWithRouter(
             <CategoryShowcaseSection section={buildSection({
                 layout: 'carousel',
                 carouselControls: 'bogus' as 'overlay',
@@ -184,7 +192,7 @@ describe('CategoryShowcaseSection', () => {
             refetch: vi.fn(),
         })
 
-        const {container} = render(<CategoryShowcaseSection section={buildSection({categorySlug: 'non-existent'})}/>)
+        const {container} = renderWithRouter(<CategoryShowcaseSection section={buildSection({categorySlug: 'non-existent'})}/>)
         expect(container.innerHTML).toBe('')
     })
 
@@ -203,14 +211,14 @@ describe('CategoryShowcaseSection', () => {
             refetch: vi.fn(),
         })
 
-        const {container} = render(<CategoryShowcaseSection section={buildSection()}/>)
+        const {container} = renderWithRouter(<CategoryShowcaseSection section={buildSection()}/>)
         expect(container.innerHTML).toBe('')
     })
 
     it('renders product cards when products returned', () => {
         setupLoadedState()
 
-        render(<CategoryShowcaseSection section={buildSection()}/>)
+        renderWithRouter(<CategoryShowcaseSection section={buildSection()}/>)
 
         expect(screen.getByTestId('product-card-p1')).toBeInTheDocument()
         expect(screen.getByTestId('product-card-p2')).toBeInTheDocument()
@@ -232,7 +240,7 @@ describe('CategoryShowcaseSection', () => {
             refetch: vi.fn(),
         })
 
-        render(<CategoryShowcaseSection section={buildSection({categorySlug: 'medical'})}/>)
+        renderWithRouter(<CategoryShowcaseSection section={buildSection({categorySlug: 'medical'})}/>)
 
         expect(mockedUseProducts).toHaveBeenCalledWith({
             categoryId: undefined,
@@ -243,7 +251,7 @@ describe('CategoryShowcaseSection', () => {
     it('renders decorative image when imageUrl provided', () => {
         setupLoadedState()
 
-        const {container} = render(<CategoryShowcaseSection
+        const {container} = renderWithRouter(<CategoryShowcaseSection
             section={buildSection({imageUrl: 'categories/medical.png'})}/>)
 
         const img = container.querySelector('img[aria-hidden="true"]')
@@ -258,10 +266,12 @@ describe('CategoryShowcaseSection', () => {
     // two-thirds of a 375px viewport) and the inline icon must stay `md:hidden`.
 
     describe('image placement (Req 6.2a)', () => {
+        // Both graphics are wrapped in a category link, so the responsive
+        // classes live on the anchor — assert against that, not the <img>.
         function imagesOf(container: HTMLElement) {
             const all = Array.from(container.querySelectorAll('img[aria-hidden="true"]'))
             return {
-                icon: all.find((el) => el.className.includes('md:hidden')) as HTMLElement | undefined,
+                icon: all.find((el) => el.closest('a')?.className.includes('md:hidden')) as HTMLElement | undefined,
                 rail: all.find((el) => el.closest('.md\\:flex')) as HTMLElement | undefined,
             }
         }
@@ -269,18 +279,22 @@ describe('CategoryShowcaseSection', () => {
         it('renders the mobile icon inline and keeps the rail md+ only (default hint)', () => {
             setupLoadedState()
 
-            const {container} = render(<CategoryShowcaseSection
+            const {container} = renderWithRouter(<CategoryShowcaseSection
                 section={buildSection({imageUrl: 'categories/medical.png'})}/>)
 
             const {icon, rail} = imagesOf(container)
 
             expect(icon).toBeDefined()
-            expect(icon!.className).toContain('md:hidden')
-            // The icon rides inside the section's own heading.
-            expect(icon!.closest('h2')).not.toBeNull()
+            expect(icon!.closest('a')!.className).toContain('md:hidden')
+            // The icon sits beside the title block in the heading row (not inside
+            // the h2), so the rule under the title tracks the TEXT on mobile
+            // rather than starting under the logo.
+            const headingRow = icon!.closest('a')!.parentElement!
+            expect(headingRow.querySelector('h2')).not.toBeNull()
+            expect(icon!.closest('h2')).toBeNull()
 
             expect(rail).toBeDefined()
-            const railWrapper = rail!.parentElement!
+            const railWrapper = rail!.closest('div')!
             expect(railWrapper.className).toContain('hidden')
             expect(railWrapper.className).toContain('md:flex')
             expect(railWrapper.className).toContain('w-64')
@@ -289,7 +303,7 @@ describe('CategoryShowcaseSection', () => {
         it('keeps its own full-width h2 when carouselControls is "header"', () => {
             setupLoadedState()
 
-            const {container} = render(<CategoryShowcaseSection
+            const {container} = renderWithRouter(<CategoryShowcaseSection
                 section={buildSection({
                     imageUrl: 'categories/medical.png',
                     layout: 'carousel',
@@ -313,19 +327,22 @@ describe('CategoryShowcaseSection', () => {
 
             const {icon, rail} = imagesOf(container)
             expect(icon).toBeDefined()
-            expect(icon!.className).toContain('md:hidden')
-            // Mobile order is icon THEN heading — the icon rides inside the h2.
-            expect(icon!.closest('h2')).toBe(ownHeading)
+            expect(icon!.closest('a')!.className).toContain('md:hidden')
+            // Mobile order is icon THEN heading: the icon is the heading row's
+            // first child, with the title block after it.
+            const headingRow = icon!.closest('a')!.parentElement!
+            expect(headingRow.firstElementChild).toBe(icon!.closest('a'))
+            expect(headingRow.querySelector('h2')).toBe(ownHeading)
 
             // The md+ rail is unaffected by the hint.
             expect(rail).toBeDefined()
-            expect(rail!.parentElement!.className).toContain('md:flex')
+            expect(rail!.closest('div')!.className).toContain('md:flex')
         })
 
         it('renders the heading in white (accent-text token) on the gradient band', () => {
             setupLoadedState()
 
-            const {container} = render(<CategoryShowcaseSection
+            const {container} = renderWithRouter(<CategoryShowcaseSection
                 section={buildSection({layout: 'carousel', carouselControls: 'header'})}/>)
 
             const heading = container.querySelector('section h2')!
@@ -333,10 +350,42 @@ describe('CategoryShowcaseSection', () => {
             expect(heading.className).toContain('text-(--sf-accent-text)')
         })
 
+        it('links both graphics into the catalogue filtered by this category', () => {
+            setupLoadedState()
+
+            const {container} = renderWithRouter(<CategoryShowcaseSection
+                section={buildSection({imageUrl: 'categories/medical.png', categorySlug: 'medical'})}/>)
+
+            const {icon, rail} = imagesOf(container)
+            const hrefs = [icon, rail].map((el) => el!.closest('a')!.getAttribute('href'))
+
+            expect(hrefs).toEqual([
+                '/products?category=medical',
+                '/products?category=medical',
+            ])
+            // The <img> stays decorative, so the anchor carries the accessible name.
+            expect(icon!.closest('a')!.getAttribute('aria-label')).toBe('Shop Medical Supplies')
+        })
+
+        it('encodes a category slug that needs escaping', () => {
+            setupLoadedState()
+            mockedUseCategories.mockReturnValue({
+                categories: [{id: 'cat-1', name: 'Medical', slug: 'a b&c'}],
+                isLoading: false,
+                isError: false,
+            })
+
+            const {container} = renderWithRouter(<CategoryShowcaseSection
+                section={buildSection({imageUrl: 'categories/medical.png', categorySlug: 'a b&c'})}/>)
+
+            const {rail} = imagesOf(container)
+            expect(rail!.closest('a')!.getAttribute('href')).toBe('/products?category=a%20b%26c')
+        })
+
         it('degrades text-first when the seeded image 404s', () => {
             setupLoadedState()
 
-            const {container} = render(<CategoryShowcaseSection
+            const {container} = renderWithRouter(<CategoryShowcaseSection
                 section={buildSection({imageUrl: 'categories/never-uploaded.png'})}/>)
 
             expect(container.querySelectorAll('img[aria-hidden="true"]').length).toBeGreaterThan(0)

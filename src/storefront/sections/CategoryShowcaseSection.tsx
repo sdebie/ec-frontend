@@ -111,7 +111,7 @@ export function CategoryShowcaseSection({section}: { section: CategoryShowcaseSe
                 alt=""
                 aria-hidden="true"
                 onError={() => setImageFailed(true)}
-                className="h-12 w-12 object-contain"
+                className="h-16 w-16 object-contain"
             />
         </Link>
     ) : null
@@ -125,18 +125,24 @@ export function CategoryShowcaseSection({section}: { section: CategoryShowcaseSe
                     carousel hint — under 'header' the Carousel keeps only its arrow
                     row, so the title is never duplicated. Colour is the accent-text
                     token because the band is a client-authored dark gradient. */}
-                <div className="mb-4">
-                    <h2 className="text-2xl font-bold text-(--sf-accent-text) drop-shadow-md flex items-center gap-3">
-                        {mobileIcon}
-                        {title}
-                    </h2>
-                    {/* Same accent rule SectionHeading draws under a title, but in
-                        accent-text — the band is a dark client gradient, so the
-                        accent colour itself would disappear into it. */}
-                    <span
-                        className="mt-2 block h-1 w-12 rounded-full bg-(--sf-accent-text)"
-                        aria-hidden="true"
-                    />
+                {/* The icon sits BESIDE the title block rather than inside the
+                    heading, so the rule tracks the heading text on mobile instead
+                    of starting under the logo. At md+ the icon is hidden and the
+                    block collapses to today's left-aligned heading + rule. */}
+                <div className="mb-4 flex items-center gap-3">
+                    {mobileIcon}
+                    <div className="min-w-0">
+                        <h2 className="text-2xl font-bold text-(--sf-accent-text) drop-shadow-md">
+                            {title}
+                        </h2>
+                        {/* Same accent rule SectionHeading draws under a title, but in
+                            accent-text — the band is a dark client gradient, so the
+                            accent colour itself would disappear into it. */}
+                        <span
+                            className="mt-2 block h-1 w-12 rounded-full bg-(--sf-accent-text)"
+                            aria-hidden="true"
+                        />
+                    </div>
                 </div>
 
                 <div className="mb-4 flex items-stretch gap-8">
@@ -163,6 +169,7 @@ export function CategoryShowcaseSection({section}: { section: CategoryShowcaseSe
                                 ariaLabel={title}
                                 perView={columns}
                                 perViewMobile={2}
+                                tone="onAccent"
                                 {...(hint === 'header'
                                     ? {header: <span className="sr-only">{title}</span>}
                                     : {arrowPlacement: hint})}

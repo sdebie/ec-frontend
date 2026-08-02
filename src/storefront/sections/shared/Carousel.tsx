@@ -16,6 +16,12 @@ interface CarouselProps {
     /** Whole cards visible per view below `md` (default 1, with the next peeking). */
     perViewMobile?: 1 | 2
     /**
+     * Colour context for the mobile pagination dots and "Swipe to browse" hint.
+     * 'default' (page surface) or 'onAccent' for a deck sitting on a client
+     * colour band, where the muted token disappears.
+     */
+    tone?: 'default' | 'onAccent'
+    /**
      * Header-controls mode: the node (typically a SectionHeading with mb-0)
      * renders in a row above the deck with prev/next beside it on md+.
      * Mobile drops the floating arrows entirely — pagination dots + a
@@ -37,15 +43,38 @@ const CELL_BASIS: Record<2 | 3 | 4, string> = {
 
 // Sub-`md` cell width. 1 (default) shows a single card at 85% so the next one
 // peeks; 2 fits a pair, for decks whose cards stay legible at half a phone.
+// The 2-up fraction subtracts the MOBILE gap (gap-3 = 0.75rem), not the desktop one.
 const MOBILE_CELL_BASIS: Record<1 | 2, string> = {
     1: 'w-[85%]',
-    2: 'w-[calc((100%-1.5rem)/2)]',
+    2: 'w-[calc((100%-0.75rem)/2)]',
 }
 
-// gap-6 between cells — the snap stride is cellWidth + this.
-const GAP_PX = 24
+// Mobile pagination treatment. 'default' reads against the page surface;
+// 'onAccent' reads against a client-authored colour band, where the muted token
+// would sink into the background — it uses the accent-text token, which is
+// exactly the token the band's own heading uses.
+const DOT_ACTIVE_CLASS: Record<'default' | 'onAccent', string> = {
+    default: 'w-5 bg-(--sf-accent)',
+    onAccent: 'w-5 bg-(--sf-accent-text)',
+}
+const DOT_IDLE_CLASS: Record<'default' | 'onAccent', string> = {
+    default: 'w-2 bg-(--sf-border) in-data-[variant=dark]:bg-white/30',
+    onAccent: 'w-2 bg-(--sf-accent-text)/40',
+}
+const HINT_CLASS: Record<'default' | 'onAccent', string> = {
+    default: 'text-xs text-(--sf-muted-text) in-data-[variant=dark]:text-white/60',
+    onAccent: 'text-xs text-(--sf-accent-text)',
+}
 
-export function Carousel({ariaLabel, perView = 3, perViewMobile = 1, arrowPlacement = 'gutter', header, children}: CarouselProps) {
+// The gap is responsive (tighter below `md`), so the snap stride is measured off
+// the live element rather than assumed — a hardcoded constant would page by the
+// wrong amount on mobile.
+function gapOf(el: HTMLElement): number {
+    const gap = parseFloat(getComputedStyle(el).columnGap)
+    return Number.isFinite(gap) ? gap : 0
+}
+
+export function Carousel({ariaLabel, perView = 3, perViewMobile = 1, tone = 'default', arrowPlacement = 'gutter', header, children}: CarouselProps) {
     const headerControls = header != null
     const scrollRef = useRef<HTMLDivElement>(null)
     const [showButtons, setShowButtons] = useState(false)
@@ -61,8 +90,12 @@ export function Carousel({ariaLabel, perView = 3, perViewMobile = 1, arrowPlacem
         setCanPrev(el.scrollLeft > 1)
         setCanNext(el.scrollLeft < el.scrollWidth - el.clientWidth - 1)
         const firstCell = el.firstElementChild as HTMLElement | null
-        const stride = (firstCell?.offsetWidth ?? 0) + GAP_PX
-        setActiveIndex(Math.max(0, Math.min(cellCount - 1, Math.round(el.scrollLeft / stride))))
+        const stride = (firstCell?.offsetWidth ?? 0) + gapOf(el)
+        // Guard the divide: before layout (and in jsdom) the cell measures 0 and
+        // the computed gap is absent, so an unguarded scrollLeft/stride is NaN
+        // and no dot ever reads as current.
+        const index = stride > 0 ? Math.round(el.scrollLeft / stride) : 0
+        setActiveIndex(Math.max(0, Math.min(cellCount - 1, index)))
     }, [cellCount])
 
     useEffect(() => {
@@ -87,7 +120,7 @@ export function Carousel({ariaLabel, perView = 3, perViewMobile = 1, arrowPlacem
         // Header mode pages by a whole view (perView cards): one page stride is
         // perView * (cell + gap) = clientWidth + gap. Legacy keeps its partial
         // advance so the edge arrows behave as they always have.
-        const amount = headerControls ? el.clientWidth + GAP_PX : el.clientWidth * 0.8
+        const amount = headerControls ? el.clientWidth + gapOf(el) : el.clientWidth * 0.8
         el.scrollBy({left: direction * amount, behavior: 'smooth'})
     }
 
@@ -95,7 +128,7 @@ export function Carousel({ariaLabel, perView = 3, perViewMobile = 1, arrowPlacem
         const el = scrollRef.current
         if (!el) return
         const firstCell = el.firstElementChild as HTMLElement | null
-        const stride = (firstCell?.offsetWidth ?? 0) + GAP_PX
+        const stride = (firstCell?.offsetWidth ?? 0) + gapOf(el)
         el.scrollTo({left: index * stride, behavior: 'smooth'})
     }
 
@@ -133,11 +166,15 @@ export function Carousel({ariaLabel, perView = 3, perViewMobile = 1, arrowPlacem
                 <div
                     ref={scrollRef}
                     onScroll={syncScrollState}
-                    // py-2: `overflow-x-auto` computes `overflow-y` to `auto`, so
-                    // without vertical room the track clips whatever a card paints
-                    // outside its box — its border, its hover shadow and the
-                    // `hover:scale-[1.02]` lift all got cut off top and bottom.
-                    className="flex gap-6 overflow-x-auto py-2 snap-x snap-mandatory scroll-smooth [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]"
+                    // p-2 / -m-2: `overflow-x-auto` computes `overflow-y` to `auto`,
+                    // so without room the track clips whatever a card paints outside
+                    // its box — border, hover shadow and the `hover:scale-[1.02]`
+                    // lift were cut off top and bottom, and the FIRST card's left
+                    // edge was clipped at scrollLeft 0. The negative margin pulls the
+                    // scrollport back out so cards still line up with the section
+                    // gutter; scroll-pl-2 keeps `snap-start` landing on the card edge
+                    // rather than the padding edge.
+                    className="flex gap-3 md:gap-6 overflow-x-auto p-2 -m-2 scroll-pl-2 snap-x snap-mandatory scroll-smooth [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]"
                 >
                     {React.Children.map(children, (child, index) => (
                         // *:w-full — the cell is a flex container (so cards stretch to
@@ -194,14 +231,14 @@ export function Carousel({ariaLabel, perView = 3, perViewMobile = 1, arrowPlacem
                                 <span
                                     className={`h-2 rounded-full transition-all ${
                                         index === activeIndex
-                                            ? 'w-5 bg-(--sf-accent)'
-                                            : 'w-2 bg-(--sf-border) in-data-[variant=dark]:bg-white/30'
+                                            ? DOT_ACTIVE_CLASS[tone]
+                                            : DOT_IDLE_CLASS[tone]
                                     }`}
                                 />
                             </button>
                         ))}
                     </div>
-                    <p className="text-xs text-(--sf-muted-text) in-data-[variant=dark]:text-white/60">
+                    <p className={HINT_CLASS[tone]}>
                         Swipe to browse
                     </p>
                 </div>

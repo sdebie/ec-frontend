@@ -57,6 +57,41 @@ describe('ProductCard', () => {
         mockCustomerType.value = 'RETAIL'
     })
 
+    describe('wishlist affordance (owner directive 2026-08-02)', () => {
+        it('renders the real wishlist toggle when the card has a variant', () => {
+            renderCard({}, {variantId: 'variant-1'})
+
+            expect(screen.getByLabelText('Wishlist variant-1')).toBeInTheDocument()
+            expect(screen.queryByLabelText('Choose options to save to wishlist')).not.toBeInTheDocument()
+        })
+
+        it('routes the heart to the product page when there is no variant to save', () => {
+            renderCard({slug: 'blue-overall'}, {variantId: null})
+
+            // The wishlist is variant-keyed, so a variable product must NOT write —
+            // the heart is a door to the PDP where a variant gets chosen.
+            const heart = screen.getByLabelText('Choose options to save to wishlist')
+            expect(heart.tagName).toBe('A')
+            expect(heart).toHaveAttribute('href', '/products/blue-overall')
+            expect(screen.queryByLabelText(/^Wishlist /)).not.toBeInTheDocument()
+        })
+
+        it('renders no wishlist affordance at all when the card suppresses it', () => {
+            renderCard({}, {variantId: null, showWishlistButton: false})
+
+            expect(screen.queryByLabelText('Choose options to save to wishlist')).not.toBeInTheDocument()
+            expect(screen.queryByLabelText(/^Wishlist /)).not.toBeInTheDocument()
+        })
+
+        it('reserves the SKU line on a variable product so decks stay aligned', () => {
+            const {container} = renderCard({sku: null}, {variantId: null})
+
+            // Not a visible SKU, but the row still occupies its line.
+            expect(screen.queryByText(/SKU:/)).not.toBeInTheDocument()
+            expect(container.querySelector('p[aria-hidden="true"]')).not.toBeNull()
+        })
+    })
+
     describe('standardized card contract (2026-07-24)', () => {
         it('renders the display price with an ex. VAT label', () => {
             renderCard()

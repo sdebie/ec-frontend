@@ -388,7 +388,85 @@ describe('AnnouncementBanner', () => {
 
   // --- showContact true but no data → renders nothing ---
 
-  it('renders nothing when showContact true but contact has no phone or whatsapp', () => {
+  it('renders nothing when showContact true but contact has no reachable channel', () => {
+    mockUseStorefrontConfig.mockReturnValue({
+      header: {
+        announcement: {
+          enabled: true,
+          text: '',
+          backgroundColor: '#1a1f35',
+          textColor: '#ffffff',
+          showContact: true,
+        },
+      },
+      contact: { physicalAddress: '1 Somewhere Road' },
+    })
+
+    const { container } = render(<AnnouncementBanner />)
+    expect(container).toBeEmptyDOMElement()
+  })
+
+  it('carries an email on its own as a mailto entry', () => {
+    mockUseStorefrontConfig.mockReturnValue({
+      header: {
+        announcement: {
+          enabled: true,
+          text: '',
+          backgroundColor: '#1a1f35',
+          textColor: '#ffffff',
+          showContact: true,
+        },
+      },
+      contact: { emails: ['info@test.com'] },
+    })
+
+    render(<AnnouncementBanner />)
+    expect(screen.getByRole('link', { name: /info@test\.com/ }))
+      .toHaveAttribute('href', 'mailto:info@test.com')
+  })
+
+  it('prefers enquiryEmail over the emails list', () => {
+    mockUseStorefrontConfig.mockReturnValue({
+      header: {
+        announcement: {
+          enabled: true,
+          text: '',
+          backgroundColor: '#1a1f35',
+          textColor: '#ffffff',
+          showContact: true,
+        },
+      },
+      contact: { emails: ['first@test.com'], enquiryEmail: 'enquiries@test.com' },
+    })
+
+    render(<AnnouncementBanner />)
+    expect(screen.getByRole('link', { name: /enquiries@test\.com/ }))
+      .toHaveAttribute('href', 'mailto:enquiries@test.com')
+    expect(screen.queryByText('first@test.com')).not.toBeInTheDocument()
+  })
+
+  it('separates contact entries with a pipe, never leading or trailing', () => {
+    mockUseStorefrontConfig.mockReturnValue({
+      header: {
+        announcement: {
+          enabled: true,
+          text: '',
+          backgroundColor: '#1a1f35',
+          textColor: '#ffffff',
+          showContact: true,
+        },
+      },
+      contact: { phones: ['+27 11 000 0000'], whatsapp: '+27821234567', emails: ['info@test.com'] },
+    })
+
+    const { container } = render(<AnnouncementBanner />)
+    // Three entries → exactly two separators, one between each pair.
+    const separators = [...container.querySelectorAll('span[aria-hidden="true"]')]
+      .filter((el) => el.textContent === '|')
+    expect(separators).toHaveLength(2)
+  })
+
+  it('renders a single contact entry with no separator at all', () => {
     mockUseStorefrontConfig.mockReturnValue({
       header: {
         announcement: {
@@ -403,7 +481,9 @@ describe('AnnouncementBanner', () => {
     })
 
     const { container } = render(<AnnouncementBanner />)
-    expect(container).toBeEmptyDOMElement()
+    const separators = [...container.querySelectorAll('span[aria-hidden="true"]')]
+      .filter((el) => el.textContent === '|')
+    expect(separators).toHaveLength(0)
   })
 
   // --- Focus recipe on banner links (task 1.6) ---

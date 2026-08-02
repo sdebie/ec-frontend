@@ -7,6 +7,40 @@ import {pickFeaturedImage} from '@/storefront/catalog'
 import {WishlistButton} from '@/storefront/customer/account/wishlist/components/WishlistButton'
 import {CardActions} from './CardActions'
 import {SF_FOCUS_RING} from '@/storefront/sections/shared/focusRing'
+import {Heart} from 'lucide-react'
+
+const WISHLIST_CHIP_CLASS =
+    'absolute top-2 right-2 rounded-full border border-transparent bg-(--sf-panel)/80 p-1.5 backdrop-blur-sm transition-colors hover:border-(--sf-accent) hover:bg-(--sf-panel) cursor-pointer'
+
+/**
+ * The wishlist is keyed by VARIANT throughout (toggle, hydration, sign-in merge),
+ * so a variable product — `variantId` null — has nothing a card could save.
+ * Rather than silently saving an arbitrary variant, the heart becomes a door to
+ * the product page, where choosing a variant enables the real toggle. The
+ * accessible name says so, so it never reads as a save that failed.
+ */
+function WishlistSlot({variantId, productUrl}: { variantId: string | null; productUrl: string }) {
+    if (variantId) {
+        return <WishlistButton variantId={variantId} className={WISHLIST_CHIP_CLASS}/>
+    }
+
+    return (
+        <Link
+            to={productUrl}
+            aria-label="Choose options to save to wishlist"
+            title="Choose options to save"
+            // group/wishlist mirrors WishlistButton's own named group so the
+            // hover fill matches a real toggle's — it just never carries the
+            // persistent filled state, having no variant whose membership to show.
+            className={`group/wishlist ${WISHLIST_CHIP_CLASS} inline-flex ${SF_FOCUS_RING.page}`}
+        >
+            <Heart
+                className="h-5 w-5 fill-transparent text-(--sf-accent) transition-colors group-hover/wishlist:fill-current"
+                aria-hidden="true"
+            />
+        </Link>
+    )
+}
 
 interface PriceTier {
     price: number | null
@@ -167,11 +201,8 @@ export function ProductCard({product, variantId, variantLabel, badge, layout = '
                             {badge}
                         </span>
                     )}
-                    {variantId && showWishlistButton && (
-                        <WishlistButton
-                            variantId={variantId}
-                            className="absolute top-2 right-2 rounded-full border border-transparent bg-(--sf-panel)/80 p-1.5 backdrop-blur-sm transition-colors hover:border-(--sf-accent) hover:bg-(--sf-panel) cursor-pointer"
-                        />
+                    {showWishlistButton && (
+                        <WishlistSlot variantId={variantId ?? null} productUrl={productUrl}/>
                     )}
                     {onQuickView && (
                         <button
@@ -316,11 +347,8 @@ export function ProductCard({product, variantId, variantLabel, badge, layout = '
                         {badge}
                     </span>
                 )}
-                {variantId && showWishlistButton && (
-                    <WishlistButton
-                        variantId={variantId}
-                        className="absolute top-2 right-2 rounded-full border border-transparent bg-(--sf-panel)/80 p-1.5 backdrop-blur-sm transition-colors hover:border-(--sf-accent) hover:bg-(--sf-panel) cursor-pointer"
-                    />
+                {showWishlistButton && (
+                    <WishlistSlot variantId={variantId ?? null} productUrl={productUrl}/>
                 )}
                 {onQuickView && (
                     <button
@@ -342,9 +370,16 @@ export function ProductCard({product, variantId, variantLabel, badge, layout = '
                     </h3>
                 </Link>
 
-                {product.sku && (
+                {/* A variable product has no single SKU. Reserve the line anyway so
+                    the stock/price/action rows below stay on the same baseline as a
+                    simple product's — same rationale as the min-h name row above. */}
+                {product.sku ? (
                     <p className="mt-1 text-xs text-(--sf-muted-text)">
                         SKU: {product.sku}
+                    </p>
+                ) : (
+                    <p className="mt-1 text-xs text-(--sf-muted-text)" aria-hidden="true">
+                        &nbsp;
                     </p>
                 )}
 

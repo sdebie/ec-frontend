@@ -4,6 +4,36 @@ import {useCartStore} from '@/storefront/cart/store/cartStore'
 import {ACCENT_BUTTON_HOVER, SF_FOCUS_RING_PAGE} from '@/storefront/sections/shared'
 import {QuantityStepper} from './QuantityStepper'
 
+/**
+ * The card's stepper sits centred in its own bordered box, so it reads as one
+ * control rather than two loose buttons. Applied HERE and not in QuantityStepper
+ * because the cart uses the same component inline in a row, where a box would be
+ * wrong.
+ *
+ * The layout half is shared with StepperReserve below and both carry a 1px
+ * border, so the reserve is exactly as tall as the real thing by construction.
+ */
+const STEPPER_BOX_LAYOUT = 'flex items-center justify-center rounded-lg py-1'
+
+/**
+ * Reserves exactly the row the stepper box occupies, so a card whose action is a
+ * single control ("Select options", "Out of stock", "View product") stands as
+ * tall as a purchasable one and a deck of mixed products lines up — otherwise a
+ * section's height follows whichever products happen to be simple.
+ *
+ * Built from the same tokens as the real box rather than a hardcoded height, so
+ * the two cannot drift apart. Nothing here is focusable or in the a11y tree.
+ */
+function StepperReserve() {
+    return (
+        <div aria-hidden="true" className={`${STEPPER_BOX_LAYOUT} border border-transparent`}>
+            <span className="rounded border border-transparent p-1">
+                <span className="block h-4 w-4"/>
+            </span>
+        </div>
+    )
+}
+
 interface CardActionsProps {
     variantId: string | null
     productName: string
@@ -53,7 +83,11 @@ export function CardActions({variantId, productName, productSlug, inStock, hasPr
     // become items of the PARENT's layout; from sm the original box returns.
     // Complete literal class strings — an interpolated `sm:${…}` never reaches
     // Tailwind's scanner and would emit no CSS.
-    const singleClass = layout === 'bar' ? 'contents sm:mt-3 sm:block' : 'mt-3'
+    // `stack` reserves the stepper row above a single control so mixed decks
+    // align. `bar` does not: below sm its wrapper is `display: contents`, so a
+    // reserve would inject a stray item into the PARENT's row layout.
+    const singleClass = layout === 'bar' ? 'contents sm:mt-3 sm:block' : 'mt-3 flex flex-col gap-2'
+    const reserve = layout === 'bar' ? null : <StepperReserve/>
     const stackClass =
         layout === 'bar'
             ? 'contents sm:mt-3 sm:flex sm:flex-col sm:gap-2'
@@ -63,6 +97,7 @@ export function CardActions({variantId, productName, productSlug, inStock, hasPr
     if (!hasPrice) {
         return (
             <div className={singleClass}>
+                {reserve}
                 <Link
                     to={`/products/${productSlug}`}
                     className="inline-block text-sm font-medium text-(--sf-accent) hover:underline"
@@ -77,6 +112,7 @@ export function CardActions({variantId, productName, productSlug, inStock, hasPr
     if (variantId == null) {
         return (
             <div className={singleClass}>
+                {reserve}
                 <Link
                     to={`/products/${productSlug}`}
                     className="inline-flex w-full items-center justify-center rounded-lg border border-(--sf-border) px-4 py-2 text-sm font-medium text-(--sf-text) hover:bg-(--sf-surface-muted) transition-colors"
@@ -94,6 +130,7 @@ export function CardActions({variantId, productName, productSlug, inStock, hasPr
         if (outOfStockAction === 'viewProduct') {
             return (
                 <div className={singleClass}>
+                    {reserve}
                     <Link
                         to={`/products/${productSlug}`}
                         className="inline-flex w-full items-center justify-center rounded-lg border border-(--sf-border) px-4 py-2 text-sm font-medium text-(--sf-text) hover:bg-(--sf-surface-muted) transition-colors"
@@ -106,6 +143,7 @@ export function CardActions({variantId, productName, productSlug, inStock, hasPr
 
         return (
             <div className={singleClass}>
+                {reserve}
                 <button
                     type="button"
                     disabled
@@ -144,15 +182,20 @@ export function CardActions({variantId, productName, productSlug, inStock, hasPr
 
     return (
         <div className={stackClass}>
-            <QuantityStepper
-                quantity={quantity}
-                onIncrement={() => setQuantity((q) => q + 1)}
-                onDecrement={() => setQuantity((q) => Math.max(1, q - 1))}
-            />
+            <div className={`${STEPPER_BOX_LAYOUT} border border-(--sf-border)`}>
+                <QuantityStepper
+                    quantity={quantity}
+                    onIncrement={() => setQuantity((q) => q + 1)}
+                    onDecrement={() => setQuantity((q) => Math.max(1, q - 1))}
+                />
+            </div>
             <button
                 type="button"
                 onClick={handleAddClick}
-                className={`w-full rounded-lg px-4 py-2 text-sm font-medium bg-(--sf-accent) text-(--sf-accent-text) transition-colors cursor-pointer ${ACCENT_BUTTON_HOVER} ${SF_FOCUS_RING_PAGE}`}
+                // border-transparent matches the 1px the outlined "Select options" /
+                // "Out of stock" controls carry, so a purchasable card ends up
+                // exactly as tall as a variable one.
+                className={`w-full rounded-lg border border-transparent px-4 py-2 text-sm font-medium bg-(--sf-accent) text-(--sf-accent-text) transition-colors cursor-pointer ${ACCENT_BUTTON_HOVER} ${SF_FOCUS_RING_PAGE}`}
             >
                 {showConfirmation ? 'Added \u2713' : 'Add to cart'}
             </button>
