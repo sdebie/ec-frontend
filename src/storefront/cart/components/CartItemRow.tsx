@@ -43,7 +43,11 @@ export function CartItemRow({row, isLoading, onQuantityChange, onRemove}: CartIt
         <li
             data-testid="cart-line-item"
             data-blocked={row.isOrderable ? undefined : 'true'}
-            className={`flex gap-3 rounded-lg border bg-(--sf-panel) p-3 transition-colors sm:gap-4 sm:p-4 ${
+            /* A grid, not nested flexes, so ONE set of nodes reflows between
+               breakpoints. Mobile: [thumb][identity] with the actions bar
+               spanning both columns underneath. sm+: the actions return to a
+               third column beside the identity. */
+            className={`relative grid grid-cols-[auto_1fr] items-start gap-3 rounded-lg border bg-(--sf-panel) p-3 transition-colors sm:grid-cols-[auto_1fr_auto] sm:gap-4 sm:p-4 ${
                 row.isOrderable ? 'border-(--sf-border)/60' : 'border-red-300'
             }`}
         >
@@ -76,9 +80,10 @@ export function CartItemRow({row, isLoading, onQuantityChange, onRemove}: CartIt
                 )}
             </div>
 
-            <div className="flex min-w-0 flex-1 flex-col gap-3 sm:flex-row sm:items-start sm:gap-4">
-                {/* Identity — what the shopper checks the line against */}
-                <div className="flex min-w-0 flex-1 flex-col">
+                {/* Identity — what the shopper checks the line against. `pr-9`
+                    reserves the corner the remove control occupies on mobile so a
+                    long product name never runs under it. */}
+                <div className="flex min-w-0 flex-col pr-9 sm:pr-0">
                     <p className="text-sm font-medium text-(--sf-text)">{row.productName}</p>
 
                     {row.sku && (
@@ -115,30 +120,40 @@ export function CartItemRow({row, isLoading, onQuantityChange, onRemove}: CartIt
                     ) : null}
                 </div>
 
-                {/* Quantity, then the money — the line total leads and the unit
-                    price sits beneath it as the working that produced it. */}
-                <div className="flex shrink-0 flex-col gap-2 sm:w-52 sm:items-end">
-                    <div className="flex items-center gap-3 sm:justify-end">
-                        <QuantityStepper
-                            quantity={row.quantity}
-                            max={stepperMax}
-                            onIncrement={() => onQuantityChange(row.quantity + 1)}
-                            onDecrement={() => onQuantityChange(row.quantity - 1)}
-                        />
-                        {/* Same treatment as the wishlist's remove control: muted
-                            until hover, then accent, with an always-present
-                            transparent border so nothing shifts by a pixel. */}
-                        <button
-                            type="button"
-                            onClick={onRemove}
-                            aria-label={`Remove ${row.productName} from cart`}
-                            title="Remove from cart"
-                            className="cursor-pointer rounded-full border border-transparent p-1.5 text-(--sf-muted-text) transition-colors hover:border-(--sf-accent) hover:text-(--sf-accent)"
-                        >
-                            <Trash2 className="h-5 w-5" aria-hidden="true"/>
-                        </button>
-                    </div>
+            {/* Actions. Mobile: a full-width bar under the thumbnail and identity,
+                reading left-to-right as "how many → how much". sm+: a right-hand
+                column, stepper above the money it produces. */}
+            <div
+                className="col-span-2 flex items-center justify-between gap-3 border-t border-(--sf-border)/60 pt-3 sm:col-span-1 sm:w-52 sm:flex-col sm:items-end sm:justify-start sm:gap-2 sm:border-t-0 sm:pt-0">
+                <div className="flex items-center gap-3 sm:justify-end">
+                    <QuantityStepper
+                        quantity={row.quantity}
+                        max={stepperMax}
+                        onIncrement={() => onQuantityChange(row.quantity + 1)}
+                        onDecrement={() => onQuantityChange(row.quantity - 1)}
+                    />
 
+                    {/* Remove. On mobile it leaves the flow and takes the row's
+                        top-right corner — the wishlist's remove position — which
+                        keeps a destructive control with no undo away from the "+"
+                        it would otherwise sit beside on a touch target. At sm+ it
+                        rejoins the stepper, where a pointer makes the proximity
+                        safe. Positioned, never duplicated: exactly ONE remove
+                        control exists in the DOM. Styling matches the wishlist's
+                        chip — muted until hover, then accent, with an
+                        always-present transparent border so nothing shifts. */}
+                    <button
+                        type="button"
+                        onClick={onRemove}
+                        aria-label={`Remove ${row.productName} from cart`}
+                        title="Remove from cart"
+                        className="absolute top-2 right-2 cursor-pointer rounded-full border border-transparent p-1.5 text-(--sf-muted-text) transition-colors hover:border-(--sf-accent) hover:text-(--sf-accent) sm:static"
+                    >
+                        <Trash2 className="h-5 w-5" aria-hidden="true"/>
+                    </button>
+                </div>
+
+                <div className="text-right">
                     <div className="text-sm font-semibold text-(--sf-text)">
                         {isLoading ? (
                             <PriceSkeleton/>
@@ -154,7 +169,7 @@ export function CartItemRow({row, isLoading, onQuantityChange, onRemove}: CartIt
                         )}
                     </div>
 
-                    <div className="text-xs text-(--sf-muted-text)">
+                    <div className="mt-0.5 text-xs text-(--sf-muted-text)">
                         {isLoading ? (
                             <PriceSkeleton/>
                         ) : (

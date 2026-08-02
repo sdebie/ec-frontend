@@ -80,7 +80,6 @@ export function CartPage() {
                             above the products stays short. Only ever one copy is
                             in the accessibility tree — the other is display:none. */}
                         <div className="mt-6 space-y-1 text-center text-xs text-(--sf-muted-text) lg:hidden">
-                            <p>Your cart is saved on this device while you keep browsing.</p>
                             <p>Delivery and payment are confirmed on the next step.</p>
                         </div>
                     </div>
