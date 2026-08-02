@@ -64,6 +64,60 @@ describe('CardActions', () => {
     })
   })
 
+  describe('onRequestAdd (delegated add)', () => {
+    it('writes to the cart directly when the prop is absent — catalogue behaviour', () => {
+      renderCardActions({
+        variantId: 'variant-123',
+        productName: 'Classic Tee',
+        productSlug: 'classic-tee',
+        inStock: true,
+        hasPrice: true,
+      })
+
+      fireEvent.click(screen.getByRole('button', { name: /add to cart/i }))
+
+      expect(useCartStore.getState().items).toHaveLength(1)
+    })
+
+    it('delegates and writes NOTHING when onRequestAdd is provided', () => {
+      const onRequestAdd = vi.fn()
+      renderCardActions({
+        variantId: 'variant-123',
+        productName: 'Classic Tee',
+        productSlug: 'classic-tee',
+        inStock: true,
+        hasPrice: true,
+        onRequestAdd,
+      })
+
+      fireEvent.click(screen.getByRole('button', { name: /add to cart/i }))
+
+      // The consumer owns the flow — the cart must be untouched here.
+      expect(useCartStore.getState().items).toHaveLength(0)
+      expect(onRequestAdd).toHaveBeenCalledTimes(1)
+      expect(onRequestAdd).toHaveBeenCalledWith(1)
+    })
+
+    it('passes the chosen stepper quantity to onRequestAdd', () => {
+      const onRequestAdd = vi.fn()
+      renderCardActions({
+        variantId: 'variant-123',
+        productName: 'Classic Tee',
+        productSlug: 'classic-tee',
+        inStock: true,
+        hasPrice: true,
+        onRequestAdd,
+      })
+
+      fireEvent.click(screen.getByRole('button', { name: /increase quantity/i }))
+      fireEvent.click(screen.getByRole('button', { name: /increase quantity/i }))
+      fireEvent.click(screen.getByRole('button', { name: /add to cart/i }))
+
+      expect(onRequestAdd).toHaveBeenCalledWith(3)
+      expect(useCartStore.getState().items).toHaveLength(0)
+    })
+  })
+
   describe('addItem payload', () => {
     it('calls addItem with correct payload shape on add to cart', () => {
       renderCardActions({
@@ -190,6 +244,94 @@ describe('CardActions', () => {
 
       expect(screen.getByRole('button', { name: 'Add to cart' })).toBeInTheDocument()
       expect(screen.queryByText('Out of stock')).not.toBeInTheDocument()
+    })
+  })
+
+  describe('outOfStockAction prop', () => {
+    it('renders disabled "Out of stock" button when outOfStockAction is omitted (default disabled)', () => {
+      renderCardActions({ variantId: 'v1', inStock: false, hasPrice: true })
+
+      const button = screen.getByRole('button', { name: /out of stock/i })
+      expect(button).toBeDisabled()
+      expect(button).toHaveClass('cursor-not-allowed')
+      expect(screen.queryByRole('link')).not.toBeInTheDocument()
+    })
+
+    it('renders disabled "Out of stock" button when outOfStockAction is explicitly "disabled"', () => {
+      renderCardActions({ variantId: 'v1', inStock: false, hasPrice: true, outOfStockAction: 'disabled' })
+
+      const button = screen.getByRole('button', { name: /out of stock/i })
+      expect(button).toBeDisabled()
+      expect(screen.queryByRole('link')).not.toBeInTheDocument()
+    })
+
+    it('renders bordered "View product" link to PDP when outOfStockAction is "viewProduct" and inStock is false', () => {
+      renderCardActions({
+        variantId: 'v1',
+        inStock: false,
+        hasPrice: true,
+        productSlug: 'test-product',
+        outOfStockAction: 'viewProduct',
+      })
+
+      const link = screen.getByRole('link', { name: /view product/i })
+      expect(link).toHaveAttribute('href', '/products/test-product')
+      // Same bordered style as the "Select options" branch
+      expect(link).toHaveClass('border', 'w-full')
+      expect(screen.queryByRole('button', { name: /out of stock/i })).not.toBeInTheDocument()
+    })
+
+    it('inStock null renders stepper+add when outOfStockAction is "disabled"', () => {
+      renderCardActions({ variantId: 'v1', inStock: null, hasPrice: true, outOfStockAction: 'disabled' })
+
+      expect(screen.getByRole('button', { name: 'Add to cart' })).toBeInTheDocument()
+      expect(screen.getByRole('button', { name: /increase quantity/i })).toBeInTheDocument()
+      expect(screen.queryByText('Out of stock')).not.toBeInTheDocument()
+      expect(screen.queryByRole('link')).not.toBeInTheDocument()
+    })
+
+    it('inStock null renders stepper+add when outOfStockAction is "viewProduct"', () => {
+      renderCardActions({ variantId: 'v1', inStock: null, hasPrice: true, outOfStockAction: 'viewProduct' })
+
+      expect(screen.getByRole('button', { name: 'Add to cart' })).toBeInTheDocument()
+      expect(screen.getByRole('button', { name: /increase quantity/i })).toBeInTheDocument()
+      expect(screen.queryByText('Out of stock')).not.toBeInTheDocument()
+      expect(screen.queryByRole('link')).not.toBeInTheDocument()
+    })
+  })
+
+  describe('variantLabel prop forwarding', () => {
+    it('forwards provided variantLabel to the cart store addItem call', () => {
+      renderCardActions({
+        variantId: 'variant-abc',
+        productName: 'Labeled Product',
+        productSlug: 'labeled-product',
+        inStock: true,
+        hasPrice: true,
+        variantLabel: 'Size: XL, Colour: Red',
+      })
+
+      fireEvent.click(screen.getByRole('button', { name: /add to cart/i }))
+
+      const { items } = useCartStore.getState()
+      expect(items).toHaveLength(1)
+      expect(items[0].variantLabel).toBe('Size: XL, Colour: Red')
+    })
+
+    it('defaults variantLabel to empty string when omitted (existing behaviour)', () => {
+      renderCardActions({
+        variantId: 'variant-def',
+        productName: 'No Label Product',
+        productSlug: 'no-label-product',
+        inStock: true,
+        hasPrice: true,
+      })
+
+      fireEvent.click(screen.getByRole('button', { name: /add to cart/i }))
+
+      const { items } = useCartStore.getState()
+      expect(items).toHaveLength(1)
+      expect(items[0].variantLabel).toBe('')
     })
   })
 })

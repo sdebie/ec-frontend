@@ -393,4 +393,211 @@ describe('ProductCard', () => {
             expect(screen.queryByText('Out of stock')).not.toBeInTheDocument()
         })
     })
+
+    describe('mobileImage prop (design §3.2)', () => {
+        describe('grid layout', () => {
+            it('renders default aspect-square stage when mobileImage is absent', () => {
+                const {container} = renderCard({}, {layout: 'grid'})
+                const root = container.firstElementChild as HTMLElement
+                const imageStage = root.querySelector('[class*="overflow-hidden bg-(--sf-surface-muted)"]') as HTMLElement
+                expect(imageStage.className).toContain('aspect-square')
+                expect(imageStage.className).toContain('w-full')
+                expect(imageStage.className).not.toContain('h-28')
+                expect(imageStage.className).not.toContain('sm:aspect-square')
+            })
+
+            it('renders default aspect-square stage when mobileImage="default"', () => {
+                const {container} = renderCard({}, {layout: 'grid', mobileImage: 'default'})
+                const root = container.firstElementChild as HTMLElement
+                const imageStage = root.querySelector('[class*="overflow-hidden bg-(--sf-surface-muted)"]') as HTMLElement
+                expect(imageStage.className).toContain('aspect-square')
+                expect(imageStage.className).toContain('w-full')
+                expect(imageStage.className).not.toContain('h-28')
+                expect(imageStage.className).not.toContain('sm:aspect-square')
+            })
+
+            it('renders compact fixed-height stage when mobileImage="thumbnail"', () => {
+                const {container} = renderCard({}, {layout: 'grid', mobileImage: 'thumbnail'})
+                const root = container.firstElementChild as HTMLElement
+                const imageStage = root.querySelector('[class*="overflow-hidden bg-(--sf-surface-muted)"]') as HTMLElement
+                expect(imageStage.className).toContain('h-28')
+                expect(imageStage.className).toContain('w-full')
+                expect(imageStage.className).toContain('sm:aspect-square')
+                expect(imageStage.className).toContain('sm:h-auto')
+                // The bare (non-prefixed) aspect-square should not appear — only sm:aspect-square
+                const classes = imageStage.className.split(/\s+/)
+                expect(classes).not.toContain('aspect-square')
+            })
+        })
+
+        describe('imageAspect prop', () => {
+            it('defaults to a square stage when imageAspect is absent', () => {
+                const {container} = renderCard({}, {layout: 'grid'})
+                const root = container.firstElementChild as HTMLElement
+                const imageStage = root.querySelector('[class*="overflow-hidden bg-(--sf-surface-muted)"]') as HTMLElement
+                expect(imageStage.className).toContain('aspect-square')
+                expect(imageStage.className).not.toContain('aspect-[4/3]')
+            })
+
+            it('renders a square stage when imageAspect="square" (byte-stable with default)', () => {
+                const {container: a} = renderCard({}, {layout: 'grid'})
+                const {container: b} = renderCard({}, {layout: 'grid', imageAspect: 'square'})
+                const stageOf = (c: HTMLElement) =>
+                    (c.firstElementChild as HTMLElement)
+                        .querySelector('[class*="overflow-hidden bg-(--sf-surface-muted)"]') as HTMLElement
+                expect(stageOf(b).className).toBe(stageOf(a).className)
+            })
+
+            it('renders a 4:3 stage when imageAspect="landscape"', () => {
+                const {container} = renderCard({}, {layout: 'grid', imageAspect: 'landscape'})
+                const root = container.firstElementChild as HTMLElement
+                const imageStage = root.querySelector('[class*="overflow-hidden bg-(--sf-surface-muted)"]') as HTMLElement
+                expect(imageStage.className).toContain('aspect-[4/3]')
+                expect(imageStage.className).toContain('w-full')
+                const classes = imageStage.className.split(/\s+/)
+                expect(classes).not.toContain('aspect-square')
+            })
+
+            it('composes with mobileImage="thumbnail" — compact below sm, 4:3 at sm+', () => {
+                const {container} = renderCard({}, {layout: 'grid', mobileImage: 'thumbnail', imageAspect: 'landscape'})
+                const root = container.firstElementChild as HTMLElement
+                const imageStage = root.querySelector('[class*="overflow-hidden bg-(--sf-surface-muted)"]') as HTMLElement
+                expect(imageStage.className).toContain('h-28')
+                expect(imageStage.className).toContain('sm:aspect-[4/3]')
+                expect(imageStage.className).toContain('sm:h-auto')
+                expect(imageStage.className).not.toContain('sm:aspect-square')
+            })
+
+            it('does not affect the row layout image rail', () => {
+                const {container: a} = renderCard({}, {layout: 'row'})
+                const {container: b} = renderCard({}, {layout: 'row', imageAspect: 'landscape'})
+                const railOf = (c: HTMLElement) => (c.firstElementChild as HTMLElement).firstElementChild as HTMLElement
+                expect(railOf(b).className).toBe(railOf(a).className)
+            })
+        })
+
+        describe('row layout', () => {
+            it('renders default w-28 rail when mobileImage is absent', () => {
+                const {container} = renderCard({}, {layout: 'row'})
+                const root = container.firstElementChild as HTMLElement
+                const imageRail = root.firstElementChild as HTMLElement
+                expect(imageRail.className).toContain('w-28')
+                expect(imageRail.className).toContain('sm:w-40')
+                expect(imageRail.className).not.toContain('w-20')
+            })
+
+            it('renders default w-28 rail when mobileImage="default"', () => {
+                const {container} = renderCard({}, {layout: 'row', mobileImage: 'default'})
+                const root = container.firstElementChild as HTMLElement
+                const imageRail = root.firstElementChild as HTMLElement
+                expect(imageRail.className).toContain('w-28')
+                expect(imageRail.className).toContain('sm:w-40')
+                expect(imageRail.className).not.toContain('w-20')
+            })
+
+            it('renders narrow w-20 rail when mobileImage="thumbnail"', () => {
+                const {container} = renderCard({}, {layout: 'row', mobileImage: 'thumbnail'})
+                const root = container.firstElementChild as HTMLElement
+                const imageRail = root.firstElementChild as HTMLElement
+                expect(imageRail.className).toContain('w-20')
+                expect(imageRail.className).toContain('sm:w-40')
+                expect(imageRail.className).not.toContain('w-28')
+            })
+        })
+
+        describe('byte-stability', () => {
+            it('grid: absent mobileImage produces identical output to mobileImage="default"', () => {
+                const {container: absentContainer} = renderCard({}, {layout: 'grid'})
+                const absentHtml = absentContainer.innerHTML
+                cleanup()
+
+                const {container: defaultContainer} = renderCard({}, {layout: 'grid', mobileImage: 'default'})
+                const defaultHtml = defaultContainer.innerHTML
+
+                expect(absentHtml).toBe(defaultHtml)
+            })
+
+            it('row: absent mobileImage produces identical output to mobileImage="default"', () => {
+                const {container: absentContainer} = renderCard({}, {layout: 'row'})
+                const absentHtml = absentContainer.innerHTML
+                cleanup()
+
+                const {container: defaultContainer} = renderCard({}, {layout: 'row', mobileImage: 'default'})
+                const defaultHtml = defaultContainer.innerHTML
+
+                expect(absentHtml).toBe(defaultHtml)
+            })
+        })
+    })
+
+    describe('variantLabel prop (task 2.2)', () => {
+        it('renders variant label text in grid layout when provided', () => {
+            renderCard({sku: 'ABC-100'}, {layout: 'grid', variantLabel: 'Size: XL, Colour: Red'})
+            expect(screen.getByText('Size: XL, Colour: Red')).toBeInTheDocument()
+        })
+
+        it('renders variant label text in row layout when provided', () => {
+            renderCard({sku: 'ABC-100'}, {layout: 'row', variantLabel: 'Size: XL, Colour: Red'})
+            expect(screen.getByText('Size: XL, Colour: Red')).toBeInTheDocument()
+        })
+
+        it('variant label has correct styling classes in grid layout', () => {
+            renderCard({sku: 'ABC-100'}, {layout: 'grid', variantLabel: 'Weight: 500g'})
+            const label = screen.getByText('Weight: 500g')
+            expect(label.tagName).toBe('P')
+            expect(label).toHaveClass('mt-1')
+            expect(label).toHaveClass('text-xs')
+            expect(label).toHaveClass('text-(--sf-muted-text)')
+        })
+
+        it('variant label has correct styling classes in row layout', () => {
+            renderCard({sku: 'ABC-100'}, {layout: 'row', variantLabel: 'Weight: 500g'})
+            const label = screen.getByText('Weight: 500g')
+            expect(label.tagName).toBe('P')
+            expect(label).toHaveClass('mt-1')
+            expect(label).toHaveClass('text-xs')
+            expect(label).toHaveClass('text-(--sf-muted-text)')
+        })
+
+        it('does not render variant label when prop is absent (grid)', () => {
+            const {container: withoutLabel} = renderCard({sku: 'ABC-100'}, {layout: 'grid'})
+            // Only the SKU paragraph should contain muted text xs that isn't stock/description
+            expect(screen.getByText('SKU: ABC-100')).toBeInTheDocument()
+            // The variant label paragraph simply isn't there
+            const paragraphs = withoutLabel.querySelectorAll('p')
+            const texts = Array.from(paragraphs).map(p => p.textContent)
+            expect(texts).not.toContain('')
+        })
+
+        it('does not render variant label when prop is empty string (grid)', () => {
+            renderCard({sku: 'ABC-100'}, {layout: 'grid', variantLabel: ''})
+            // Empty string is falsy → not rendered
+            const paragraphs = screen.getByText('SKU: ABC-100').parentElement!.querySelectorAll('p')
+            const texts = Array.from(paragraphs).map(p => p.textContent)
+            // There should be only the SKU paragraph (no empty variant label paragraph)
+            expect(texts.filter(t => t === '')).toHaveLength(0)
+        })
+
+        it('absent variantLabel produces byte-identical output (grid)', () => {
+            const {container: absentContainer} = renderCard({}, {layout: 'grid'})
+            const absentHtml = absentContainer.innerHTML
+            cleanup()
+
+            const {container: undefinedContainer} = renderCard({}, {layout: 'grid', variantLabel: undefined})
+            const undefinedHtml = undefinedContainer.innerHTML
+
+            expect(absentHtml).toBe(undefinedHtml)
+        })
+
+        it('absent variantLabel produces byte-identical output (row)', () => {
+            const {container: absentContainer} = renderCard({}, {layout: 'row'})
+            const absentHtml = absentContainer.innerHTML
+            cleanup()
+
+            const {container: undefinedContainer} = renderCard({}, {layout: 'row', variantLabel: undefined})
+            const undefinedHtml = undefinedContainer.innerHTML
+
+            expect(absentHtml).toBe(undefinedHtml)
+        })
+    })
 })

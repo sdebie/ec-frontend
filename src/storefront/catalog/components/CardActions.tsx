@@ -9,9 +9,19 @@ interface CardActionsProps {
     productSlug: string
     inStock: boolean | null
     hasPrice: boolean
+    outOfStockAction?: 'disabled' | 'viewProduct'
+    variantLabel?: string
+    /**
+     * Delegates the add action to the consumer instead of writing to the cart.
+     * When provided, clicking "Add to cart" calls this with the chosen quantity
+     * and NOTHING is written here — the consumer owns the flow (e.g. the wishlist
+     * confirms in a dialog, then adds and removes the item). Absent: the button
+     * adds to the cart directly, which is the catalogue's behaviour.
+     */
+    onRequestAdd?: (quantity: number) => void
 }
 
-export function CardActions({variantId, productName, productSlug, inStock, hasPrice}: CardActionsProps) {
+export function CardActions({variantId, productName, productSlug, inStock, hasPrice, outOfStockAction = 'disabled', variantLabel = '', onRequestAdd}: CardActionsProps) {
     const [quantity, setQuantity] = useState(1)
     const [showConfirmation, setShowConfirmation] = useState(false)
     const confirmationTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null)
@@ -56,6 +66,19 @@ export function CardActions({variantId, productName, productSlug, inStock, hasPr
     // don't select inStock pass null (unknown), and unknown must not block
     // purchase — stock is import-derived and checkout does not enforce it.
     if (inStock === false) {
+        if (outOfStockAction === 'viewProduct') {
+            return (
+                <div className="mt-3">
+                    <Link
+                        to={`/products/${productSlug}`}
+                        className="inline-flex w-full items-center justify-center rounded-lg border border-(--sf-border) px-4 py-2 text-sm font-medium text-(--sf-text) hover:bg-(--sf-surface-muted) transition-colors"
+                    >
+                        View product
+                    </Link>
+                </div>
+            )
+        }
+
         return (
             <div className="mt-3">
                 <button
@@ -70,17 +93,22 @@ export function CardActions({variantId, productName, productSlug, inStock, hasPr
     }
 
     // SIMPLE + in stock + has price
-    function handleAddToCart() {
+    function handleAddClick() {
+        // Delegated mode: hand the intent to the consumer and write nothing here.
+        if (onRequestAdd) {
+            onRequestAdd(quantity)
+            return
+        }
+
         useCartStore.getState().addItem({
             variantId: variantId!,
             productName,
-            variantLabel: '',
+            variantLabel,
             quantity,
         })
 
-        setShowConfirmation(true)
         setQuantity(1)
-
+        setShowConfirmation(true)
         if (confirmationTimeoutRef.current) {
             clearTimeout(confirmationTimeoutRef.current)
         }
@@ -98,7 +126,7 @@ export function CardActions({variantId, productName, productSlug, inStock, hasPr
             />
             <button
                 type="button"
-                onClick={handleAddToCart}
+                onClick={handleAddClick}
                 className="w-full rounded-lg px-4 py-2 text-sm font-medium bg-(--sf-accent) text-(--sf-accent-text) hover:opacity-90 transition-colors cursor-pointer"
             >
                 {showConfirmation ? 'Added \u2713' : 'Add to cart'}

@@ -48,4 +48,40 @@ describe('useViewPreference', () => {
     expect(result.current[0]).toBe('grid')
     expect(localStorage.getItem(STORAGE_KEY)).toBe('grid')
   })
+
+  it('isolates storage keys — writing to one does not affect the other', () => {
+    const SECOND_KEY = 'wishlist-view-preference'
+
+    const { result: catalogHook } = renderHook(() => useViewPreference())
+    const { result: wishlistHook } = renderHook(() => useViewPreference(SECOND_KEY))
+
+    // Both start at grid (default)
+    expect(catalogHook.current[0]).toBe('grid')
+    expect(wishlistHook.current[0]).toBe('grid')
+
+    // Write 'list' to the wishlist key
+    act(() => {
+      wishlistHook.current[1]('list')
+    })
+
+    // Wishlist preference changed
+    expect(wishlistHook.current[0]).toBe('list')
+    expect(localStorage.getItem(SECOND_KEY)).toBe('list')
+
+    // Catalog preference unchanged
+    expect(catalogHook.current[0]).toBe('grid')
+    expect(localStorage.getItem(STORAGE_KEY)).toBe(null)
+
+    // Write 'list' to catalog key
+    act(() => {
+      catalogHook.current[1]('list')
+    })
+
+    expect(catalogHook.current[0]).toBe('list')
+    expect(localStorage.getItem(STORAGE_KEY)).toBe('list')
+
+    // Wishlist still 'list', not affected by catalog write
+    expect(wishlistHook.current[0]).toBe('list')
+    expect(localStorage.getItem(SECOND_KEY)).toBe('list')
+  })
 })

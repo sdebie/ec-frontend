@@ -65,15 +65,25 @@ export function Dialog({ open, onClose, children, size = 'md', className }: Dial
 
   return (
     <DialogContext.Provider value={{ onClose }}>
-      {/* Overlay */}
+      {/* Overlay.
+          `m-0!` is load-bearing, not decoration: this dialog renders INLINE in the
+          caller's tree, so a page-level spacing utility on an ancestor leaks into
+          it. Tailwind's `space-y-*` emits `> :not(:last-child) { margin-block-end }`,
+          which applied a 24px bottom margin here — and because the overlay is
+          `fixed` with `top:0; bottom:0`, that margin is subtracted from its used
+          height (viewport 720 → 696), leaving an unblurred strip along the bottom
+          edge. Neutralising the margin pins it to the full viewport regardless of
+          what the host page does. (The deeper fix is to portal the dialog out of
+          the page tree; see the note in the component's docs.) */}
       <div
-        className="fixed inset-0 z-100 bg-[#00000080] backdrop-blur-sm transition-opacity"
+        className="fixed inset-0 z-100 m-0! bg-[#00000080] backdrop-blur-sm transition-opacity"
         aria-hidden="true"
         onClick={onClose}
       />
 
-      {/* Container */}
-      <div className="fixed inset-0 z-100 flex items-center justify-center p-4 pointer-events-none">
+      {/* Container — same margin immunity, so the panel stays centred on the
+          true viewport rather than a margin-shrunk box. */}
+      <div className="fixed inset-0 z-100 m-0! flex items-center justify-center p-4 pointer-events-none">
         <div
           role="dialog"
           aria-modal="true"

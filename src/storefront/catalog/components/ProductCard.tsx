@@ -30,22 +30,62 @@ interface ProductCardProps {
         shortDescription?: string
     }
     variantId?: string | null
+    /** Optional variant label rendered under the SKU line (e.g. "Size: XL, Colour: Red"). */
+    variantLabel?: string
     /** Optional label rendered as an accent pill over the image (e.g. "Best Seller"). */
     badge?: string
     /** Layout mode: 'grid' (vertical card, default) or 'row' (horizontal row). */
     layout?: 'grid' | 'row'
+    /** Out-of-stock action: 'disabled' shows a disabled button, 'viewProduct' renders a link to the PDP. */
+    outOfStockAction?: 'disabled' | 'viewProduct'
+    /**
+     * Mobile image density hint. 'thumbnail' applies a compact image stage below
+     * the `sm` breakpoint (pure CSS — same asset, no server resizing). At sm+ both
+     * values render identically to 'default'.
+     */
+    mobileImage?: 'default' | 'thumbnail'
+    /**
+     * Image stage aspect ratio for the `grid` layout at sm and above. 'landscape'
+     * (4:3) yields a shorter card than the default 'square' — useful where cards
+     * sit beside other page furniture. Pure CSS; the `row` layout is unaffected.
+     */
+    imageAspect?: 'square' | 'landscape'
+    /**
+     * Delegates the add action to the consumer (see CardActions.onRequestAdd).
+     * Absent: the card adds to the cart itself, as the catalogue does.
+     */
+    onRequestAdd?: (quantity: number) => void
+    /**
+     * Renders the built-in wishlist heart over the image. Default true.
+     * Set false where the page provides its own remove affordance (the wishlist
+     * does) so the item has exactly ONE remove control, not two.
+     */
+    showWishlistButton?: boolean
     /** Called when the Quick view button is clicked. If not provided, the Quick view button is not rendered. */
     onQuickView?: () => void
     /** Ref forwarded to the Quick view trigger button for focus restore. */
     quickViewRef?: React.Ref<HTMLButtonElement>
 }
 
-export function ProductCard({product, variantId, badge, layout = 'grid', onQuickView, quickViewRef}: ProductCardProps) {
+export function ProductCard({product, variantId, variantLabel, badge, layout = 'grid', outOfStockAction, mobileImage = 'default', imageAspect = 'square', onRequestAdd, showWishlistButton = true, onQuickView, quickViewRef}: ProductCardProps) {
     const {currency, locale} = useStorefrontConfig()
     const customerType = useCustomerAuthStore((state) => state.customerType)
 
     const productUrl = `/products/${product.slug}`
     const imageUrl = pickFeaturedImage(product.images)
+
+    // Grid image stage: mobileImage governs the sub-`sm` height, imageAspect the
+    // sm+ ratio. Every branch is a COMPLETE literal class string — Tailwind scans
+    // source text, so an interpolated `sm:${...}` would never emit its CSS.
+    // The two `square` branches reproduce the original markup byte-for-byte.
+    const gridImageStageClass =
+        mobileImage === 'thumbnail'
+            ? imageAspect === 'landscape'
+                ? 'h-28 w-full sm:aspect-[4/3] sm:h-auto'
+                : 'h-28 w-full sm:aspect-square sm:h-auto'
+            : imageAspect === 'landscape'
+                ? 'aspect-[4/3] w-full'
+                : 'aspect-square w-full'
     const priceTiers = {
         retailPrice: product.retailPrice?.price ?? null,
         wholesalePrice: product.wholesalePrice?.price ?? null,
@@ -68,7 +108,7 @@ export function ProductCard({product, variantId, badge, layout = 'grid', onQuick
                 {/* Image — left; stays a compact square rail on mobile (a full-width
                     image would turn each "row" into a ~viewport-tall card) */}
                 <div
-                    className="relative w-28 sm:w-40 aspect-square shrink-0 self-start overflow-hidden bg-(--sf-surface-muted)">
+                    className={`relative ${mobileImage === 'thumbnail' ? 'w-20' : 'w-28'} sm:w-40 aspect-square shrink-0 self-start overflow-hidden bg-(--sf-surface-muted)`}>
                     <Link to={productUrl} className="block h-full w-full">
                         {imageUrl ? (
                             <img
@@ -114,7 +154,7 @@ export function ProductCard({product, variantId, badge, layout = 'grid', onQuick
                             {badge}
                         </span>
                     )}
-                    {variantId && (
+                    {variantId && showWishlistButton && (
                         <WishlistButton
                             variantId={variantId}
                             className="absolute top-2 right-2 rounded-full bg-(--sf-panel)/80 p-1.5 backdrop-blur-sm transition-colors hover:bg-(--sf-panel) cursor-pointer"
@@ -146,6 +186,12 @@ export function ProductCard({product, variantId, badge, layout = 'grid', onQuick
                     {product.sku && (
                         <p className="mt-1 text-xs text-(--sf-muted-text)">
                             SKU: {product.sku}
+                        </p>
+                    )}
+
+                    {variantLabel && (
+                        <p className="mt-1 text-xs text-(--sf-muted-text)">
+                            {variantLabel}
                         </p>
                     )}
 
@@ -193,6 +239,9 @@ export function ProductCard({product, variantId, badge, layout = 'grid', onQuick
                         productSlug={product.slug}
                         inStock={product.inStock ?? null}
                         hasPrice={price != null}
+                        outOfStockAction={outOfStockAction}
+                        variantLabel={variantLabel}
+                        onRequestAdd={onRequestAdd}
                     />
                 </div>
                 </div>
@@ -205,7 +254,7 @@ export function ProductCard({product, variantId, badge, layout = 'grid', onQuick
             className="group flex h-full flex-col rounded-lg border border-(--sf-border)/60 bg-(--sf-panel) overflow-hidden transition-all hover:shadow-md hover:border-(--sf-accent) md:hover:scale-[1.02]"
             data-layout="grid"
         >
-            <div className="relative aspect-square w-full overflow-hidden bg-(--sf-surface-muted)">
+            <div className={`relative ${gridImageStageClass} overflow-hidden bg-(--sf-surface-muted)`}>
                 <Link to={productUrl} className="block h-full w-full">
                     {imageUrl ? (
                         <img
@@ -248,7 +297,7 @@ export function ProductCard({product, variantId, badge, layout = 'grid', onQuick
                         {badge}
                     </span>
                 )}
-                {variantId && (
+                {variantId && showWishlistButton && (
                     <WishlistButton
                         variantId={variantId}
                         className="absolute top-2 right-2 rounded-full bg-(--sf-panel)/80 p-1.5 backdrop-blur-sm transition-colors hover:bg-(--sf-panel) cursor-pointer"
@@ -277,6 +326,12 @@ export function ProductCard({product, variantId, badge, layout = 'grid', onQuick
                 {product.sku && (
                     <p className="mt-1 text-xs text-(--sf-muted-text)">
                         SKU: {product.sku}
+                    </p>
+                )}
+
+                {variantLabel && (
+                    <p className="mt-1 text-xs text-(--sf-muted-text)">
+                        {variantLabel}
                     </p>
                 )}
 
@@ -316,6 +371,9 @@ export function ProductCard({product, variantId, badge, layout = 'grid', onQuick
                         productSlug={product.slug}
                         inStock={product.inStock ?? null}
                         hasPrice={price != null}
+                        outOfStockAction={outOfStockAction}
+                        variantLabel={variantLabel}
+                        onRequestAdd={onRequestAdd}
                     />
                 </div>
             </div>
