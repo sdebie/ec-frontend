@@ -145,7 +145,6 @@ function NavigationColumns({ columns, trailing }: { columns: FooterColumn[]; tra
                 ) : (
                   <Link
                     to={link.to}
-                    onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
                     className={`text-sm transition-colors hover:[color:var(--sf-nav-text-hover)] ${SF_FOCUS_RING.nav} rounded-sm`}
                   >
                     {link.label}
@@ -255,7 +254,6 @@ export function StorefrontFooter() {
                   <Link
                     key={link.id}
                     to={link.to}
-                    onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
                     className={`text-sm transition-colors hover:[color:var(--sf-nav-text-hover)] ${SF_FOCUS_RING.nav} rounded-sm`}
                   >
                     {link.label}

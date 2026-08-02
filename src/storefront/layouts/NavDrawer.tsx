@@ -76,29 +76,30 @@ export function NavDrawer({ open, onClose, items, isSignedIn, accountName, onSig
               <StorefrontNavLink key={item.id} item={item} variant="drawer" />
             ))}
           </nav>
-        </div>
 
-        {/* Account — pinned to the drawer's foot, OUTSIDE the scroll container so
-            it stays reachable however long the nav list grows. On a phone this
-            replaces the header's sign-in; from `md` up the header shows it. */}
-        <div className="border-t border-(--sf-border) p-4">
-          {isSignedIn ? (
-            <>
-              <Link to="/account/dashboard" onClick={onClose} className={ACCOUNT_ROW}>
+          {/* Account — directly under the nav with a rule above it, rather than
+              pinned to the drawer's foot: with the category tree gone the list
+              is short, and an action stranded at the bottom of an empty drawer
+              read as disconnected from the menu it belongs to. */}
+          <div className="mt-4 border-t border-(--sf-border) px-4 pt-4">
+            {isSignedIn ? (
+              <>
+                <Link to="/account/dashboard" onClick={onClose} className={ACCOUNT_ROW}>
+                  <User className="h-5 w-5" aria-hidden="true" />
+                  {accountName ?? 'My Account'}
+                </Link>
+                <button type="button" onClick={onSignOut} className={ACCOUNT_ROW}>
+                  <LogOut className="h-5 w-5" aria-hidden="true" />
+                  Sign out
+                </button>
+              </>
+            ) : (
+              <button type="button" onClick={onSignIn} className={ACCOUNT_ROW}>
                 <User className="h-5 w-5" aria-hidden="true" />
-                {accountName ?? 'My Account'}
-              </Link>
-              <button type="button" onClick={onSignOut} className={ACCOUNT_ROW}>
-                <LogOut className="h-5 w-5" aria-hidden="true" />
-                Sign out
+                Sign in
               </button>
-            </>
-          ) : (
-            <button type="button" onClick={onSignIn} className={ACCOUNT_ROW}>
-              <User className="h-5 w-5" aria-hidden="true" />
-              Sign in
-            </button>
-          )}
+            )}
+          </div>
         </div>
       </div>
     </>,

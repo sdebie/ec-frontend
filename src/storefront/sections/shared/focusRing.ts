@@ -62,8 +62,10 @@ export const SOCIAL_CHIP_CLASS =
  * (#7a0019) as text on it lands around 1.5:1 — unreadable. As a fill with
  * `--sf-accent-text` on top it is ~12:1 and unmistakably the brand colour.
  *
- * Held at 80% so the fill reads as a soft highlight over the dark bar rather
- * than a solid button; white on the resulting blend still clears 7:1.
+ * The accent is LIGHTENED toward white rather than dimmed by opacity: on a near
+ * black bar, lowering the accent's alpha only sinks it further into the
+ * background. Mixing 80% accent with white lifts it to roughly rgb(149,51,71) —
+ * visibly brighter than the raw accent, and white on it still measures ~7.4:1.
  */
 export const NAV_ICON_HOVER =
-  'text-(--sf-nav-icon-text) transition-colors hover:bg-(--sf-accent)/80 hover:text-(--sf-accent-text)'
+  'text-(--sf-nav-icon-text) transition-colors hover:bg-[color-mix(in_srgb,var(--sf-accent)_80%,white)] hover:text-(--sf-accent-text)'

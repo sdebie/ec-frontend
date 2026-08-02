@@ -4,6 +4,7 @@ import { useExpireStaleCheckoutSession } from '@/storefront/checkout/hooks/useEx
 import { AnnouncementBanner } from './AnnouncementBanner'
 import { StorefrontFooter } from './StorefrontFooter'
 import { StorefrontHeader } from './StorefrontHeader'
+import { ScrollToTop } from './ScrollToTop'
 import { useChromeHeight } from './useChromeHeight'
 
 export function StorefrontLayout() {
@@ -33,6 +34,7 @@ export function StorefrontLayout() {
       data-density="comfortable"
       className="flex min-h-screen flex-col bg-(--sf-background) text-(--sf-text)"
     >
+      <ScrollToTop />
       <AnnouncementBanner />
       <StorefrontHeader />
       {/*

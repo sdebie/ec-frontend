@@ -181,13 +181,19 @@ export function HeroSection({section}: { section: HeroSectionConfig }) {
                         {kicker}
                     </p>
                 )}
-                <h2 className={cn('text-4xl font-bold leading-tight', SURFACE_TITLE_CLASS[surface])}>
+                {/* Larger from `md`: the band is viewport-tall, and 36px left the
+                    title small against it. The block is vertically centred, so
+                    growing the title by ~15px pushes the subtitle down by half
+                    that — the subtitle's tightened `md:mt-2` gives it back, so the
+                    title grows UPWARD into the kicker's space and the subtitle
+                    holds its position. */}
+                <h2 className={cn('text-4xl md:text-6xl font-bold leading-tight', SURFACE_TITLE_CLASS[surface])}>
                     {title}
                 </h2>
                 {subtitle && (
                     <p
                         className={cn(
-                            'mt-4 max-w-xl text-lg',
+                            'mt-4 md:mt-0 max-w-xl text-lg',
                             SURFACE_SUBTITLE_CLASS[surface],
                             contentAlignment === 'center' && 'mx-auto',
                             contentAlignment === 'right' && 'ml-auto',
