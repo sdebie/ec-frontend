@@ -1,12 +1,11 @@
-import { Link } from 'react-router-dom'
-import { Section, SectionHeading } from '@/storefront/sections/shared'
-import { useCartStore } from './store/cartStore.ts'
-import { useCartVariants } from './hooks/useCartVariants'
-import { useCheckout } from './hooks/useCheckout'
-import { estimateSubtotal, toCartRows } from './mappers'
-import { CartEmptyState } from './components/CartEmptyState'
-import { CartItems } from './components/CartItems'
-import { CartSummary } from './components/CartSummary'
+import {Section, SectionHeading} from '@/storefront/sections/shared'
+import {useCartStore} from './store/cartStore'
+import {useCartVariants} from './hooks/useCartVariants'
+import {useCheckout} from './hooks/useCheckout'
+import {estimateSubtotal, toCartRows} from './mappers'
+import {CartEmptyState} from './components/CartEmptyState'
+import {CartItems} from './components/CartItems'
+import {CartSummary} from './components/CartSummary'
 
 /**
  * Orchestrates the cart: loads what the catalogue currently says about the
@@ -57,18 +56,11 @@ export function CartPage() {
                 {heading}
 
                 {/* Toolbar row — the catalogue's and the wishlist's rhythm: one
-                    line of context above a divider. */}
-                <div
-                    className="flex items-center justify-between gap-4 border-b border-(--sf-border) pb-4">
+                    right-aligned line of context above a divider. */}
+                <div className="flex items-center justify-end border-b border-(--sf-border) pb-4">
                     <p className="text-sm text-(--sf-muted-text)">
                         {unitCount} {unitCount === 1 ? 'item' : 'items'} ready for checkout
                     </p>
-                    <Link
-                        to="/products"
-                        className="text-sm font-medium text-(--sf-muted-text) underline-offset-4 transition-colors hover:text-(--sf-text) hover:underline"
-                    >
-                        Continue shopping
-                    </Link>
                 </div>
 
                 {/* Items beside a sticky summary on lg+; below lg the summary
@@ -83,13 +75,14 @@ export function CartPage() {
                             onRemove={remove}
                         />
 
-                        {/* The summary carries this line on lg+, where it has the
-                            room. Below lg it lives here instead, so the panel
+                        {/* The summary carries these two lines on lg+, where it has
+                            the room. Below lg they live here instead, so the panel
                             above the products stays short. Only ever one copy is
                             in the accessibility tree — the other is display:none. */}
-                        <p className="mt-4 text-center text-xs text-(--sf-muted-text) lg:hidden">
-                            Your cart is saved on this device while you keep browsing.
-                        </p>
+                        <div className="mt-6 space-y-1 text-center text-xs text-(--sf-muted-text) lg:hidden">
+                            <p>Your cart is saved on this device while you keep browsing.</p>
+                            <p>Delivery and payment are confirmed on the next step.</p>
+                        </div>
                     </div>
 
                     <div className="order-first lg:order-none">

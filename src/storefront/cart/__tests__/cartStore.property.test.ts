@@ -2,8 +2,8 @@ import {beforeEach, describe, expect, it} from 'vitest'
 import * as fc from 'fast-check'
 import {create} from 'zustand'
 import {createJSONStorage, persist} from 'zustand/middleware'
-import type {CartLineItem, CartState} from '../store/cartStore.ts'
-import {useCartStore} from '../store/cartStore.ts'
+import type {CartLineItem, CartState} from '../store/cartStore'
+import {useCartStore} from '../store/cartStore'
 
 /**
  * Feature: cart-store

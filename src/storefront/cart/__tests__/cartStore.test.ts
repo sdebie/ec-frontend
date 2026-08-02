@@ -1,4 +1,4 @@
-import {type CartLineItem, useCartStore} from '../store/cartStore.ts'
+import {type CartLineItem, useCartStore} from '../store/cartStore'
 import {beforeEach, describe, expect, it} from 'vitest'
 
 const resetStore = () => {

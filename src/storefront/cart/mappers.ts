@@ -1,6 +1,6 @@
 import {pickFeaturedImage} from '@/storefront/catalog/utils/productImage'
 import {parseVariantLabel} from '@/storefront/catalog/utils/variantLabel'
-import type {CartLineItem} from './store/cartStore.ts'
+import type {CartLineItem} from './store/cartStore'
 import type {CartVariant} from './hooks/useCartVariants'
 import type {CartRow} from './types'
 

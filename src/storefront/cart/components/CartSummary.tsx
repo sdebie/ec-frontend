@@ -1,6 +1,6 @@
-import { Link } from 'react-router-dom'
-import { useStorefrontConfig } from '@/shared/config/storefrontConfig.context'
-import { formatAmount } from '@/shared/utils/formatAmount'
+import {Link} from 'react-router-dom'
+import {useStorefrontConfig} from '@/shared/config/storefrontConfig.context'
+import {formatAmount} from '@/shared/utils/formatAmount'
 
 interface CartSummaryProps {
     /** Distinct lines in the cart. */
@@ -44,8 +44,8 @@ export function CartSummary({
 
     return (
         <aside
-            aria-label="Order summary"
-            className="rounded-lg border border-(--sf-border) bg-(--sf-panel) p-4 lg:sticky lg:top-24"
+            aria-label="Order Summary"
+            className="rounded-lg border border-(--sf-border) bg-(--sf-panel) p-5 lg:sticky lg:top-24 lg:p-6"
         >
             {/* Below lg every row here pushes the first product further below the
                 fold, so the panel keeps only what the shopper cannot infer from
@@ -54,7 +54,7 @@ export function CartSummary({
                 saved-cart line are desktop-only. */}
             <h2 className="hidden text-sm font-semibold text-(--sf-text) lg:block">Summary</h2>
 
-            <dl className="space-y-2 text-sm lg:mt-3 lg:border-t lg:border-(--sf-border) lg:pt-3">
+            <dl className="space-y-3 text-sm lg:mt-4 lg:border-t lg:border-(--sf-border) lg:pt-4">
                 <div className="hidden items-center justify-between lg:flex">
                     <dt className="text-(--sf-muted-text)">In your cart</dt>
                     <dd className="text-(--sf-text)">
@@ -89,11 +89,11 @@ export function CartSummary({
 
             {/* Desktop-only: below lg the VAT and Delivery rows above already say
                 this, and the duplicate costs a visible product. */}
-            <p className="mt-1 hidden text-xs text-(--sf-muted-text) lg:block">
+            <p className="mt-2 hidden text-xs text-(--sf-muted-text) lg:block">
                 Ex. VAT — final total confirmed at checkout
             </p>
 
-            <div className="mt-3 flex flex-col gap-2 lg:mt-4">
+            <div className="mt-5 flex flex-col gap-3 lg:mt-6">
                 {checkoutError && (
                     <p role="alert" className="text-sm text-red-600">
                         {checkoutError}
@@ -109,15 +109,14 @@ export function CartSummary({
                     {checkoutLoading ? 'Processing...' : 'Proceed to checkout'}
                 </button>
 
-                {blockedCount > 0 ? (
+                {/* Only the blocking message belongs beside the button — it is the
+                    reason the button will not move. The reassurance lives in the
+                    footer below. */}
+                {blockedCount > 0 && (
                     <p className="text-center text-xs text-red-600">
                         {blockedCount === 1
                             ? 'Fix the flagged item above to continue.'
                             : `Fix the ${blockedCount} flagged items above to continue.`}
-                    </p>
-                ) : (
-                    <p className="text-center text-xs text-(--sf-muted-text)">
-                        Delivery and payment are confirmed on the next step.
                     </p>
                 )}
 
@@ -131,11 +130,12 @@ export function CartSummary({
 
             {/* The cart lives in this browser's storage — say that, and nothing
                 more: there is no server-side cart to promise. Desktop-only here;
-                on mobile the same reassurance sits below the items, where it does
-                not push products off the screen. */}
-            <p className="mt-3 hidden border-t border-(--sf-border) pt-3 text-center text-xs text-(--sf-muted-text) lg:block">
-                Your cart is saved on this device while you keep browsing.
-            </p>
+                on mobile both lines sit below the items, where they do not push
+                products off the screen. */}
+            <div
+                className="mt-5 hidden space-y-1 border-t border-(--sf-border) pt-4 text-center text-xs text-(--sf-muted-text) lg:block lg:mt-6">
+                <p>Delivery and payment are confirmed on the next step.</p>
+            </div>
         </aside>
     )
 }

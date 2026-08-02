@@ -14,7 +14,7 @@ vi.mock('../checkoutSessionStore', () => ({
 }))
 
 const mockClearCart = vi.fn()
-vi.mock('@/storefront/cart/cartStore', () => ({
+vi.mock('@/storefront/cart/store/cartStore', () => ({
     useCartStore: (selector: (state: { clearCart: () => void }) => unknown) =>
         selector({clearCart: mockClearCart}),
 }))

@@ -1,6 +1,6 @@
 import {useEffect, useRef, useState} from 'react'
 import {Link} from 'react-router-dom'
-import {useCartStore} from '@/storefront/cart/store/cartStore.ts'
+import {useCartStore} from '@/storefront/cart/store/cartStore'
 import {QuantityStepper} from './QuantityStepper'
 
 interface CardActionsProps {

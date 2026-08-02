@@ -1,4 +1,4 @@
-import { Link } from 'react-router-dom'
+import {Link} from 'react-router-dom'
 
 /**
  * Empty cart. Framed as a stage in shopping rather than a dead end: one clear
@@ -7,8 +7,10 @@ import { Link } from 'react-router-dom'
  */
 export function CartEmptyState() {
     return (
-        <div className="rounded-lg border border-(--sf-border) bg-(--sf-panel) py-16 text-center">
-            <h2 className="mb-2 text-xl font-semibold text-(--sf-text)">Your cart is empty</h2>
+        <div className="mt-6 rounded-lg border border-(--sf-border) bg-(--sf-panel) py-16 text-center">
+            <h2 className="mb-2 text-xl font-semibold text-(--sf-text)">
+                Your cart is empty
+            </h2>
             <p className="mx-auto mb-6 max-w-md text-sm text-(--sf-muted-text)">
                 Add products as you browse — your cart is saved on this device, so you can pick up
                 where you left off.

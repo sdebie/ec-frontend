@@ -8,7 +8,7 @@ import {useWishlistHydration} from '../hooks/useWishlistHydration'
 import {useToggleEffective} from '../hooks/useToggleEffective'
 import {useLocalWishlistStore} from '../store/localWishlistStore'
 import {useCustomerAuthStore} from '@/shared/auth/customerAuthStore'
-import {useCartStore} from '@/storefront/cart/store/cartStore.ts'
+import {useCartStore} from '@/storefront/cart/store/cartStore'
 import {WishlistPage} from '../WishlistPage'
 
 // --- Mocks ---
@@ -71,7 +71,7 @@ vi.mock('@/storefront/catalog/utils/productImage', () => ({
     ),
 }))
 
-vi.mock('@/storefront/cart/cartStore', () => ({
+vi.mock('@/storefront/cart/store/cartStore', () => ({
     useCartStore: Object.assign(vi.fn(() => ({items: [], itemCount: 0})), {
         getState: vi.fn(() => ({
             addItem: vi.fn(),

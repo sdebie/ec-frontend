@@ -3,7 +3,7 @@ import {MemoryRouter} from 'react-router-dom'
 import {QueryClient, QueryClientProvider} from '@tanstack/react-query'
 import {beforeEach, describe, expect, it, vi} from 'vitest'
 import {CartPage} from '../CartPage'
-import {useCartStore} from '../store/cartStore.ts'
+import {useCartStore} from '../store/cartStore'
 import type {CartVariant} from '../hooks/useCartVariants'
 import {useCartVariants} from '../hooks/useCartVariants'
 import {useCheckout} from '../hooks/useCheckout'
@@ -190,9 +190,11 @@ describe('CartPage', () => {
 
             expect(screen.getByText('Added at checkout')).toBeInTheDocument()
             expect(screen.getByText('Calculated at checkout')).toBeInTheDocument()
+            // Two copies by design — the summary's (lg+) and the one below the
+            // items (below lg). Exactly one is ever displayed.
             expect(
-                screen.getByText(/delivery and payment are confirmed on the next step/i)
-            ).toBeInTheDocument()
+                screen.getAllByText(/delivery and payment are confirmed on the next step/i)
+            ).toHaveLength(2)
         })
 
         it('renders the cart heading', () => {

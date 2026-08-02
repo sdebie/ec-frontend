@@ -1,6 +1,6 @@
 import {describe, expect, it} from 'vitest'
 import {estimateSubtotal, toCartRows} from '../mappers'
-import type {CartLineItem} from '../store/cartStore.ts'
+import type {CartLineItem} from '../store/cartStore'
 import type {CartVariant} from '../hooks/useCartVariants'
 
 function line(overrides: Partial<CartLineItem> = {}): CartLineItem {

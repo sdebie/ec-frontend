@@ -115,22 +115,9 @@ export function CartItemRow({row, isLoading, onQuantityChange, onRemove}: CartIt
                     ) : null}
                 </div>
 
-                {/* Price, quantity and line total — the three things a quantity
-                    change has to keep in agreement */}
+                {/* Quantity, then the money — the line total leads and the unit
+                    price sits beneath it as the working that produced it. */}
                 <div className="flex shrink-0 flex-col gap-2 sm:w-52 sm:items-end">
-                    <div className="text-xs text-(--sf-muted-text)">
-                        {isLoading ? (
-                            <PriceSkeleton/>
-                        ) : (
-                            <>
-                                <span data-testid="cart-unit-price">
-                                    {formatAmount(row.unitPrice, currency, locale)}
-                                </span>{' '}
-                                ex. VAT each
-                            </>
-                        )}
-                    </div>
-
                     <div className="flex items-center gap-3 sm:justify-end">
                         <QuantityStepper
                             quantity={row.quantity}
@@ -138,13 +125,17 @@ export function CartItemRow({row, isLoading, onQuantityChange, onRemove}: CartIt
                             onIncrement={() => onQuantityChange(row.quantity + 1)}
                             onDecrement={() => onQuantityChange(row.quantity - 1)}
                         />
+                        {/* Same treatment as the wishlist's remove control: muted
+                            until hover, then accent, with an always-present
+                            transparent border so nothing shifts by a pixel. */}
                         <button
                             type="button"
                             onClick={onRemove}
                             aria-label={`Remove ${row.productName} from cart`}
-                            className="cursor-pointer rounded p-2 text-(--sf-muted-text) transition-colors hover:text-red-600"
+                            title="Remove from cart"
+                            className="cursor-pointer rounded-full border border-transparent p-1.5 text-(--sf-muted-text) transition-colors hover:border-(--sf-accent) hover:text-(--sf-accent)"
                         >
-                            <Trash2 className="h-4 w-4"/>
+                            <Trash2 className="h-5 w-5" aria-hidden="true"/>
                         </button>
                     </div>
 
@@ -159,6 +150,19 @@ export function CartItemRow({row, isLoading, onQuantityChange, onRemove}: CartIt
                                 <span data-testid="cart-line-total">
                                     {formatAmount(row.lineTotal, currency, locale)}
                                 </span>
+                            </>
+                        )}
+                    </div>
+
+                    <div className="text-xs text-(--sf-muted-text)">
+                        {isLoading ? (
+                            <PriceSkeleton/>
+                        ) : (
+                            <>
+                                <span data-testid="cart-unit-price">
+                                    {formatAmount(row.unitPrice, currency, locale)}
+                                </span>{' '}
+                                ex. VAT each
                             </>
                         )}
                     </div>
