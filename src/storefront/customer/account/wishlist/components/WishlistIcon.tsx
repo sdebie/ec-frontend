@@ -1,7 +1,7 @@
 import {Link} from 'react-router-dom'
 import {Heart} from 'lucide-react'
 import {useEffectiveWishlist} from '../hooks/useEffectiveWishlist'
-import {SF_FOCUS_RING} from '@/storefront/sections/shared/focusRing'
+import {NAV_ICON_HOVER, SF_FOCUS_RING} from '@/storefront/sections/shared/focusRing'
 
 interface WishlistIconProps {
     className?: string
@@ -13,7 +13,7 @@ export function WishlistIcon({className}: WishlistIconProps) {
     return (
         <Link
             to="/account/wishlist"
-            className={`relative flex items-center justify-center rounded-md p-2 text-(--sf-nav-icon-text) hover:text-(--sf-nav-icon-text-hover) hover:bg-(--sf-nav-border) ${SF_FOCUS_RING.nav} ${className ?? ''}`}
+            className={`relative flex items-center justify-center rounded-md p-2 ${NAV_ICON_HOVER} ${SF_FOCUS_RING.nav} ${className ?? ''}`}
             aria-label={count > 0 ? `Wishlist with ${count} items` : 'Wishlist'}
         >
             <Heart className="h-5 w-5" aria-hidden="true"/>

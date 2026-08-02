@@ -28,6 +28,21 @@ const CTA_DRAWER_ACTIVE =
 const DEFAULT_NAV_BASE =
   'text-sm transition-colors border-b-2 border-transparent'
 
+/**
+ * Drawer items get a pill, not the nav bar's underline: a full-width rule under
+ * a stacked list read as a divider rather than a state, and looked heavy.
+ * The active pill is a soft accent tint — enough to locate yourself, not enough
+ * to compete with the CTA chip in the same list.
+ */
+const DEFAULT_DRAWER_BASE =
+  'block rounded-md px-3 py-2 text-sm transition-colors'
+
+const DEFAULT_DRAWER_ACTIVE =
+  'bg-[color-mix(in_srgb,var(--sf-accent)_10%,transparent)] font-medium text-(--sf-accent)'
+
+const DEFAULT_DRAWER_IDLE =
+  'text-(--sf-text) hover:bg-(--sf-surface-muted)'
+
 export function StorefrontNavLink({ item, variant = 'nav' }: StorefrontNavLinkProps) {
   const isHttpExternal = item.external && /^https?:/.test(item.path)
   const isCta = item.emphasis === 'cta'
@@ -42,7 +57,9 @@ export function StorefrontNavLink({ item, variant = 'nav' }: StorefrontNavLinkPr
         className={
           isCta
             ? (isDrawer ? CTA_DRAWER_BASE : CTA_CHIP_BASE)
-            : DEFAULT_NAV_BASE
+            : isDrawer
+              ? cn(DEFAULT_DRAWER_BASE, DEFAULT_DRAWER_IDLE)
+              : DEFAULT_NAV_BASE
         }
       >
         {item.label}
@@ -58,6 +75,9 @@ export function StorefrontNavLink({ item, variant = 'nav' }: StorefrontNavLinkPr
           const base = isDrawer ? CTA_DRAWER_BASE : CTA_CHIP_BASE
           const active = isDrawer ? CTA_DRAWER_ACTIVE : CTA_CHIP_ACTIVE
           return cn(base, isActive && active)
+        }
+        if (isDrawer) {
+          return cn(DEFAULT_DRAWER_BASE, isActive ? DEFAULT_DRAWER_ACTIVE : DEFAULT_DRAWER_IDLE)
         }
         return cn(
           DEFAULT_NAV_BASE,

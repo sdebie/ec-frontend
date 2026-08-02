@@ -52,3 +52,18 @@ export const ACCENT_LINK_HOVER =
  */
 export const SOCIAL_CHIP_CLASS =
   'inline-flex items-center justify-center rounded-full border border-current/40 transition-colors hover:border-current/80 hover:bg-current/15'
+
+/**
+ * Hover treatment for the header's icon controls (cart, wishlist, account,
+ * burger).
+ *
+ * The accent arrives as the FILL, not the text colour: the nav sits on
+ * `--sf-nav-background` (#111 for this client) and painting `--sf-accent`
+ * (#7a0019) as text on it lands around 1.5:1 — unreadable. As a fill with
+ * `--sf-accent-text` on top it is ~12:1 and unmistakably the brand colour.
+ *
+ * Held at 80% so the fill reads as a soft highlight over the dark bar rather
+ * than a solid button; white on the resulting blend still clears 7:1.
+ */
+export const NAV_ICON_HOVER =
+  'text-(--sf-nav-icon-text) transition-colors hover:bg-(--sf-accent)/80 hover:text-(--sf-accent-text)'

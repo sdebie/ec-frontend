@@ -33,7 +33,7 @@ interface RawProduct {
   description: string | null
   category: { id: string; name: string; slug: string } | null
   categories: Array<{ id: string; name: string; slug: string }> | null
-  brand: { id: string; name: string } | null
+  brand: { id: string; name: string; logoUrl: string | null } | null
 }
 
 interface RawProductInformation {
@@ -75,7 +75,7 @@ export interface ProductDetail {
   category: { id: string; name: string; slug: string } | null
   /** Every category this product belongs to (the backend already exposes this). */
   categories: Array<{ id: string; name: string; slug: string }>
-  brand: { id: string; name: string } | null
+  brand: { id: string; name: string; logoUrl: string | null } | null
   images: ProductImage[]
   variants: ProductVariant[]
 }
@@ -104,6 +104,7 @@ const GET_PRODUCT_BY_SLUG = gql`
         brand {
           id
           name
+          logoUrl
         }
       }
       variants {

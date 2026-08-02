@@ -8,6 +8,8 @@ import {useCartStore} from '@/storefront/cart/store/cartStore'
 import {formatAmount} from '@/shared/utils/formatAmount'
 import {getDisplayPrice} from './utils/pricing'
 import {parseAttributes} from './utils/variantAttributes'
+import {resolveImageUrl} from '@/shared/utils/imageUrl'
+import {ChevronDown} from 'lucide-react'
 import {ImageGallery} from './components/ImageGallery'
 import {VariantSelector} from './components/VariantSelector'
 import {ProductDetailSkeleton} from './components/ProductDetailSkeleton'
@@ -78,6 +80,8 @@ export function ProductDetailPage() {
 
     const [selectedAttrs, setSelectedAttrs] = useState<Record<string, string>>({})
     const [showConfirmation, setShowConfirmation] = useState(false)
+    const [descriptionOpen, setDescriptionOpen] = useState(true)
+    const [brandLogoFailed, setBrandLogoFailed] = useState(false)
     const confirmationTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null)
 
     useEffect(() => {
@@ -130,6 +134,10 @@ export function ProductDetailPage() {
     const shortDescription = textOrNull(product.shortDescription)
     const longDescription = textOrNull(product.description)
     const panelDescription = shortDescription ?? longDescription
+
+    // Not every brand has artwork (25 of 28 live brands do), so the name is the
+    // fallback rather than the logo being required.
+    const brandLogo = !brandLogoFailed ? resolveImageUrl(product.brand?.logoUrl ?? null) : null
 
     // Best-effort category from location state or product data
     const categoryName =
@@ -214,9 +222,23 @@ export function ProductDetailPage() {
                                     </span>
                                 </div>
                                 {product.brand && (
-                                    <span className="text-base font-semibold text-(--sf-text)">
-                                        {product.brand.name}
-                                    </span>
+                                    brandLogo ? (
+                                        // Capped on BOTH axes: brand artwork varies wildly
+                                        // in aspect, and an unconstrained logo would out-shout
+                                        // the price beside it. The name rides in `alt`, so the
+                                        // brand is still announced and still readable if the
+                                        // file 404s.
+                                        <img
+                                            src={brandLogo}
+                                            alt={product.brand.name}
+                                            onError={() => setBrandLogoFailed(true)}
+                                            className="h-7 max-h-7 w-auto max-w-24 object-contain object-right"
+                                        />
+                                    ) : (
+                                        <span className="text-base font-semibold text-(--sf-text)">
+                                            {product.brand.name}
+                                        </span>
+                                    )
                                 )}
                             </div>
                         </div>
@@ -226,11 +248,34 @@ export function ProductDetailPage() {
                             competing with the product's own copy. */}
                         {(panelDescription || selectedVariant?.sku) && (
                             <div className="border-t border-(--sf-border) pt-4">
-                                <h3 className="text-sm font-semibold text-(--sf-text)">Description</h3>
-                                {panelDescription && (
-                                    <p className="mt-2 whitespace-pre-line text-sm leading-relaxed text-(--sf-muted-text)">
-                                        {panelDescription}
-                                    </p>
+                                {panelDescription ? (
+                                    <>
+                                        <button
+                                            type="button"
+                                            onClick={() => setDescriptionOpen((v) => !v)}
+                                            aria-expanded={descriptionOpen}
+                                            aria-controls="product-description-body"
+                                            className={`flex w-full items-center justify-between gap-2 rounded-sm text-left text-sm font-semibold text-(--sf-text) ${SF_FOCUS_RING_PAGE}`}
+                                        >
+                                            Description
+                                            <ChevronDown
+                                                aria-hidden="true"
+                                                className={`h-4 w-4 shrink-0 text-(--sf-muted-text) transition-transform ${
+                                                    descriptionOpen ? 'rotate-180' : ''
+                                                }`}
+                                            />
+                                        </button>
+                                        {descriptionOpen && (
+                                            <p
+                                                id="product-description-body"
+                                                className="mt-2 whitespace-pre-line text-sm leading-relaxed text-(--sf-muted-text)"
+                                            >
+                                                {panelDescription}
+                                            </p>
+                                        )}
+                                    </>
+                                ) : (
+                                    <h3 className="text-sm font-semibold text-(--sf-text)">Description</h3>
                                 )}
                                 {selectedVariant?.sku && (
                                     <p className="mt-3 text-right text-xs text-(--sf-muted-text)">
