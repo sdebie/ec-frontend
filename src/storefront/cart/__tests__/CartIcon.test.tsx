@@ -1,8 +1,8 @@
 import {render, screen} from '@testing-library/react'
 import {MemoryRouter} from 'react-router-dom'
 import {beforeEach, describe, expect, it} from 'vitest'
-import {CartIcon} from '../CartIcon'
-import {useCartStore} from '../cartStore'
+import {CartIcon} from '../components/CartIcon.tsx'
+import {useCartStore} from '../store/cartStore.ts'
 
 function renderCartIcon(className?: string) {
     return render(

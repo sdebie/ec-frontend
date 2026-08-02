@@ -3,7 +3,7 @@ import { useSearchParams, Link } from 'react-router-dom'
 
 import { usePollOrderStatus } from './hooks/usePollOrderStatus'
 import { useCheckoutSessionStore } from './checkoutSessionStore'
-import { useCartStore } from '@/storefront/cart/cartStore'
+import { useCartStore } from '@/storefront/cart/store/cartStore.ts'
 import { useStorefrontConfig } from '@/shared/config/storefrontConfig.context'
 import { formatAmount } from '@/shared/utils/formatAmount'
 
