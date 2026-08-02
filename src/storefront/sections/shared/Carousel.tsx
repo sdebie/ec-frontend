@@ -13,6 +13,8 @@ interface CarouselProps {
      * Ignored when `header` is set (header-controls mode).
      */
     arrowPlacement?: 'gutter' | 'overlay'
+    /** Whole cards visible per view below `md` (default 1, with the next peeking). */
+    perViewMobile?: 1 | 2
     /**
      * Header-controls mode: the node (typically a SectionHeading with mb-0)
      * renders in a row above the deck with prev/next beside it on md+.
@@ -26,17 +28,24 @@ interface CarouselProps {
 }
 
 // Cell widths are exact fractions of the viewport minus the gaps (gap-6 =
-// 1.5rem), so the desktop view shows precisely `perView` whole cards.
+// 1.5rem), so each breakpoint shows precisely that many whole cards.
 const CELL_BASIS: Record<2 | 3 | 4, string> = {
-    2: 'w-[85%] md:w-[calc((100%-1.5rem)/2)]',
-    3: 'w-[85%] md:w-[calc((100%-1.5rem)/2)] lg:w-[calc((100%-3rem)/3)]',
-    4: 'w-[85%] md:w-[calc((100%-1.5rem)/2)] lg:w-[calc((100%-4.5rem)/4)]',
+    2: 'md:w-[calc((100%-1.5rem)/2)]',
+    3: 'md:w-[calc((100%-1.5rem)/2)] lg:w-[calc((100%-3rem)/3)]',
+    4: 'md:w-[calc((100%-1.5rem)/2)] lg:w-[calc((100%-4.5rem)/4)]',
+}
+
+// Sub-`md` cell width. 1 (default) shows a single card at 85% so the next one
+// peeks; 2 fits a pair, for decks whose cards stay legible at half a phone.
+const MOBILE_CELL_BASIS: Record<1 | 2, string> = {
+    1: 'w-[85%]',
+    2: 'w-[calc((100%-1.5rem)/2)]',
 }
 
 // gap-6 between cells — the snap stride is cellWidth + this.
 const GAP_PX = 24
 
-export function Carousel({ariaLabel, perView = 3, arrowPlacement = 'gutter', header, children}: CarouselProps) {
+export function Carousel({ariaLabel, perView = 3, perViewMobile = 1, arrowPlacement = 'gutter', header, children}: CarouselProps) {
     const headerControls = header != null
     const scrollRef = useRef<HTMLDivElement>(null)
     const [showButtons, setShowButtons] = useState(false)
@@ -124,7 +133,11 @@ export function Carousel({ariaLabel, perView = 3, arrowPlacement = 'gutter', hea
                 <div
                     ref={scrollRef}
                     onScroll={syncScrollState}
-                    className="flex gap-6 overflow-x-auto snap-x snap-mandatory scroll-smooth [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]"
+                    // py-2: `overflow-x-auto` computes `overflow-y` to `auto`, so
+                    // without vertical room the track clips whatever a card paints
+                    // outside its box — its border, its hover shadow and the
+                    // `hover:scale-[1.02]` lift all got cut off top and bottom.
+                    className="flex gap-6 overflow-x-auto py-2 snap-x snap-mandatory scroll-smooth [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]"
                 >
                     {React.Children.map(children, (child, index) => (
                         // *:w-full — the cell is a flex container (so cards stretch to
@@ -133,7 +146,7 @@ export function Carousel({ariaLabel, perView = 3, arrowPlacement = 'gutter', hea
                         // unequal despite equal cells.
                         <div
                             key={index}
-                            className={`flex snap-start shrink-0 *:w-full ${CELL_BASIS[perView]}${headerControls ? ' max-w-80 md:max-w-none' : ''}`}
+                            className={`flex snap-start shrink-0 *:w-full ${MOBILE_CELL_BASIS[perViewMobile]} ${CELL_BASIS[perView]}${headerControls && perViewMobile === 1 ? ' max-w-80 md:max-w-none' : ''}`}
                         >
                             {child}
                         </div>

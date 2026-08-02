@@ -170,7 +170,7 @@ export function ProductCard({product, variantId, variantLabel, badge, layout = '
                     {variantId && showWishlistButton && (
                         <WishlistButton
                             variantId={variantId}
-                            className="absolute top-2 right-2 rounded-full bg-(--sf-panel)/80 p-1.5 backdrop-blur-sm transition-colors hover:bg-(--sf-panel) cursor-pointer"
+                            className="absolute top-2 right-2 rounded-full border border-transparent bg-(--sf-panel)/80 p-1.5 backdrop-blur-sm transition-colors hover:border-(--sf-accent) hover:bg-(--sf-panel) cursor-pointer"
                         />
                     )}
                     {onQuickView && (
@@ -319,7 +319,7 @@ export function ProductCard({product, variantId, variantLabel, badge, layout = '
                 {variantId && showWishlistButton && (
                     <WishlistButton
                         variantId={variantId}
-                        className="absolute top-2 right-2 rounded-full bg-(--sf-panel)/80 p-1.5 backdrop-blur-sm transition-colors hover:bg-(--sf-panel) cursor-pointer"
+                        className="absolute top-2 right-2 rounded-full border border-transparent bg-(--sf-panel)/80 p-1.5 backdrop-blur-sm transition-colors hover:border-(--sf-accent) hover:bg-(--sf-panel) cursor-pointer"
                     />
                 )}
                 {onQuickView && (

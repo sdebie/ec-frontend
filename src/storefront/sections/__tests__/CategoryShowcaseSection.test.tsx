@@ -130,7 +130,7 @@ describe('CategoryShowcaseSection', () => {
         // header-controls mode (arrows in the header row) — it just carries an
         // sr-only title there instead of a second visible one.
         const sectionEl = container.querySelector('section')!
-        const ownHeading = sectionEl.querySelector(':scope > div > h2')
+        const ownHeading = sectionEl.querySelector('h2')
         expect(ownHeading).not.toBeNull()
         expect(ownHeading!.textContent).toContain('Medical Supplies')
 
@@ -148,7 +148,7 @@ describe('CategoryShowcaseSection', () => {
 
         // Own h2 is present (gutter mode renders its own heading)
         const sectionEl = container.querySelector('section')!
-        const directH2 = sectionEl.querySelector(':scope > div > h2')
+        const directH2 = sectionEl.querySelector('h2')
         expect(directH2).toBeInTheDocument()
         expect(directH2).toHaveTextContent('Medical Supplies')
     })
@@ -165,7 +165,7 @@ describe('CategoryShowcaseSection', () => {
 
         // Falls back to overlay — own h2 present
         const sectionEl = container.querySelector('section')!
-        const directH2 = sectionEl.querySelector(':scope > div > h2')
+        const directH2 = sectionEl.querySelector('h2')
         expect(directH2).toBeInTheDocument()
     })
 
@@ -301,7 +301,7 @@ describe('CategoryShowcaseSection', () => {
             // the desktop icon rail. Under 'header' the Carousel keeps only its
             // arrow row, so the title must not be duplicated.
             const sectionEl = container.querySelector('section')!
-            const ownHeading = sectionEl.querySelector(':scope > div > h2')
+            const ownHeading = sectionEl.querySelector('h2')
             expect(ownHeading).not.toBeNull()
             expect(ownHeading!.textContent).toContain('Medical Supplies')
 
@@ -328,7 +328,7 @@ describe('CategoryShowcaseSection', () => {
             const {container} = render(<CategoryShowcaseSection
                 section={buildSection({layout: 'carousel', carouselControls: 'header'})}/>)
 
-            const heading = container.querySelector('section > div > h2')!
+            const heading = container.querySelector('section h2')!
             // jsdom does no layout, so assert the token class, not a computed colour.
             expect(heading.className).toContain('text-(--sf-accent-text)')
         })

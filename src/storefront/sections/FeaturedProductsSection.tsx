@@ -68,10 +68,11 @@ export function FeaturedProductsSection({section}: { section: FeaturedProductsSe
                     <Carousel
                         ariaLabel={title}
                         perView={columns}
+                        perViewMobile={2}
                         header={<SectionHeading title={title} eyebrow={eyebrow} className="mb-0"/>}
                     >
                         {products.map((product) => (
-                            <ProductCard key={product.id} product={product} variantId={product.variantId} badge={badgeLabel}/>
+                            <ProductCard key={product.id} product={product} variantId={product.variantId} badge={badgeLabel} imageAspect="landscape"/>
                         ))}
                     </Carousel>
                 ) : (
@@ -80,10 +81,11 @@ export function FeaturedProductsSection({section}: { section: FeaturedProductsSe
                         <Carousel
                             ariaLabel={title}
                             perView={columns}
+                            perViewMobile={2}
                             arrowPlacement={resolvedHint}
                         >
                             {products.map((product) => (
-                                <ProductCard key={product.id} product={product} variantId={product.variantId} badge={badgeLabel}/>
+                                <ProductCard key={product.id} product={product} variantId={product.variantId} badge={badgeLabel} imageAspect="landscape"/>
                             ))}
                         </Carousel>
                     </>
@@ -94,7 +96,7 @@ export function FeaturedProductsSection({section}: { section: FeaturedProductsSe
                     <div className="flex items-stretch gap-4 overflow-x-auto py-2">
                         {products.map((product) => (
                             <div key={product.id} className="w-56 shrink-0">
-                                <ProductCard product={product} variantId={product.variantId} badge={badgeLabel}/>
+                                <ProductCard product={product} variantId={product.variantId} badge={badgeLabel} imageAspect="landscape"/>
                             </div>
                         ))}
                     </div>

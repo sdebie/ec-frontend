@@ -93,25 +93,31 @@ export function PromoGridSection({ section }: { section: PromoGridSectionConfig 
                     {item.eyebrow}
                   </p>
                 )}
-                {TileIcon && (
-                  <span
-                    className="mb-3 inline-flex h-10 w-10 items-center justify-center rounded-lg bg-[color-mix(in_srgb,var(--sf-accent)_10%,transparent)]"
-                    aria-hidden="true"
-                  >
-                    <TileIcon className="h-5 w-5 text-(--sf-accent)" />
-                  </span>
-                )}
-                <h3 className="mt-1 font-medium">{item.title}</h3>
+                {/* Icon and title share a line — the icon is a fixed-size badge
+                    so titles that wrap to two lines stay aligned to its top. */}
+                <div className="mt-1 flex items-start gap-3">
+                  {TileIcon && (
+                    <span
+                      className="inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-[color-mix(in_srgb,var(--sf-accent)_10%,transparent)]"
+                      aria-hidden="true"
+                    >
+                      <TileIcon className="h-5 w-5 text-(--sf-accent)" />
+                    </span>
+                  )}
+                  <h3 className="min-w-0 self-center font-medium">{item.title}</h3>
+                </div>
                 {item.description && (
                   <p className="mt-2 text-sm text-(--sf-muted-text)">{item.description}</p>
                 )}
                 {item.cta && (
-                  <Link
-                    to={item.cta.to}
-                    className="mt-3 inline-block text-sm font-medium text-(--sf-accent) hover:underline"
-                  >
-                    {item.cta.label}
-                  </Link>
+                  <div className="mt-3 flex justify-end">
+                    <Link
+                      to={item.cta.to}
+                      className="text-sm font-medium text-(--sf-accent) hover:underline"
+                    >
+                      {item.cta.label}
+                    </Link>
+                  </div>
                 )}
               </div>
             </article>

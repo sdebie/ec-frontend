@@ -35,6 +35,7 @@ function stripLgColsClass(count: number, columns?: 2 | 3 | 4): string {
 export function BenefitsSection({ section }: { section: BenefitsSectionConfig }) {
   const {
     title,
+    subtitle,
     eyebrow,
     variant,
     layout = 'cards',
@@ -46,7 +47,7 @@ export function BenefitsSection({ section }: { section: BenefitsSectionConfig })
 
   return (
     <Section variant={variant}>
-      {title && <SectionHeading title={title} eyebrow={eyebrow} />}
+      {title && <SectionHeading title={title} subtitle={subtitle} eyebrow={eyebrow} />}
 
       {layout === 'strip' ? (
         // The StatsSection band treatment: borderless divided blocks, centered.

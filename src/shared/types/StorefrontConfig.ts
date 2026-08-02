@@ -125,6 +125,8 @@ export interface BenefitsFootnoteSegment {
 export interface BenefitsSectionProps {
   /** Optional so a heading-less 'strip' can render as a pure band (the stats-band effect). */
   title?: string
+  /** Supporting line under the title; rendered by SectionHeading, so it needs a `title`. */
+  subtitle?: string
   eyebrow?: string
   /** Surface variant — mirrors TestimonialsSectionProps naming. */
   variant?: 'light' | 'dark'
