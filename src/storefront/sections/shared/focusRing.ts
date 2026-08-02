@@ -39,3 +39,16 @@ export const ACCENT_BUTTON_HOVER =
  */
 export const ACCENT_LINK_HOVER =
   'hover:text-[color-mix(in_srgb,var(--sf-accent)_80%,black)]'
+
+/**
+ * Circular chip for a social icon link — used by the announcement bar and the
+ * footer, which are the two surfaces that render `footer.socialLinks`.
+ *
+ * Ring and hover wash ride `currentColor`, so the chip inherits whatever colour
+ * its surface sets (the bar's configured `textColor`, the footer's nav icon
+ * token) instead of pinning a palette value. Consumers append their own focus
+ * recipe and size — this carries no border-radius conflict because it sets the
+ * radius itself and the focus recipes deliberately carry none.
+ */
+export const SOCIAL_CHIP_CLASS =
+  'inline-flex items-center justify-center rounded-full border border-current/40 transition-colors hover:border-current/80 hover:bg-current/15'

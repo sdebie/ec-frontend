@@ -9,6 +9,27 @@ import {CardActions} from './CardActions'
 import {SF_FOCUS_RING} from '@/storefront/sections/shared/focusRing'
 import {Heart} from 'lucide-react'
 
+/**
+ * Card outline weight. 'thick' is for decks sitting on a saturated client colour
+ * band, where the default hairline at 60% opacity disappears into the gradient.
+ *
+ * A real border, not an inset outline: an inset outline is painted beneath the
+ * card's own children, so the full-bleed image stage covered it along the top
+ * edge and that side read thinner than the other three. A border is drawn on
+ * the box itself and is never occluded.
+ *
+ * It costs 1px of content width per side, which is safe only because the lines
+ * that could reflow can't: the name is `line-clamp-2` and the SKU truncates. If
+ * a future line is allowed to wrap, re-check that decks still align.
+ *
+ * Each branch is a COMPLETE literal class string — Tailwind scans source text,
+ * so a composed `border-${n}` would emit no CSS.
+ */
+const CARD_BORDER_CLASS: Record<'default' | 'thick', string> = {
+    default: 'border border-(--sf-border)/60',
+    thick: 'border-2 border-(--sf-border)',
+}
+
 const WISHLIST_CHIP_CLASS =
     'absolute top-2 right-2 rounded-full border border-transparent bg-(--sf-panel)/80 p-1.5 backdrop-blur-sm transition-colors hover:border-(--sf-accent) hover:bg-(--sf-panel) cursor-pointer'
 
@@ -80,6 +101,11 @@ interface ProductCardProps {
      */
     mobileImage?: 'default' | 'thumbnail'
     /**
+     * Card outline weight. 'thick' suits a deck on a saturated colour band where
+     * the default hairline vanishes. Default preserves every existing consumer.
+     */
+    borderWeight?: 'default' | 'thick'
+    /**
      * Image stage aspect ratio for the `grid` layout at sm and above. 'landscape'
      * (4:3) yields a shorter card than the default 'square' — useful where cards
      * sit beside other page furniture. Pure CSS; the `row` layout is unaffected.
@@ -102,7 +128,7 @@ interface ProductCardProps {
     quickViewRef?: React.Ref<HTMLButtonElement>
 }
 
-export function ProductCard({product, variantId, variantLabel, badge, layout = 'grid', outOfStockAction, mobileImage = 'default', imageAspect = 'square', onRequestAdd, showWishlistButton = true, onQuickView, quickViewRef}: ProductCardProps) {
+export function ProductCard({product, variantId, variantLabel, badge, layout = 'grid', outOfStockAction, mobileImage = 'default', imageAspect = 'square', borderWeight = 'default', onRequestAdd, showWishlistButton = true, onQuickView, quickViewRef}: ProductCardProps) {
     const {currency, locale} = useStorefrontConfig()
     const customerType = useCustomerAuthStore((state) => state.customerType)
 
@@ -149,7 +175,7 @@ export function ProductCard({product, variantId, variantLabel, badge, layout = '
                indented past the image rail. From sm the three children lay out as
                the row always has: image | identity | price column. */
             <div
-                className="group grid grid-cols-[auto_1fr] items-start rounded-lg border border-(--sf-border)/60 bg-(--sf-panel) overflow-hidden transition-all hover:shadow-md hover:border-(--sf-accent) sm:flex sm:flex-row sm:items-stretch md:hover:scale-[1.02]"
+                className={`group grid grid-cols-[auto_1fr] items-start rounded-lg ${CARD_BORDER_CLASS[borderWeight]} bg-(--sf-panel) overflow-hidden transition-all hover:shadow-md hover:border-(--sf-accent) sm:flex sm:flex-row sm:items-stretch md:hover:scale-[1.02]`}
                 data-layout="row"
             >
                 {/* Image — left; stays a compact square rail on mobile (a full-width
@@ -225,7 +251,7 @@ export function ProductCard({product, variantId, variantLabel, badge, layout = '
                     </Link>
 
                     {product.sku && (
-                        <p className="mt-1 text-xs text-(--sf-muted-text)">
+                        <p className="mt-1 truncate text-xs text-(--sf-muted-text)" title={product.sku}>
                             SKU: {product.sku}
                         </p>
                     )}
@@ -301,7 +327,7 @@ export function ProductCard({product, variantId, variantLabel, badge, layout = '
 
     return (
         <div
-            className="group flex h-full flex-col rounded-lg border border-(--sf-border)/60 bg-(--sf-panel) overflow-hidden transition-all hover:shadow-md hover:border-(--sf-accent) md:hover:scale-[1.02]"
+            className={`group flex h-full flex-col rounded-lg ${CARD_BORDER_CLASS[borderWeight]} bg-(--sf-panel) overflow-hidden transition-all hover:shadow-md hover:border-(--sf-accent) md:hover:scale-[1.02]`}
             data-layout="grid"
         >
             <div className={`relative ${gridImageStageClass} overflow-hidden bg-(--sf-surface-muted)`}>
@@ -374,7 +400,10 @@ export function ProductCard({product, variantId, variantLabel, badge, layout = '
                     the stock/price/action rows below stay on the same baseline as a
                     simple product's — same rationale as the min-h name row above. */}
                 {product.sku ? (
-                    <p className="mt-1 text-xs text-(--sf-muted-text)">
+                    // truncate: a SKU that wraps to a second line makes this card
+                    // taller than its neighbours, which desynchronises decks that
+                    // are held to a common height. The full value stays in `title`.
+                    <p className="mt-1 truncate text-xs text-(--sf-muted-text)" title={product.sku}>
                         SKU: {product.sku}
                     </p>
                 ) : (

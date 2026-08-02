@@ -4,7 +4,7 @@ import { useStorefrontConfig } from '@/shared/config/storefrontConfig.context'
 import { resolveImageUrl } from '@/shared/utils/imageUrl'
 import { waMeUrl } from '@/shared/utils/waMeUrl'
 import { socialIconMap } from '@/shared/ui/icons'
-import { SF_FOCUS_RING } from '@/storefront/sections/shared/focusRing'
+import { SF_FOCUS_RING, SOCIAL_CHIP_CLASS } from '@/storefront/sections/shared/focusRing'
 import type { ContactConfig, FooterColumn, FooterLegalLink, FooterSocialLink } from '@/shared/types/StorefrontConfig'
 
 function SocialIcon({ link }: { link: FooterSocialLink }) {
@@ -16,13 +16,14 @@ function SocialIcon({ link }: { link: FooterSocialLink }) {
       target="_blank"
       rel="noopener noreferrer"
       aria-label={link.label}
-      className={`transition-colors ${SF_FOCUS_RING.nav} rounded-sm`}
+      title={link.label}
+      className={`${SOCIAL_CHIP_CLASS} h-9 w-9 ${SF_FOCUS_RING.nav}`}
       style={{ color: 'var(--sf-nav-icon-text)' }}
     >
       {IconComponent ? (
-        <IconComponent width={20} height={20} aria-hidden="true" />
+        <IconComponent width={18} height={18} aria-hidden="true" />
       ) : (
-        <Globe size={20} aria-hidden="true" />
+        <Globe size={18} aria-hidden="true" />
       )}
     </a>
   )
@@ -42,6 +43,13 @@ function hasFooterContact(contact: ContactConfig | undefined): boolean {
     contact.businessHours?.trim()
   )
 }
+
+/**
+ * Heading for the contact column. Matches `FooterColumn`'s heading treatment so
+ * contact reads as one of the footer's columns rather than loose text under the
+ * brand blurb — it is grouped, labelled and scannable like every other column.
+ */
+const CONTACT_HEADING = 'Get in touch'
 
 export function FooterContactBlock({ contact }: { contact: ContactConfig }) {
   const phone = contact.phones?.[0]?.trim()
@@ -103,9 +111,22 @@ export function FooterContactBlock({ contact }: { contact: ContactConfig }) {
   )
 }
 
-function NavigationColumns({ columns }: { columns: FooterColumn[] }) {
+// Desktop column count follows how many columns actually render (seeded columns
+// plus the contact column when the client has contact details). Complete literal
+// class strings — Tailwind scans source text, so `lg:grid-cols-${n}` emits nothing.
+const FOOTER_COLS_CLASS: Record<number, string> = {
+  1: 'lg:grid-cols-1',
+  2: 'lg:grid-cols-2',
+  3: 'lg:grid-cols-3',
+  4: 'lg:grid-cols-4',
+}
+
+function NavigationColumns({ columns, trailing }: { columns: FooterColumn[]; trailing?: React.ReactNode }) {
+  const count = columns.length + (trailing ? 1 : 0)
+  const colsClass = FOOTER_COLS_CLASS[Math.min(count, 4)] ?? FOOTER_COLS_CLASS[4]
+
   return (
-    <div className="grid grid-cols-2 lg:grid-cols-3 gap-8">
+    <div className={`grid grid-cols-2 gap-8 ${colsClass}`}>
       {columns.map((column) => (
         <div key={column.heading}>
           <h3 className="font-semibold mb-3">{column.heading}</h3>
@@ -135,6 +156,7 @@ function NavigationColumns({ columns }: { columns: FooterColumn[] }) {
           </ul>
         </div>
       ))}
+      {trailing}
     </div>
   )
 }
@@ -178,10 +200,8 @@ export function StorefrontFooter() {
               </div>
             )}
 
-            {hasFooterContact(config.contact) && (
-              <FooterContactBlock contact={config.contact!} />
-            )}
-
+            {/* Social sits directly under the blurb — it belongs with the brand
+                identity, not appended after a list of contact details. */}
             {footer.socialLinks && footer.socialLinks.length > 0 && (
               <div className="flex items-center gap-3">
                 {footer.socialLinks.map((link) => (
@@ -191,10 +211,20 @@ export function StorefrontFooter() {
             )}
           </div>
 
-          {/* Navigation columns */}
-          {footer.columns && footer.columns.length > 0 && (
+          {/* Navigation columns + contact as a peer column */}
+          {(footer.columns?.length || hasFooterContact(config.contact)) && (
             <div className="lg:col-span-8">
-              <NavigationColumns columns={footer.columns} />
+              <NavigationColumns
+                columns={footer.columns ?? []}
+                trailing={
+                  hasFooterContact(config.contact) ? (
+                    <div>
+                      <h3 className="font-semibold mb-3">{CONTACT_HEADING}</h3>
+                      <FooterContactBlock contact={config.contact!} />
+                    </div>
+                  ) : undefined
+                }
+              />
             </div>
           )}
         </div>

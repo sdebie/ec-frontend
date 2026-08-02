@@ -4,31 +4,25 @@ import {useCartStore} from '@/storefront/cart/store/cartStore'
 import {ACCENT_BUTTON_HOVER, SF_FOCUS_RING_PAGE} from '@/storefront/sections/shared'
 import {QuantityStepper} from './QuantityStepper'
 
-/**
- * The card's stepper sits centred in its own bordered box, so it reads as one
- * control rather than two loose buttons. Applied HERE and not in QuantityStepper
- * because the cart uses the same component inline in a row, where a box would be
- * wrong.
- *
- * The layout half is shared with StepperReserve below and both carry a 1px
- * border, so the reserve is exactly as tall as the real thing by construction.
- */
-const STEPPER_BOX_LAYOUT = 'flex items-center justify-center rounded-lg py-1'
+/** Centres the stepper in the card column; the stepper itself owns its border. */
+const STEPPER_ROW_LAYOUT = 'flex items-center justify-center'
 
 /**
- * Reserves exactly the row the stepper box occupies, so a card whose action is a
- * single control ("Select options", "Out of stock", "View product") stands as
- * tall as a purchasable one and a deck of mixed products lines up — otherwise a
- * section's height follows whichever products happen to be simple.
+ * Reserves exactly the row the segmented stepper occupies, so a card whose
+ * action is a single control ("Select options", "Out of stock", "View product")
+ * stands as tall as a purchasable one and a deck of mixed products lines up —
+ * otherwise a section's height follows whichever products happen to be simple.
  *
- * Built from the same tokens as the real box rather than a hardcoded height, so
- * the two cannot drift apart. Nothing here is focusable or in the a11y tree.
+ * It MIRRORS the segmented stepper's box (1px border + a `py-1.5` cell around a
+ * `text-sm` line) rather than hardcoding a height, so the two stay in step. Keep
+ * this in sync with QuantityStepper's `segmented` branch if that padding changes.
+ * Nothing here is focusable or in the accessibility tree.
  */
 function StepperReserve() {
     return (
-        <div aria-hidden="true" className={`${STEPPER_BOX_LAYOUT} border border-transparent`}>
-            <span className="rounded border border-transparent p-1">
-                <span className="block h-4 w-4"/>
+        <div aria-hidden="true" className={STEPPER_ROW_LAYOUT}>
+            <span className="inline-flex items-stretch rounded-lg border border-transparent">
+                <span className="px-3 py-1.5 text-sm font-medium leading-5">&nbsp;</span>
             </span>
         </div>
     )
@@ -182,8 +176,9 @@ export function CardActions({variantId, productName, productSlug, inStock, hasPr
 
     return (
         <div className={stackClass}>
-            <div className={`${STEPPER_BOX_LAYOUT} border border-(--sf-border)`}>
+            <div className={STEPPER_ROW_LAYOUT}>
                 <QuantityStepper
+                    appearance="segmented"
                     quantity={quantity}
                     onIncrement={() => setQuantity((q) => q + 1)}
                     onDecrement={() => setQuantity((q) => Math.max(1, q - 1))}

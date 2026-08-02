@@ -111,7 +111,7 @@ export function CategoryShowcaseSection({section}: { section: CategoryShowcaseSe
                 alt=""
                 aria-hidden="true"
                 onError={() => setImageFailed(true)}
-                className="h-16 w-16 object-contain"
+                className="h-20 w-20 object-contain"
             />
         </Link>
     ) : null
@@ -176,7 +176,7 @@ export function CategoryShowcaseSection({section}: { section: CategoryShowcaseSe
                             >
                                 {displayProducts.map((product) => (
                                     <ProductCard key={product.id} product={product} variantId={product.variantId}
-                                                 imageAspect="landscape"/>
+                                                 imageAspect="landscape" borderWeight="thick"/>
                                 ))}
                             </Carousel>
                         </div>
@@ -184,7 +184,7 @@ export function CategoryShowcaseSection({section}: { section: CategoryShowcaseSe
                         <div className="flex min-w-0 flex-1 items-stretch gap-4 overflow-x-auto py-2">
                             {displayProducts.map((product) => (
                                 <div key={product.id} className="w-56 shrink-0">
-                                    <ProductCard product={product} variantId={product.variantId} imageAspect="landscape"/>
+                                    <ProductCard product={product} variantId={product.variantId} imageAspect="landscape" borderWeight="thick"/>
                                 </div>
                             ))}
                         </div>

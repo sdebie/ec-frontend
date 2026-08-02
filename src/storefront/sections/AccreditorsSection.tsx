@@ -16,7 +16,7 @@ function AccreditorTile({name, logoUrl, url}: AccreditorTileProps) {
 
     const tile = (
         <div
-            className="flex h-20 w-40 items-center justify-center rounded-md border border-(--sf-border) bg-(--sf-panel) p-2 sm:h-24 sm:w-48 sm:p-3 lg:h-28 lg:w-56">
+            className="flex h-28 w-52 items-center justify-center rounded-md border border-(--sf-border) bg-(--sf-panel) p-3 sm:h-32 sm:w-64 sm:p-4 lg:h-36 lg:w-72">
             {showImage ? (
                 <img
                     src={src}

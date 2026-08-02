@@ -48,7 +48,7 @@ export function BrandsSection({section}: { section: BrandsSectionConfig }) {
     const displayBrands = limit ? brands.slice(0, limit) : brands
 
     return (
-        <Section variant={variant} className="py-6">
+        <Section variant={variant} className="py-10">
             {title && <SectionHeading title={title} eyebrow={eyebrow} className="mb-4"/>}
             <div
                 className="grid grid-cols-3 gap-3 sm:grid-cols-4 sm:gap-4 md:grid-cols-6 lg:gap-3">

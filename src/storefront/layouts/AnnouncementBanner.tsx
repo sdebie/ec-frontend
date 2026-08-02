@@ -1,6 +1,7 @@
 import { Mail, Phone } from 'lucide-react'
 import { useStorefrontConfig } from '@/shared/config/storefrontConfig.context'
 import { waMeUrl } from '@/shared/utils/waMeUrl'
+import { SOCIAL_CHIP_CLASS } from '@/storefront/sections/shared/focusRing'
 import { IconWhatsApp, socialIconMap } from '@/shared/ui/icons'
 import type { FooterSocialLink } from '@/shared/types/StorefrontConfig'
 
@@ -150,9 +151,7 @@ export function AnnouncementBanner() {
                   target="_blank"
                   rel="noopener noreferrer"
                   aria-label={link.label}
-                  // Ring and hover wash are both `currentColor`, so they follow
-                  // the banner's configured text colour instead of a literal.
-                  className={`inline-flex h-7 w-7 items-center justify-center rounded-full border border-current/40 transition-colors hover:border-current/70 hover:bg-current/15 ${BANNER_FOCUS}`}
+                  className={`${SOCIAL_CHIP_CLASS} h-7 w-7 ${BANNER_FOCUS}`}
                 >
                   <IconComponent width={15} height={15} aria-hidden="true" />
                 </a>

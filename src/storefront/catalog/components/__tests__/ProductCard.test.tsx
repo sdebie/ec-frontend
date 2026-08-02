@@ -57,6 +57,40 @@ describe('ProductCard', () => {
         mockCustomerType.value = 'RETAIL'
     })
 
+    describe('border weight (owner directive 2026-08-02)', () => {
+        it('keeps the hairline outline by default — the catalogue must not thicken', () => {
+            const {container} = renderCard()
+
+            const root = container.querySelector('[data-layout="grid"]')!
+            expect(root.className).toContain('border border-(--sf-border)/60')
+            expect(root.className).not.toContain('border-2')
+        })
+
+        it('renders a heavier border when the consumer opts in', () => {
+            const {container} = renderCard({}, {borderWeight: 'thick'})
+
+            const root = container.querySelector('[data-layout="grid"]')!
+            expect(root.className).toContain('border-2 border-(--sf-border)')
+            expect(root.className).not.toContain('border-(--sf-border)/60')
+        })
+
+        it('uses a border, not an inset outline the image stage would cover', () => {
+            const {container} = renderCard({}, {borderWeight: 'thick'})
+
+            // An inset outline paints beneath the card's own children, so the
+            // full-bleed image stage hid it along the top edge and that side
+            // read thinner than the other three.
+            const root = container.querySelector('[data-layout="grid"]')!
+            expect(root.className).not.toContain('outline')
+        })
+
+        it('applies to the row layout too', () => {
+            const {container} = renderCard({}, {layout: 'row', borderWeight: 'thick'})
+
+            expect(container.querySelector('[data-layout="row"]')!.className).toContain('border-2')
+        })
+    })
+
     describe('wishlist affordance (owner directive 2026-08-02)', () => {
         it('renders the real wishlist toggle when the card has a variant', () => {
             renderCard({}, {variantId: 'variant-1'})
