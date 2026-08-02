@@ -1,7 +1,7 @@
 import {beforeEach, describe, expect, it, vi} from 'vitest'
 import fc from 'fast-check'
 import {QueryClient} from '@tanstack/react-query'
-import {storefrontHttpClient} from '@/shared/api/http/storefrontHttpClient.ts'
+import {storefrontHttpClient} from '@/shared/api/http/storefrontHttpClient'
 
 vi.mock('@/shared/api/http/storefrontHttpClient', () => ({
     storefrontHttpClient: {

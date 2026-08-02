@@ -1,5 +1,5 @@
 import {useCustomerAuthStore} from '@/shared/auth/customerAuthStore'
-import {useToggleWishlist} from './useToggleWishlist.ts'
+import {useToggleWishlist} from './useToggleWishlist'
 import {useLocalWishlistStore} from '../store/localWishlistStore'
 
 export function useToggleEffective() {

@@ -18,3 +18,15 @@ export interface HydratedWishlistItem {
     inStock: boolean | null
     productActive: boolean | null
 }
+
+/**
+ * What the page is currently asking the user to confirm. A discriminated union
+ * so each dialog carries exactly the data its copy needs — `null` means closed.
+ */
+export type DialogRequest =
+    | null
+    | { kind: 'moveItem'; item: HydratedWishlistItem; quantity: number }
+    | { kind: 'moveAll' }
+    | { kind: 'removeItem'; item: HydratedWishlistItem }
+    | { kind: 'removeAll' }
+    | { kind: 'removeUnavailable' }

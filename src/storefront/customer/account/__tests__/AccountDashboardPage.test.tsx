@@ -5,7 +5,7 @@ import {MemoryRouter} from 'react-router-dom'
 import type {MyOrder} from '../hooks/useMyOrders'
 import {useMyOrders} from '../hooks/useMyOrders'
 import {useCustomerProfile} from '../hooks/useCustomerProfile'
-import {useWishlist} from '../wishlist/hooks/useWishlist.ts'
+import {useWishlist} from '../wishlist/hooks/useWishlist'
 import {AccountDashboardPage} from '../AccountDashboardPage'
 
 vi.mock('../hooks/useMyOrders')

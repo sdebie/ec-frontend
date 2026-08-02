@@ -1,7 +1,7 @@
 import { useQuery } from '@tanstack/react-query'
-import { storefrontHttpClient } from '@/shared/api/http/storefrontHttpClient.ts'
-import { useCustomerAuthStore } from '@/shared/auth/customerAuthStore.ts'
-import type { WishlistResponse } from '../../types.ts'
+import { storefrontHttpClient } from '@/shared/api/http/storefrontHttpClient'
+import { useCustomerAuthStore } from '@/shared/auth/customerAuthStore'
+import type { WishlistResponse } from '../../types'
 
 export function useWishlist() {
   const { isSignedIn } = useCustomerAuthStore()

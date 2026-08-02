@@ -1,5 +1,5 @@
 import {useMutation, useQueryClient} from '@tanstack/react-query'
-import {storefrontHttpClient} from '@/shared/api/http/storefrontHttpClient.ts'
+import {storefrontHttpClient} from '@/shared/api/http/storefrontHttpClient'
 import {toast} from '@/shared/ui/components/toast'
 
 export function useToggleWishlist() {
