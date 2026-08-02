@@ -26,7 +26,7 @@ export function PageContentDocument({data}: { data: PublicPageContent }) {
                 <header>
                     <SectionHeading
                         as="h1"
-                        eyebrow="Legal & Privacy"
+                        eyebrow="Important Information"
                         title={data.title}
                         subtitle={`Last updated: ${formatDate(data.publishedAt)}`}
                         className="mb-0"

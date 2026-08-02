@@ -164,7 +164,7 @@ describe('PageContentPage', () => {
     expect(screen.queryByRole('heading', { level: 2 })).not.toBeInTheDocument()
   })
 
-  it('renders the Legal & Privacy eyebrow in the document header', () => {
+  it('renders the Important Information eyebrow in the document header', () => {
     mockUsePublicPageContent.mockReturnValue({
       data: {
         slug: 'privacy-policy',
@@ -180,7 +180,7 @@ describe('PageContentPage', () => {
 
     renderPage()
 
-    expect(screen.getByText('Legal & Privacy')).toBeInTheDocument()
+    expect(screen.getByText('Important Information')).toBeInTheDocument()
   })
 
   it('does not render <script> tags in content (DOMPurify sanitisation)', () => {
