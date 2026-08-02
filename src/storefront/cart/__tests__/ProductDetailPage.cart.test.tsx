@@ -28,6 +28,7 @@ const mockProduct = {
     shortDescription: 'A test shirt',
     description: 'Detailed description',
     category: {id: 'cat-1', name: 'Shirts', slug: 'shirts'},
+    categories: [{id: 'cat-1', name: 'Shirts', slug: 'shirts'}],
     brand: {id: 'brand-1', name: 'TestBrand'},
     images: [],
     variants: [

@@ -1,48 +1,48 @@
-import { useQuery } from '@tanstack/react-query'
-import { gql } from 'graphql-request'
-import { graphqlClient } from '@/shared/api/graphql/graphqlClient'
+import {useQuery} from '@tanstack/react-query'
+import {gql} from 'graphql-request'
+import {graphqlClient} from '@/shared/api/graphql/graphqlClient'
 
 interface Brand {
-  id: string
-  name: string
-  slug: string
-  logoUrl: string | null
+    id: string
+    name: string
+    slug: string
+    logoUrl: string | null
 }
 
 interface GetBrandsResponse {
-  getBrands: {
-    content: Brand[]
-    totalElements: number
-  }
+    getBrands: {
+        content: Brand[]
+        totalElements: number
+    }
 }
 
 const GET_BRANDS = gql`
-  query GetBrands($pageIndex: Int, $pageSize: Int) {
-    getBrands(pageIndex: $pageIndex, pageSize: $pageSize) {
-      content {
-        id
-        name
-        slug
-        logoUrl
-      }
-      totalElements
+    query GetBrands($pageIndex: Int, $pageSize: Int) {
+        getBrands(pageIndex: $pageIndex, pageSize: $pageSize) {
+            content {
+                id
+                name
+                slug
+                logoUrl
+            }
+            totalElements
+        }
     }
-  }
 `
 
 export function useBrands() {
-  const { data, isLoading, isError } = useQuery({
-    queryKey: ['catalog-brands'],
-    queryFn: () =>
-      graphqlClient.request<GetBrandsResponse>(GET_BRANDS, {
-        pageSize: 500,
-      }),
-    staleTime: 10 * 60 * 1000, // 10 minutes — brands rarely change
-  })
+    const {data, isLoading, isError} = useQuery({
+        queryKey: ['catalog-brands'],
+        queryFn: () =>
+            graphqlClient.request<GetBrandsResponse>(GET_BRANDS, {
+                pageSize: 500,
+            }),
+        staleTime: 10 * 60 * 1000, // 10 minutes — brands rarely change
+    })
 
-  return {
-    brands: data?.getBrands.content ?? [],
-    isLoading,
-    isError,
-  }
+    return {
+        brands: data?.getBrands.content ?? [],
+        isLoading,
+        isError,
+    }
 }

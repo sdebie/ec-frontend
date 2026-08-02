@@ -18,6 +18,7 @@ interface RawImage {
 
 interface RawVariant {
   id: string
+  sku: string | null
   stockQuantity: number | null
   attributesJson: string
   images: RawImage[]
@@ -31,6 +32,7 @@ interface RawProduct {
   shortDescription: string | null
   description: string | null
   category: { id: string; name: string; slug: string } | null
+  categories: Array<{ id: string; name: string; slug: string }> | null
   brand: { id: string; name: string } | null
 }
 
@@ -54,6 +56,8 @@ interface ProductImage {
 
 interface ProductVariant {
   id: string
+  /** Optional so existing consumers and fixtures that never selected it still compile. */
+  sku?: string | null
   retailPrice: number | null
   wholesalePrice: number | null
   retailSalePrice: number | null
@@ -69,6 +73,8 @@ export interface ProductDetail {
   shortDescription: string | null
   description: string | null
   category: { id: string; name: string; slug: string } | null
+  /** Every category this product belongs to (the backend already exposes this). */
+  categories: Array<{ id: string; name: string; slug: string }>
   brand: { id: string; name: string } | null
   images: ProductImage[]
   variants: ProductVariant[]
@@ -90,6 +96,11 @@ const GET_PRODUCT_BY_SLUG = gql`
           name
           slug
         }
+        categories {
+          id
+          name
+          slug
+        }
         brand {
           id
           name
@@ -97,6 +108,7 @@ const GET_PRODUCT_BY_SLUG = gql`
       }
       variants {
         id
+        sku
         stockQuantity
         attributesJson
         images {
@@ -132,6 +144,7 @@ function transform(raw: RawProductInformation): ProductDetail {
     }
     return {
       id: v.id,
+      sku: v.sku ?? null,
       retailPrice: priceMap['RETAIL_PRICE'] ?? null,
       wholesalePrice: priceMap['WHOLESALE_PRICE'] ?? null,
       retailSalePrice: priceMap['RETAIL_SALE_PRICE'] ?? null,
@@ -143,6 +156,11 @@ function transform(raw: RawProductInformation): ProductDetail {
 
   return {
     ...raw.product,
+    // Normalised to an array so the page never branches on null. Falls back to
+    // the singular `category` for a backend that only populates that one.
+    categories:
+      raw.product.categories?.filter(Boolean) ??
+      (raw.product.category ? [raw.product.category] : []),
     images,
     variants,
   }

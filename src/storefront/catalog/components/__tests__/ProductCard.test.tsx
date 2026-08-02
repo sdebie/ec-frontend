@@ -19,6 +19,9 @@ vi.mock('@/shared/auth/customerAuthStore', () => ({
 
 
 vi.mock('@/storefront/customer/account/wishlist/components/WishlistButton', () => ({
+    WishlistPromptLink: ({productUrl, className}: {productUrl: string; className?: string}) => (
+        <a href={productUrl} aria-label="Choose options to save to wishlist" className={className}>♡</a>
+    ),
     WishlistButton: ({variantId, className}: { variantId: string; className?: string }) => (
         <button type="button" aria-label={`Wishlist ${variantId}`} className={className}>♡</button>
     ),
@@ -754,9 +757,9 @@ describe('ProductCard', () => {
 
         it('grid layout title link has the page focus ring classes', () => {
             const {container} = renderCard({}, {layout: 'grid'})
-            const links = container.querySelectorAll('a[href="/products/test-product"]')
-            // Second link is the title link
-            const titleLink = links[1] as HTMLElement
+            // Selected by the heading it wraps, not by index: a card with no
+            // variant also renders a wishlist prompt link to the same href.
+            const titleLink = container.querySelector('a:has(h3)') as HTMLElement
             expect(titleLink.className).toContain('focus-visible:ring-2')
             expect(titleLink.className).toContain('focus-visible:ring-offset-(--sf-background)')
         })
@@ -771,8 +774,7 @@ describe('ProductCard', () => {
 
         it('row layout title link has the page focus ring classes', () => {
             const {container} = renderCard({}, {layout: 'row'})
-            const links = container.querySelectorAll('a[href="/products/test-product"]')
-            const titleLink = links[1] as HTMLElement
+            const titleLink = container.querySelector('a:has(h3)') as HTMLElement
             expect(titleLink.className).toContain('focus-visible:ring-2')
             expect(titleLink.className).toContain('focus-visible:ring-offset-(--sf-background)')
         })

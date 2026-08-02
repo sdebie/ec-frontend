@@ -4,10 +4,9 @@ import {useCustomerAuthStore} from '@/shared/auth/customerAuthStore'
 import {formatAmount} from '@/shared/utils/formatAmount'
 import {getDisplayPrice} from '../utils/pricing'
 import {pickFeaturedImage} from '@/storefront/catalog'
-import {WishlistButton} from '@/storefront/customer/account/wishlist/components/WishlistButton'
+import {WishlistButton, WishlistPromptLink} from '@/storefront/customer/account/wishlist/components/WishlistButton'
 import {CardActions} from './CardActions'
 import {SF_FOCUS_RING} from '@/storefront/sections/shared/focusRing'
-import {Heart} from 'lucide-react'
 
 /**
  * Card outline weight. 'thick' is for decks sitting on a saturated client colour
@@ -30,36 +29,15 @@ const CARD_BORDER_CLASS: Record<'default' | 'thick', string> = {
     thick: 'border-2 border-(--sf-border)',
 }
 
-const WISHLIST_CHIP_CLASS =
-    'absolute top-2 right-2 rounded-full border border-transparent bg-(--sf-panel)/80 p-1.5 backdrop-blur-sm transition-colors hover:border-(--sf-accent) hover:bg-(--sf-panel) cursor-pointer'
+/** Overlay placement for the card's heart; appearance belongs to the component. */
+const WISHLIST_OVERLAY_CLASS = 'absolute top-2 right-2'
 
-/**
- * The wishlist is keyed by VARIANT throughout (toggle, hydration, sign-in merge),
- * so a variable product — `variantId` null — has nothing a card could save.
- * Rather than silently saving an arbitrary variant, the heart becomes a door to
- * the product page, where choosing a variant enables the real toggle. The
- * accessible name says so, so it never reads as a save that failed.
- */
+/** Picks the affordance the card's data can actually support. */
 function WishlistSlot({variantId, productUrl}: { variantId: string | null; productUrl: string }) {
-    if (variantId) {
-        return <WishlistButton variantId={variantId} className={WISHLIST_CHIP_CLASS}/>
-    }
-
-    return (
-        <Link
-            to={productUrl}
-            aria-label="Choose options to save to wishlist"
-            title="Choose options to save"
-            // group/wishlist mirrors WishlistButton's own named group so the
-            // hover fill matches a real toggle's — it just never carries the
-            // persistent filled state, having no variant whose membership to show.
-            className={`group/wishlist ${WISHLIST_CHIP_CLASS} inline-flex ${SF_FOCUS_RING.page}`}
-        >
-            <Heart
-                className="h-5 w-5 fill-transparent text-(--sf-accent) transition-colors group-hover/wishlist:fill-current"
-                aria-hidden="true"
-            />
-        </Link>
+    return variantId ? (
+        <WishlistButton variantId={variantId} className={WISHLIST_OVERLAY_CLASS}/>
+    ) : (
+        <WishlistPromptLink productUrl={productUrl} className={WISHLIST_OVERLAY_CLASS}/>
     )
 }
 
