@@ -1,4 +1,4 @@
-import { useCallback, useRef, useState } from 'react'
+import { useCallback, useRef, useState, useEffect } from 'react'
 import { Section, SectionHeading } from '@/storefront/sections/shared'
 import { useSearchParams } from 'react-router-dom'
 import { useCategories } from './hooks/useCategories'
@@ -61,6 +61,22 @@ export function ProductListPage({ onSale = false }: ProductListPageProps) {
     inStockOnly: available,
     enabled: !categorySlug || categories.length > 0, // only wait for slug resolution when a category filter is active
   })
+
+  // A CATEGORY change is a different browse context, not a refinement of the
+  // current one, so it lands at the top — this is what makes the footer's
+  // `/products?category=x` links work when you are already on /products, where
+  // only the query changes and the layout's pathname-keyed ScrollToTop
+  // (correctly) stays out of it. Filters and sort deliberately hold position:
+  // they narrow what you are already looking at.
+  const previousCategorySlug = useRef(categorySlug)
+  useEffect(() => {
+    if (previousCategorySlug.current === categorySlug) return
+    previousCategorySlug.current = categorySlug
+    // Instant, NOT smooth: switching category swaps the whole result set, so the
+    // page height changes underneath the animation and the browser abandons it
+    // mid-flight — measured leaving the shopper exactly where they started.
+    window.scrollTo(0, 0)
+  }, [categorySlug])
 
   // setFilter updates URL params and resets page to 1
   const setFilter = useCallback(

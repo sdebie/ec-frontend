@@ -29,18 +29,31 @@ function SocialIcon({ link }: { link: FooterSocialLink }) {
   )
 }
 
+/** Trims, drops blanks, removes duplicates — order preserved. */
+function unique(values: Array<string | undefined | null>): string[] {
+  const seen = new Set<string>()
+  const out: string[] = []
+  for (const value of values) {
+    const trimmed = value?.trim()
+    if (!trimmed || seen.has(trimmed)) continue
+    seen.add(trimmed)
+    out.push(trimmed)
+  }
+  return out
+}
+
 /**
- * Returns true when contact has data relevant for the footer block:
- * phones[0], whatsapp, emails[0], physicalAddress, or businessHours.
+ * True when there is at least one way to REACH the client. Address and hours
+ * deliberately do not count: they live in the brand column now, so a client
+ * with only a location would otherwise get a "Get in touch" column with an
+ * empty body under it.
  */
-function hasFooterContact(contact: ContactConfig | undefined): boolean {
+function hasFooterChannels(contact: ContactConfig | undefined): boolean {
   if (!contact) return false
-  return !!(
-    contact.phones?.[0]?.trim() ||
-    contact.whatsapp?.trim() ||
-    contact.emails?.[0]?.trim() ||
-    contact.physicalAddress?.trim() ||
-    contact.businessHours?.trim()
+  return (
+    unique([...(contact.phones ?? []), contact.landline]).length > 0 ||
+    !!contact.whatsapp?.trim() ||
+    unique([...(contact.emails ?? []), contact.enquiryEmail]).length > 0
   )
 }
 
@@ -51,26 +64,62 @@ function hasFooterContact(contact: ContactConfig | undefined): boolean {
  */
 const CONTACT_HEADING = 'Get in touch'
 
-export function FooterContactBlock({ contact }: { contact: ContactConfig }) {
-  const phone = contact.phones?.[0]?.trim()
-  const whatsapp = contact.whatsapp?.trim()
-  const email = contact.emails?.[0]?.trim()
+/**
+ * Where the business is and when it is open. Lives in the BRAND column, above
+ * the social icons (owner directive 2026-08-02): it describes the company
+ * rather than offering a way to reach it, so it belongs with the identity
+ * block, not among the actionable channels.
+ */
+export function FooterLocationBlock({ contact }: { contact: ContactConfig }) {
   const address = contact.physicalAddress?.trim()
   const hours = contact.businessHours?.trim()
 
+  if (!address && !hours) return null
+
   return (
-    <div className="mb-4 space-y-2 text-sm" data-testid="footer-contact-block">
-      {phone && (
+    <div className="mt-4 space-y-2 text-sm" data-testid="footer-location-block">
+      {hours && (
         <div className="flex items-center gap-2">
-          <Phone size={16} aria-hidden="true" className="shrink-0 opacity-70" />
-          <a
-            href={`tel:${phone}`}
-            className={`transition-colors hover:[color:var(--sf-nav-text-hover)] ${SF_FOCUS_RING.nav} rounded-sm`}
-          >
-            {phone}
-          </a>
+          <Clock size={16} aria-hidden="true" className="shrink-0 opacity-70" />
+          <span>{hours}</span>
         </div>
       )}
+      {address && (
+        <div className="flex items-start gap-2">
+          <MapPin size={16} aria-hidden="true" className="mt-0.5 shrink-0 opacity-70" />
+          <span>{address}</span>
+        </div>
+      )}
+    </div>
+  )
+}
+
+/**
+ * Every way to reach the client: all mobile numbers, the landline, WhatsApp and
+ * all e-mail addresses.
+ *
+ * Both lists are de-duplicated — the live contact record repeats the same
+ * address three times, and printing it three times would read as a mistake
+ * rather than as three ways to get in touch.
+ */
+export function FooterContactBlock({ contact }: { contact: ContactConfig }) {
+  const numbers = unique([...(contact.phones ?? []), contact.landline])
+  const whatsapp = contact.whatsapp?.trim()
+  const emails = unique([...(contact.emails ?? []), contact.enquiryEmail])
+
+  return (
+    <div className="mb-4 space-y-2 text-sm" data-testid="footer-contact-block">
+      {numbers.map((number) => (
+        <div key={number} className="flex items-center gap-2">
+          <Phone size={16} aria-hidden="true" className="shrink-0 opacity-70" />
+          <a
+            href={`tel:${number.replace(/\s+/g, '')}`}
+            className={`transition-colors hover:[color:var(--sf-nav-text-hover)] ${SF_FOCUS_RING.nav} rounded-sm`}
+          >
+            {number}
+          </a>
+        </div>
+      ))}
       {whatsapp && (
         <div className="flex items-center gap-2">
           <MessageCircle size={16} aria-hidden="true" className="shrink-0 opacity-70" />
@@ -84,29 +133,17 @@ export function FooterContactBlock({ contact }: { contact: ContactConfig }) {
           </a>
         </div>
       )}
-      {email && (
-        <div className="flex items-center gap-2">
+      {emails.map((email) => (
+        <div key={email} className="flex items-center gap-2">
           <Mail size={16} aria-hidden="true" className="shrink-0 opacity-70" />
           <a
             href={`mailto:${email}`}
-            className={`transition-colors hover:[color:var(--sf-nav-text-hover)] ${SF_FOCUS_RING.nav} rounded-sm`}
+            className={`break-all transition-colors hover:[color:var(--sf-nav-text-hover)] ${SF_FOCUS_RING.nav} rounded-sm`}
           >
             {email}
           </a>
         </div>
-      )}
-      {address && (
-        <div className="flex items-center gap-2">
-          <MapPin size={16} aria-hidden="true" className="shrink-0 opacity-70" />
-          <span>{address}</span>
-        </div>
-      )}
-      {hours && (
-        <div className="flex items-center gap-2">
-          <Clock size={16} aria-hidden="true" className="shrink-0 opacity-70" />
-          <span>{hours}</span>
-        </div>
-      )}
+      ))}
     </div>
   )
 }
@@ -121,12 +158,13 @@ const FOOTER_COLS_CLASS: Record<number, string> = {
   4: 'lg:grid-cols-4',
 }
 
-function NavigationColumns({ columns, trailing }: { columns: FooterColumn[]; trailing?: React.ReactNode }) {
-  const count = columns.length + (trailing ? 1 : 0)
+function NavigationColumns({ columns, leading }: { columns: FooterColumn[]; leading?: React.ReactNode }) {
+  const count = columns.length + (leading ? 1 : 0)
   const colsClass = FOOTER_COLS_CLASS[Math.min(count, 4)] ?? FOOTER_COLS_CLASS[4]
 
   return (
     <div className={`grid grid-cols-2 gap-8 ${colsClass}`}>
+      {leading}
       {columns.map((column) => (
         <div key={column.heading}>
           <h3 className="font-semibold mb-3">{column.heading}</h3>
@@ -155,7 +193,6 @@ function NavigationColumns({ columns, trailing }: { columns: FooterColumn[]; tra
           </ul>
         </div>
       ))}
-      {trailing}
     </div>
   )
 }
@@ -199,8 +236,7 @@ export function StorefrontFooter() {
               </div>
             )}
 
-            {/* Social sits directly under the blurb — it belongs with the brand
-                identity, not appended after a list of contact details. */}
+            {/* Social sits under the brand identity, not appended to a contact list. */}
             {footer.socialLinks && footer.socialLinks.length > 0 && (
               <div className="flex items-center gap-3">
                 {footer.socialLinks.map((link) => (
@@ -208,15 +244,21 @@ export function StorefrontFooter() {
                 ))}
               </div>
             )}
+
+            {/* When we're open and where we are — company facts, below the social
+                row (owner directive 2026-08-03). They describe the business
+                rather than offering a way to reach it, so they stay out of the
+                "Get in touch" column. */}
+            {config.contact && <FooterLocationBlock contact={config.contact} />}
           </div>
 
           {/* Navigation columns + contact as a peer column */}
-          {(footer.columns?.length || hasFooterContact(config.contact)) && (
+          {(footer.columns?.length || hasFooterChannels(config.contact)) && (
             <div className="lg:col-span-8">
               <NavigationColumns
                 columns={footer.columns ?? []}
-                trailing={
-                  hasFooterContact(config.contact) ? (
+                leading={
+                  hasFooterChannels(config.contact) ? (
                     <div>
                       <h3 className="font-semibold mb-3">{CONTACT_HEADING}</h3>
                       <FooterContactBlock contact={config.contact!} />

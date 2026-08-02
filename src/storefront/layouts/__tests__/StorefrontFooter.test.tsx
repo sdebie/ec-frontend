@@ -245,7 +245,9 @@ describe('FooterContactBlock', () => {
       renderWithContact(fullContact)
 
       const phoneLink = screen.getByRole('link', { name: '+27 11 123 4567' })
-      expect(phoneLink).toHaveAttribute('href', 'tel:+27 11 123 4567')
+      // The label keeps the human formatting; the href strips spaces so the
+      // dialled number is unambiguous.
+      expect(phoneLink).toHaveAttribute('href', 'tel:+27111234567')
     })
 
     it('renders whatsapp as wa.me link with digits only', () => {
@@ -288,6 +290,57 @@ describe('FooterContactBlock', () => {
       renderWithContact(fullContact)
 
       expect(screen.getByTestId('footer-contact-block')).toBeInTheDocument()
+    })
+  })
+
+  describe('every channel is listed (owner directive 2026-08-03)', () => {
+    it('lists all numbers including the landline, and all e-mail addresses', () => {
+      renderWithContact({
+        phones: ['+27 11 111 1111', '+27 22 222 2222'],
+        landline: '012 944 9184',
+        emails: ['sales@test.com', 'info@test.com'],
+      })
+
+      for (const label of ['+27 11 111 1111', '+27 22 222 2222', '012 944 9184']) {
+        expect(screen.getByRole('link', { name: label })).toBeInTheDocument()
+      }
+      expect(screen.getByRole('link', { name: 'sales@test.com' })).toBeInTheDocument()
+      expect(screen.getByRole('link', { name: 'info@test.com' })).toBeInTheDocument()
+    })
+
+    it('de-duplicates repeated values', () => {
+      // The live contact record repeats one address three times; printing it
+      // three times reads as a mistake, not as three ways to get in touch.
+      renderWithContact({
+        emails: ['same@test.com', 'same@test.com', 'same@test.com'],
+        phones: ['+27 11 111 1111'],
+        landline: '+27 11 111 1111',
+      })
+
+      expect(screen.getAllByRole('link', { name: 'same@test.com' })).toHaveLength(1)
+      expect(screen.getAllByRole('link', { name: '+27 11 111 1111' })).toHaveLength(1)
+    })
+  })
+
+  describe('location vs channels split (owner directive 2026-08-02)', () => {
+    it('puts address and hours in their own block, not among the channels', () => {
+      renderWithContact(fullContact)
+
+      const location = screen.getByTestId('footer-location-block')
+      const channels = screen.getByTestId('footer-contact-block')
+
+      expect(location).toHaveTextContent('123 Main Road')
+      expect(channels).not.toHaveTextContent('123 Main Road')
+    })
+
+    it('renders no "Get in touch" column when only a location is known', () => {
+      // Address/hours alone are not a way to reach anyone — a contact column
+      // with an empty body would be worse than no column.
+      renderWithContact({ physicalAddress: '123 Main Road', businessHours: 'Mon-Fri' })
+
+      expect(screen.getByTestId('footer-location-block')).toBeInTheDocument()
+      expect(screen.queryByTestId('footer-contact-block')).not.toBeInTheDocument()
+      expect(screen.queryByText('Get in touch')).not.toBeInTheDocument()
     })
   })
 
