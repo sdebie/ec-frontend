@@ -8,7 +8,7 @@ import type {StorefrontConfig} from '@/shared/types/StorefrontConfig'
 // --- Mocks ---
 
 const mockClearSession = vi.fn()
-vi.mock('../checkoutSessionStore', () => ({
+vi.mock('../store/checkoutSessionStore', () => ({
     useCheckoutSessionStore: (selector: (state: { clearSession: () => void }) => unknown) =>
         selector({clearSession: mockClearSession}),
 }))
@@ -101,7 +101,7 @@ describe('CheckoutSuccessPage', () => {
             mockSearchParams = new URLSearchParams()
             renderCheckoutSuccessPage(CheckoutSuccessPage)
 
-            expect(screen.getByText(/invalid confirmation link/i)).toBeInTheDocument()
+            expect(screen.getByText(/this link isn't valid/i)).toBeInTheDocument()
             expect(screen.getByRole('link', {name: /return to home/i})).toHaveAttribute(
                 'href',
                 '/'
@@ -121,7 +121,8 @@ describe('CheckoutSuccessPage', () => {
             renderCheckoutSuccessPage(CheckoutSuccessPage)
 
             expect(screen.getByText('Payment confirmed')).toBeInTheDocument()
-            expect(screen.getByText('order-456')).toBeInTheDocument()
+            // Order id and total are stated in the confirmation sentence
+            expect(screen.getByText(/order-456/)).toBeInTheDocument()
             expect(screen.getByText(/ZAR 319\.00/)).toBeInTheDocument()
             expect(mockClearSession).toHaveBeenCalled()
         })
@@ -138,7 +139,7 @@ describe('CheckoutSuccessPage', () => {
 
             renderCheckoutSuccessPage(CheckoutSuccessPage)
 
-            expect(screen.getByText(/your order is confirmed\. please pay at collection\./i)).toBeInTheDocument()
+            expect(screen.getByText(/your order is confirmed\. please pay when you collect it\./i)).toBeInTheDocument()
             expect(mockClearSession).toHaveBeenCalled()
         })
     })
@@ -155,7 +156,7 @@ describe('CheckoutSuccessPage', () => {
             renderCheckoutSuccessPage(CheckoutSuccessPage)
 
             expect(
-                screen.getByText(/payment is taking longer than expected/i)
+                screen.getByText(/taking longer than usual/i)
             ).toBeInTheDocument()
         })
     })

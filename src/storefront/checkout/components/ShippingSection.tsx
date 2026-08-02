@@ -1,199 +1,141 @@
-import { useEffect } from 'react'
-import { Controller } from 'react-hook-form'
-import type { Control, FieldErrors, UseFormSetValue, UseFormWatch } from 'react-hook-form'
-import { useShippingMethods } from '../hooks/useShippingMethods'
-import { useStorefrontConfig } from '@/shared/config/storefrontConfig.context'
-import { formatAmount } from '@/shared/utils/formatAmount'
-import type { CheckoutFormValues } from '../checkoutFormSchema'
-import { isDeliveryMethod } from '../utils/isDeliveryMethod'
-import { InputField } from '@/shared/ui/components/form/InputField'
+import type {Control, FieldErrors} from 'react-hook-form'
+import {Controller, useWatch} from 'react-hook-form'
+import {useShippingMethods} from '../hooks/useShippingMethods'
+import {useStorefrontConfig} from '@/shared/config/storefrontConfig.context'
+import {formatAmount} from '@/shared/utils/formatAmount'
+import type {CheckoutFormValues} from '../checkoutFormSchema'
+import {isDeliveryMethod} from '../utils/isDeliveryMethod'
+import {InputField} from '@/shared/ui/components/form/InputField'
+import {CheckoutSection} from './CheckoutSection'
 
+/**
+ * Capabilities only (law 14): `control` to bind fields and `errors` to report
+ * them. It used to take `watch` and `setValue` as well — powers no reviewer
+ * could see it needed. The selected method is read with `useWatch`, and clearing
+ * the address on a switch to collection belongs to the page, which owns the form.
+ */
 interface ShippingSectionProps {
-  control: Control<CheckoutFormValues>
-  watch: UseFormWatch<CheckoutFormValues>
-  errors: FieldErrors<CheckoutFormValues>
-  setValue: UseFormSetValue<CheckoutFormValues>
+    control: Control<CheckoutFormValues>
+    errors: FieldErrors<CheckoutFormValues>
 }
 
-export function ShippingSection({ control, watch, errors, setValue }: ShippingSectionProps) {
-  const { currency, locale } = useStorefrontConfig()
-  const { data: shippingMethods, isLoading, isError, refetch } = useShippingMethods()
+const ADDRESS_FIELDS = [
+    {name: 'streetAddress', label: 'Street address'},
+    {name: 'city', label: 'City'},
+    {name: 'province', label: 'Province'},
+    {name: 'postalCode', label: 'Postal code'},
+] as const
 
-  const selectedMethodId = watch('shippingMethodId')
+export function ShippingSection({control, errors}: ShippingSectionProps) {
+    const {currency, locale} = useStorefrontConfig()
+    const {data: shippingMethods, isLoading, isError, refetch} = useShippingMethods()
 
-  const selectedMethod = shippingMethods?.find((m) => m.id === selectedMethodId)
-  const showAddressForm = selectedMethod ? isDeliveryMethod(selectedMethod) : false
+    const selectedMethodId = useWatch({control, name: 'shippingMethodId'})
+    const selectedMethod = shippingMethods?.find((m) => m.id === selectedMethodId)
+    const showAddressForm = selectedMethod ? isDeliveryMethod(selectedMethod) : false
 
-  // Clear address fields when switching to a collection method
-  useEffect(() => {
-    if (selectedMethod && !isDeliveryMethod(selectedMethod)) {
-      setValue('streetAddress', '', { shouldValidate: false })
-      setValue('city', '', { shouldValidate: false })
-      setValue('province', '', { shouldValidate: false })
-      setValue('postalCode', '', { shouldValidate: false })
+    if (isLoading) {
+        return (
+            <CheckoutSection id="shipping" title="Delivery method">
+                <div className="animate-pulse space-y-3">
+                    <div className="h-12 rounded bg-(--sf-surface-muted)"/>
+                    <div className="h-12 rounded bg-(--sf-surface-muted)"/>
+                </div>
+            </CheckoutSection>
+        )
     }
-  }, [selectedMethodId, selectedMethod, setValue])
 
-  if (isLoading) {
+    if (isError) {
+        return (
+            <CheckoutSection id="shipping" title="Delivery method">
+                <div className="text-sm text-red-600">
+                    Unable to load delivery options.{' '}
+                    <button
+                        type="button"
+                        onClick={() => refetch()}
+                        className="cursor-pointer font-medium underline hover:opacity-80"
+                    >
+                        Retry
+                    </button>
+                </div>
+            </CheckoutSection>
+        )
+    }
+
     return (
-      <section aria-labelledby="shipping-heading">
-        <h2 id="shipping-heading" className="text-lg font-semibold mb-4">
-          Shipping method
-        </h2>
-        <div className="animate-pulse space-y-3">
-          <div className="h-12 bg-(--sf-surface-muted) rounded" />
-          <div className="h-12 bg-(--sf-surface-muted) rounded" />
-        </div>
-      </section>
-    )
-  }
+        <CheckoutSection id="shipping" title="Delivery method">
 
-  if (isError) {
-    return (
-      <section aria-labelledby="shipping-heading">
-        <h2 id="shipping-heading" className="text-lg font-semibold mb-4">
-          Shipping method
-        </h2>
-        <div className="text-(--c-error) text-sm">
-          Unable to load shipping options.{' '}
-          <button
-            type="button"
-            onClick={() => refetch()}
-            className="underline font-medium hover:opacity-80"
-          >
-            Retry
-          </button>
-        </div>
-      </section>
-    )
-  }
+            <Controller
+                name="shippingMethodId"
+                control={control}
+                render={({field}) => (
+                    <fieldset>
+                        <legend className="sr-only">Select a delivery method</legend>
+                        <div className="space-y-2">
+                            {shippingMethods?.map((method) => (
+                                <label
+                                    key={method.id}
+                                    className={`flex cursor-pointer items-center justify-between rounded-lg border p-3 transition-colors ${
+                                        field.value === method.id ? 'border-(--sf-accent) bg-(--sf-surface-muted)' : 'border-(--sf-border) hover:border-(--sf-accent)'
+                                    }`}
+                                >
+                                    <div className="flex items-center gap-3">
+                                        <input
+                                            type="radio"
+                                            {...field}
+                                            value={method.id}
+                                            checked={field.value === method.id}
+                                            onChange={() => field.onChange(method.id)}
+                                            className="h-4 w-4 accent-(--sf-accent)"
+                                        />
+                                        <div>
+                                            <span className="text-sm font-medium text-(--sf-text)">
+                                                {method.name}
+                                            </span>
+                                            {method.estimatedDays && (
+                                                <span className="ml-2 text-xs text-(--sf-muted-text)">
+                                                    {method.estimatedDays}
+                                                </span>
+                                            )}
+                                        </div>
+                                    </div>
+                                    <span className="text-sm font-medium text-(--sf-text)">
+                                        {formatAmount(method.baseFee, currency, locale)}
+                                    </span>
+                                </label>
+                            ))}
+                        </div>
+                        {errors.shippingMethodId && (
+                            <p className="mt-1 text-sm text-red-600">
+                                {errors.shippingMethodId.message}
+                            </p>
+                        )}
+                    </fieldset>
+                )}
+            />
 
-  return (
-    <section aria-labelledby="shipping-heading">
-      <h2 id="shipping-heading" className="text-lg font-semibold mb-4">
-        Shipping method
-      </h2>
+            {showAddressForm && (
+                <div className="mt-4 space-y-3">
+                    <h3 className="text-sm font-medium text-(--sf-text)">Delivery address</h3>
 
-      <Controller
-        name="shippingMethodId"
-        control={control}
-        render={({ field }) => (
-          <fieldset>
-            <legend className="sr-only">Select a shipping method</legend>
-            <div className="space-y-2">
-              {shippingMethods?.map((method) => (
-                <label
-                  key={method.id}
-                  className={`flex items-center justify-between p-3 border rounded-md cursor-pointer transition-colors ${
-                    field.value === method.id
-                      ? 'border-(--sf-accent) bg-(--sf-surface-muted)'
-                      : 'border-(--sf-border) hover:border-(--sf-accent)'
-                  }`}
-                >
-                  <div className="flex items-center gap-3">
-                    <input
-                      type="radio"
-                      {...field}
-                      value={method.id}
-                      checked={field.value === method.id}
-                      onChange={() => field.onChange(method.id)}
-                      className="h-4 w-4 accent-(--sf-accent) border-(--sf-border) focus:ring-(--sf-ring)"
-                    />
-                    <div>
-                      <span className="text-sm font-medium text-(--sf-text)">
-                        {method.name}
-                      </span>
-                      {method.estimatedDays && (
-                        <span className="ml-2 text-xs text-(--sf-muted-text)">
-                          ({method.estimatedDays} days)
-                        </span>
-                      )}
-                    </div>
-                  </div>
-                  <span className="text-sm font-medium text-(--sf-text)">
-                    {formatAmount(method.baseFee, currency, locale)}
-                  </span>
-                </label>
-              ))}
-            </div>
-            {errors.shippingMethodId && (
-              <p className="mt-1 text-sm text-(--c-error)">{errors.shippingMethodId.message}</p>
+                    {ADDRESS_FIELDS.map(({name, label}) => (
+                        <Controller
+                            key={name}
+                            name={name}
+                            control={control}
+                            render={({field}) => (
+                                <InputField
+                                    {...field}
+                                    id={name}
+                                    type="text"
+                                    label={label}
+                                    error={errors[name]?.message}
+                                />
+                            )}
+                        />
+                    ))}
+                </div>
             )}
-          </fieldset>
-        )}
-      />
-
-      {showAddressForm && (
-        <div className="mt-4 space-y-3">
-          <h3 className="text-sm font-medium text-(--sf-text)">Delivery address</h3>
-
-          {/* Named by aria-label + placeholder rather than a visible <Label>,
-              preserving the existing compact address block. */}
-          <div>
-            <Controller
-              name="streetAddress"
-              control={control}
-              render={({ field }) => (
-                <InputField
-                  {...field}
-                  type="text"
-                  placeholder="Street address"
-                  aria-label="Street address"
-                  error={errors.streetAddress?.message}
-                />
-              )}
-            />
-          </div>
-
-          <div>
-            <Controller
-              name="city"
-              control={control}
-              render={({ field }) => (
-                <InputField
-                  {...field}
-                  type="text"
-                  placeholder="City"
-                  aria-label="City"
-                  error={errors.city?.message}
-                />
-              )}
-            />
-          </div>
-
-          <div>
-            <Controller
-              name="province"
-              control={control}
-              render={({ field }) => (
-                <InputField
-                  {...field}
-                  type="text"
-                  placeholder="Province"
-                  aria-label="Province"
-                  error={errors.province?.message}
-                />
-              )}
-            />
-          </div>
-
-          <div>
-            <Controller
-              name="postalCode"
-              control={control}
-              render={({ field }) => (
-                <InputField
-                  {...field}
-                  type="text"
-                  placeholder="Postal code"
-                  aria-label="Postal code"
-                  error={errors.postalCode?.message}
-                />
-              )}
-            />
-          </div>
-        </div>
-      )}
-    </section>
-  )
+        </CheckoutSection>
+    )
 }

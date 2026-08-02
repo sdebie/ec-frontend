@@ -3,7 +3,7 @@ import {QueryClient, QueryClientProvider} from '@tanstack/react-query'
 import {createElement} from 'react'
 import {beforeEach, describe, expect, it, vi} from 'vitest'
 import {useCartStore} from '../store/cartStore'
-import {useCheckoutSessionStore} from '@/storefront/checkout/checkoutSessionStore'
+import {useCheckoutSessionStore} from '@/storefront/checkout/store/checkoutSessionStore'
 import {useCheckout} from '../hooks/useCheckout'
 import {storefrontHttpClient} from '@/shared/api/http/storefrontHttpClient'
 

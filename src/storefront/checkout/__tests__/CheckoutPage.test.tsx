@@ -5,7 +5,7 @@ import {MemoryRouter} from 'react-router-dom'
 import {QueryClient, QueryClientProvider} from '@tanstack/react-query'
 import {StorefrontConfigContext} from '@/shared/config/storefrontConfig.context'
 import type {StorefrontConfig} from '@/shared/types/StorefrontConfig'
-import {useCheckoutSessionStore} from '../checkoutSessionStore'
+import {useCheckoutSessionStore} from '../store/checkoutSessionStore'
 import type {CheckoutSession} from '../types'
 
 // --- Mocks ---
@@ -184,7 +184,7 @@ describe('CheckoutPage', () => {
 
             await waitFor(() => {
                 expect(
-                    screen.getByText(/could not save contact details/i)
+                    screen.getByText(/could not save your details/i)
                 ).toBeInTheDocument()
             })
 

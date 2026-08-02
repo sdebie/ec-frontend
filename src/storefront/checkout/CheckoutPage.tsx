@@ -1,200 +1,155 @@
-import { useState, useEffect } from 'react'
-import { Section, SectionHeading } from '@/storefront/sections/shared'
-import { useSearchParams, useNavigate, Link } from 'react-router-dom'
-import { useForm, FormProvider } from 'react-hook-form'
-import { zodResolver } from '@hookform/resolvers/zod'
+import {useEffect} from 'react'
+import {useSearchParams} from 'react-router-dom'
+import {FormProvider, useForm} from 'react-hook-form'
+import {zodResolver} from '@hookform/resolvers/zod'
+import {CheckoutShell} from './components/CheckoutShell'
+import {CheckoutNotice} from './components/CheckoutNotice'
+import {OrderSummary} from './components/OrderSummary'
+import {ContactSection} from './components/ContactSection'
+import {ShippingSection} from './components/ShippingSection'
+import {PaymentSection} from './components/PaymentSection'
+import {useCheckoutSubmit} from './hooks/useCheckoutSubmit'
+import {useShippingMethods} from './hooks/useShippingMethods'
+import {usePaymentMethods} from './hooks/usePaymentMethods'
+import {useCheckoutSessionStore} from './store/checkoutSessionStore'
+import {useCustomerAuthStore} from '@/shared/auth/customerAuthStore'
+import {checkoutFormSchema, type CheckoutFormValues} from './checkoutFormSchema'
+import {isDeliveryMethod} from './utils/isDeliveryMethod'
 
-import { OrderSummary } from './components/OrderSummary'
-import { ContactSection } from './components/ContactSection'
-import { ShippingSection } from './components/ShippingSection'
-import { PaymentSection } from './components/PaymentSection'
-
-import { useSubmitContact } from './hooks/useSubmitContact'
-import { useInitiatePayment } from './hooks/useInitiatePayment'
-import { useShippingMethods } from './hooks/useShippingMethods'
-import { usePaymentMethods } from './hooks/usePaymentMethods'
-
-import { submitPayFastForm } from './utils/submitPayFastForm'
-import { useCheckoutSessionStore } from './checkoutSessionStore'
-import { useCustomerAuthStore } from '@/shared/auth/customerAuthStore'
-import { checkoutFormSchema, type CheckoutFormValues } from './checkoutFormSchema'
-import { isDeliveryMethod } from './utils/isDeliveryMethod'
-
+/**
+ * Orchestrates checkout: owns the form and the only writes to it, and delegates
+ * every screenful to a component — `ContactSection`, `ShippingSection`,
+ * `PaymentSection`, `OrderSummary`, and `CheckoutNotice` for the states that are
+ * not the form. Placing the order lives in `useCheckoutSubmit`.
+ *
+ * The sections receive capabilities, never the form object (law 14), so the page
+ * is the single place form state is mutated.
+ */
 export function CheckoutPage() {
-  const [searchParams] = useSearchParams()
-  const navigate = useNavigate()
-  const orderId = searchParams.get('orderId') ?? ''
+    const [searchParams] = useSearchParams()
+    const orderId = searchParams.get('orderId') ?? ''
 
-  const session = useCheckoutSessionStore((state) => state.session)
-  const { isSignedIn, email, firstName, lastName } = useCustomerAuthStore()
+    const session = useCheckoutSessionStore((state) => state.session)
+    const {isSignedIn, email, firstName, lastName} = useCustomerAuthStore()
 
-  const { data: shippingMethods } = useShippingMethods()
-  const { data: paymentMethods } = usePaymentMethods()
+    const {data: shippingMethods} = useShippingMethods()
+    const {data: paymentMethods} = usePaymentMethods()
 
-  const submitContact = useSubmitContact(orderId)
-  const initiatePayment = useInitiatePayment()
+    const {placeOrder, isSubmitting, error: submitError} = useCheckoutSubmit(orderId)
 
-  const [submitError, setSubmitError] = useState<string | null>(null)
-  const [isSubmitting, setIsSubmitting] = useState(false)
+    const methods = useForm<CheckoutFormValues>({
+        resolver: zodResolver(checkoutFormSchema),
+        defaultValues: {
+            email: '',
+            firstName: '',
+            lastName: '',
+            shippingMethodId: '',
+            requiresAddress: false,
+            streetAddress: '',
+            city: '',
+            province: '',
+            postalCode: '',
+            paymentMethod: '',
+        },
+    })
 
-  const methods = useForm<CheckoutFormValues>({
-    resolver: zodResolver(checkoutFormSchema),
-    defaultValues: {
-      email: '',
-      firstName: '',
-      lastName: '',
-      shippingMethodId: '',
-      streetAddress: '',
-      city: '',
-      province: '',
-      postalCode: '',
-      paymentMethod: '',
-    },
-  })
+    const {control, handleSubmit, setValue, watch, formState: {errors}} = methods
 
-  const { control, handleSubmit, setError, setValue, watch, formState: { errors } } = methods
+    const selectedMethodId = watch('shippingMethodId')
+    const selectedMethod = shippingMethods?.find((m) => m.id === selectedMethodId) ?? null
+    const requiresAddress = selectedMethod ? isDeliveryMethod(selectedMethod) : false
 
-  // Pre-fill form when authenticated
-  useEffect(() => {
-    if (isSignedIn) {
-      if (email) setValue('email', email)
-      if (firstName) setValue('firstName', firstName)
-      if (lastName) setValue('lastName', lastName)
+    // Pre-fill from the signed-in profile
+    useEffect(() => {
+        if (!isSignedIn) return
+        if (email) setValue('email', email)
+        if (firstName) setValue('firstName', firstName)
+        if (lastName) setValue('lastName', lastName)
+    }, [isSignedIn, email, firstName, lastName, setValue])
+
+    // Mirror the delivery decision into the form so the schema can enforce the
+    // address rule, and clear the address when the shopper switches to a method
+    // that collects — a collection order must not carry a stale address. Both
+    // are form writes, so they live here rather than inside the section.
+    useEffect(() => {
+        setValue('requiresAddress', requiresAddress, {shouldValidate: false})
+        if (requiresAddress) return
+        setValue('streetAddress', '', {shouldValidate: false})
+        setValue('city', '', {shouldValidate: false})
+        setValue('province', '', {shouldValidate: false})
+        setValue('postalCode', '', {shouldValidate: false})
+    }, [requiresAddress, setValue])
+
+    // A lone payment method is the decision — select it rather than asking.
+    useEffect(() => {
+        if (paymentMethods?.length === 1) {
+            setValue('paymentMethod', paymentMethods[0], {shouldValidate: false})
+        }
+    }, [paymentMethods, setValue])
+
+    if (!session) {
+        return (
+            <CheckoutShell>
+                <CheckoutNotice
+                    heading="Your checkout session has expired"
+                    body="Your cart is still saved on this device. Return to it to pick up where you left off."
+                    action={{label: 'Return to cart', to: '/cart'}}
+                />
+            </CheckoutShell>
+        )
     }
-  }, [isSignedIn, email, firstName, lastName, setValue])
 
-  // Expired session fallback
-  if (!session) {
     return (
-      <div className="mx-auto max-w-lg px-4 py-16 text-center">
-        <h1 className="text-xl font-semibold text-(--sf-text)">Session expired</h1>
-        <p className="mt-2 text-(--sf-muted-text)">
-          Your checkout session has expired. Return to cart to start again.
-        </p>
-        <Link
-          to="/cart"
-          className="mt-4 inline-block rounded-md bg-(--sf-accent) px-4 py-2 text-sm font-medium text-(--sf-accent-text) hover:opacity-90"
-        >
-          Return to cart
-        </Link>
-      </div>
+        <CheckoutShell>
+            <FormProvider {...methods}>
+                <form onSubmit={handleSubmit(placeOrder)} noValidate>
+                    {/* 3/5 form, 2/5 summary on lg+. The form's fields do not
+                        benefit from extra width, while the summary carries line
+                        items whose names wrap at a third of the page. */}
+                    <div className="mt-6 grid grid-cols-1 gap-6 lg:grid-cols-5 lg:gap-8">
+                        <div className="space-y-6 lg:col-span-3">
+                            <ContactSection
+                                control={control}
+                                isAuthenticated={isSignedIn}
+                                customerProfile={
+                                    isSignedIn && email
+                                        ? {email, firstName: firstName ?? '', lastName: lastName ?? ''}
+                                        : null
+                                }
+                            />
+
+                            <ShippingSection control={control} errors={errors}/>
+
+                            <PaymentSection control={control} paymentMethods={paymentMethods ?? []}/>
+
+                            {submitError && (
+                                <p className="text-sm text-red-600" role="alert">
+                                    {submitError}
+                                </p>
+                            )}
+
+                            <div className="space-y-2">
+                                <button
+                                    type="submit"
+                                    disabled={isSubmitting || paymentMethods?.length === 0}
+                                    className="min-h-11 w-full cursor-pointer rounded-lg bg-(--sf-accent) px-6 py-3 text-sm font-medium text-(--sf-accent-text) transition-colors hover:opacity-90 disabled:cursor-not-allowed disabled:opacity-50"
+                                >
+                                    {isSubmitting ? 'Processing…' : 'Place order'}
+                                </button>
+                                <p className="text-center text-xs text-(--sf-muted-text)">
+                                    Your order is only confirmed once payment completes.
+                                </p>
+                            </div>
+                        </div>
+
+                        {/* Summary first below lg, as the cart and wishlist do, so the
+                            total stays reachable without scrolling past the form. */}
+                        <div className="order-first lg:order-none lg:col-span-2">
+                            <OrderSummary selectedShippingFee={selectedMethod?.baseFee ?? null}/>
+                        </div>
+                    </div>
+                </form>
+            </FormProvider>
+        </CheckoutShell>
     )
-  }
-
-  const onSubmit = async (data: CheckoutFormValues) => {
-    setSubmitError(null)
-
-    // Address validation for delivery methods
-    const selectedMethod = shippingMethods?.find((m) => m.id === data.shippingMethodId)
-    if (selectedMethod && isDeliveryMethod(selectedMethod)) {
-      let hasAddressError = false
-      if (!data.streetAddress) {
-        setError('streetAddress', { message: 'Street address is required' })
-        hasAddressError = true
-      }
-      if (!data.city) {
-        setError('city', { message: 'City is required' })
-        hasAddressError = true
-      }
-      if (!data.province) {
-        setError('province', { message: 'Province is required' })
-        hasAddressError = true
-      }
-      if (!data.postalCode) {
-        setError('postalCode', { message: 'Postal code is required' })
-        hasAddressError = true
-      }
-      if (hasAddressError) return
-    }
-
-    setIsSubmitting(true)
-
-    try {
-      // PATCH contact details
-      await submitContact.mutateAsync({
-        email: data.email,
-        firstName: data.firstName,
-        lastName: data.lastName,
-        shippingMethodId: data.shippingMethodId,
-        streetAddress: data.streetAddress || undefined,
-        city: data.city || undefined,
-        province: data.province || undefined,
-        postalCode: data.postalCode || undefined,
-      })
-    } catch {
-      setSubmitError('Could not save contact details. Please try again.')
-      setIsSubmitting(false)
-      return
-    }
-
-    if (data.paymentMethod === 'PAYFAST') {
-      try {
-        const response = await initiatePayment.mutateAsync({
-          orderId,
-          email: data.email,
-        })
-        submitPayFastForm(response.gatewayUrl, response.fields)
-      } catch {
-        setSubmitError('Could not initiate payment. Please try again.')
-        setIsSubmitting(false)
-      }
-    } else {
-      // In-store payment — navigate to success
-      navigate(`/checkout/success?sessionId=${session.sessionId}`)
-    }
-  }
-
-  return (
-    <Section as="div">
-      <SectionHeading as="h1" title="Checkout" />
-
-      <FormProvider {...methods}>
-        <form onSubmit={handleSubmit(onSubmit)} noValidate>
-          <div className="grid grid-cols-1 gap-8 lg:grid-cols-3">
-            <div className="lg:col-span-2 space-y-8">
-              <ContactSection
-                control={control}
-                isAuthenticated={isSignedIn}
-                customerProfile={
-                  isSignedIn && email
-                    ? { email, firstName: firstName ?? '', lastName: lastName ?? '' }
-                    : null
-                }
-              />
-
-              <ShippingSection
-                control={control}
-                watch={watch}
-                errors={errors}
-                setValue={setValue}
-              />
-
-              <PaymentSection
-                control={control}
-                paymentMethods={paymentMethods ?? []}
-              />
-
-              {submitError && (
-                <p className="text-sm text-red-600" role="alert">
-                  {submitError}
-                </p>
-              )}
-
-              <button
-                type="submit"
-                disabled={isSubmitting || (paymentMethods?.length === 0)}
-                className="w-full rounded-md bg-(--sf-accent) px-6 py-3 text-sm font-medium text-(--sf-accent-text) hover:opacity-90 disabled:opacity-50 disabled:cursor-not-allowed"
-              >
-                {isSubmitting ? 'Processing…' : 'Place order'}
-              </button>
-            </div>
-
-            <div className="lg:col-span-1">
-              <OrderSummary />
-            </div>
-          </div>
-        </form>
-      </FormProvider>
-    </Section>
-  )
 }

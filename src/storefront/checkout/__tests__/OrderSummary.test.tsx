@@ -1,13 +1,18 @@
-import {beforeEach, describe, expect, it} from 'vitest'
-import {render, screen} from '@testing-library/react'
+import {beforeEach, describe, expect, it, vi} from 'vitest'
+import {render, screen, within} from '@testing-library/react'
 import {StorefrontConfigContext} from '@/shared/config/storefrontConfig.context'
 import type {StorefrontConfig} from '@/shared/types/StorefrontConfig'
-import {useCheckoutSessionStore} from '../checkoutSessionStore'
+import {useCheckoutSessionStore} from '../store/checkoutSessionStore'
 import {OrderSummary} from '../components/OrderSummary'
 import {formatAmount} from '@/shared/utils/formatAmount'
 import type {CheckoutSession} from '../types'
+import {useCartVariants} from '@/storefront/cart/hooks/useCartVariants'
 
-// --- Helpers ---
+vi.mock('@/storefront/cart/hooks/useCartVariants', () => ({
+    useCartVariants: vi.fn(),
+}))
+
+const mockedUseCartVariants = vi.mocked(useCartVariants)
 
 const mockStorefrontConfig: StorefrontConfig = {
     clientId: 'test-client',
@@ -34,19 +39,30 @@ const mockSession: CheckoutSession = {
     grandTotal: 1279.83,
 }
 
-function renderOrderSummary(config = mockStorefrontConfig) {
+function renderOrderSummary(
+    {config = mockStorefrontConfig, selectedShippingFee = 89 as number | null} = {},
+) {
     return render(
         <StorefrontConfigContext.Provider value={config}>
-            <OrderSummary/>
+            <OrderSummary selectedShippingFee={selectedShippingFee}/>
         </StorefrontConfigContext.Provider>
     )
 }
 
-// --- Tests ---
+// jest-dom / testing-library normalize whitespace, so the narrow no-break space
+// Intl emits has to be normalized here too.
+const money = (amount: number, currency = 'ZAR', locale = 'en-ZA') =>
+    formatAmount(amount, currency, locale).replace(/\s/g, ' ')
 
 describe('OrderSummary', () => {
     beforeEach(() => {
         useCheckoutSessionStore.setState({session: null})
+        mockedUseCartVariants.mockReturnValue({
+            variants: new Map(),
+            unavailableIds: [],
+            isLoading: false,
+            isError: false,
+        })
     })
 
     it('renders nothing when session is null', () => {
@@ -58,47 +74,80 @@ describe('OrderSummary', () => {
         useCheckoutSessionStore.setState({session: mockSession})
         renderOrderSummary()
 
-        for (const line of mockSession.lines) {
-            expect(screen.getByText(line.name)).toBeInTheDocument()
+        const lines = screen.getAllByTestId('order-summary-line')
+        expect(lines).toHaveLength(mockSession.lines.length)
 
-            const expectedUnitPrice = formatAmount(line.unitPrice, 'ZAR', 'en-ZA')
-            const expectedLineTotal = formatAmount(line.lineTotal, 'ZAR', 'en-ZA')
-
-            // quantity × unitPrice — text is split across child nodes within a <p>
+        mockSession.lines.forEach((line, i) => {
+            const row = lines[i]
+            expect(within(row).getByText(line.name)).toBeInTheDocument()
             expect(
-                screen.getByText((_, element) => {
-                    if (element?.tagName !== 'P') return false
-                    return element.textContent === `${line.quantity} × ${expectedUnitPrice}`
-                })
+                within(row).getByText(`${line.quantity} × ${money(line.unitPrice)}`)
             ).toBeInTheDocument()
-
-            // lineTotal rendered in its own <p> element
-            expect(
-                screen.getByText((_, element) => {
-                    if (element?.tagName !== 'P') return false
-                    return element.textContent === expectedLineTotal
-                })
-            ).toBeInTheDocument()
-        }
+            expect(within(row).getByText(money(line.lineTotal))).toBeInTheDocument()
+        })
     })
 
-    it('renders subtotal, VAT, shipping, and grand total formatted amounts', () => {
+    it('hydrates each line with its SKU and thumbnail for display only', () => {
+        useCheckoutSessionStore.setState({session: mockSession})
+        mockedUseCartVariants.mockReturnValue({
+            variants: new Map([
+                ['v1', {
+                    id: 'v1',
+                    sku: 'WIDGET-BLUE',
+                    status: 'ACTIVE',
+                    stockQuantity: 5,
+                    // A price the order does NOT use — the line price must win.
+                    displayPrice: 999,
+                    images: [{imageUrl: 'images/01/widget.png', featured: true, sortOrder: 0}],
+                }],
+            ]),
+            unavailableIds: [],
+            isLoading: false,
+            isError: false,
+        })
+
+        renderOrderSummary()
+
+        const firstLine = screen.getAllByTestId('order-summary-line')[0]
+        expect(within(firstLine).getByText('SKU: WIDGET-BLUE')).toBeInTheDocument()
+        expect(firstLine.querySelector('img'))
+            .toHaveAttribute('src', '/static/images/images/01/widget.png')
+        // The catalogue price never displaces the price the order was placed at
+        expect(within(firstLine).getByText(`2 × ${money(150)}`)).toBeInTheDocument()
+        expect(within(firstLine).queryByText(money(999))).not.toBeInTheDocument()
+    })
+
+    it('shows the order subtotal and VAT from the session', () => {
         useCheckoutSessionStore.setState({session: mockSession})
         renderOrderSummary()
 
-        const expectedSubtotal = formatAmount(mockSession.subtotal, 'ZAR', 'en-ZA')
-        const expectedVat = formatAmount(mockSession.vatAmount, 'ZAR', 'en-ZA')
-        const expectedShipping = formatAmount(mockSession.shippingEstimate, 'ZAR', 'en-ZA')
-        const expectedGrandTotal = formatAmount(mockSession.grandTotal, 'ZAR', 'en-ZA')
+        expect(screen.getByTestId('summary-subtotal')).toHaveTextContent(money(1035.5))
+        expect(screen.getByTestId('summary-vat')).toHaveTextContent(money(155.33))
+    })
 
-        // Target <dd> elements to avoid matching parent containers
-        const findInDd = (text: string) => (_: string, element: Element | null) =>
-            element?.tagName === 'DD' && element.textContent === text
+    it('shows the selected delivery fee and a total that adds it to subtotal and VAT', () => {
+        useCheckoutSessionStore.setState({session: mockSession})
+        renderOrderSummary({selectedShippingFee: 115})
 
-        expect(screen.getByText(findInDd(expectedSubtotal))).toBeInTheDocument()
-        expect(screen.getByText(findInDd(expectedVat))).toBeInTheDocument()
-        expect(screen.getByText(findInDd(expectedShipping))).toBeInTheDocument()
-        expect(screen.getByText(findInDd(expectedGrandTotal))).toBeInTheDocument()
+        // Matches OrderService.computeTotals: VAT is charged on the subtotal only
+        expect(screen.getByTestId('summary-delivery')).toHaveTextContent(money(115))
+        expect(screen.getByTestId('summary-total')).toHaveTextContent(money(1035.5 + 155.33 + 115))
+    })
+
+    it('does not invent a total before a delivery method is chosen', () => {
+        useCheckoutSessionStore.setState({session: mockSession})
+        renderOrderSummary({selectedShippingFee: null})
+
+        expect(screen.getByTestId('summary-delivery')).toHaveTextContent('Choose a method')
+        expect(screen.getByTestId('summary-total')).toHaveTextContent('—')
+    })
+
+    it('treats a free delivery method as a real choice, not a missing one', () => {
+        useCheckoutSessionStore.setState({session: mockSession})
+        renderOrderSummary({selectedShippingFee: 0})
+
+        expect(screen.getByTestId('summary-delivery')).toHaveTextContent(money(0))
+        expect(screen.getByTestId('summary-total')).toHaveTextContent(money(1035.5 + 155.33))
     })
 
     it('uses currency and locale from storefront config', () => {
@@ -109,12 +158,11 @@ describe('OrderSummary', () => {
         }
 
         useCheckoutSessionStore.setState({session: mockSession})
-        renderOrderSummary(usdConfig)
+        renderOrderSummary({config: usdConfig, selectedShippingFee: 89})
 
-        const expectedGrandTotal = formatAmount(mockSession.grandTotal, 'USD', 'en-US')
-        expect(
-            screen.getByText((_, element) => element?.tagName === 'DD' && element?.textContent === expectedGrandTotal)
-        ).toBeInTheDocument()
+        expect(screen.getByTestId('summary-total')).toHaveTextContent(
+            money(1035.5 + 155.33 + 89, 'USD', 'en-US')
+        )
     })
 
     it('renders the "Order summary" heading', () => {
@@ -128,10 +176,7 @@ describe('OrderSummary', () => {
         useCheckoutSessionStore.setState({session: mockSession})
         renderOrderSummary()
 
-        const list = screen.getByRole('list')
-        expect(list).toBeInTheDocument()
-
-        const items = screen.getAllByRole('listitem')
-        expect(items).toHaveLength(mockSession.lines.length)
+        expect(screen.getByRole('list')).toBeInTheDocument()
+        expect(screen.getAllByRole('listitem')).toHaveLength(mockSession.lines.length)
     })
 })

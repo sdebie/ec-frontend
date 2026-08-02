@@ -1,111 +1,93 @@
-import { useEffect, useRef } from 'react'
-import { useSearchParams, Link } from 'react-router-dom'
+import {useEffect, useRef} from 'react'
+import {useSearchParams} from 'react-router-dom'
+import {usePollOrderStatus} from './hooks/usePollOrderStatus'
+import {useCheckoutSessionStore} from './store/checkoutSessionStore'
+import {useCartStore} from '@/storefront/cart/store/cartStore'
+import {useStorefrontConfig} from '@/shared/config/storefrontConfig.context'
+import {formatAmount} from '@/shared/utils/formatAmount'
+import {CheckoutShell} from './components/CheckoutShell'
+import {CheckoutNotice} from './components/CheckoutNotice'
 
-import { usePollOrderStatus } from './hooks/usePollOrderStatus'
-import { useCheckoutSessionStore } from './checkoutSessionStore'
-import { useCartStore } from '@/storefront/cart/store/cartStore'
-import { useStorefrontConfig } from '@/shared/config/storefrontConfig.context'
-import { formatAmount } from '@/shared/utils/formatAmount'
-
+/**
+ * The end of the journey. Every state renders in the shared shell through the
+ * same notice panel, so the page keeps one `h1` and does not change shape as the
+ * payment resolves.
+ */
 export function CheckoutSuccessPage() {
-  const [searchParams] = useSearchParams()
-  const sessionId = searchParams.get('sessionId')
+    const [searchParams] = useSearchParams()
+    const sessionId = searchParams.get('sessionId')
 
-  const clearSession = useCheckoutSessionStore((state) => state.clearSession)
-  const clearCart = useCartStore((state) => state.clearCart)
-  const config = useStorefrontConfig()
+    const clearSession = useCheckoutSessionStore((state) => state.clearSession)
+    const clearCart = useCartStore((state) => state.clearCart)
+    const config = useStorefrontConfig()
 
-  const { data, isTerminal, isTimedOut } = usePollOrderStatus(sessionId)
-  const hasClearedSession = useRef(false)
+    const {data, isTerminal, isTimedOut} = usePollOrderStatus(sessionId)
+    const hasClearedSession = useRef(false)
 
-  // Clear cart and session only when payment is confirmed
-  useEffect(() => {
-    if (isTerminal && !hasClearedSession.current) {
-      hasClearedSession.current = true
-      clearCart()
-      clearSession()
+    // Clear cart and session only when payment is confirmed
+    useEffect(() => {
+        if (isTerminal && !hasClearedSession.current) {
+            hasClearedSession.current = true
+            clearCart()
+            clearSession()
+        }
+    }, [isTerminal, clearCart, clearSession])
+
+    if (!sessionId) {
+        return (
+            <CheckoutShell title="Order confirmation">
+                <CheckoutNotice
+                    heading="This link isn't valid"
+                    body="We couldn't find an order for this link. If you've just paid, check your email for the confirmation."
+                    action={{label: 'Return to home', to: '/'}}
+                />
+            </CheckoutShell>
+        )
     }
-  }, [isTerminal, clearCart, clearSession])
 
-  // Missing sessionId fallback
-  if (!sessionId) {
+    if (isTimedOut) {
+        return (
+            <CheckoutShell title="Order confirmation">
+                <CheckoutNotice
+                    heading="Payment is still processing"
+                    body="This is taking longer than usual. Your confirmation will arrive by email — please contact us if it doesn't."
+                    action={{label: 'Return to home', to: '/'}}
+                />
+            </CheckoutShell>
+        )
+    }
+
+    if (data?.status === 'PAID') {
+        return (
+            <CheckoutShell title="Order confirmation">
+                <CheckoutNotice
+                    heading="Payment confirmed"
+                    body={`Thank you — order ${data.id} is paid, for ${formatAmount(data.totalAmount, config.currency, config.locale)}. A confirmation is on its way to your email.`}
+                    action={{label: 'Continue shopping', to: '/products'}}
+                />
+            </CheckoutShell>
+        )
+    }
+
+    if (data?.status === 'IN_STORE_PAYMENT') {
+        return (
+            <CheckoutShell title="Order confirmation">
+                <CheckoutNotice
+                    heading="Order confirmed"
+                    body="Your order is confirmed. Please pay when you collect it."
+                    action={{label: 'Continue shopping', to: '/products'}}
+                />
+            </CheckoutShell>
+        )
+    }
+
     return (
-      <div className="mx-auto max-w-lg px-4 py-16 text-center">
-        <h1 className="text-xl font-semibold text-(--sf-text)">Invalid link</h1>
-        <p className="mt-2 text-(--sf-muted-text)">
-          Invalid confirmation link. Return to home.
-        </p>
-        <Link
-          to="/"
-          className="mt-4 inline-block rounded-md bg-(--sf-accent) px-4 py-2 text-sm font-medium text-(--sf-accent-text) hover:opacity-90"
-        >
-          Return to home
-        </Link>
-      </div>
+        <CheckoutShell title="Order confirmation">
+            <CheckoutNotice
+                busy
+                heading="Confirming your payment…"
+                body="Please wait while we confirm your payment. This usually takes a few seconds."
+            />
+        </CheckoutShell>
     )
-  }
-
-  // Timeout state
-  if (isTimedOut) {
-    return (
-      <div className="mx-auto max-w-lg px-4 py-16 text-center">
-        <h1 className="text-xl font-semibold text-(--sf-text)">Payment pending</h1>
-        <p className="mt-2 text-(--sf-muted-text)">
-          Payment is taking longer than expected. Check your email for confirmation or contact us.
-        </p>
-      </div>
-    )
-  }
-
-  // PAID confirmation
-  if (data?.status === 'PAID') {
-    return (
-      <div className="mx-auto max-w-lg px-4 py-16 text-center">
-        <h1 className="text-xl font-semibold text-(--sf-text)">Payment confirmed</h1>
-        <p className="mt-2 text-(--sf-muted-text)">
-          Thank you! Your order <span className="font-medium">{data.id}</span> has been paid.
-        </p>
-        <p className="mt-1 text-(--sf-muted-text)">
-          Total: {formatAmount(data.totalAmount, config.currency, config.locale)}
-        </p>
-        <Link
-          to="/"
-          className="mt-6 inline-block rounded-md bg-(--sf-accent) px-4 py-2 text-sm font-medium text-(--sf-accent-text) hover:opacity-90"
-        >
-          Continue shopping
-        </Link>
-      </div>
-    )
-  }
-
-  // IN_STORE_PAYMENT confirmation
-  if (data?.status === 'IN_STORE_PAYMENT') {
-    return (
-      <div className="mx-auto max-w-lg px-4 py-16 text-center">
-        <h1 className="text-xl font-semibold text-(--sf-text)">Order confirmed</h1>
-        <p className="mt-2 text-(--sf-muted-text)">
-          Your order is confirmed. Please pay at collection.
-        </p>
-        <Link
-          to="/"
-          className="mt-6 inline-block rounded-md bg-(--sf-accent) px-4 py-2 text-sm font-medium text-(--sf-accent-text) hover:opacity-90"
-        >
-          Continue shopping
-        </Link>
-      </div>
-    )
-  }
-
-  // Polling / loading state
-  return (
-    <div className="mx-auto max-w-lg px-4 py-16 text-center">
-      <h1 className="text-xl font-semibold text-(--sf-text)">Confirming your payment…</h1>
-      <p className="mt-2 text-(--sf-muted-text)">
-        Please wait while we confirm your payment. This usually takes a few seconds.
-      </p>
-      <div className="mt-6 flex justify-center">
-        <div className="h-8 w-8 animate-spin rounded-full border-4 border-(--sf-border) border-t-(--sf-accent)" />
-      </div>
-    </div>
-  )
 }

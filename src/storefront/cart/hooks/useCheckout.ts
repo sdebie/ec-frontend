@@ -4,7 +4,7 @@ import {useNavigate} from 'react-router-dom'
 import {AxiosError} from 'axios'
 import {storefrontHttpClient} from '@/shared/api/http/storefrontHttpClient'
 import {useCartStore} from '../store/cartStore'
-import {useCheckoutSessionStore} from '@/storefront/checkout/checkoutSessionStore'
+import {useCheckoutSessionStore} from '@/storefront/checkout/store/checkoutSessionStore'
 
 interface CheckoutRequest {
     items: Array<{ variantId: string; quantity: number }>
