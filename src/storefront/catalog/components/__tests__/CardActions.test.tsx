@@ -1,4 +1,4 @@
-import { act, fireEvent, render, screen } from '@testing-library/react'
+import { act, cleanup, fireEvent, render, screen } from '@testing-library/react'
 import { MemoryRouter } from 'react-router-dom'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import { CardActions } from '../CardActions'
@@ -31,12 +31,15 @@ describe('CardActions', () => {
   }
 
   describe('branch matrix', () => {
-    it('renders stepper + Add to cart for SIMPLE in-stock product with price', () => {
+    it('renders Add to cart and NO quantity control for SIMPLE in-stock product with price', () => {
       renderCardActions({ variantId: 'v1', inStock: true, hasPrice: true })
 
       expect(screen.getByRole('button', { name: /add to cart/i })).toBeInTheDocument()
-      expect(screen.getByRole('button', { name: /increase quantity/i })).toBeInTheDocument()
-      expect(screen.getByRole('button', { name: /decrease quantity/i })).toBeInTheDocument()
+      // The card has no quantity affordance (owner directive 2026-08-03) —
+      // quantity is edited in the cart, the one place it can be reconciled
+      // against stock and price.
+      expect(screen.queryByRole('button', { name: /increase quantity/i })).not.toBeInTheDocument()
+      expect(screen.queryByRole('button', { name: /decrease quantity/i })).not.toBeInTheDocument()
     })
 
     it('renders disabled Out of stock button for SIMPLE out-of-stock product', () => {
@@ -53,6 +56,33 @@ describe('CardActions', () => {
       const link = screen.getByRole('link', { name: /select options/i })
       expect(link).toHaveAttribute('href', '/products/test-product')
       expect(screen.queryByRole('button', { name: /add to cart/i })).not.toBeInTheDocument()
+    })
+
+    it('gives Select options the same accent fill as Add to cart', () => {
+      renderCardActions({ variantId: null, hasPrice: true })
+      const select = screen.getByRole('link', { name: /select options/i })
+
+      cleanup()
+      renderCardActions({ variantId: 'v1', inStock: true, hasPrice: true })
+      const add = screen.getByRole('button', { name: /add to cart/i })
+
+      // Both are the forward step for their product shape, so they read the
+      // same; an outlined Select beside a filled Add looked disabled.
+      expect(select.className).toContain('bg-(--sf-accent)')
+      expect(select.className).toContain('text-(--sf-accent-text)')
+      expect(add.className).toContain('bg-(--sf-accent)')
+      expect(select.className).not.toContain('border-(--sf-border)')
+    })
+
+    it('keeps the unavailable states visually distinct from the primary action', () => {
+      renderCardActions({ variantId: 'v1', inStock: false, hasPrice: true })
+      expect(screen.getByRole('button', { name: /out of stock/i }).className)
+        .not.toContain('bg-(--sf-accent)')
+
+      cleanup()
+      renderCardActions({ variantId: 'v1', inStock: false, hasPrice: true, outOfStockAction: 'viewProduct' })
+      expect(screen.getByRole('link', { name: /view product/i }).className)
+        .not.toContain('bg-(--sf-accent)')
     })
 
     it('renders View product link when hasPrice is false', () => {
@@ -98,7 +128,7 @@ describe('CardActions', () => {
       expect(onRequestAdd).toHaveBeenCalledWith(1)
     })
 
-    it('passes the chosen stepper quantity to onRequestAdd', () => {
+    it('always delegates a quantity of exactly 1 — the card has no quantity control', () => {
       const onRequestAdd = vi.fn()
       renderCardActions({
         variantId: 'variant-123',
@@ -109,11 +139,12 @@ describe('CardActions', () => {
         onRequestAdd,
       })
 
-      fireEvent.click(screen.getByRole('button', { name: /increase quantity/i }))
-      fireEvent.click(screen.getByRole('button', { name: /increase quantity/i }))
+      fireEvent.click(screen.getByRole('button', { name: /add to cart/i }))
       fireEvent.click(screen.getByRole('button', { name: /add to cart/i }))
 
-      expect(onRequestAdd).toHaveBeenCalledWith(3)
+      expect(onRequestAdd).toHaveBeenCalledTimes(2)
+      expect(onRequestAdd).toHaveBeenNthCalledWith(1, 1)
+      expect(onRequestAdd).toHaveBeenNthCalledWith(2, 1)
       expect(useCartStore.getState().items).toHaveLength(0)
     })
   })
@@ -140,7 +171,7 @@ describe('CardActions', () => {
       })
     })
 
-    it('uses the current stepper quantity in the addItem payload', () => {
+    it('adds one per click — repeated clicks accumulate in the cart, not on the card', () => {
       renderCardActions({
         variantId: 'variant-123',
         productName: 'Classic Tee',
@@ -149,13 +180,12 @@ describe('CardActions', () => {
         hasPrice: true,
       })
 
-      // Increment quantity to 3
-      fireEvent.click(screen.getByRole('button', { name: /increase quantity/i }))
-      fireEvent.click(screen.getByRole('button', { name: /increase quantity/i }))
       fireEvent.click(screen.getByRole('button', { name: /add to cart/i }))
+      fireEvent.click(screen.getByRole('button', { name: /added/i }))
 
       const { items } = useCartStore.getState()
-      expect(items[0].quantity).toBe(3)
+      expect(items).toHaveLength(1)
+      expect(items[0].quantity).toBe(2)
     })
   })
 
@@ -182,49 +212,29 @@ describe('CardActions', () => {
       expect(screen.getByRole('button', { name: /add to cart/i })).toBeInTheDocument()
     })
 
-    it('resets stepper to 1 after adding', () => {
-      renderCardActions({ variantId: 'v1', inStock: true, hasPrice: true })
+  })
 
-      // Increment to 3
-      fireEvent.click(screen.getByRole('button', { name: /increase quantity/i }))
-      fireEvent.click(screen.getByRole('button', { name: /increase quantity/i }))
-      expect(screen.getByText('3')).toBeInTheDocument()
+  describe('no quantity control anywhere in the card', () => {
+    it('renders no stepper in any branch', () => {
+      const branches = [
+        { variantId: 'v1', inStock: true, hasPrice: true },
+        { variantId: 'v1', inStock: false, hasPrice: true },
+        { variantId: null, hasPrice: true },
+        { variantId: 'v1', hasPrice: false },
+        { variantId: 'v1', inStock: null, hasPrice: true },
+      ]
 
-      // Add to cart
-      fireEvent.click(screen.getByRole('button', { name: /add to cart/i }))
-
-      // Stepper resets to 1
-      expect(screen.getByText('1')).toBeInTheDocument()
+      for (const branch of branches) {
+        renderCardActions(branch)
+        expect(screen.queryByRole('button', { name: /increase quantity/i })).not.toBeInTheDocument()
+        expect(screen.queryByRole('button', { name: /decrease quantity/i })).not.toBeInTheDocument()
+        cleanup()
+      }
     })
   })
 
-  describe('stepper min clamp', () => {
-    it('cannot decrement below 1', () => {
-      renderCardActions({ variantId: 'v1', inStock: true, hasPrice: true })
-
-      const decrementButton = screen.getByRole('button', { name: /decrease quantity/i })
-      expect(decrementButton).toBeDisabled()
-
-      // Quantity should stay at 1
-      expect(screen.getByText('1')).toBeInTheDocument()
-    })
-
-    it('decrement is disabled at quantity 1 and enabled at quantity 2', () => {
-      renderCardActions({ variantId: 'v1', inStock: true, hasPrice: true })
-
-      const decrementButton = screen.getByRole('button', { name: /decrease quantity/i })
-      expect(decrementButton).toBeDisabled()
-
-      // Increment to 2
-      fireEvent.click(screen.getByRole('button', { name: /increase quantity/i }))
-      expect(decrementButton).not.toBeDisabled()
-
-      // Decrement back to 1
-      fireEvent.click(decrementButton)
-      expect(decrementButton).toBeDisabled()
-      expect(screen.getByText('1')).toBeInTheDocument()
-    })
-  })
+  // The stepper's own min-clamp tests moved out with the stepper: quantity is
+  // now only editable in the cart, and QuantityStepper/CartPage own those cases.
 
   describe('unknown stock (inStock null — consumer did not select the field)', () => {
     it('renders the purchasable branch, never the Out of stock button', () => {
@@ -281,20 +291,18 @@ describe('CardActions', () => {
       expect(screen.queryByRole('button', { name: /out of stock/i })).not.toBeInTheDocument()
     })
 
-    it('inStock null renders stepper+add when outOfStockAction is "disabled"', () => {
+    it('inStock null renders Add to cart when outOfStockAction is "disabled"', () => {
       renderCardActions({ variantId: 'v1', inStock: null, hasPrice: true, outOfStockAction: 'disabled' })
 
       expect(screen.getByRole('button', { name: 'Add to cart' })).toBeInTheDocument()
-      expect(screen.getByRole('button', { name: /increase quantity/i })).toBeInTheDocument()
       expect(screen.queryByText('Out of stock')).not.toBeInTheDocument()
       expect(screen.queryByRole('link')).not.toBeInTheDocument()
     })
 
-    it('inStock null renders stepper+add when outOfStockAction is "viewProduct"', () => {
+    it('inStock null renders Add to cart when outOfStockAction is "viewProduct"', () => {
       renderCardActions({ variantId: 'v1', inStock: null, hasPrice: true, outOfStockAction: 'viewProduct' })
 
       expect(screen.getByRole('button', { name: 'Add to cart' })).toBeInTheDocument()
-      expect(screen.getByRole('button', { name: /increase quantity/i })).toBeInTheDocument()
       expect(screen.queryByText('Out of stock')).not.toBeInTheDocument()
       expect(screen.queryByRole('link')).not.toBeInTheDocument()
     })
@@ -336,14 +344,15 @@ describe('CardActions', () => {
   })
 
   describe('layout prop', () => {
-    it('defaults to stack: the component paints its own column', () => {
+    it('defaults to stack: the component paints its own box', () => {
       const { container } = renderCardActions({ variantId: 'v1', inStock: true, hasPrice: true })
 
       const root = container.firstElementChild as HTMLElement
-      expect(root.className).toBe('mt-3 flex flex-col gap-2')
+      // A single control now, so no flex column is needed to space two of them.
+      expect(root.className).toBe('mt-3')
     })
 
-    it('bar mode drops the box below sm so the controls join the parent layout', () => {
+    it('bar mode drops the box below sm so the control joins the parent layout', () => {
       const { container } = renderCardActions({
         variantId: 'v1',
         inStock: true,
@@ -352,16 +361,26 @@ describe('CardActions', () => {
       })
 
       const root = container.firstElementChild as HTMLElement
-      // display:contents below sm; the original column returns from sm.
-      expect(root.className).toContain('contents')
-      expect(root.className).toContain('sm:flex')
-      expect(root.className).toContain('sm:flex-col')
-      expect(root.className).toContain('sm:gap-2')
-      expect(root.className).toContain('sm:mt-3')
-      // Both controls are still this component's children — the parent only
-      // borrows them for layout, it never owns the quantity state.
-      expect(root.querySelector('[aria-label="Increase quantity"]')).toBeInTheDocument()
-      expect(root.querySelector('button.w-full')).toBeInTheDocument()
+      // display:contents below sm; the original box returns from sm.
+      expect(root.className).toBe('contents sm:mt-3 sm:block')
+      expect(root.querySelector('button')).toHaveTextContent('Add to cart')
+    })
+
+    it('every branch renders exactly one control, so mixed decks stay aligned', () => {
+      // This is what the removed QuantityStepperPlaceholder used to guarantee:
+      // a purchasable card and a variable one must be the same height.
+      const branches = [
+        { variantId: 'v1', inStock: true, hasPrice: true },
+        { variantId: 'v1', inStock: false, hasPrice: true },
+        { variantId: null, hasPrice: true },
+      ]
+
+      for (const branch of branches) {
+        const { container } = renderCardActions(branch)
+        const root = container.firstElementChild as HTMLElement
+        expect(root.children).toHaveLength(1)
+        cleanup()
+      }
     })
 
     it('bar mode also applies to the single-control branches', () => {

@@ -114,7 +114,8 @@ export interface TestimonialsSectionProps {
   eyebrow?: string
   variant?: 'light' | 'dark'
   layout?: 'grid' | 'stacked' | 'carousel'
-  columns?: 1 | 2 | 3
+  /** Reviews across at desktop width. In `carousel` layout this is the per-view count. */
+  columns?: 1 | 2 | 3 | 4
   /**
    * Carousel display hint (carousel layout only). Default 'gutter' (preserves
    * current treatment). 'header' passes title into Carousel header prop.
@@ -232,8 +233,12 @@ export interface FeaturedProductsSectionProps {
   variant?: 'light' | 'dark'
   /** 'row' (default): free-scrolling strip. 'carousel': snap deck with arrows. */
   layout?: 'row' | 'carousel'
-  /** Whole cards visible per carousel view at desktop width (carousel layout only; default 3). */
-  columns?: 2 | 3 | 4
+  /**
+   * Whole cards visible per carousel view at desktop width (carousel layout
+   * only; default 3). 5 only reaches five-up at `xl` — below that there is not
+   * enough width for five readable product cards, so it steps down to 3.
+   */
+  columns?: 2 | 3 | 4 | 5
   /** Label rendered as an accent pill on each card (e.g. "Best Seller"). */
   badgeLabel?: string
   category?: string

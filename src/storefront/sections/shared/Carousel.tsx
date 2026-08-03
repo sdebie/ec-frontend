@@ -5,7 +5,7 @@ import {ACCENT_BUTTON_HOVER, SF_FOCUS_RING_PAGE} from './focusRing'
 interface CarouselProps {
     ariaLabel: string
     /** Whole cards visible per view at desktop width (default 3). */
-    perView?: 2 | 3 | 4
+    perView?: 2 | 3 | 4 | 5
     /**
      * 'gutter' (default): arrows sit outside the deck at xl+ (needs the section
      * gutter to be free). 'overlay': arrows always overlay the deck edges — use
@@ -46,12 +46,23 @@ interface CarouselProps {
     children: React.ReactNode
 }
 
-// Cell widths are exact fractions of the viewport minus the gaps (gap-6 =
-// 1.5rem), so each breakpoint shows precisely that many whole cards.
-const CELL_BASIS: Record<2 | 3 | 4, string> = {
-    2: 'md:w-[calc((100%-1.5rem)/2)]',
-    3: 'md:w-[calc((100%-1.5rem)/2)] lg:w-[calc((100%-3rem)/3)]',
-    4: 'md:w-[calc((100%-1.5rem)/2)] lg:w-[calc((100%-4.5rem)/4)]',
+// Cell widths are exact fractions of the viewport minus the gaps, so each
+// breakpoint shows precisely that many whole cards. Every value is a complete
+// literal class string — Tailwind scans source text, so an interpolated
+// fraction would emit no CSS.
+//
+// ⚠️ These subtract (cards − 1) × the DESKTOP gap. The gap is `md:gap-4` = 1rem
+// (tightened from gap-6 on 2026-08-03: at five cards a 24px channel read as a
+// hole between them). Change the gap class and every fraction below must change
+// with it, or the deck shows a sliver of the next card instead of whole ones.
+const CELL_BASIS: Record<2 | 3 | 4 | 5, string> = {
+    2: 'md:w-[calc((100%-1rem)/2)]',
+    3: 'md:w-[calc((100%-1rem)/2)] lg:w-[calc((100%-2rem)/3)]',
+    4: 'md:w-[calc((100%-1rem)/2)] lg:w-[calc((100%-3rem)/4)]',
+    // 5 steps through 3-up at lg before going 5-up at xl: five cards in a
+    // 1152px container is ~211px each, which is about as narrow as a product
+    // card reads, and below xl there simply is not room for them.
+    5: 'md:w-[calc((100%-1rem)/2)] lg:w-[calc((100%-2rem)/3)] xl:w-[calc((100%-4rem)/5)]',
 }
 
 // Sub-`md` cell width. 1 (default) shows a single card at 85% so the next one
@@ -191,7 +202,8 @@ export function Carousel({ariaLabel, perView = 3, perViewMobile = 1, tone = 'def
                     // scrollport back out so cards still line up with the section
                     // gutter; scroll-pl-2 keeps `snap-start` landing on the card edge
                     // rather than the padding edge.
-                    className="flex gap-3 md:gap-6 overflow-x-auto p-2 -m-2 scroll-pl-2 snap-x snap-mandatory scroll-smooth [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]"
+                    // md:gap-4 is load-bearing — CELL_BASIS above subtracts it.
+                    className="flex gap-3 md:gap-4 overflow-x-auto p-2 -m-2 scroll-pl-2 snap-x snap-mandatory scroll-smooth [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]"
                 >
                     {React.Children.map(children, (child, index) => (
                         // *:w-full — the cell is a flex container (so cards stretch to

@@ -135,14 +135,24 @@ describe('ProductCard', () => {
             expect(screen.getByText('ex. VAT')).toBeInTheDocument()
         })
 
-        it('renders the wholesale price as small secondary text when prices differ', () => {
+        it('names BOTH tiers, with the shopper\'s own tier carrying the weight', () => {
             renderCard({retailPrice: {price: 199.99}, wholesalePrice: {price: 149.99}})
-            expect(screen.getByText(/Wholesale:/)).toBeInTheDocument()
+
+            // Signed-out shopper is charged retail, so Retail leads.
+            const retail = screen.getByText('Retail')
+            const wholesale = screen.getByText('Wholesale')
+            expect(retail).toBeInTheDocument()
+            expect(wholesale).toBeInTheDocument()
+
+            const retailAmount = retail.parentElement!.querySelector('.font-semibold')
+            expect(retailAmount).not.toBeNull()
+            expect(wholesale.parentElement!.querySelector('.font-semibold')).toBeNull()
         })
 
-        it('omits the wholesale line when no wholesale price exists', () => {
+        it('omits a tier that has no price at all rather than rendering a blank row', () => {
             renderCard({wholesalePrice: null, wholesaleSalePrice: null})
-            expect(screen.queryByText(/Wholesale:/)).not.toBeInTheDocument()
+            expect(screen.getByText('Retail')).toBeInTheDocument()
+            expect(screen.queryByText('Wholesale')).not.toBeInTheDocument()
         })
 
         it('renders discrete navigation links (image and title) to the PDP', () => {
@@ -338,49 +348,67 @@ describe('ProductCard', () => {
         })
     })
 
-    describe('wholesale-line suppression (Req 7, design C10)', () => {
-        it('suppresses the wholesale line when retail and wholesale display prices are equal', () => {
+    describe('both tiers named (owner directive 2026-08-03, replaces Req 7 suppression)', () => {
+        it('still names both tiers when the two prices are EQUAL', () => {
+            // The old rule hid the wholesale line whenever it matched retail.
+            // That silently blanked it for the entire live catalogue — 0 of
+            // 5,590 variants have a differing wholesale price — so the card
+            // never showed the wholesale rate at all. Both are named now.
             renderCard({
                 retailPrice: {price: 179},
                 wholesalePrice: {price: 179},
                 retailSalePrice: null,
                 wholesaleSalePrice: null,
             })
-            expect(screen.queryByText(/Wholesale:/)).not.toBeInTheDocument()
+            expect(screen.getByText('Retail')).toBeInTheDocument()
+            expect(screen.getByText('Wholesale')).toBeInTheDocument()
         })
 
-        it('renders the wholesale line when retail and wholesale display prices differ', () => {
+        it('names both tiers when the prices differ', () => {
             renderCard({
                 retailPrice: {price: 199.99},
                 wholesalePrice: {price: 149.99},
                 retailSalePrice: null,
                 wholesaleSalePrice: null,
             })
-            expect(screen.getByText(/Wholesale:/)).toBeInTheDocument()
+            expect(screen.getByText('Retail')).toBeInTheDocument()
+            expect(screen.getByText('Wholesale')).toBeInTheDocument()
         })
 
-        it('suppresses the wholesale line when wholesale price is missing/null', () => {
+        it('drops only the tier whose price is missing', () => {
             renderCard({
                 retailPrice: {price: 199.99},
                 wholesalePrice: null,
                 retailSalePrice: null,
                 wholesaleSalePrice: null,
             })
-            expect(screen.queryByText(/Wholesale:/)).not.toBeInTheDocument()
+            expect(screen.getByText('Retail')).toBeInTheDocument()
+            expect(screen.queryByText('Wholesale')).not.toBeInTheDocument()
         })
 
-        it('wholesale-customer path unchanged — line never renders for WHOLESALE shoppers', () => {
+        it('flips the emphasis for a WHOLESALE shopper — their tier leads, retail follows', () => {
             mockCustomerType.value = 'WHOLESALE'
 
-            renderCard({
-                retailPrice: {price: 199.99},
-                wholesalePrice: {price: 149.99},
-                retailSalePrice: null,
-                wholesaleSalePrice: null,
-            })
-            expect(screen.queryByText(/Wholesale:/)).not.toBeInTheDocument()
+            try {
+                renderCard({
+                    retailPrice: {price: 199.99},
+                    wholesalePrice: {price: 149.99},
+                    retailSalePrice: null,
+                    wholesaleSalePrice: null,
+                })
 
-            mockCustomerType.value = 'RETAIL'
+                // Both still named, but the weight moves to what they are charged.
+                const wholesale = screen.getByText('Wholesale')
+                const retail = screen.getByText('Retail')
+                expect(wholesale.parentElement!.querySelector('.font-semibold')).not.toBeNull()
+                expect(retail.parentElement!.querySelector('.font-semibold')).toBeNull()
+
+                // …and the emphasised figure is the wholesale one.
+                expect(wholesale.parentElement!.textContent).toContain('149')
+                expect(retail.parentElement!.textContent).toContain('199')
+            } finally {
+                mockCustomerType.value = 'RETAIL'
+            }
         })
     })
 

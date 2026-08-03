@@ -45,6 +45,51 @@ interface PriceTier {
     price: number | null
 }
 
+interface TierLine {
+    label: string
+    price: number | null
+    originalPrice: number | null
+    /** True for the tier this shopper is actually charged. */
+    isOwn: boolean
+}
+
+/**
+ * Both price tiers, each named (owner directive 2026-08-03). Both are public on
+ * every surface, so a shopper can see the wholesale rate without holding a
+ * wholesale account, and a wholesale customer can see what retail pays.
+ *
+ * The shopper's OWN tier leads and carries the weight — it is what checkout will
+ * charge, and the backend picks it from the signed JWT regardless of what the
+ * card shows. Sale pricing strikes through on whichever line it belongs to.
+ *
+ * Selection only: every figure comes from getDisplayPrice, never arithmetic here.
+ */
+function TierPrices({lines, currency, locale}: { lines: TierLine[]; currency: string; locale: string }) {
+    return (
+        <div>
+            {lines.map((line) => (
+                <div
+                    key={line.label}
+                    className={`flex items-baseline gap-1.5 ${line.isOwn ? '' : 'mt-0.5'}`}
+                >
+                    <span className="text-xs text-(--sf-muted-text)">{line.label}</span>
+                    {line.originalPrice != null && (
+                        <span className="text-xs line-through text-(--sf-muted-text)">
+                            {formatAmount(line.originalPrice, currency, locale)}
+                        </span>
+                    )}
+                    <span className={line.isOwn ? 'font-semibold' : 'text-xs text-(--sf-muted-text)'}>
+                        {formatAmount(line.price, currency, locale)}
+                    </span>
+                    {line.isOwn && (
+                        <span className="text-xs text-(--sf-muted-text)">ex. VAT</span>
+                    )}
+                </div>
+            ))}
+        </div>
+    )
+}
+
 interface ProductCardProps {
     product: {
         id: string
@@ -131,19 +176,29 @@ export function ProductCard({product, variantId, variantLabel, badge, layout = '
         retailSalePrice: product.retailSalePrice?.price ?? null,
         wholesaleSalePrice: product.wholesaleSalePrice?.price ?? null,
     }
-    const {price, originalPrice} = getDisplayPrice(priceTiers, customerType)
+    // The shopper's own tier — still the single source for `hasPrice`, which
+    // decides whether the card can transact at all.
+    const {price} = getDisplayPrice(priceTiers, customerType)
 
-    // Secondary wholesale line for non-wholesale shoppers — shown only when the
-    // wholesale display price exists AND differs from the retail display price.
-    // Selection + comparison only: the client never calculates (design C10).
-    const wholesaleDisplay = (() => {
-        if (customerType === 'WHOLESALE') return null
-        const retailDisplay = getDisplayPrice(priceTiers, 'RETAIL').price
-        const wholesalePrice = getDisplayPrice(priceTiers, 'WHOLESALE').price
-        if (retailDisplay == null || wholesalePrice == null) return null
-        if (retailDisplay === wholesalePrice) return null
-        return wholesalePrice
-    })()
+    // Both tiers, own-first. A tier with no price at all is dropped rather than
+    // rendered as a blank row.
+    //
+    // ⚠️ These two figures are IDENTICAL for the entire live catalogue (verified
+    // 2026-08-03: 0 of 5,590 variants have a wholesale price differing from
+    // retail), so both lines currently show the same number. That is a seed-data
+    // gap, not a display bug — the card will show a real spread the moment
+    // differentiated wholesale pricing is imported.
+    const isWholesaleShopper = customerType === 'WHOLESALE'
+    const retailTier = getDisplayPrice(priceTiers, 'RETAIL')
+    const wholesaleTier = getDisplayPrice(priceTiers, 'WHOLESALE')
+    const tierLines: TierLine[] = [
+        isWholesaleShopper
+            ? {label: 'Wholesale', ...wholesaleTier, isOwn: true}
+            : {label: 'Retail', ...retailTier, isOwn: true},
+        isWholesaleShopper
+            ? {label: 'Retail', ...retailTier, isOwn: false}
+            : {label: 'Wholesale', ...wholesaleTier, isOwn: false},
+    ].filter((line) => line.price != null)
 
     if (layout === 'row') {
         return (
@@ -267,24 +322,7 @@ export function ProductCard({product, variantId, variantLabel, badge, layout = '
                 <div
                     className="col-span-2 flex flex-wrap items-end justify-between gap-3 border-t border-(--sf-border)/60 p-3 sm:col-span-1 sm:w-48 sm:shrink-0 sm:flex-col sm:flex-nowrap sm:items-stretch sm:justify-center sm:border-t-0 sm:border-l sm:border-(--sf-border) sm:p-4">
                     <div className="min-w-0">
-                        <div className="flex items-baseline gap-2">
-                            {originalPrice != null && (
-                                <span className="line-through text-(--sf-muted-text)">
-                                    {formatAmount(originalPrice, currency, locale)}
-                                </span>
-                            )}
-                            <span className="font-semibold">
-                                {formatAmount(price, currency, locale)}
-                            </span>
-                            {price != null && (
-                                <span className="text-xs text-(--sf-muted-text)">ex. VAT</span>
-                            )}
-                        </div>
-                        {wholesaleDisplay != null && (
-                            <p className="mt-0.5 text-xs text-(--sf-muted-text)">
-                                Wholesale: {formatAmount(wholesaleDisplay, currency, locale)} ex. VAT
-                            </p>
-                        )}
+                        <TierPrices lines={tierLines} currency={currency} locale={locale}/>
                     </div>
 
                     <CardActions
@@ -408,24 +446,7 @@ export function ProductCard({product, variantId, variantLabel, badge, layout = '
                 )}
 
                 <div className="mt-auto pt-2">
-                    <div className="flex items-baseline gap-2">
-                        {originalPrice != null && (
-                            <span className="line-through text-(--sf-muted-text)">
-                                {formatAmount(originalPrice, currency, locale)}
-                            </span>
-                        )}
-                        <span className="font-semibold">
-                            {formatAmount(price, currency, locale)}
-                        </span>
-                        {price != null && (
-                            <span className="text-xs text-(--sf-muted-text)">ex. VAT</span>
-                        )}
-                    </div>
-                    {wholesaleDisplay != null && (
-                        <p className="mt-0.5 text-xs text-(--sf-muted-text)">
-                            Wholesale: {formatAmount(wholesaleDisplay, currency, locale)} ex. VAT
-                        </p>
-                    )}
+                    <TierPrices lines={tierLines} currency={currency} locale={locale}/>
                     <CardActions
                         variantId={variantId ?? null}
                         productName={product.name}

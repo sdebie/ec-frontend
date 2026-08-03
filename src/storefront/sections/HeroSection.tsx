@@ -59,19 +59,42 @@ const SURFACE_BACKGROUND_STYLE: Partial<Record<HeroContentSurface, CSSProperties
 // where it degrades to a plain full-viewport band rather than breaking. `dvh`
 // tracks mobile browser chrome collapsing on scroll; the px floor is retained
 // so a short landscape window still gets a usable band.
-// Bounded-panel skin. Both entries are `bg-black/*` — the documented theme-law
-// exception for overlays (same family as the hero's own scrim and the Section
-// dark band's #121212 base); a token would be wrong here because the panel's job
-// is to darken whatever is behind it, not to carry a client colour.
+// Panel skin. Both entries are `bg-black/*` — the documented theme-law exception
+// for overlays (same family as the hero's own scrim and the Section dark band's
+// #121212 base); a token would be wrong here because the panel's job is to
+// darken whatever is behind it, not to carry a client colour.
 //
-// Over a photo the panel IS the contrast guarantee, so it is opaque enough that
-// white text clears AA against any frame of the image while the photo still
-// reads through it. With no photo behind, the band already supplies the colour
-// and the panel only needs to bound the copy — hence the much lighter wash.
+// Over a photo the panel IS the contrast guarantee. 40% is the owner's chosen
+// balance (2026-08-03) — deliberately lighter than the 55% it launched at, so
+// more of the photograph pulls through. Measured against this client's imagery
+// it still clears AA for white text; a client whose hero photo has large
+// near-white regions should re-measure before lowering it further.
+// With no photo behind, the band already supplies the colour and the panel only
+// needs to bound the copy — hence the much lighter wash.
 const PANEL_CLASS = {
-    onImage: 'bg-black/55 backdrop-blur-sm',
+    onImage: 'bg-black/40 backdrop-blur-sm',
     onBand: 'bg-black/10 backdrop-blur-sm',
 } as const
+
+/**
+ * Left-flush panel geometry. The panel runs off the viewport's left edge — no
+ * rounding, no shadow, no gap — so it reads as part of the hero rather than a
+ * card floating on top of it, with an accent bar down the leading edge.
+ *
+ * The left padding reproduces the shared Section frame's own left edge at every
+ * width (`px-6`/`sm:px-8` around a `max-w-6xl` centred column = 72rem), so the
+ * copy still starts on the same line as every section below the hero even
+ * though its box starts at x=0. A fixed padding would align at exactly one
+ * viewport width and drift at all the others.
+ *
+ * Each term subtracts the 4px accent border, which sits OUTSIDE the padding box
+ * and would otherwise push the copy 4px past the section gutter — measured, not
+ * assumed: the first cut landed the headline at x=68 against every other
+ * section's x=64.
+ */
+const FLUSH_PANEL_CLASS =
+    'border-l-4 border-(--sf-accent) py-10 sm:py-12 pr-6 sm:pr-10 ' +
+    'pl-[max(1.25rem,calc((100vw-72rem)/2-4px))] sm:pl-[max(1.75rem,calc((100vw-72rem)/2-4px))]'
 
 const HEIGHT_CLASS: Record<'standard' | 'tall' | 'full', string> = {
     standard: 'min-h-[480px]',
@@ -152,48 +175,13 @@ export function HeroSection({section}: { section: HeroSectionConfig }) {
     // cannot guarantee contrast behind any particular line of text.
     const isBoundedPanel = contentPanel ?? (!hasImage && surface !== 'default')
 
-    return (
-        <section
-            aria-label={title}
-            className={cn('relative flex items-center px-6 sm:px-8 py-20 overflow-hidden', HEIGHT_CLASS[height], {
-                'bg-(--sf-panel)': !hasImage && surface === 'default',
-            })}
-            style={hasImage ? undefined : SURFACE_BACKGROUND_STYLE[surface]}
-        >
-            {hasImage && (
-                <>
-                    {/* Explicit <img> + object-cover (not a CSS background) so the image
-                        always fills the band exactly — no warp, no container-size drift. */}
-                    <img
-                        src={resolvedBackground}
-                        alt=""
-                        aria-hidden="true"
-                        className="absolute inset-0 h-full w-full object-cover object-center"
-                    />
-                    <div
-                        className="absolute inset-0 bg-black"
-                        style={{opacity: overlayOpacity}}
-                        aria-hidden="true"
-                    />
-                </>
-            )}
-            {/* Content rides the house grid so a left-aligned hero starts at the same
-                gutter as every other section (a centered narrow column made "left"
-                alignment float mid-page). The width is read from the shared frame
-                rather than restated, so the hero cannot fall out of step when that
-                frame changes. The text block itself stays copy-width. */}
-            <div className={`relative z-10 mx-auto w-full ${SECTION_WIDTH_CLASS.default}`}>
-            <div
-                className={cn(
-                    'max-w-2xl',
-                    isBoundedPanel && cn(
-                        'rounded-2xl border border-(--sf-accent-text)/15 px-8 py-10 sm:px-10 sm:py-12 shadow-(--sf-shadow-lg)',
-                        hasImage ? PANEL_CLASS.onImage : PANEL_CLASS.onBand,
-                    ),
-                    contentAlignment === 'center' && 'text-center mx-auto',
-                    contentAlignment === 'right' && 'text-right ml-auto',
-                )}
-            >
+    // A left-flush panel only makes sense for a left-aligned hero over a photo:
+    // it is a slab anchored to the viewport's leading edge, so a centred or
+    // right-aligned hero keeps the bounded, floating treatment instead.
+    const isFlushPanel = isBoundedPanel && hasImage && contentAlignment === 'left'
+
+    const copy = (
+        <>
                 {kicker && (
                     <p
                         className={cn(
@@ -261,8 +249,73 @@ export function HeroSection({section}: { section: HeroSectionConfig }) {
                         contentAlignment={contentAlignment}
                     />
                 )}
-            </div>
-            </div>
+        </>
+    )
+
+    return (
+        <section
+            aria-label={title}
+            className={cn('relative flex items-center py-20 overflow-hidden', HEIGHT_CLASS[height], {
+                // The flush panel must reach x=0, so the section carries no
+                // horizontal gutter — the panel reproduces it internally instead.
+                'px-6 sm:px-8': !isFlushPanel,
+                'bg-(--sf-panel)': !hasImage && surface === 'default',
+            })}
+            style={hasImage ? undefined : SURFACE_BACKGROUND_STYLE[surface]}
+        >
+            {hasImage && (
+                <>
+                    {/* Explicit <img> + object-cover (not a CSS background) so the image
+                        always fills the band exactly — no warp, no container-size drift. */}
+                    <img
+                        src={resolvedBackground}
+                        alt=""
+                        aria-hidden="true"
+                        className="absolute inset-0 h-full w-full object-cover object-center"
+                    />
+                    <div
+                        className="absolute inset-0 bg-black"
+                        style={{opacity: overlayOpacity}}
+                        aria-hidden="true"
+                    />
+                </>
+            )}
+            {isFlushPanel ? (
+                // A slab off the leading edge: no rounding, no shadow, no gap. It
+                // is a flex item of an `items-center` section, so its height is its
+                // content's — it never stretches to the band and leaves no dead
+                // space under the last line.
+                <div
+                    className={cn(
+                        'relative z-10 w-full md:w-[52%]',
+                        FLUSH_PANEL_CLASS,
+                        PANEL_CLASS.onImage,
+                    )}
+                >
+                    {copy}
+                </div>
+            ) : (
+                /* Content rides the house grid so a left-aligned hero starts at the
+                   same gutter as every other section (a centered narrow column made
+                   "left" alignment float mid-page). The width is read from the shared
+                   frame rather than restated, so the hero cannot fall out of step when
+                   that frame changes. The text block itself stays copy-width. */
+                <div className={`relative z-10 mx-auto w-full ${SECTION_WIDTH_CLASS.default}`}>
+                    <div
+                        className={cn(
+                            'max-w-2xl',
+                            isBoundedPanel && cn(
+                                'rounded-2xl border border-(--sf-accent-text)/15 px-8 py-10 sm:px-10 sm:py-12 shadow-(--sf-shadow-lg)',
+                                hasImage ? PANEL_CLASS.onImage : PANEL_CLASS.onBand,
+                            ),
+                            contentAlignment === 'center' && 'text-center mx-auto',
+                            contentAlignment === 'right' && 'text-right ml-auto',
+                        )}
+                    >
+                        {copy}
+                    </div>
+                </div>
+            )}
         </section>
     )
 }

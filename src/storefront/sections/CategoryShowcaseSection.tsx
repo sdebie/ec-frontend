@@ -93,28 +93,46 @@ export function CategoryShowcaseSection({section}: { section: CategoryShowcaseSe
     const resolvedImageSrc = resolveImageUrl(imageUrl ?? null)
     const showImage = !!resolvedImageSrc && !imageFailed
 
-    // Below `md` the graphic rides inline with the heading as a small icon (the
-    // `w-64` side rail is `hidden md:flex`, so it never crushes the deck on a
-    // phone) — icon first, then the title.
-    // Both the mobile icon and the desktop rail are doors into the filtered
-    // catalogue — `?category=<slug>` is the contract ProductListPage reads.
+    // The graphic is a door into the filtered catalogue — `?category=<slug>` is
+    // the contract ProductListPage reads.
     const categoryHref = `/products?category=${encodeURIComponent(categorySlug)}`
 
-    const mobileIcon = showImage ? (
+    // ONE graphic at every breakpoint, sized against the heading beside it.
+    // It used to be two: a small inline icon on phones plus a 256px side rail on
+    // desktop. The rail is gone (owner directive 2026-08-03) — it consumed a
+    // quarter of the row, held the deck to three cards, and left the artwork
+    // visibly smaller than a product card, which read as unfinished rather than
+    // deliberate. Scaled against the heading it is unambiguously chrome, and the
+    // deck gets the full container: five cards at the same width as every other
+    // deck on the page.
+    const categoryIcon = showImage ? (
         <Link
             to={categoryHref}
             aria-label={`Shop ${title}`}
-            className={`shrink-0 rounded-sm md:hidden ${SF_FOCUS_RING_PAGE}`}
+            className={`shrink-0 rounded-sm transition-opacity hover:opacity-80 ${SF_FOCUS_RING_PAGE}`}
         >
             <img
                 src={resolvedImageSrc}
                 alt=""
                 aria-hidden="true"
                 onError={() => setImageFailed(true)}
-                className="h-20 w-20 object-contain"
+                className="h-16 w-16 object-contain sm:h-20 sm:w-20"
             />
         </Link>
     ) : null
+
+    // Heading + graphic as one block. In carousel layout this becomes the
+    // Carousel's header node so the prev/next buttons share its row — that is
+    // what gets the arrows off the product cards. The deck now spans the full
+    // container, so nothing insets this block and the earlier reason for keeping
+    // the heading outside the Carousel (it would have started inset by the rail's
+    // width) no longer applies.
+    const headingBlock = (
+        <div className="flex items-center gap-3">
+            {categoryIcon}
+            <SectionHeading title={title} tone="onAccent" className="mb-0 min-w-0"/>
+        </div>
+    )
 
     return (
         // Gutter + container width are deliberately the shared `Section` frame's
@@ -127,78 +145,46 @@ export function CategoryShowcaseSection({section}: { section: CategoryShowcaseSe
         // Only the vertical rhythm stays tighter than Section's py-12.
         <section className="px-6 sm:px-8" style={gradientStyle}>
             <div className={`mx-auto ${SECTION_WIDTH_CLASS.default} py-6`}>
-                {/* The heading spans the full band width above the image + deck row, so
-                    it shares a left margin with the desktop icon rail below it rather
-                    than starting inset by the rail's width. It renders here for every
-                    carousel hint — under 'header' the Carousel keeps only its arrow
-                    row, so the title is never duplicated. `tone="onAccent"` is what
-                    puts the title and rule in accent-text: the band is a
-                    client-authored dark gradient, so --sf-accent would sink into it. */}
-                {/* The icon sits BESIDE the SectionHeading rather than inside it, so
-                    the rule tracks the heading text on mobile instead of starting
-                    under the logo. At md+ the icon is hidden and the block collapses
-                    to a left-aligned heading + rule. */}
-                <div className="mb-2 flex items-center gap-3">
-                    {mobileIcon}
-                    <SectionHeading title={title} tone="onAccent" className="mb-0 min-w-0"/>
-                </div>
-
-                {/* No bottom margin: this row is the container's last child, so a
-                    margin here would stack on top of the container's own bottom
-                    padding and read as dead space under the deck. */}
-                <div className="flex items-stretch gap-8">
-                    {showImage && (
-                        <div className="hidden md:flex w-64 shrink-0 items-center justify-center">
-                            <Link
-                                to={categoryHref}
-                                aria-label={`Shop ${title}`}
-                                className={`block w-full rounded-md transition-opacity hover:opacity-80 ${SF_FOCUS_RING_PAGE}`}
-                            >
-                                <img
-                                    src={resolvedImageSrc}
-                                    alt=""
-                                    aria-hidden="true"
-                                    onError={() => setImageFailed(true)}
-                                    className="max-h-80 w-full object-contain"
-                                />
-                            </Link>
-                        </div>
-                    )}
-                    {layout === 'carousel' ? (
-                        <div className="min-w-0 flex-1 py-2">
-                            <Carousel
-                                ariaLabel={title}
-                                perView={columns}
-                                perViewMobile={2}
-                                tone="onAccent"
-                                // This band always renders its own heading above the
-                                // deck, so a header ROW would only ever hold arrows —
-                                // 68px of chrome for two buttons. At the non-header
-                                // hints the arrows ride the deck edges instead and that
-                                // row disappears. Mobile keeps the dotted treatment
-                                // either way: it is the quieter read on a colour band,
-                                // and it is no longer tied to having a header row.
-                                mobileControls="dots"
-                                {...(hint === 'header'
-                                    ? {header: <span className="sr-only">{title}</span>}
-                                    : {arrowPlacement: hint})}
-                            >
-                                {displayProducts.map((product) => (
-                                    <ProductCard key={product.id} product={product} variantId={product.variantId}
-                                                 imageAspect="landscape" borderWeight="thick"/>
-                                ))}
-                            </Carousel>
-                        </div>
-                    ) : (
-                        <div className="flex min-w-0 flex-1 items-stretch gap-4 overflow-x-auto py-2">
+                {layout === 'carousel' ? (
+                    <>
+                        {/* Under the non-header hints the Carousel has no header row,
+                            so the heading needs its own above the deck. */}
+                        {hint !== 'header' && <div className="mb-2">{headingBlock}</div>}
+                        <Carousel
+                            ariaLabel={title}
+                            perView={columns}
+                            perViewMobile={2}
+                            tone="onAccent"
+                            // 'header' puts the heading in the Carousel's header slot so
+                            // the prev/next buttons sit BESIDE it instead of overlaying
+                            // the first and last product cards — and that row costs
+                            // nothing, because the heading had to occupy a row anyway.
+                            {...(hint === 'header'
+                                ? {header: headingBlock}
+                                : {arrowPlacement: hint})}
+                            // Stated rather than inherited from `header`: the dotted
+                            // mobile treatment is a deliberate choice for this band and
+                            // must survive any later change to how the controls sit.
+                            mobileControls="dots"
+                        >
+                            {displayProducts.map((product) => (
+                                <ProductCard key={product.id} product={product} variantId={product.variantId}
+                                             imageAspect="landscape" borderWeight="thick"/>
+                            ))}
+                        </Carousel>
+                    </>
+                ) : (
+                    <>
+                        <div className="mb-4">{headingBlock}</div>
+                        <div className="flex items-stretch gap-4 overflow-x-auto py-2">
                             {displayProducts.map((product) => (
                                 <div key={product.id} className="w-56 shrink-0">
                                     <ProductCard product={product} variantId={product.variantId} imageAspect="landscape" borderWeight="thick"/>
                                 </div>
                             ))}
                         </div>
-                    )}
-                </div>
+                    </>
+                )}
             </div>
         </section>
     )

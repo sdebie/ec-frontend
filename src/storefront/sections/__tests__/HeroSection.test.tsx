@@ -234,7 +234,12 @@ describe('HeroSection', () => {
             expect(block.className).not.toContain('rounded-2xl')
         })
 
-        it('wraps the copy in a 55% dark blurred panel over a photo when contentPanel is true', () => {
+        /** The left-flush slab: the panel IS the content box, not a child of it. */
+        function flushPanel(container: HTMLElement) {
+            return container.querySelector('section > .relative.z-10')!
+        }
+
+        it('runs the panel flush off the left edge for a left-aligned photo hero', () => {
             const {container} = renderHero({
                 ...baseSection,
                 props: {
@@ -243,23 +248,55 @@ describe('HeroSection', () => {
                     backgroundImageUrl: 'storefront/hero.png',
                     darkStyle: true,
                     contentPanel: true,
+                    contentAlignment: 'left',
                     footnote: [{text: 'Quotes within 1 business day.'}],
                 },
             })
 
-            const block = copyBlock(container)
-            expect(block.className).toContain('bg-black/55')
-            expect(block.className).toContain('backdrop-blur-sm')
-            expect(block.className).toContain('rounded-2xl')
+            const panel = flushPanel(container)
 
-            // Everything the panel is meant to back actually sits inside it:
-            // kicker, headline, intro, both CTAs and the footnote.
-            expect(block).toContainElement(screen.getByText('WHOLESALE & RETAIL SUPPLIER'))
-            expect(block).toContainElement(screen.getByRole('heading', {level: 2}))
-            expect(block).toContainElement(screen.getByText('Shop the latest'))
-            expect(block).toContainElement(screen.getByRole('link', {name: 'Shop Now'}))
-            expect(block).toContainElement(screen.getByRole('link', {name: 'Learn More'}))
-            expect(block).toContainElement(screen.getByText('Quotes within 1 business day.'))
+            // Part of the hero, not a card floating on it: no rounding, no
+            // shadow, and an accent bar down the leading edge.
+            expect(panel.className).toContain('bg-black/40')
+            expect(panel.className).toContain('backdrop-blur-sm')
+            expect(panel.className).toContain('border-l-4')
+            expect(panel.className).toContain('border-(--sf-accent)')
+            expect(panel.className).not.toContain('rounded')
+            expect(panel.className).not.toContain('shadow')
+
+            // ~52% of the hero from md up, full width on a phone.
+            expect(panel.className).toContain('md:w-[52%]')
+
+            // The section drops its own gutter so the slab can reach x=0.
+            const section = container.querySelector('section')!
+            expect(section.className).not.toContain('px-6')
+
+            // Everything the panel is meant to back actually sits inside it.
+            expect(panel).toContainElement(screen.getByText('WHOLESALE & RETAIL SUPPLIER'))
+            expect(panel).toContainElement(screen.getByRole('heading', {level: 2}))
+            expect(panel).toContainElement(screen.getByText('Shop the latest'))
+            expect(panel).toContainElement(screen.getByRole('link', {name: 'Shop Now'}))
+            expect(panel).toContainElement(screen.getByRole('link', {name: 'Learn More'}))
+            expect(panel).toContainElement(screen.getByText('Quotes within 1 business day.'))
+        })
+
+        it('keeps the bounded floating panel when the hero is not left-aligned', () => {
+            const {container} = renderHero({
+                ...baseSection,
+                props: {
+                    ...baseSection.props,
+                    backgroundImageUrl: 'storefront/hero.png',
+                    darkStyle: true,
+                    contentPanel: true,
+                    contentAlignment: 'center',
+                },
+            })
+
+            // A slab anchored to the left edge makes no sense for centred copy.
+            const block = copyBlock(container)
+            expect(block.className).toContain('bg-black/40')
+            expect(block.className).toContain('rounded-2xl')
+            expect(container.querySelector('section')!.className).toContain('px-6')
         })
 
         it('keeps the lighter wash for a panel with no photo behind it', () => {
