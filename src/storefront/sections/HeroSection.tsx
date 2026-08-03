@@ -3,7 +3,7 @@ import {Link} from 'react-router-dom'
 import {cn} from '@/shared/utils/cn'
 import {resolveImageUrl} from '@/shared/utils/imageUrl'
 import type {BenefitsFootnoteSegment, HeroContentSurface, HeroSectionConfig} from '@/shared/types/StorefrontConfig'
-import {ACCENT_BUTTON_HOVER, SF_FOCUS_RING_PAGE} from './shared'
+import {ACCENT_BUTTON_HOVER, SECTION_WIDTH_CLASS, SF_FOCUS_RING_PAGE} from './shared'
 
 // Text/kicker colour per surface. Every value is a theme token — no client
 // palette lives here, only the mapping from semantic surface -> token.
@@ -59,6 +59,20 @@ const SURFACE_BACKGROUND_STYLE: Partial<Record<HeroContentSurface, CSSProperties
 // where it degrades to a plain full-viewport band rather than breaking. `dvh`
 // tracks mobile browser chrome collapsing on scroll; the px floor is retained
 // so a short landscape window still gets a usable band.
+// Bounded-panel skin. Both entries are `bg-black/*` — the documented theme-law
+// exception for overlays (same family as the hero's own scrim and the Section
+// dark band's #121212 base); a token would be wrong here because the panel's job
+// is to darken whatever is behind it, not to carry a client colour.
+//
+// Over a photo the panel IS the contrast guarantee, so it is opaque enough that
+// white text clears AA against any frame of the image while the photo still
+// reads through it. With no photo behind, the band already supplies the colour
+// and the panel only needs to bound the copy — hence the much lighter wash.
+const PANEL_CLASS = {
+    onImage: 'bg-black/55 backdrop-blur-sm',
+    onBand: 'bg-black/10 backdrop-blur-sm',
+} as const
+
 const HEIGHT_CLASS: Record<'standard' | 'tall' | 'full', string> = {
     standard: 'min-h-[480px]',
     tall: 'min-h-[max(480px,calc(100vh-360px))]',
@@ -112,6 +126,7 @@ export function HeroSection({section}: { section: HeroSectionConfig }) {
         contentAlignment = 'center',
         darkStyle = false,
         contentSurface,
+        contentPanel,
         footnote,
     } = section.props
 
@@ -130,9 +145,12 @@ export function HeroSection({section}: { section: HeroSectionConfig }) {
     // and the tokenised `default` surface is used instead.
     const surface: HeroContentSurface = contentSurface ?? (hasImage && darkStyle ? 'dark' : 'default')
 
-    // A bounded content panel only makes sense when there's no photo to frame the
-    // copy — on a photo, the scrim already does that job.
-    const isBoundedPanel = !hasImage && surface !== 'default'
+    // Default derivation (unchanged): a bounded panel only where there's no photo
+    // to frame the copy. `contentPanel` overrides it in either direction — set
+    // true over a photo and the copy gets a constant dark backing instead of
+    // relying on the scrim, which dims the whole image equally and therefore
+    // cannot guarantee contrast behind any particular line of text.
+    const isBoundedPanel = contentPanel ?? (!hasImage && surface !== 'default')
 
     return (
         <section
@@ -159,14 +177,19 @@ export function HeroSection({section}: { section: HeroSectionConfig }) {
                     />
                 </>
             )}
-            {/* Content rides the house max-w-5xl grid so a left-aligned hero starts at
-                the same gutter as every other section (a centered narrow column made
-                "left" alignment float mid-page). The text block stays copy-width. */}
-            <div className="relative z-10 mx-auto w-full max-w-5xl">
+            {/* Content rides the house grid so a left-aligned hero starts at the same
+                gutter as every other section (a centered narrow column made "left"
+                alignment float mid-page). The width is read from the shared frame
+                rather than restated, so the hero cannot fall out of step when that
+                frame changes. The text block itself stays copy-width. */}
+            <div className={`relative z-10 mx-auto w-full ${SECTION_WIDTH_CLASS.default}`}>
             <div
                 className={cn(
                     'max-w-2xl',
-                    isBoundedPanel && 'rounded-2xl border border-(--sf-accent-text)/15 bg-black/10 px-8 py-10 sm:px-10 sm:py-12 shadow-(--sf-shadow-lg) backdrop-blur-sm',
+                    isBoundedPanel && cn(
+                        'rounded-2xl border border-(--sf-accent-text)/15 px-8 py-10 sm:px-10 sm:py-12 shadow-(--sf-shadow-lg)',
+                        hasImage ? PANEL_CLASS.onImage : PANEL_CLASS.onBand,
+                    ),
                     contentAlignment === 'center' && 'text-center mx-auto',
                     contentAlignment === 'right' && 'text-right ml-auto',
                 )}

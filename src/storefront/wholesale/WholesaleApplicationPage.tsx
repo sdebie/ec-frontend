@@ -1,7 +1,7 @@
 import {useEffect, useState} from 'react'
 import {type FieldPath, useForm} from 'react-hook-form'
 import {zodResolver} from '@hookform/resolvers/zod'
-import {ACCENT_BUTTON_HOVER, SF_FOCUS_RING_PAGE, Section, SectionHeading} from '@/storefront/sections/shared'
+import {ACCENT_BUTTON_HOVER, Section, SectionHeading, SF_FOCUS_RING_PAGE} from '@/storefront/sections/shared'
 import {Stepper} from '@/shared/ui/components'
 import {useCustomerAuthStore} from '@/shared/auth/customerAuthStore'
 import {

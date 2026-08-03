@@ -16,11 +16,11 @@ describe('Section', () => {
     expect(section.className).toContain('sm:px-8')
   })
 
-  it('contains inner mx-auto container with default width max-w-5xl', () => {
+  it('contains inner mx-auto container with default width max-w-6xl', () => {
     const { container } = render(<Section>Content</Section>)
     const inner = container.querySelector('section > div')!
     expect(inner.className).toContain('mx-auto')
-    expect(inner.className).toContain('max-w-5xl')
+    expect(inner.className).toContain('max-w-6xl')
   })
 
   it('width="narrow" applies max-w-2xl', () => {
@@ -425,5 +425,64 @@ describe('Carousel', () => {
 
     expect(screen.queryByLabelText(/Go to item/)).not.toBeInTheDocument()
     expect(screen.queryByText('Swipe to browse')).not.toBeInTheDocument()
+  })
+
+  // ── mobileControls: the mobile treatment is independent of the header row ──
+
+  it('mobileControls="dots" gives a header-less deck the dotted mobile treatment', () => {
+    render(
+      <Carousel ariaLabel="Test" mobileControls="dots">
+        <div>Card 1</div>
+        <div>Card 2</div>
+        <div>Card 3</div>
+      </Carousel>
+    )
+    mockOverflow(getScroller())
+
+    // No header row: the arrows still float over the deck edges…
+    expect(screen.queryByRole('heading')).not.toBeInTheDocument()
+    expect(screen.getByLabelText('Previous').className).toContain('absolute')
+    // …but they yield to the dots on phones, so the two treatments never
+    // both appear at once.
+    expect(screen.getByLabelText('Previous').className).toContain('max-md:hidden')
+    expect(screen.getAllByLabelText(/Go to item \d/).length).toBe(3)
+    expect(screen.getByText('Swipe to browse')).toBeInTheDocument()
+  })
+
+  it('mobileControls="arrows" strips the dots from a header deck', () => {
+    render(
+      <Carousel ariaLabel="Test" header={<h2>Featured</h2>} mobileControls="arrows">
+        <div>Card 1</div>
+        <div>Card 2</div>
+      </Carousel>
+    )
+    mockOverflow(getScroller())
+
+    expect(screen.getByRole('heading', { name: 'Featured' })).toBeInTheDocument()
+    expect(screen.queryByLabelText(/Go to item/)).not.toBeInTheDocument()
+    expect(screen.queryByText('Swipe to browse')).not.toBeInTheDocument()
+  })
+
+  it('omitting mobileControls preserves the old header-implies-dots coupling', () => {
+    const {unmount} = render(
+      <Carousel ariaLabel="Test" header={<h2>Featured</h2>}>
+        <div>Card 1</div>
+        <div>Card 2</div>
+      </Carousel>
+    )
+    mockOverflow(getScroller())
+    expect(screen.getByText('Swipe to browse')).toBeInTheDocument()
+    unmount()
+
+    render(
+      <Carousel ariaLabel="Test">
+        <div>Card 1</div>
+        <div>Card 2</div>
+      </Carousel>
+    )
+    mockOverflow(getScroller())
+    expect(screen.queryByText('Swipe to browse')).not.toBeInTheDocument()
+    // The legacy floating arrows keep showing on phones — no max-md:hidden.
+    expect(screen.getByLabelText('Previous').className).not.toContain('max-md:hidden')
   })
 })

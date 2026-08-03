@@ -207,7 +207,11 @@ export function StorefrontFooter() {
 
   return (
     <footer style={{ backgroundColor: 'var(--sf-nav-background)', color: 'var(--sf-nav-text)' }}>
-      <div className="mx-auto max-w-7xl px-4 py-12">
+      {/* No opening rule (owner directive 2026-08-03): the footer runs straight
+          on from the dark band above it. The top padding carries the separation
+          the removed seam used to provide, so the brand block sits where it
+          always has rather than crowding the band. */}
+      <div className="mx-auto max-w-7xl px-4 pb-12 pt-14">
         <div className="grid gap-8 lg:grid-cols-12">
           {/* Brand column */}
           <div className="lg:col-span-4">
@@ -270,7 +274,9 @@ export function StorefrontFooter() {
           )}
         </div>
 
-        {/* Bottom bar */}
+        {/* Bottom bar — its rule tracks the content container's width (owner
+            directive 2026-08-03), so it starts and ends with the columns above
+            it rather than running to the viewport edges. */}
         <div
           className="mt-12 flex flex-col items-center gap-4 pt-8 lg:flex-row lg:justify-between"
           style={{ borderTopWidth: '1px', borderTopStyle: 'solid', borderTopColor: 'var(--sf-nav-border)' }}

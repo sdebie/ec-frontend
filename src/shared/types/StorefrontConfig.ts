@@ -70,6 +70,19 @@ export interface HeroSectionProps {
   darkStyle?: boolean
   /** Explicit semantic surface. Takes precedence over `darkStyle`. */
   contentSurface?: HeroContentSurface
+  /**
+   * Whether the copy sits in its own bounded translucent panel rather than
+   * directly on the band.
+   *
+   * Omitted, it derives as before: a panel only when there is no photo to frame
+   * the copy. Set `true` over a photo to give the text a constant dark backing,
+   * so contrast stops depending on what happens to be in the picture behind any
+   * given line — the full-bleed scrim dims the whole image equally and cannot
+   * do that. When you set it, drop `overlayOpacity` too: the panel now carries
+   * the contrast, so the scrim only needs to calm the photo, and stacking a
+   * heavy scrim under the panel makes the image stop reading through it.
+   */
+  contentPanel?: boolean
   /** Trust/wayfinding line below the CTA pair; segments with `to` render as internal links. */
   footnote?: BenefitsFootnoteSegment[]
 }
@@ -138,6 +151,20 @@ export interface BenefitsSectionProps {
   layout?: 'cards' | 'strip'
   /** Where item icons sit relative to the title: above it (default) or on the same line. */
   iconPlacement?: 'top' | 'inline'
+  /**
+   * Where the heading block sits: 'above' (default) spans the full width with
+   * the cards beneath it; 'side' moves it into a left column at `lg`+ so the
+   * cards fill the right and a short heading leaves no dead zone beside it.
+   * Below `lg` both stack identically. Applies to the 'cards' layout and the
+   * 'strip' layout alike.
+   */
+  headingPlacement?: 'above' | 'side'
+  /**
+   * Treatment of the `iconPlacement: 'inline'` icon tile — see
+   * `SectionIconBadge`. 'soft' (default) is the faint accent wash; 'solid' is
+   * a muted accent tile with the icon in accent-text.
+   */
+  iconTone?: 'soft' | 'solid'
   /** Explicit desktop column count; absent → derived from the item count (no-orphan rule). */
   columns?: 2 | 3 | 4
   items: BenefitItem[]

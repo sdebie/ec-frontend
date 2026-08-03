@@ -3,7 +3,7 @@ import { Link } from 'react-router-dom'
 import { cn } from '@/shared/utils/cn'
 import { resolveImageUrl } from '@/shared/utils/imageUrl'
 import type { PromoGridSectionConfig } from '@/shared/types/StorefrontConfig'
-import { Section, SectionHeading } from './shared'
+import { Section, SectionHeading, SectionIconBadge } from './shared'
 import { sectionIconMap } from './shared/sectionIcons'
 
 // Single-column base so tiles stack on phones; `columns` sets the desktop count.
@@ -93,17 +93,10 @@ export function PromoGridSection({ section }: { section: PromoGridSectionConfig 
                     {item.eyebrow}
                   </p>
                 )}
-                {/* Icon and title share a line — the icon is a fixed-size badge
-                    so titles that wrap to two lines stay aligned to its top. */}
+                {/* Icon and title share a line — the badge is fixed-size so
+                    titles that wrap to two lines stay aligned to its top. */}
                 <div className="mt-1 flex items-start gap-3">
-                  {TileIcon && (
-                    <span
-                      className="inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-[color-mix(in_srgb,var(--sf-accent)_10%,transparent)]"
-                      aria-hidden="true"
-                    >
-                      <TileIcon className="h-5 w-5 text-(--sf-accent)" />
-                    </span>
-                  )}
+                  {TileIcon && <SectionIconBadge icon={TileIcon} />}
                   <h3 className="min-w-0 self-center font-medium">{item.title}</h3>
                 </div>
                 {item.description && (

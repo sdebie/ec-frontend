@@ -5,7 +5,7 @@ import {resolveImageUrl} from '@/shared/utils/imageUrl'
 import {useCategories} from '@/storefront/catalog/hooks/useCategories'
 import {useProducts} from '@/storefront/catalog/hooks/useProducts'
 import {ProductCard} from '@/storefront/catalog/components/ProductCard'
-import {Carousel, SF_FOCUS_RING_PAGE} from './shared'
+import {Carousel, SectionHeading, SECTION_WIDTH_CLASS, SF_FOCUS_RING_PAGE} from './shared'
 
 /** Default fallback colour when themeColor validation fails */
 const DEFAULT_THEME_COLOR = '#6b7280'
@@ -117,35 +117,36 @@ export function CategoryShowcaseSection({section}: { section: CategoryShowcaseSe
     ) : null
 
     return (
-        <section style={gradientStyle}>
-            <div className="max-w-7xl mx-auto px-4 py-8">
+        // Gutter + container width are deliberately the shared `Section` frame's
+        // (`px-6 sm:px-8` around the exported default width), NOT this band's
+        // own. The gradient still runs full-bleed, but the heading and deck start
+        // on the same left edge as every other home section — a band that keeps
+        // its own container reads as misaligned no matter how good it looks
+        // alone. The width comes from SECTION_WIDTH_CLASS rather than a copied
+        // literal so a change to the shared frame carries here automatically.
+        // Only the vertical rhythm stays tighter than Section's py-12.
+        <section className="px-6 sm:px-8" style={gradientStyle}>
+            <div className={`mx-auto ${SECTION_WIDTH_CLASS.default} py-6`}>
                 {/* The heading spans the full band width above the image + deck row, so
                     it shares a left margin with the desktop icon rail below it rather
                     than starting inset by the rail's width. It renders here for every
                     carousel hint — under 'header' the Carousel keeps only its arrow
-                    row, so the title is never duplicated. Colour is the accent-text
-                    token because the band is a client-authored dark gradient. */}
-                {/* The icon sits BESIDE the title block rather than inside the
-                    heading, so the rule tracks the heading text on mobile instead
-                    of starting under the logo. At md+ the icon is hidden and the
-                    block collapses to today's left-aligned heading + rule. */}
-                <div className="mb-4 flex items-center gap-3">
+                    row, so the title is never duplicated. `tone="onAccent"` is what
+                    puts the title and rule in accent-text: the band is a
+                    client-authored dark gradient, so --sf-accent would sink into it. */}
+                {/* The icon sits BESIDE the SectionHeading rather than inside it, so
+                    the rule tracks the heading text on mobile instead of starting
+                    under the logo. At md+ the icon is hidden and the block collapses
+                    to a left-aligned heading + rule. */}
+                <div className="mb-2 flex items-center gap-3">
                     {mobileIcon}
-                    <div className="min-w-0">
-                        <h2 className="text-2xl font-bold text-(--sf-accent-text) drop-shadow-md">
-                            {title}
-                        </h2>
-                        {/* Same accent rule SectionHeading draws under a title, but in
-                            accent-text — the band is a dark client gradient, so the
-                            accent colour itself would disappear into it. */}
-                        <span
-                            className="mt-2 block h-1 w-12 rounded-full bg-(--sf-accent-text)"
-                            aria-hidden="true"
-                        />
-                    </div>
+                    <SectionHeading title={title} tone="onAccent" className="mb-0 min-w-0"/>
                 </div>
 
-                <div className="mb-4 flex items-stretch gap-8">
+                {/* No bottom margin: this row is the container's last child, so a
+                    margin here would stack on top of the container's own bottom
+                    padding and read as dead space under the deck. */}
+                <div className="flex items-stretch gap-8">
                     {showImage && (
                         <div className="hidden md:flex w-64 shrink-0 items-center justify-center">
                             <Link
@@ -170,6 +171,14 @@ export function CategoryShowcaseSection({section}: { section: CategoryShowcaseSe
                                 perView={columns}
                                 perViewMobile={2}
                                 tone="onAccent"
+                                // This band always renders its own heading above the
+                                // deck, so a header ROW would only ever hold arrows —
+                                // 68px of chrome for two buttons. At the non-header
+                                // hints the arrows ride the deck edges instead and that
+                                // row disappears. Mobile keeps the dotted treatment
+                                // either way: it is the quieter read on a colour band,
+                                // and it is no longer tied to having a header row.
+                                mobileControls="dots"
                                 {...(hint === 'header'
                                     ? {header: <span className="sr-only">{title}</span>}
                                     : {arrowPlacement: hint})}

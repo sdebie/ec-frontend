@@ -33,13 +33,13 @@ describe('AccreditorsSection', () => {
             expect(sectionEl).toHaveClass('py-12', 'px-6', 'sm:px-8')
         })
 
-        it('renders an inner container with mx-auto and max-w-5xl', () => {
+        it('renders an inner container with mx-auto and max-w-6xl', () => {
             const section = buildSection({title: 'Accreditations'})
             const {container} = render(<AccreditorsSection section={section}/>)
 
             const sectionEl = container.querySelector('section')
             const inner = sectionEl?.firstElementChild
-            expect(inner).toHaveClass('mx-auto', 'max-w-5xl')
+            expect(inner).toHaveClass('mx-auto', 'max-w-6xl')
         })
     })
 

@@ -211,6 +211,77 @@ describe('HeroSection', () => {
             expect(screen.getByText('ABOUT UVH HOLDINGS')).toBeInTheDocument()
         })
     })
+
+    describe('contentPanel', () => {
+        /** The copy block: the element carrying the panel skin (or not). */
+        function copyBlock(container: HTMLElement) {
+            return container.querySelector('.max-w-2xl')!
+        }
+
+        it('puts the copy straight on the photo by default — no panel', () => {
+            const {container} = renderHero({
+                ...baseSection,
+                props: {
+                    ...baseSection.props,
+                    backgroundImageUrl: 'storefront/hero.png',
+                    darkStyle: true,
+                },
+            })
+
+            const block = copyBlock(container)
+            expect(block.className).not.toContain('bg-black/')
+            expect(block.className).not.toContain('backdrop-blur')
+            expect(block.className).not.toContain('rounded-2xl')
+        })
+
+        it('wraps the copy in a 55% dark blurred panel over a photo when contentPanel is true', () => {
+            const {container} = renderHero({
+                ...baseSection,
+                props: {
+                    ...baseSection.props,
+                    kicker: 'WHOLESALE & RETAIL SUPPLIER',
+                    backgroundImageUrl: 'storefront/hero.png',
+                    darkStyle: true,
+                    contentPanel: true,
+                    footnote: [{text: 'Quotes within 1 business day.'}],
+                },
+            })
+
+            const block = copyBlock(container)
+            expect(block.className).toContain('bg-black/55')
+            expect(block.className).toContain('backdrop-blur-sm')
+            expect(block.className).toContain('rounded-2xl')
+
+            // Everything the panel is meant to back actually sits inside it:
+            // kicker, headline, intro, both CTAs and the footnote.
+            expect(block).toContainElement(screen.getByText('WHOLESALE & RETAIL SUPPLIER'))
+            expect(block).toContainElement(screen.getByRole('heading', {level: 2}))
+            expect(block).toContainElement(screen.getByText('Shop the latest'))
+            expect(block).toContainElement(screen.getByRole('link', {name: 'Shop Now'}))
+            expect(block).toContainElement(screen.getByRole('link', {name: 'Learn More'}))
+            expect(block).toContainElement(screen.getByText('Quotes within 1 business day.'))
+        })
+
+        it('keeps the lighter wash for a panel with no photo behind it', () => {
+            const {container} = renderHero({
+                ...baseSection,
+                props: {...baseSection.props, contentSurface: 'dark'},
+            })
+
+            const block = copyBlock(container)
+            expect(block.className).toContain('bg-black/10')
+            expect(block.className).not.toContain('bg-black/55')
+        })
+
+        it('can suppress the derived no-photo panel with contentPanel: false', () => {
+            const {container} = renderHero({
+                ...baseSection,
+                props: {...baseSection.props, contentSurface: 'dark', contentPanel: false},
+            })
+
+            expect(copyBlock(container).className).not.toContain('bg-black/')
+        })
+    })
 })
 
 describe('HeroSection footnote (design C8)', () => {
