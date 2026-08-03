@@ -122,17 +122,21 @@ describe('StorefrontHeader', () => {
       })
     })
 
-    it('renders the customer first name', () => {
+    it('names the customer on the account control without printing the label', () => {
       renderHeader()
 
-      expect(screen.getByText('Jane')).toBeInTheDocument()
+      // Icon-only control (owner directive 2026-08-03): the visible text label
+      // is gone, so the name has to survive as the accessible name — otherwise
+      // the control announces as an unlabelled button.
+      expect(screen.getByRole('button', { name: 'Account menu for Jane' })).toBeInTheDocument()
+      expect(screen.queryByText('Jane')).not.toBeInTheDocument()
     })
 
-    it('falls back to "My Account" when firstName is null', () => {
+    it('falls back to a generic accessible name when firstName is null', () => {
       useCustomerAuthStore.setState({ firstName: null })
       renderHeader()
 
-      expect(screen.getByText('My Account')).toBeInTheDocument()
+      expect(screen.getByRole('button', { name: 'Account menu' })).toBeInTheDocument()
     })
 
     it('renders dropdown with "My Account" and "Sign out" when button is clicked', async () => {
@@ -538,7 +542,7 @@ describe('StorefrontHeader', () => {
       it('shows account dropdown when loginStyle is "page"', () => {
         renderHeader({ auth: { loginStyle: 'page' } })
 
-        expect(screen.getByText('Jane')).toBeInTheDocument()
+        expect(screen.getByRole('button', { name: 'Account menu for Jane' })).toBeInTheDocument()
         expect(screen.queryByRole('link', { name: /sign in/i })).not.toBeInTheDocument()
         expect(screen.queryByRole('button', { name: /sign in/i })).not.toBeInTheDocument()
       })
@@ -546,7 +550,7 @@ describe('StorefrontHeader', () => {
       it('shows account dropdown when loginStyle is "modal"', () => {
         renderHeader({ auth: { loginStyle: 'modal' } })
 
-        expect(screen.getByText('Jane')).toBeInTheDocument()
+        expect(screen.getByRole('button', { name: 'Account menu for Jane' })).toBeInTheDocument()
         expect(screen.queryByRole('link', { name: /sign in/i })).not.toBeInTheDocument()
         expect(screen.queryByTestId('customer-login-modal')).not.toBeInTheDocument()
       })

@@ -69,3 +69,30 @@ export const SOCIAL_CHIP_CLASS =
  */
 export const NAV_ICON_HOVER =
   'text-(--sf-nav-icon-text) transition-colors hover:bg-[color-mix(in_srgb,var(--sf-accent)_80%,white)] hover:text-(--sf-accent-text)'
+
+/**
+ * The header's icon control: a circular pill that fills with the lightened
+ * accent on hover and carries a raw-accent ring around it.
+ *
+ * Shared because the cart, wishlist and account controls must be identical —
+ * they sit side by side, and any divergence in padding or radius reads as a
+ * misalignment. `group` is part of the contract: the badge and any icon fill
+ * below key off it.
+ *
+ * `p-2.5` rather than `p-2`: a count badge overhangs the top-right corner, and
+ * the extra padding is what lets the ring enclose the badge instead of slicing
+ * through it. The border is always present but transparent, so nothing shifts
+ * on hover.
+ */
+export const NAV_ICON_PILL =
+  `group relative flex items-center justify-center rounded-full border border-transparent p-2.5 ${NAV_ICON_HOVER} hover:border-(--sf-accent)`
+
+/**
+ * The count badge that rides in a NAV_ICON_PILL's top-right corner.
+ *
+ * It INVERTS on hover: an accent badge on the pill's lightened-accent fill
+ * measures ~1.5:1 and would all but vanish, so the two colours swap. Requires
+ * `group` on the pill — NAV_ICON_PILL provides it.
+ */
+export const NAV_ICON_BADGE =
+  'absolute right-0 top-0 flex h-4 min-w-4 items-center justify-center rounded-full bg-(--sf-accent) px-1 text-[10px] font-medium text-(--sf-accent-text) transition-colors group-hover:bg-(--sf-accent-text) group-hover:text-(--sf-accent)'

@@ -4,7 +4,7 @@ import { Menu, User } from 'lucide-react'
 import { useStorefrontConfig } from '@/shared/config/storefrontConfig.context'
 import { resolveImageUrl } from '@/shared/utils/imageUrl'
 import { useCustomerAuthStore } from '@/shared/auth/customerAuthStore'
-import { NAV_ICON_HOVER, SF_FOCUS_RING } from '@/storefront/sections/shared/focusRing'
+import { NAV_ICON_HOVER, NAV_ICON_PILL, SF_FOCUS_RING } from '@/storefront/sections/shared/focusRing'
 import { SearchBar } from './SearchBar'
 import { StorefrontNavLink } from './StorefrontNavLink'
 import { NavDrawer } from './NavDrawer'
@@ -112,10 +112,10 @@ export function StorefrontHeader() {
                 aria-expanded={dropdownOpen}
                 aria-haspopup="menu"
                 aria-controls="customer-account-menu"
-                className={`flex items-center gap-2 rounded-md px-3 py-2 text-sm font-medium ${NAV_ICON_HOVER} ${SF_FOCUS_RING.nav}`}
+                aria-label={firstName ? `Account menu for ${firstName}` : 'Account menu'}
+                className={`${NAV_ICON_PILL} ${SF_FOCUS_RING.nav}`}
               >
                 <User className="h-5 w-5" aria-hidden="true" />
-                <span>{firstName ?? 'My Account'}</span>
               </button>
               {dropdownOpen && (
                 <div
@@ -145,10 +145,10 @@ export function StorefrontHeader() {
             <>
               <button
                 onClick={() => setIsLoginOpen(true)}
-                className={`flex items-center gap-2 rounded-md px-3 py-2 text-sm font-medium ${NAV_ICON_HOVER} ${SF_FOCUS_RING.nav}`}
+                aria-label="Sign in"
+                className={`${NAV_ICON_PILL} ${SF_FOCUS_RING.nav}`}
               >
                 <User className="h-5 w-5" aria-hidden="true" />
-                Sign in
               </button>
               <CustomerLoginModal
                 isOpen={isLoginOpen}
@@ -170,10 +170,10 @@ export function StorefrontHeader() {
           ) : (
             <Link
               to="/account/login"
-              className={`flex items-center gap-2 rounded-md px-3 py-2 text-sm font-medium ${NAV_ICON_HOVER} ${SF_FOCUS_RING.nav}`}
+              aria-label="Sign in"
+              className={`${NAV_ICON_PILL} ${SF_FOCUS_RING.nav}`}
             >
               <User className="h-5 w-5" aria-hidden="true" />
-              Sign in
             </Link>
           )}
 
