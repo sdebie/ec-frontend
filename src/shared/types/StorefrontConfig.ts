@@ -58,7 +58,27 @@ export interface HeroSectionProps {
   primaryCta?: StorefrontActionLink
   secondaryCta?: StorefrontActionLink
   backgroundImageUrl?: string
+  /**
+   * Scrim strength. For `overlayStyle: 'uniform'` (default) this is the flat
+   * opacity across the whole photo. For `'gradient-left'` it is the opacity at
+   * the LEADING edge, from which the scrim fades to fully transparent — so a
+   * gradient hero wants a much higher value than a uniform one.
+   */
   overlayOpacity?: number
+  /**
+   * How the scrim is distributed over the background photo.
+   *
+   * 'uniform' (default) dims the entire image equally — simple, but it either
+   * darkens the whole photograph or leaves the copy short of contrast.
+   *
+   * 'gradient-left' lays a single left-to-right ramp that is strongest behind
+   * the copy and reaches full transparency around the middle/right, so the
+   * photo is untouched where nothing sits on it. Pair it with
+   * `contentAlignment: 'left'`; a centred hero would run its copy out past the
+   * fade. Preferred over a bounded panel, which guarantees contrast but cuts a
+   * visible rectangle out of the image.
+   */
+  overlayStyle?: 'uniform' | 'gradient-left'
   contentAlignment?: 'left' | 'center' | 'right'
   /**
    * @deprecated Use `contentSurface` instead. Only honoured when

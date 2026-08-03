@@ -28,6 +28,17 @@ interface SectionHeadingProps {
 
 // Complete literal class strings per tone — Tailwind scans source text, so an
 // interpolated token reference emits no CSS.
+/**
+ * Light-surface eyebrow colours. The DARK-surface treatment is deliberately NOT
+ * here — it lives in `index.css` keyed on `[data-variant="dark"] p[data-eyebrow]`,
+ * which is why the element below carries that attribute.
+ *
+ * It cannot be a class: `index.css` has a blanket `[data-variant="dark"] p`
+ * colour rule at specificity (0,1,1), and Tailwind's `in-data-[variant=dark]:`
+ * variant compiles to `:where([data-variant="dark"] *)` — `:where()` contributes
+ * zero specificity, leaving the utility at (0,1,0). It loses, silently. Verified
+ * against the built CSS; the class looked right in the markup the whole time.
+ */
 const EYEBROW_TONE: Record<'default' | 'onAccent', string> = {
     default: 'text-(--sf-accent)',
     onAccent: 'text-(--sf-accent-text)',
@@ -76,8 +87,10 @@ export function SectionHeading({eyebrow, title, subtitle, icon, as = 'h2', tone 
 
     return (
         <div className={cn('mb-8', className)}>
+            {/* data-eyebrow is the hook the dark-variant rule in index.css keys
+                on — see EYEBROW_TONE above for why it cannot be a class. */}
             {eyebrow && (
-                <p className={cn('mb-4 flex items-center gap-2 text-xs font-semibold uppercase tracking-widest', EYEBROW_TONE[tone])}>
+                <p data-eyebrow className={cn('mb-4 flex items-center gap-2 text-xs font-semibold uppercase tracking-widest', EYEBROW_TONE[tone])}>
                     <span className={cn('inline-block h-0.5 w-4', EYEBROW_DASH_TONE[tone])} aria-hidden="true"/>
                     {eyebrow}
                 </p>

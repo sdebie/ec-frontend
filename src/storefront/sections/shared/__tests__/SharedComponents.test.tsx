@@ -109,6 +109,34 @@ describe('SectionHeading', () => {
     expect(rule).toBeInTheDocument()
     expect(rule.className).toContain('bg-(--sf-accent)')
   })
+
+  // Regression guard for a bug that a class-only assertion could never catch.
+  //
+  // `index.css` carries a blanket `[data-variant="dark"] p { color: … }` at
+  // specificity (0,1,1). Tailwind's `in-data-[variant=dark]:` variant compiles
+  // to `:where([data-variant="dark"] *)`, and `:where()` contributes ZERO
+  // specificity — so a utility override on this element is (0,1,0) and loses
+  // silently. The dark colour therefore lives in index.css, keyed on this
+  // attribute. jsdom has no CSS engine, so the only thing assertable here is
+  // that the hook the stylesheet needs is actually present.
+  it('carries the data-eyebrow hook the dark-variant stylesheet rule keys on', () => {
+    const { container } = render(<SectionHeading eyebrow="Featured" title="Title" />)
+    const eyebrow = container.querySelector('p')!
+
+    expect(eyebrow.hasAttribute('data-eyebrow')).toBe(true)
+    // The rule targets `p[data-eyebrow] > span` for the dash, so the dash must
+    // stay a direct child.
+    expect(eyebrow.querySelector(':scope > span[aria-hidden="true"]')).not.toBeNull()
+  })
+
+  it('does not carry a dark utility override that the cascade would discard', () => {
+    const { container } = render(<SectionHeading eyebrow="Featured" title="Title" />)
+    const eyebrow = container.querySelector('p')!
+
+    // Re-adding one would look like a fix in review and do nothing in the
+    // browser — the failure mode this element already shipped once.
+    expect(eyebrow.className).not.toContain('in-data-[variant=dark]:text-')
+  })
 })
 
 // ─── Carousel ───────────────────────────────────────────────────────────────

@@ -25,6 +25,12 @@ const SURFACE_KICKER_CLASS: Record<HeroContentSurface, string> = {
     dark: 'text-(--sf-accent-text)/90',
 }
 
+// The kicker carries the same short rule every SectionHeading eyebrow does, so a
+// hero's lead-in reads as the same element as the rest of the page's. Its colour
+// tracks the kicker text per surface — `currentColor` rather than a fourth map,
+// so the two can never drift apart.
+const KICKER_DASH_CLASS = 'inline-block h-0.5 w-4 bg-current'
+
 // Secondary CTAs are accent-outlined and fill with an accent-derived tint on
 // hover (color-mix with white — same accent-derivation family as the Section
 // dark glow; no literal palette). On the dark surface the label stays light
@@ -64,37 +70,39 @@ const SURFACE_BACKGROUND_STYLE: Partial<Record<HeroContentSurface, CSSProperties
 // #121212 base); a token would be wrong here because the panel's job is to
 // darken whatever is behind it, not to carry a client colour.
 //
-// Over a photo the panel IS the contrast guarantee. 40% is the owner's chosen
-// balance (2026-08-03) — deliberately lighter than the 55% it launched at, so
-// more of the photograph pulls through. Measured against this client's imagery
-// it still clears AA for white text; a client whose hero photo has large
-// near-white regions should re-measure before lowering it further.
-// With no photo behind, the band already supplies the colour and the panel only
-// needs to bound the copy — hence the much lighter wash.
+// Over a photo a bounded panel guarantees contrast but cuts a visible rectangle
+// out of the image; `overlayStyle: 'gradient-left'` is the treatment that
+// achieves the same thing without the seam. With no photo behind, the band
+// already supplies the colour and the panel only bounds the copy — hence the
+// much lighter wash.
 const PANEL_CLASS = {
     onImage: 'bg-black/40 backdrop-blur-sm',
     onBand: 'bg-black/10 backdrop-blur-sm',
 } as const
 
 /**
- * Left-flush panel geometry. The panel runs off the viewport's left edge — no
- * rounding, no shadow, no gap — so it reads as part of the hero rather than a
- * card floating on top of it, with an accent bar down the leading edge.
+ * Scrim over the background photo.
  *
- * The left padding reproduces the shared Section frame's own left edge at every
- * width (`px-6`/`sm:px-8` around a `max-w-6xl` centred column = 72rem), so the
- * copy still starts on the same line as every section below the hero even
- * though its box starts at x=0. A fixed padding would align at exactly one
- * viewport width and drift at all the others.
+ * 'uniform' is the original flat wash: one opacity across the whole image.
  *
- * Each term subtracts the 4px accent border, which sits OUTSIDE the padding box
- * and would otherwise push the copy 4px past the section gutter — measured, not
- * assumed: the first cut landed the headline at x=68 against every other
- * section's x=64.
+ * 'gradient-left' ramps from `opacity` at the leading edge to fully transparent
+ * by 80%. The stops hold near-full strength through 35% — the copy column runs
+ * to roughly 57% of the viewport — then fall away, so the ramp is doing real
+ * work everywhere text sits and nothing where it doesn't. The intermediate stop
+ * is what keeps the falloff smooth; a two-stop ramp puts a visible band across
+ * the middle of the photograph, which is the seam this treatment exists to
+ * avoid. `.toFixed(3)` keeps the derived alphas out of float-noise territory in
+ * the emitted CSS.
  */
-const FLUSH_PANEL_CLASS =
-    'border-l-4 border-(--sf-accent) py-10 sm:py-12 pr-6 sm:pr-10 ' +
-    'pl-[max(1.25rem,calc((100vw-72rem)/2-4px))] sm:pl-[max(1.75rem,calc((100vw-72rem)/2-4px))]'
+function scrimStyle(style: 'uniform' | 'gradient-left', opacity: number): CSSProperties {
+    if (style !== 'gradient-left') {
+        return {backgroundColor: '#000', opacity}
+    }
+    const at = (factor: number) => `rgba(0,0,0,${(opacity * factor).toFixed(3)})`
+    return {
+        backgroundImage: `linear-gradient(to right, ${at(1)} 0%, ${at(0.95)} 35%, ${at(0.6)} 55%, ${at(0.25)} 70%, rgba(0,0,0,0) 80%)`,
+    }
+}
 
 const HEIGHT_CLASS: Record<'standard' | 'tall' | 'full', string> = {
     standard: 'min-h-[480px]',
@@ -110,10 +118,15 @@ export function HeroFootnote({segments, surface, contentAlignment = 'center'}: {
     return (
         <p
             className={cn(
-                'mt-4 text-sm',
+                // `max-w-xl` matches the subtitle exactly: the footnote is a
+                // continuation of the intro, and without a cap it wrapped to the
+                // full copy column (max-w-2xl) and visibly overhung the paragraph
+                // above it. Centring/right-aligning needs the auto margin too, or
+                // the narrower block stays pinned left inside a centred hero.
+                'mt-4 max-w-xl text-sm',
                 SURFACE_SUBTITLE_CLASS[surface],
-                contentAlignment === 'center' && 'text-center',
-                contentAlignment === 'right' && 'text-right',
+                contentAlignment === 'center' && 'mx-auto text-center',
+                contentAlignment === 'right' && 'ml-auto text-right',
             )}
         >
             {segments.map((segment, index) =>
@@ -146,6 +159,7 @@ export function HeroSection({section}: { section: HeroSectionConfig }) {
         secondaryCta,
         backgroundImageUrl,
         overlayOpacity = 0.4,
+        overlayStyle = 'uniform',
         contentAlignment = 'center',
         darkStyle = false,
         contentSurface,
@@ -175,20 +189,21 @@ export function HeroSection({section}: { section: HeroSectionConfig }) {
     // cannot guarantee contrast behind any particular line of text.
     const isBoundedPanel = contentPanel ?? (!hasImage && surface !== 'default')
 
-    // A left-flush panel only makes sense for a left-aligned hero over a photo:
-    // it is a slab anchored to the viewport's leading edge, so a centred or
-    // right-aligned hero keeps the bounded, floating treatment instead.
-    const isFlushPanel = isBoundedPanel && hasImage && contentAlignment === 'left'
-
     const copy = (
         <>
                 {kicker && (
                     <p
                         className={cn(
-                            'mb-3 text-xs font-semibold uppercase tracking-widest',
+                            'mb-3 flex items-center gap-2 text-xs font-semibold uppercase tracking-widest',
                             SURFACE_KICKER_CLASS[surface],
+                            // The rule leads the text, so a centred or right-aligned
+                            // hero has to move the whole pair — `text-center` does
+                            // nothing to a flex row.
+                            contentAlignment === 'center' && 'justify-center',
+                            contentAlignment === 'right' && 'justify-end',
                         )}
                     >
+                        <span className={KICKER_DASH_CLASS} aria-hidden="true"/>
                         {kicker}
                     </p>
                 )}
@@ -255,10 +270,7 @@ export function HeroSection({section}: { section: HeroSectionConfig }) {
     return (
         <section
             aria-label={title}
-            className={cn('relative flex items-center py-20 overflow-hidden', HEIGHT_CLASS[height], {
-                // The flush panel must reach x=0, so the section carries no
-                // horizontal gutter — the panel reproduces it internally instead.
-                'px-6 sm:px-8': !isFlushPanel,
+            className={cn('relative flex items-center px-6 sm:px-8 py-20 overflow-hidden', HEIGHT_CLASS[height], {
                 'bg-(--sf-panel)': !hasImage && surface === 'default',
             })}
             style={hasImage ? undefined : SURFACE_BACKGROUND_STYLE[surface]}
@@ -274,48 +286,38 @@ export function HeroSection({section}: { section: HeroSectionConfig }) {
                         className="absolute inset-0 h-full w-full object-cover object-center"
                     />
                     <div
-                        className="absolute inset-0 bg-black"
-                        style={{opacity: overlayOpacity}}
+                        className="absolute inset-0"
+                        style={scrimStyle(overlayStyle, overlayOpacity)}
                         aria-hidden="true"
                     />
                 </>
             )}
-            {isFlushPanel ? (
-                // A slab off the leading edge: no rounding, no shadow, no gap. It
-                // is a flex item of an `items-center` section, so its height is its
-                // content's — it never stretches to the band and leaves no dead
-                // space under the last line.
+            {/* Content rides the house grid so a left-aligned hero starts at the
+                same gutter as every other section (a centered narrow column made
+                "left" alignment float mid-page). The width is read from the shared
+                frame rather than restated, so the hero cannot fall out of step when
+                that frame changes. The text block itself stays copy-width.
+
+                `-translate-y-6` is optical centring, not a layout fix: a block of
+                text sitting on true mathematical centre reads as slightly low,
+                because the eye weights the mass above the midline. 24px up is the
+                correction — it applies to every hero, since the effect is a
+                property of centred text rather than of any one page. */}
+            <div className={`relative z-10 mx-auto w-full -translate-y-6 ${SECTION_WIDTH_CLASS.default}`}>
                 <div
                     className={cn(
-                        'relative z-10 w-full md:w-[52%]',
-                        FLUSH_PANEL_CLASS,
-                        PANEL_CLASS.onImage,
+                        'max-w-2xl',
+                        isBoundedPanel && cn(
+                            'rounded-2xl border border-(--sf-accent-text)/15 px-8 py-10 sm:px-10 sm:py-12 shadow-(--sf-shadow-lg)',
+                            hasImage ? PANEL_CLASS.onImage : PANEL_CLASS.onBand,
+                        ),
+                        contentAlignment === 'center' && 'text-center mx-auto',
+                        contentAlignment === 'right' && 'text-right ml-auto',
                     )}
                 >
                     {copy}
                 </div>
-            ) : (
-                /* Content rides the house grid so a left-aligned hero starts at the
-                   same gutter as every other section (a centered narrow column made
-                   "left" alignment float mid-page). The width is read from the shared
-                   frame rather than restated, so the hero cannot fall out of step when
-                   that frame changes. The text block itself stays copy-width. */
-                <div className={`relative z-10 mx-auto w-full ${SECTION_WIDTH_CLASS.default}`}>
-                    <div
-                        className={cn(
-                            'max-w-2xl',
-                            isBoundedPanel && cn(
-                                'rounded-2xl border border-(--sf-accent-text)/15 px-8 py-10 sm:px-10 sm:py-12 shadow-(--sf-shadow-lg)',
-                                hasImage ? PANEL_CLASS.onImage : PANEL_CLASS.onBand,
-                            ),
-                            contentAlignment === 'center' && 'text-center mx-auto',
-                            contentAlignment === 'right' && 'text-right ml-auto',
-                        )}
-                    >
-                        {copy}
-                    </div>
-                </div>
-            )}
+            </div>
         </section>
     )
 }

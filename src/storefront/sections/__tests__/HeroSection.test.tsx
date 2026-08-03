@@ -234,12 +234,7 @@ describe('HeroSection', () => {
             expect(block.className).not.toContain('rounded-2xl')
         })
 
-        /** The left-flush slab: the panel IS the content box, not a child of it. */
-        function flushPanel(container: HTMLElement) {
-            return container.querySelector('section > .relative.z-10')!
-        }
-
-        it('runs the panel flush off the left edge for a left-aligned photo hero', () => {
+        it('wraps the copy in a bounded blurred panel over a photo when contentPanel is true', () => {
             const {container} = renderHero({
                 ...baseSection,
                 props: {
@@ -248,55 +243,22 @@ describe('HeroSection', () => {
                     backgroundImageUrl: 'storefront/hero.png',
                     darkStyle: true,
                     contentPanel: true,
-                    contentAlignment: 'left',
                     footnote: [{text: 'Quotes within 1 business day.'}],
                 },
             })
 
-            const panel = flushPanel(container)
-
-            // Part of the hero, not a card floating on it: no rounding, no
-            // shadow, and an accent bar down the leading edge.
-            expect(panel.className).toContain('bg-black/40')
-            expect(panel.className).toContain('backdrop-blur-sm')
-            expect(panel.className).toContain('border-l-4')
-            expect(panel.className).toContain('border-(--sf-accent)')
-            expect(panel.className).not.toContain('rounded')
-            expect(panel.className).not.toContain('shadow')
-
-            // ~52% of the hero from md up, full width on a phone.
-            expect(panel.className).toContain('md:w-[52%]')
-
-            // The section drops its own gutter so the slab can reach x=0.
-            const section = container.querySelector('section')!
-            expect(section.className).not.toContain('px-6')
-
-            // Everything the panel is meant to back actually sits inside it.
-            expect(panel).toContainElement(screen.getByText('WHOLESALE & RETAIL SUPPLIER'))
-            expect(panel).toContainElement(screen.getByRole('heading', {level: 2}))
-            expect(panel).toContainElement(screen.getByText('Shop the latest'))
-            expect(panel).toContainElement(screen.getByRole('link', {name: 'Shop Now'}))
-            expect(panel).toContainElement(screen.getByRole('link', {name: 'Learn More'}))
-            expect(panel).toContainElement(screen.getByText('Quotes within 1 business day.'))
-        })
-
-        it('keeps the bounded floating panel when the hero is not left-aligned', () => {
-            const {container} = renderHero({
-                ...baseSection,
-                props: {
-                    ...baseSection.props,
-                    backgroundImageUrl: 'storefront/hero.png',
-                    darkStyle: true,
-                    contentPanel: true,
-                    contentAlignment: 'center',
-                },
-            })
-
-            // A slab anchored to the left edge makes no sense for centred copy.
             const block = copyBlock(container)
             expect(block.className).toContain('bg-black/40')
+            expect(block.className).toContain('backdrop-blur-sm')
             expect(block.className).toContain('rounded-2xl')
-            expect(container.querySelector('section')!.className).toContain('px-6')
+
+            // Everything the panel is meant to back actually sits inside it.
+            expect(block).toContainElement(screen.getByText('WHOLESALE & RETAIL SUPPLIER'))
+            expect(block).toContainElement(screen.getByRole('heading', {level: 2}))
+            expect(block).toContainElement(screen.getByText('Shop the latest'))
+            expect(block).toContainElement(screen.getByRole('link', {name: 'Shop Now'}))
+            expect(block).toContainElement(screen.getByRole('link', {name: 'Learn More'}))
+            expect(block).toContainElement(screen.getByText('Quotes within 1 business day.'))
         })
 
         it('keeps the lighter wash for a panel with no photo behind it', () => {
@@ -317,6 +279,134 @@ describe('HeroSection', () => {
             })
 
             expect(copyBlock(container).className).not.toContain('bg-black/')
+        })
+    })
+
+    describe('overlayStyle (scrim distribution)', () => {
+        /** The scrim sits between the photo and the copy. */
+        function scrim(container: HTMLElement) {
+            return container.querySelectorAll('section > [aria-hidden="true"]')[1] as HTMLElement
+        }
+
+        it('defaults to a flat wash across the whole photo', () => {
+            const {container} = renderHero({
+                ...baseSection,
+                props: {
+                    ...baseSection.props,
+                    backgroundImageUrl: 'storefront/hero.png',
+                    overlayOpacity: 0.5,
+                },
+            })
+
+            const el = scrim(container)
+            expect(el.style.backgroundColor).toBe('rgb(0, 0, 0)')
+            expect(el.style.opacity).toBe('0.5')
+            expect(el.style.backgroundImage).toBe('')
+        })
+
+        it('lays a single left-to-right ramp reaching full transparency when gradient-left', () => {
+            const {container} = renderHero({
+                ...baseSection,
+                props: {
+                    ...baseSection.props,
+                    backgroundImageUrl: 'storefront/hero.png',
+                    overlayOpacity: 0.85,
+                    overlayStyle: 'gradient-left',
+                },
+            })
+
+            const el = scrim(container)
+            const image = el.style.backgroundImage
+
+            expect(image).toContain('linear-gradient(to right')
+            // Full strength at the leading edge…
+            expect(image).toContain('rgba(0, 0, 0, 0.85) 0%')
+            // …and genuinely transparent before the right edge, so the photo is
+            // untouched where no copy sits.
+            expect(image).toMatch(/rgba\(0, 0, 0, 0\) 80%/)
+
+            // Element opacity must stay unset — the alpha lives in the stops, and
+            // an element opacity would scale the whole ramp a second time.
+            expect(el.style.opacity).toBe('')
+
+            // More than two stops: a bare from/to ramp puts a visible band across
+            // the middle of the image, which is what this treatment avoids.
+            expect(image.match(/rgba\(/g)!.length).toBeGreaterThan(3)
+        })
+
+        it('scales every stop with overlayOpacity, so the ramp never exceeds it', () => {
+            const {container} = renderHero({
+                ...baseSection,
+                props: {
+                    ...baseSection.props,
+                    backgroundImageUrl: 'storefront/hero.png',
+                    overlayOpacity: 0.4,
+                    overlayStyle: 'gradient-left',
+                },
+            })
+
+            const alphas = Array.from(
+                scrim(container).style.backgroundImage.matchAll(/rgba\(0, 0, 0, ([\d.]+)\)/g),
+                (m) => Number(m[1]),
+            )
+            expect(Math.max(...alphas)).toBeCloseTo(0.4, 5)
+            expect(Math.min(...alphas)).toBe(0)
+            // Monotonically decreasing left → right: no bright band mid-ramp.
+            expect([...alphas].sort((a, b) => b - a)).toEqual(alphas)
+        })
+    })
+
+    describe('kicker rule + footnote measure', () => {
+        it('gives the kicker the same short rule every SectionHeading eyebrow has', () => {
+            renderHero({
+                ...baseSection,
+                props: {...baseSection.props, kicker: 'WHOLESALE & RETAIL SUPPLIER'},
+            })
+
+            const kicker = screen.getByText('WHOLESALE & RETAIL SUPPLIER')
+            const rule = kicker.querySelector('span[aria-hidden="true"]')
+            expect(rule).not.toBeNull()
+            // Same geometry as the section eyebrow's rule, and it leads the text.
+            expect(rule!.className).toContain('h-0.5')
+            expect(rule!.className).toContain('w-4')
+            expect(kicker.firstElementChild).toBe(rule)
+            // currentColor, so the rule can never disagree with its own label.
+            expect(rule!.className).toContain('bg-current')
+            expect(kicker.className).toContain('flex')
+        })
+
+        it('moves the rule with the copy when the hero is centred', () => {
+            renderHero({
+                ...baseSection,
+                props: {...baseSection.props, kicker: 'LEAD IN', contentAlignment: 'center'},
+            })
+            // text-center does nothing to a flex row — the pair needs justifying.
+            expect(screen.getByText('LEAD IN').className).toContain('justify-center')
+        })
+
+        it('caps the footnote to the same measure as the intro', () => {
+            renderHero({
+                ...baseSection,
+                props: {
+                    ...baseSection.props,
+                    footnote: [{text: 'Quotes within 1 business day.'}],
+                },
+            })
+
+            const intro = screen.getByText('Shop the latest')
+            const footnote = screen.getByText('Quotes within 1 business day.').closest('p')!
+
+            // The footnote continues the intro, so it must not overhang it.
+            expect(intro.className).toContain('max-w-xl')
+            expect(footnote.className).toContain('max-w-xl')
+        })
+    })
+
+    describe('optical centring', () => {
+        it('lifts the copy off true centre', () => {
+            const {container} = renderHero()
+            const grid = container.querySelector('section > .relative.z-10')!
+            expect(grid.className).toContain('-translate-y-6')
         })
     })
 })

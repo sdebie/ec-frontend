@@ -333,6 +333,30 @@
     color: rgba(255, 255, 255, 0.82);
 }
 
+/* The eyebrow keeps the brand accent on dark — lightened toward white, since the
+   raw accent is unreadable on the #121212 base (this client's measures 1.6:1).
+   Without this it was repainted plain white by the blanket `p` rule above while
+   its rule (a span, which that rule does not match) stayed raw accent: the text
+   and its own underline disagreed, and the underline was invisible.
+
+   ⚠️ This MUST live here rather than as a Tailwind class on the element.
+   `in-data-[variant=dark]:text-…` compiles to `:where([data-variant="dark"] *)`,
+   and `:where()` contributes ZERO specificity — so that utility is (0,1,0) and
+   loses to the rule above at (0,1,1). Verified in the built CSS, not assumed.
+   Same trap applies to any future attempt to recolour a <p> inside a dark band.
+
+   color-mix on --sf-accent keeps it client-agnostic: every client gets its own
+   brand hue, lifted. */
+[data-variant="dark"] p[data-eyebrow] {
+    color: color-mix(in srgb, var(--sf-accent) 40%, white);
+}
+
+/* The rule inherits that colour rather than restating it, so the two cannot
+   drift apart — which is the exact failure this block fixes. */
+[data-variant="dark"] p[data-eyebrow] > span {
+    background-color: currentColor;
+}
+
 [data-variant="dark"] .text-muted {
     color: rgba(255, 255, 255, 0.6);
 }
