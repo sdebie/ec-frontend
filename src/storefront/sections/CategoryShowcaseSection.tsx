@@ -1,9 +1,11 @@
+import {useState} from 'react'
+import {Link} from 'react-router-dom'
 import type {CategoryShowcaseSectionConfig} from '@/shared/types/StorefrontConfig'
 import {resolveImageUrl} from '@/shared/utils/imageUrl'
 import {useCategories} from '@/storefront/catalog/hooks/useCategories'
 import {useProducts} from '@/storefront/catalog/hooks/useProducts'
 import {ProductCard} from '@/storefront/catalog/components/ProductCard'
-import {Carousel} from './shared'
+import {Carousel, SF_FOCUS_RING_PAGE} from './shared'
 
 /** Default fallback colour when themeColor validation fails */
 const DEFAULT_THEME_COLOR = '#6b7280'
@@ -21,7 +23,18 @@ function resolveThemeColor(raw: string): string {
 }
 
 export function CategoryShowcaseSection({section}: { section: CategoryShowcaseSectionConfig }) {
-    const {title, categorySlug, themeColor, layout = 'row', columns, gradient, imageUrl, limit} = section.props
+    const {title, categorySlug, themeColor, layout = 'row', columns, gradient, imageUrl, limit, carouselControls} = section.props
+
+    // Resolve the carousel hint — unknown values fall back to the default ('overlay')
+    const hint = (carouselControls === 'header' || carouselControls === 'gutter' || carouselControls === 'overlay')
+        ? carouselControls
+        : 'overlay'
+
+    // A seeded imageUrl can point at a file that was never uploaded (the
+    // hospitality retarget shipped ahead of its artwork). Degrade text-first
+    // rather than leaving a broken graphic + a 404 on every page load.
+    // Declared before the early returns below — Rules of Hooks.
+    const [imageFailed, setImageFailed] = useState(false)
 
     // Step 1: resolve slug → category ID
     const {categories, isLoading: categoriesLoading} = useCategories()
@@ -78,30 +91,92 @@ export function CategoryShowcaseSection({section}: { section: CategoryShowcaseSe
     }
 
     const resolvedImageSrc = resolveImageUrl(imageUrl ?? null)
+    const showImage = !!resolvedImageSrc && !imageFailed
+
+    // Below `md` the graphic rides inline with the heading as a small icon (the
+    // `w-64` side rail is `hidden md:flex`, so it never crushes the deck on a
+    // phone) — icon first, then the title.
+    // Both the mobile icon and the desktop rail are doors into the filtered
+    // catalogue — `?category=<slug>` is the contract ProductListPage reads.
+    const categoryHref = `/products?category=${encodeURIComponent(categorySlug)}`
+
+    const mobileIcon = showImage ? (
+        <Link
+            to={categoryHref}
+            aria-label={`Shop ${title}`}
+            className={`shrink-0 rounded-sm md:hidden ${SF_FOCUS_RING_PAGE}`}
+        >
+            <img
+                src={resolvedImageSrc}
+                alt=""
+                aria-hidden="true"
+                onError={() => setImageFailed(true)}
+                className="h-20 w-20 object-contain"
+            />
+        </Link>
+    ) : null
 
     return (
         <section style={gradientStyle}>
-            <div className="max-w-7xl mx-auto px-4 py-10">
-                <h2 className="text-2xl font-bold mb-4 text-(--sf-accent-text) drop-shadow-md">{title}</h2>
+            <div className="max-w-7xl mx-auto px-4 py-8">
+                {/* The heading spans the full band width above the image + deck row, so
+                    it shares a left margin with the desktop icon rail below it rather
+                    than starting inset by the rail's width. It renders here for every
+                    carousel hint — under 'header' the Carousel keeps only its arrow
+                    row, so the title is never duplicated. Colour is the accent-text
+                    token because the band is a client-authored dark gradient. */}
+                {/* The icon sits BESIDE the title block rather than inside the
+                    heading, so the rule tracks the heading text on mobile instead
+                    of starting under the logo. At md+ the icon is hidden and the
+                    block collapses to today's left-aligned heading + rule. */}
+                <div className="mb-4 flex items-center gap-3">
+                    {mobileIcon}
+                    <div className="min-w-0">
+                        <h2 className="text-2xl font-bold text-(--sf-accent-text) drop-shadow-md">
+                            {title}
+                        </h2>
+                        {/* Same accent rule SectionHeading draws under a title, but in
+                            accent-text — the band is a dark client gradient, so the
+                            accent colour itself would disappear into it. */}
+                        <span
+                            className="mt-2 block h-1 w-12 rounded-full bg-(--sf-accent-text)"
+                            aria-hidden="true"
+                        />
+                    </div>
+                </div>
 
                 <div className="mb-4 flex items-stretch gap-8">
-                    {resolvedImageSrc && (
-                        <div className="flex w-64 shrink-0 items-center justify-center">
-                            <img
-                                src={resolvedImageSrc}
-                                alt=""
-                                aria-hidden="true"
-                                className="max-h-112 w-full object-contain"
-                            />
+                    {showImage && (
+                        <div className="hidden md:flex w-64 shrink-0 items-center justify-center">
+                            <Link
+                                to={categoryHref}
+                                aria-label={`Shop ${title}`}
+                                className={`block w-full rounded-md transition-opacity hover:opacity-80 ${SF_FOCUS_RING_PAGE}`}
+                            >
+                                <img
+                                    src={resolvedImageSrc}
+                                    alt=""
+                                    aria-hidden="true"
+                                    onError={() => setImageFailed(true)}
+                                    className="max-h-80 w-full object-contain"
+                                />
+                            </Link>
                         </div>
                     )}
                     {layout === 'carousel' ? (
                         <div className="min-w-0 flex-1 py-2">
-                            {/* Overlay arrows: the side image flanks the deck, so gutter
-                                placement would collide with it. */}
-                            <Carousel ariaLabel={title} perView={columns} arrowPlacement="overlay">
+                            <Carousel
+                                ariaLabel={title}
+                                perView={columns}
+                                perViewMobile={2}
+                                tone="onAccent"
+                                {...(hint === 'header'
+                                    ? {header: <span className="sr-only">{title}</span>}
+                                    : {arrowPlacement: hint})}
+                            >
                                 {displayProducts.map((product) => (
-                                    <ProductCard key={product.id} product={product} variantId={product.variantId}/>
+                                    <ProductCard key={product.id} product={product} variantId={product.variantId}
+                                                 imageAspect="landscape" borderWeight="thick"/>
                                 ))}
                             </Carousel>
                         </div>
@@ -109,7 +184,7 @@ export function CategoryShowcaseSection({section}: { section: CategoryShowcaseSe
                         <div className="flex min-w-0 flex-1 items-stretch gap-4 overflow-x-auto py-2">
                             {displayProducts.map((product) => (
                                 <div key={product.id} className="w-56 shrink-0">
-                                    <ProductCard product={product} variantId={product.variantId}/>
+                                    <ProductCard product={product} variantId={product.variantId} imageAspect="landscape" borderWeight="thick"/>
                                 </div>
                             ))}
                         </div>

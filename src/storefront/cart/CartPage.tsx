@@ -1,179 +1,103 @@
-import { Link } from 'react-router-dom'
-import { Section, SectionHeading } from '@/storefront/sections/shared'
-import { Trash2 } from 'lucide-react'
-import { useCartStore } from './cartStore'
-import { useCartVariants } from './hooks/useCartVariants'
-import { useCheckout } from './hooks/useCheckout'
-import { useStorefrontConfig } from '@/shared/config/storefrontConfig.context'
-import { formatAmount } from '@/shared/utils/formatAmount'
-import { QuantityStepper } from '@/storefront/catalog/components/QuantityStepper'
+import {Section, SectionHeading} from '@/storefront/sections/shared'
+import {useCartStore} from './store/cartStore'
+import {useCartVariants} from './hooks/useCartVariants'
+import {useCheckout} from './hooks/useCheckout'
+import {estimateSubtotal, toCartRows} from './mappers'
+import {CartEmptyState} from './components/CartEmptyState'
+import {CartItems} from './components/CartItems'
+import {CartSummary} from './components/CartSummary'
 
-function CartEmptyState() {
-  return (
-    <div className="py-16 text-center">
-      <h1 className="text-2xl font-bold text-(--sf-text) mb-2">Your cart is empty</h1>
-      <p className="text-(--sf-muted-text) mb-6">
-        Looks like you haven't added anything to your cart yet.
-      </p>
-      <Link
-        to="/products"
-        className="inline-block px-6 py-3 rounded-lg font-medium text-(--sf-accent-text) bg-(--sf-accent) hover:opacity-90 transition-colors"
-      >
-        Continue shopping
-      </Link>
-    </div>
-  )
-}
-
-function PriceSkeleton() {
-  return (
-    <span className="inline-block h-5 w-20 bg-(--sf-surface-muted) rounded animate-pulse" />
-  )
-}
-
-
-
+/**
+ * Orchestrates the cart: loads what the catalogue currently says about the
+ * persisted lines, derives the rows once, and owns the only two mutations —
+ * quantity changes and removals.
+ *
+ * Presentation is delegated: `CartItems` renders the lines, `CartSummary` the
+ * totals and the checkout commitment, `CartEmptyState` the empty case. The page
+ * shell matches the catalogue and the wishlist — `Section as="div" width="wide"`
+ * with the items beside a sticky summary.
+ */
 export function CartPage() {
-  const { items, updateQty, remove } = useCartStore()
-  const variantIds = items.map((i) => i.variantId)
-  const { variants, unavailableIds, isLoading } = useCartVariants(variantIds)
-  const { checkout, isLoading: checkoutLoading, unavailableVariantIds: checkoutUnavailable, error: checkoutError } = useCheckout()
-  const { currency, locale } = useStorefrontConfig()
+    const {items, updateQty, remove} = useCartStore()
+    const variantIds = items.map((i) => i.variantId)
+    const {variants, unavailableIds, isLoading} = useCartVariants(variantIds)
+    const {
+        checkout,
+        isLoading: checkoutLoading,
+        unavailableVariantIds: checkoutUnavailable,
+        error: checkoutError,
+    } = useCheckout()
 
-  if (items.length === 0) {
+    const heading = <SectionHeading as="h1" title="Your Cart" className="mb-0"/>
+
+    if (items.length === 0) {
+        return (
+            <Section as="div" width="wide">
+                <div className="space-y-6">
+                    {heading}
+                    <CartEmptyState/>
+                </div>
+            </Section>
+        )
+    }
+
+    const rows = toCartRows({
+        items,
+        variants,
+        unavailableIds,
+        checkoutFlaggedIds: checkoutUnavailable,
+    })
+    const blockedCount = rows.filter((row) => !row.isOrderable).length
+    const unitCount = items.reduce((sum, item) => sum + item.quantity, 0)
+
     return (
-      <Section as="div">
-        <CartEmptyState />
-      </Section>
-    )
-  }
+        <Section as="div" width="wide">
+            <div className="space-y-6">
+                {heading}
 
-  // Merge unavailable IDs from catalog fetch and checkout 422 response
-  const allUnavailableIds = [...new Set([...unavailableIds, ...checkoutUnavailable])]
-  const hasUnavailableItems = allUnavailableIds.length > 0
+                {/* Toolbar row — the catalogue's and the wishlist's rhythm: one
+                    right-aligned line of context above a divider. */}
+                <div className="flex items-center justify-end border-b border-(--sf-border) pb-4">
+                    <p className="text-sm text-(--sf-muted-text)">
+                        {unitCount} {unitCount === 1 ? 'item' : 'items'} ready for checkout
+                    </p>
+                </div>
 
-  // Compute estimated subtotal from loaded variant prices
-  const estimatedSubtotal = items.reduce((sum, item) => {
-    const variant = variants.get(item.variantId)
-    if (!variant || variant.displayPrice === null) return sum
-    return sum + variant.displayPrice * item.quantity
-  }, 0)
+                {/* Items beside a sticky summary on lg+; below lg the summary
+                    stacks FIRST so the total and the checkout action stay
+                    reachable without scrolling past the lines. */}
+                <div className="grid grid-cols-1 gap-6 lg:grid-cols-3 lg:gap-8">
+                    <div className="lg:col-span-2">
+                        <CartItems
+                            rows={rows}
+                            isLoading={isLoading}
+                            onQuantityChange={updateQty}
+                            onRemove={remove}
+                        />
 
-  return (
-    <Section as="div">
-      <SectionHeading as="h1" title="Your Cart" />
+                        {/* The summary carries these two lines on lg+, where it has
+                            the room. Below lg they live here instead, so the panel
+                            above the products stays short. Only ever one copy is
+                            in the accessibility tree — the other is display:none. */}
+                        <div className="mt-6 space-y-1 text-center text-xs text-(--sf-muted-text) lg:hidden">
+                            <p>Delivery and payment are confirmed on the next step.</p>
+                        </div>
+                    </div>
 
-      {/* Line items */}
-      <div className="divide-y divide-(--sf-border) border-t border-b border-(--sf-border)">
-        {items.map((item) => {
-          const variant = variants.get(item.variantId)
-          const isUnavailable = allUnavailableIds.includes(item.variantId)
-          const isCheckoutFlagged = checkoutUnavailable.includes(item.variantId)
-          const unitPrice = variant?.displayPrice ?? null
-          const lineTotal = unitPrice !== null ? unitPrice * item.quantity : null
-
-          return (
-            <div
-              key={item.variantId}
-              className={`py-4 grid grid-cols-[1fr_auto] gap-4 items-start sm:grid-cols-[1fr_auto_auto_auto_auto] sm:items-center ${
-                isCheckoutFlagged ? 'bg-red-50 -mx-4 px-4 rounded-lg' : ''
-              }`}
-            >
-              {/* Product info */}
-              <div className="min-w-0">
-                <p className="font-medium text-(--sf-text) truncate">{item.productName}</p>
-                <p className="text-sm text-(--sf-muted-text)">{item.variantLabel}</p>
-                {isUnavailable && (
-                  <p className="text-sm text-red-600 font-medium mt-1">
-                    No longer available
-                  </p>
-                )}
-              </div>
-
-              {/* Quantity stepper */}
-              <div className="flex items-center">
-                <QuantityStepper
-                  quantity={item.quantity}
-                  onIncrement={() => updateQty(item.variantId, item.quantity + 1)}
-                  onDecrement={() => updateQty(item.variantId, item.quantity - 1)}
-                />
-              </div>
-
-              {/* Unit price */}
-              <div className="text-sm text-(--sf-muted-text) text-right min-w-[5rem]">
-                {isLoading ? (
-                  <PriceSkeleton />
-                ) : isUnavailable ? (
-                  <span className="text-(--sf-muted-text)">—</span>
-                ) : (
-                  formatAmount(unitPrice, currency, locale)
-                )}
-              </div>
-
-              {/* Line total */}
-              <div className="text-sm font-medium text-(--sf-text) text-right min-w-[5rem]">
-                {isLoading ? (
-                  <PriceSkeleton />
-                ) : isUnavailable ? (
-                  <span className="text-(--sf-muted-text)">—</span>
-                ) : (
-                  formatAmount(lineTotal, currency, locale)
-                )}
-              </div>
-
-              {/* Remove button */}
-              <button
-                type="button"
-                onClick={() => remove(item.variantId)}
-                aria-label={`Remove ${item.productName} from cart`}
-                className="p-2 text-(--sf-muted-text) hover:text-red-600 transition-colors"
-              >
-                <Trash2 className="h-4 w-4" />
-              </button>
+                    <div className="order-first lg:order-none">
+                        <CartSummary
+                            lineCount={rows.length}
+                            unitCount={unitCount}
+                            estimatedSubtotal={estimateSubtotal(rows)}
+                            blockedCount={blockedCount}
+                            isLoading={isLoading}
+                            checkoutLoading={checkoutLoading}
+                            checkoutError={checkoutError}
+                            onCheckout={checkout}
+                        />
+                    </div>
+                </div>
             </div>
-          )
-        })}
-      </div>
-
-      {/* Summary section */}
-      <div className="mt-6 space-y-4">
-        {/* Estimated subtotal */}
-        {!isLoading && (
-          <div className="flex justify-between items-center text-lg font-medium text-(--sf-text)">
-            <span>Estimated subtotal</span>
-            <span>{formatAmount(estimatedSubtotal, currency, locale)}</span>
-          </div>
-        )}
-
-        {/* Price disclaimer */}
-        <p className="text-xs text-(--sf-muted-text)">
-          Estimated — final total confirmed at checkout
-        </p>
-
-        {/* Proceed to checkout button */}
-        {checkoutError && (
-          <p className="text-sm text-red-600">{checkoutError}</p>
-        )}
-
-        <button
-          type="button"
-          disabled={hasUnavailableItems || checkoutLoading}
-          onClick={checkout}
-          className={`w-full px-6 py-3 rounded-lg font-medium transition-colors ${
-            hasUnavailableItems || checkoutLoading
-              ? 'bg-(--sf-surface-muted) text-(--sf-muted-text) cursor-not-allowed'
-              : 'bg-(--sf-accent) text-(--sf-accent-text) hover:opacity-90 cursor-pointer'
-          }`}
-        >
-          {checkoutLoading ? 'Processing...' : 'Proceed to checkout'}
-        </button>
-
-        {hasUnavailableItems && (
-          <p className="text-sm text-red-600 text-center">
-            Remove unavailable items before proceeding to checkout.
-          </p>
-        )}
-      </div>
-    </Section>
-  )
+        </Section>
+    )
 }

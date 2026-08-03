@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import { useNavigate, useSearchParams } from 'react-router-dom'
 import { Search } from 'lucide-react'
+import { SF_FOCUS_RING } from '@/storefront/sections/shared/focusRing'
 
 interface SearchBarProps {
   className?: string
@@ -13,13 +14,13 @@ const toneClasses: Record<NonNullable<SearchBarProps['tone']>, { container: stri
     container:
       'border border-(--sf-border) bg-(--sf-panel) text-(--sf-text) focus-within:border-(--sf-ring) focus-within:ring-1 focus-within:ring-(--sf-ring)',
     input: 'placeholder:text-(--sf-muted-text)',
-    button: 'text-(--sf-muted-text) hover:text-(--sf-text)',
+    button: `text-(--sf-muted-text) hover:text-(--sf-text) rounded-md ${SF_FOCUS_RING.page}`,
   },
   nav: {
     container:
       'border border-transparent bg-(--sf-nav-border) text-(--sf-nav-text) focus-within:border-(--sf-ring) focus-within:ring-1 focus-within:ring-(--sf-ring)',
     input: 'placeholder:text-(--sf-nav-icon-text)',
-    button: 'text-(--sf-nav-icon-text) hover:text-(--sf-nav-icon-text-hover)',
+    button: `text-(--sf-nav-icon-text) hover:text-(--sf-nav-icon-text-hover) rounded-md ${SF_FOCUS_RING.nav}`,
   },
 }
 

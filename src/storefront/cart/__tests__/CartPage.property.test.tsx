@@ -3,8 +3,8 @@ import {MemoryRouter} from 'react-router-dom'
 import {QueryClient, QueryClientProvider} from '@tanstack/react-query'
 import {afterEach, beforeEach, describe, expect, it, vi} from 'vitest'
 import * as fc from 'fast-check'
-import type {CartLineItem} from '../cartStore'
-import {useCartStore} from '../cartStore'
+import type {CartLineItem} from '../store/cartStore'
+import {useCartStore} from '../store/cartStore'
 import {CartPage} from '../CartPage'
 import {useCartVariants} from '../hooks/useCartVariants'
 import {useCheckout} from '../hooks/useCheckout'
@@ -91,10 +91,11 @@ describe('CartPage — Property 6: Cart row renders all required fields', () => 
                 const variantsMap = new Map()
                 variantsMap.set(item.variantId, {
                     id: item.variantId,
-                    stockQuantity: 10,
+                    sku: 'SKU-1',
+                    stockQuantity: null,
                     status: 'ACTIVE',
                     displayPrice: price,
-                    product: {name: item.productName},
+                    images: [],
                 })
 
                 mockedUseCartVariants.mockReturnValue({
@@ -113,10 +114,7 @@ describe('CartPage — Property 6: Cart row renders all required fields', () => 
                     </QueryClientProvider>
                 )
 
-                // Get the line item row (the div with grid layout inside the line items container)
-                const lineItemRows = container.querySelectorAll(
-                    '.divide-y > div'
-                )
+                const lineItemRows = container.querySelectorAll('[data-testid="cart-line-item"]')
                 expect(lineItemRows.length).toBe(1)
                 const row = lineItemRows[0] as HTMLElement
 
@@ -144,16 +142,23 @@ describe('CartPage — Property 6: Cart row renders all required fields', () => 
                     within(row).getByRole('button', {name: /decrease quantity/i})
                 ).toBeInTheDocument()
 
-                // 4. A displayed price (formatted) — the unit price should appear in the row
-                const formattedPrice = new Intl.NumberFormat('en-ZA', {
-                    style: 'currency',
-                    currency: 'ZAR',
-                }).format(price)
-                // Use getAllByText since unit price and line total may be the same value (when qty=1)
-                const priceElements = within(row).getAllByText((_content, element) => {
-                    return element?.textContent === formattedPrice
-                })
-                expect(priceElements.length).toBeGreaterThanOrEqual(1)
+                // 4. The unit price and the line total, each formatted and each present
+                // jest-dom normalizes whitespace before comparing, so the
+                // narrow no-break space Intl emits has to be normalized here too.
+                const format = (amount: number) =>
+                    new Intl.NumberFormat('en-ZA', {
+                        style: 'currency',
+                        currency: 'ZAR',
+                    })
+                        .format(amount)
+                        .replace(/\s/g, ' ')
+
+                expect(within(row).getByTestId('cart-unit-price')).toHaveTextContent(
+                    format(price),
+                )
+                expect(within(row).getByTestId('cart-line-total')).toHaveTextContent(
+                    format(price * item.quantity),
+                )
 
                 // 5. Remove button (with aria-label containing "Remove")
                 expect(
@@ -165,5 +170,7 @@ describe('CartPage — Property 6: Cart row renders all required fields', () => 
             }),
             {numRuns: 100}
         )
-    })
+        // 100 full page renders; the default 5s budget is not enough for this
+        // one under a loaded parallel suite.
+    }, 30_000)
 })

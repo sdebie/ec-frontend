@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react'
 import { ArrowLeft, Check, X } from 'lucide-react'
+import { ACCENT_BUTTON_HOVER, SF_FOCUS_RING_PAGE } from '@/storefront/sections/shared'
 
 interface BrandPickerSheetProps {
   brands: Array<{ id: string; name: string; slug: string }>
@@ -107,7 +108,7 @@ export function BrandPickerSheet({ brands, activeSlug, onSelect, onClose }: Bran
         <button
           type="button"
           onClick={onClose}
-          className="w-full rounded-lg bg-(--sf-accent) px-4 py-2.5 text-sm font-semibold text-(--sf-accent-text) hover:opacity-90 transition-opacity"
+          className={`w-full rounded-lg bg-(--sf-accent) px-4 py-2.5 text-sm font-semibold text-(--sf-accent-text) transition-colors ${ACCENT_BUTTON_HOVER} ${SF_FOCUS_RING_PAGE}`}
         >
           Show results
         </button>

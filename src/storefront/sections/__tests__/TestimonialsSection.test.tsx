@@ -98,11 +98,11 @@ describe('TestimonialsSection', () => {
       } as any)
     })
 
-    it('renders a role="region" element with aria-label "Testimonials"', () => {
+    it('renders a role="region" element with aria-label matching the title', () => {
       const section = makeSection({ layout: 'carousel' })
       render(<TestimonialsSection section={section} />)
 
-      const region = screen.getByRole('region', { name: 'Testimonials' })
+      const region = screen.getByRole('region', { name: 'Customer Reviews' })
       expect(region).toBeInTheDocument()
     })
 
@@ -310,6 +310,115 @@ describe('TestimonialsSection', () => {
 
       render(<TestimonialsSection section={section} />)
       expect(screen.getByText('Testimonials')).toBeInTheDocument()
+    })
+  })
+
+  describe('carouselControls hint', () => {
+    beforeEach(() => {
+      mockedUseTestimonials.mockReturnValue({
+        data: mockTestimonials,
+        isLoading: false,
+        isError: false,
+      } as any)
+    })
+
+    it('default (gutter): renders own heading and no arrowPlacement prop on Carousel', () => {
+      const section = makeSection({ layout: 'carousel' })
+      const { container } = render(<TestimonialsSection section={section} />)
+
+      // Own heading is rendered outside the Carousel region
+      const region = screen.getByRole('region', { name: 'Customer Reviews' })
+      expect(region).toBeInTheDocument()
+
+      // The heading exists at section level (outside the carousel header row)
+      const headings = container.querySelectorAll('h2')
+      expect(headings.length).toBeGreaterThanOrEqual(1)
+      expect(headings[0].textContent).toBe('Customer Reviews')
+
+      // No header row inside carousel (no mb-0 heading)
+      const headerRow = region.querySelector('.mb-0')
+      expect(headerRow).toBeNull()
+
+      // Gutter arrows use xl:-left-14 class (gutter is carousel default)
+      const prevButton = region.querySelector('button[aria-label="Previous"]')
+      if (prevButton) {
+        expect(prevButton.className).toContain('xl:-left-14')
+      }
+    })
+
+    it('header: passes heading into Carousel header prop, does not render own heading', () => {
+      const section = makeSection({ layout: 'carousel', carouselControls: 'header' })
+      const { container } = render(<TestimonialsSection section={section} />)
+
+      const region = screen.getByRole('region', { name: 'Customer Reviews' })
+      expect(region).toBeInTheDocument()
+
+      // Header-controls mode: heading is inside the carousel header row
+      const headerRow = region.querySelector('.mb-8')
+      expect(headerRow).not.toBeNull()
+
+      // Only one heading total — the one inside carousel header, not a separate one
+      const allHeadings = container.querySelectorAll('h2')
+      expect(allHeadings.length).toBe(1)
+      expect(allHeadings[0].textContent).toBe('Customer Reviews')
+
+      // No gutter/overlay arrows (header-controls mode uses header buttons)
+      const absoluteButtons = region.querySelectorAll('button.absolute')
+      expect(absoluteButtons.length).toBe(0)
+    })
+
+    it('overlay: renders own heading and passes arrowPlacement="overlay" to Carousel', () => {
+      const section = makeSection({ layout: 'carousel', carouselControls: 'overlay' })
+      const { container } = render(<TestimonialsSection section={section} />)
+
+      const region = screen.getByRole('region', { name: 'Customer Reviews' })
+      expect(region).toBeInTheDocument()
+
+      // Own heading rendered outside carousel
+      const headings = container.querySelectorAll('h2')
+      expect(headings.length).toBeGreaterThanOrEqual(1)
+      expect(headings[0].textContent).toBe('Customer Reviews')
+
+      // No header row (not header-controls mode)
+      const headerRow = region.querySelector('.mb-8')
+      expect(headerRow).toBeNull()
+
+      // Overlay arrows do NOT have xl:-left-14 (that's gutter-only)
+      const prevButton = region.querySelector('button[aria-label="Previous"]')
+      if (prevButton) {
+        expect(prevButton.className).not.toContain('xl:-left-14')
+      }
+    })
+
+    it('unknown value falls back to gutter (default) behaviour', () => {
+      const section = makeSection({ layout: 'carousel', carouselControls: 'bogus' as any })
+      const { container } = render(<TestimonialsSection section={section} />)
+
+      const region = screen.getByRole('region', { name: 'Customer Reviews' })
+      expect(region).toBeInTheDocument()
+
+      // Own heading rendered (gutter behaviour)
+      const headings = container.querySelectorAll('h2')
+      expect(headings.length).toBeGreaterThanOrEqual(1)
+      expect(headings[0].textContent).toBe('Customer Reviews')
+
+      // No header row inside carousel
+      const headerRow = region.querySelector('.mb-8')
+      expect(headerRow).toBeNull()
+    })
+
+    it('non-carousel layouts ignore carouselControls and always render own heading', () => {
+      const gridSection = makeSection({ layout: 'grid', carouselControls: 'header' })
+      const { container } = render(<TestimonialsSection section={gridSection} />)
+
+      // Heading is always rendered for grid layout regardless of carouselControls
+      const headings = container.querySelectorAll('h2')
+      expect(headings.length).toBe(1)
+      expect(headings[0].textContent).toBe('Customer Reviews')
+
+      // No carousel region
+      const region = container.querySelector('[role="region"]')
+      expect(region).toBeNull()
     })
   })
 })

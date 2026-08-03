@@ -14,7 +14,10 @@ vi.mock('@/shared/auth/customerAuthStore', () => ({
   },
 }))
 
-vi.mock('@/storefront/customer/account/wishlist/WishlistButton', () => ({
+vi.mock('@/storefront/customer/account/wishlist/components/WishlistButton', () => ({
+    WishlistPromptLink: ({productUrl, className}: {productUrl: string; className?: string}) => (
+        <a href={productUrl} aria-label="Choose options to save to wishlist" className={className}>♡</a>
+    ),
   WishlistButton: ({ variantId, className }: { variantId: string; className?: string }) => (
     <button type="button" aria-label={`Wishlist ${variantId}`} className={className}>♡</button>
   ),

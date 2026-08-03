@@ -1,6 +1,6 @@
 import {Link} from 'react-router-dom'
 import type {CtaSectionConfig} from '@/shared/types/StorefrontConfig'
-import {Section, SectionHeading} from './shared'
+import {ACCENT_BUTTON_HOVER, SF_FOCUS_RING_PAGE, Section, SectionHeading} from './shared'
 
 export function CtaSection({section}: { section: CtaSectionConfig }) {
     const {title, description, eyebrow, cta, secondaryCta, secondaryLinks = [], variant = 'accent'} = section.props
@@ -12,19 +12,23 @@ export function CtaSection({section}: { section: CtaSectionConfig }) {
     if (variant === 'dark') {
         return (
             <Section variant="dark">
-                <div className="lg:flex lg:items-center lg:justify-between lg:gap-12">
+                {/* The action column stacks and self-sizes to its widest label, so
+                    both buttons match without a hardcoded width that a different
+                    client's wording would break — and the copy keeps everything
+                    else, which is the wider column of the two. */}
+                <div className="lg:flex lg:items-end lg:justify-between lg:gap-16">
                     <SectionHeading eyebrow={eyebrow} title={title} subtitle={description} className="lg:mb-0"/>
-                    <div className="flex flex-wrap items-center gap-4 lg:shrink-0">
+                    <div className="mt-8 flex flex-col items-stretch gap-3 lg:mt-0 lg:shrink-0">
                     <Link
                         to={cta.to}
-                        className="inline-block rounded-md border-2 border-transparent bg-(--sf-accent) px-6 py-3 text-sm font-semibold text-(--sf-accent-text) shadow-sm transition-opacity hover:opacity-90"
+                        className={`block rounded-md border-2 border-transparent bg-(--sf-accent) px-6 py-3 text-center text-sm font-semibold text-(--sf-accent-text) shadow-sm transition-colors ${ACCENT_BUTTON_HOVER} ${SF_FOCUS_RING_PAGE}`}
                     >
                         {cta.label}
                     </Link>
                     {secondaryCta && (
                         <Link
                             to={secondaryCta.to}
-                            className="inline-block rounded-md border-2 border-(--sf-accent) bg-transparent px-6 py-3 text-sm font-semibold transition-colors hover:bg-[color-mix(in_srgb,var(--sf-accent)_80%,white)] hover:text-(--sf-accent-text)"
+                            className={`block rounded-md border-2 border-(--sf-accent) bg-transparent px-6 py-3 text-center text-sm font-semibold transition-colors hover:bg-[color-mix(in_srgb,var(--sf-accent)_80%,white)] hover:text-(--sf-accent-text) ${SF_FOCUS_RING_PAGE}`}
                         >
                             {secondaryCta.label}
                         </Link>

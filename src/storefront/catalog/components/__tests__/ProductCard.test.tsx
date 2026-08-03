@@ -2,20 +2,26 @@ import {render, screen, cleanup} from '@testing-library/react'
 import {MemoryRouter} from 'react-router-dom'
 import {ProductCard} from '../ProductCard'
 import {formatAmount} from '@/shared/utils/formatAmount'
-import {describe, expect, it, vi} from 'vitest'
+import {describe, expect, it, vi, afterEach} from 'vitest'
 
 vi.mock('@/shared/config/storefrontConfig.context', () => ({
     useStorefrontConfig: () => ({currency: 'ZAR', locale: 'en-ZA'}),
 }))
 
+const {mockCustomerType} = vi.hoisted(() => ({mockCustomerType: {value: 'RETAIL'}}))
+
 vi.mock('@/shared/auth/customerAuthStore', () => ({
     useCustomerAuthStore: (selector?: (state: { customerType: string; isSignedIn: boolean }) => unknown) => {
-        const state = {customerType: 'RETAIL', isSignedIn: false}
+        const state = {customerType: mockCustomerType.value, isSignedIn: mockCustomerType.value !== 'GUEST'}
         return selector ? selector(state) : state
     },
 }))
 
-vi.mock('@/storefront/customer/account/wishlist/WishlistButton', () => ({
+
+vi.mock('@/storefront/customer/account/wishlist/components/WishlistButton', () => ({
+    WishlistPromptLink: ({productUrl, className}: {productUrl: string; className?: string}) => (
+        <a href={productUrl} aria-label="Choose options to save to wishlist" className={className}>♡</a>
+    ),
     WishlistButton: ({variantId, className}: { variantId: string; className?: string }) => (
         <button type="button" aria-label={`Wishlist ${variantId}`} className={className}>♡</button>
     ),
@@ -50,14 +56,87 @@ function renderCard(
 }
 
 describe('ProductCard', () => {
+    afterEach(() => {
+        mockCustomerType.value = 'RETAIL'
+    })
+
+    describe('border weight (owner directive 2026-08-02)', () => {
+        it('keeps the hairline outline by default — the catalogue must not thicken', () => {
+            const {container} = renderCard()
+
+            const root = container.querySelector('[data-layout="grid"]')!
+            expect(root.className).toContain('border border-(--sf-border)/60')
+            expect(root.className).not.toContain('border-2')
+        })
+
+        it('renders a heavier border when the consumer opts in', () => {
+            const {container} = renderCard({}, {borderWeight: 'thick'})
+
+            const root = container.querySelector('[data-layout="grid"]')!
+            expect(root.className).toContain('border-2 border-(--sf-border)')
+            expect(root.className).not.toContain('border-(--sf-border)/60')
+        })
+
+        it('uses a border, not an inset outline the image stage would cover', () => {
+            const {container} = renderCard({}, {borderWeight: 'thick'})
+
+            // An inset outline paints beneath the card's own children, so the
+            // full-bleed image stage hid it along the top edge and that side
+            // read thinner than the other three.
+            const root = container.querySelector('[data-layout="grid"]')!
+            expect(root.className).not.toContain('outline')
+        })
+
+        it('applies to the row layout too', () => {
+            const {container} = renderCard({}, {layout: 'row', borderWeight: 'thick'})
+
+            expect(container.querySelector('[data-layout="row"]')!.className).toContain('border-2')
+        })
+    })
+
+    describe('wishlist affordance (owner directive 2026-08-02)', () => {
+        it('renders the real wishlist toggle when the card has a variant', () => {
+            renderCard({}, {variantId: 'variant-1'})
+
+            expect(screen.getByLabelText('Wishlist variant-1')).toBeInTheDocument()
+            expect(screen.queryByLabelText('Choose options to save to wishlist')).not.toBeInTheDocument()
+        })
+
+        it('routes the heart to the product page when there is no variant to save', () => {
+            renderCard({slug: 'blue-overall'}, {variantId: null})
+
+            // The wishlist is variant-keyed, so a variable product must NOT write —
+            // the heart is a door to the PDP where a variant gets chosen.
+            const heart = screen.getByLabelText('Choose options to save to wishlist')
+            expect(heart.tagName).toBe('A')
+            expect(heart).toHaveAttribute('href', '/products/blue-overall')
+            expect(screen.queryByLabelText(/^Wishlist /)).not.toBeInTheDocument()
+        })
+
+        it('renders no wishlist affordance at all when the card suppresses it', () => {
+            renderCard({}, {variantId: null, showWishlistButton: false})
+
+            expect(screen.queryByLabelText('Choose options to save to wishlist')).not.toBeInTheDocument()
+            expect(screen.queryByLabelText(/^Wishlist /)).not.toBeInTheDocument()
+        })
+
+        it('reserves the SKU line on a variable product so decks stay aligned', () => {
+            const {container} = renderCard({sku: null}, {variantId: null})
+
+            // Not a visible SKU, but the row still occupies its line.
+            expect(screen.queryByText(/SKU:/)).not.toBeInTheDocument()
+            expect(container.querySelector('p[aria-hidden="true"]')).not.toBeNull()
+        })
+    })
+
     describe('standardized card contract (2026-07-24)', () => {
         it('renders the display price with an ex. VAT label', () => {
             renderCard()
             expect(screen.getByText('ex. VAT')).toBeInTheDocument()
         })
 
-        it('renders the wholesale price as small secondary text for non-wholesale shoppers', () => {
-            renderCard()
+        it('renders the wholesale price as small secondary text when prices differ', () => {
+            renderCard({retailPrice: {price: 199.99}, wholesalePrice: {price: 149.99}})
             expect(screen.getByText(/Wholesale:/)).toBeInTheDocument()
         })
 
@@ -201,24 +280,41 @@ describe('ProductCard', () => {
             expect(root?.tagName).toBe('DIV')
         })
 
-        it('row layout stays horizontal on mobile with a compact image rail (owner adjustment 2026-08-01)', () => {
+        it('row layout keeps a compact image rail beside the identity on mobile (owner adjustment 2026-08-01)', () => {
             // The original design stacked the whole row to a column below `sm`,
-            // which rendered a viewport-wide square image per row on phones.
-            // Now: the root stays a row at every width, the image is a small
-            // fixed square (w-28, sm:w-40), and only the inner content wrapper
-            // stacks identity above price/actions on mobile.
+            // which rendered a viewport-wide square image per row on phones. The
+            // image must stay a small fixed square at every width, with the
+            // identity beside it — never above or below it.
             const {container} = renderCard({}, {layout: 'row'})
             const root = container.firstElementChild as HTMLElement
-            expect(root.className).toContain('flex-row')
-            expect(root.className).not.toContain('flex-col')
 
             const imageRail = root.firstElementChild as HTMLElement
             expect(imageRail.className).toContain('w-28')
             expect(imageRail.className).toContain('sm:w-40')
 
-            const contentWrapper = imageRail.nextElementSibling as HTMLElement
-            expect(contentWrapper.className).toContain('flex-col')
-            expect(contentWrapper.className).toContain('sm:flex-row')
+            // Below sm: a two-column grid puts the image and identity side by
+            // side. From sm: the same nodes lay out as a flex row.
+            expect(root.className).toContain('grid-cols-[auto_1fr]')
+            expect(root.className).toContain('sm:flex-row')
+            expect(root.className).not.toContain('flex-col')
+        })
+
+        it('row layout puts price and actions in a bar spanning both columns on mobile, a column from sm', () => {
+            // Three direct children — image, identity, price/actions — so one set
+            // of nodes reflows between breakpoints instead of being duplicated.
+            const {container} = renderCard({}, {layout: 'row'})
+            const root = container.firstElementChild as HTMLElement
+            expect(root.children).toHaveLength(3)
+
+            const actions = root.children[2] as HTMLElement
+            // Mobile: full-width bar, divided from the identity above.
+            expect(actions.className).toContain('col-span-2')
+            expect(actions.className).toContain('border-t')
+            // From sm: the right-hand column with its left divider.
+            expect(actions.className).toContain('sm:col-span-1')
+            expect(actions.className).toContain('sm:w-48')
+            expect(actions.className).toContain('sm:border-l')
+            expect(actions.className).toContain('sm:border-t-0')
         })
     })
 
@@ -239,6 +335,52 @@ describe('ProductCard', () => {
 
             const originalPriceEl = screen.getByText(formattedOriginalPrice, {normalizer})
             expect(originalPriceEl).toHaveClass('line-through')
+        })
+    })
+
+    describe('wholesale-line suppression (Req 7, design C10)', () => {
+        it('suppresses the wholesale line when retail and wholesale display prices are equal', () => {
+            renderCard({
+                retailPrice: {price: 179},
+                wholesalePrice: {price: 179},
+                retailSalePrice: null,
+                wholesaleSalePrice: null,
+            })
+            expect(screen.queryByText(/Wholesale:/)).not.toBeInTheDocument()
+        })
+
+        it('renders the wholesale line when retail and wholesale display prices differ', () => {
+            renderCard({
+                retailPrice: {price: 199.99},
+                wholesalePrice: {price: 149.99},
+                retailSalePrice: null,
+                wholesaleSalePrice: null,
+            })
+            expect(screen.getByText(/Wholesale:/)).toBeInTheDocument()
+        })
+
+        it('suppresses the wholesale line when wholesale price is missing/null', () => {
+            renderCard({
+                retailPrice: {price: 199.99},
+                wholesalePrice: null,
+                retailSalePrice: null,
+                wholesaleSalePrice: null,
+            })
+            expect(screen.queryByText(/Wholesale:/)).not.toBeInTheDocument()
+        })
+
+        it('wholesale-customer path unchanged — line never renders for WHOLESALE shoppers', () => {
+            mockCustomerType.value = 'WHOLESALE'
+
+            renderCard({
+                retailPrice: {price: 199.99},
+                wholesalePrice: {price: 149.99},
+                retailSalePrice: null,
+                wholesaleSalePrice: null,
+            })
+            expect(screen.queryByText(/Wholesale:/)).not.toBeInTheDocument()
+
+            mockCustomerType.value = 'RETAIL'
         })
     })
 
@@ -313,7 +455,9 @@ describe('ProductCard', () => {
             renderCard({inStock: true})
             const indicator = screen.getByText('In stock')
             expect(indicator).toBeInTheDocument()
-            expect(indicator).toHaveClass('text-green-600')
+            // Themed status token, not a palette class — the storefront surface
+            // binds --c-success/--sf-success so a client can brand it.
+            expect(indicator).toHaveClass('text-(--sf-success)')
         })
 
         it('renders "Out of stock" with muted text when inStock is false', () => {
@@ -391,6 +535,248 @@ describe('ProductCard', () => {
 
             expect(screen.getByRole('button', {name: 'Add to cart'})).toBeInTheDocument()
             expect(screen.queryByText('Out of stock')).not.toBeInTheDocument()
+        })
+    })
+
+    describe('mobileImage prop (design §3.2)', () => {
+        describe('grid layout', () => {
+            it('renders default aspect-square stage when mobileImage is absent', () => {
+                const {container} = renderCard({}, {layout: 'grid'})
+                const root = container.firstElementChild as HTMLElement
+                const imageStage = root.querySelector('[class*="overflow-hidden bg-(--sf-surface-muted)"]') as HTMLElement
+                expect(imageStage.className).toContain('aspect-square')
+                expect(imageStage.className).toContain('w-full')
+                expect(imageStage.className).not.toContain('h-28')
+                expect(imageStage.className).not.toContain('sm:aspect-square')
+            })
+
+            it('renders default aspect-square stage when mobileImage="default"', () => {
+                const {container} = renderCard({}, {layout: 'grid', mobileImage: 'default'})
+                const root = container.firstElementChild as HTMLElement
+                const imageStage = root.querySelector('[class*="overflow-hidden bg-(--sf-surface-muted)"]') as HTMLElement
+                expect(imageStage.className).toContain('aspect-square')
+                expect(imageStage.className).toContain('w-full')
+                expect(imageStage.className).not.toContain('h-28')
+                expect(imageStage.className).not.toContain('sm:aspect-square')
+            })
+
+            it('renders compact fixed-height stage when mobileImage="thumbnail"', () => {
+                const {container} = renderCard({}, {layout: 'grid', mobileImage: 'thumbnail'})
+                const root = container.firstElementChild as HTMLElement
+                const imageStage = root.querySelector('[class*="overflow-hidden bg-(--sf-surface-muted)"]') as HTMLElement
+                expect(imageStage.className).toContain('h-28')
+                expect(imageStage.className).toContain('w-full')
+                expect(imageStage.className).toContain('sm:aspect-square')
+                expect(imageStage.className).toContain('sm:h-auto')
+                // The bare (non-prefixed) aspect-square should not appear — only sm:aspect-square
+                const classes = imageStage.className.split(/\s+/)
+                expect(classes).not.toContain('aspect-square')
+            })
+        })
+
+        describe('imageAspect prop', () => {
+            it('defaults to a square stage when imageAspect is absent', () => {
+                const {container} = renderCard({}, {layout: 'grid'})
+                const root = container.firstElementChild as HTMLElement
+                const imageStage = root.querySelector('[class*="overflow-hidden bg-(--sf-surface-muted)"]') as HTMLElement
+                expect(imageStage.className).toContain('aspect-square')
+                expect(imageStage.className).not.toContain('aspect-[4/3]')
+            })
+
+            it('renders a square stage when imageAspect="square" (byte-stable with default)', () => {
+                const {container: a} = renderCard({}, {layout: 'grid'})
+                const {container: b} = renderCard({}, {layout: 'grid', imageAspect: 'square'})
+                const stageOf = (c: HTMLElement) =>
+                    (c.firstElementChild as HTMLElement)
+                        .querySelector('[class*="overflow-hidden bg-(--sf-surface-muted)"]') as HTMLElement
+                expect(stageOf(b).className).toBe(stageOf(a).className)
+            })
+
+            it('renders a 4:3 stage when imageAspect="landscape"', () => {
+                const {container} = renderCard({}, {layout: 'grid', imageAspect: 'landscape'})
+                const root = container.firstElementChild as HTMLElement
+                const imageStage = root.querySelector('[class*="overflow-hidden bg-(--sf-surface-muted)"]') as HTMLElement
+                expect(imageStage.className).toContain('aspect-[4/3]')
+                expect(imageStage.className).toContain('w-full')
+                const classes = imageStage.className.split(/\s+/)
+                expect(classes).not.toContain('aspect-square')
+            })
+
+            it('composes with mobileImage="thumbnail" — compact below sm, 4:3 at sm+', () => {
+                const {container} = renderCard({}, {layout: 'grid', mobileImage: 'thumbnail', imageAspect: 'landscape'})
+                const root = container.firstElementChild as HTMLElement
+                const imageStage = root.querySelector('[class*="overflow-hidden bg-(--sf-surface-muted)"]') as HTMLElement
+                expect(imageStage.className).toContain('h-28')
+                expect(imageStage.className).toContain('sm:aspect-[4/3]')
+                expect(imageStage.className).toContain('sm:h-auto')
+                expect(imageStage.className).not.toContain('sm:aspect-square')
+            })
+
+            it('does not affect the row layout image rail', () => {
+                const {container: a} = renderCard({}, {layout: 'row'})
+                const {container: b} = renderCard({}, {layout: 'row', imageAspect: 'landscape'})
+                const railOf = (c: HTMLElement) => (c.firstElementChild as HTMLElement).firstElementChild as HTMLElement
+                expect(railOf(b).className).toBe(railOf(a).className)
+            })
+        })
+
+        describe('row layout', () => {
+            it('renders default w-28 rail when mobileImage is absent', () => {
+                const {container} = renderCard({}, {layout: 'row'})
+                const root = container.firstElementChild as HTMLElement
+                const imageRail = root.firstElementChild as HTMLElement
+                expect(imageRail.className).toContain('w-28')
+                expect(imageRail.className).toContain('sm:w-40')
+                expect(imageRail.className).not.toContain('w-20')
+            })
+
+            it('renders default w-28 rail when mobileImage="default"', () => {
+                const {container} = renderCard({}, {layout: 'row', mobileImage: 'default'})
+                const root = container.firstElementChild as HTMLElement
+                const imageRail = root.firstElementChild as HTMLElement
+                expect(imageRail.className).toContain('w-28')
+                expect(imageRail.className).toContain('sm:w-40')
+                expect(imageRail.className).not.toContain('w-20')
+            })
+
+            it('renders narrow w-20 rail when mobileImage="thumbnail"', () => {
+                const {container} = renderCard({}, {layout: 'row', mobileImage: 'thumbnail'})
+                const root = container.firstElementChild as HTMLElement
+                const imageRail = root.firstElementChild as HTMLElement
+                expect(imageRail.className).toContain('w-20')
+                expect(imageRail.className).toContain('sm:w-40')
+                expect(imageRail.className).not.toContain('w-28')
+            })
+        })
+
+        describe('byte-stability', () => {
+            it('grid: absent mobileImage produces identical output to mobileImage="default"', () => {
+                const {container: absentContainer} = renderCard({}, {layout: 'grid'})
+                const absentHtml = absentContainer.innerHTML
+                cleanup()
+
+                const {container: defaultContainer} = renderCard({}, {layout: 'grid', mobileImage: 'default'})
+                const defaultHtml = defaultContainer.innerHTML
+
+                expect(absentHtml).toBe(defaultHtml)
+            })
+
+            it('row: absent mobileImage produces identical output to mobileImage="default"', () => {
+                const {container: absentContainer} = renderCard({}, {layout: 'row'})
+                const absentHtml = absentContainer.innerHTML
+                cleanup()
+
+                const {container: defaultContainer} = renderCard({}, {layout: 'row', mobileImage: 'default'})
+                const defaultHtml = defaultContainer.innerHTML
+
+                expect(absentHtml).toBe(defaultHtml)
+            })
+        })
+    })
+
+    describe('variantLabel prop (task 2.2)', () => {
+        it('renders variant label text in grid layout when provided', () => {
+            renderCard({sku: 'ABC-100'}, {layout: 'grid', variantLabel: 'Size: XL, Colour: Red'})
+            expect(screen.getByText('Size: XL, Colour: Red')).toBeInTheDocument()
+        })
+
+        it('renders variant label text in row layout when provided', () => {
+            renderCard({sku: 'ABC-100'}, {layout: 'row', variantLabel: 'Size: XL, Colour: Red'})
+            expect(screen.getByText('Size: XL, Colour: Red')).toBeInTheDocument()
+        })
+
+        it('variant label has correct styling classes in grid layout', () => {
+            renderCard({sku: 'ABC-100'}, {layout: 'grid', variantLabel: 'Weight: 500g'})
+            const label = screen.getByText('Weight: 500g')
+            expect(label.tagName).toBe('P')
+            expect(label).toHaveClass('mt-1')
+            expect(label).toHaveClass('text-xs')
+            expect(label).toHaveClass('text-(--sf-muted-text)')
+        })
+
+        it('variant label has correct styling classes in row layout', () => {
+            renderCard({sku: 'ABC-100'}, {layout: 'row', variantLabel: 'Weight: 500g'})
+            const label = screen.getByText('Weight: 500g')
+            expect(label.tagName).toBe('P')
+            expect(label).toHaveClass('mt-1')
+            expect(label).toHaveClass('text-xs')
+            expect(label).toHaveClass('text-(--sf-muted-text)')
+        })
+
+        it('does not render variant label when prop is absent (grid)', () => {
+            const {container: withoutLabel} = renderCard({sku: 'ABC-100'}, {layout: 'grid'})
+            // Only the SKU paragraph should contain muted text xs that isn't stock/description
+            expect(screen.getByText('SKU: ABC-100')).toBeInTheDocument()
+            // The variant label paragraph simply isn't there
+            const paragraphs = withoutLabel.querySelectorAll('p')
+            const texts = Array.from(paragraphs).map(p => p.textContent)
+            expect(texts).not.toContain('')
+        })
+
+        it('does not render variant label when prop is empty string (grid)', () => {
+            renderCard({sku: 'ABC-100'}, {layout: 'grid', variantLabel: ''})
+            // Empty string is falsy → not rendered
+            const paragraphs = screen.getByText('SKU: ABC-100').parentElement!.querySelectorAll('p')
+            const texts = Array.from(paragraphs).map(p => p.textContent)
+            // There should be only the SKU paragraph (no empty variant label paragraph)
+            expect(texts.filter(t => t === '')).toHaveLength(0)
+        })
+
+        it('absent variantLabel produces byte-identical output (grid)', () => {
+            const {container: absentContainer} = renderCard({}, {layout: 'grid'})
+            const absentHtml = absentContainer.innerHTML
+            cleanup()
+
+            const {container: undefinedContainer} = renderCard({}, {layout: 'grid', variantLabel: undefined})
+            const undefinedHtml = undefinedContainer.innerHTML
+
+            expect(absentHtml).toBe(undefinedHtml)
+        })
+
+        it('absent variantLabel produces byte-identical output (row)', () => {
+            const {container: absentContainer} = renderCard({}, {layout: 'row'})
+            const absentHtml = absentContainer.innerHTML
+            cleanup()
+
+            const {container: undefinedContainer} = renderCard({}, {layout: 'row', variantLabel: undefined})
+            const undefinedHtml = undefinedContainer.innerHTML
+
+            expect(absentHtml).toBe(undefinedHtml)
+        })
+    })
+
+    describe('focus recipe on root links (task 1.6)', () => {
+        it('grid layout image link has the page focus ring classes', () => {
+            const {container} = renderCard({}, {layout: 'grid'})
+            const links = container.querySelectorAll('a[href="/products/test-product"]')
+            // First link is the image link
+            const imageLink = links[0] as HTMLElement
+            expect(imageLink.className).toContain('focus-visible:ring-2')
+            expect(imageLink.className).toContain('focus-visible:ring-offset-(--sf-background)')
+        })
+
+        it('grid layout title link has the page focus ring classes', () => {
+            const {container} = renderCard({}, {layout: 'grid'})
+            // Selected by the heading it wraps, not by index: a card with no
+            // variant also renders a wishlist prompt link to the same href.
+            const titleLink = container.querySelector('a:has(h3)') as HTMLElement
+            expect(titleLink.className).toContain('focus-visible:ring-2')
+            expect(titleLink.className).toContain('focus-visible:ring-offset-(--sf-background)')
+        })
+
+        it('row layout image link has the page focus ring classes', () => {
+            const {container} = renderCard({}, {layout: 'row'})
+            const links = container.querySelectorAll('a[href="/products/test-product"]')
+            const imageLink = links[0] as HTMLElement
+            expect(imageLink.className).toContain('focus-visible:ring-2')
+            expect(imageLink.className).toContain('focus-visible:ring-offset-(--sf-background)')
+        })
+
+        it('row layout title link has the page focus ring classes', () => {
+            const {container} = renderCard({}, {layout: 'row'})
+            const titleLink = container.querySelector('a:has(h3)') as HTMLElement
+            expect(titleLink.className).toContain('focus-visible:ring-2')
+            expect(titleLink.className).toContain('focus-visible:ring-offset-(--sf-background)')
         })
     })
 })

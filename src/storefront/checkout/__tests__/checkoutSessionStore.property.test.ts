@@ -1,7 +1,7 @@
 // Feature: checkout, Property 1: Session store round-trip
 import {beforeEach, describe, expect, it} from 'vitest'
 import * as fc from 'fast-check'
-import {useCheckoutSessionStore} from '../checkoutSessionStore'
+import {useCheckoutSessionStore} from '../store/checkoutSessionStore'
 import type {CheckoutSession} from '../types'
 
 // Arbitrary for OrderCheckoutLine

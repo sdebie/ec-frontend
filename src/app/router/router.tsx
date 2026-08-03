@@ -52,7 +52,7 @@ const CheckoutSuccessPage = lazy(() =>
 )
 // eslint-disable-next-line react-refresh/only-export-components
 const PageContentPage = lazy(() =>
-    import('@/storefront/pages/PageContentPage').then((m) => ({default: m.PageContentPage})),
+    import('@/storefront/page-content/PageContentPage').then((m) => ({default: m.PageContentPage})),
 )
 // eslint-disable-next-line react-refresh/only-export-components
 const ContactUsPage = lazy(() =>

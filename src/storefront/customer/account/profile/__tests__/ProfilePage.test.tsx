@@ -3,11 +3,11 @@ import fc from 'fast-check'
 import {fireEvent, render, screen, waitFor} from '@testing-library/react'
 import {MemoryRouter} from 'react-router-dom'
 import {QueryClient, QueryClientProvider} from '@tanstack/react-query'
-import type {AddressDto, StorefrontMeResponse} from '../../types.ts'
-import {useCustomerProfile} from '../../hooks/useCustomerProfile.ts'
-import {useUpdateProfile} from '../../hooks/useUpdateProfile.ts'
-import {useChangePassword} from '../../hooks/useChangePassword.ts'
-import {ProfilePage} from '../ProfilePage.tsx'
+import type {AddressDto, StorefrontMeResponse} from '../../types'
+import {useCustomerProfile} from '../../hooks/useCustomerProfile'
+import {useUpdateProfile} from '../../hooks/useUpdateProfile'
+import {useChangePassword} from '../../hooks/useChangePassword'
+import {ProfilePage} from '../ProfilePage'
 
 vi.mock('../../hooks/useCustomerProfile')
 vi.mock('../../hooks/useUpdateProfile')

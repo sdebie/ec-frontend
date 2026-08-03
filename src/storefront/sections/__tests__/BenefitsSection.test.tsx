@@ -147,10 +147,17 @@ describe('BenefitsSection', () => {
                     })}
                 />,
             )
-            const row = container.querySelector('.flex.items-center.gap-2')
+            // The icon rides in the same accent badge the promo-grid tiles use,
+            // so a tile reads identically wherever it appears.
+            // Scoped to the tile: SectionHeading's own <h2> also carries
+            // `flex items-center gap-3` and would match first.
+            const row = container.querySelector('article .flex.items-center.gap-3')
             expect(row).toBeInTheDocument()
             expect(row?.querySelector('svg')).toBeInTheDocument()
             expect(row?.querySelector('h3')).toHaveTextContent('PPE')
+            const badge = row?.querySelector('span[aria-hidden="true"]')
+            expect(badge?.className).toContain('rounded-lg')
+            expect(badge?.className).toContain('color-mix')
         })
 
         it('keeps the stacked icon-above-title layout by default', () => {

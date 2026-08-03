@@ -3,10 +3,10 @@ import {render, screen, waitFor} from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import {MemoryRouter} from 'react-router-dom'
 import {QueryClient, QueryClientProvider} from '@tanstack/react-query'
-import {StorefrontConfigContext} from '@/shared/config/storefrontConfig.context.ts'
-import type {FeaturedProductsSectionConfig, StorefrontConfig} from '@/shared/types/StorefrontConfig.ts'
-import {FeaturedProductsSection} from '../FeaturedProductsSection.tsx'
-import {graphqlClient} from '@/shared/api/graphql/graphqlClient.ts'
+import {StorefrontConfigContext} from '@/shared/config/storefrontConfig.context'
+import type {FeaturedProductsSectionConfig, StorefrontConfig} from '@/shared/types/StorefrontConfig'
+import {FeaturedProductsSection} from '../FeaturedProductsSection'
+import {graphqlClient} from '@/shared/api/graphql/graphqlClient'
 
 // ResizeObserver is not available in jsdom — the Carousel layout needs it
 let originalResizeObserver: typeof ResizeObserver
@@ -110,6 +110,86 @@ function renderComponent(sectionConfig: FeaturedProductsSectionConfig = section)
 describe('FeaturedProductsSection', () => {
     beforeEach(() => {
         vi.clearAllMocks()
+    })
+
+    describe('carouselControls display hint', () => {
+        it('default (no hint) renders header-controls mode when layout is carousel', async () => {
+            mockedRequest.mockResolvedValueOnce(resolve(mockProducts))
+
+            renderComponent({
+                ...section,
+                props: {...section.props, layout: 'carousel'},
+            })
+
+            await waitFor(() => {
+                expect(screen.getByText('Product One')).toBeInTheDocument()
+            })
+
+            // Header-controls mode: Carousel renders a region; the heading is INSIDE it
+            const region = screen.getByRole('region', {name: 'Featured Products'})
+            expect(region).toBeInTheDocument()
+            const heading = screen.getByRole('heading', {level: 2})
+            expect(heading).toHaveTextContent('Featured Products')
+            // In header mode the heading is a child of the region element
+            expect(region.contains(heading)).toBe(true)
+        })
+
+        it('carouselControls="overlay" renders arrowPlacement mode (heading outside carousel)', async () => {
+            mockedRequest.mockResolvedValueOnce(resolve(mockProducts))
+
+            renderComponent({
+                ...section,
+                props: {...section.props, layout: 'carousel', carouselControls: 'overlay'},
+            })
+
+            await waitFor(() => {
+                expect(screen.getByText('Product One')).toBeInTheDocument()
+            })
+
+            // Overlay mode: SectionHeading is rendered OUTSIDE the carousel region
+            const heading = screen.getByRole('heading', {level: 2})
+            expect(heading).toHaveTextContent('Featured Products')
+            const region = screen.getByRole('region', {name: 'Featured Products'})
+            expect(region.contains(heading)).toBe(false)
+        })
+
+        it('carouselControls="gutter" renders arrowPlacement mode (heading outside carousel)', async () => {
+            mockedRequest.mockResolvedValueOnce(resolve(mockProducts))
+
+            renderComponent({
+                ...section,
+                props: {...section.props, layout: 'carousel', carouselControls: 'gutter'},
+            })
+
+            await waitFor(() => {
+                expect(screen.getByText('Product One')).toBeInTheDocument()
+            })
+
+            // Gutter mode: SectionHeading is rendered OUTSIDE the carousel region
+            const heading = screen.getByRole('heading', {level: 2})
+            expect(heading).toHaveTextContent('Featured Products')
+            const region = screen.getByRole('region', {name: 'Featured Products'})
+            expect(region.contains(heading)).toBe(false)
+        })
+
+        it('unknown carouselControls value falls back to header-controls (default)', async () => {
+            mockedRequest.mockResolvedValueOnce(resolve(mockProducts))
+
+            renderComponent({
+                ...section,
+                props: {...section.props, layout: 'carousel', carouselControls: 'bogus' as 'header'},
+            })
+
+            await waitFor(() => {
+                expect(screen.getByText('Product One')).toBeInTheDocument()
+            })
+
+            // Falls back to header-controls mode — heading is inside the region
+            const region = screen.getByRole('region', {name: 'Featured Products'})
+            expect(region).toBeInTheDocument()
+            const heading = screen.getByRole('heading', {level: 2})
+            expect(region.contains(heading)).toBe(true)
+        })
     })
 
     describe('Section frame', () => {
@@ -232,16 +312,19 @@ describe('FeaturedProductsSection', () => {
         const priceElements = screen.getAllByText(/R/)
         expect(priceElements.length).toBeGreaterThanOrEqual(2)
 
-        // Each ProductCard renders discrete image + title links to the product detail page,
-        // plus a "Select options" link for VARIABLE products (no variantId in mock data).
+        // Each ProductCard renders discrete image + title links to the product detail
+        // page. The mock data is VARIABLE (no variantId), so each card also gets a
+        // "Select options" link AND the wishlist heart as a link — with no variant to
+        // save, the heart routes to the PDP to choose one.
         const links = screen.getAllByRole('link')
-        expect(links).toHaveLength(6) // 2 products × 3 links each (image + title + Select options)
-        expect(links[0]).toHaveAttribute('href', '/products/product-one')
-        expect(links[1]).toHaveAttribute('href', '/products/product-one')
-        expect(links[2]).toHaveAttribute('href', '/products/product-one')
-        expect(links[3]).toHaveAttribute('href', '/products/product-two')
-        expect(links[4]).toHaveAttribute('href', '/products/product-two')
-        expect(links[5]).toHaveAttribute('href', '/products/product-two')
+        expect(links).toHaveLength(8) // 2 products × 4 (image + wishlist + title + Select options)
+        expect(links.slice(0, 4).map((l) => l.getAttribute('href')))
+            .toEqual(Array(4).fill('/products/product-one'))
+        expect(links.slice(4).map((l) => l.getAttribute('href')))
+            .toEqual(Array(4).fill('/products/product-two'))
+
+        // The heart must announce why it navigates instead of saving.
+        expect(screen.getAllByLabelText('Choose options to save to wishlist')).toHaveLength(2)
     })
 
     it('renders product images with loading="lazy" and alt set to product name', async () => {

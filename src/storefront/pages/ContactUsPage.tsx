@@ -1,11 +1,12 @@
 import { useState } from 'react'
-import { Section } from '@/storefront/sections/shared'
+import { ACCENT_BUTTON_HOVER, SF_FOCUS_RING_PAGE, Section } from '@/storefront/sections/shared'
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { z } from 'zod'
 import { Loader2 } from 'lucide-react'
 import { useStorefrontConfig } from '@/shared/config/storefrontConfig.context'
 import { isApprovedMapEmbedUrl, isValidHttpsUrl } from '@/shared/utils/contactMapUrls'
+import { waMeUrl } from '@/shared/utils/waMeUrl'
 import { useSubmitEnquiry } from './hooks/useSubmitEnquiry'
 import { toast } from '@/shared/ui/components/toast'
 import { InputField } from '@/shared/ui/components/form/InputField'
@@ -33,6 +34,7 @@ function isContactEmpty(contact: ContactConfig | undefined): boolean {
   return !(
     nonBlank(contact.emails).length ||
     nonBlank(contact.phones).length ||
+    contact.whatsapp?.trim() ||
     contact.landline?.trim() ||
     contact.physicalAddress?.trim() ||
     contact.businessHours?.trim() ||
@@ -68,6 +70,7 @@ function ContactDetail({ label, children }: { label: string; children: React.Rea
 function ContactDetailsSection({ contact }: { contact: ContactConfig }) {
   const emails = nonBlank(contact.emails)
   const phones = nonBlank(contact.phones)
+  const hasWhatsApp = !!contact.whatsapp?.trim()
   const showMapLink = !!contact.mapUrl && isValidHttpsUrl(contact.mapUrl)
 
   return (
@@ -86,7 +89,7 @@ function ContactDetailsSection({ contact }: { contact: ContactConfig }) {
         )}
 
         {phones.length > 0 && (
-          <ContactDetail label="Call / WhatsApp">
+          <ContactDetail label={hasWhatsApp ? 'Phone' : 'Call / WhatsApp'}>
             <span className="flex flex-col items-start gap-1">
               {phones.map((phone) => (
                 <a
@@ -98,6 +101,19 @@ function ContactDetailsSection({ contact }: { contact: ContactConfig }) {
                 </a>
               ))}
             </span>
+          </ContactDetail>
+        )}
+
+        {hasWhatsApp && (
+          <ContactDetail label="WhatsApp">
+            <a
+              href={waMeUrl(contact.whatsapp!)}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="underline decoration-current/50 underline-offset-4 hover:opacity-75"
+            >
+              {contact.whatsapp}
+            </a>
           </ContactDetail>
         )}
 
@@ -306,7 +322,7 @@ function EnquiryForm() {
       <button
         type="submit"
         disabled={isPending}
-        className="flex w-full items-center justify-center rounded-md bg-(--sf-accent) px-4 py-2.5 text-sm font-medium text-(--sf-accent-text) shadow-sm hover:opacity-90 focus:outline-none focus:ring-2 focus:ring-(--sf-ring) focus:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
+        className={`flex w-full items-center justify-center rounded-md bg-(--sf-accent) px-4 py-2.5 text-sm font-medium text-(--sf-accent-text) shadow-sm transition-colors ${ACCENT_BUTTON_HOVER} ${SF_FOCUS_RING_PAGE} disabled:cursor-not-allowed disabled:opacity-50`}
       >
         {isPending && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
         {isPending ? 'Sending…' : 'Send message'}

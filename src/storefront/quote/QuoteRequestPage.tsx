@@ -3,6 +3,8 @@ import {useQuoteStore} from './quoteStore'
 import {QuoteList} from './components/QuoteList'
 import {QuoteDetailsForm} from './components/QuoteDetailsForm'
 import {QuoteProductSearch} from './components/QuoteProductSearch'
+import {QuoteReassurancePanel} from './components/QuoteReassurancePanel'
+import {useStorefrontConfig} from '@/shared/config/storefrontConfig.context'
 
 /**
  * QuoteRequestPage — public page shell for the quote request funnel.
@@ -11,15 +13,30 @@ import {QuoteProductSearch} from './components/QuoteProductSearch'
  * 1. "Products to quote" — shows the quote list (or empty state) + inline product search
  * 2. "Your details" — contact/details form
  *
- * After successful submission, shows a confirmation state.
+ * When `config.quote` is present, a reassurance panel renders above the details form
+ * showing steps, SLA, validity and a contact escape hatch.
+ *
+ * After successful submission, shows a confirmation state. If `config.quote.slaText` is
+ * configured, it replaces the generic "will be in touch soon" copy.
  */
 export function QuoteRequestPage() {
     const items = useQuoteStore((s) => s.items)
     const [submitted, setSubmitted] = useState(false)
+    const config = useStorefrontConfig()
+
+    const quoteConfig = config.quote
+    const hasReassurance = !!(
+        quoteConfig &&
+        (quoteConfig.slaText || quoteConfig.validityText || (quoteConfig.steps && quoteConfig.steps.length > 0))
+    )
 
     const isEmpty = items.length === 0
 
     if (submitted) {
+        const confirmationBody = quoteConfig?.slaText
+            ? `Thank you! We've received your quote request. ${quoteConfig.slaText}`
+            : "Thank you! We've received your quote request and will be in touch soon."
+
         return (
             <div className="mx-auto w-full max-w-5xl px-4 py-12 sm:py-16">
                 <div className="flex flex-col items-center justify-center py-16 text-center">
@@ -42,7 +59,7 @@ export function QuoteRequestPage() {
                         Quote request submitted
                     </h2>
                     <p className="mt-2 max-w-sm text-sm text-(--sf-muted-text)">
-                        Thank you! We've received your quote request and will be in touch soon.
+                        {confirmationBody}
                     </p>
                     <button
                         type="button"
@@ -104,7 +121,11 @@ export function QuoteRequestPage() {
                 </section>
 
                 {/* Your details — right area */}
-                <section className="min-w-0" aria-labelledby="quote-details-heading">
+                <section className="min-w-0 space-y-6" aria-labelledby="quote-details-heading">
+                    {hasReassurance && (
+                        <QuoteReassurancePanel quote={quoteConfig!} contact={config.contact} />
+                    )}
+
                     <h2
                         id="quote-details-heading"
                         className="text-lg font-semibold text-(--sf-text)"
@@ -112,7 +133,7 @@ export function QuoteRequestPage() {
                         Your details
                     </h2>
 
-                    <div className="mt-6 rounded-lg border border-(--sf-border) bg-(--sf-panel) p-6">
+                    <div className="rounded-lg border border-(--sf-border) bg-(--sf-panel) p-6">
                         <QuoteDetailsForm onSuccess={() => setSubmitted(true)}/>
                     </div>
                 </section>

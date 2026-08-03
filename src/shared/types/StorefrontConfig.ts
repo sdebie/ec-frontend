@@ -4,6 +4,7 @@ export interface NavItem {
   path: string        // relative path or absolute URL
   external: boolean   // true → opens in new tab
   sortOrder: number
+  emphasis?: 'default' | 'cta'
 }
 
 export interface AnnouncementConfig {
@@ -11,6 +12,10 @@ export interface AnnouncementConfig {
   text: string
   backgroundColor: string   // CSS colour value, default '#1a1f35'
   textColor: string          // CSS colour value, default '#ffffff'
+  /** Show contact slot (phone/WhatsApp) on the left, md+ only. */
+  showContact?: boolean
+  /** Show social icons on the right, md+ only. */
+  showSocial?: boolean
 }
 
 export interface HeaderConfig {
@@ -45,10 +50,11 @@ export interface HeroSectionProps {
   /** Small uppercase label above the title, e.g. "ABOUT UVH HOLDINGS". */
   kicker?: string
   /**
-   * Band height: 'standard' (default, fixed minimum) or 'tall' — viewport-filling,
-   * for landing heroes whose background image composition needs the vertical room.
+   * Band height: 'standard' (default, fixed minimum), 'tall' — viewport-filling
+   * with room reserved for the next section's top edge — or 'full', which fills
+   * the viewport exactly minus the measured announcement bar + header.
    */
-  height?: 'standard' | 'tall'
+  height?: 'standard' | 'tall' | 'full'
   primaryCta?: StorefrontActionLink
   secondaryCta?: StorefrontActionLink
   backgroundImageUrl?: string
@@ -64,6 +70,8 @@ export interface HeroSectionProps {
   darkStyle?: boolean
   /** Explicit semantic surface. Takes precedence over `darkStyle`. */
   contentSurface?: HeroContentSurface
+  /** Trust/wayfinding line below the CTA pair; segments with `to` render as internal links. */
+  footnote?: BenefitsFootnoteSegment[]
 }
 
 export interface CategoryPreviewItem {
@@ -94,6 +102,12 @@ export interface TestimonialsSectionProps {
   variant?: 'light' | 'dark'
   layout?: 'grid' | 'stacked' | 'carousel'
   columns?: 1 | 2 | 3
+  /**
+   * Carousel display hint (carousel layout only). Default 'gutter' (preserves
+   * current treatment). 'header' passes title into Carousel header prop.
+   * Unknown values fall back to 'gutter'.
+   */
+  carouselControls?: 'header' | 'gutter' | 'overlay'
 }
 
 export interface BenefitItem {
@@ -111,6 +125,8 @@ export interface BenefitsFootnoteSegment {
 export interface BenefitsSectionProps {
   /** Optional so a heading-less 'strip' can render as a pure band (the stats-band effect). */
   title?: string
+  /** Supporting line under the title; rendered by SectionHeading, so it needs a `title`. */
+  subtitle?: string
   eyebrow?: string
   /** Surface variant — mirrors TestimonialsSectionProps naming. */
   variant?: 'light' | 'dark'
@@ -157,6 +173,8 @@ export interface PromoGridItem {
   description?: string
   eyebrow?: string
   imageUrl?: string
+  /** Named icon from the shared section registry, rendered above the tile title. */
+  icon?: string
   cta?: StorefrontActionLink
 }
 
@@ -170,6 +188,13 @@ export interface PromoGridSectionProps {
   /** Tighter band rhythm (py-8) and heading margin for a slimmer section. */
   compact?: boolean
   columns?: 2 | 3 | 4 | 5
+  /**
+   * How an incomplete final row sits in the 'cards' layout: 'center' (default,
+   * preserved behaviour) centres the remainder; 'start' left-aligns it so its
+   * tiles line up with the column above. Ignored by 'feature-first', which is a
+   * real grid and always column-aligned.
+   */
+  rowAlign?: 'center' | 'start'
   items: PromoGridItem[]
 }
 
@@ -186,6 +211,12 @@ export interface FeaturedProductsSectionProps {
   badgeLabel?: string
   category?: string
   limit?: number
+  /**
+   * Carousel display hint (carousel layout only). Default 'header' (preserves
+   * current treatment). 'gutter'/'overlay' pass arrowPlacement to Carousel.
+   * Unknown values fall back to 'header'.
+   */
+  carouselControls?: 'header' | 'gutter' | 'overlay'
 }
 
 // --- Accreditors section ---
@@ -200,6 +231,8 @@ export interface AccreditorItem {
 export interface AccreditorsSectionProps {
   title?: string
   eyebrow?: string
+  /** Surface variant — mirrors BrandsSectionProps naming. */
+  variant?: 'light' | 'dark'
   items: AccreditorItem[]
 }
 
@@ -211,6 +244,8 @@ export interface BrandsSectionProps {
   /** Surface variant — mirrors TestimonialsSectionProps naming. */
   variant?: 'light' | 'dark'
   limit?: number
+  /** Minimum brands required to render the section. Default 1 (preserves current behaviour). */
+  minItems?: number
 }
 
 // --- Category Showcase section ---
@@ -233,6 +268,12 @@ export interface CategoryShowcaseSectionProps {
   gradient?: string
   imageUrl?: string
   limit?: number
+  /**
+   * Carousel display hint (carousel layout only). Default 'overlay' (preserves
+   * current treatment). 'header' passes title into Carousel header prop.
+   * Unknown values fall back to 'overlay'.
+   */
+  carouselControls?: 'header' | 'gutter' | 'overlay'
 }
 
 // --- Sale Products section ---
@@ -372,6 +413,7 @@ export interface FooterConfig {
 export interface ContactConfig {
   emails?: string[]
   phones?: string[]
+  whatsapp?: string
   landline?: string
   physicalAddress?: string
   businessHours?: string
@@ -379,6 +421,12 @@ export interface ContactConfig {
   mapUrl?: string
   mapEmbedUrl?: string
   enquiryEmail?: string
+}
+
+export interface QuoteConfig {
+  slaText?: string
+  validityText?: string
+  steps?: string[]
 }
 
 export interface StorefrontConfig {
@@ -396,4 +444,5 @@ export interface StorefrontConfig {
   auth?: StorefrontAuthConfig
   footer?: FooterConfig
   contact?: ContactConfig
+  quote?: QuoteConfig
 }

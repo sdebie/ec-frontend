@@ -4,11 +4,12 @@ import { Menu, User } from 'lucide-react'
 import { useStorefrontConfig } from '@/shared/config/storefrontConfig.context'
 import { resolveImageUrl } from '@/shared/utils/imageUrl'
 import { useCustomerAuthStore } from '@/shared/auth/customerAuthStore'
+import { NAV_ICON_HOVER, SF_FOCUS_RING } from '@/storefront/sections/shared/focusRing'
 import { SearchBar } from './SearchBar'
 import { StorefrontNavLink } from './StorefrontNavLink'
 import { NavDrawer } from './NavDrawer'
-import { CartIcon } from '@/storefront/cart/CartIcon'
-import { WishlistIcon } from '@/storefront/customer/account/wishlist/WishlistIcon'
+import { CartIcon } from '@/storefront/cart/components/CartIcon'
+import { WishlistIcon } from '@/storefront/customer/account/wishlist/components/WishlistIcon'
 import { CustomerLoginModal } from '@/storefront/customer/auth/components/CustomerLoginModal'
 import { ForgotPasswordModal } from '@/storefront/customer/auth/components/ForgotPasswordModal'
 import { CategoryMegaMenu } from './CategoryMegaMenu'
@@ -94,6 +95,16 @@ export function StorefrontHeader() {
 
         {/* User area + burger button */}
         <div className="ml-auto flex shrink-0 items-center gap-3">
+          {/* Wishlist icon — visible on both desktop and mobile */}
+          <WishlistIcon />
+
+          {/* Cart icon — visible on both desktop and mobile */}
+          <CartIcon />
+
+          {/* Account / sign-in — after the cart (owner directive 2026-08-02).
+              Hidden below `md`: on a phone it lives in the nav drawer, so the
+              header keeps only the icons and the burger. */}
+          <div className="hidden md:contents">
           {isSignedIn ? (
             <div ref={accountMenuRef} className="relative">
               <button
@@ -101,7 +112,7 @@ export function StorefrontHeader() {
                 aria-expanded={dropdownOpen}
                 aria-haspopup="menu"
                 aria-controls="customer-account-menu"
-                className="flex items-center gap-2 rounded-md px-3 py-2 text-sm font-medium text-(--sf-nav-icon-text) hover:text-(--sf-nav-icon-text-hover) hover:bg-(--sf-nav-border)"
+                className={`flex items-center gap-2 rounded-md px-3 py-2 text-sm font-medium ${NAV_ICON_HOVER} ${SF_FOCUS_RING.nav}`}
               >
                 <User className="h-5 w-5" aria-hidden="true" />
                 <span>{firstName ?? 'My Account'}</span>
@@ -134,8 +145,9 @@ export function StorefrontHeader() {
             <>
               <button
                 onClick={() => setIsLoginOpen(true)}
-                className="flex items-center gap-2 rounded-md px-3 py-2 text-sm font-medium text-(--sf-nav-icon-text) hover:text-(--sf-nav-icon-text-hover) hover:bg-(--sf-nav-border)"
+                className={`flex items-center gap-2 rounded-md px-3 py-2 text-sm font-medium ${NAV_ICON_HOVER} ${SF_FOCUS_RING.nav}`}
               >
+                <User className="h-5 w-5" aria-hidden="true" />
                 Sign in
               </button>
               <CustomerLoginModal
@@ -158,22 +170,20 @@ export function StorefrontHeader() {
           ) : (
             <Link
               to="/account/login"
-              className="flex items-center gap-2 rounded-md px-3 py-2 text-sm font-medium text-(--sf-nav-icon-text) hover:text-(--sf-nav-icon-text-hover) hover:bg-(--sf-nav-border)"
+              className={`flex items-center gap-2 rounded-md px-3 py-2 text-sm font-medium ${NAV_ICON_HOVER} ${SF_FOCUS_RING.nav}`}
             >
+              <User className="h-5 w-5" aria-hidden="true" />
               Sign in
             </Link>
           )}
 
-          {/* Wishlist icon — visible on both desktop and mobile */}
-          <WishlistIcon />
 
-          {/* Cart icon — visible on both desktop and mobile */}
-          <CartIcon />
+          </div>
 
           {/* Burger button — mobile only */}
           {navItems.length > 0 && (
             <button
-              className="md:hidden text-(--sf-nav-icon-text) hover:text-(--sf-nav-icon-text-hover)"
+              className={`md:hidden ${NAV_ICON_HOVER} rounded-md p-2 ${SF_FOCUS_RING.nav}`}
               onClick={() => setDrawerOpen(true)}
               aria-label="Open navigation"
               aria-expanded={drawerOpen}
@@ -184,12 +194,32 @@ export function StorefrontHeader() {
         </div>
       </div>
 
+      {/* Mobile search row — below main row, visible only below md */}
+      {navItems.length > 0 && (
+        <div className="md:hidden px-4 pb-3">
+          <SearchBar tone="nav" className="w-full" />
+        </div>
+      )}
+
       {/* Mobile nav drawer */}
       {navItems.length > 0 && (
         <NavDrawer
           open={drawerOpen}
           onClose={() => setDrawerOpen(false)}
           items={navItems}
+          isSignedIn={isSignedIn}
+          accountName={firstName ?? null}
+          onSignIn={() => {
+            // The header owns this decision because it is the one that knows
+            // `loginStyle`; the drawer just reports the intent.
+            setDrawerOpen(false)
+            if (loginStyle === 'modal') setIsLoginOpen(true)
+            else navigate('/account/login')
+          }}
+          onSignOut={() => {
+            setDrawerOpen(false)
+            handleSignOut()
+          }}
         />
       )}
     </header>

@@ -1,99 +1,136 @@
-import {type ReactNode, useEffect} from 'react'
-import {Section, SectionHeading} from '@/storefront/sections/shared'
-import {Link} from 'react-router-dom'
-import {Heart, Trash2} from 'lucide-react'
-import {useEffectiveWishlist} from './useEffectiveWishlist'
-import {type HydratedWishlistItem, useWishlistHydration} from './useWishlistHydration'
-import {useToggleEffective} from './useToggleEffective'
-import {useLocalWishlistStore} from './localWishlistStore'
+import {useEffect, useRef, useState} from 'react'
+import {SectionHeading} from '@/storefront/sections/shared'
+import {ViewToggle} from '@/storefront/catalog/components/ViewToggle'
+import {useViewPreference} from '@/storefront/catalog/hooks/useViewPreference'
+import {parseVariantLabel} from '@/storefront/catalog/utils/variantLabel'
 import {useCustomerAuthStore} from '@/shared/auth/customerAuthStore'
-import {useStorefrontConfig} from '@/shared/config/storefrontConfig.context'
-import {resolveImageUrl} from '@/shared/utils/imageUrl'
-import {formatAmount} from '@/shared/utils/formatAmount'
-import {getDisplayPrice, type VariantPriceTiers} from '@/storefront/catalog/utils/pricing'
+import {useCartStore} from '@/storefront/cart/store/cartStore'
+import {useEffectiveWishlist} from './hooks/useEffectiveWishlist'
+import {useWishlistHydration} from './hooks/useWishlistHydration'
+import {useToggleEffective} from './hooks/useToggleEffective'
+import {useWishlistSelection} from './hooks/useWishlistSelection'
+import {useLocalWishlistStore} from './store/localWishlistStore'
+import type {DialogRequest, HydratedWishlistItem} from './types'
+import {WishlistShell} from './components/WishlistShell'
+import {WishlistSkeleton} from './components/WishlistSkeleton'
+import {WishlistErrorState} from './components/WishlistErrorState'
+import {WishlistEmptyState} from './components/WishlistEmptyState'
+import {WishlistItems} from './components/WishlistItems'
+import {WishlistSummary} from './components/WishlistSummary'
+import {WishlistDialogs} from './components/WishlistDialogs'
 
 /**
- * Adapts a HydratedWishlistItem's price shape into the flat VariantPriceTiers
- * that getDisplayPrice expects. Sale tiers are only used when active === true.
+ * Orchestrates the wishlist: loads the saved items, derives their availability,
+ * and owns the two things that must live in exactly one place — every mutation
+ * (cart writes and wishlist removals) and the confirmation each one requires.
+ *
+ * Presentation is delegated: `WishlistItems` renders the items, `WishlistSummary`
+ * the totals and bulk actions, `WishlistDialogs` the confirmations, and the
+ * state screens their own components.
  */
-function toVariantPriceTiers(item: HydratedWishlistItem): VariantPriceTiers {
-    return {
-        retailPrice: item.retailPrice?.price ?? null,
-        wholesalePrice: item.wholesalePrice?.price ?? null,
-        retailSalePrice:
-            item.retailSalePrice?.active ? (item.retailSalePrice.price ?? null) : null,
-        wholesaleSalePrice:
-            item.wholesaleSalePrice?.active ? (item.wholesaleSalePrice.price ?? null) : null,
-    }
-}
-
-/**
- * Parses a variant label from JSON attributes string into a readable label.
- * e.g. '{"Size":"Large","Color":"Red"}' → "Size: Large, Color: Red"
- * Falls back to the raw string if parsing fails.
- */
-function parseVariantLabel(label: string): string {
-    if (!label) return ''
-    try {
-        const parsed = JSON.parse(label)
-        if (typeof parsed === 'object' && parsed !== null && !Array.isArray(parsed)) {
-            return Object.entries(parsed)
-                .map(([key, value]) => `${key}: ${value}`)
-                .join(', ')
-        }
-        return label
-    } catch {
-        return label
-    }
-}
-
-/**
- * Signed in, this page renders inside the account layout, which already provides
- * the page container — only the vertical rhythm is needed here. Signed out it
- * owns the shared page shell (as a div: StorefrontLayout owns the <main>
- * landmark, so a nested one would be invalid).
- */
-function WishlistShell({isSignedIn, children}: { isSignedIn: boolean; children: ReactNode }) {
-    if (isSignedIn) return <div className="space-y-6">{children}</div>
-    return (
-        <Section as="div" width="wide">
-            <div className="space-y-6">{children}</div>
-        </Section>
-    )
-}
-
 export function WishlistPage() {
     const {variantIds, isLoading: wishlistLoading} = useEffectiveWishlist()
-    const ids = Array.from(variantIds)
-    const {data: items, isLoading: hydrationLoading, isError: hydrationError} = useWishlistHydration(ids)
-    const {toggle} = useToggleEffective()
+    const {
+        data: items,
+        isLoading: hydrationLoading,
+        isError: hydrationError,
+    } = useWishlistHydration(Array.from(variantIds))
     const isSignedIn = useCustomerAuthStore((s) => s.isSignedIn)
-    const customerType = useCustomerAuthStore((s) => s.customerType)
-    const {currency, locale} = useStorefrontConfig()
+    const [view, setView] = useViewPreference('wishlist-view-preference')
+    const {toggle} = useToggleEffective()
 
-    // Prune local IDs that failed hydration (signed-out only)
+    const [dialog, setDialog] = useState<DialogRequest>(null)
+    const [movedConfirmation, setMovedConfirmation] = useState<number | null>(null)
+    const movedTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null)
+
+    const {availableItems, unavailableItems, purchasableItems, estimatedSubtotal, isPurchasable} =
+        useWishlistSelection(items ?? [])
+
+    useEffect(() => () => {
+        if (movedTimeoutRef.current) clearTimeout(movedTimeoutRef.current)
+    }, [])
+
+    // Prune variant IDs not returned by the hydration endpoint (signed-out only).
+    // With the widened contract, absence means the variant no longer exists at all
+    // (hard-deleted). Unavailable and out-of-stock items ARE in the response and
+    // are never pruned.
+    //
+    // `variantIds` is the Zustand store's own Set reference on the signed-out path
+    // (the only path this effect runs on), so it is referentially stable; the ID
+    // array is derived inside the effect rather than passed through the dependency
+    // array, which is what stops this from re-running on every render.
     useEffect(() => {
         if (isSignedIn || !items || hydrationLoading) return
         const hydratedIds = new Set(items.map((i) => i.variantId))
         const localStore = useLocalWishlistStore.getState()
-        for (const id of ids) {
+        for (const id of Array.from(localStore.variantIds)) {
             if (!hydratedIds.has(id)) localStore.remove(id)
         }
-    }, [items, isSignedIn, hydrationLoading, ids])
+    }, [items, isSignedIn, hydrationLoading, variantIds])
 
-    const isLoading = wishlistLoading || hydrationLoading
-    if (isLoading) {
+    /** Move = add to cart, then drop from the wishlist. The `isPurchasable` guard
+     *  is applied HERE, at the single cart-write site, so a disabled or
+     *  out-of-stock product can never reach the cart whatever the caller does. */
+    function moveToCart(requests: Array<{ item: HydratedWishlistItem; quantity: number }>) {
+        const addItem = useCartStore.getState().addItem
+        const moved: string[] = []
+
+        for (const {item, quantity} of requests) {
+            if (!isPurchasable(item)) continue
+            addItem({
+                variantId: item.variantId,
+                productName: item.productName,
+                variantLabel: parseVariantLabel(item.variantLabel),
+                quantity,
+            })
+            moved.push(item.variantId)
+        }
+
+        for (const id of moved) toggle(id, false)
+
+        if (moved.length > 0) {
+            setMovedConfirmation(moved.length)
+            if (movedTimeoutRef.current) clearTimeout(movedTimeoutRef.current)
+            movedTimeoutRef.current = setTimeout(() => setMovedConfirmation(null), 4000)
+        }
+    }
+
+    function confirmDialog() {
+        if (!dialog) return
+
+        switch (dialog.kind) {
+            case 'moveItem':
+                moveToCart([{item: dialog.item, quantity: dialog.quantity}])
+                break
+            case 'moveAll':
+                moveToCart(purchasableItems.map((item) => ({item, quantity: 1})))
+                break
+            case 'removeItem':
+                toggle(dialog.item.variantId, false)
+                break
+            case 'removeAll':
+                if (isSignedIn) {
+                    for (const item of items ?? []) toggle(item.variantId, false)
+                } else {
+                    useLocalWishlistStore.getState().clear()
+                }
+                break
+            case 'removeUnavailable':
+                for (const item of unavailableItems) toggle(item.variantId, false)
+                break
+        }
+
+        setDialog(null)
+    }
+
+    // The heading is present in EVERY state, so each early return renders it too.
+    const heading = <SectionHeading as="h1" title="Wishlist" className="mb-0"/>
+
+    if (wishlistLoading || hydrationLoading) {
         return (
             <WishlistShell isSignedIn={isSignedIn}>
-                <SectionHeading as="h1" title="Wishlist" className="mb-0"/>
-                <div className="grid grid-cols-2 gap-3 sm:gap-4 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5">
-                    {Array.from({length: 6}).map((_, i) => (
-                        <div
-                            key={i}
-                            className="aspect-square animate-pulse rounded-lg bg-(--sf-surface-muted)"
-                        />
-                    ))}
-                </div>
+                {heading}
+                <WishlistSkeleton view={view}/>
             </WishlistShell>
         )
     }
@@ -101,12 +138,8 @@ export function WishlistPage() {
     if (hydrationError) {
         return (
             <WishlistShell isSignedIn={isSignedIn}>
-                <SectionHeading as="h1" title="Wishlist" className="mb-0"/>
-                <div className="rounded-lg border border-(--sf-border) p-8 text-center">
-                    <p className="text-(--sf-muted-text)">
-                        We couldn&apos;t load your wishlist. Please try again.
-                    </p>
-                </div>
+                {heading}
+                <WishlistErrorState/>
             </WishlistShell>
         )
     }
@@ -114,98 +147,57 @@ export function WishlistPage() {
     if (!items || items.length === 0) {
         return (
             <WishlistShell isSignedIn={isSignedIn}>
-                <SectionHeading as="h1" title="Wishlist" className="mb-0"/>
-                <div className="rounded-lg border border-(--sf-border) p-8 text-center">
-                    <Heart className="mx-auto h-12 w-12 text-(--sf-muted-text)"/>
-                    <p className="mt-3 text-(--sf-muted-text)">Your wishlist is empty</p>
-                    <Link
-                        to="/products"
-                        className="mt-3 inline-block text-sm font-medium text-(--sf-accent) hover:opacity-80"
-                    >
-                        Browse products
-                    </Link>
-                </div>
+                {heading}
+                <WishlistEmptyState/>
             </WishlistShell>
         )
     }
 
     return (
         <WishlistShell isSignedIn={isSignedIn}>
-            <SectionHeading as="h1" title="Wishlist" className="mb-0"/>
-            <div className="grid grid-cols-2 gap-3 sm:gap-4 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5">
-                {items.map((item) => {
-                    const imageUrl = resolveImageUrl(item.imagePath)
-                    const priceTiers = toVariantPriceTiers(item)
-                    const {price, originalPrice} = getDisplayPrice(priceTiers, customerType)
-                    const variantLabel = parseVariantLabel(item.variantLabel)
+            {heading}
 
-                    return (
-                        <div
-                            key={item.variantId}
-                            className="relative flex h-full flex-col overflow-hidden rounded-lg border border-(--sf-border) bg-(--sf-panel)"
-                        >
-                            {/* Product image */}
-                            <Link to={`/products/${item.productSlug}`} className="block">
-                                <div className="aspect-square w-full bg-(--sf-surface-muted)">
-                                    {imageUrl ? (
-                                        <img
-                                            src={imageUrl}
-                                            alt={item.productName}
-                                            className="h-full w-full object-cover"
-                                        />
-                                    ) : (
-                                        <div className="flex h-full w-full items-center justify-center">
-                                            <Heart className="h-8 w-8 text-(--sf-muted-text)"/>
-                                        </div>
-                                    )}
-                                </div>
-                            </Link>
-
-                            {/* Product info */}
-                            <div className="flex flex-1 flex-col p-4">
-                                <Link
-                                    to={`/products/${item.productSlug}`}
-                                    className="block line-clamp-2 text-sm font-medium text-(--sf-text) hover:text-(--sf-accent)"
-                                >
-                                    {item.productName}
-                                </Link>
-
-                                <div className="mt-auto pt-2">
-                                    {variantLabel && (
-                                        <p className="text-xs text-(--sf-muted-text)">{variantLabel}</p>
-                                    )}
-
-                                    <div className="mt-2 flex items-center gap-2">
-                                        {price != null && (
-                                            <span className="text-sm font-semibold text-(--sf-text)">
-                        {formatAmount(price, currency, locale)}
-                      </span>
-                                        )}
-                                        {originalPrice != null && (
-                                            <span className="text-xs text-(--sf-muted-text) line-through">
-                        {formatAmount(originalPrice, currency, locale)}
-                      </span>
-                                        )}
-                                        {price == null && (
-                                            <span className="text-sm text-(--sf-muted-text)">Price unavailable</span>
-                                        )}
-                                    </div>
-                                </div>
-
-                            </div>
-
-                            <button
-                                type="button"
-                                onClick={() => toggle(item.variantId, false)}
-                                aria-label={`Remove ${item.productName} from wishlist`}
-                                className="absolute right-2 top-2 rounded-full bg-(--sf-panel)/90 p-2 text-(--sf-muted-text) shadow-sm backdrop-blur-sm transition-colors hover:text-(--sf-accent)"
-                            >
-                                <Trash2 className="h-4 w-4" aria-hidden="true"/>
-                            </button>
-                        </div>
-                    )
-                })}
+            {/* Toolbar row — ViewToggle right-aligned above a divider, matching the
+                catalogue's toolbar rhythm (CatalogToolbar uses the same classes). */}
+            <div className="flex items-center justify-end border-b border-(--sf-border) pb-4">
+                <ViewToggle view={view} onViewChange={setView}/>
             </div>
+
+            {/* Items beside a sticky summary on lg+; below lg the summary stacks
+                FIRST so the bulk actions stay reachable without scrolling past the
+                list (R6.7). */}
+            <div className="grid grid-cols-1 gap-6 lg:grid-cols-3 lg:gap-8">
+                <div className="lg:col-span-2">
+                    <WishlistItems
+                        availableItems={availableItems}
+                        unavailableItems={unavailableItems}
+                        view={view}
+                        onRequestMove={(item, quantity) => setDialog({kind: 'moveItem', item, quantity})}
+                        onRequestRemove={(item) => setDialog({kind: 'removeItem', item})}
+                    />
+                </div>
+
+                <div className="order-first lg:order-none">
+                    <WishlistSummary
+                        items={items}
+                        purchasableItems={purchasableItems}
+                        unavailableCount={unavailableItems.length}
+                        estimatedSubtotal={estimatedSubtotal}
+                        movedConfirmation={movedConfirmation}
+                        onRequestMoveAll={() => setDialog({kind: 'moveAll'})}
+                        onRequestRemoveAll={() => setDialog({kind: 'removeAll'})}
+                        onRequestRemoveUnavailable={() => setDialog({kind: 'removeUnavailable'})}
+                    />
+                </div>
+            </div>
+
+            <WishlistDialogs
+                request={dialog}
+                purchasableCount={purchasableItems.length}
+                unavailableCount={unavailableItems.length}
+                onCancel={() => setDialog(null)}
+                onConfirm={confirmDialog}
+            />
         </WishlistShell>
     )
 }

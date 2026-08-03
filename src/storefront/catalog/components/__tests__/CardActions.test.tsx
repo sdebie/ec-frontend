@@ -2,7 +2,7 @@ import { act, fireEvent, render, screen } from '@testing-library/react'
 import { MemoryRouter } from 'react-router-dom'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import { CardActions } from '../CardActions'
-import { useCartStore } from '@/storefront/cart/cartStore'
+import { useCartStore } from '@/storefront/cart/store/cartStore'
 
 describe('CardActions', () => {
   beforeEach(() => {
@@ -61,6 +61,60 @@ describe('CardActions', () => {
       const link = screen.getByRole('link', { name: /view product/i })
       expect(link).toHaveAttribute('href', '/products/test-product')
       expect(screen.queryByRole('button', { name: /add to cart/i })).not.toBeInTheDocument()
+    })
+  })
+
+  describe('onRequestAdd (delegated add)', () => {
+    it('writes to the cart directly when the prop is absent — catalogue behaviour', () => {
+      renderCardActions({
+        variantId: 'variant-123',
+        productName: 'Classic Tee',
+        productSlug: 'classic-tee',
+        inStock: true,
+        hasPrice: true,
+      })
+
+      fireEvent.click(screen.getByRole('button', { name: /add to cart/i }))
+
+      expect(useCartStore.getState().items).toHaveLength(1)
+    })
+
+    it('delegates and writes NOTHING when onRequestAdd is provided', () => {
+      const onRequestAdd = vi.fn()
+      renderCardActions({
+        variantId: 'variant-123',
+        productName: 'Classic Tee',
+        productSlug: 'classic-tee',
+        inStock: true,
+        hasPrice: true,
+        onRequestAdd,
+      })
+
+      fireEvent.click(screen.getByRole('button', { name: /add to cart/i }))
+
+      // The consumer owns the flow — the cart must be untouched here.
+      expect(useCartStore.getState().items).toHaveLength(0)
+      expect(onRequestAdd).toHaveBeenCalledTimes(1)
+      expect(onRequestAdd).toHaveBeenCalledWith(1)
+    })
+
+    it('passes the chosen stepper quantity to onRequestAdd', () => {
+      const onRequestAdd = vi.fn()
+      renderCardActions({
+        variantId: 'variant-123',
+        productName: 'Classic Tee',
+        productSlug: 'classic-tee',
+        inStock: true,
+        hasPrice: true,
+        onRequestAdd,
+      })
+
+      fireEvent.click(screen.getByRole('button', { name: /increase quantity/i }))
+      fireEvent.click(screen.getByRole('button', { name: /increase quantity/i }))
+      fireEvent.click(screen.getByRole('button', { name: /add to cart/i }))
+
+      expect(onRequestAdd).toHaveBeenCalledWith(3)
+      expect(useCartStore.getState().items).toHaveLength(0)
     })
   })
 
@@ -190,6 +244,137 @@ describe('CardActions', () => {
 
       expect(screen.getByRole('button', { name: 'Add to cart' })).toBeInTheDocument()
       expect(screen.queryByText('Out of stock')).not.toBeInTheDocument()
+    })
+  })
+
+  describe('outOfStockAction prop', () => {
+    it('renders disabled "Out of stock" button when outOfStockAction is omitted (default disabled)', () => {
+      renderCardActions({ variantId: 'v1', inStock: false, hasPrice: true })
+
+      const button = screen.getByRole('button', { name: /out of stock/i })
+      expect(button).toBeDisabled()
+      expect(button).toHaveClass('cursor-not-allowed')
+      expect(screen.queryByRole('link')).not.toBeInTheDocument()
+    })
+
+    it('renders disabled "Out of stock" button when outOfStockAction is explicitly "disabled"', () => {
+      renderCardActions({ variantId: 'v1', inStock: false, hasPrice: true, outOfStockAction: 'disabled' })
+
+      const button = screen.getByRole('button', { name: /out of stock/i })
+      expect(button).toBeDisabled()
+      expect(screen.queryByRole('link')).not.toBeInTheDocument()
+    })
+
+    it('renders bordered "View product" link to PDP when outOfStockAction is "viewProduct" and inStock is false', () => {
+      renderCardActions({
+        variantId: 'v1',
+        inStock: false,
+        hasPrice: true,
+        productSlug: 'test-product',
+        outOfStockAction: 'viewProduct',
+      })
+
+      const link = screen.getByRole('link', { name: /view product/i })
+      expect(link).toHaveAttribute('href', '/products/test-product')
+      // Same bordered style as the "Select options" branch
+      expect(link).toHaveClass('border', 'w-full')
+      expect(screen.queryByRole('button', { name: /out of stock/i })).not.toBeInTheDocument()
+    })
+
+    it('inStock null renders stepper+add when outOfStockAction is "disabled"', () => {
+      renderCardActions({ variantId: 'v1', inStock: null, hasPrice: true, outOfStockAction: 'disabled' })
+
+      expect(screen.getByRole('button', { name: 'Add to cart' })).toBeInTheDocument()
+      expect(screen.getByRole('button', { name: /increase quantity/i })).toBeInTheDocument()
+      expect(screen.queryByText('Out of stock')).not.toBeInTheDocument()
+      expect(screen.queryByRole('link')).not.toBeInTheDocument()
+    })
+
+    it('inStock null renders stepper+add when outOfStockAction is "viewProduct"', () => {
+      renderCardActions({ variantId: 'v1', inStock: null, hasPrice: true, outOfStockAction: 'viewProduct' })
+
+      expect(screen.getByRole('button', { name: 'Add to cart' })).toBeInTheDocument()
+      expect(screen.getByRole('button', { name: /increase quantity/i })).toBeInTheDocument()
+      expect(screen.queryByText('Out of stock')).not.toBeInTheDocument()
+      expect(screen.queryByRole('link')).not.toBeInTheDocument()
+    })
+  })
+
+  describe('variantLabel prop forwarding', () => {
+    it('forwards provided variantLabel to the cart store addItem call', () => {
+      renderCardActions({
+        variantId: 'variant-abc',
+        productName: 'Labeled Product',
+        productSlug: 'labeled-product',
+        inStock: true,
+        hasPrice: true,
+        variantLabel: 'Size: XL, Colour: Red',
+      })
+
+      fireEvent.click(screen.getByRole('button', { name: /add to cart/i }))
+
+      const { items } = useCartStore.getState()
+      expect(items).toHaveLength(1)
+      expect(items[0].variantLabel).toBe('Size: XL, Colour: Red')
+    })
+
+    it('defaults variantLabel to empty string when omitted (existing behaviour)', () => {
+      renderCardActions({
+        variantId: 'variant-def',
+        productName: 'No Label Product',
+        productSlug: 'no-label-product',
+        inStock: true,
+        hasPrice: true,
+      })
+
+      fireEvent.click(screen.getByRole('button', { name: /add to cart/i }))
+
+      const { items } = useCartStore.getState()
+      expect(items).toHaveLength(1)
+      expect(items[0].variantLabel).toBe('')
+    })
+  })
+
+  describe('layout prop', () => {
+    it('defaults to stack: the component paints its own column', () => {
+      const { container } = renderCardActions({ variantId: 'v1', inStock: true, hasPrice: true })
+
+      const root = container.firstElementChild as HTMLElement
+      expect(root.className).toBe('mt-3 flex flex-col gap-2')
+    })
+
+    it('bar mode drops the box below sm so the controls join the parent layout', () => {
+      const { container } = renderCardActions({
+        variantId: 'v1',
+        inStock: true,
+        hasPrice: true,
+        layout: 'bar',
+      })
+
+      const root = container.firstElementChild as HTMLElement
+      // display:contents below sm; the original column returns from sm.
+      expect(root.className).toContain('contents')
+      expect(root.className).toContain('sm:flex')
+      expect(root.className).toContain('sm:flex-col')
+      expect(root.className).toContain('sm:gap-2')
+      expect(root.className).toContain('sm:mt-3')
+      // Both controls are still this component's children — the parent only
+      // borrows them for layout, it never owns the quantity state.
+      expect(root.querySelector('[aria-label="Increase quantity"]')).toBeInTheDocument()
+      expect(root.querySelector('button.w-full')).toBeInTheDocument()
+    })
+
+    it('bar mode also applies to the single-control branches', () => {
+      const { container } = renderCardActions({
+        variantId: 'v1',
+        inStock: false,
+        hasPrice: true,
+        layout: 'bar',
+      })
+
+      const root = container.firstElementChild as HTMLElement
+      expect(root.className).toBe('contents sm:mt-3 sm:block')
+      expect(screen.getByRole('button', { name: /out of stock/i })).toBeDisabled()
     })
   })
 })

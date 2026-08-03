@@ -1,7 +1,7 @@
 import {render, screen} from '@testing-library/react'
 import {MemoryRouter} from 'react-router-dom'
 import {beforeEach, describe, expect, it, vi} from 'vitest'
-import {SaleProductsSection} from '../SaleProductsSection.tsx'
+import {SaleProductsSection} from '../SaleProductsSection'
 import {useSaleShoppingProducts} from '@/storefront/sections/hooks/useSaleShoppingProducts'
 
 // Mock the hook at the REAL import path used by the component.

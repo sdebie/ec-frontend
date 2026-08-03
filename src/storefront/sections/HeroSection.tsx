@@ -2,7 +2,8 @@ import type {CSSProperties} from 'react'
 import {Link} from 'react-router-dom'
 import {cn} from '@/shared/utils/cn'
 import {resolveImageUrl} from '@/shared/utils/imageUrl'
-import type {HeroContentSurface, HeroSectionConfig} from '@/shared/types/StorefrontConfig'
+import type {BenefitsFootnoteSegment, HeroContentSurface, HeroSectionConfig} from '@/shared/types/StorefrontConfig'
+import {ACCENT_BUTTON_HOVER, SF_FOCUS_RING_PAGE} from './shared'
 
 // Text/kicker colour per surface. Every value is a theme token — no client
 // palette lives here, only the mapping from semantic surface -> token.
@@ -50,9 +51,52 @@ const SURFACE_BACKGROUND_STYLE: Partial<Record<HeroContentSurface, CSSProperties
 // reserves ~360px for the page chrome plus the band that follows the hero, so
 // the next section's top edge stays visible above the fold; the px floor keeps
 // short windows from collapsing the band below a usable minimum.
-const HEIGHT_CLASS: Record<'standard' | 'tall', string> = {
+//
+// 'full' fills the viewport exactly once the chrome is subtracted:
+// `--sf-chrome-h` is the measured announcement-bar + header height published by
+// StorefrontLayout's useChromeHeight. The 0px fallback covers the frame before
+// the measurement lands (and any surface rendering a hero outside that layout),
+// where it degrades to a plain full-viewport band rather than breaking. `dvh`
+// tracks mobile browser chrome collapsing on scroll; the px floor is retained
+// so a short landscape window still gets a usable band.
+const HEIGHT_CLASS: Record<'standard' | 'tall' | 'full', string> = {
     standard: 'min-h-[480px]',
     tall: 'min-h-[max(480px,calc(100vh-360px))]',
+    full: 'min-h-[max(480px,calc(100dvh-var(--sf-chrome-h,0px)))]',
+}
+
+export function HeroFootnote({segments, surface, contentAlignment = 'center'}: {
+    segments: BenefitsFootnoteSegment[]
+    surface: HeroContentSurface
+    contentAlignment?: 'left' | 'center' | 'right'
+}) {
+    return (
+        <p
+            className={cn(
+                'mt-4 text-sm',
+                SURFACE_SUBTITLE_CLASS[surface],
+                contentAlignment === 'center' && 'text-center',
+                contentAlignment === 'right' && 'text-right',
+            )}
+        >
+            {segments.map((segment, index) =>
+                segment.to ? (
+                    <Link
+                        key={index}
+                        to={segment.to}
+                        className={cn(
+                            'underline transition-colors hover:opacity-80',
+                            SF_FOCUS_RING_PAGE,
+                        )}
+                    >
+                        {segment.text}
+                    </Link>
+                ) : (
+                    <span key={index}>{segment.text}</span>
+                )
+            )}
+        </p>
+    )
 }
 
 export function HeroSection({section}: { section: HeroSectionConfig }) {
@@ -68,6 +112,7 @@ export function HeroSection({section}: { section: HeroSectionConfig }) {
         contentAlignment = 'center',
         darkStyle = false,
         contentSurface,
+        footnote,
     } = section.props
 
     // Storage-relative paths (e.g. "storefront/hero-warehouse.jpg") must go through
@@ -136,13 +181,19 @@ export function HeroSection({section}: { section: HeroSectionConfig }) {
                         {kicker}
                     </p>
                 )}
-                <h2 className={cn('text-4xl font-bold leading-tight', SURFACE_TITLE_CLASS[surface])}>
+                {/* Larger from `md`: the band is viewport-tall, and 36px left the
+                    title small against it. The block is vertically centred, so
+                    growing the title by ~15px pushes the subtitle down by half
+                    that — the subtitle's tightened `md:mt-2` gives it back, so the
+                    title grows UPWARD into the kicker's space and the subtitle
+                    holds its position. */}
+                <h2 className={cn('text-4xl md:text-6xl font-bold leading-tight', SURFACE_TITLE_CLASS[surface])}>
                     {title}
                 </h2>
                 {subtitle && (
                     <p
                         className={cn(
-                            'mt-4 max-w-xl text-lg',
+                            'mt-4 md:mt-0 max-w-xl text-lg',
                             SURFACE_SUBTITLE_CLASS[surface],
                             contentAlignment === 'center' && 'mx-auto',
                             contentAlignment === 'right' && 'ml-auto',
@@ -162,7 +213,7 @@ export function HeroSection({section}: { section: HeroSectionConfig }) {
                         {primaryCta && (
                             <Link
                                 to={primaryCta.to}
-                                className="inline-block rounded-md bg-(--sf-accent) px-6 py-3 text-sm font-semibold text-(--sf-accent-text) shadow-(--sf-shadow-sm) transition hover:opacity-90"
+                                className={`inline-block rounded-md bg-(--sf-accent) px-6 py-3 text-sm font-semibold text-(--sf-accent-text) shadow-(--sf-shadow-sm) transition-colors ${ACCENT_BUTTON_HOVER} ${SF_FOCUS_RING_PAGE}`}
                             >
                                 {primaryCta.label}
                             </Link>
@@ -179,6 +230,13 @@ export function HeroSection({section}: { section: HeroSectionConfig }) {
                             </Link>
                         )}
                     </div>
+                )}
+                {footnote && footnote.length > 0 && (
+                    <HeroFootnote
+                        segments={footnote}
+                        surface={surface}
+                        contentAlignment={contentAlignment}
+                    />
                 )}
             </div>
             </div>

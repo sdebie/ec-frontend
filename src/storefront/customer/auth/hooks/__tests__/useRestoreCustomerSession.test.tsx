@@ -25,6 +25,8 @@ vi.mock('@/storefront/layouts/StorefrontFooter', () => ({
 }))
 vi.mock('react-router-dom', () => ({
   Outlet: () => <div>Page Content</div>,
+  // StorefrontLayout mounts ScrollToTop, which reads the current location.
+  useLocation: () => ({ pathname: '/', search: '', hash: '', state: null, key: 'test' }),
 }))
 
 import { storefrontHttpClient } from '@/shared/api/http/storefrontHttpClient'

@@ -4,7 +4,14 @@ import {useFeaturedShoppingProducts} from '@/storefront/hooks/useFeaturedShoppin
 import {Carousel, Section, SectionHeading} from './shared'
 
 export function FeaturedProductsSection({section}: { section: FeaturedProductsSectionConfig }) {
-    const {title, eyebrow, variant, layout = 'row', columns, badgeLabel, category, limit} = section.props
+    const {title, eyebrow, variant, layout = 'row', columns, badgeLabel, category, limit, carouselControls} = section.props
+
+    // Resolve the carousel treatment: default is 'header' (current behaviour).
+    // Unknown values fall back to the default rather than throwing.
+    const VALID_HINTS = ['header', 'gutter', 'overlay'] as const
+    const resolvedHint = VALID_HINTS.includes(carouselControls as typeof VALID_HINTS[number])
+        ? (carouselControls as typeof VALID_HINTS[number])
+        : 'header'
 
     const effectiveLimit = limit ?? 8
 
@@ -35,7 +42,7 @@ export function FeaturedProductsSection({section}: { section: FeaturedProductsSe
             <Section variant={variant}>
                 <SectionHeading title={title} eyebrow={eyebrow} />
                 <div className="text-center py-8">
-                    <p className="text-red-600 mb-4">Failed to load featured products.</p>
+                    <p className="text-(--sf-error) mb-4">Failed to load featured products.</p>
                     <button
                         type="button"
                         onClick={() => refetch()}
@@ -54,21 +61,46 @@ export function FeaturedProductsSection({section}: { section: FeaturedProductsSe
 
     return (
         <Section variant={variant}>
-            <SectionHeading title={title} eyebrow={eyebrow} />
             {layout === 'carousel' ? (
-                <Carousel ariaLabel={title} perView={columns}>
-                    {products.map((product) => (
-                        <ProductCard key={product.id} product={product} variantId={product.variantId} badge={badgeLabel}/>
-                    ))}
-                </Carousel>
+                // The hint drives the treatment: 'header' passes the title into the
+                // Carousel header prop; 'gutter'/'overlay' pass arrowPlacement.
+                resolvedHint === 'header' ? (
+                    <Carousel
+                        ariaLabel={title}
+                        perView={columns}
+                        perViewMobile={2}
+                        header={<SectionHeading title={title} eyebrow={eyebrow} className="mb-0"/>}
+                    >
+                        {products.map((product) => (
+                            <ProductCard key={product.id} product={product} variantId={product.variantId} badge={badgeLabel} imageAspect="landscape"/>
+                        ))}
+                    </Carousel>
+                ) : (
+                    <>
+                        <SectionHeading title={title} eyebrow={eyebrow}/>
+                        <Carousel
+                            ariaLabel={title}
+                            perView={columns}
+                            perViewMobile={2}
+                            arrowPlacement={resolvedHint}
+                        >
+                            {products.map((product) => (
+                                <ProductCard key={product.id} product={product} variantId={product.variantId} badge={badgeLabel} imageAspect="landscape"/>
+                            ))}
+                        </Carousel>
+                    </>
+                )
             ) : (
-                <div className="flex items-stretch gap-4 overflow-x-auto py-2">
-                    {products.map((product) => (
-                        <div key={product.id} className="w-56 shrink-0">
-                            <ProductCard product={product} variantId={product.variantId} badge={badgeLabel}/>
-                        </div>
-                    ))}
-                </div>
+                <>
+                    <SectionHeading title={title} eyebrow={eyebrow}/>
+                    <div className="flex items-stretch gap-4 overflow-x-auto py-2">
+                        {products.map((product) => (
+                            <div key={product.id} className="w-56 shrink-0">
+                                <ProductCard product={product} variantId={product.variantId} badge={badgeLabel} imageAspect="landscape"/>
+                            </div>
+                        ))}
+                    </div>
+                </>
             )}
         </Section>
     )

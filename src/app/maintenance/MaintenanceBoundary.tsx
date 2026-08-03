@@ -12,7 +12,7 @@ interface State {
 }
 
 /**
- * Last-line-of-defense error boundary, mounted once in App.tsx around the
+ * Last-line-of-defense error boundary, mounted once in Appx around the
  * router. Anything that escapes the route- and section-level handling renders
  * the full-site MaintenancePage instead of a white screen.
  *

@@ -5,7 +5,7 @@ import {MemoryRouter} from 'react-router-dom'
 import {QueryClient, QueryClientProvider} from '@tanstack/react-query'
 import {StorefrontConfigContext} from '@/shared/config/storefrontConfig.context'
 import type {StorefrontConfig} from '@/shared/types/StorefrontConfig'
-import {useCheckoutSessionStore} from '../checkoutSessionStore'
+import {useCheckoutSessionStore} from '../store/checkoutSessionStore'
 import type {CheckoutSession} from '../types'
 
 // --- Mocks ---
@@ -156,6 +156,26 @@ describe('CheckoutPage', () => {
                 screen.queryByText(/your checkout session has expired/i)
             ).not.toBeInTheDocument()
         })
+
+        it('offers a way back to the cart to change the order', () => {
+            useCheckoutSessionStore.setState({session: mockSession})
+            renderCheckoutPage(CheckoutPage)
+
+            // Two routes back by design: the toolbar's navigational one, and the
+            // contextual "Edit" beside the items in the summary.
+            const backLinks = screen.getAllByRole('link', {name: /back to cart|^edit$/i})
+            expect(backLinks.length).toBeGreaterThanOrEqual(2)
+            backLinks.forEach((link) => expect(link).toHaveAttribute('href', '/cart'))
+        })
+
+        it('states how many items the order covers, above the divider', () => {
+            useCheckoutSessionStore.setState({session: mockSession})
+            const {container} = renderCheckoutPage(CheckoutPage)
+
+            const toolbar = container.querySelector('.border-b')
+            expect(toolbar).toBeTruthy()
+            expect(toolbar).toHaveTextContent(/items? in this order/i)
+        })
     })
 
     describe('PATCH failure blocks payment', () => {
@@ -184,7 +204,7 @@ describe('CheckoutPage', () => {
 
             await waitFor(() => {
                 expect(
-                    screen.getByText(/could not save contact details/i)
+                    screen.getByText(/could not save your details/i)
                 ).toBeInTheDocument()
             })
 

@@ -1,6 +1,6 @@
 import {render, screen, fireEvent} from '@testing-library/react'
-import {AccreditorsSection} from '../AccreditorsSection.tsx'
-import type {AccreditorsSectionConfig} from '@/shared/types/StorefrontConfig.ts'
+import {AccreditorsSection} from '../AccreditorsSection'
+import type {AccreditorsSectionConfig} from '@/shared/types/StorefrontConfig'
 import {describe, expect, it, vi} from 'vitest'
 
 vi.mock('@/shared/utils/imageUrl', () => ({
@@ -84,7 +84,7 @@ describe('AccreditorsSection', () => {
         expect(images).toHaveLength(3)
 
         // Verify tile containers exist for each item (new DOM structure)
-        const tiles = container.querySelectorAll('.flex.h-20.w-40')
+        const tiles = container.querySelectorAll('.flex.h-28.w-52')
         expect(tiles).toHaveLength(3)
     })
 
@@ -107,7 +107,7 @@ describe('AccreditorsSection', () => {
         const {container} = render(<AccreditorsSection section={section}/>)
 
         // Image is rendered inside the tile wrapper div
-        const tile = container.querySelector('.flex.h-20.w-40')
+        const tile = container.querySelector('.flex.h-28.w-52')
         expect(tile).toBeInTheDocument()
         expect(tile?.querySelector('img')).toBeInTheDocument()
 
@@ -182,8 +182,8 @@ describe('AccreditorsSection — invariants', () => {
         const section = buildSection()
         const {container} = render(<AccreditorsSection section={section}/>)
 
-        const tiles = container.querySelectorAll('.flex.h-20.w-40')
-        const expectedClasses = ['h-20', 'w-40', 'sm:h-24', 'sm:w-48', 'lg:h-28', 'lg:w-56']
+        const tiles = container.querySelectorAll('.flex.h-28.w-52')
+        const expectedClasses = ['h-28', 'w-52', 'sm:h-32', 'sm:w-64', 'lg:h-36', 'lg:w-72']
 
         tiles.forEach((tile) => {
             expectedClasses.forEach((cls) => {
@@ -211,7 +211,7 @@ describe('AccreditorsSection — invariants', () => {
         const row = container.querySelector('.flex-wrap.justify-center')
         expect(row).toBeInTheDocument()
 
-        const tiles = container.querySelectorAll('.flex.h-20.w-40')
+        const tiles = container.querySelectorAll('.flex.h-28.w-52')
         expect(tiles).toHaveLength(3)
     })
 
@@ -231,7 +231,7 @@ describe('AccreditorsSection — invariants', () => {
         const row = container.querySelector('.flex-wrap.justify-center')
         expect(row).toBeInTheDocument()
 
-        const tiles = container.querySelectorAll('.flex.h-20.w-40')
+        const tiles = container.querySelectorAll('.flex.h-28.w-52')
         expect(tiles).toHaveLength(6)
     })
 })

@@ -35,6 +35,26 @@
     --admin-status-yellow-bg: #fffbeb;
     --admin-status-yellow-text: #92400e;
     --admin-status-yellow-border: #fde68a;
+
+    /*
+      Storefront status tokens.
+
+      Every other --sf-* token is written onto <html> at runtime by
+      StorefrontConfigProvider from the seeded `storefront.theme` JSON. Status
+      colours were never in that vocabulary, which is why the storefront had
+      hard-coded red and green scattered through it as a documented exception to
+      the theme law.
+
+      These are DEFAULTS, not overrides: an inline style on <html> beats a
+      stylesheet rule, so the moment a client seeds `error`/`errorSurface`/
+      `success` in its theme JSON, the seeded value wins and the storefront
+      brands its own validation and stock states. A client that seeds nothing
+      still renders correctly, which is what the default-seed rule requires.
+    */
+    --sf-error: #dc2626;
+    --sf-error-surface: #fef2f2;
+    --sf-error-border: #fecaca;
+    --sf-success: #16a34a;
 }
 
 [data-surface="admin"][data-theme="dark"] {

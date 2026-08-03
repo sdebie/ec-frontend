@@ -9,15 +9,15 @@
  * tokens, which are defined for every surface.
  */
 const STATUS_BADGE_CLASSES: Record<string, string> = {
-  CREATED: 'bg-(--c-surface-hover) text-(--c-text-muted)',
-  PAID: 'bg-blue-50 text-blue-700',
-  SHIPPED: 'bg-amber-50 text-amber-700',
-  DELIVERED: 'bg-green-50 text-green-700',
-  CANCELLED: 'bg-red-50 text-red-700',
+    CREATED: 'bg-(--c-surface-hover) text-(--c-text-muted)',
+    PAID: 'bg-blue-50 text-blue-700',
+    SHIPPED: 'bg-amber-50 text-amber-700',
+    DELIVERED: 'bg-green-50 text-green-700',
+    CANCELLED: 'bg-red-50 text-red-700',
 }
 
 const FALLBACK_BADGE = 'bg-(--c-surface-hover) text-(--c-text-muted)'
 
 export function orderStatusBadgeClasses(status: string): string {
-  return STATUS_BADGE_CLASSES[status] ?? FALLBACK_BADGE
+    return STATUS_BADGE_CLASSES[status] ?? FALLBACK_BADGE
 }

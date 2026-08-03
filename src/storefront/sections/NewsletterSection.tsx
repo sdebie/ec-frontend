@@ -1,7 +1,7 @@
 import {Link} from 'react-router-dom'
 import {cn} from '@/shared/utils/cn'
 import type {NewsletterSectionConfig} from '@/shared/types/StorefrontConfig'
-import {Section, SectionHeading} from './shared'
+import {ACCENT_BUTTON_HOVER, ACCENT_LINK_HOVER, SF_FOCUS_RING_PAGE, Section, SectionHeading} from './shared'
 
 export function NewsletterSection({section}: { section: NewsletterSectionConfig }) {
     const {
@@ -39,7 +39,7 @@ export function NewsletterSection({section}: { section: NewsletterSectionConfig 
                 <button
                     type="submit"
                     className={cn(
-                        'rounded-md bg-(--sf-accent) px-6 py-3 text-sm font-semibold text-(--sf-accent-text) shadow-sm hover:opacity-90',
+                        `rounded-md bg-(--sf-accent) px-6 py-3 text-sm font-semibold text-(--sf-accent-text) shadow-sm transition-colors ${ACCENT_BUTTON_HOVER} ${SF_FOCUS_RING_PAGE}`,
                         layout === 'stacked' && 'w-full',
                     )}
                 >
@@ -52,7 +52,7 @@ export function NewsletterSection({section}: { section: NewsletterSectionConfig 
             {secondaryLink && (
                 <Link
                     to={secondaryLink.to}
-                    className="mt-4 inline-block text-sm text-(--sf-accent) underline hover:opacity-90"
+                    className={`mt-4 inline-block text-sm text-(--sf-accent) underline ${ACCENT_LINK_HOVER}`}
                 >
                     {secondaryLink.label}
                 </Link>

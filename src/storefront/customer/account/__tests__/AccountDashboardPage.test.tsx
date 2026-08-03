@@ -2,15 +2,15 @@ import {beforeEach, describe, expect, it, vi} from 'vitest'
 import fc from 'fast-check'
 import {render, screen} from '@testing-library/react'
 import {MemoryRouter} from 'react-router-dom'
-import type {MyOrder} from '../hooks/useMyOrders.ts'
-import {useMyOrders} from '../hooks/useMyOrders.ts'
-import {useCustomerProfile} from '../hooks/useCustomerProfile.ts'
-import {useWishlist} from '../hooks/useWishlist.ts'
-import {AccountDashboardPage} from '../AccountDashboardPage.tsx'
+import type {MyOrder} from '../hooks/useMyOrders'
+import {useMyOrders} from '../hooks/useMyOrders'
+import {useCustomerProfile} from '../hooks/useCustomerProfile'
+import {useWishlist} from '../wishlist/hooks/useWishlist'
+import {AccountDashboardPage} from '../AccountDashboardPage'
 
 vi.mock('../hooks/useMyOrders')
 vi.mock('../hooks/useCustomerProfile')
-vi.mock('../hooks/useWishlist')
+vi.mock('../wishlist/hooks/useWishlist')
 
 const mockedUseMyOrders = vi.mocked(useMyOrders)
 const mockedUseCustomerProfile = vi.mocked(useCustomerProfile)

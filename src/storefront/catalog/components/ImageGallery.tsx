@@ -1,5 +1,5 @@
-import { useState } from 'react'
-import { pickFeaturedImage } from '../utils/productImage'
+import { useMemo, useState } from 'react'
+import { pickFeaturedImage } from '@/storefront/catalog'
 import { resolveImageUrl } from '@/shared/utils/imageUrl'
 
 interface ImageGalleryProps {
@@ -15,6 +15,22 @@ interface ImageGalleryProps {
 export function ImageGallery({ images, productName }: ImageGalleryProps) {
   const featuredUrl = pickFeaturedImage(images)
   const [selectedImage, setSelectedImage] = useState<string | null>(featuredUrl)
+
+  // The flat list carries one row per VARIANT image, and variants of the same
+  // product overwhelmingly share a single photo — one live product has 24 image
+  // rows and exactly 1 distinct URL. Undeduplicated that renders 24 identical
+  // thumbnails, and since selection is matched by URL, every one of them
+  // highlights at once. Collapse by URL: the strip then shows genuinely
+  // different pictures, and hides itself entirely when there is only one.
+  const uniqueImages = useMemo(() => {
+    const seen = new Set<string>()
+    return images.filter((image) => {
+      const url = resolveImageUrl(image.imageUrl)
+      if (!url || seen.has(url)) return false
+      seen.add(url)
+      return true
+    })
+  }, [images])
 
   if (!images.length || !selectedImage) {
     return (
@@ -51,9 +67,9 @@ export function ImageGallery({ images, productName }: ImageGalleryProps) {
         />
       </div>
 
-      {images.length > 1 && (
+      {uniqueImages.length > 1 && (
         <div className="flex gap-2 overflow-x-auto">
-          {[...images]
+          {[...uniqueImages]
             .sort((a, b) => a.sortOrder - b.sortOrder)
             .map((image) => (
               <button

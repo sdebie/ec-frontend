@@ -20,18 +20,45 @@ const sampleItems: NavItem[] = [
   { id: '1', label: 'Products', path: '/products', external: false, sortOrder: 0 },
   { id: '2', label: 'About', path: '/about', external: false, sortOrder: 1 },
   { id: '3', label: 'Wholesale Portal', path: 'https://wholesale.example.com', external: true, sortOrder: 2 },
+  { id: '4', label: 'Request a Quote', path: '/quote-request', external: false, sortOrder: 3, emphasis: 'cta' as const },
 ]
 
 function renderNavDrawer(
-  props: { open?: boolean; onClose?: () => void; items?: NavItem[] } = {},
+  props: {
+    open?: boolean
+    onClose?: () => void
+    items?: NavItem[]
+    isSignedIn?: boolean
+    accountName?: string | null
+    onSignIn?: () => void
+    onSignOut?: () => void
+  } = {},
   initialEntries: string[] = ['/'],
 ) {
-  const { open = true, onClose = vi.fn(), items = sampleItems } = props
+  const {
+    open = true,
+    onClose = vi.fn(),
+    items = sampleItems,
+    isSignedIn = false,
+    accountName = null,
+    onSignIn = vi.fn(),
+    onSignOut = vi.fn(),
+  } = props
   return {
     onClose,
+    onSignIn,
+    onSignOut,
     ...render(
       <MemoryRouter initialEntries={initialEntries}>
-        <NavDrawer open={open} onClose={onClose} items={items} />
+        <NavDrawer
+          open={open}
+          onClose={onClose}
+          items={items}
+          isSignedIn={isSignedIn}
+          accountName={accountName}
+          onSignIn={onSignIn}
+          onSignOut={onSignOut}
+        />
       </MemoryRouter>,
     ),
   }
@@ -68,7 +95,7 @@ describe('NavDrawer', () => {
               path="*"
               element={
                 <>
-                  <NavDrawer open={true} onClose={onClose} items={sampleItems} />
+                  <NavDrawer open={true} onClose={onClose} items={sampleItems} isSignedIn={false} accountName={null} onSignIn={vi.fn()} onSignOut={vi.fn()} />
                   <Link to="/products" data-testid="nav-trigger">
                     Go to products
                   </Link>
@@ -148,14 +175,79 @@ describe('NavDrawer', () => {
   })
 
   describe('does not render when closed', () => {
+    it('offers sign in when signed out, and reports the intent to the header', async () => {
+        const user = userEvent.setup()
+        const {onSignIn} = renderNavDrawer({isSignedIn: false})
+
+        const signIn = screen.getByRole('button', {name: /sign in/i})
+
+        // Inside the dialog, not merely somewhere in the portal: an earlier
+        // refactor closed the dialog element early and the account block
+        // rendered as a static sibling — invisible, while every other
+        // assertion here still passed.
+        expect(screen.getByRole('dialog').contains(signIn)).toBe(true)
+
+        await user.click(signIn)
+
+        // The drawer never decides between the login page and the modal — the
+        // header owns that, because it is the one that knows `loginStyle`.
+        expect(onSignIn).toHaveBeenCalledTimes(1)
+    })
+
+    it('offers the account and sign out when signed in', async () => {
+        const user = userEvent.setup()
+        const {onSignOut} = renderNavDrawer({isSignedIn: true, accountName: 'Vanessa'})
+
+        const accountLink = screen.getByRole('link', {name: /vanessa/i})
+        expect(accountLink).toHaveAttribute('href', '/account/dashboard')
+        expect(screen.getByRole('dialog').contains(accountLink)).toBe(true)
+        expect(screen.queryByRole('button', {name: /sign in/i})).not.toBeInTheDocument()
+
+        await user.click(screen.getByRole('button', {name: /sign out/i}))
+        expect(onSignOut).toHaveBeenCalledTimes(1)
+    })
+
+    it('falls back to a generic label when no first name is known', () => {
+        renderNavDrawer({isSignedIn: true, accountName: null})
+        expect(screen.getByRole('link', {name: /my account/i})).toBeInTheDocument()
+    })
+
+    it('does not render the category tree (owner directive 2026-08-02)', () => {
+        renderNavDrawer()
+        // Removed until a better mobile treatment exists — ~20 root categories
+        // turned the drawer into a wall of links and buried the account action.
+        expect(screen.queryByText(/^categories$/i)).not.toBeInTheDocument()
+    })
+
     it('returns null when open is false', () => {
       render(
         <MemoryRouter>
-          <NavDrawer open={false} onClose={vi.fn()} items={sampleItems} />
+          <NavDrawer open={false} onClose={vi.fn()} items={sampleItems} isSignedIn={false} accountName={null} onSignIn={vi.fn()} onSignOut={vi.fn()} />
         </MemoryRouter>,
       )
 
       expect(screen.queryByRole('dialog')).not.toBeInTheDocument()
+    })
+  })
+
+  describe('emphasis: "cta" drawer variant', () => {
+    it('renders CTA item with full-width chip classes', () => {
+      renderNavDrawer()
+
+      const ctaLink = screen.getByRole('link', { name: 'Request a Quote' })
+      expect(ctaLink.className).toContain('rounded-full')
+      expect(ctaLink.className).toContain('border-(--sf-accent)')
+      expect(ctaLink.className).toContain('w-full')
+      expect(ctaLink.className).toContain('text-center')
+    })
+
+    it('renders default items without chip classes in drawer', () => {
+      renderNavDrawer()
+
+      const defaultLink = screen.getByRole('link', { name: 'Products' })
+      expect(defaultLink.className).not.toContain('rounded-full')
+      expect(defaultLink.className).not.toContain('border-(--sf-accent)')
+      expect(defaultLink.className).not.toContain('w-full')
     })
   })
 })

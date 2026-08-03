@@ -2,6 +2,7 @@ import { useEffect, useRef, useState } from 'react'
 import { Link } from 'react-router-dom'
 import { ChevronDown } from 'lucide-react'
 import { useCategoryTree } from '@/storefront/catalog/hooks/useCategoryTree'
+import { SF_FOCUS_RING } from '@/storefront/sections/shared/focusRing'
 
 export function CategoryMegaMenu() {
   const { tree, isError } = useCategoryTree()
@@ -52,10 +53,13 @@ export function CategoryMegaMenu() {
         onClick={() => setPanelOpen((v) => !v)}
         aria-expanded={panelOpen}
         aria-controls="category-mega-menu-panel"
-        className="flex items-center gap-1 rounded-md px-3 py-2 text-sm font-medium text-(--sf-nav-text) hover:bg-(--sf-nav-border)"
+        className={`flex items-center gap-1 rounded-md px-3 py-2 text-sm font-medium text-(--sf-nav-text) hover:bg-(--sf-nav-border) ${SF_FOCUS_RING.nav}${panelOpen ? ' bg-(--sf-nav-border)' : ''}`}
       >
         Shop by Category
-        <ChevronDown className="h-4 w-4" aria-hidden="true" />
+        <ChevronDown
+          className={`h-4 w-4 transition-transform${panelOpen ? ' rotate-180' : ''}`}
+          aria-hidden="true"
+        />
       </button>
 
       {panelOpen && (
@@ -71,7 +75,7 @@ export function CategoryMegaMenu() {
                 <div key={root.id}>
                   <Link
                     to={`/products?category=${root.slug}`}
-                    className="block text-sm font-semibold text-(--sf-text) hover:text-(--sf-accent)"
+                    className={`block text-sm font-semibold text-(--sf-text) hover:text-(--sf-accent) ${SF_FOCUS_RING.nav}`}
                     onClick={() => setPanelOpen(false)}
                   >
                     {root.name}
@@ -82,7 +86,7 @@ export function CategoryMegaMenu() {
                         <li key={child.id}>
                           <Link
                             to={`/products?category=${child.slug}`}
-                            className="block text-sm text-(--sf-muted-text) hover:text-(--sf-accent)"
+                            className={`block text-sm text-(--sf-muted-text) hover:text-(--sf-accent) ${SF_FOCUS_RING.nav}`}
                             onClick={() => setPanelOpen(false)}
                           >
                             {child.name}
@@ -93,7 +97,7 @@ export function CategoryMegaMenu() {
                         <li>
                           <Link
                             to={`/products?category=${root.slug}`}
-                            className="block text-sm font-medium text-(--sf-accent) hover:underline"
+                            className={`block text-sm font-medium text-(--sf-accent) hover:underline ${SF_FOCUS_RING.nav}`}
                             onClick={() => setPanelOpen(false)}
                           >
                             View all

@@ -153,6 +153,9 @@ describe('Carousel', () => {
     cells.forEach(cell => {
       expect(cell.className).toContain('snap-start')
       expect(cell.className).toContain('shrink-0')
+      // Children must stretch to the cell width — a card without its own
+      // w-full otherwise shrinks to content width and cards render unequal.
+      expect(cell.className).toContain('*:w-full')
     })
   })
 
@@ -290,5 +293,137 @@ describe('Carousel', () => {
     const next = screen.getByLabelText('Next')
     expect(prev).toHaveAttribute('aria-label', 'Previous')
     expect(next).toHaveAttribute('aria-label', 'Next')
+  })
+
+  // ── header-controls mode ──────────────────────────────────────────────────
+
+  const mockOverflow = (scrollContainer: HTMLElement) => {
+    Object.defineProperty(scrollContainer, 'scrollWidth', { value: 1200, configurable: true })
+    Object.defineProperty(scrollContainer, 'clientWidth', { value: 400, configurable: true })
+    act(() => {
+      resizeObserverCallback([], {} as ResizeObserver)
+    })
+  }
+
+  const getScroller = () =>
+    screen.getByRole('region').querySelector('[class*="snap-x"]')! as HTMLElement
+
+  it('header mode renders the header node above the deck', () => {
+    render(
+      <Carousel ariaLabel="Test" header={<h2>Featured</h2>}>
+        <div>Card 1</div>
+      </Carousel>
+    )
+    expect(screen.getByRole('heading', { name: 'Featured' })).toBeInTheDocument()
+  })
+
+  it('header mode places prev/next in the header row (md+), not absolutely over the deck', () => {
+    render(
+      <Carousel ariaLabel="Test" header={<h2>Featured</h2>}>
+        <div>Card 1</div>
+        <div>Card 2</div>
+      </Carousel>
+    )
+    mockOverflow(getScroller())
+
+    const prev = screen.getByLabelText('Previous')
+    const next = screen.getByLabelText('Next')
+    // Not the floating edge arrows
+    expect(prev.className).not.toContain('absolute')
+    expect(next.className).not.toContain('absolute')
+    // Grouped in the header row, hidden on mobile / flex on md+
+    const controls = prev.parentElement!
+    expect(controls).toBe(next.parentElement)
+    expect(controls.className).toContain('hidden')
+    expect(controls.className).toContain('md:flex')
+  })
+
+  it('header mode disables Previous at the start and enables Next when overflowing', () => {
+    render(
+      <Carousel ariaLabel="Test" header={<h2>Featured</h2>}>
+        <div>Card 1</div>
+        <div>Card 2</div>
+      </Carousel>
+    )
+    mockOverflow(getScroller())
+
+    expect(screen.getByLabelText('Previous')).toBeDisabled()
+    expect(screen.getByLabelText('Next')).not.toBeDisabled()
+  })
+
+  it('header mode enables Previous and disables Next once scrolled to the end', () => {
+    render(
+      <Carousel ariaLabel="Test" header={<h2>Featured</h2>}>
+        <div>Card 1</div>
+        <div>Card 2</div>
+      </Carousel>
+    )
+    const scroller = getScroller()
+    mockOverflow(scroller)
+
+    Object.defineProperty(scroller, 'scrollLeft', { value: 800, configurable: true })
+    fireEvent.scroll(scroller)
+
+    expect(screen.getByLabelText('Previous')).not.toBeDisabled()
+    expect(screen.getByLabelText('Next')).toBeDisabled()
+  })
+
+  it('header mode renders one mobile dot per child plus the "Swipe to browse" hint', () => {
+    render(
+      <Carousel ariaLabel="Test" header={<h2>Featured</h2>}>
+        <div>Card 1</div>
+        <div>Card 2</div>
+        <div>Card 3</div>
+      </Carousel>
+    )
+    mockOverflow(getScroller())
+
+    const dots = screen.getAllByLabelText(/Go to item \d/)
+    expect(dots.length).toBe(3)
+    expect(dots[0]).toHaveAttribute('aria-current', 'true')
+    expect(screen.getByText('Swipe to browse')).toBeInTheDocument()
+    // The dots block is mobile-only
+    expect(screen.getByText('Swipe to browse').parentElement!.className).toContain('md:hidden')
+  })
+
+  it('clicking a dot scrolls the deck to that index', () => {
+    render(
+      <Carousel ariaLabel="Test" header={<h2>Featured</h2>}>
+        <div>Card 1</div>
+        <div>Card 2</div>
+      </Carousel>
+    )
+    const scroller = getScroller()
+    mockOverflow(scroller)
+    scroller.scrollTo = vi.fn()
+
+    fireEvent.click(screen.getByLabelText('Go to item 2'))
+    expect(scroller.scrollTo).toHaveBeenCalledWith(
+      expect.objectContaining({ left: expect.any(Number) })
+    )
+  })
+
+  it('header mode caps mobile cells (max-w-80, released at md)', () => {
+    render(
+      <Carousel ariaLabel="Test" header={<h2>Featured</h2>}>
+        <div>Card 1</div>
+      </Carousel>
+    )
+    const cell = getScroller().firstElementChild! as HTMLElement
+    expect(cell.className).toContain('max-w-80')
+    expect(cell.className).toContain('md:max-w-none')
+  })
+
+  it('legacy mode (no header) renders no dots and no swipe hint', () => {
+    render(
+      <Carousel ariaLabel="Test">
+        <div>Card 1</div>
+        <div>Card 2</div>
+      </Carousel>
+    )
+    mockOverflow(getScroller())
+
+    expect(screen.queryByLabelText(/Go to item/)).not.toBeInTheDocument()
+    expect(screen.queryByText('Swipe to browse')).not.toBeInTheDocument()
   })
 })

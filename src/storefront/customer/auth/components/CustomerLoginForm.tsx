@@ -6,6 +6,7 @@ import { useCustomerLogin } from '@/storefront/customer/auth/hooks/useCustomerLo
 import { useCustomerGoogleLogin } from '@/storefront/customer/auth/hooks/useCustomerGoogleLogin'
 import { InputField } from '@/shared/ui/components/form/InputField'
 import { PasswordField } from '@/shared/ui/components/form/PasswordField'
+import { ACCENT_BUTTON_HOVER, SF_FOCUS_RING_PAGE } from '@/storefront/sections/shared'
 
 const loginSchema = z.object({
   email: z.string().email('Please enter a valid email address'),
@@ -124,7 +125,7 @@ export function CustomerLoginForm({ onSuccess, onForgotPassword }: CustomerLogin
         <button
           type="submit"
           disabled={isPending}
-          className="flex w-full justify-center rounded-md bg-(--sf-accent) px-3 py-2 text-sm font-semibold text-(--sf-accent-text) shadow-sm hover:opacity-90 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-(--sf-ring) disabled:cursor-not-allowed disabled:opacity-50"
+          className={`flex w-full justify-center rounded-md bg-(--sf-accent) px-3 py-2 text-sm font-semibold text-(--sf-accent-text) shadow-sm transition-colors ${ACCENT_BUTTON_HOVER} ${SF_FOCUS_RING_PAGE} disabled:cursor-not-allowed disabled:opacity-50`}
         >
           {isPending ? 'Signing in…' : 'Sign in'}
         </button>

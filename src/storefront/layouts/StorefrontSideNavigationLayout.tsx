@@ -2,6 +2,7 @@ import { useState, type ComponentType, type ReactNode } from 'react'
 import { Menu, X } from 'lucide-react'
 import { NavLink } from 'react-router-dom'
 import { cn } from '@/shared/utils/cn'
+import { ACCENT_BUTTON_HOVER, SF_FOCUS_RING_PAGE } from '@/storefront/sections/shared'
 
 export interface StorefrontSideNavigationItem {
   to: string
@@ -21,7 +22,7 @@ function navigationLinkClass(isActive: boolean) {
   return cn(
     'flex items-center gap-3 rounded-md px-3 py-2 text-sm transition-colors',
     isActive
-      ? 'bg-(--sf-accent) font-semibold text-(--sf-accent-text) hover:opacity-90'
+      ? `bg-(--sf-accent) font-semibold text-(--sf-accent-text) ${ACCENT_BUTTON_HOVER} ${SF_FOCUS_RING_PAGE}`
       : 'text-(--sf-muted-text) hover:bg-(--sf-surface-muted) hover:text-(--sf-text)',
   )
 }

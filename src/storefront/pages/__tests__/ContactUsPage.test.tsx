@@ -61,6 +61,138 @@ describe('ContactUsPage', () => {
     vi.clearAllMocks()
   })
 
+  describe('WhatsApp row and phone relabel (C13)', () => {
+    it('renders a dedicated WhatsApp row with wa.me href when whatsapp is present', () => {
+      renderContactPage({
+        phones: ['012 345 6789'],
+        whatsapp: '+27 82 123 4567',
+      })
+
+      expect(screen.getByText('WhatsApp')).toBeInTheDocument()
+      const waLink = screen.getByRole('link', { name: '+27 82 123 4567' })
+      expect(waLink).toHaveAttribute('href', 'https://wa.me/27821234567')
+      expect(waLink).toHaveAttribute('target', '_blank')
+      expect(waLink).toHaveAttribute('rel', 'noopener noreferrer')
+    })
+
+    it('strips all non-digit characters from the wa.me href', () => {
+      renderContactPage({
+        phones: ['012 345 6789'],
+        whatsapp: '+27 (82) 123-4567',
+      })
+
+      const waLink = screen.getByRole('link', { name: '+27 (82) 123-4567' })
+      expect(waLink).toHaveAttribute('href', 'https://wa.me/27821234567')
+    })
+
+    it('relabels phones row to "Phone" when whatsapp is present', () => {
+      renderContactPage({
+        phones: ['012 345 6789'],
+        whatsapp: '+27821234567',
+      })
+
+      expect(screen.getByText('Phone')).toBeInTheDocument()
+      expect(screen.queryByText('Call / WhatsApp')).not.toBeInTheDocument()
+    })
+
+    it('keeps phones row labelled "Call / WhatsApp" when whatsapp is absent', () => {
+      renderContactPage({
+        phones: ['012 345 6789'],
+      })
+
+      expect(screen.getByText('Call / WhatsApp')).toBeInTheDocument()
+      expect(screen.queryByText('WhatsApp')).not.toBeInTheDocument()
+    })
+
+    it('does not render WhatsApp row when whatsapp is absent', () => {
+      renderContactPage({
+        phones: ['012 345 6789'],
+        physicalAddress: '123 Main St',
+      })
+
+      expect(screen.queryByText('WhatsApp')).not.toBeInTheDocument()
+    })
+
+    it('does not render WhatsApp row when whatsapp is blank', () => {
+      renderContactPage({
+        phones: ['012 345 6789'],
+        whatsapp: '   ',
+      })
+
+      expect(screen.queryByText('WhatsApp')).not.toBeInTheDocument()
+      // Phone label stays as "Call / WhatsApp" since whatsapp is blank
+      expect(screen.getByText('Call / WhatsApp')).toBeInTheDocument()
+    })
+
+    it('renders WhatsApp row even when phones are absent', () => {
+      renderContactPage({
+        whatsapp: '+27821234567',
+      })
+
+      expect(screen.getByText('WhatsApp')).toBeInTheDocument()
+      const waLink = screen.getByRole('link', { name: '+27821234567' })
+      expect(waLink).toHaveAttribute('href', 'https://wa.me/27821234567')
+    })
+  })
+
+  describe('businessHours and responseSla rows (C13)', () => {
+    it('renders Business hours row when businessHours is set', () => {
+      renderContactPage({
+        phones: ['012 345 6789'],
+        businessHours: 'Mon–Fri 8am–5pm',
+      })
+
+      expect(screen.getByText('Business hours')).toBeInTheDocument()
+      expect(screen.getByText('Mon–Fri 8am–5pm')).toBeInTheDocument()
+    })
+
+    it('renders Response time row when responseSla is set', () => {
+      renderContactPage({
+        phones: ['012 345 6789'],
+        responseSla: 'Within 1 business day',
+      })
+
+      expect(screen.getByText('Response time')).toBeInTheDocument()
+      expect(screen.getByText('Within 1 business day')).toBeInTheDocument()
+    })
+
+    it('renders both hours and SLA together', () => {
+      renderContactPage({
+        phones: ['012 345 6789'],
+        businessHours: 'Mon–Fri 8am–5pm',
+        responseSla: 'Within 1 business day',
+      })
+
+      expect(screen.getByText('Business hours')).toBeInTheDocument()
+      expect(screen.getByText('Mon–Fri 8am–5pm')).toBeInTheDocument()
+      expect(screen.getByText('Response time')).toBeInTheDocument()
+      expect(screen.getByText('Within 1 business day')).toBeInTheDocument()
+    })
+
+    it('does not render hours/SLA rows when values are blank', () => {
+      renderContactPage({
+        phones: ['012 345 6789'],
+        businessHours: '   ',
+        responseSla: '',
+      })
+
+      expect(screen.queryByText('Business hours')).not.toBeInTheDocument()
+      expect(screen.queryByText('Response time')).not.toBeInTheDocument()
+    })
+  })
+
+  describe('isContactEmpty considers whatsapp', () => {
+    it('renders page content when only whatsapp is provided', () => {
+      renderContactPage({
+        whatsapp: '+27821234567',
+      })
+
+      // Page renders normally — not the "coming soon" empty state
+      expect(screen.getByText('Get in touch')).toBeInTheDocument()
+      expect(screen.queryByText('Contact information coming soon')).not.toBeInTheDocument()
+    })
+  })
+
   describe('conditional form rendering (Req 4.1)', () => {
     it('renders the enquiry form when enquiryEmail is a valid email', () => {
       renderContactPage({

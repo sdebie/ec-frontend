@@ -3,9 +3,43 @@ import {useStorefrontConfig} from '@/shared/config/storefrontConfig.context'
 import {useCustomerAuthStore} from '@/shared/auth/customerAuthStore'
 import {formatAmount} from '@/shared/utils/formatAmount'
 import {getDisplayPrice} from '../utils/pricing'
-import {pickFeaturedImage} from '../utils/productImage'
-import {WishlistButton} from '@/storefront/customer/account/wishlist/WishlistButton'
+import {pickFeaturedImage} from '@/storefront/catalog'
+import {WishlistButton, WishlistPromptLink} from '@/storefront/customer/account/wishlist/components/WishlistButton'
 import {CardActions} from './CardActions'
+import {SF_FOCUS_RING} from '@/storefront/sections/shared/focusRing'
+
+/**
+ * Card outline weight. 'thick' is for decks sitting on a saturated client colour
+ * band, where the default hairline at 60% opacity disappears into the gradient.
+ *
+ * A real border, not an inset outline: an inset outline is painted beneath the
+ * card's own children, so the full-bleed image stage covered it along the top
+ * edge and that side read thinner than the other three. A border is drawn on
+ * the box itself and is never occluded.
+ *
+ * It costs 1px of content width per side, which is safe only because the lines
+ * that could reflow can't: the name is `line-clamp-2` and the SKU truncates. If
+ * a future line is allowed to wrap, re-check that decks still align.
+ *
+ * Each branch is a COMPLETE literal class string — Tailwind scans source text,
+ * so a composed `border-${n}` would emit no CSS.
+ */
+const CARD_BORDER_CLASS: Record<'default' | 'thick', string> = {
+    default: 'border border-(--sf-border)/60',
+    thick: 'border-2 border-(--sf-border)',
+}
+
+/** Overlay placement for the card's heart; appearance belongs to the component. */
+const WISHLIST_OVERLAY_CLASS = 'absolute top-2 right-2'
+
+/** Picks the affordance the card's data can actually support. */
+function WishlistSlot({variantId, productUrl}: { variantId: string | null; productUrl: string }) {
+    return variantId ? (
+        <WishlistButton variantId={variantId} className={WISHLIST_OVERLAY_CLASS}/>
+    ) : (
+        <WishlistPromptLink productUrl={productUrl} className={WISHLIST_OVERLAY_CLASS}/>
+    )
+}
 
 interface PriceTier {
     price: number | null
@@ -30,22 +64,67 @@ interface ProductCardProps {
         shortDescription?: string
     }
     variantId?: string | null
+    /** Optional variant label rendered under the SKU line (e.g. "Size: XL, Colour: Red"). */
+    variantLabel?: string
     /** Optional label rendered as an accent pill over the image (e.g. "Best Seller"). */
     badge?: string
     /** Layout mode: 'grid' (vertical card, default) or 'row' (horizontal row). */
     layout?: 'grid' | 'row'
+    /** Out-of-stock action: 'disabled' shows a disabled button, 'viewProduct' renders a link to the PDP. */
+    outOfStockAction?: 'disabled' | 'viewProduct'
+    /**
+     * Mobile image density hint. 'thumbnail' applies a compact image stage below
+     * the `sm` breakpoint (pure CSS — same asset, no server resizing). At sm+ both
+     * values render identically to 'default'.
+     */
+    mobileImage?: 'default' | 'thumbnail'
+    /**
+     * Card outline weight. 'thick' suits a deck on a saturated colour band where
+     * the default hairline vanishes. Default preserves every existing consumer.
+     */
+    borderWeight?: 'default' | 'thick'
+    /**
+     * Image stage aspect ratio for the `grid` layout at sm and above. 'landscape'
+     * (4:3) yields a shorter card than the default 'square' — useful where cards
+     * sit beside other page furniture. Pure CSS; the `row` layout is unaffected.
+     */
+    imageAspect?: 'square' | 'landscape'
+    /**
+     * Delegates the add action to the consumer (see CardActions.onRequestAdd).
+     * Absent: the card adds to the cart itself, as the catalogue does.
+     */
+    onRequestAdd?: (quantity: number) => void
+    /**
+     * Renders the built-in wishlist heart over the image. Default true.
+     * Set false where the page provides its own remove affordance (the wishlist
+     * does) so the item has exactly ONE remove control, not two.
+     */
+    showWishlistButton?: boolean
     /** Called when the Quick view button is clicked. If not provided, the Quick view button is not rendered. */
     onQuickView?: () => void
     /** Ref forwarded to the Quick view trigger button for focus restore. */
     quickViewRef?: React.Ref<HTMLButtonElement>
 }
 
-export function ProductCard({product, variantId, badge, layout = 'grid', onQuickView, quickViewRef}: ProductCardProps) {
+export function ProductCard({product, variantId, variantLabel, badge, layout = 'grid', outOfStockAction, mobileImage = 'default', imageAspect = 'square', borderWeight = 'default', onRequestAdd, showWishlistButton = true, onQuickView, quickViewRef}: ProductCardProps) {
     const {currency, locale} = useStorefrontConfig()
     const customerType = useCustomerAuthStore((state) => state.customerType)
 
     const productUrl = `/products/${product.slug}`
     const imageUrl = pickFeaturedImage(product.images)
+
+    // Grid image stage: mobileImage governs the sub-`sm` height, imageAspect the
+    // sm+ ratio. Every branch is a COMPLETE literal class string — Tailwind scans
+    // source text, so an interpolated `sm:${...}` would never emit its CSS.
+    // The two `square` branches reproduce the original markup byte-for-byte.
+    const gridImageStageClass =
+        mobileImage === 'thumbnail'
+            ? imageAspect === 'landscape'
+                ? 'h-28 w-full sm:aspect-[4/3] sm:h-auto'
+                : 'h-28 w-full sm:aspect-square sm:h-auto'
+            : imageAspect === 'landscape'
+                ? 'aspect-[4/3] w-full'
+                : 'aspect-square w-full'
     const priceTiers = {
         retailPrice: product.retailPrice?.price ?? null,
         wholesalePrice: product.wholesalePrice?.price ?? null,
@@ -54,22 +133,34 @@ export function ProductCard({product, variantId, badge, layout = 'grid', onQuick
     }
     const {price, originalPrice} = getDisplayPrice(priceTiers, customerType)
 
-    // Secondary wholesale line for non-wholesale shoppers — the effective
-    // wholesale price comes from the same selector (the client never calculates).
-    const wholesaleDisplay =
-        customerType !== 'WHOLESALE' ? getDisplayPrice(priceTiers, 'WHOLESALE').price : null
+    // Secondary wholesale line for non-wholesale shoppers — shown only when the
+    // wholesale display price exists AND differs from the retail display price.
+    // Selection + comparison only: the client never calculates (design C10).
+    const wholesaleDisplay = (() => {
+        if (customerType === 'WHOLESALE') return null
+        const retailDisplay = getDisplayPrice(priceTiers, 'RETAIL').price
+        const wholesalePrice = getDisplayPrice(priceTiers, 'WHOLESALE').price
+        if (retailDisplay == null || wholesalePrice == null) return null
+        if (retailDisplay === wholesalePrice) return null
+        return wholesalePrice
+    })()
 
     if (layout === 'row') {
         return (
+            /* A grid below sm, a flex row from sm up, so ONE set of nodes reflows.
+               Mobile: [image][identity] with the price and actions spanning both
+               columns as a bar underneath — otherwise they stack ragged-left,
+               indented past the image rail. From sm the three children lay out as
+               the row always has: image | identity | price column. */
             <div
-                className="group flex flex-row rounded-lg border border-(--sf-border)/60 bg-(--sf-panel) overflow-hidden transition-all hover:shadow-md hover:border-(--sf-accent) md:hover:scale-[1.02]"
+                className={`group grid grid-cols-[auto_1fr] items-start rounded-lg ${CARD_BORDER_CLASS[borderWeight]} bg-(--sf-panel) overflow-hidden transition-all hover:shadow-md hover:border-(--sf-accent) sm:flex sm:flex-row sm:items-stretch md:hover:scale-[1.02]`}
                 data-layout="row"
             >
                 {/* Image — left; stays a compact square rail on mobile (a full-width
                     image would turn each "row" into a ~viewport-tall card) */}
                 <div
-                    className="relative w-28 sm:w-40 aspect-square shrink-0 self-start overflow-hidden bg-(--sf-surface-muted)">
-                    <Link to={productUrl} className="block h-full w-full">
+                    className={`relative ${mobileImage === 'thumbnail' ? 'w-20' : 'w-28'} sm:w-40 aspect-square shrink-0 self-start overflow-hidden bg-(--sf-surface-muted)`}>
+                    <Link to={productUrl} className={`block h-full w-full ${SF_FOCUS_RING.page} rounded-sm`}>
                         {imageUrl ? (
                             <img
                                 src={imageUrl}
@@ -114,11 +205,8 @@ export function ProductCard({product, variantId, badge, layout = 'grid', onQuick
                             {badge}
                         </span>
                     )}
-                    {variantId && (
-                        <WishlistButton
-                            variantId={variantId}
-                            className="absolute top-2 right-2 rounded-full bg-(--sf-panel)/80 p-1.5 backdrop-blur-sm transition-colors hover:bg-(--sf-panel) cursor-pointer"
-                        />
+                    {showWishlistButton && (
+                        <WishlistSlot variantId={variantId ?? null} productUrl={productUrl}/>
                     )}
                     {onQuickView && (
                         <button
@@ -132,25 +220,28 @@ export function ProductCard({product, variantId, badge, layout = 'grid', onQuick
                     )}
                 </div>
 
-                {/* Content — stacks under the name on mobile, splits into
-                    identity | price+actions columns from sm up */}
-                <div className="flex min-w-0 flex-1 flex-col sm:flex-row">
-                {/* Identity — centre */}
-                <div className="flex min-w-0 flex-1 flex-col p-3 sm:p-4">
-                    <Link to={productUrl} className="hover:underline">
+                {/* Identity — beside the image at every size */}
+                <div className="flex min-w-0 flex-col p-3 sm:flex-1 sm:p-4">
+                    <Link to={productUrl} className={`hover:underline ${SF_FOCUS_RING.page} rounded-sm`}>
                         <h3 className="text-sm font-medium text-(--sf-text) line-clamp-2">
                             {product.name}
                         </h3>
                     </Link>
 
                     {product.sku && (
-                        <p className="mt-1 text-xs text-(--sf-muted-text)">
+                        <p className="mt-1 truncate text-xs text-(--sf-muted-text)" title={product.sku}>
                             SKU: {product.sku}
                         </p>
                     )}
 
+                    {variantLabel && (
+                        <p className="mt-1 text-xs text-(--sf-muted-text)">
+                            {variantLabel}
+                        </p>
+                    )}
+
                     {product.inStock === true && (
-                        <p className="mt-1 text-xs font-medium text-green-600">
+                        <p className="mt-1 text-xs font-medium text-(--sf-success)">
                             In stock
                         </p>
                     )}
@@ -167,34 +258,46 @@ export function ProductCard({product, variantId, badge, layout = 'grid', onQuick
                     )}
                 </div>
 
-                {/* Price + actions — right */}
-                <div className="flex shrink-0 flex-col justify-center px-3 pb-3 sm:p-4 sm:w-48 sm:border-l sm:border-(--sf-border)">
-                    <div className="flex items-baseline gap-2">
-                        {originalPrice != null && (
-                            <span className="line-through text-(--sf-muted-text)">
-                                {formatAmount(originalPrice, currency, locale)}
+                {/* Price + actions. Mobile: a full-width bar under the image and
+                    identity, divided from it — price and stepper share the first
+                    line, and the full-width button wraps onto its own line
+                    beneath them (CardActions `bar` mode hands its controls to
+                    this flex container below sm). From sm: the right-hand column
+                    the row has always had. */}
+                <div
+                    className="col-span-2 flex flex-wrap items-end justify-between gap-3 border-t border-(--sf-border)/60 p-3 sm:col-span-1 sm:w-48 sm:shrink-0 sm:flex-col sm:flex-nowrap sm:items-stretch sm:justify-center sm:border-t-0 sm:border-l sm:border-(--sf-border) sm:p-4">
+                    <div className="min-w-0">
+                        <div className="flex items-baseline gap-2">
+                            {originalPrice != null && (
+                                <span className="line-through text-(--sf-muted-text)">
+                                    {formatAmount(originalPrice, currency, locale)}
+                                </span>
+                            )}
+                            <span className="font-semibold">
+                                {formatAmount(price, currency, locale)}
                             </span>
-                        )}
-                        <span className="font-semibold">
-                            {formatAmount(price, currency, locale)}
-                        </span>
-                        {price != null && (
-                            <span className="text-xs text-(--sf-muted-text)">ex. VAT</span>
+                            {price != null && (
+                                <span className="text-xs text-(--sf-muted-text)">ex. VAT</span>
+                            )}
+                        </div>
+                        {wholesaleDisplay != null && (
+                            <p className="mt-0.5 text-xs text-(--sf-muted-text)">
+                                Wholesale: {formatAmount(wholesaleDisplay, currency, locale)} ex. VAT
+                            </p>
                         )}
                     </div>
-                    {wholesaleDisplay != null && (
-                        <p className="mt-0.5 text-xs text-(--sf-muted-text)">
-                            Wholesale: {formatAmount(wholesaleDisplay, currency, locale)} ex. VAT
-                        </p>
-                    )}
+
                     <CardActions
                         variantId={variantId ?? null}
                         productName={product.name}
                         productSlug={product.slug}
                         inStock={product.inStock ?? null}
                         hasPrice={price != null}
+                        outOfStockAction={outOfStockAction}
+                        variantLabel={variantLabel}
+                        onRequestAdd={onRequestAdd}
+                        layout="bar"
                     />
-                </div>
                 </div>
             </div>
         )
@@ -202,11 +305,11 @@ export function ProductCard({product, variantId, badge, layout = 'grid', onQuick
 
     return (
         <div
-            className="group flex h-full flex-col rounded-lg border border-(--sf-border)/60 bg-(--sf-panel) overflow-hidden transition-all hover:shadow-md hover:border-(--sf-accent) md:hover:scale-[1.02]"
+            className={`group flex h-full flex-col rounded-lg ${CARD_BORDER_CLASS[borderWeight]} bg-(--sf-panel) overflow-hidden transition-all hover:shadow-md hover:border-(--sf-accent) md:hover:scale-[1.02]`}
             data-layout="grid"
         >
-            <div className="relative aspect-square w-full overflow-hidden bg-(--sf-surface-muted)">
-                <Link to={productUrl} className="block h-full w-full">
+            <div className={`relative ${gridImageStageClass} overflow-hidden bg-(--sf-surface-muted)`}>
+                <Link to={productUrl} className={`block h-full w-full ${SF_FOCUS_RING.page} rounded-sm`}>
                     {imageUrl ? (
                         <img
                             src={imageUrl}
@@ -248,11 +351,8 @@ export function ProductCard({product, variantId, badge, layout = 'grid', onQuick
                         {badge}
                     </span>
                 )}
-                {variantId && (
-                    <WishlistButton
-                        variantId={variantId}
-                        className="absolute top-2 right-2 rounded-full bg-(--sf-panel)/80 p-1.5 backdrop-blur-sm transition-colors hover:bg-(--sf-panel) cursor-pointer"
-                    />
+                {showWishlistButton && (
+                    <WishlistSlot variantId={variantId ?? null} productUrl={productUrl}/>
                 )}
                 {onQuickView && (
                     <button
@@ -267,21 +367,37 @@ export function ProductCard({product, variantId, badge, layout = 'grid', onQuick
             </div>
 
             <div className="flex flex-1 flex-col p-3 sm:p-4">
-                <Link to={productUrl} className="hover:underline">
+                <Link to={productUrl} className={`hover:underline ${SF_FOCUS_RING.page} rounded-sm`}>
                     {/* min-h reserves two lines so SKU/stock/price rows align across cards */}
                     <h3 className="min-h-10 text-sm font-medium text-(--sf-text) line-clamp-2">
                         {product.name}
                     </h3>
                 </Link>
 
-                {product.sku && (
-                    <p className="mt-1 text-xs text-(--sf-muted-text)">
+                {/* A variable product has no single SKU. Reserve the line anyway so
+                    the stock/price/action rows below stay on the same baseline as a
+                    simple product's — same rationale as the min-h name row above. */}
+                {product.sku ? (
+                    // truncate: a SKU that wraps to a second line makes this card
+                    // taller than its neighbours, which desynchronises decks that
+                    // are held to a common height. The full value stays in `title`.
+                    <p className="mt-1 truncate text-xs text-(--sf-muted-text)" title={product.sku}>
                         SKU: {product.sku}
+                    </p>
+                ) : (
+                    <p className="mt-1 text-xs text-(--sf-muted-text)" aria-hidden="true">
+                        &nbsp;
+                    </p>
+                )}
+
+                {variantLabel && (
+                    <p className="mt-1 text-xs text-(--sf-muted-text)">
+                        {variantLabel}
                     </p>
                 )}
 
                 {product.inStock === true && (
-                    <p className="mt-1 text-xs font-medium text-green-600">
+                    <p className="mt-1 text-xs font-medium text-(--sf-success)">
                         In stock
                     </p>
                 )}
@@ -316,6 +432,9 @@ export function ProductCard({product, variantId, badge, layout = 'grid', onQuick
                         productSlug={product.slug}
                         inStock={product.inStock ?? null}
                         hasPrice={price != null}
+                        outOfStockAction={outOfStockAction}
+                        variantLabel={variantLabel}
+                        onRequestAdd={onRequestAdd}
                     />
                 </div>
             </div>

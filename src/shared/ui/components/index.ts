@@ -72,6 +72,10 @@ export type { ProductImageProps } from './upload/ProductImage'
 export { Thumbnail } from './thumbnail/Thumbnail'
 export type { ThumbnailProps } from './thumbnail/Thumbnail'
 
+// Stepper
+export { Stepper } from './stepper/Stepper'
+export type { StepperProps, StepperStep } from './stepper/Stepper'
+
 // Stat Card
 export { StatCard } from './stat-card/StatCard'
 export type { StatCardProps } from './stat-card/StatCard'

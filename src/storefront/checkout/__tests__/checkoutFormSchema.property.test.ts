@@ -3,12 +3,14 @@
 import {describe, expect, it} from 'vitest'
 import * as fc from 'fast-check'
 import {checkoutFormSchema} from '../checkoutFormSchema'
+import {isDeliveryMethod} from '../utils/isDeliveryMethod'
 
 // Valid base form data — all other required fields are valid so only email affects the result
 const validBaseData = {
     firstName: 'Jane',
     lastName: 'Doe',
     shippingMethodId: 'sm-delivery-01',
+    requiresAddress: false,
     paymentMethod: 'PAYFAST',
 }
 
@@ -79,54 +81,51 @@ describe('checkoutFormSchema - Property Tests', () => {
 })
 
 
-// Helper function that mirrors CheckoutPage.handleSubmit validation logic
-// Address validation is NOT in the Zod schema — it's done via RHF setError()
-// because the schema has no access to the shipping methods list.
-function validateDeliveryAddress(
-    shippingMethod: { baseFee: number; estimatedDays: string | null },
-    address: { streetAddress?: string; city?: string; province?: string; postalCode?: string }
-): string[] {
-    const isDelivery =
-        shippingMethod.baseFee > 0 ||
-        (shippingMethod.estimatedDays !== null && shippingMethod.estimatedDays !== '0')
+// Address validation now lives in the schema (superRefine), so these properties
+// drive the REAL schema and the REAL delivery predicate. They previously called a
+// local re-implementation of the page's submit handler, which meant they could
+// pass while production behaved differently.
 
-    if (!isDelivery) return []
+const ADDRESS_FIELDS = ['streetAddress', 'city', 'province', 'postalCode'] as const
 
-    const errors: string[] = []
-    if (!address.streetAddress) errors.push('streetAddress')
-    if (!address.city) errors.push('city')
-    if (!address.province) errors.push('province')
-    if (!address.postalCode) errors.push('postalCode')
-    return errors
+/** Address issues the schema raised, by field name. */
+function addressIssues(values: Record<string, unknown>): string[] {
+    const result = checkoutFormSchema.safeParse({...validBaseData, email: 'a@b.com', ...values})
+    if (result.success) return []
+    return result.error.issues
+        .map((issue) => String(issue.path[0]))
+        .filter((field) => (ADDRESS_FIELDS as readonly string[]).includes(field))
 }
 
-// Arbitrary for delivery shipping methods: baseFee > 0 OR estimatedDays non-null and not "0"
+// Delivery methods: baseFee > 0 OR estimatedDays non-null and not "0"
 const deliveryMethodArb = fc.oneof(
-    // baseFee > 0 (any estimatedDays)
     fc.record({
+        id: fc.constant('m1'),
+        name: fc.constant('Courier'),
         baseFee: fc.float({min: Math.fround(0.01), max: Math.fround(1000), noNaN: true}).filter((n) => n > 0),
-        estimatedDays: fc.oneof(
-            fc.constant(null),
-            fc.string({minLength: 1, maxLength: 5})
-        ),
+        estimatedDays: fc.oneof(fc.constant(null), fc.string({minLength: 1, maxLength: 5})),
     }),
-    // baseFee = 0 but estimatedDays non-null and not "0"
     fc.record({
+        id: fc.constant('m2'),
+        name: fc.constant('Courier'),
         baseFee: fc.constant(0),
-        estimatedDays: fc
-            .string({minLength: 1, maxLength: 5})
-            .filter((s) => s !== '0'),
+        estimatedDays: fc.string({minLength: 1, maxLength: 5}).filter((s) => s !== '0'),
     })
 )
 
-// Address fields — each can be present (non-empty string) or missing (empty/undefined)
+const collectionMethodArb = fc.record({
+    id: fc.constant('m3'),
+    name: fc.constant('Collection'),
+    baseFee: fc.constant(0),
+    estimatedDays: fc.oneof(fc.constant(null), fc.constant('0')),
+})
+
 const addressFieldArb = fc.oneof(
     fc.constant(undefined),
     fc.constant(''),
     fc.string({minLength: 1, maxLength: 50}).filter((s) => s.trim().length > 0)
 )
 
-// Arbitrary for partial address state (at least one field missing)
 const partialAddressArb = fc
     .record({
         streetAddress: addressFieldArb,
@@ -134,40 +133,38 @@ const partialAddressArb = fc
         province: addressFieldArb,
         postalCode: addressFieldArb,
     })
-    .filter((addr) => {
-        // Ensure at least one field is empty/undefined (partial address)
-        return (
-            !addr.streetAddress ||
-            !addr.city ||
-            !addr.province ||
-            !addr.postalCode
-        )
-    })
+    .filter((addr) => !addr.streetAddress || !addr.city || !addr.province || !addr.postalCode)
 
 describe('checkoutFormSchema - Delivery Address Validation Property Tests', () => {
     // **Validates: Requirements 4.5**
+    it('Property 5: the delivery predicate decides whether the address is required', () => {
+        fc.assert(
+            fc.property(deliveryMethodArb, (method) => {
+                expect(isDeliveryMethod(method)).toBe(true)
+            }),
+            {numRuns: 100}
+        )
+        fc.assert(
+            fc.property(collectionMethodArb, (method) => {
+                expect(isDeliveryMethod(method)).toBe(false)
+            }),
+            {numRuns: 100}
+        )
+    })
+
+    // **Validates: Requirements 4.5**
     it('Property 5: delivery address validation catches exactly the missing fields', () => {
         fc.assert(
-            fc.property(
-                deliveryMethodArb,
-                partialAddressArb,
-                (method, address) => {
-                    const errors = validateDeliveryAddress(method, address)
+            fc.property(partialAddressArb, (address) => {
+                const issues = addressIssues({requiresAddress: true, ...address})
 
-                    // Errors should be non-empty since we have a partial address with a delivery method
-                    expect(errors.length).toBeGreaterThan(0)
+                const expected = ADDRESS_FIELDS.filter(
+                    (field) => !address[field]?.trim()
+                )
 
-                    // Each missing field should be in errors
-                    const expectedErrors: string[] = []
-                    if (!address.streetAddress) expectedErrors.push('streetAddress')
-                    if (!address.city) expectedErrors.push('city')
-                    if (!address.province) expectedErrors.push('province')
-                    if (!address.postalCode) expectedErrors.push('postalCode')
-
-                    expect(errors).toEqual(expectedErrors)
-                    expect(errors.length).toBe(expectedErrors.length)
-                }
-            ),
+                expect(issues.length).toBeGreaterThan(0)
+                expect(issues.sort()).toEqual([...expected].sort())
+            }),
             {numRuns: 100}
         )
     })
@@ -182,9 +179,8 @@ describe('checkoutFormSchema - Delivery Address Validation Property Tests', () =
         })
 
         fc.assert(
-            fc.property(deliveryMethodArb, completeAddressArb, (method, address) => {
-                const errors = validateDeliveryAddress(method, address)
-                expect(errors).toEqual([])
+            fc.property(completeAddressArb, (address) => {
+                expect(addressIssues({requiresAddress: true, ...address})).toEqual([])
             }),
             {numRuns: 100}
         )
@@ -192,12 +188,6 @@ describe('checkoutFormSchema - Delivery Address Validation Property Tests', () =
 
     // **Validates: Requirements 4.5**
     it('Property 5: collection method never produces address errors regardless of address state', () => {
-        // Collection methods: baseFee = 0 AND (estimatedDays is null or "0")
-        const collectionMethodArb = fc.record({
-            baseFee: fc.constant(0),
-            estimatedDays: fc.oneof(fc.constant(null), fc.constant('0')),
-        })
-
         const anyAddressArb = fc.record({
             streetAddress: addressFieldArb,
             city: addressFieldArb,
@@ -206,9 +196,8 @@ describe('checkoutFormSchema - Delivery Address Validation Property Tests', () =
         })
 
         fc.assert(
-            fc.property(collectionMethodArb, anyAddressArb, (method, address) => {
-                const errors = validateDeliveryAddress(method, address)
-                expect(errors).toEqual([])
+            fc.property(anyAddressArb, (address) => {
+                expect(addressIssues({requiresAddress: false, ...address})).toEqual([])
             }),
             {numRuns: 100}
         )

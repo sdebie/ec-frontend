@@ -32,7 +32,11 @@ const zodValidEmailArb = fc
     )
     .map(([local, domain, tld]) => `${local}@${domain}.${tld}`)
 
-/** All required fields with valid values */
+/**
+ * All required fields with valid values. `sameAsPhysical: true` keeps this the
+ * minimal valid input — with the mirror off, a delivery address becomes required
+ * (covered by Property 5 below).
+ */
 const validRequiredFieldsArb = fc.record({
     firstName: nonEmptyStringArb,
     lastName: nonEmptyStringArb,
@@ -43,6 +47,7 @@ const validRequiredFieldsArb = fc.record({
     physicalCity: nonEmptyStringArb,
     physicalProvince: nonEmptyStringArb,
     physicalPostalCode: nonEmptyStringArb,
+    sameAsPhysical: fc.constant(true),
 })
 
 /** The list of required field keys — blanking any one should cause rejection */
@@ -73,11 +78,11 @@ describe('Feature: wholesale-application-enhancements, Property 1: Required fiel
         fc.assert(
             fc.property(validRequiredFieldsArb, fieldToBlankArb, fc.boolean(), (baseInput, fieldToBlank, useEmpty) => {
                 // Either set the field to empty string or remove it entirely
-                const input = {...baseInput}
+                const input: Record<string, unknown> = {...baseInput}
                 if (useEmpty) {
-                    ;(input as Record<string, string>)[fieldToBlank] = ''
+                    input[fieldToBlank] = ''
                 } else {
-                    delete (input as Record<string, string | undefined>)[fieldToBlank]
+                    delete input[fieldToBlank]
                 }
 
                 const result = wholesaleApplicationSchema.safeParse(input)
@@ -92,9 +97,9 @@ describe('Feature: wholesale-application-enhancements, Property 1: Required fiel
 
         fc.assert(
             fc.property(validRequiredFieldsArb, subsetArb, (baseInput, fieldsToBlank) => {
-                const input = {...baseInput}
+                const input: Record<string, unknown> = {...baseInput}
                 for (const field of fieldsToBlank) {
-                    ;(input as Record<string, string>)[field] = ''
+                    input[field] = ''
                 }
 
                 const result = wholesaleApplicationSchema.safeParse(input)
@@ -219,5 +224,58 @@ describe('Feature: wholesale-application-enhancements, Property 2: Email format 
                 {numRuns: 100},
             )
         })
+    })
+})
+
+// --- Property 5: Delivery address required when not mirroring the company address ---
+
+describe('Feature: wholesale-application-enhancements, Property 5: Delivery address required when sameAsPhysical is false', () => {
+    const requiredPostalFields = [
+        'postalAddressLine1',
+        'postalCity',
+        'postalProvince',
+        'postalPostalCode',
+    ] as const
+
+    const validPostalFieldsArb = fc.record({
+        postalAddressLine1: nonEmptyStringArb,
+        postalCity: nonEmptyStringArb,
+        postalProvince: nonEmptyStringArb,
+        postalPostalCode: nonEmptyStringArb,
+    })
+
+    it('rejects input when any required delivery field is blank or missing', () => {
+        const fieldToBlankArb = fc.constantFrom(...requiredPostalFields)
+
+        fc.assert(
+            fc.property(validRequiredFieldsArb, validPostalFieldsArb, fieldToBlankArb, fc.boolean(),
+                (baseInput, postal, fieldToBlank, useEmpty) => {
+                    const input: Record<string, unknown> = {...baseInput, ...postal, sameAsPhysical: false}
+                    if (useEmpty) {
+                        input[fieldToBlank] = ''
+                    } else {
+                        delete input[fieldToBlank]
+                    }
+
+                    const result = wholesaleApplicationSchema.safeParse(input)
+                    expect(result.success).toBe(false)
+                    if (!result.success) {
+                        const issue = result.error.issues.find((i) => i.path.includes(fieldToBlank))
+                        expect(issue).toBeDefined()
+                    }
+                }),
+            {numRuns: 100},
+        )
+    })
+
+    it('accepts input when all required delivery fields are provided', () => {
+        fc.assert(
+            fc.property(validRequiredFieldsArb, validPostalFieldsArb, (baseInput, postal) => {
+                const input = {...baseInput, ...postal, sameAsPhysical: false}
+                const result = wholesaleApplicationSchema.safeParse(input)
+                expect(result.success).toBe(true)
+            }),
+            {numRuns: 100},
+        )
     })
 })

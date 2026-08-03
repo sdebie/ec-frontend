@@ -2,10 +2,10 @@ import {afterEach, describe, expect, it, vi} from 'vitest'
 import {cleanup, render, within} from '@testing-library/react'
 import fc from 'fast-check'
 import {MemoryRouter} from 'react-router-dom'
-import {OrderHistoryPage} from '../OrderHistoryPage.tsx'
-import {formatAmount} from '@/shared/utils/formatAmount.ts'
-import type {MyOrder} from '../../hooks/useMyOrders.ts'
-import {orderStatusBadgeClasses} from '../../orderStatusBadge.ts'
+import {OrderHistoryPage} from '../OrderHistoryPage'
+import {formatAmount} from '@/shared/utils/formatAmount'
+import type {MyOrder} from '../../hooks/useMyOrders'
+import {orderStatusBadgeClasses} from '../../orderStatusBadge'
 
 const mockUseMyOrders = vi.fn()
 
