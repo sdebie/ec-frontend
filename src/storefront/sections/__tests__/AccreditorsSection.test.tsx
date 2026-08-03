@@ -83,9 +83,8 @@ describe('AccreditorsSection', () => {
         const images = screen.getAllByRole('img')
         expect(images).toHaveLength(3)
 
-        // Verify tile containers exist for each item (new DOM structure)
-        const tiles = container.querySelectorAll('.flex.h-28.w-52')
-        expect(tiles).toHaveLength(3)
+        // One tile per item, counted as the row's direct children.
+        expect(container.querySelector('.flex-wrap')!.children).toHaveLength(3)
     })
 
     it('logo with url is wrapped in anchor with target="_blank" and rel="noopener noreferrer"', () => {
@@ -107,7 +106,7 @@ describe('AccreditorsSection', () => {
         const {container} = render(<AccreditorsSection section={section}/>)
 
         // Image is rendered inside the tile wrapper div
-        const tile = container.querySelector('.flex.h-28.w-52')
+        const tile = container.querySelector('.flex-wrap')!.firstElementChild
         expect(tile).toBeInTheDocument()
         expect(tile?.querySelector('img')).toBeInTheDocument()
 
@@ -182,9 +181,13 @@ describe('AccreditorsSection — invariants', () => {
         const section = buildSection()
         const {container} = render(<AccreditorsSection section={section}/>)
 
-        const tiles = container.querySelectorAll('.flex.h-28.w-52')
-        const expectedClasses = ['h-28', 'w-52', 'sm:h-32', 'sm:w-64', 'lg:h-36', 'lg:w-72']
+        // The tiles are the row's direct children — a selector on specific size
+        // classes silently matched NOTHING when those classes changed, and this
+        // assertion then "passed" by iterating an empty list.
+        const tiles = Array.from(container.querySelector('.flex-wrap')!.children)
+        expect(tiles.length).toBeGreaterThan(0)
 
+        const expectedClasses = ['w-[calc((100%-2rem)/3)]', 'h-20', 'sm:h-32', 'sm:w-64', 'lg:h-36', 'lg:w-72']
         tiles.forEach((tile) => {
             expectedClasses.forEach((cls) => {
                 expect(tile).toHaveClass(cls)
@@ -211,7 +214,7 @@ describe('AccreditorsSection — invariants', () => {
         const row = container.querySelector('.flex-wrap.justify-center')
         expect(row).toBeInTheDocument()
 
-        const tiles = container.querySelectorAll('.flex.h-28.w-52')
+        const tiles = container.querySelector('.flex-wrap')!.children
         expect(tiles).toHaveLength(3)
     })
 
@@ -231,7 +234,7 @@ describe('AccreditorsSection — invariants', () => {
         const row = container.querySelector('.flex-wrap.justify-center')
         expect(row).toBeInTheDocument()
 
-        const tiles = container.querySelectorAll('.flex.h-28.w-52')
+        const tiles = container.querySelector('.flex-wrap')!.children
         expect(tiles).toHaveLength(6)
     })
 })

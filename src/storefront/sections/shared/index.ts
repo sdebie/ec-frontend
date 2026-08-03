@@ -3,6 +3,8 @@ export type { SectionProps } from './Section'
 export { SECTION_WIDTH_CLASS } from './sectionWidths'
 export type { SectionWidth } from './sectionWidths'
 export { SectionHeading } from './SectionHeading'
+export { SectionEyebrow } from './SectionEyebrow'
+export type { EyebrowTone } from './SectionEyebrow'
 export { SectionIconBadge } from './SectionIconBadge'
 export { Carousel } from './Carousel'
 export {

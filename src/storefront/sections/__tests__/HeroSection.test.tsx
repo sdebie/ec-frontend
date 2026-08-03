@@ -283,9 +283,19 @@ describe('HeroSection', () => {
     })
 
     describe('overlayStyle (scrim distribution)', () => {
-        /** The scrim sits between the photo and the copy. */
-        function scrim(container: HTMLElement) {
-            return container.querySelectorAll('section > [aria-hidden="true"]')[1] as HTMLElement
+        /**
+         * The scrims sit between the photo and the copy. `gradient-left` renders
+         * TWO — the ramp's direction changes at `md`, which an inline style
+         * cannot express responsively — so pick by breakpoint class.
+         */
+        function scrim(container: HTMLElement, at: 'mobile' | 'desktop' = 'desktop') {
+            const layers = Array.from(
+                container.querySelectorAll('section > [aria-hidden="true"]'),
+            ).filter((el) => el.tagName === 'DIV') as HTMLElement[]
+            if (layers.length === 1) return layers[0]
+            return at === 'mobile'
+                ? layers.find((el) => el.className.includes('md:hidden'))!
+                : layers.find((el) => el.className.includes('md:block'))!
         }
 
         it('defaults to a flat wash across the whole photo', () => {
@@ -354,6 +364,58 @@ describe('HeroSection', () => {
             // Monotonically decreasing left → right: no bright band mid-ramp.
             expect([...alphas].sort((a, b) => b - a)).toEqual(alphas)
         })
+
+        it('turns the ramp VERTICAL below md, where the copy is full-bleed', () => {
+            const {container} = renderHero({
+                ...baseSection,
+                props: {
+                    ...baseSection.props,
+                    backgroundImageUrl: 'storefront/hero.png',
+                    overlayOpacity: 0.85,
+                    overlayStyle: 'gradient-left',
+                },
+            })
+
+            const mobile = scrim(container, 'mobile')
+            const desktop = scrim(container, 'desktop')
+
+            // A horizontal ramp is only correct while the copy is a column. On a
+            // phone it is full-width, so every line ran through the fade and out
+            // onto bare photograph.
+            //
+            // NB: jsdom serialises `to bottom` away — it is the initial direction
+            // — so the vertical ramp is asserted as "a gradient that is NOT
+            // horizontal", which is the property that actually matters here.
+            expect(mobile.style.backgroundImage).toContain('linear-gradient(')
+            expect(mobile.style.backgroundImage).not.toContain('to right')
+            expect(desktop.style.backgroundImage).toContain('linear-gradient(to right')
+
+            // Exactly one is visible at any breakpoint — never both.
+            expect(mobile.className).toContain('md:hidden')
+            expect(desktop.className).toContain('hidden')
+            expect(desktop.className).toContain('md:block')
+
+            // The mobile ramp never fully clears: full-width copy needs backing
+            // for its whole measure, so no stop may reach zero.
+            const alphas = Array.from(
+                mobile.style.backgroundImage.matchAll(/rgba\(0, 0, 0, ([\d.]+)\)/g),
+                (m) => Number(m[1]),
+            )
+            expect(Math.min(...alphas)).toBeGreaterThan(0)
+            expect(Math.max(...alphas)).toBeLessThanOrEqual(0.85)
+        })
+
+        it('renders a single scrim layer for the uniform style', () => {
+            const {container} = renderHero({
+                ...baseSection,
+                props: {...baseSection.props, backgroundImageUrl: 'storefront/hero.png'},
+            })
+
+            const layers = Array.from(
+                container.querySelectorAll('section > [aria-hidden="true"]'),
+            ).filter((el) => el.tagName === 'DIV')
+            expect(layers).toHaveLength(1)
+        })
     })
 
     describe('kicker rule + footnote measure', () => {
@@ -370,9 +432,10 @@ describe('HeroSection', () => {
             expect(rule!.className).toContain('h-0.5')
             expect(rule!.className).toContain('w-4')
             expect(kicker.firstElementChild).toBe(rule)
-            // currentColor, so the rule can never disagree with its own label.
-            expect(rule!.className).toContain('bg-current')
             expect(kicker.className).toContain('flex')
+            // It IS the shared eyebrow, not a lookalike — so it carries the hook
+            // the dark-band stylesheet rule keys on.
+            expect(kicker.hasAttribute('data-eyebrow')).toBe(true)
         })
 
         it('moves the rule with the copy when the hero is centred', () => {

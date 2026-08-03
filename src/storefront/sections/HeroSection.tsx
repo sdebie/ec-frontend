@@ -3,7 +3,8 @@ import {Link} from 'react-router-dom'
 import {cn} from '@/shared/utils/cn'
 import {resolveImageUrl} from '@/shared/utils/imageUrl'
 import type {BenefitsFootnoteSegment, HeroContentSurface, HeroSectionConfig} from '@/shared/types/StorefrontConfig'
-import {ACCENT_BUTTON_HOVER, SECTION_WIDTH_CLASS, SF_FOCUS_RING_PAGE} from './shared'
+import {ACCENT_BUTTON_HOVER, SECTION_WIDTH_CLASS, SectionEyebrow, SF_FOCUS_RING_PAGE} from './shared'
+import type {EyebrowTone} from './shared'
 
 // Text/kicker colour per surface. Every value is a theme token — no client
 // palette lives here, only the mapping from semantic surface -> token.
@@ -19,17 +20,15 @@ const SURFACE_SUBTITLE_CLASS: Record<HeroContentSurface, string> = {
     dark: 'text-(--sf-accent-text)/80',
 }
 
-const SURFACE_KICKER_CLASS: Record<HeroContentSurface, string> = {
-    default: 'text-(--sf-accent)',
-    brand: 'text-(--sf-accent-text)/90',
-    dark: 'text-(--sf-accent-text)/90',
+// The hero kicker IS a SectionEyebrow — same component every section heading
+// uses — so this maps the hero's surface vocabulary onto that component's tone.
+// `brand` sits on the accent colour itself, where an accent rule would vanish;
+// `dark` is a photo or dark chrome, where the accent rule still reads as brand.
+const SURFACE_EYEBROW_TONE: Record<HeroContentSurface, EyebrowTone> = {
+    default: 'default',
+    brand: 'onAccent',
+    dark: 'onDark',
 }
-
-// The kicker carries the same short rule every SectionHeading eyebrow does, so a
-// hero's lead-in reads as the same element as the rest of the page's. Its colour
-// tracks the kicker text per surface — `currentColor` rather than a fourth map,
-// so the two can never drift apart.
-const KICKER_DASH_CLASS = 'inline-block h-0.5 w-4 bg-current'
 
 // Secondary CTAs are accent-outlined and fill with an accent-derived tint on
 // hover (color-mix with white — same accent-derivation family as the Section
@@ -101,6 +100,23 @@ function scrimStyle(style: 'uniform' | 'gradient-left', opacity: number): CSSPro
     const at = (factor: number) => `rgba(0,0,0,${(opacity * factor).toFixed(3)})`
     return {
         backgroundImage: `linear-gradient(to right, ${at(1)} 0%, ${at(0.95)} 35%, ${at(0.6)} 55%, ${at(0.25)} 70%, rgba(0,0,0,0) 80%)`,
+    }
+}
+
+/**
+ * Sub-`md` companion to the left-to-right ramp.
+ *
+ * A horizontal ramp is only correct while the copy occupies a COLUMN. On a phone
+ * the copy is full-bleed, so every line runs straight through the fade and out
+ * onto bare photograph — the right-hand half of the intro and footnote were
+ * sitting on an unmasked warehouse trolley. The ramp therefore turns vertical
+ * below `md`: it keeps the top of the image open, then holds full strength down
+ * through the band where the copy actually sits.
+ */
+function mobileScrimStyle(opacity: number): CSSProperties {
+    const at = (factor: number) => `rgba(0,0,0,${(opacity * factor).toFixed(3)})`
+    return {
+        backgroundImage: `linear-gradient(to bottom, ${at(0.45)} 0%, ${at(0.9)} 22%, ${at(0.9)} 88%, ${at(0.7)} 100%)`,
     }
 }
 
@@ -192,20 +208,13 @@ export function HeroSection({section}: { section: HeroSectionConfig }) {
     const copy = (
         <>
                 {kicker && (
-                    <p
-                        className={cn(
-                            'mb-3 flex items-center gap-2 text-xs font-semibold uppercase tracking-widest',
-                            SURFACE_KICKER_CLASS[surface],
-                            // The rule leads the text, so a centred or right-aligned
-                            // hero has to move the whole pair — `text-center` does
-                            // nothing to a flex row.
-                            contentAlignment === 'center' && 'justify-center',
-                            contentAlignment === 'right' && 'justify-end',
-                        )}
+                    <SectionEyebrow
+                        tone={SURFACE_EYEBROW_TONE[surface]}
+                        align={contentAlignment}
+                        className="mb-3"
                     >
-                        <span className={KICKER_DASH_CLASS} aria-hidden="true"/>
                         {kicker}
-                    </p>
+                    </SectionEyebrow>
                 )}
                 {/* Larger from `md`: the band is viewport-tall, and 36px left the
                     title small against it. The block is vertically centred, so
@@ -285,11 +294,29 @@ export function HeroSection({section}: { section: HeroSectionConfig }) {
                         aria-hidden="true"
                         className="absolute inset-0 h-full w-full object-cover object-center"
                     />
-                    <div
-                        className="absolute inset-0"
-                        style={scrimStyle(overlayStyle, overlayOpacity)}
-                        aria-hidden="true"
-                    />
+                    {overlayStyle === 'gradient-left' ? (
+                        // Two elements rather than one: the ramp's DIRECTION has to
+                        // change at the breakpoint, and a direction cannot be
+                        // expressed as a responsive utility on an inline style.
+                        <>
+                            <div
+                                className="absolute inset-0 md:hidden"
+                                style={mobileScrimStyle(overlayOpacity)}
+                                aria-hidden="true"
+                            />
+                            <div
+                                className="absolute inset-0 hidden md:block"
+                                style={scrimStyle(overlayStyle, overlayOpacity)}
+                                aria-hidden="true"
+                            />
+                        </>
+                    ) : (
+                        <div
+                            className="absolute inset-0"
+                            style={scrimStyle(overlayStyle, overlayOpacity)}
+                            aria-hidden="true"
+                        />
+                    )}
                 </>
             )}
             {/* Content rides the house grid so a left-aligned hero starts at the

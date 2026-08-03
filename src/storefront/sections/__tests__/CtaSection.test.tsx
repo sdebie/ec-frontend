@@ -77,10 +77,17 @@ describe('CtaSection', () => {
 
         const eyebrowEl = screen.getByText('Business & Wholesale')
         expect(eyebrowEl).toBeInTheDocument()
-        // Eyebrow uses uppercase tracking-widestst classes
         expect(eyebrowEl).toHaveClass('uppercase', 'tracking-widest')
-        // Styled with --sf-accent-text token
-        expect(eyebrowEl).toHaveStyle({color: 'var(--sf-accent-text)'})
+
+        // The band now renders the SHARED SectionEyebrow rather than its own
+        // markup, so the colour is a token class instead of an inline style, and
+        // the accent rule comes with it. On the accent band both parts use
+        // accent-text — an accent-coloured rule would be invisible on accent.
+        expect(eyebrowEl).toHaveClass('text-(--sf-accent-text)')
+        expect(eyebrowEl.hasAttribute('data-eyebrow')).toBe(true)
+        const rule = eyebrowEl.querySelector('span[aria-hidden="true"]')
+        expect(rule).not.toBeNull()
+        expect(rule!.className).toContain('bg-(--sf-accent-text)')
         // Eyebrow is above the title
         const title = screen.getByText('Need a Quote?')
         expect(container.contains(eyebrowEl)).toBe(true)
