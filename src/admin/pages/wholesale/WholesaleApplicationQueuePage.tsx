@@ -113,7 +113,6 @@ export function WholesaleApplicationQueuePage() {
         />
       </div>
 
-      {/* Data Table */}
       <DataTable
         columns={columns}
         data={data ?? []}

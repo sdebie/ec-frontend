@@ -684,7 +684,6 @@ describe('WishlistPage', () => {
             expect(document.querySelector('[data-layout="grid"]')).toBeInTheDocument()
             expect(document.querySelector('[data-layout="row"]')).not.toBeInTheDocument()
 
-            // Click list view
             await user.click(screen.getByRole('button', {name: /list view/i}))
             expect(document.querySelector('[data-layout="row"]')).toBeInTheDocument()
             expect(document.querySelector('[data-layout="grid"]')).not.toBeInTheDocument()

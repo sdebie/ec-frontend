@@ -140,7 +140,6 @@ export function StaffEditPage() {
           />
         </FormItem>
 
-        {/* Is Active */}
         <FormItem label="Active">
           <Controller
             name="isActive"

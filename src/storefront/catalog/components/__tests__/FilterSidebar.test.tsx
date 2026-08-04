@@ -87,19 +87,15 @@ describe('FilterSidebar', () => {
   })
 
   /*
-    The sidebar search had NO coverage at all, which is how it shipped unable to
-    search. Two independent defects were in play and each of these tests fails
-    against one of them:
+    Two independent ways the sidebar search stops working, one test each:
 
-      1. The "keep in sync with external changes" guard compared the local values
-         against the URL's, so the instant the debounce settled — the one moment
-         they MUST differ, because publishing them is the next step — it reverted
-         both during render and the term never reached setFilter.
-      2. Even once published, the sidebar wrote `search` while the header search
-         bar wrote `q`, and the page read `q ?? search`. An active header search
-         permanently shadowed anything typed here.
+      1. A resync guard comparing local state to the URL reverts the term during
+         render at the moment the debounce settles — when the two must differ —
+         so nothing typed reaches setFilter.
+      2. Writing a key other than the canonical `q` lets an active header search
+         shadow anything typed here.
   */
-  describe('search field (regression: "I cannot use the sidebar search")', () => {
+  describe('search field', () => {
     it('publishes what was typed, under the canonical q key, after the debounce', async () => {
       const user = userEvent.setup()
       const setFilter = vi.fn()

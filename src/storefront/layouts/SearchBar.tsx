@@ -72,8 +72,8 @@ export function SearchBar({ className, tone = 'panel' }: SearchBarProps) {
       <div className={`flex items-center rounded-md ${toneClasses[tone].container}`}>
         {/*
           text-base below md, not text-sm: a phone needs the larger target, and
-          an input under 16px makes iOS Safari zoom the whole viewport on focus
-          — which is what made the header jump when the box was tapped.
+          an input under 16px makes iOS Safari zoom the whole viewport on focus,
+          which jumps the header when the box is tapped.
           The WebKit cancel button is suppressed so it cannot sit beside ours.
         */}
         <input

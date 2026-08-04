@@ -216,7 +216,6 @@ export function ProductListPage({ onSale = false }: ProductListPageProps) {
             </div>
           )}
 
-          {/* Product grid */}
           {!isError && (
             <>
               <ProductGrid
@@ -230,7 +229,6 @@ export function ProductListPage({ onSale = false }: ProductListPageProps) {
                 }}
               />
 
-              {/* Pagination */}
               {!isLoading && totalPages > 0 && (
                 <CatalogPagination
                   page={page}
@@ -245,7 +243,6 @@ export function ProductListPage({ onSale = false }: ProductListPageProps) {
         </div>
       </div>
 
-      {/* Quick view modal */}
       {quickViewProduct && (
         <QuickViewModal
           product={quickViewProduct}

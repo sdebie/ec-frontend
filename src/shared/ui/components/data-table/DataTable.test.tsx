@@ -24,7 +24,6 @@ describe('DataTable', () => {
       render(<DataTable columns={columns} data={data} initialPageSize={10} />)
       // Should only show 10 rows (first page)
       const rows = screen.getAllByRole('row')
-      // rows includes header row + data rows
       expect(rows.length).toBe(11) // 1 header + 10 data rows
     })
 

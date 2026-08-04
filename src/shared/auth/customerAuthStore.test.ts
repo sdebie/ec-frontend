@@ -4,7 +4,6 @@ import { useCustomerAuthStore, type CustomerType } from './customerAuthStore'
 
 const STORAGE_KEY = 'ec_customer_token'
 
-/** Arbitrary for CustomerType */
 const customerTypeArb: fc.Arbitrary<CustomerType> = fc.constantFrom(
   'RETAIL',
   'WHOLESALE',

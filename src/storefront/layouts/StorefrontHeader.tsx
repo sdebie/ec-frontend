@@ -176,7 +176,6 @@ export function StorefrontHeader() {
             </Link>
           )}
 
-
           </div>
 
           {/* Burger button — mobile only */}
@@ -211,7 +210,6 @@ export function StorefrontHeader() {
         </div>
       )}
 
-      {/* Mobile nav drawer */}
       {navItems.length > 0 && (
         <NavDrawer
           open={drawerOpen}

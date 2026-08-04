@@ -141,14 +141,12 @@ export function LegalPageEditPage() {
         )}
       </div>
 
-      {/* Editor */}
       <RichTextEditor
         value={content}
         onChange={setContent}
         disabled={!isSuperAdmin}
       />
 
-      {/* Publish Confirmation Dialog */}
       <ConfirmationDialog
         open={publishDialogOpen}
         onClose={() => setPublishDialogOpen(false)}

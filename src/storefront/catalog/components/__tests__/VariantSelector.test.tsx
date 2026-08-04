@@ -123,11 +123,9 @@ describe('VariantSelector', () => {
                 />,
             )
 
-            // Click "S"
             await user.click(screen.getByRole('button', {name: 'S'}))
             expect(onSelectionChange).toHaveBeenCalledWith({Size: 'S'})
 
-            // Click "Red"
             await user.click(screen.getByRole('button', {name: 'Red'}))
             expect(onSelectionChange).toHaveBeenCalledWith({Size: 'S', Color: 'Red'})
         })

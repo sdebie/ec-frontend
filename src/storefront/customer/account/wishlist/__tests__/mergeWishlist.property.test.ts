@@ -9,7 +9,6 @@ import {useCustomerAuthStore} from '@/shared/auth/customerAuthStore'
 import {storefrontHttpClient} from '@/shared/api/http/storefrontHttpClient'
 import {mergeWishlistOnSignIn} from '../mergeWishlistOnSignIn'
 
-// Mock storefrontHttpClient
 vi.mock('@/shared/api/http/storefrontHttpClient', () => ({
     storefrontHttpClient: {
         post: vi.fn(),
@@ -61,7 +60,6 @@ describe('Property 3: Merge is a union', () => {
                     const postCalls = postMock.mock.calls
                     const submittedIds = postCalls.map((call) => {
                         const url = call[0] as string
-                        // URL format: /storefront/wishlist/{id}
                         return url.replace('/storefront/wishlist/', '')
                     })
 

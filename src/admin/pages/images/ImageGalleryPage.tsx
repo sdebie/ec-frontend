@@ -61,7 +61,6 @@ export function ImageGalleryPage() {
   return (
     <PageLayout title="Images" subtitle="Browse and manage store images" action={headerAction}>
       <div className="space-y-4">
-        {/* Search */}
         <div className="relative max-w-md">
           <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-(--c-text-muted)" />
           <Input

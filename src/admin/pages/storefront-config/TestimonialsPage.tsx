@@ -194,7 +194,6 @@ export function TestimonialsPage() {
         emptyMessage="No testimonials yet. Add your first testimonial to display on the storefront."
       />
 
-      {/* Create/Edit Dialog */}
       <Dialog open={isFormOpen} onClose={closeForm} size="md">
         <DialogHeader
           title={editingTestimonial ? 'Edit Testimonial' : 'Add Testimonial'}

@@ -129,7 +129,6 @@ describe('ForgotPasswordForm', () => {
                 // Clear previous calls from advancing to step 2
             ;(requestMutation.mutate as Mock).mockClear()
 
-            // Click resend code
             await user.click(screen.getByRole('button', {name: /Resend code/i}))
 
             // Request mutation called again with same email

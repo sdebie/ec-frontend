@@ -214,7 +214,6 @@ export function OrderDetailPage() {
         <OrderStatusHistory history={order.statusHistory} />
       </section>
 
-      {/* Confirmation Dialog */}
       <ConfirmationDialog
         open={confirmDialog.open}
         onClose={handleCloseDialog}

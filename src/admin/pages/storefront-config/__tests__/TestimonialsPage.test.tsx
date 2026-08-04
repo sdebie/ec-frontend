@@ -11,7 +11,6 @@ import {
 import {hasRequiredAuthority} from '@/shared/utils/authorizationHelper'
 import {TestimonialsPage} from '../TestimonialsPage'
 
-// Mock hooks
 vi.mock('@/admin/hooks/testimonials', async () => {
     const actual = await vi.importActual<typeof import('@/admin/hooks/testimonials')>(
         '@/admin/hooks/testimonials',

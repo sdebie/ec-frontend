@@ -13,7 +13,6 @@ const orderCheckoutLineArb = fc.record({
     lineTotal: fc.float({min: 0, noNaN: true}),
 })
 
-// Arbitrary for CheckoutSession
 const checkoutSessionArb: fc.Arbitrary<CheckoutSession> = fc.record({
     orderId: fc.uuid(),
     sessionId: fc.uuid(),

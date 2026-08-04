@@ -52,7 +52,6 @@ const statusEventArb = fc.record({
     timestamp: orderDateArb,
 })
 
-/** Arbitrary for a full OrderDetail */
 const orderDetailArb: fc.Arbitrary<OrderDetail> = fc
     .record({
         id: fc.uuid(),

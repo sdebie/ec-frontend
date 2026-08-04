@@ -211,7 +211,6 @@ export function QuoteRequestDetailPage() {
         </div>
       </section>
 
-      {/* Message */}
       {quoteRequest.message && (
         <section className="flex flex-col gap-2">
           <h2 className="text-lg font-semibold text-(--c-text)">Message</h2>

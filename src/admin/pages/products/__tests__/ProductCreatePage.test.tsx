@@ -126,7 +126,6 @@ describe('ProductCreatePage', () => {
       const user = userEvent.setup()
       renderPage()
 
-      // Fill product name
       await user.type(screen.getByPlaceholderText('Product name'), 'Dup SKU')
 
       // Fill first variant
@@ -134,7 +133,6 @@ describe('ProductCreatePage', () => {
       await user.type(skuInput, 'SAME-SKU')
       await user.type(screen.getByPlaceholderText('e.g. 99.99'), '19.99')
 
-      // Add a second variant
       await user.click(screen.getByTestId('add-variant'))
 
       // Fill second variant with same SKU

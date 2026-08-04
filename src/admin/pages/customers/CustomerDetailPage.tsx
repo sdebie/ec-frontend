@@ -172,7 +172,6 @@ export function CustomerDetailPage() {
         </div>
       )}
 
-      {/* Order history section */}
       <RecentOrdersTable orders={customer.recentOrders} title="Order History" />
 
       {/* Wholesale section */}
@@ -219,7 +218,6 @@ export function CustomerDetailPage() {
         </section>
       )}
 
-      {/* Suspend Confirmation Dialog */}
       <ConfirmationDialog
         open={suspendDialogOpen}
         onClose={() => setSuspendDialogOpen(false)}

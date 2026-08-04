@@ -88,15 +88,14 @@ describe('SearchBar', () => {
   })
 
   /*
-    Owner directive 2026-08-04: this box is a DRAFT box, independent of the
-    filter sidebar's Search field. It holds only what is being typed now, and
-    the applied term is shown in exactly one place — the sidebar, beside the chip
-    that removes it.
+    This box is a DRAFT box, independent of the filter sidebar's Search field.
+    It holds only what is being typed now; the applied term is shown in exactly
+    one place — the sidebar, beside the chip that removes it.
 
-    These replace an earlier "pre-population from ?q=" suite that asserted the
-    opposite. That mirroring is what put the same value in two controls: the box
-    stayed populated after a search with no way to clear it from here, and a term
-    typed in the sidebar reappeared up here as if the header had been used.
+    It must not pre-populate from `?q=`. Mirroring puts the same value in two
+    controls: the box stays populated after a search with no way to clear it
+    from here, and a term typed in the sidebar reappears as if the header had
+    been used.
   */
   describe('independence from the applied search', () => {
     it('starts empty even when a search is already applied', () => {

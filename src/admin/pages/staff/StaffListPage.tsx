@@ -124,7 +124,6 @@ export function StaffListPage() {
         />
       </div>
 
-      {/* Data Table */}
       <DataTable
         columns={columns}
         data={data?.data ?? []}

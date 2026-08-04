@@ -156,7 +156,6 @@ export function BulkUploadDialog({ open, onClose }: BulkUploadDialogProps) {
                             onChange={setDirectory}
                         />
 
-                        {/* Files mode */}
                         {mode === 'files' && (
                             <>
                                 <Upload
@@ -174,7 +173,6 @@ export function BulkUploadDialog({ open, onClose }: BulkUploadDialogProps) {
                             </>
                         )}
 
-                        {/* Folder mode */}
                         {mode === 'folder' && (
                             <>
                                 {/* Hidden folder input — triggered programmatically after pre-confirm */}
@@ -217,7 +215,6 @@ export function BulkUploadDialog({ open, onClose }: BulkUploadDialogProps) {
                             </div>
                         )}
 
-                        {/* Result */}
                         {result && (
                             <div className="rounded-lg border border-(--c-border) bg-(--c-panel) p-4 text-sm space-y-1">
                                 <p className="text-(--c-text)">
@@ -251,7 +248,6 @@ export function BulkUploadDialog({ open, onClose }: BulkUploadDialogProps) {
                 </DialogFooter>
             </Dialog>
 
-            {/* Folder pre-confirmation dialog */}
             <Dialog open={preConfirmOpen} onClose={() => setPreConfirmOpen(false)} size="md">
                 <DialogHeader
                     title="Folder Upload Confirmation"

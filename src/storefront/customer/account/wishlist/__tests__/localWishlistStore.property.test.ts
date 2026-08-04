@@ -27,7 +27,6 @@ describe('Property 1: Local wishlist toggle round-trip', () => {
                 localStorage.clear()
                 useLocalWishlistStore.setState({variantIds: new Set(), count: 0})
 
-                // Add the UUID to the store
                 useLocalWishlistStore.getState().add(uuid)
 
                 // Read the raw localStorage value and parse it through the store's getItem logic

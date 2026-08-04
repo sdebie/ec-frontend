@@ -218,7 +218,6 @@ export function WholesaleCustomerListPage() {
         </div>
       </div>
 
-      {/* Data Table */}
       <DataTable
         columns={columns}
         data={data ?? []}

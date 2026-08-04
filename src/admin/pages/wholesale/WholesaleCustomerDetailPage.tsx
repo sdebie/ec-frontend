@@ -300,10 +300,8 @@ export function WholesaleCustomerDetailPage() {
         </section>
       )}
 
-      {/* Recent orders table */}
       <RecentOrdersTable orders={customer.recentOrders} title="Recent Orders" />
 
-      {/* Suspend Confirmation Dialog */}
       <ConfirmationDialog
         open={suspendDialogOpen}
         onClose={() => setSuspendDialogOpen(false)}

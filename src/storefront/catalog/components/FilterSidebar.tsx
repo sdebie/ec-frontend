@@ -40,25 +40,15 @@ function FilterContent({
       the URL, and `searchValue !== activeFilters.search` is the whole of "there
       is something unpublished here".
 
-      This deliberately replaced a three-state arrangement (`searchValue`,
-      `debouncedValue`, and a render-phase resync guard) that could not be made
-      correct. Two defects came out of it, and the second is why the extra state
-      had to go rather than be patched:
+      Do NOT add a second state (a debounced mirror) or a render-phase resync
+      guard. A resync comparing local state to the URL fires exactly when the two
+      MUST differ — the moment the debounce settles and publishing is next — and
+      reverts the term during render, so nothing typed ever searches. A debounced
+      mirror goes stale when a header search adopts a new term during render, and
+      the publish effect then writes the stale value back over it.
 
-        1. The resync compared the local values against the URL, so the instant
-           the debounce settled — the one moment they MUST differ, because
-           publishing is the next step — it reverted them during render and the
-           term never reached setFilter. Nothing typed here ever searched.
-        2. With the resync fixed, `debouncedValue` still went stale: a header
-           search adopts the new term during render, and a discarded render-phase
-           pass could leave `debouncedValue` holding the PREVIOUS term (proven in
-           the browser — it read "" while the URL, the input and the resync guard
-           all read "blanket"). The publish effect then wrote that empty string
-           back and wiped the search the header had just applied.
-
-      Collapsing to one state removes the intermediate value that could go stale,
-      and folding the debounce into the publish effect means the timer and the
-      write can never disagree about which term they are carrying.
+      The debounce lives in the publish effect, so the timer and the write cannot
+      disagree about which term they carry.
     */
     const externalSearch = activeFilters.search
     const [prevExternalSearch, setPrevExternalSearch] = useState(externalSearch)
@@ -140,7 +130,6 @@ function FilterContent({
                 )}
             </FilterGroup>
 
-            {/* Availability */}
             <FilterGroup title="Availability" defaultOpen={false} isActive={!!activeFilters.available}>
                 <AvailabilityFilter
                     checked={!!activeFilters.available}

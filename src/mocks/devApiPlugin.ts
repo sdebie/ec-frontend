@@ -115,7 +115,6 @@ export function devApiPlugin(): Plugin {
                     return
                 }
 
-                // Customer profile: PATCH /api/customers/profile
                 if (url === '/customers/profile' && req.method === 'PATCH') {
                     parseJsonBody(req).then((body) => {
                         res.setHeader('Content-Type', 'application/json')
@@ -152,7 +151,6 @@ export function devApiPlugin(): Plugin {
                     return
                 }
 
-                // GET /api/storefront/wishlist
                 if (url === '/storefront/wishlist' && req.method === 'GET') {
                     res.setHeader('Content-Type', 'application/json')
                     res.end(JSON.stringify({variantIds: []}))
@@ -187,28 +185,24 @@ export function devApiPlugin(): Plugin {
                     return
                 }
 
-                // POST /api/storefront/wishlist/:variantId
                 if (url.startsWith('/storefront/wishlist/') && req.method === 'POST') {
                     res.statusCode = 204
                     res.end()
                     return
                 }
 
-                // DELETE /api/storefront/wishlist/:variantId
                 if (url.startsWith('/storefront/wishlist/') && req.method === 'DELETE') {
                     res.statusCode = 204
                     res.end()
                     return
                 }
 
-                // PATCH /api/customers/password
                 if (url === '/customers/password' && req.method === 'PATCH') {
                     res.statusCode = 204
                     res.end()
                     return
                 }
 
-                // PATCH /api/orders/:orderId/contact
                 if (/^\/orders\/[^/]+\/contact$/.test(url) && req.method === 'PATCH') {
                     const orderId = url.split('/')[2]
                     parseJsonBody(req).then((body) => {
@@ -221,7 +215,6 @@ export function devApiPlugin(): Plugin {
                     return
                 }
 
-                // GET /api/storefront/shipping-methods
                 if (url === '/storefront/shipping-methods' && req.method === 'GET') {
                     res.setHeader('Content-Type', 'application/json')
                     res.end(JSON.stringify([
@@ -241,14 +234,12 @@ export function devApiPlugin(): Plugin {
                     return
                 }
 
-                // GET /api/storefront/payment-methods
                 if (url === '/storefront/payment-methods' && req.method === 'GET') {
                     res.setHeader('Content-Type', 'application/json')
                     res.end(JSON.stringify(['PAYFAST', 'IN_STORE']))
                     return
                 }
 
-                // POST /api/payments/checkout
                 if (url === '/payments/checkout' && req.method === 'POST') {
                     res.statusCode = 202
                     res.setHeader('Content-Type', 'application/json')
@@ -394,14 +385,12 @@ export function devApiPlugin(): Plugin {
                         return
                     }
 
-                    // myOrders query
                     if (query.includes('myOrders')) {
                         res.setHeader('Content-Type', 'application/json')
                         res.end(JSON.stringify({data: {myOrders: myOrdersFixture}}))
                         return
                     }
 
-                    // getOrderDetail query
                     if (query.includes('getOrderDetail')) {
                         const id = variables.id as string | undefined
                         // Return the fixture with the requested ID (or default fixture)

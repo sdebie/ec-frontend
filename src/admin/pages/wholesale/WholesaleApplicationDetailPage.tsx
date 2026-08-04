@@ -300,7 +300,6 @@ export function WholesaleApplicationDetailPage() {
         </div>
       </section>
 
-      {/* Notes */}
       {application.notes && (
         <section className="flex flex-col gap-2">
           <h2 className="text-lg font-semibold text-(--c-text)">Notes</h2>
@@ -312,7 +311,6 @@ export function WholesaleApplicationDetailPage() {
         </section>
       )}
 
-      {/* Approve Confirmation Dialog */}
       <ConfirmationDialog
         open={approveDialogOpen}
         onClose={() => setApproveDialogOpen(false)}
@@ -323,7 +321,6 @@ export function WholesaleApplicationDetailPage() {
         isLoading={applicationAction.isPending}
       />
 
-      {/* Reject Application Dialog */}
       <RejectApplicationDialog
         open={rejectDialogOpen}
         onClose={() => setRejectDialogOpen(false)}

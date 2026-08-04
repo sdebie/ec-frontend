@@ -29,7 +29,6 @@ const phoneArb = fc.constantFrom(
     '+44 7700 900000',
 )
 
-/** Arbitrary for a valid AddressDto */
 const addressDtoArb: fc.Arbitrary<AddressDto> = fc.record({
     line1: nonEmptyStringArb,
     line2: fc.option(nonEmptyStringArb, {nil: null}),

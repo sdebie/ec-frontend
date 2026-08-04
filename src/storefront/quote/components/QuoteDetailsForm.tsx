@@ -179,7 +179,6 @@ export function QuoteDetailsForm({ onSuccess }: QuoteDetailsFormProps) {
         />
       </div>
 
-      {/* Message (optional, textarea) */}
       <div>
         <Textarea
           id="quote-message"

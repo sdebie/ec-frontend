@@ -118,7 +118,6 @@ export function QuoteRequestQueuePage() {
         />
       </div>
 
-      {/* Data Table */}
       <DataTable
         columns={columns}
         data={data ?? []}

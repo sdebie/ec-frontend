@@ -322,7 +322,6 @@ describe('StorefrontHeader', () => {
       // Drawer should not be visible initially
       expect(screen.queryByRole('dialog', { name: /navigation menu/i })).not.toBeInTheDocument()
 
-      // Click the burger button
       await user.click(screen.getByRole('button', { name: /open navigation/i }))
 
       // Drawer should now be visible
@@ -498,7 +497,6 @@ describe('StorefrontHeader', () => {
         await user.click(screen.getByRole('button', { name: /sign in/i }))
         expect(screen.getByTestId('customer-login-modal')).toBeInTheDocument()
 
-        // Trigger forgot password
         await user.click(screen.getByTestId('modal-forgot-password'))
 
         // Login modal should be closed, forgot password modal should be open
@@ -517,7 +515,6 @@ describe('StorefrontHeader', () => {
         // Verify forgot modal is open
         expect(screen.getByTestId('forgot-password-modal')).toBeInTheDocument()
 
-        // Trigger back to login
         await user.click(screen.getByTestId('forgot-back-to-login'))
 
         // Forgot modal should be closed, login modal should be open again

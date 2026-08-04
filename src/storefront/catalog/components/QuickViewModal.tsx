@@ -240,7 +240,6 @@ export function QuickViewModal({product, variantId, triggerRef, onClose}: QuickV
                             </p>
                         )}
 
-                        {/* Actions */}
                         <div className="mt-4">
                             {isSimpleInStock ? (
                                 <CardActions

@@ -47,7 +47,6 @@ describe('Dialog', () => {
         <div>Content</div>
       </Dialog>
     )
-    // The backdrop is the div with aria-hidden="true"
     const backdrop = document.querySelector('[aria-hidden="true"]')!
     fireEvent.click(backdrop)
     expect(onClose).toHaveBeenCalledTimes(1)

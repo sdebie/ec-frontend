@@ -30,7 +30,6 @@ const orderDateArb = fc
     .integer({min: new Date('2020-01-01').getTime(), max: new Date('2030-12-31').getTime()})
     .map((ts) => new Date(ts).toISOString())
 
-/** Arbitrary for a single MyOrder */
 const myOrderArb: fc.Arbitrary<MyOrder> = fc.record({
     id: fc.uuid(),
     orderDate: orderDateArb,

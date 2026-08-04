@@ -88,7 +88,6 @@ export function AdminLoginPage() {
                         />
                     </div>
 
-                    {/* Password */}
                     <div>
                         <PasswordField
                             id="password"

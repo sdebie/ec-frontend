@@ -76,7 +76,6 @@ describe('NavigationEditorPage', () => {
     expect(screen.getByText('Item 1')).toBeInTheDocument()
     expect(screen.getByText('Item 2')).toBeInTheDocument()
 
-    // Remove the first item
     await user.click(screen.getByRole('button', { name: /remove item 1/i }))
 
     expect(screen.queryByText('Item 2')).not.toBeInTheDocument()
@@ -103,12 +102,10 @@ describe('NavigationEditorPage', () => {
       expect(screen.getByText('Navigation Editor')).toBeInTheDocument()
     })
 
-    // Add an item and fill it in
     await user.click(screen.getByRole('button', { name: /add item/i }))
     await user.type(screen.getByPlaceholderText('e.g. Shop'), 'Products')
     await user.type(screen.getByPlaceholderText('e.g. /products'), '/shop')
 
-    // Click save
     await user.click(screen.getByRole('button', { name: /save/i }))
 
     await waitFor(() => {
@@ -145,7 +142,6 @@ describe('NavigationEditorPage', () => {
     await user.click(screen.getByRole('button', { name: /add item/i }))
     await user.type(screen.getByPlaceholderText('e.g. /products'), '/shop')
 
-    // Click save
     await user.click(screen.getByRole('button', { name: /save/i }))
 
     await waitFor(() => {
@@ -171,7 +167,6 @@ describe('NavigationEditorPage', () => {
     await user.click(screen.getByRole('button', { name: /add item/i }))
     await user.type(screen.getByPlaceholderText('e.g. Shop'), 'Products')
 
-    // Click save
     await user.click(screen.getByRole('button', { name: /save/i }))
 
     await waitFor(() => {

@@ -161,7 +161,6 @@ describe('CtaSection', () => {
         )
 
         const sectionEl = container.querySelector('section')!
-        // Accent variant uses --sf-accent for background
         expect(sectionEl).toHaveStyle({background: 'var(--sf-accent)'})
         // Title uses --sf-accent-text
         expect(screen.getByText('Styled Section')).toHaveStyle({color: 'var(--sf-accent-text)'})

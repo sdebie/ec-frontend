@@ -296,12 +296,10 @@ describe('CategoryMegaMenu', () => {
         expect(screen.getByRole('link', { name: `Child ${i}` })).toBeInTheDocument()
       }
 
-      // No "View all" link
       expect(screen.queryByRole('link', { name: 'View all' })).not.toBeInTheDocument()
     })
   })
 })
-
 
 describe('CategoryMegaMenu — open state (C4)', () => {
   afterEach(() => {

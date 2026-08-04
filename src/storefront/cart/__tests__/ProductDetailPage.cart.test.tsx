@@ -143,7 +143,6 @@ describe('ProductDetailPage — cart integration', () => {
         // Select "Red" color and "M" size to match variant-1
         selectVariant('Red', 'M')
 
-        // Click "Add to Cart"
         fireEvent.click(screen.getByRole('button', {name: /add to cart/i}))
 
         // Verify cart state
@@ -202,7 +201,6 @@ describe('ProductDetailPage — cart integration', () => {
 
         // Confirmation should disappear
         expect(screen.queryByText(/added to cart/i)).not.toBeInTheDocument()
-        // "Add to Cart" button should be re-enabled
         expect(screen.getByRole('button', {name: /add to cart/i})).toBeEnabled()
 
         vi.useRealTimers()
@@ -224,7 +222,6 @@ describe('ProductDetailPage — cart integration', () => {
         const oosButton = screen.getByRole('button', {name: /out of stock/i})
         expect(oosButton).toBeDisabled()
 
-        // No "Add to Cart" button should be present
         expect(screen.queryByRole('button', {name: /add to cart/i})).not.toBeInTheDocument()
     })
 

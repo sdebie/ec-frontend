@@ -63,7 +63,6 @@ describe('ProductForm — image lifecycle (no optimistic deletion + cleanup)', (
       variants: [{ sku: 'SKU-001', price: '10.00', stock: 5 }],
     })
 
-    // Find and click the remove button on the image
     const removeButton = screen.getByRole('button', { name: /remove image/i })
     const user = userEvent.setup()
     await user.click(removeButton)
@@ -127,7 +126,6 @@ describe('ProductForm — image lifecycle (no optimistic deletion + cleanup)', (
 
     const user = userEvent.setup()
 
-    // Upload a file
     const fileInput = screen.getByLabelText(/upload image file/i) as HTMLInputElement
     const file = new File(['px'], 'keep.jpg', { type: 'image/jpeg' })
     await user.upload(fileInput, file)
@@ -161,7 +159,6 @@ describe('ProductForm — image lifecycle (no optimistic deletion + cleanup)', (
 
     const user = userEvent.setup()
 
-    // Upload a file
     const fileInput = screen.getByLabelText(/upload image file/i) as HTMLInputElement
     const file = new File(['px'], 'submit.jpg', { type: 'image/jpeg' })
     await user.upload(fileInput, file)

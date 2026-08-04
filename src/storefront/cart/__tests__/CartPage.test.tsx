@@ -254,7 +254,6 @@ describe('CartPage', () => {
 
             fireEvent.click(screen.getByRole('button', {name: /increase quantity/i}))
 
-            // 3 × 199.99
             expect(screen.getByTestId('cart-line-total')).toHaveTextContent(money(199.99 * 3))
             expect(screen.getByTestId('cart-subtotal')).toHaveTextContent(money(199.99 * 3))
         })

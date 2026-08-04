@@ -180,7 +180,6 @@ export function CustomerListPage() {
         </div>
       </div>
 
-      {/* Data Table */}
       <DataTable
         columns={columns}
         data={data?.data ?? []}

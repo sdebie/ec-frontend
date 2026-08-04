@@ -221,7 +221,6 @@ export function OrderListPage() {
         </div>
       </div>
 
-      {/* Data Table */}
       <DataTable
         columns={columns}
         data={data?.data ?? []}
@@ -232,7 +231,6 @@ export function OrderListPage() {
         onPaginationChange={setPagination}
       />
 
-      {/* Confirmation Dialog */}
       <ConfirmationDialog
         open={confirmDialog.open}
         onClose={handleCloseDialog}

@@ -102,8 +102,6 @@ describe('AnnouncementBanner', () => {
     expect(banner).toHaveStyle({ color: 'var(--sf-text)' })
   })
 
-  // --- Message absent + contact only ---
-
   it('renders with contact only when message absent and showContact true', () => {
     mockUseStorefrontConfig.mockReturnValue({
       header: {
@@ -125,8 +123,6 @@ describe('AnnouncementBanner', () => {
     expect(screen.getByText('+27 11 123 4567')).toBeInTheDocument()
     expect(screen.getByText('WhatsApp')).toBeInTheDocument()
   })
-
-  // --- Message absent + social only ---
 
   it('renders with social only when message absent and showSocial true', () => {
     mockUseStorefrontConfig.mockReturnValue({
@@ -152,8 +148,6 @@ describe('AnnouncementBanner', () => {
     expect(banner).toBeInTheDocument()
     expect(screen.getByLabelText('Facebook')).toBeInTheDocument()
   })
-
-  // --- All three present ---
 
   it('renders all three zones when message, contact and social present', () => {
     mockUseStorefrontConfig.mockReturnValue({
@@ -307,8 +301,6 @@ describe('AnnouncementBanner', () => {
     expect(socialSlot?.className).toContain('md:flex')
   })
 
-  // --- Focus recipe ---
-
   it('applies focus recipe classes to contact links', () => {
     mockUseStorefrontConfig.mockReturnValue({
       header: {
@@ -385,8 +377,6 @@ describe('AnnouncementBanner', () => {
     const whatsappLink = screen.getByText('WhatsApp').closest('a')!
     expect(whatsappLink).toHaveAttribute('href', 'https://wa.me/27821234567')
   })
-
-  // --- showContact true but no data → renders nothing ---
 
   it('renders nothing when showContact true but contact has no reachable channel', () => {
     mockUseStorefrontConfig.mockReturnValue({

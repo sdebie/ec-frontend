@@ -52,7 +52,6 @@ describe('StaffCreatePage', () => {
       await user.type(screen.getByPlaceholderText('Full name'), 'Valid Name')
       await user.type(screen.getByPlaceholderText('Minimum 8 characters'), 'password123')
 
-      // Select role
       await user.click(screen.getByText('Select a role'))
       await user.click(screen.getByText('Super Admin'))
 
@@ -116,7 +115,6 @@ describe('StaffCreatePage', () => {
       await user.type(screen.getByPlaceholderText('Full name'), 'New Staff')
       await user.type(screen.getByPlaceholderText('Minimum 8 characters'), 'password123')
 
-      // Select role via the Select component
       const roleSelect = screen.getByText('Select a role')
       await user.click(roleSelect)
       await user.click(screen.getByText('Catalog Manager'))

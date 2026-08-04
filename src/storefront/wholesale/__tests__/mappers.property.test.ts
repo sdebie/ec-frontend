@@ -70,7 +70,6 @@ function formValuesArb(sameAsPhysical: boolean): fc.Arbitrary<WholesaleApplicati
     // PO
     purchaseOrderRequired: fc.boolean(),
 
-    // Notes
     notes: fc.option(fc.string({ maxLength: 1000 }), { nil: undefined }),
   })
 }

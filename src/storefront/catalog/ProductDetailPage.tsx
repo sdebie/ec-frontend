@@ -147,12 +147,9 @@ export function ProductDetailPage() {
 
     return (
         <Section as="div" className="pt-6">
-            {/* Page heading — the product name, with the accent rule every other
-                storefront page title carries (owner directive 2026-08-02, which
-                supersedes the 2026-07-26 exemption that kept this a plain h1). */}
+            {/* Page title with the accent rule every storefront page carries. */}
             <SectionHeading as="h1" title="Product Detail" className="mb-4"/>
 
-            {/* Divider — same rhythm as the catalogue's toolbar rule */}
             <PageDivider/>
 
             {/* Breadcrumb — desktop only. At 375px the trail wraps into a ragged
@@ -176,7 +173,6 @@ export function ProductDetailPage() {
                 </ol>
             </nav>
 
-
             {/* ONE container holding both columns, split by a vertical rule at
                 md+ — two separate boxes left a dead gutter between the image and
                 the information. Below md the rule becomes horizontal, so the
@@ -186,7 +182,6 @@ export function ProductDetailPage() {
                     so it can be inset from the container's edges — a border runs
                     the full height and cannot carry margins. */}
                 <div className="grid grid-cols-1 md:grid-cols-[1fr_1px_1fr]">
-                    {/* Left: Image gallery */}
                     <div className="p-5 lg:p-6">
                         <ImageGallery images={product.images} productName={product.name}/>
                     </div>

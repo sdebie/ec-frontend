@@ -147,7 +147,6 @@ describe('ImageGalleryPage', () => {
         expect(screen.getByAltText('page0-img2.jpg')).toBeInTheDocument()
       })
 
-      // Click "Load more"
       const loadMoreButton = screen.getByRole('button', { name: /load more/i })
       fireEvent.click(loadMoreButton)
 

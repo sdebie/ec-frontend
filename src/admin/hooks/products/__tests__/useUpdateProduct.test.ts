@@ -73,7 +73,6 @@ describe('useUpdateProduct — real mapping', () => {
     expect(String(document)).toContain('updateProductInformation')
     expect(String(document)).toContain('mutation')
 
-    // Verify productId is in variables
     expect((variables as { productId: string }).productId).toBe('prod-42')
   })
 

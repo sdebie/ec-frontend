@@ -35,7 +35,6 @@ export function AccountRegisterPage() {
   const { mutate: register, isPending, isError, error, reset: resetMutation } = useCustomerRegister()
   const { mutate: googleLogin } = useCustomerGoogleLogin()
 
-
   function handleGoogleSuccess(response: CredentialResponse) {
     if (response.credential) {
       googleLogin(response.credential, {
@@ -158,7 +157,6 @@ export function AccountRegisterPage() {
             />
           </div>
 
-          {/* Password */}
           <div>
             <PasswordField
               id="password"
