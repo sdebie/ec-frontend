@@ -97,7 +97,8 @@
   --c-surface-hover: color-mix(in srgb, var(--sf-panel, #ffffff) 92%, var(--sf-text, #000000));
   --c-surface-dark: var(--sf-surface-dark, #000000);
   --c-accent: var(--sf-accent);
-  --c-accent-hover: var(--sf-accent-hover, var(--sf-accent));
+  /* Always defined — derived from --sf-accent in index.css, or seeded. */
+  --c-accent-hover: var(--sf-accent-hover);
   --c-accent-text: var(--sf-accent-text);
   --c-accent-subtle: var(--sf-accent-subtle, color-mix(in srgb, var(--sf-accent) 20%, transparent));
   --c-ring: var(--sf-ring, var(--sf-accent));

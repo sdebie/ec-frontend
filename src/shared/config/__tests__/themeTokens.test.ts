@@ -1,6 +1,8 @@
 import { describe, expect, it } from 'vitest'
+import { readFileSync, readdirSync, statSync } from 'fs'
+import { join } from 'path'
 
-import { DEFINED_SF_TOKENS } from '../themeTokens'
+import { DEFINED_SF_TOKENS, DERIVED_TOKENS } from '../themeTokens'
 
 /**
  * Theme-token contract guard.
@@ -17,8 +19,15 @@ import { DEFINED_SF_TOKENS } from '../themeTokens'
  * is static, which is why it works.
  */
 
-// Vite raw-imports every source file's text; no fs / glob dependency needed.
-const sources = import.meta.glob('/src/**/*.{ts,tsx,css}', {
+/**
+ * Vite raw-imports every TS/TSX source file's text.
+ *
+ * Stylesheets are deliberately NOT globbed here — under Vitest, `?raw` hands
+ * back an EMPTY STRING for `.css`, so including them yields entries that match
+ * nothing and report nothing while looking scanned. They are read from disk
+ * instead, below.
+ */
+const sources = import.meta.glob('/src/**/*.{ts,tsx}', {
   query: '?raw',
   import: 'default',
   eager: true,
@@ -32,8 +41,8 @@ const sources = import.meta.glob('/src/**/*.{ts,tsx,css}', {
  *
  * `var(--sf-x, <fallback>)` is deliberately not matched: it degrades to the
  * fallback, which is the sanctioned way to read an optional client extension
- * (`--sf-surface-dark`, `--sf-accent-hover`, `--sf-accent-subtle`) or a value
- * that is undefined until measured (`--sf-chrome-h`).
+ * (`--sf-surface-dark`, `--sf-accent-subtle`) or a value that is undefined
+ * until measured (`--sf-chrome-h`).
  *
  * Comments are NOT stripped before scanning, so a comment that quotes the paren
  * shorthand verbatim is flagged like a live read. That is deliberate: a
@@ -47,6 +56,38 @@ const BARE_VAR = /var\(\s*(--sf-[a-z0-9-]+)\s*\)/g
 /** The vocabulary module and this test both name tokens outside a real read. */
 const EXCLUDED = ['/src/shared/config/themeTokens.ts', '/src/shared/config/__tests__/themeTokens.test.ts']
 
+/** This file sits at `src/shared/config/__tests__`, so `src/` is three up. */
+const SRC_ROOT = join(__dirname, '..', '..', '..')
+
+/** Every stylesheet under `src/`, by absolute path, for the fs-based reads. */
+function collectStylesheets(dir: string, found: string[] = []): string[] {
+  for (const entry of readdirSync(dir)) {
+    const full = join(dir, entry)
+    if (statSync(full).isDirectory()) {
+      if (entry !== 'node_modules') collectStylesheets(full, found)
+    } else if (entry.endsWith('.css')) {
+      found.push(full)
+    }
+  }
+  return found
+}
+
+const STYLESHEETS = collectStylesheets(SRC_ROOT)
+
+/**
+ * Stylesheet text, keyed like the glob (`/src/...`) so one scan covers both
+ * kinds of file and a failure report reads the same either way.
+ *
+ * Stylesheets matter here more than their file count suggests: `tokens.css` is
+ * where the whole `--c-*` layer derives from `--sf-*` (`--c-accent:
+ * var(--sf-accent)`), so a token retired from the seed goes on resolving in the
+ * type system and dies only in the browser — the exact failure this guard exists
+ * to catch.
+ */
+const stylesheetSources: Record<string, string> = Object.fromEntries(
+  STYLESHEETS.map((file) => [`/src${file.slice(SRC_ROOT.length)}`, readFileSync(file, 'utf-8')])
+)
+
 interface Usage {
   token: string
   file: string
@@ -55,7 +96,7 @@ interface Usage {
 function collectUsages(): Usage[] {
   const usages: Usage[] = []
 
-  for (const [file, text] of Object.entries(sources)) {
+  for (const [file, text] of Object.entries({ ...sources, ...stylesheetSources })) {
     if (EXCLUDED.includes(file)) continue
 
     for (const pattern of [TAILWIND_SHORTHAND, BARE_VAR]) {
@@ -75,6 +116,17 @@ describe('storefront theme tokens', () => {
     // Guards the guard: a glob that silently matched nothing would make every
     // assertion below vacuous.
     expect(Object.keys(sources).length).toBeGreaterThan(100)
+  })
+
+  it('scans every stylesheet, and reads real text from each', () => {
+    // Guards the guard, and it takes BOTH halves. The glob this replaced did
+    // match both stylesheets — it handed back an empty string for each, so a
+    // count on its own would have passed while nothing was scanned at all.
+    expect(Object.keys(stylesheetSources).length).toBeGreaterThan(0)
+
+    for (const [file, text] of Object.entries(stylesheetSources)) {
+      expect(text.length, `${file} was read as empty`).toBeGreaterThan(0)
+    }
   })
 
   it('never reads an --sf-* token that no seed or stylesheet defines', () => {
@@ -102,4 +154,22 @@ describe('storefront theme tokens', () => {
     ).toBe(true)
   })
 
+  it.each(DERIVED_TOKENS)('%s is actually declared by a stylesheet', (token) => {
+    // Membership in the vocabulary above is a NAME check — it would keep passing
+    // if the derivation were deleted, leaving every bare read dropped by the
+    // browser and the interaction silently dead. Derived tokens are the only ones
+    // this repo declares itself, so they are the only ones it can prove.
+    const declaration = new RegExp(`^\\s*${token}\\s*:`, 'm')
+    const declaredIn = Object.keys(stylesheetSources).filter((file) =>
+      declaration.test(stylesheetSources[file])
+    )
+
+    expect(
+      declaredIn.length > 0,
+      `${token} is in DEFINED_SF_TOKENS but no stylesheet declares it. ` +
+        'Components read it bare, so the declaration would be dropped and the ' +
+        'element would never change. Restore the derivation in index.css, or ' +
+        'remove the token from DERIVED_TOKENS and give every read a fallback.'
+    ).toBe(true)
+  })
 })

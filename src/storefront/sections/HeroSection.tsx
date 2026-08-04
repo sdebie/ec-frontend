@@ -3,7 +3,14 @@ import {Link} from 'react-router-dom'
 import {cn} from '@/shared/utils/cn'
 import {resolveImageUrl} from '@/shared/utils/imageUrl'
 import type {BenefitsFootnoteSegment, HeroContentSurface, HeroSectionConfig} from '@/shared/types/StorefrontConfig'
-import {ACCENT_BUTTON_HOVER, SECTION_WIDTH_CLASS, SectionEyebrow, SF_FOCUS_RING_PAGE} from './shared'
+import {
+    ACCENT_BUTTON_HOVER,
+    SECONDARY_BUTTON_HOVER_DARK,
+    SECONDARY_BUTTON_HOVER_LIGHT,
+    SECTION_WIDTH_CLASS,
+    SectionEyebrow,
+    SF_FOCUS_RING_PAGE,
+} from './shared'
 import type {EyebrowTone} from './shared'
 
 // Text/kicker colour per surface. Every value is a theme token — no client
@@ -30,16 +37,15 @@ const SURFACE_EYEBROW_TONE: Record<HeroContentSurface, EyebrowTone> = {
     dark: 'onDark',
 }
 
-// Secondary CTAs are accent-outlined and fill with an accent-derived tint on
-// hover (color-mix with white — same accent-derivation family as the Section
-// dark glow; no literal palette). On the dark surface the label stays light; on
-// the light `default` surface it must be accent, because a light label would
-// vanish there. `brand` keeps accent-text styling because an
-// accent outline would vanish on the accent band itself.
+// Secondary CTAs are outlined, and their hover comes from the shared secondary
+// system so they stay quieter than the solid primary beside them. On the light
+// `default` surface the label must be accent, because a light label would vanish
+// there; `brand` and `dark` carry a light label, so they take the dark wash —
+// `brand` because an accent outline would vanish on the accent band itself.
 const SURFACE_SECONDARY_CTA_CLASS: Record<HeroContentSurface, string> = {
-    default: 'border-(--sf-accent) text-(--sf-accent) hover:bg-[color-mix(in_srgb,var(--sf-accent)_80%,white)] hover:text-(--sf-accent-text)',
-    brand: 'border-(--sf-accent-text)/50 text-(--sf-accent-text) hover:bg-(--sf-accent-text)/10',
-    dark: 'border-(--sf-accent) text-(--sf-accent-text) hover:bg-[color-mix(in_srgb,var(--sf-accent)_80%,white)] hover:text-(--sf-accent-text)',
+    default: `border-(--sf-accent) text-(--sf-accent) ${SECONDARY_BUTTON_HOVER_LIGHT}`,
+    brand: `border-(--sf-accent-text)/50 text-(--sf-accent-text) ${SECONDARY_BUTTON_HOVER_DARK}`,
+    dark: `border-(--sf-accent) text-(--sf-accent-text) ${SECONDARY_BUTTON_HOVER_DARK}`,
 }
 
 // Background for surfaces that have no photo behind them. `default` is a

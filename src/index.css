@@ -75,6 +75,36 @@
     --sf-error-surface: #fef2f2;
     --sf-error-border: #fecaca;
     --sf-success: #16a34a;
+
+    /*
+      Storefront accent interaction states — the hover and pressed backgrounds
+      for every solid accent button.
+
+      Derived from --sf-accent rather than seeded, so a client gets a working
+      hover step without configuring one. Same DEFAULTS contract as the status
+      tokens above: seed `accentHover`/`accentActive` and the seeded value wins.
+
+      The step is a fixed OKLCH lightness offset rather than a color-mix
+      percentage because a percentage mix is MULTIPLICATIVE — its perceived step
+      shrinks as the accent darkens. Mixing 12% black moves a dark accent about
+      3.6 L*, which is at the threshold of perception, and a light accent about
+      9 L*, so a single percentage cannot read the same across clients. A fixed
+      OKLCH offset lands every accent within roughly 7.5-10.7 L*.
+
+      The color-mix values here are the fallback for engines without relative
+      colour syntax; the @supports rule below upgrades them. They must stay as a
+      separate rule: a custom property holding an unsupported value is only
+      invalid once substituted, so a var() fallback would never fire.
+    */
+    --sf-accent-hover: color-mix(in srgb, var(--sf-accent) 72%, black);
+    --sf-accent-active: color-mix(in srgb, var(--sf-accent) 55%, black);
+}
+
+@supports (color: oklch(from red calc(l - 0.1) c h)) {
+    :root {
+        --sf-accent-hover: oklch(from var(--sf-accent) calc(l - 0.1) c h);
+        --sf-accent-active: oklch(from var(--sf-accent) calc(l - 0.18) c h);
+    }
 }
 
 [data-surface="admin"][data-theme="dark"] {

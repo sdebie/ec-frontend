@@ -1,6 +1,13 @@
 import {Link} from 'react-router-dom'
 import type {CtaSectionConfig} from '@/shared/types/StorefrontConfig'
-import {ACCENT_BUTTON_HOVER, SF_FOCUS_RING_PAGE, Section, SectionEyebrow, SectionHeading} from './shared'
+import {
+    ACCENT_BUTTON_HOVER,
+    SECONDARY_BUTTON_HOVER_DARK,
+    SF_FOCUS_RING_PAGE,
+    Section,
+    SectionEyebrow,
+    SectionHeading,
+} from './shared'
 
 export function CtaSection({section}: { section: CtaSectionConfig }) {
     const {title, description, eyebrow, cta, secondaryCta, secondaryLinks = [], variant = 'accent'} = section.props
@@ -28,7 +35,7 @@ export function CtaSection({section}: { section: CtaSectionConfig }) {
                     {secondaryCta && (
                         <Link
                             to={secondaryCta.to}
-                            className={`block rounded-md border-2 border-(--sf-accent) bg-transparent px-6 py-3 text-center text-sm font-semibold transition-colors hover:bg-[color-mix(in_srgb,var(--sf-accent)_80%,white)] hover:text-(--sf-accent-text) ${SF_FOCUS_RING_PAGE}`}
+                            className={`block rounded-md border-2 border-(--sf-accent) bg-transparent px-6 py-3 text-center text-sm font-semibold transition-colors ${SECONDARY_BUTTON_HOVER_DARK} ${SF_FOCUS_RING_PAGE}`}
                         >
                             {secondaryCta.label}
                         </Link>
@@ -88,7 +95,7 @@ export function CtaSection({section}: { section: CtaSectionConfig }) {
                     {secondaryCta && (
                         <Link
                             to={secondaryCta.to}
-                            className="inline-block rounded-md border-2 bg-transparent px-6 py-3 text-sm font-semibold"
+                            className={`inline-block rounded-md border-2 bg-transparent px-6 py-3 text-sm font-semibold transition-colors ${SECONDARY_BUTTON_HOVER_DARK}`}
                             style={{ borderColor: 'var(--sf-accent-text)', color: 'var(--sf-accent-text)' }}
                         >
                             {secondaryCta.label}

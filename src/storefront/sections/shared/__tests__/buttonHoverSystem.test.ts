@@ -7,6 +7,7 @@ import {
     SF_FOCUS_RING_PAGE,
     SF_FOCUS_RING_NAV,
 } from '../focusRing'
+import {DEFINED_SF_TOKENS} from '@/shared/config/themeTokens'
 
 describe('Button hover/pressed system (design C3)', () => {
     describe('focus ring constants', () => {
@@ -28,11 +29,19 @@ describe('Button hover/pressed system (design C3)', () => {
     })
 
     describe('accent button hover constants', () => {
-        it('ACCENT_BUTTON_HOVER contains color-mix hover and active states', () => {
-            expect(ACCENT_BUTTON_HOVER).toContain('hover:bg-[color-mix(in_srgb,var(--sf-accent)')
-            expect(ACCENT_BUTTON_HOVER).toContain('active:bg-[color-mix(in_srgb,var(--sf-accent)')
-            // Must include black as the darkening anchor
-            expect(ACCENT_BUTTON_HOVER).toMatch(/black\)]/g)
+        it('ACCENT_BUTTON_HOVER drives hover and pressed off the derived accent tokens', () => {
+            expect(ACCENT_BUTTON_HOVER).toContain('hover:bg-(--sf-accent-hover)')
+            expect(ACCENT_BUTTON_HOVER).toContain('active:bg-(--sf-accent-active)')
+        })
+
+        it('reads both tokens bare, so the theme-token guard must define them', () => {
+            // A bare read of an undefined token is dropped by the browser and the
+            // button silently never changes colour. Membership here is what makes
+            // themeTokens.test.ts fail the build if the derivation is removed.
+            for (const token of ['--sf-accent-hover', '--sf-accent-active']) {
+                expect(ACCENT_BUTTON_HOVER).toContain(`(${token})`)
+                expect(DEFINED_SF_TOKENS.has(token)).toBe(true)
+            }
         })
 
         it('ACCENT_LINK_HOVER contains color-mix text hover state', () => {

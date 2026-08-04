@@ -71,6 +71,20 @@ export const STATUS_TOKENS = [
 ] as const
 
 /**
+ * Storefront accent interaction states, derived from `--sf-accent` in
+ * `index.css` rather than seeded, so every client has a hover and pressed step
+ * without configuring one.
+ *
+ * Same defaults contract as the status tokens: a client that seeds
+ * `accentHover`/`accentActive` wins, because an inline style on `<html>` beats
+ * a stylesheet rule.
+ */
+export const DERIVED_TOKENS = [
+  '--sf-accent-hover',
+  '--sf-accent-active',
+] as const
+
+/**
  * Everything a component may reference bare.
  *
  * `--sf-chrome-h` is deliberately absent. It is published at runtime by
@@ -79,11 +93,12 @@ export const STATUS_TOKENS = [
  * is what keeps that requirement enforced rather than merely documented.
  *
  * Tokens genuinely outside the vocabulary (`--sf-surface-dark`,
- * `--sf-accent-hover`, `--sf-accent-subtle`) are equally absent by design: they
- * are optional client extensions and every read of them already supplies a
- * fallback, which the guard accepts.
+ * `--sf-accent-subtle`) are equally absent by design: they are optional client
+ * extensions and every read of them already supplies a fallback, which the
+ * guard accepts.
  */
 export const DEFINED_SF_TOKENS: ReadonlySet<string> = new Set<string>([
   ...SEEDED_THEME_TOKENS,
   ...STATUS_TOKENS,
+  ...DERIVED_TOKENS,
 ])

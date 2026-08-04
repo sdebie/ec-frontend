@@ -24,14 +24,47 @@ export const SF_FOCUS_RING = {
 } as const
 
 /**
- * Hover/active interaction classes for solid accent buttons.
+ * Hover/pressed interaction classes for solid accent buttons.
  *
- * Deterministic color-mix tints that darken the accent at fixed ratios, in the
- * same accent-derivation family used elsewhere. Not `hover:opacity-90`, which
- * fades the button toward whatever sits behind it instead of darkening it.
+ * The two steps are derived from `--sf-accent` in `index.css`, which is also
+ * what lets a client override either one by seeding it and what gives the
+ * shared `Button` primitive's solid variant the same treatment through
+ * `--c-accent-hover`. Both tokens are always defined, so they are read bare.
+ *
+ * Not `hover:opacity-90`, which fades the button toward whatever sits behind it
+ * instead of shifting the accent itself.
  */
 export const ACCENT_BUTTON_HOVER =
-  'hover:bg-[color-mix(in_srgb,var(--sf-accent)_88%,black)] active:bg-[color-mix(in_srgb,var(--sf-accent)_78%,black)]'
+  'hover:bg-(--sf-accent-hover) active:bg-(--sf-accent-active)'
+
+/**
+ * Hover/pressed interaction classes for SECONDARY (outlined) buttons.
+ *
+ * A secondary stays subordinate to the primary in every state, so its hover is a
+ * low-alpha wash toward the surface's own foreground — never a fill derived from
+ * the accent. An accent-derived fill lands an outlined button LIGHTER than the
+ * solid primary beside it, which inverts the hierarchy: the quieter control
+ * becomes the loudest thing on the band the moment it is pointed at.
+ *
+ * `light` is for page surfaces, where the label and border are `--sf-accent`.
+ * Both step to `--sf-accent-hover`, the same step the primary's fill takes, so
+ * the two buttons darken together instead of moving in opposite directions.
+ *
+ * `dark` is for dark, photographic and accent-band surfaces, where the label is
+ * `--sf-accent-text`. There a wash can only go toward the light foreground —
+ * darkening would sink the control into its own background.
+ */
+export const SECONDARY_BUTTON_HOVER_LIGHT =
+  'hover:border-(--sf-accent-hover) hover:text-(--sf-accent-hover) hover:bg-[color-mix(in_srgb,var(--sf-accent)_8%,transparent)]'
+
+export const SECONDARY_BUTTON_HOVER_DARK =
+  'hover:border-(--sf-accent-text)/70 hover:bg-(--sf-accent-text)/10'
+
+/** Convenience object for template-string interpolation, as SF_FOCUS_RING. */
+export const SECONDARY_BUTTON_HOVER = {
+  light: SECONDARY_BUTTON_HOVER_LIGHT,
+  dark: SECONDARY_BUTTON_HOVER_DARK,
+} as const
 
 /**
  * Hover class for text-accent links (text colour only, no background).
