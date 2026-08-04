@@ -1,5 +1,5 @@
 import { describe, expect, it, vi } from 'vitest'
-import { render, screen } from '@testing-library/react'
+import { render, screen, waitFor } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { FilterSidebar } from '../FilterSidebar'
 
@@ -83,6 +83,64 @@ describe('FilterSidebar', () => {
       // No aside is rendered — the flex container in the parent page
       // will naturally let flex-1 fill the full width
       expect(screen.queryByRole('complementary')).not.toBeInTheDocument()
+    })
+  })
+
+  /*
+    The sidebar search had NO coverage at all, which is how it shipped unable to
+    search. Two independent defects were in play and each of these tests fails
+    against one of them:
+
+      1. The "keep in sync with external changes" guard compared the local values
+         against the URL's, so the instant the debounce settled — the one moment
+         they MUST differ, because publishing them is the next step — it reverted
+         both during render and the term never reached setFilter.
+      2. Even once published, the sidebar wrote `search` while the header search
+         bar wrote `q`, and the page read `q ?? search`. An active header search
+         permanently shadowed anything typed here.
+  */
+  describe('search field (regression: "I cannot use the sidebar search")', () => {
+    it('publishes what was typed, under the canonical q key, after the debounce', async () => {
+      const user = userEvent.setup()
+      const setFilter = vi.fn()
+      render(<FilterSidebar {...defaultProps} setFilter={setFilter} />)
+
+      await user.type(screen.getByLabelText('Search'), 'gloves')
+
+      // 350ms debounce — waitFor outlasts it without a fake-timer setup.
+      await waitFor(() => expect(setFilter).toHaveBeenCalledWith('q', 'gloves'), {timeout: 2000})
+    })
+
+    it('still publishes when a search is already active — the active term must not shadow the typed one', async () => {
+      const user = userEvent.setup()
+      const setFilter = vi.fn()
+      render(
+        <FilterSidebar
+          {...defaultProps}
+          activeFilters={{search: 'blanket', category: '', brand: ''}}
+          setFilter={setFilter}
+        />,
+      )
+
+      const input = screen.getByLabelText('Search')
+      expect(input).toHaveValue('blanket')
+
+      await user.clear(input)
+      await user.type(input, 'gloves')
+
+      await waitFor(() => expect(setFilter).toHaveBeenCalledWith('q', 'gloves'), {timeout: 2000})
+      // …and the box keeps what was typed rather than snapping back.
+      expect(input).toHaveValue('gloves')
+    })
+
+    it('adopts an externally changed term (Clear all, the chip, the header bar)', () => {
+      const {rerender} = render(
+        <FilterSidebar {...defaultProps} activeFilters={{search: 'blanket', category: '', brand: ''}} />,
+      )
+      expect(screen.getByLabelText('Search')).toHaveValue('blanket')
+
+      rerender(<FilterSidebar {...defaultProps} activeFilters={{search: '', category: '', brand: ''}} />)
+      expect(screen.getByLabelText('Search')).toHaveValue('')
     })
   })
 })

@@ -15,8 +15,14 @@ import {ACCENT_BUTTON_HOVER, SF_FOCUS_RING_PAGE} from '@/storefront/sections/sha
  *
  * border-transparent on the filled variants matches the 1px the outlined ones
  * carry, so the two are exactly the same height.
+ *
+ * `relative z-10` lifts the control above ProductCard's stretched product link,
+ * which covers the whole card — without it "Add to cart" would navigate to the
+ * product page instead of adding. It goes on the control rather than on the
+ * wrapper because in `bar` mode that wrapper is `display: contents` below `sm`
+ * and can carry neither position nor stacking.
  */
-const ACTION_BASE = 'inline-flex w-full items-center justify-center rounded-lg border px-4 py-2 text-sm font-medium transition-colors'
+const ACTION_BASE = 'relative z-10 inline-flex w-full items-center justify-center rounded-lg border px-4 py-2 text-sm font-medium transition-colors'
 const ACTION_PRIMARY = `${ACTION_BASE} border-transparent bg-(--sf-accent) text-(--sf-accent-text) ${ACCENT_BUTTON_HOVER} ${SF_FOCUS_RING_PAGE}`
 const ACTION_MUTED = `${ACTION_BASE} border-(--sf-border) text-(--sf-text) hover:bg-(--sf-surface-muted)`
 
@@ -86,7 +92,7 @@ export function CardActions({variantId, productName, productSlug, inStock, hasPr
             <div className={singleClass}>
                 <Link
                     to={`/products/${productSlug}`}
-                    className="inline-block text-sm font-medium text-(--sf-accent) hover:underline"
+                    className="relative z-10 inline-block text-sm font-medium text-(--sf-accent) hover:underline"
                 >
                     View product
                 </Link>

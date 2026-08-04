@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
-import { Menu, User } from 'lucide-react'
+import { LayoutGrid, Menu, User } from 'lucide-react'
 import { useStorefrontConfig } from '@/shared/config/storefrontConfig.context'
 import { resolveImageUrl } from '@/shared/utils/imageUrl'
 import { useCustomerAuthStore } from '@/shared/auth/customerAuthStore'
@@ -194,10 +194,21 @@ export function StorefrontHeader() {
         </div>
       </div>
 
-      {/* Mobile search row — below main row, visible only below md */}
+      {/* Mobile search row — below main row, visible only below md.
+          The catalogue sits beside the box rather than inside the drawer: on a
+          phone "browse the products" was two taps behind the burger, and it is
+          the single most common intent on a storefront. Search keeps the
+          flexible width; the link is a fixed, shrink-proof target next to it. */}
       {navItems.length > 0 && (
-        <div className="md:hidden px-4 pb-3">
-          <SearchBar tone="nav" className="w-full" />
+        <div className="md:hidden flex items-center gap-2 px-4 pb-3">
+          <SearchBar tone="nav" className="min-w-0 flex-1" />
+          <Link
+            to="/products"
+            className={`flex shrink-0 items-center gap-1.5 rounded-md bg-(--sf-accent) px-3 py-2.5 text-sm font-semibold text-(--sf-accent-text) ${SF_FOCUS_RING.nav}`}
+          >
+            <LayoutGrid className="h-4 w-4" aria-hidden="true" />
+            Shop
+          </Link>
         </div>
       )}
 

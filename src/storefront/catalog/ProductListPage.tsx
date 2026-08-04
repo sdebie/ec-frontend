@@ -12,6 +12,7 @@ import { CatalogPagination } from './components/CatalogPagination'
 import { CatalogToolbar } from './components/CatalogToolbar'
 import { ViewToggle } from './components/ViewToggle'
 import { QuickViewModal, type QuickViewModalProps } from './components/QuickViewModal'
+import { LEGACY_SEARCH_PARAM, SEARCH_PARAM, readSearchParam } from './searchParams'
 
 const PAGE_SIZE = 20
 
@@ -27,9 +28,9 @@ export function ProductListPage({ onSale = false }: ProductListPageProps) {
   const quickViewTriggerRef = useRef<HTMLElement | null>(null)
   const [view, setView] = useViewPreference()
 
-  // Read filter state from URL params
-  // Support both ?q= (from SearchBar navigation) and ?search= (legacy/sidebar filter)
-  const search = params.get('q') ?? params.get('search') ?? ''
+  // Read filter state from URL params. The search term has ONE canonical key
+  // (`q`); `search` is a read-only legacy alias — see searchParams.ts.
+  const search = readSearchParam(params)
   const categorySlug = params.get('category') ?? ''
   const brandSlug = params.get('brand') ?? ''
   const VALID_SORT_OPTIONS: SortOption[] = ['name', 'price-asc', 'price-desc']
@@ -88,6 +89,10 @@ export function ProductListPage({ onSale = false }: ProductListPageProps) {
         } else {
           next.delete(key)
         }
+        // Writing the canonical search key must also drop the legacy alias —
+        // otherwise a `?search=` left over from an inbound link keeps sitting
+        // behind the value being written, ready to shadow it again.
+        if (key === SEARCH_PARAM) next.delete(LEGACY_SEARCH_PARAM)
         next.set('page', '1')
         return next
       })
@@ -124,15 +129,7 @@ export function ProductListPage({ onSale = false }: ProductListPageProps) {
   )
 
   // Callbacks for ActiveFilterChips
-  const onClearSearch = useCallback(() => {
-    setParams((prev) => {
-      const next = new URLSearchParams(prev)
-      next.delete('search')
-      next.delete('q')
-      next.set('page', '1')
-      return next
-    })
-  }, [setParams])
+  const onClearSearch = useCallback(() => setFilter(SEARCH_PARAM, ''), [setFilter])
   const onClearCategory = useCallback(() => setFilter('category', ''), [setFilter])
   const onClearBrand = useCallback(() => setFilter('brand', ''), [setFilter])
   const onClearAvailability = useCallback(() => setFilter('available', ''), [setFilter])

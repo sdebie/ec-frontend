@@ -2,6 +2,7 @@ import {useEffect, useState} from 'react'
 import {ChevronRight, X} from 'lucide-react'
 import {Select} from '@/shared/ui/components/form/Select'
 import {ACCENT_BUTTON_HOVER, SF_FOCUS_RING_PAGE} from '@/storefront/sections/shared'
+import {SEARCH_PARAM} from '../searchParams'
 import {BrandPickerSheet} from './BrandPickerSheet'
 import {CategoryTreeFilter} from './CategoryTreeFilter'
 import {FilterGroup} from './FilterGroup'
@@ -35,9 +36,24 @@ function FilterContent({
     const [debouncedValue, setDebouncedValue] = useState(activeFilters.search)
     const [brandPickerOpen, setBrandPickerOpen] = useState(false)
 
-    // Keep local value in sync with external changes (e.g. "Clear all filters")
+    /*
+      Resync the box when the search term changes from OUTSIDE (Clear all, the
+      chip's ×, the header search bar).
+
+      Keyed on the external value CHANGING, not on it differing from the local
+      one. The previous form — "if both local values differ from external, adopt
+      external" — destroyed every search typed here: the moment the debounce
+      settled, `debouncedValue` held the new term and by definition still differed
+      from the URL (publishing it is what this component was about to do), so this
+      ran during render and reverted both values before the publishing effect
+      below could fire. The term never reached the URL, and the input snapped back
+      under the cursor. That is the whole of "I cannot use the sidebar search" —
+      the `q`/`search` parameter collision was a second, independent defect.
+    */
     const externalSearch = activeFilters.search
-    if (debouncedValue !== externalSearch && searchValue !== externalSearch) {
+    const [prevExternalSearch, setPrevExternalSearch] = useState(externalSearch)
+    if (prevExternalSearch !== externalSearch) {
+        setPrevExternalSearch(externalSearch)
         setSearchValue(externalSearch)
         setDebouncedValue(externalSearch)
     }
@@ -53,7 +69,7 @@ function FilterContent({
     // Fire the setFilter callback when the debounced value settles
     useEffect(() => {
         if (debouncedValue !== activeFilters.search) {
-            setFilter('search', debouncedValue)
+            setFilter(SEARCH_PARAM, debouncedValue)
         }
     }, [debouncedValue, activeFilters.search, setFilter])
 

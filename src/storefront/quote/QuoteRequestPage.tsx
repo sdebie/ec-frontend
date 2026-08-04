@@ -5,6 +5,7 @@ import {QuoteDetailsForm} from './components/QuoteDetailsForm'
 import {QuoteProductSearch} from './components/QuoteProductSearch'
 import {QuoteReassurancePanel} from './components/QuoteReassurancePanel'
 import {useStorefrontConfig} from '@/shared/config/storefrontConfig.context'
+import {PageDivider, SectionHeading} from '@/storefront/sections/shared'
 
 /**
  * QuoteRequestPage — public page shell for the quote request funnel.
@@ -75,14 +76,19 @@ export function QuoteRequestPage() {
 
     return (
         <div className="mx-auto w-full max-w-5xl px-4 py-12 sm:py-16">
-            <h1 className="text-3xl font-bold tracking-tight text-(--sf-text) sm:text-4xl">
-                Request a Quote
-            </h1>
-            <p className="mt-2 text-sm text-(--sf-muted-text)">
-                Add products to your quote list and submit your details for a personalised quote.
-            </p>
+            {/* The shared page-title composition — accent rule from SectionHeading,
+                then the divider — so this page carries the same heading treatment
+                as the catalogue, product detail and wholesale pages. */}
+            <SectionHeading
+                as="h1"
+                title="Request a Quote"
+                subtitle="Add products to your quote list and submit your details for a personalised quote."
+                className="mb-4"
+            />
 
-            <div className="mt-10 grid gap-10 lg:grid-cols-2">
+            <PageDivider className="mb-8"/>
+
+            <div className="grid gap-10 lg:grid-cols-2">
                 {/* Products to quote — on lg the column's height comes from the
                     form (absolute fill keeps it out of the row-height calculation),
                     so the list grows naturally until it reaches the form's height,

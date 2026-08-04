@@ -1,6 +1,26 @@
 @import "tailwindcss";
 @import "./shared/ui/primitives/surface/tokens.css";
 
+/*
+  Mobile type scale.
+
+  Phones got the desktop scale verbatim, which reads small in the hand — the
+  catalogue is built from text-xs/text-sm rows (SKU, stock, both price tiers).
+  Rather than re-tune dozens of components (and drift the two scales apart),
+  this lifts the ROOT font size below the `sm` breakpoint: Tailwind's type,
+  spacing and sizing utilities are all rem-based, so the whole storefront scales
+  proportionally and every carefully-aligned deck keeps its alignment.
+
+  17px (+6.25%) deliberately, not more: it is the largest step that leaves the
+  two-up product grid and the 375px filter drawer laid out exactly as measured.
+  Bumping this further requires re-checking those at 375x667.
+*/
+@media (max-width: 639px) {
+    :root {
+        font-size: 106.25%;
+    }
+}
+
 :root {
     --primary: #3b82f6;
     --primary-hover: #2563eb;

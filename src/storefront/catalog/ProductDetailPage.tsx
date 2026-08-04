@@ -1,6 +1,6 @@
 import {useEffect, useMemo, useRef, useState} from 'react'
 import {Link, useLocation, useParams} from 'react-router-dom'
-import {ACCENT_BUTTON_HOVER, SF_FOCUS_RING_PAGE, Section, SectionHeading} from '@/storefront/sections/shared'
+import {ACCENT_BUTTON_HOVER, PageDivider, SF_FOCUS_RING_PAGE, Section, SectionHeading} from '@/storefront/sections/shared'
 import {useProductDetail} from './hooks/useProductDetail'
 import {useCustomerAuthStore} from '@/shared/auth/customerAuthStore'
 import {useStorefrontConfig} from '@/shared/config/storefrontConfig.context'
@@ -153,7 +153,7 @@ export function ProductDetailPage() {
             <SectionHeading as="h1" title="Product Detail" className="mb-4"/>
 
             {/* Divider — same rhythm as the catalogue's toolbar rule */}
-            <div className="mb-3 border-t border-(--sf-border)"/>
+            <PageDivider/>
 
             {/* Breadcrumb — desktop only (owner directive 2026-08-02). At 375px the
                 trail wrapped into a ragged three-line block, and the page heading
@@ -298,15 +298,20 @@ export function ProductDetailPage() {
                                 <h3 className="text-sm font-semibold text-(--sf-text)">
                                     {categories.length > 1 ? 'Categories' : 'Category'}
                                 </h3>
+                                {/* Badges, not links (owner directive 2026-08-04).
+                                    They label what this product IS; navigating away
+                                    to a filtered catalogue mid-purchase is not what a
+                                    shopper reading the panel wants. The hover
+                                    treatment is kept — it is what makes the pills
+                                    read as a set rather than as flat text. */}
                                 <div className="mt-2 flex flex-wrap gap-2">
                                     {categories.map((category) => (
-                                        <Link
+                                        <span
                                             key={category.id}
-                                            to={`/products?category=${encodeURIComponent(category.slug)}`}
-                                            className={`inline-flex items-center rounded-full border border-(--sf-border) px-3 py-1 text-sm font-medium text-(--sf-text) transition-colors hover:border-(--sf-accent) hover:bg-[color-mix(in_srgb,var(--sf-accent)_8%,var(--sf-panel))] ${SF_FOCUS_RING_PAGE}`}
+                                            className="inline-flex items-center rounded-full border border-(--sf-border) px-3 py-1 text-sm font-medium text-(--sf-text) transition-colors hover:border-(--sf-accent) hover:bg-[color-mix(in_srgb,var(--sf-accent)_8%,var(--sf-panel))]"
                                         >
                                             {category.name}
-                                        </Link>
+                                        </span>
                                     ))}
                                 </div>
                             </div>

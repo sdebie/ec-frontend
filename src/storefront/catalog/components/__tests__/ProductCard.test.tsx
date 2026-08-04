@@ -807,4 +807,91 @@ describe('ProductCard', () => {
             expect(titleLink.className).toContain('focus-visible:ring-offset-(--sf-background)')
         })
     })
+
+    /*
+      The card advertises itself as clickable — accent border, shadow and
+      hover:scale on the root — so the whole card must actually navigate, not
+      just the image and the name.
+
+      Implemented as a stretched pseudo-element on the EXISTING name link, so
+      these assert the two halves that make that safe: the card root is a
+      positioning context (or `after:inset-0` would stretch to the viewport), and
+      the controls that must stay independently clickable are lifted above it.
+
+      ⚠️ jsdom does no layout, so this cannot prove what a click at a given pixel
+      hits. That was verified in a real browser via elementFromPoint plus live
+      clicks (card body → PDP, Add to cart → cart written and no navigation,
+      heart → toggled and painted). These tests guard the mechanism from being
+      removed; they are not a substitute for that check.
+    */
+    describe('whole-card click target', () => {
+        it.each([['grid'], ['row']] as const)('%s layout stretches the name link over a positioned root', (layout) => {
+            const {container} = renderCard({}, {layout})
+            const root = container.firstElementChild as HTMLElement
+            const titleLink = container.querySelector('a:has(h3)') as HTMLElement
+
+            expect(root.className).toContain('relative')
+            expect(titleLink.className).toContain('after:absolute')
+            expect(titleLink.className).toContain('after:inset-0')
+        })
+
+        it('does not add a second link to the same product — the name link IS the target', () => {
+            const {container} = renderCard({}, {layout: 'grid', variantId: 'v1'})
+            const productLinks = container.querySelectorAll('a[href="/products/test-product"]')
+            // Image and name only, exactly as before the stretch was added.
+            expect(productLinks).toHaveLength(2)
+        })
+
+        it('lifts the wishlist heart above the stretched link so it saves instead of navigating', () => {
+            const {container} = renderCard({}, {layout: 'grid', variantId: 'v1'})
+            const heart = container.querySelector('[aria-label="Wishlist v1"]') as HTMLElement
+            expect(heart.className).toContain('z-10')
+        })
+
+        it('lifts the action control above the stretched link so it adds instead of navigating', () => {
+            const {container} = renderCard({}, {layout: 'grid', variantId: 'v1'})
+            const addButton = Array.from(container.querySelectorAll('button')).find(
+                (b) => b.textContent?.includes('Add to cart'),
+            ) as HTMLElement
+            expect(addButton.className).toContain('z-10')
+        })
+    })
+
+    /*
+      The heart sits in the card's top-right corner on a phone. In the row layout
+      it is a child of the image rail, so the rail's positioning is what decides
+      where it lands: `static` below sm lets it resolve against the card root (the
+      card's corner), `sm:relative` returns it to the image once the rail is 160px
+      wide and the corner belongs to the price column.
+
+      Asserted on the rail rather than on an offset, because the alternative —
+      anchoring the heart to the card with a breakpoint offset — would hard-code
+      the rail's width a second time.
+    */
+    describe('wishlist heart position (row layout, mobile)', () => {
+        it('makes the image rail a positioning context only from sm, so the heart escapes to the card corner below it', () => {
+            const {container} = renderCard({}, {layout: 'row', variantId: 'v1'})
+            const rail = (container.firstElementChild as HTMLElement).firstElementChild as HTMLElement
+
+            expect(rail.className).toContain('static')
+            expect(rail.className).toContain('sm:relative')
+        })
+
+        it('reserves the chip lane on the identity block below sm, and gives it back from sm', () => {
+            const {container} = renderCard({}, {layout: 'row', variantId: 'v1'})
+            const identity = (container.firstElementChild as HTMLElement).children[1] as HTMLElement
+
+            expect(identity.className).toContain('pr-10')
+            expect(identity.className).toContain('sm:pr-4')
+        })
+
+        it('leaves the price column full width — the heart is over the image at sm+, not over the price', () => {
+            const {container} = renderCard({}, {layout: 'row', variantId: 'v1'})
+            const priceColumn = (container.firstElementChild as HTMLElement).children[2] as HTMLElement
+
+            // Regression guard: reserving a lane here squeezed sm:w-48 and wrapped
+            // "ex. VAT" onto its own line on desktop.
+            expect(priceColumn.className).not.toContain('sm:pr-10')
+        })
+    })
 })
