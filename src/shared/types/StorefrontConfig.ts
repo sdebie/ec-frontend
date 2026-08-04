@@ -58,7 +58,27 @@ export interface HeroSectionProps {
   primaryCta?: StorefrontActionLink
   secondaryCta?: StorefrontActionLink
   backgroundImageUrl?: string
+  /**
+   * Scrim strength. For `overlayStyle: 'uniform'` (default) this is the flat
+   * opacity across the whole photo. For `'gradient-left'` it is the opacity at
+   * the LEADING edge, from which the scrim fades to fully transparent — so a
+   * gradient hero wants a much higher value than a uniform one.
+   */
   overlayOpacity?: number
+  /**
+   * How the scrim is distributed over the background photo.
+   *
+   * 'uniform' (default) dims the entire image equally — simple, but it either
+   * darkens the whole photograph or leaves the copy short of contrast.
+   *
+   * 'gradient-left' lays a single left-to-right ramp that is strongest behind
+   * the copy and reaches full transparency around the middle/right, so the
+   * photo is untouched where nothing sits on it. Pair it with
+   * `contentAlignment: 'left'`; a centred hero would run its copy out past the
+   * fade. Preferred over a bounded panel, which guarantees contrast but cuts a
+   * visible rectangle out of the image.
+   */
+  overlayStyle?: 'uniform' | 'gradient-left'
   contentAlignment?: 'left' | 'center' | 'right'
   /**
    * @deprecated Use `contentSurface` instead. Only honoured when
@@ -70,6 +90,19 @@ export interface HeroSectionProps {
   darkStyle?: boolean
   /** Explicit semantic surface. Takes precedence over `darkStyle`. */
   contentSurface?: HeroContentSurface
+  /**
+   * Whether the copy sits in its own bounded translucent panel rather than
+   * directly on the band.
+   *
+   * Omitted, it derives as before: a panel only when there is no photo to frame
+   * the copy. Set `true` over a photo to give the text a constant dark backing,
+   * so contrast stops depending on what happens to be in the picture behind any
+   * given line — the full-bleed scrim dims the whole image equally and cannot
+   * do that. When you set it, drop `overlayOpacity` too: the panel now carries
+   * the contrast, so the scrim only needs to calm the photo, and stacking a
+   * heavy scrim under the panel makes the image stop reading through it.
+   */
+  contentPanel?: boolean
   /** Trust/wayfinding line below the CTA pair; segments with `to` render as internal links. */
   footnote?: BenefitsFootnoteSegment[]
 }
@@ -101,7 +134,8 @@ export interface TestimonialsSectionProps {
   eyebrow?: string
   variant?: 'light' | 'dark'
   layout?: 'grid' | 'stacked' | 'carousel'
-  columns?: 1 | 2 | 3
+  /** Reviews across at desktop width. In `carousel` layout this is the per-view count. */
+  columns?: 1 | 2 | 3 | 4
   /**
    * Carousel display hint (carousel layout only). Default 'gutter' (preserves
    * current treatment). 'header' passes title into Carousel header prop.
@@ -138,6 +172,20 @@ export interface BenefitsSectionProps {
   layout?: 'cards' | 'strip'
   /** Where item icons sit relative to the title: above it (default) or on the same line. */
   iconPlacement?: 'top' | 'inline'
+  /**
+   * Where the heading block sits: 'above' (default) spans the full width with
+   * the cards beneath it; 'side' moves it into a left column at `lg`+ so the
+   * cards fill the right and a short heading leaves no dead zone beside it.
+   * Below `lg` both stack identically. Applies to the 'cards' layout and the
+   * 'strip' layout alike.
+   */
+  headingPlacement?: 'above' | 'side'
+  /**
+   * Treatment of the `iconPlacement: 'inline'` icon tile — see
+   * `SectionIconBadge`. 'soft' (default) is the faint accent wash; 'solid' is
+   * a muted accent tile with the icon in accent-text.
+   */
+  iconTone?: 'soft' | 'solid'
   /** Explicit desktop column count; absent → derived from the item count (no-orphan rule). */
   columns?: 2 | 3 | 4
   items: BenefitItem[]
@@ -205,8 +253,12 @@ export interface FeaturedProductsSectionProps {
   variant?: 'light' | 'dark'
   /** 'row' (default): free-scrolling strip. 'carousel': snap deck with arrows. */
   layout?: 'row' | 'carousel'
-  /** Whole cards visible per carousel view at desktop width (carousel layout only; default 3). */
-  columns?: 2 | 3 | 4
+  /**
+   * Whole cards visible per carousel view at desktop width (carousel layout
+   * only; default 3). 5 only reaches five-up at `xl` — below that there is not
+   * enough width for five readable product cards, so it steps down to 3.
+   */
+  columns?: 2 | 3 | 4 | 5
   /** Label rendered as an accent pill on each card (e.g. "Best Seller"). */
   badgeLabel?: string
   category?: string

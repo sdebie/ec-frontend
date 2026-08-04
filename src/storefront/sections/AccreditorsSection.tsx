@@ -1,7 +1,7 @@
 import {useState} from 'react'
 import type {AccreditorsSectionConfig} from '@/shared/types/StorefrontConfig'
 import {resolveImageUrl} from '@/shared/utils/imageUrl'
-import {Section, SectionHeading} from './shared'
+import {SECTION_WIDTH_CLASS, Section, SectionHeading} from './shared'
 
 interface AccreditorTileProps {
     name: string
@@ -9,14 +9,42 @@ interface AccreditorTileProps {
     url?: string
 }
 
+// Tiles fill their GRID CELL rather than carrying a fixed width, which is what
+// stops the logos being small: previously each tile was pinned to w-52/w-64/w-72
+// no matter how much room the row had, so the artwork inside could never grow.
+//
+// The height comes from an ASPECT RATIO, not a fixed value, so a tile keeps its
+// proportions at every width and the logos scale with the viewport.
+//
+// UVH's artwork is now pre-normalised to a single 1200×400 canvas (3:1), so all
+// three logos are width-bound by `object-contain` and therefore already paint at
+// identical sizes. The ratio still earns its place as a guard: mismatched
+// artwork — the earlier 403×281 / 1301×605 / 1140×570 set — would otherwise have
+// some logos height-bound and some width-bound, which is what made them look
+// different sizes. Keeping the tile wider than any logo it holds keeps them
+// consistent whatever a client uploads.
+//
+// The `max-w` cap is what makes a phone logo SMALLER than a desktop one
+// (owner directive 2026-08-03). Without it a single-column phone tile is the
+// full 327px content width — wider than a desktop tile's third-of-the-row — so
+// the logos rendered *larger* on mobile than on desktop, which is backwards.
+//
+// The class goes on the OUTER element, not the bordered box: when a tile is
+// wrapped in its link, a percentage width on the inner div would resolve against
+// a shrink-to-fit anchor and collapse.
+const TILE_SIZE_CLASS = 'mx-auto w-full max-w-[240px] aspect-[5/2] sm:max-w-none'
+
 function AccreditorTile({name, logoUrl, url}: AccreditorTileProps) {
     const [imgFailed, setImgFailed] = useState(false)
     const src = resolveImageUrl(logoUrl)
     const showImage = src && !imgFailed
 
-    const tile = (
+    const box = (
         <div
-            className="flex h-28 w-52 items-center justify-center rounded-md border border-(--sf-border) bg-(--sf-panel) p-3 sm:h-32 sm:w-64 sm:p-4 lg:h-36 lg:w-72">
+            // Padding trimmed to `p-2` at every size: the logo is meant to take
+            // the tile's full height and width, and a 16px inset was throwing
+            // away ~18% of the available height on a 176px tile.
+            className="flex h-full w-full items-center justify-center rounded-md border border-(--sf-border) bg-(--sf-panel) p-2">
             {showImage ? (
                 <img
                     src={src}
@@ -25,7 +53,7 @@ function AccreditorTile({name, logoUrl, url}: AccreditorTileProps) {
                     className="h-full w-full object-contain"
                 />
             ) : (
-                <span className="text-center text-sm font-medium text-(--sf-text) px-2">
+                <span className="text-center text-xs font-medium text-(--sf-text) px-1 sm:text-sm sm:px-2">
                     {name}
                 </span>
             )}
@@ -38,14 +66,14 @@ function AccreditorTile({name, logoUrl, url}: AccreditorTileProps) {
                 href={url}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="outline-none focus-visible:ring-2 focus-visible:ring-(--sf-ring) focus-visible:ring-offset-2 focus-visible:ring-offset-(--sf-background) rounded-md"
+                className={`${TILE_SIZE_CLASS} rounded-md outline-none focus-visible:ring-2 focus-visible:ring-(--sf-ring) focus-visible:ring-offset-2 focus-visible:ring-offset-(--sf-background)`}
             >
-                {tile}
+                {box}
             </a>
         )
     }
 
-    return tile
+    return <div className={TILE_SIZE_CLASS}>{box}</div>
 }
 
 export function AccreditorsSection({section}: { section: AccreditorsSectionConfig }) {
@@ -56,7 +84,20 @@ export function AccreditorsSection({section}: { section: AccreditorsSectionConfi
     return (
         <Section variant={variant}>
             {title && <SectionHeading title={title} eyebrow={eyebrow} />}
-            <div className="flex flex-wrap items-center justify-center gap-4 sm:gap-5">
+            {/* A real grid, not a wrapping flex row: every tile then gets an
+                equal share of the width and the logos scale with the viewport.
+                One column on a phone so they flow under each other at full
+                width — three across a 375px screen left each logo ~98px, which
+                is smaller than the text beside it. `items-stretch` (the grid
+                default) is what lets a tile fill its cell. */}
+            <div
+                data-testid="accreditors-grid"
+                // Full content width rather than a narrower cap: the logos are
+                // width-bound, so the grid CELL is effectively the logo size.
+                // Letting the row use the section's own width is what makes them
+                // bigger on desktop.
+                className={`mx-auto grid ${SECTION_WIDTH_CLASS.default} grid-cols-1 gap-5 sm:grid-cols-3 sm:gap-6`}
+            >
                 {items.map((item) => (
                     <AccreditorTile
                         key={item.id}

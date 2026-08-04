@@ -1,6 +1,6 @@
 import {Link} from 'react-router-dom'
 import type {CtaSectionConfig} from '@/shared/types/StorefrontConfig'
-import {ACCENT_BUTTON_HOVER, SF_FOCUS_RING_PAGE, Section, SectionHeading} from './shared'
+import {ACCENT_BUTTON_HOVER, SF_FOCUS_RING_PAGE, Section, SectionEyebrow, SectionHeading} from './shared'
 
 export function CtaSection({section}: { section: CtaSectionConfig }) {
     const {title, description, eyebrow, cta, secondaryCta, secondaryLinks = [], variant = 'accent'} = section.props
@@ -59,12 +59,9 @@ export function CtaSection({section}: { section: CtaSectionConfig }) {
         >
             <div className="mx-auto max-w-2xl">
                 {eyebrow && (
-                    <p
-                        className="text-xs font-semibold uppercase tracking-widest mb-2"
-                        style={{ color: 'var(--sf-accent-text)', opacity: 0.7 }}
-                    >
+                    <SectionEyebrow tone="onAccent" align="center" className="mb-2">
                         {eyebrow}
-                    </p>
+                    </SectionEyebrow>
                 )}
                 <h2
                     className="text-3xl font-bold"

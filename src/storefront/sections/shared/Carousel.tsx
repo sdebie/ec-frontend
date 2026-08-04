@@ -5,7 +5,7 @@ import {ACCENT_BUTTON_HOVER, SF_FOCUS_RING_PAGE} from './focusRing'
 interface CarouselProps {
     ariaLabel: string
     /** Whole cards visible per view at desktop width (default 3). */
-    perView?: 2 | 3 | 4
+    perView?: 2 | 3 | 4 | 5
     /**
      * 'gutter' (default): arrows sit outside the deck at xl+ (needs the section
      * gutter to be free). 'overlay': arrows always overlay the deck edges — use
@@ -22,6 +22,19 @@ interface CarouselProps {
      */
     tone?: 'default' | 'onAccent'
     /**
+     * Mobile control treatment, independent of where the desktop arrows sit.
+     * 'dots' renders pagination dots + a "Swipe to browse" hint under the deck;
+     * 'arrows' keeps the floating edge arrows on phones too.
+     *
+     * Defaults to whatever the header slot implies ('dots' with a header,
+     * 'arrows' without), which is exactly how the two were coupled before this
+     * prop existed — so every caller that omits it is unchanged. Pass it
+     * explicitly when a section wants one without the other, e.g. a band that
+     * renders its own heading (so it needs no header row) but still wants the
+     * quieter dotted treatment on phones.
+     */
+    mobileControls?: 'dots' | 'arrows'
+    /**
      * Header-controls mode: the node (typically a SectionHeading with mb-0)
      * renders in a row above the deck with prev/next beside it on md+.
      * Mobile drops the floating arrows entirely — pagination dots + a
@@ -33,12 +46,23 @@ interface CarouselProps {
     children: React.ReactNode
 }
 
-// Cell widths are exact fractions of the viewport minus the gaps (gap-6 =
-// 1.5rem), so each breakpoint shows precisely that many whole cards.
-const CELL_BASIS: Record<2 | 3 | 4, string> = {
-    2: 'md:w-[calc((100%-1.5rem)/2)]',
-    3: 'md:w-[calc((100%-1.5rem)/2)] lg:w-[calc((100%-3rem)/3)]',
-    4: 'md:w-[calc((100%-1.5rem)/2)] lg:w-[calc((100%-4.5rem)/4)]',
+// Cell widths are exact fractions of the viewport minus the gaps, so each
+// breakpoint shows precisely that many whole cards. Every value is a complete
+// literal class string — Tailwind scans source text, so an interpolated
+// fraction would emit no CSS.
+//
+// ⚠️ These subtract (cards − 1) × the DESKTOP gap. The gap is `md:gap-4` = 1rem
+// (tightened from gap-6 on 2026-08-03: at five cards a 24px channel read as a
+// hole between them). Change the gap class and every fraction below must change
+// with it, or the deck shows a sliver of the next card instead of whole ones.
+const CELL_BASIS: Record<2 | 3 | 4 | 5, string> = {
+    2: 'md:w-[calc((100%-1rem)/2)]',
+    3: 'md:w-[calc((100%-1rem)/2)] lg:w-[calc((100%-2rem)/3)]',
+    4: 'md:w-[calc((100%-1rem)/2)] lg:w-[calc((100%-3rem)/4)]',
+    // 5 steps through 3-up at lg before going 5-up at xl: five cards in a
+    // 1152px container is ~211px each, which is about as narrow as a product
+    // card reads, and below xl there simply is not room for them.
+    5: 'md:w-[calc((100%-1rem)/2)] lg:w-[calc((100%-2rem)/3)] xl:w-[calc((100%-4rem)/5)]',
 }
 
 // Sub-`md` cell width. 1 (default) shows a single card at 85% so the next one
@@ -74,8 +98,11 @@ function gapOf(el: HTMLElement): number {
     return Number.isFinite(gap) ? gap : 0
 }
 
-export function Carousel({ariaLabel, perView = 3, perViewMobile = 1, tone = 'default', arrowPlacement = 'gutter', header, children}: CarouselProps) {
+export function Carousel({ariaLabel, perView = 3, perViewMobile = 1, tone = 'default', arrowPlacement = 'gutter', mobileControls, header, children}: CarouselProps) {
     const headerControls = header != null
+    // Mobile treatment defaults to the header slot's old implication, so
+    // omitting `mobileControls` reproduces the previous coupling exactly.
+    const usesDots = (mobileControls ?? (headerControls ? 'dots' : 'arrows')) === 'dots'
     const scrollRef = useRef<HTMLDivElement>(null)
     const [showButtons, setShowButtons] = useState(false)
     const [canPrev, setCanPrev] = useState(false)
@@ -117,10 +144,11 @@ export function Carousel({ariaLabel, perView = 3, perViewMobile = 1, tone = 'def
     const pageBy = (direction: 1 | -1) => {
         const el = scrollRef.current
         if (!el) return
-        // Header mode pages by a whole view (perView cards): one page stride is
-        // perView * (cell + gap) = clientWidth + gap. Legacy keeps its partial
-        // advance so the edge arrows behave as they always have.
-        const amount = headerControls ? el.clientWidth + gapOf(el) : el.clientWidth * 0.8
+        // A dotted deck pages by a whole view (perView cards): one page stride is
+        // perView * (cell + gap) = clientWidth + gap, so a page lands on a cell
+        // edge and the active dot stays truthful. Legacy arrow decks keep their
+        // partial advance so the edge arrows behave as they always have.
+        const amount = usesDots ? el.clientWidth + gapOf(el) : el.clientWidth * 0.8
         el.scrollBy({left: direction * amount, behavior: 'smooth'})
     }
 
@@ -174,7 +202,8 @@ export function Carousel({ariaLabel, perView = 3, perViewMobile = 1, tone = 'def
                     // scrollport back out so cards still line up with the section
                     // gutter; scroll-pl-2 keeps `snap-start` landing on the card edge
                     // rather than the padding edge.
-                    className="flex gap-3 md:gap-6 overflow-x-auto p-2 -m-2 scroll-pl-2 snap-x snap-mandatory scroll-smooth [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]"
+                    // md:gap-4 is load-bearing — CELL_BASIS above subtracts it.
+                    className="flex gap-3 md:gap-4 overflow-x-auto p-2 -m-2 scroll-pl-2 snap-x snap-mandatory scroll-smooth [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]"
                 >
                     {React.Children.map(children, (child, index) => (
                         // *:w-full — the cell is a flex container (so cards stretch to
@@ -193,14 +222,18 @@ export function Carousel({ariaLabel, perView = 3, perViewMobile = 1, tone = 'def
                 {!headerControls && showButtons && (
                     <>
                         {/* At xl+ the arrows sit in the section gutter OUTSIDE the deck
-                            (max-w-5xl content leaves ≥128px of gutter from 1280px up);
-                            narrower viewports have too little gutter, so they overlay
-                            the deck edges instead. */}
+                            where there is room for them; narrower viewports have too
+                            little gutter, so they overlay the deck edges instead.
+                            ⚠️ The gutter shrank when the shared frame widened to
+                            max-w-6xl — 'gutter' now needs a wider viewport before the
+                            arrows clear the content, so re-measure before assuming it.
+                            `max-md:hidden` only when the deck carries dots: the two
+                            mobile treatments are alternatives, never both at once. */}
                         <button
                             type="button"
                             aria-label="Previous"
                             onClick={() => pageBy(-1)}
-                            className={`absolute left-2 top-1/2 -translate-y-1/2 rounded-full bg-(--sf-accent) p-2 text-white shadow-md transition-colors ${ACCENT_BUTTON_HOVER} ${SF_FOCUS_RING_PAGE} ${arrowPlacement === 'gutter' ? 'xl:-left-14' : ''}`}
+                            className={`absolute left-2 top-1/2 -translate-y-1/2 rounded-full bg-(--sf-accent) p-2 text-white shadow-md transition-colors ${ACCENT_BUTTON_HOVER} ${SF_FOCUS_RING_PAGE} ${arrowPlacement === 'gutter' ? 'xl:-left-14' : ''}${usesDots ? ' max-md:hidden' : ''}`}
                         >
                             <ChevronLeft className="h-5 w-5"/>
                         </button>
@@ -208,7 +241,7 @@ export function Carousel({ariaLabel, perView = 3, perViewMobile = 1, tone = 'def
                             type="button"
                             aria-label="Next"
                             onClick={() => pageBy(1)}
-                            className={`absolute right-2 top-1/2 -translate-y-1/2 rounded-full bg-(--sf-accent) p-2 text-white shadow-md transition-colors ${ACCENT_BUTTON_HOVER} ${SF_FOCUS_RING_PAGE} ${arrowPlacement === 'gutter' ? 'xl:-right-14' : ''}`}
+                            className={`absolute right-2 top-1/2 -translate-y-1/2 rounded-full bg-(--sf-accent) p-2 text-white shadow-md transition-colors ${ACCENT_BUTTON_HOVER} ${SF_FOCUS_RING_PAGE} ${arrowPlacement === 'gutter' ? 'xl:-right-14' : ''}${usesDots ? ' max-md:hidden' : ''}`}
                         >
                             <ChevronRight className="h-5 w-5"/>
                         </button>
@@ -216,7 +249,7 @@ export function Carousel({ariaLabel, perView = 3, perViewMobile = 1, tone = 'def
                 )}
             </div>
 
-            {headerControls && showButtons && (
+            {usesDots && showButtons && (
                 <div className="mt-4 flex flex-col items-center gap-1 md:hidden">
                     <div className="flex items-center gap-1.5">
                         {Array.from({length: cellCount}).map((_, index) => (

@@ -22,11 +22,18 @@ export function TestimonialsSection({section}: { section: TestimonialsSectionCon
 
     const {data: testimonials, isLoading, isError} = useTestimonials()
 
-    const columnClasses: Record<1 | 2 | 3, string> = {
+    // Grid-layout column counts. Complete literal class strings — Tailwind
+    // scans source text, so an interpolated `grid-cols-${n}` emits no CSS.
+    const columnClasses: Record<1 | 2 | 3 | 4, string> = {
         1: 'grid-cols-1',
         2: 'grid-cols-2',
         3: 'grid-cols-3',
+        4: 'grid-cols-4',
     }
+
+    // Carousel per-view count. The Carousel has no 1-up desktop mode, so a
+    // single-column grid hint degrades to the narrowest deck it does support.
+    const carouselPerView: 2 | 3 | 4 = columns === 1 ? 2 : columns
 
     const isStacked = layout === 'stacked'
     const isDark = variant === 'dark'
@@ -107,6 +114,7 @@ export function TestimonialsSection({section}: { section: TestimonialsSectionCon
             {layout === 'carousel' ? (
                 <Carousel
                     ariaLabel={title}
+                    perView={carouselPerView}
                     {...(resolvedControls === 'header'
                         ? {header: <SectionHeading eyebrow={eyebrow} title={title} className="mb-0"/>}
                         : resolvedControls === 'overlay'

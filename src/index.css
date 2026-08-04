@@ -1,6 +1,26 @@
 @import "tailwindcss";
 @import "./shared/ui/primitives/surface/tokens.css";
 
+/*
+  Mobile type scale.
+
+  Phones got the desktop scale verbatim, which reads small in the hand — the
+  catalogue is built from text-xs/text-sm rows (SKU, stock, both price tiers).
+  Rather than re-tune dozens of components (and drift the two scales apart),
+  this lifts the ROOT font size below the `sm` breakpoint: Tailwind's type,
+  spacing and sizing utilities are all rem-based, so the whole storefront scales
+  proportionally and every carefully-aligned deck keeps its alignment.
+
+  17px (+6.25%) deliberately, not more: it is the largest step that leaves the
+  two-up product grid and the 375px filter drawer laid out exactly as measured.
+  Bumping this further requires re-checking those at 375x667.
+*/
+@media (max-width: 639px) {
+    :root {
+        font-size: 106.25%;
+    }
+}
+
 :root {
     --primary: #3b82f6;
     --primary-hover: #2563eb;
@@ -331,6 +351,25 @@
 [data-variant="dark"] p,
 [data-variant="dark"] blockquote {
     color: rgba(255, 255, 255, 0.82);
+}
+
+/* On a dark band the eyebrow's TEXT takes the heading's colour (owner directive
+   2026-08-03) — the accent measures ~1.6:1 on this base, which was legible in
+   theory and unappealing in practice. Its RULE stays the accent, so the brand
+   mark survives; that needs no entry here because a <span> is not matched by the
+   `p` selector above, so the component's own class wins.
+
+   Matching the h1–h6 value exactly, not merely "some white": the eyebrow sits
+   directly above its heading, and two near-but-not-equal whites read as a
+   mistake.
+
+   ⚠️ This MUST live here rather than as a Tailwind class on the element.
+   `in-data-[variant=dark]:text-…` compiles to `:where([data-variant="dark"] *)`,
+   and `:where()` contributes ZERO specificity — so that utility is (0,1,0) and
+   loses to the rule above at (0,1,1). Verified in the built CSS, not assumed.
+   The same trap applies to any future attempt to recolour a <p> in a dark band. */
+[data-variant="dark"] p[data-eyebrow] {
+    color: rgba(255, 255, 255, 0.95);
 }
 
 [data-variant="dark"] .text-muted {

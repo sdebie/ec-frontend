@@ -1,7 +1,7 @@
 import {useEffect, useState} from 'react'
 import {type FieldPath, useForm} from 'react-hook-form'
 import {zodResolver} from '@hookform/resolvers/zod'
-import {ACCENT_BUTTON_HOVER, SF_FOCUS_RING_PAGE, Section, SectionHeading} from '@/storefront/sections/shared'
+import {ACCENT_BUTTON_HOVER, PageDivider, Section, SectionHeading, SF_FOCUS_RING_PAGE} from '@/storefront/sections/shared'
 import {Stepper} from '@/shared/ui/components'
 import {useCustomerAuthStore} from '@/shared/auth/customerAuthStore'
 import {
@@ -83,6 +83,8 @@ export function WholesaleApplicationPage() {
                 subtitle="Apply for wholesale pricing in five quick steps — applications are reviewed within 2–3 business days."
                 className="mb-4"
             />
+
+            <PageDivider className="mb-6"/>
 
             <div className="rounded-lg border border-(--sf-border) bg-(--sf-panel) shadow-sm">
                 <div className="border-b border-(--sf-border) px-6 py-5 sm:px-8">

@@ -35,12 +35,12 @@ describe('StatsSection', () => {
             expect(section).toHaveClass('py-12', 'px-6', 'sm:px-8')
         })
 
-        it('inner container has mx-auto max-w-5xl', () => {
+        it('inner container has mx-auto max-w-6xl', () => {
             const {container} = renderStats()
             const section = container.querySelector('section')!
             const inner = section.firstElementChild as HTMLElement
 
-            expect(inner).toHaveClass('mx-auto', 'max-w-5xl')
+            expect(inner).toHaveClass('mx-auto', 'max-w-6xl')
         })
     })
 

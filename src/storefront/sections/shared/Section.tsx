@@ -1,9 +1,10 @@
 import {cn} from '@/shared/utils/cn'
 import type {ReactNode} from 'react'
+import {SECTION_WIDTH_CLASS, type SectionWidth} from './sectionWidths'
 
 export interface SectionProps {
     variant?: 'light' | 'dark'
-    width?: 'narrow' | 'default' | 'wide'
+    width?: SectionWidth
     /**
      * Rendered element. Defaults to `section` for the stacked page bands this
      * was built for; pages that adopt the same rhythm pass `main` so the
@@ -12,12 +13,6 @@ export interface SectionProps {
     as?: 'section' | 'main' | 'div'
     className?: string
     children: ReactNode
-}
-
-const widthMap: Record<NonNullable<SectionProps['width']>, string> = {
-    narrow: 'max-w-2xl',
-    default: 'max-w-5xl',
-    wide: 'max-w-7xl',
 }
 
 /**
@@ -51,7 +46,7 @@ export function Section({
                     : undefined
             }
         >
-            <div className={cn('mx-auto', widthMap[width])}>
+            <div className={cn('mx-auto', SECTION_WIDTH_CLASS[width])}>
                 {children}
             </div>
         </Tag>

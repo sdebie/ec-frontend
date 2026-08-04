@@ -5,6 +5,7 @@ import { resolveImageUrl } from '@/shared/utils/imageUrl'
 import { waMeUrl } from '@/shared/utils/waMeUrl'
 import { socialIconMap } from '@/shared/ui/icons'
 import { SF_FOCUS_RING, SOCIAL_CHIP_CLASS } from '@/storefront/sections/shared/focusRing'
+import { SECTION_WIDTH_CLASS } from '@/storefront/sections/shared/sectionWidths'
 import type { ContactConfig, FooterColumn, FooterLegalLink, FooterSocialLink } from '@/shared/types/StorefrontConfig'
 
 function SocialIcon({ link }: { link: FooterSocialLink }) {
@@ -151,11 +152,15 @@ export function FooterContactBlock({ contact }: { contact: ContactConfig }) {
 // Desktop column count follows how many columns actually render (seeded columns
 // plus the contact column when the client has contact details). Complete literal
 // class strings — Tailwind scans source text, so `lg:grid-cols-${n}` emits nothing.
+// Applied from `sm` rather than `lg` (owner directive 2026-08-03): the four
+// lists go side by side as soon as there is room for them, instead of sitting as
+// a 2×2 block all the way up to the large breakpoint. The phone keeps 2×2 — see
+// the base class on the grid below.
 const FOOTER_COLS_CLASS: Record<number, string> = {
-  1: 'lg:grid-cols-1',
-  2: 'lg:grid-cols-2',
-  3: 'lg:grid-cols-3',
-  4: 'lg:grid-cols-4',
+  1: 'sm:grid-cols-1',
+  2: 'sm:grid-cols-2',
+  3: 'sm:grid-cols-3',
+  4: 'sm:grid-cols-4',
 }
 
 function NavigationColumns({ columns, leading }: { columns: FooterColumn[]; leading?: React.ReactNode }) {
@@ -163,6 +168,9 @@ function NavigationColumns({ columns, leading }: { columns: FooterColumn[]; lead
   const colsClass = FOOTER_COLS_CLASS[Math.min(count, 4)] ?? FOOTER_COLS_CLASS[4]
 
   return (
+    // Two columns from the smallest screen up (owner directive 2026-08-03), so
+    // the four lists read as 2×2 on a phone — Get in touch | Products above
+    // Company | Legal — rather than one long stack.
     <div className={`grid grid-cols-2 gap-8 ${colsClass}`}>
       {leading}
       {columns.map((column) => (
@@ -207,7 +215,17 @@ export function StorefrontFooter() {
 
   return (
     <footer style={{ backgroundColor: 'var(--sf-nav-background)', color: 'var(--sf-nav-text)' }}>
-      <div className="mx-auto max-w-7xl px-4 py-12">
+      {/* No opening rule (owner directive 2026-08-03): the footer runs straight
+          on from the dark band above it. The top padding carries the separation
+          the removed seam used to provide, so the brand block sits where it
+          always has rather than crowding the band. */}
+      {/* Gutter and width are the shared Section frame's, read from the same
+          constant the sections use — the footer was on `px-4` + `max-w-7xl`
+          while every section above it ran `px-6 sm:px-8` + max-w-6xl, so its
+          content started 8px out on a phone and 48px out on desktop. Nothing
+          about the footer was wrong in isolation; it simply never lined up with
+          the page. */}
+      <div className={`mx-auto ${SECTION_WIDTH_CLASS.default} px-6 pb-12 pt-14 sm:px-8`}>
         <div className="grid gap-8 lg:grid-cols-12">
           {/* Brand column */}
           <div className="lg:col-span-4">
@@ -270,7 +288,9 @@ export function StorefrontFooter() {
           )}
         </div>
 
-        {/* Bottom bar */}
+        {/* Bottom bar — its rule tracks the content container's width (owner
+            directive 2026-08-03), so it starts and ends with the columns above
+            it rather than running to the viewport edges. */}
         <div
           className="mt-12 flex flex-col items-center gap-4 pt-8 lg:flex-row lg:justify-between"
           style={{ borderTopWidth: '1px', borderTopStyle: 'solid', borderTopColor: 'var(--sf-nav-border)' }}

@@ -313,11 +313,13 @@ describe('WishlistPage', () => {
     describe('purchasable item (inStock: true, productActive: true)', () => {
         beforeEach(() => setupHydrated([makePurchasableItem()]))
 
-        it('renders quantity stepper and "Add to cart" button', () => {
+        it('renders an "Add to cart" button and no quantity control', () => {
             renderPage()
-            expect(screen.getByRole('button', {name: /increase quantity/i})).toBeInTheDocument()
-            expect(screen.getByRole('button', {name: /decrease quantity/i})).toBeInTheDocument()
             expect(screen.getByRole('button', {name: /add to cart/i})).toBeInTheDocument()
+            // The shared card lost its stepper (owner directive 2026-08-03);
+            // quantity is edited in the cart.
+            expect(screen.queryByRole('button', {name: /increase quantity/i})).not.toBeInTheDocument()
+            expect(screen.queryByRole('button', {name: /decrease quantity/i})).not.toBeInTheDocument()
         })
     })
 
@@ -384,11 +386,11 @@ describe('WishlistPage', () => {
     // ─── 4. Unknown stock / unknown productActive → purchasable ──────────────
 
     describe('unknown stock/productActive (null values)', () => {
-        it('inStock: null renders as purchasable (stepper + add)', () => {
+        it('inStock: null renders as purchasable (Add to cart, never Out of stock)', () => {
             setupHydrated([makePurchasableItem({variantId: 'v-null-stock', inStock: null, productActive: true})])
             renderPage()
-            expect(screen.getByRole('button', {name: /increase quantity/i})).toBeInTheDocument()
             expect(screen.getByRole('button', {name: /add to cart/i})).toBeInTheDocument()
+            expect(screen.queryByRole('button', {name: /out of stock/i})).not.toBeInTheDocument()
         })
 
         it('productActive: null renders as normal card (not notice row)', () => {

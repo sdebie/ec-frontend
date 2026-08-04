@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { ACCENT_BUTTON_HOVER, SF_FOCUS_RING_PAGE, Section } from '@/storefront/sections/shared'
+import { ACCENT_BUTTON_HOVER, SF_FOCUS_RING_PAGE, Section, SectionHeading } from '@/storefront/sections/shared'
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { z } from 'zod'
@@ -74,14 +74,16 @@ function ContactDetailsSection({ contact }: { contact: ContactConfig }) {
   const showMapLink = !!contact.mapUrl && isValidHttpsUrl(contact.mapUrl)
 
   return (
-    <div className="relative">
-      <p className="text-sm font-semibold uppercase tracking-[0.18em] text-(--sf-muted-text)">Contact</p>
-      <h1 className="mt-3 text-3xl font-bold tracking-tight text-(--sf-text) sm:text-4xl">Get in touch</h1>
-      <p className="mt-4 max-w-md text-base leading-7 text-(--sf-muted-text)">
+    <div>
+      {/* Column heading — the page title is the shared SectionHeading h1 above
+          the panel, so this is an h2 carrying the same treatment as the form
+          column's "Send us a message" beside it. */}
+      <h2 className="text-lg font-semibold text-(--sf-text)">Get in touch</h2>
+      <p className="mt-1 mb-6 text-sm text-(--sf-muted-text)">
         We are here to help with product enquiries, orders, and general questions.
       </p>
 
-      <dl className="mt-10 grid gap-x-10 gap-y-7 sm:grid-cols-2">
+      <dl className="grid gap-x-10 gap-y-7 sm:grid-cols-2">
         {contact.physicalAddress?.trim() && (
           <ContactDetail label="Address">
             <span className="whitespace-pre-line">{contact.physicalAddress}</span>
@@ -336,40 +338,59 @@ function EnquiryForm() {
 export function ContactUsPage() {
   const { contact } = useStorefrontConfig()
 
+  // The heading is present in EVERY state, so the empty state renders it too —
+  // the same rule CartPage and WishlistPage follow.
+  const heading = (
+    <>
+      <SectionHeading as="h1" title="Contact Us" className="mb-4" />
+      <div className="mb-6 border-t border-(--sf-border)" />
+    </>
+  )
+
   if (isContactEmpty(contact)) {
     return (
-      <div className="flex min-h-[50vh] items-center justify-center px-4">
-        <p className="text-sm text-(--sf-muted-text)">Contact information coming soon</p>
-      </div>
+      <Section as="div" width="wide">
+        {heading}
+        <div className="rounded-lg border border-(--sf-border) bg-(--sf-panel) px-6 py-16 text-center">
+          <p className="text-sm text-(--sf-muted-text)">Contact information coming soon</p>
+        </div>
+      </Section>
     )
   }
 
   const showForm = isValidEmail(contact?.enquiryEmail)
   const showMapEmbed = !!contact?.mapEmbedUrl && isApprovedMapEmbedUrl(contact.mapEmbedUrl)
 
-  // Determine grid layout: form gets its own column when present
+  // Determine grid layout: form gets its own column when present. The middle
+  // track is the rule ITSELF — see the comment on the rule cell below.
   const hasRightColumn = showForm || showMapEmbed
 
   return (
     <Section as="div" width="wide">
-      <div className="overflow-hidden rounded-2xl border border-(--sf-border) bg-(--sf-panel) shadow-(--sf-shadow-lg)">
-        <div className={hasRightColumn ? 'grid lg:grid-cols-2' : ''}>
+      {heading}
+
+      <div className="overflow-hidden rounded-lg border border-(--sf-border) bg-(--sf-panel)">
+        <div className={hasRightColumn ? 'grid grid-cols-1 lg:grid-cols-[1fr_1px_1fr]' : ''}>
           {/* Left: contact details */}
-          <section className="relative overflow-hidden px-6 py-10 sm:px-10 sm:py-12">
-            <div
-              aria-hidden="true"
-              className="absolute -right-20 -top-20 size-64 rounded-full border border-(--sf-accent-text) opacity-15"
-            />
-            <div
-              aria-hidden="true"
-              className="absolute -bottom-28 -left-24 size-72 rounded-full border border-(--sf-accent-text) opacity-10"
-            />
+          <section className="p-5 lg:p-6">
             <ContactDetailsSection contact={contact!} />
           </section>
 
+          {/* The rule is its own grid CELL rather than a border on the right
+              column, so it can be inset from the container's edges — a border
+              runs the full height and cannot carry margins. Same treatment as
+              the product detail page's gallery/purchase split. Below lg it
+              reflows to a horizontal rule without a second layout. */}
+          {hasRightColumn && (
+            <div
+              aria-hidden="true"
+              className="mx-5 h-px bg-(--sf-border) lg:mx-0 lg:my-6 lg:h-auto lg:w-px"
+            />
+          )}
+
           {/* Right: form or map */}
           {showForm && (
-            <section className="border-t border-(--sf-border) px-6 py-10 sm:px-10 sm:py-12 lg:border-l lg:border-t-0">
+            <section className="p-5 lg:p-6">
               <h2 className="text-lg font-semibold text-(--sf-text)">Send us a message</h2>
               <p className="mt-1 mb-6 text-sm text-(--sf-muted-text)">
                 Fill in the form below and we'll get back to you.
@@ -379,7 +400,7 @@ export function ContactUsPage() {
           )}
 
           {!showForm && showMapEmbed && (
-            <section className="min-h-80 border-t border-(--sf-border) lg:border-l lg:border-t-0">
+            <section className="min-h-80">
               <iframe
                 src={contact!.mapEmbedUrl}
                 title="Map location"
@@ -391,7 +412,9 @@ export function ContactUsPage() {
           )}
         </div>
 
-        {/* Map embed below the main content when form is shown */}
+        {/* Map embed below the main content when form is shown. This rule spans
+            the full width because the iframe is full-bleed — an inset rule
+            would leave the map's edge floating past it. */}
         {showForm && showMapEmbed && (
           <section className="min-h-80 border-t border-(--sf-border)">
             <iframe

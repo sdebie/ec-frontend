@@ -126,25 +126,28 @@ describe('CategoryShowcaseSection', () => {
         expect(screen.getByText('Medical Supplies')).toBeInTheDocument()
     })
 
-    it('renders its own h2 above the row and keeps the Carousel in header-controls mode', () => {
+    it('puts the heading INSIDE the Carousel header row at the "header" hint', () => {
         setupLoadedState()
 
         const {container} = renderWithRouter(
             <CategoryShowcaseSection section={buildSection({layout: 'carousel', carouselControls: 'header'})}/>,
         )
 
-        // Owner directive 2026-08-02: the section owns the heading at every hint
-        // so it spans the band above the image rail. The Carousel still runs in
-        // header-controls mode (arrows in the header row) — it just carries an
-        // sr-only title there instead of a second visible one.
+        // Rewrite 2026-08-03 — this REVERSES the 2026-08-02 directive that the
+        // section own a heading above the deck. That directive existed so the
+        // heading would not start inset by the 256px image rail; the rail is
+        // gone, the deck spans the container, and putting the heading in the
+        // Carousel's header row is what gets the prev/next buttons off the
+        // product cards. Exactly one h2 either way.
         const sectionEl = container.querySelector('section')!
-        const ownHeading = sectionEl.querySelector('h2')
-        expect(ownHeading).not.toBeNull()
-        expect(ownHeading!.textContent).toContain('Medical Supplies')
+        expect(sectionEl.querySelectorAll('h2')).toHaveLength(1)
 
         const region = screen.getByRole('region', {name: 'Medical Supplies'})
-        expect(region.querySelector('h2')).toBeNull()
-        expect(region.querySelector('.sr-only')?.textContent).toBe('Medical Supplies')
+        const heading = region.querySelector('h2')
+        expect(heading).not.toBeNull()
+        expect(heading!.textContent).toContain('Medical Supplies')
+        // No leftover sr-only stand-in now that the real heading lives here.
+        expect(region.querySelector('.sr-only')).toBeNull()
     })
 
     it('renders own h2 when carouselControls is "gutter" and passes gutter arrowPlacement', () => {
@@ -259,84 +262,43 @@ describe('CategoryShowcaseSection', () => {
         expect(img).toHaveAttribute('src', '/static/images/categories/medical.png')
     })
 
-    // --- Task 5b.2a / Req 6.2a: mobile icon vs md+ side rail ---
+    // --- Category graphic placement ---
     //
-    // jsdom does no layout, so these assert on placement CLASSES. The pairing
-    // matters: the `w-64` rail must stay `hidden md:flex` (it would otherwise eat
-    // two-thirds of a 375px viewport) and the inline icon must stay `md:hidden`.
+    // Rewritten 2026-08-03. There used to be TWO graphics: a `md:hidden` inline
+    // icon and a `hidden md:flex w-64` side rail. The rail is gone — it held the
+    // deck to three cards and rendered the artwork visibly smaller than a product
+    // card. There is now exactly ONE graphic, at heading scale, in the heading
+    // block at every breakpoint.
 
-    describe('image placement (Req 6.2a)', () => {
-        // Both graphics are wrapped in a category link, so the responsive
-        // classes live on the anchor — assert against that, not the <img>.
-        function imagesOf(container: HTMLElement) {
-            const all = Array.from(container.querySelectorAll('img[aria-hidden="true"]'))
-            return {
-                icon: all.find((el) => el.closest('a')?.className.includes('md:hidden')) as HTMLElement | undefined,
-                rail: all.find((el) => el.closest('.md\\:flex')) as HTMLElement | undefined,
-            }
+    describe('category graphic placement', () => {
+        function graphicsOf(container: HTMLElement) {
+            return Array.from(container.querySelectorAll('img[aria-hidden="true"]')) as HTMLElement[]
         }
 
-        it('renders the mobile icon inline and keeps the rail md+ only (default hint)', () => {
+        it('renders exactly one category graphic, at heading scale, with no side rail', () => {
             setupLoadedState()
 
             const {container} = renderWithRouter(<CategoryShowcaseSection
                 section={buildSection({imageUrl: 'categories/medical.png'})}/>)
 
-            const {icon, rail} = imagesOf(container)
+            const graphics = graphicsOf(container)
+            expect(graphics).toHaveLength(1)
 
-            expect(icon).toBeDefined()
-            expect(icon!.closest('a')!.className).toContain('md:hidden')
-            // The icon sits beside the title block in the heading row (not inside
-            // the h2), so the rule under the title tracks the TEXT on mobile
-            // rather than starting under the logo.
-            const headingRow = icon!.closest('a')!.parentElement!
+            // Regression guard: the removed rail's signature classes must not
+            // come back — they are what squeezed the deck to three cards.
+            expect(container.querySelector('.w-64')).toBeNull()
+            expect(container.querySelector('.md\\:hidden')).toBeNull()
+
+            // Heading-scale, not card-scale.
+            expect(graphics[0].className).toContain('h-16')
+            expect(graphics[0].className).toContain('w-16')
+
+            // It sits BESIDE the heading, not inside the h2 — so the accent rule
+            // under the title tracks the text rather than starting under the logo.
+            const headingRow = graphics[0].closest('a')!.parentElement!
             expect(headingRow.querySelector('h2')).not.toBeNull()
-            expect(icon!.closest('h2')).toBeNull()
-
-            expect(rail).toBeDefined()
-            const railWrapper = rail!.closest('div')!
-            expect(railWrapper.className).toContain('hidden')
-            expect(railWrapper.className).toContain('md:flex')
-            expect(railWrapper.className).toContain('w-64')
-        })
-
-        it('keeps its own full-width h2 when carouselControls is "header"', () => {
-            setupLoadedState()
-
-            const {container} = renderWithRouter(<CategoryShowcaseSection
-                section={buildSection({
-                    imageUrl: 'categories/medical.png',
-                    layout: 'carousel',
-                    carouselControls: 'header',
-                })}/>)
-
-            // Owner directive 2026-08-02: the heading spans the band above the
-            // image + deck row for EVERY hint, so it shares a left margin with
-            // the desktop icon rail. Under 'header' the Carousel keeps only its
-            // arrow row, so the title must not be duplicated.
-            const sectionEl = container.querySelector('section')!
-            const ownHeading = sectionEl.querySelector('h2')
-            expect(ownHeading).not.toBeNull()
-            expect(ownHeading!.textContent).toContain('Medical Supplies')
-
-            // Exactly one visible rendering of the title — the Carousel's own
-            // header slot carries it as screen-reader-only text.
-            const visibleHeadings = screen.getAllByText('Medical Supplies')
-                .filter((el) => !el.className.includes('sr-only'))
-            expect(visibleHeadings).toHaveLength(1)
-
-            const {icon, rail} = imagesOf(container)
-            expect(icon).toBeDefined()
-            expect(icon!.closest('a')!.className).toContain('md:hidden')
-            // Mobile order is icon THEN heading: the icon is the heading row's
-            // first child, with the title block after it.
-            const headingRow = icon!.closest('a')!.parentElement!
-            expect(headingRow.firstElementChild).toBe(icon!.closest('a'))
-            expect(headingRow.querySelector('h2')).toBe(ownHeading)
-
-            // The md+ rail is unaffected by the hint.
-            expect(rail).toBeDefined()
-            expect(rail!.closest('div')!.className).toContain('md:flex')
+            expect(graphics[0].closest('h2')).toBeNull()
+            expect(headingRow.firstElementChild).toBe(graphics[0].closest('a'))
         })
 
         it('renders the heading in white (accent-text token) on the gradient band', () => {
@@ -350,21 +312,16 @@ describe('CategoryShowcaseSection', () => {
             expect(heading.className).toContain('text-(--sf-accent-text)')
         })
 
-        it('links both graphics into the catalogue filtered by this category', () => {
+        it('links the graphic into the catalogue filtered by this category', () => {
             setupLoadedState()
 
             const {container} = renderWithRouter(<CategoryShowcaseSection
                 section={buildSection({imageUrl: 'categories/medical.png', categorySlug: 'medical'})}/>)
 
-            const {icon, rail} = imagesOf(container)
-            const hrefs = [icon, rail].map((el) => el!.closest('a')!.getAttribute('href'))
-
-            expect(hrefs).toEqual([
-                '/products?category=medical',
-                '/products?category=medical',
-            ])
+            const link = graphicsOf(container)[0].closest('a')!
+            expect(link.getAttribute('href')).toBe('/products?category=medical')
             // The <img> stays decorative, so the anchor carries the accessible name.
-            expect(icon!.closest('a')!.getAttribute('aria-label')).toBe('Shop Medical Supplies')
+            expect(link.getAttribute('aria-label')).toBe('Shop Medical Supplies')
         })
 
         it('encodes a category slug that needs escaping', () => {
@@ -378,8 +335,8 @@ describe('CategoryShowcaseSection', () => {
             const {container} = renderWithRouter(<CategoryShowcaseSection
                 section={buildSection({imageUrl: 'categories/medical.png', categorySlug: 'a b&c'})}/>)
 
-            const {rail} = imagesOf(container)
-            expect(rail!.closest('a')!.getAttribute('href')).toBe('/products?category=a%20b%26c')
+            expect(graphicsOf(container)[0].closest('a')!.getAttribute('href'))
+                .toBe('/products?category=a%20b%26c')
         })
 
         it('degrades text-first when the seeded image 404s', () => {

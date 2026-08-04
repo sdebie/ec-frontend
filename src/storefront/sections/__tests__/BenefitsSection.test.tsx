@@ -30,12 +30,12 @@ describe('BenefitsSection', () => {
             expect(sectionEl).toHaveClass('py-12', 'px-6', 'sm:px-8')
         })
 
-        it('renders an inner container with mx-auto and max-w-5xl (default width)', () => {
+        it('renders an inner container with mx-auto and max-w-6xl (default width)', () => {
             const {container} = render(<BenefitsSection section={buildSection()}/>)
 
             const sectionEl = container.querySelector('section')
             const inner = sectionEl?.firstElementChild
-            expect(inner).toHaveClass('mx-auto', 'max-w-5xl')
+            expect(inner).toHaveClass('mx-auto', 'max-w-6xl')
         })
     })
 
@@ -170,6 +170,80 @@ describe('BenefitsSection', () => {
             )
             expect(container.querySelector('.flex.items-center.gap-2')).not.toBeInTheDocument()
             expect(container.querySelector('svg')?.className.baseVal).toContain('mb-2')
+        })
+    })
+
+    describe('icon tone', () => {
+        function renderWithTone(iconTone?: 'soft' | 'solid') {
+            const {container} = render(
+                <BenefitsSection
+                    section={buildSection({
+                        iconPlacement: 'inline',
+                        ...(iconTone ? {iconTone} : {}),
+                        items: [{title: 'PPE', description: 'Desc', icon: 'hard-hat'}],
+                    })}
+                />,
+            )
+            const badge = container.querySelector('article span[aria-hidden="true"]')!
+            return {badge, icon: badge.querySelector('svg')!}
+        }
+
+        it('defaults to the soft wash with the icon in the accent itself', () => {
+            const {badge, icon} = renderWithTone()
+
+            expect(badge.className).toContain('var(--sf-accent)_10%')
+            expect(icon.className.baseVal).toContain('text-(--sf-accent)')
+        })
+
+        it('renders a muted accent tile with an accent-text icon when iconTone is solid', () => {
+            const {badge, icon} = renderWithTone('solid')
+
+            // Both colours are token arithmetic on --sf-accent, so the tile is
+            // the client's own brand colour — never a hardcoded maroon.
+            expect(badge.className).toContain('var(--sf-accent)_85%')
+            expect(badge.className).not.toContain('var(--sf-accent)_10%')
+            expect(icon.className.baseVal).toContain('text-(--sf-accent-text)')
+        })
+    })
+
+    describe('heading placement', () => {
+        it('keeps the heading above the cards by default', () => {
+            const {container} = render(<BenefitsSection section={buildSection()}/>)
+
+            const inner = container.querySelector('section > div')!
+            expect(inner.querySelector(':scope > .lg\\:grid')).toBeNull()
+            // Heading and grid are siblings, heading first.
+            expect(inner.firstElementChild?.querySelector('h2')).not.toBeNull()
+            expect(container.querySelector('.grid.gap-4')?.className).toContain('mt-6')
+        })
+
+        it('moves the heading into a left column beside the cards when headingPlacement is side', () => {
+            const {container} = render(
+                <BenefitsSection section={buildSection({headingPlacement: 'side'})}/>,
+            )
+
+            const split = container.querySelector('.lg\\:grid.lg\\:grid-cols-12')!
+            expect(split).toBeInTheDocument()
+
+            const [left, right] = Array.from(split.children)
+            expect(left.className).toContain('lg:col-span-4')
+            expect(left.querySelector('h2')).toHaveTextContent('Why Shop With Us')
+            expect(right.className).toContain('lg:col-span-8')
+            expect(right.querySelector('.grid.gap-4')).toBeInTheDocument()
+
+            // The heading's bottom margin and the grid's top margin both belong
+            // to the stacked breakpoints only — at lg the two sit side by side.
+            expect(left.firstElementChild?.className).toContain('lg:mb-0')
+            expect(right.querySelector('.grid.gap-4')?.className).toContain('lg:mt-0')
+        })
+
+        it('ignores headingPlacement when there is no title to put beside the cards', () => {
+            const {container} = render(
+                <BenefitsSection section={buildSection({title: undefined, headingPlacement: 'side'})}/>,
+            )
+
+            expect(container.querySelector('.lg\\:grid.lg\\:grid-cols-12')).toBeNull()
+            expect(container.querySelector('.grid.gap-4')?.className).not.toContain('mt-6')
         })
     })
 

@@ -2,7 +2,29 @@ import {useEffect, useRef, useState} from 'react'
 import {Link} from 'react-router-dom'
 import {useCartStore} from '@/storefront/cart/store/cartStore'
 import {ACCENT_BUTTON_HOVER, SF_FOCUS_RING_PAGE} from '@/storefront/sections/shared'
-import {QuantityStepper, QuantityStepperPlaceholder} from './QuantityStepper'
+
+/**
+ * The card's single action control. Every branch renders exactly one of these,
+ * so cards are the same height whether they buy, choose options or link out —
+ * this is what replaced the reserved stepper row that used to do that job.
+ *
+ * `primary` is the accent-filled treatment. "Select options" uses it too
+ * (owner directive 2026-08-03): it is the equivalent forward step for a variable
+ * product, and an outlined control beside a filled one read as disabled.
+ * `muted` stays reserved for genuinely unavailable states.
+ *
+ * border-transparent on the filled variants matches the 1px the outlined ones
+ * carry, so the two are exactly the same height.
+ *
+ * `relative z-10` lifts the control above ProductCard's stretched product link,
+ * which covers the whole card — without it "Add to cart" would navigate to the
+ * product page instead of adding. It goes on the control rather than on the
+ * wrapper because in `bar` mode that wrapper is `display: contents` below `sm`
+ * and can carry neither position nor stacking.
+ */
+const ACTION_BASE = 'relative z-10 inline-flex w-full items-center justify-center rounded-lg border px-4 py-2 text-sm font-medium transition-colors'
+const ACTION_PRIMARY = `${ACTION_BASE} border-transparent bg-(--sf-accent) text-(--sf-accent-text) ${ACCENT_BUTTON_HOVER} ${SF_FOCUS_RING_PAGE}`
+const ACTION_MUTED = `${ACTION_BASE} border-(--sf-border) text-(--sf-text) hover:bg-(--sf-surface-muted)`
 
 interface CardActionsProps {
     variantId: string | null
@@ -14,10 +36,16 @@ interface CardActionsProps {
     variantLabel?: string
     /**
      * Delegates the add action to the consumer instead of writing to the cart.
-     * When provided, clicking "Add to cart" calls this with the chosen quantity
-     * and NOTHING is written here — the consumer owns the flow (e.g. the wishlist
+     * When provided, clicking "Add to cart" calls this with the quantity and
+     * NOTHING is written here — the consumer owns the flow (e.g. the wishlist
      * confirms in a dialog, then adds and removes the item). Absent: the button
      * adds to the cart directly, which is the catalogue's behaviour.
+     *
+     * The card no longer has a quantity control (owner directive 2026-08-03), so
+     * this is always called with 1. The parameter stays because the contract is
+     * "add this many", not "add one" — the wishlist's bulk path and any future
+     * quantity affordance feed the same call, and the cart is where quantity is
+     * actually edited.
      */
     onRequestAdd?: (quantity: number) => void
     /**
@@ -37,7 +65,6 @@ interface CardActionsProps {
 }
 
 export function CardActions({variantId, productName, productSlug, inStock, hasPrice, outOfStockAction = 'disabled', variantLabel = '', onRequestAdd, layout = 'stack'}: CardActionsProps) {
-    const [quantity, setQuantity] = useState(1)
     const [showConfirmation, setShowConfirmation] = useState(false)
     const confirmationTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null)
 
@@ -49,28 +76,23 @@ export function CardActions({variantId, productName, productSlug, inStock, hasPr
         }
     }, [])
 
-    // In `bar` mode the wrapper disappears below sm so the controls inside it
-    // become items of the PARENT's layout; from sm the original box returns.
+    // In `bar` mode the wrapper disappears below sm so the control inside it
+    // becomes an item of the PARENT's layout; from sm the original box returns.
     // Complete literal class strings — an interpolated `sm:${…}` never reaches
     // Tailwind's scanner and would emit no CSS.
-    // `stack` reserves the stepper row above a single control so mixed decks
-    // align. `bar` does not: below sm its wrapper is `display: contents`, so a
-    // reserve would inject a stray item into the PARENT's row layout.
-    const singleClass = layout === 'bar' ? 'contents sm:mt-3 sm:block' : 'mt-3 flex flex-col gap-2'
-    const reserve = layout === 'bar' ? null : <QuantityStepperPlaceholder/>
-    const stackClass =
-        layout === 'bar'
-            ? 'contents sm:mt-3 sm:flex sm:flex-col sm:gap-2'
-            : 'mt-3 flex flex-col gap-2'
+    //
+    // Every branch renders a single control of identical height, so there is
+    // nothing left to reserve — the QuantityStepperPlaceholder that used to keep
+    // mixed decks aligned went out with the stepper itself.
+    const singleClass = layout === 'bar' ? 'contents sm:mt-3 sm:block' : 'mt-3'
 
     // No price → just a link to PDP
     if (!hasPrice) {
         return (
             <div className={singleClass}>
-                {reserve}
                 <Link
                     to={`/products/${productSlug}`}
-                    className="inline-block text-sm font-medium text-(--sf-accent) hover:underline"
+                    className="relative z-10 inline-block text-sm font-medium text-(--sf-accent) hover:underline"
                 >
                     View product
                 </Link>
@@ -82,11 +104,7 @@ export function CardActions({variantId, productName, productSlug, inStock, hasPr
     if (variantId == null) {
         return (
             <div className={singleClass}>
-                {reserve}
-                <Link
-                    to={`/products/${productSlug}`}
-                    className="inline-flex w-full items-center justify-center rounded-lg border border-(--sf-border) px-4 py-2 text-sm font-medium text-(--sf-text) hover:bg-(--sf-surface-muted) transition-colors"
-                >
+                <Link to={`/products/${productSlug}`} className={ACTION_PRIMARY}>
                     Select options
                 </Link>
             </div>
@@ -100,11 +118,7 @@ export function CardActions({variantId, productName, productSlug, inStock, hasPr
         if (outOfStockAction === 'viewProduct') {
             return (
                 <div className={singleClass}>
-                    {reserve}
-                    <Link
-                        to={`/products/${productSlug}`}
-                        className="inline-flex w-full items-center justify-center rounded-lg border border-(--sf-border) px-4 py-2 text-sm font-medium text-(--sf-text) hover:bg-(--sf-surface-muted) transition-colors"
-                    >
+                    <Link to={`/products/${productSlug}`} className={ACTION_MUTED}>
                         View product
                     </Link>
                 </div>
@@ -113,11 +127,10 @@ export function CardActions({variantId, productName, productSlug, inStock, hasPr
 
         return (
             <div className={singleClass}>
-                {reserve}
                 <button
                     type="button"
                     disabled
-                    className="w-full rounded-lg px-4 py-2 text-sm font-medium bg-(--sf-surface-muted) text-(--sf-muted-text) cursor-not-allowed"
+                    className={`${ACTION_BASE} border-transparent bg-(--sf-surface-muted) text-(--sf-muted-text) cursor-not-allowed`}
                 >
                     Out of stock
                 </button>
@@ -125,11 +138,13 @@ export function CardActions({variantId, productName, productSlug, inStock, hasPr
         )
     }
 
-    // SIMPLE + in stock + has price
+    // SIMPLE + in stock + has price. The card adds exactly one; quantity is
+    // edited in the cart, which is the one place it can be reconciled against
+    // stock and price.
     function handleAddClick() {
         // Delegated mode: hand the intent to the consumer and write nothing here.
         if (onRequestAdd) {
-            onRequestAdd(quantity)
+            onRequestAdd(1)
             return
         }
 
@@ -137,10 +152,9 @@ export function CardActions({variantId, productName, productSlug, inStock, hasPr
             variantId: variantId!,
             productName,
             variantLabel,
-            quantity,
+            quantity: 1,
         })
 
-        setQuantity(1)
         setShowConfirmation(true)
         if (confirmationTimeoutRef.current) {
             clearTimeout(confirmationTimeoutRef.current)
@@ -151,20 +165,11 @@ export function CardActions({variantId, productName, productSlug, inStock, hasPr
     }
 
     return (
-        <div className={stackClass}>
-            <QuantityStepper
-                appearance="segmented"
-                quantity={quantity}
-                onIncrement={() => setQuantity((q) => q + 1)}
-                onDecrement={() => setQuantity((q) => Math.max(1, q - 1))}
-            />
+        <div className={singleClass}>
             <button
                 type="button"
                 onClick={handleAddClick}
-                // border-transparent matches the 1px the outlined "Select options" /
-                // "Out of stock" controls carry, so a purchasable card ends up
-                // exactly as tall as a variable one.
-                className={`w-full rounded-lg border border-transparent px-4 py-2 text-sm font-medium bg-(--sf-accent) text-(--sf-accent-text) transition-colors cursor-pointer ${ACCENT_BUTTON_HOVER} ${SF_FOCUS_RING_PAGE}`}
+                className={`${ACTION_PRIMARY} cursor-pointer`}
             >
                 {showConfirmation ? 'Added \u2713' : 'Add to cart'}
             </button>

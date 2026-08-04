@@ -3,7 +3,7 @@ import {Link} from 'react-router-dom'
 import type {BenefitsSectionConfig} from '@/shared/types/StorefrontConfig'
 import {cn} from '@/shared/utils/cn'
 
-import {Section, SectionHeading} from './shared'
+import {Section, SectionHeading, SectionIconBadge} from './shared'
 import {resolveSectionIcon} from './shared/sectionIcons'
 
 const explicitColsClass: Record<2 | 3 | 4, string> = {
@@ -40,22 +40,40 @@ export function BenefitsSection({section}: { section: BenefitsSectionConfig }) {
         variant,
         layout = 'cards',
         iconPlacement = 'top',
+        headingPlacement = 'above',
+        iconTone = 'soft',
         columns,
         items,
         footnote,
     } = section.props
 
-    return (
-        <Section variant={variant}>
-            {title && <SectionHeading title={title} subtitle={subtitle} eyebrow={eyebrow}/>}
+    // A side heading needs a heading to sit beside. Without a title the split
+    // would render an empty left column and squeeze the cards for nothing.
+    const isSideHeading = headingPlacement === 'side' && !!title
 
+    // Gap under the heading. With the heading beside the cards at `lg`+ the
+    // vertical gap belongs to the stacked breakpoints only — keeping `mt-6`
+    // there would drop the cards below the top of their own column.
+    const bodySpacing = title ? (isSideHeading ? 'mt-6 lg:mt-0' : 'mt-6') : undefined
+
+    const heading = title && (
+        <SectionHeading
+            title={title}
+            subtitle={subtitle}
+            eyebrow={eyebrow}
+            className={isSideHeading ? 'lg:mb-0' : undefined}
+        />
+    )
+
+    const body = (
+        <>
             {layout === 'strip' ? (
                 // The StatsSection band treatment: borderless divided blocks, centered.
                 <div
                     className={cn(
                         'grid grid-cols-1 divide-y divide-(--sf-border) in-data-[variant=dark]:divide-white/15 sm:grid-cols-2 sm:divide-x sm:divide-y-0',
                         stripLgColsClass(items.length, columns),
-                        title && 'mt-6',
+                        bodySpacing,
                     )}
                 >
                     {items.map((item) => {
@@ -78,7 +96,7 @@ export function BenefitsSection({section}: { section: BenefitsSectionConfig }) {
                     })}
                 </div>
             ) : (
-                <div className={cn('grid gap-4', gridColsClass(items.length, columns), title && 'mt-6')}>
+                <div className={cn('grid gap-4', gridColsClass(items.length, columns), bodySpacing)}>
                     {items.map((item) => {
                         const IconComponent = resolveSectionIcon(item.icon, 'BenefitsSection')
 
@@ -88,16 +106,11 @@ export function BenefitsSection({section}: { section: BenefitsSectionConfig }) {
                                 className="rounded-lg border border-(--sf-border) bg-(--sf-panel) p-5 shadow-(--sf-shadow-sm) in-data-[variant=dark]:border-white/10 in-data-[variant=dark]:bg-white/5"
                             >
                                 {iconPlacement === 'inline' ? (
-                                    // Same icon badge the promo-grid tiles use, so a tile reads the
-                                    // same wherever it appears on the storefront.
+                                    // The same shared badge the promo-grid tiles use, so a tile
+                                    // reads the same wherever it appears on the storefront.
                                     <div className="flex items-center gap-3">
                                         {IconComponent && (
-                                            <span
-                                                className="inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-[color-mix(in_srgb,var(--sf-accent)_10%,transparent)]"
-                                                aria-hidden="true"
-                                            >
-                                              <IconComponent className="h-5 w-5 text-(--sf-accent)"/>
-                                            </span>
+                                            <SectionIconBadge icon={IconComponent} tone={iconTone}/>
                                         )}
                                         <h3 className="font-medium text-(--sf-text) in-data-[variant=dark]:text-inherit">{item.title}</h3>
                                     </div>
@@ -117,6 +130,26 @@ export function BenefitsSection({section}: { section: BenefitsSectionConfig }) {
                         )
                     })}
                 </div>
+            )}
+        </>
+    )
+
+    return (
+        <Section variant={variant}>
+            {isSideHeading ? (
+                // Heading left, cards right at `lg`+. The heading column is
+                // deliberately the narrower of the two: it holds a title and at
+                // most a subtitle, so giving it a third leaves the cards the
+                // room they need instead of stranding whitespace beside it.
+                <div className="lg:grid lg:grid-cols-12 lg:gap-10">
+                    <div className="lg:col-span-4">{heading}</div>
+                    <div className="lg:col-span-8">{body}</div>
+                </div>
+            ) : (
+                <>
+                    {heading}
+                    {body}
+                </>
             )}
 
             {footnote && footnote.length > 0 && (

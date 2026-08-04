@@ -33,13 +33,13 @@ describe('AccreditorsSection', () => {
             expect(sectionEl).toHaveClass('py-12', 'px-6', 'sm:px-8')
         })
 
-        it('renders an inner container with mx-auto and max-w-5xl', () => {
+        it('renders an inner container with mx-auto and max-w-6xl', () => {
             const section = buildSection({title: 'Accreditations'})
             const {container} = render(<AccreditorsSection section={section}/>)
 
             const sectionEl = container.querySelector('section')
             const inner = sectionEl?.firstElementChild
-            expect(inner).toHaveClass('mx-auto', 'max-w-5xl')
+            expect(inner).toHaveClass('mx-auto', 'max-w-6xl')
         })
     })
 
@@ -83,9 +83,8 @@ describe('AccreditorsSection', () => {
         const images = screen.getAllByRole('img')
         expect(images).toHaveLength(3)
 
-        // Verify tile containers exist for each item (new DOM structure)
-        const tiles = container.querySelectorAll('.flex.h-28.w-52')
-        expect(tiles).toHaveLength(3)
+        // One tile per item, counted as the row's direct children.
+        expect(container.querySelector('[data-testid="accreditors-grid"]')!.children).toHaveLength(3)
     })
 
     it('logo with url is wrapped in anchor with target="_blank" and rel="noopener noreferrer"', () => {
@@ -107,7 +106,7 @@ describe('AccreditorsSection', () => {
         const {container} = render(<AccreditorsSection section={section}/>)
 
         // Image is rendered inside the tile wrapper div
-        const tile = container.querySelector('.flex.h-28.w-52')
+        const tile = container.querySelector('[data-testid="accreditors-grid"]')!.firstElementChild
         expect(tile).toBeInTheDocument()
         expect(tile?.querySelector('img')).toBeInTheDocument()
 
@@ -182,9 +181,19 @@ describe('AccreditorsSection — invariants', () => {
         const section = buildSection()
         const {container} = render(<AccreditorsSection section={section}/>)
 
-        const tiles = container.querySelectorAll('.flex.h-28.w-52')
-        const expectedClasses = ['h-28', 'w-52', 'sm:h-32', 'sm:w-64', 'lg:h-36', 'lg:w-72']
+        // The tiles are the row's direct children — a selector on specific size
+        // classes silently matched NOTHING when those classes changed, and this
+        // assertion then "passed" by iterating an empty list.
+        const tiles = Array.from(container.querySelector('[data-testid="accreditors-grid"]')!.children)
+        expect(tiles.length).toBeGreaterThan(0)
 
+        // An ASPECT RATIO, not a fixed height — that is what keeps every logo
+        // height-bound under object-contain, and therefore the same size.
+        // An ASPECT RATIO plus a mobile-only width cap. The cap is what keeps a
+        // phone logo smaller than a desktop one: a full-width single-column tile
+        // is wider than a desktop third-of-a-row, so without it the logos render
+        // LARGER on mobile than on desktop.
+        const expectedClasses = ['w-full', 'aspect-[5/2]', 'max-w-[240px]', 'sm:max-w-none']
         tiles.forEach((tile) => {
             expectedClasses.forEach((cls) => {
                 expect(tile).toHaveClass(cls)
@@ -208,10 +217,10 @@ describe('AccreditorsSection — invariants', () => {
         const section = buildSection() // 3 items
         const {container} = render(<AccreditorsSection section={section}/>)
 
-        const row = container.querySelector('.flex-wrap.justify-center')
+        const row = container.querySelector('[data-testid="accreditors-grid"]')
         expect(row).toBeInTheDocument()
 
-        const tiles = container.querySelectorAll('.flex.h-28.w-52')
+        const tiles = container.querySelector('[data-testid="accreditors-grid"]')!.children
         expect(tiles).toHaveLength(3)
     })
 
@@ -228,10 +237,10 @@ describe('AccreditorsSection — invariants', () => {
         })
         const {container} = render(<AccreditorsSection section={section}/>)
 
-        const row = container.querySelector('.flex-wrap.justify-center')
+        const row = container.querySelector('[data-testid="accreditors-grid"]')
         expect(row).toBeInTheDocument()
 
-        const tiles = container.querySelectorAll('.flex.h-28.w-52')
+        const tiles = container.querySelector('[data-testid="accreditors-grid"]')!.children
         expect(tiles).toHaveLength(6)
     })
 })

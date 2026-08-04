@@ -16,11 +16,11 @@ describe('Section', () => {
     expect(section.className).toContain('sm:px-8')
   })
 
-  it('contains inner mx-auto container with default width max-w-5xl', () => {
+  it('contains inner mx-auto container with default width max-w-6xl', () => {
     const { container } = render(<Section>Content</Section>)
     const inner = container.querySelector('section > div')!
     expect(inner.className).toContain('mx-auto')
-    expect(inner.className).toContain('max-w-5xl')
+    expect(inner.className).toContain('max-w-6xl')
   })
 
   it('width="narrow" applies max-w-2xl', () => {
@@ -108,6 +108,34 @@ describe('SectionHeading', () => {
     const rule = container.querySelector('span[aria-hidden="true"]')!
     expect(rule).toBeInTheDocument()
     expect(rule.className).toContain('bg-(--sf-accent)')
+  })
+
+  // Regression guard for a bug that a class-only assertion could never catch.
+  //
+  // `index.css` carries a blanket `[data-variant="dark"] p { color: … }` at
+  // specificity (0,1,1). Tailwind's `in-data-[variant=dark]:` variant compiles
+  // to `:where([data-variant="dark"] *)`, and `:where()` contributes ZERO
+  // specificity — so a utility override on this element is (0,1,0) and loses
+  // silently. The dark colour therefore lives in index.css, keyed on this
+  // attribute. jsdom has no CSS engine, so the only thing assertable here is
+  // that the hook the stylesheet needs is actually present.
+  it('carries the data-eyebrow hook the dark-variant stylesheet rule keys on', () => {
+    const { container } = render(<SectionHeading eyebrow="Featured" title="Title" />)
+    const eyebrow = container.querySelector('p')!
+
+    expect(eyebrow.hasAttribute('data-eyebrow')).toBe(true)
+    // The rule targets `p[data-eyebrow] > span` for the dash, so the dash must
+    // stay a direct child.
+    expect(eyebrow.querySelector(':scope > span[aria-hidden="true"]')).not.toBeNull()
+  })
+
+  it('does not carry a dark utility override that the cascade would discard', () => {
+    const { container } = render(<SectionHeading eyebrow="Featured" title="Title" />)
+    const eyebrow = container.querySelector('p')!
+
+    // Re-adding one would look like a fix in review and do nothing in the
+    // browser — the failure mode this element already shipped once.
+    expect(eyebrow.className).not.toContain('in-data-[variant=dark]:text-')
   })
 })
 
@@ -425,5 +453,64 @@ describe('Carousel', () => {
 
     expect(screen.queryByLabelText(/Go to item/)).not.toBeInTheDocument()
     expect(screen.queryByText('Swipe to browse')).not.toBeInTheDocument()
+  })
+
+  // ── mobileControls: the mobile treatment is independent of the header row ──
+
+  it('mobileControls="dots" gives a header-less deck the dotted mobile treatment', () => {
+    render(
+      <Carousel ariaLabel="Test" mobileControls="dots">
+        <div>Card 1</div>
+        <div>Card 2</div>
+        <div>Card 3</div>
+      </Carousel>
+    )
+    mockOverflow(getScroller())
+
+    // No header row: the arrows still float over the deck edges…
+    expect(screen.queryByRole('heading')).not.toBeInTheDocument()
+    expect(screen.getByLabelText('Previous').className).toContain('absolute')
+    // …but they yield to the dots on phones, so the two treatments never
+    // both appear at once.
+    expect(screen.getByLabelText('Previous').className).toContain('max-md:hidden')
+    expect(screen.getAllByLabelText(/Go to item \d/).length).toBe(3)
+    expect(screen.getByText('Swipe to browse')).toBeInTheDocument()
+  })
+
+  it('mobileControls="arrows" strips the dots from a header deck', () => {
+    render(
+      <Carousel ariaLabel="Test" header={<h2>Featured</h2>} mobileControls="arrows">
+        <div>Card 1</div>
+        <div>Card 2</div>
+      </Carousel>
+    )
+    mockOverflow(getScroller())
+
+    expect(screen.getByRole('heading', { name: 'Featured' })).toBeInTheDocument()
+    expect(screen.queryByLabelText(/Go to item/)).not.toBeInTheDocument()
+    expect(screen.queryByText('Swipe to browse')).not.toBeInTheDocument()
+  })
+
+  it('omitting mobileControls preserves the old header-implies-dots coupling', () => {
+    const {unmount} = render(
+      <Carousel ariaLabel="Test" header={<h2>Featured</h2>}>
+        <div>Card 1</div>
+        <div>Card 2</div>
+      </Carousel>
+    )
+    mockOverflow(getScroller())
+    expect(screen.getByText('Swipe to browse')).toBeInTheDocument()
+    unmount()
+
+    render(
+      <Carousel ariaLabel="Test">
+        <div>Card 1</div>
+        <div>Card 2</div>
+      </Carousel>
+    )
+    mockOverflow(getScroller())
+    expect(screen.queryByText('Swipe to browse')).not.toBeInTheDocument()
+    // The legacy floating arrows keep showing on phones — no max-md:hidden.
+    expect(screen.getByLabelText('Previous').className).not.toContain('max-md:hidden')
   })
 })

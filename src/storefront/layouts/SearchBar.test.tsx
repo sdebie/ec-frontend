@@ -87,18 +87,45 @@ describe('SearchBar', () => {
     })
   })
 
-  describe('pre-population from ?q= param', () => {
-    it('pre-populates input value from ?q= URL param', () => {
+  /*
+    Owner directive 2026-08-04: this box is a DRAFT box, independent of the
+    filter sidebar's Search field. It holds only what is being typed now, and
+    the applied term is shown in exactly one place — the sidebar, beside the chip
+    that removes it.
+
+    These replace an earlier "pre-population from ?q=" suite that asserted the
+    opposite. That mirroring is what put the same value in two controls: the box
+    stayed populated after a search with no way to clear it from here, and a term
+    typed in the sidebar reappeared up here as if the header had been used.
+  */
+  describe('independence from the applied search', () => {
+    it('starts empty even when a search is already applied', () => {
       renderSearchBar(['/products?q=headphones'])
 
-      const input = screen.getByRole('searchbox', { name: /search products/i })
-      expect(input).toHaveValue('headphones')
+      expect(screen.getByRole('searchbox', { name: /search products/i })).toHaveValue('')
     })
 
-    it('shows empty input when ?q= param is absent', () => {
-      renderSearchBar(['/products'])
+    it('stays empty when the sidebar changes the applied term', () => {
+      const { rerender } = renderSearchBar(['/products?q=headphones'])
+
+      // The sidebar publishes a new term; the URL changes underneath this box.
+      rerender(
+        <MemoryRouter initialEntries={['/products?q=gloves']}>
+          <SearchBar />
+        </MemoryRouter>
+      )
+
+      expect(screen.getByRole('searchbox', { name: /search products/i })).toHaveValue('')
+    })
+
+    it('empties itself once the term has been handed to the catalogue', async () => {
+      const user = userEvent.setup()
+      renderSearchBar()
 
       const input = screen.getByRole('searchbox', { name: /search products/i })
+      await user.type(input, 'headphones{Enter}')
+
+      expect(mockNavigate).toHaveBeenCalledWith('/products?q=headphones')
       expect(input).toHaveValue('')
     })
   })
@@ -112,6 +139,52 @@ describe('SearchBar', () => {
       await user.type(input, 'typing')
 
       expect(mockNavigate).not.toHaveBeenCalled()
+    })
+  })
+
+  /*
+    The clear button discards the DRAFT. It must not revoke an applied search —
+    that belongs to the sidebar field and the chip, which are where the applied
+    term is visible. A control here that silently changed the results would be
+    acting on state this box no longer represents.
+  */
+  describe('clear button', () => {
+    it('is absent while nothing has been typed, even with a search applied', () => {
+      renderSearchBar(['/products?q=headphones'])
+
+      expect(screen.queryByRole('button', { name: /clear search/i })).not.toBeInTheDocument()
+    })
+
+    it('appears once something has been typed', async () => {
+      const user = userEvent.setup()
+      renderSearchBar(['/products'])
+
+      await user.type(screen.getByRole('searchbox', { name: /search products/i }), 'dra')
+
+      expect(screen.getByRole('button', { name: /clear search/i })).toBeInTheDocument()
+    })
+
+    it('empties the draft without navigating or touching the applied search', async () => {
+      const user = userEvent.setup()
+      renderSearchBar(['/products?q=headphones&category=audio'])
+
+      const input = screen.getByRole('searchbox', { name: /search products/i })
+      await user.type(input, 'draft')
+      await user.click(screen.getByRole('button', { name: /clear search/i }))
+
+      expect(input).toHaveValue('')
+      expect(mockNavigate).not.toHaveBeenCalled()
+      expect(window.location.search).not.toContain('draft')
+    })
+  })
+
+  describe('mobile sizing', () => {
+    it('renders the input at 16px+ below md so iOS does not zoom the viewport on focus', () => {
+      renderSearchBar(['/products'])
+
+      const input = screen.getByRole('searchbox', { name: /search products/i })
+      expect(input.className).toContain('text-base')
+      expect(input.className).toContain('md:text-sm')
     })
   })
 })

@@ -3,7 +3,8 @@ import {Link} from 'react-router-dom'
 import {cn} from '@/shared/utils/cn'
 import {resolveImageUrl} from '@/shared/utils/imageUrl'
 import type {BenefitsFootnoteSegment, HeroContentSurface, HeroSectionConfig} from '@/shared/types/StorefrontConfig'
-import {ACCENT_BUTTON_HOVER, SF_FOCUS_RING_PAGE} from './shared'
+import {ACCENT_BUTTON_HOVER, SECTION_WIDTH_CLASS, SectionEyebrow, SF_FOCUS_RING_PAGE} from './shared'
+import type {EyebrowTone} from './shared'
 
 // Text/kicker colour per surface. Every value is a theme token — no client
 // palette lives here, only the mapping from semantic surface -> token.
@@ -19,10 +20,14 @@ const SURFACE_SUBTITLE_CLASS: Record<HeroContentSurface, string> = {
     dark: 'text-(--sf-accent-text)/80',
 }
 
-const SURFACE_KICKER_CLASS: Record<HeroContentSurface, string> = {
-    default: 'text-(--sf-accent)',
-    brand: 'text-(--sf-accent-text)/90',
-    dark: 'text-(--sf-accent-text)/90',
+// The hero kicker IS a SectionEyebrow — same component every section heading
+// uses — so this maps the hero's surface vocabulary onto that component's tone.
+// `brand` sits on the accent colour itself, where an accent rule would vanish;
+// `dark` is a photo or dark chrome, where the accent rule still reads as brand.
+const SURFACE_EYEBROW_TONE: Record<HeroContentSurface, EyebrowTone> = {
+    default: 'default',
+    brand: 'onAccent',
+    dark: 'onDark',
 }
 
 // Secondary CTAs are accent-outlined and fill with an accent-derived tint on
@@ -59,6 +64,62 @@ const SURFACE_BACKGROUND_STYLE: Partial<Record<HeroContentSurface, CSSProperties
 // where it degrades to a plain full-viewport band rather than breaking. `dvh`
 // tracks mobile browser chrome collapsing on scroll; the px floor is retained
 // so a short landscape window still gets a usable band.
+// Panel skin. Both entries are `bg-black/*` — the documented theme-law exception
+// for overlays (same family as the hero's own scrim and the Section dark band's
+// #121212 base); a token would be wrong here because the panel's job is to
+// darken whatever is behind it, not to carry a client colour.
+//
+// Over a photo a bounded panel guarantees contrast but cuts a visible rectangle
+// out of the image; `overlayStyle: 'gradient-left'` is the treatment that
+// achieves the same thing without the seam. With no photo behind, the band
+// already supplies the colour and the panel only bounds the copy — hence the
+// much lighter wash.
+const PANEL_CLASS = {
+    onImage: 'bg-black/40 backdrop-blur-sm',
+    onBand: 'bg-black/10 backdrop-blur-sm',
+} as const
+
+/**
+ * Scrim over the background photo.
+ *
+ * 'uniform' is the original flat wash: one opacity across the whole image.
+ *
+ * 'gradient-left' ramps from `opacity` at the leading edge to fully transparent
+ * by 80%. The stops hold near-full strength through 35% — the copy column runs
+ * to roughly 57% of the viewport — then fall away, so the ramp is doing real
+ * work everywhere text sits and nothing where it doesn't. The intermediate stop
+ * is what keeps the falloff smooth; a two-stop ramp puts a visible band across
+ * the middle of the photograph, which is the seam this treatment exists to
+ * avoid. `.toFixed(3)` keeps the derived alphas out of float-noise territory in
+ * the emitted CSS.
+ */
+function scrimStyle(style: 'uniform' | 'gradient-left', opacity: number): CSSProperties {
+    if (style !== 'gradient-left') {
+        return {backgroundColor: '#000', opacity}
+    }
+    const at = (factor: number) => `rgba(0,0,0,${(opacity * factor).toFixed(3)})`
+    return {
+        backgroundImage: `linear-gradient(to right, ${at(1)} 0%, ${at(0.95)} 35%, ${at(0.6)} 55%, ${at(0.25)} 70%, rgba(0,0,0,0) 80%)`,
+    }
+}
+
+/**
+ * Sub-`md` companion to the left-to-right ramp.
+ *
+ * A horizontal ramp is only correct while the copy occupies a COLUMN. On a phone
+ * the copy is full-bleed, so every line runs straight through the fade and out
+ * onto bare photograph — the right-hand half of the intro and footnote were
+ * sitting on an unmasked warehouse trolley. The ramp therefore turns vertical
+ * below `md`: it keeps the top of the image open, then holds full strength down
+ * through the band where the copy actually sits.
+ */
+function mobileScrimStyle(opacity: number): CSSProperties {
+    const at = (factor: number) => `rgba(0,0,0,${(opacity * factor).toFixed(3)})`
+    return {
+        backgroundImage: `linear-gradient(to bottom, ${at(0.45)} 0%, ${at(0.9)} 22%, ${at(0.9)} 88%, ${at(0.7)} 100%)`,
+    }
+}
+
 const HEIGHT_CLASS: Record<'standard' | 'tall' | 'full', string> = {
     standard: 'min-h-[480px]',
     tall: 'min-h-[max(480px,calc(100vh-360px))]',
@@ -73,10 +134,15 @@ export function HeroFootnote({segments, surface, contentAlignment = 'center'}: {
     return (
         <p
             className={cn(
-                'mt-4 text-sm',
+                // `max-w-xl` matches the subtitle exactly: the footnote is a
+                // continuation of the intro, and without a cap it wrapped to the
+                // full copy column (max-w-2xl) and visibly overhung the paragraph
+                // above it. Centring/right-aligning needs the auto margin too, or
+                // the narrower block stays pinned left inside a centred hero.
+                'mt-4 max-w-xl text-sm',
                 SURFACE_SUBTITLE_CLASS[surface],
-                contentAlignment === 'center' && 'text-center',
-                contentAlignment === 'right' && 'text-right',
+                contentAlignment === 'center' && 'mx-auto text-center',
+                contentAlignment === 'right' && 'ml-auto text-right',
             )}
         >
             {segments.map((segment, index) =>
@@ -109,9 +175,11 @@ export function HeroSection({section}: { section: HeroSectionConfig }) {
         secondaryCta,
         backgroundImageUrl,
         overlayOpacity = 0.4,
+        overlayStyle = 'uniform',
         contentAlignment = 'center',
         darkStyle = false,
         contentSurface,
+        contentPanel,
         footnote,
     } = section.props
 
@@ -130,56 +198,23 @@ export function HeroSection({section}: { section: HeroSectionConfig }) {
     // and the tokenised `default` surface is used instead.
     const surface: HeroContentSurface = contentSurface ?? (hasImage && darkStyle ? 'dark' : 'default')
 
-    // A bounded content panel only makes sense when there's no photo to frame the
-    // copy — on a photo, the scrim already does that job.
-    const isBoundedPanel = !hasImage && surface !== 'default'
+    // Default derivation (unchanged): a bounded panel only where there's no photo
+    // to frame the copy. `contentPanel` overrides it in either direction — set
+    // true over a photo and the copy gets a constant dark backing instead of
+    // relying on the scrim, which dims the whole image equally and therefore
+    // cannot guarantee contrast behind any particular line of text.
+    const isBoundedPanel = contentPanel ?? (!hasImage && surface !== 'default')
 
-    return (
-        <section
-            aria-label={title}
-            className={cn('relative flex items-center px-6 sm:px-8 py-20 overflow-hidden', HEIGHT_CLASS[height], {
-                'bg-(--sf-panel)': !hasImage && surface === 'default',
-            })}
-            style={hasImage ? undefined : SURFACE_BACKGROUND_STYLE[surface]}
-        >
-            {hasImage && (
-                <>
-                    {/* Explicit <img> + object-cover (not a CSS background) so the image
-                        always fills the band exactly — no warp, no container-size drift. */}
-                    <img
-                        src={resolvedBackground}
-                        alt=""
-                        aria-hidden="true"
-                        className="absolute inset-0 h-full w-full object-cover object-center"
-                    />
-                    <div
-                        className="absolute inset-0 bg-black"
-                        style={{opacity: overlayOpacity}}
-                        aria-hidden="true"
-                    />
-                </>
-            )}
-            {/* Content rides the house max-w-5xl grid so a left-aligned hero starts at
-                the same gutter as every other section (a centered narrow column made
-                "left" alignment float mid-page). The text block stays copy-width. */}
-            <div className="relative z-10 mx-auto w-full max-w-5xl">
-            <div
-                className={cn(
-                    'max-w-2xl',
-                    isBoundedPanel && 'rounded-2xl border border-(--sf-accent-text)/15 bg-black/10 px-8 py-10 sm:px-10 sm:py-12 shadow-(--sf-shadow-lg) backdrop-blur-sm',
-                    contentAlignment === 'center' && 'text-center mx-auto',
-                    contentAlignment === 'right' && 'text-right ml-auto',
-                )}
-            >
+    const copy = (
+        <>
                 {kicker && (
-                    <p
-                        className={cn(
-                            'mb-3 text-xs font-semibold uppercase tracking-widest',
-                            SURFACE_KICKER_CLASS[surface],
-                        )}
+                    <SectionEyebrow
+                        tone={SURFACE_EYEBROW_TONE[surface]}
+                        align={contentAlignment}
+                        className="mb-3"
                     >
                         {kicker}
-                    </p>
+                    </SectionEyebrow>
                 )}
                 {/* Larger from `md`: the band is viewport-tall, and 36px left the
                     title small against it. The block is vertically centred, so
@@ -238,7 +273,77 @@ export function HeroSection({section}: { section: HeroSectionConfig }) {
                         contentAlignment={contentAlignment}
                     />
                 )}
-            </div>
+        </>
+    )
+
+    return (
+        <section
+            aria-label={title}
+            className={cn('relative flex items-center px-6 sm:px-8 py-20 overflow-hidden', HEIGHT_CLASS[height], {
+                'bg-(--sf-panel)': !hasImage && surface === 'default',
+            })}
+            style={hasImage ? undefined : SURFACE_BACKGROUND_STYLE[surface]}
+        >
+            {hasImage && (
+                <>
+                    {/* Explicit <img> + object-cover (not a CSS background) so the image
+                        always fills the band exactly — no warp, no container-size drift. */}
+                    <img
+                        src={resolvedBackground}
+                        alt=""
+                        aria-hidden="true"
+                        className="absolute inset-0 h-full w-full object-cover object-center"
+                    />
+                    {overlayStyle === 'gradient-left' ? (
+                        // Two elements rather than one: the ramp's DIRECTION has to
+                        // change at the breakpoint, and a direction cannot be
+                        // expressed as a responsive utility on an inline style.
+                        <>
+                            <div
+                                className="absolute inset-0 md:hidden"
+                                style={mobileScrimStyle(overlayOpacity)}
+                                aria-hidden="true"
+                            />
+                            <div
+                                className="absolute inset-0 hidden md:block"
+                                style={scrimStyle(overlayStyle, overlayOpacity)}
+                                aria-hidden="true"
+                            />
+                        </>
+                    ) : (
+                        <div
+                            className="absolute inset-0"
+                            style={scrimStyle(overlayStyle, overlayOpacity)}
+                            aria-hidden="true"
+                        />
+                    )}
+                </>
+            )}
+            {/* Content rides the house grid so a left-aligned hero starts at the
+                same gutter as every other section (a centered narrow column made
+                "left" alignment float mid-page). The width is read from the shared
+                frame rather than restated, so the hero cannot fall out of step when
+                that frame changes. The text block itself stays copy-width.
+
+                `-translate-y-6` is optical centring, not a layout fix: a block of
+                text sitting on true mathematical centre reads as slightly low,
+                because the eye weights the mass above the midline. 24px up is the
+                correction — it applies to every hero, since the effect is a
+                property of centred text rather than of any one page. */}
+            <div className={`relative z-10 mx-auto w-full -translate-y-6 ${SECTION_WIDTH_CLASS.default}`}>
+                <div
+                    className={cn(
+                        'max-w-2xl',
+                        isBoundedPanel && cn(
+                            'rounded-2xl border border-(--sf-accent-text)/15 px-8 py-10 sm:px-10 sm:py-12 shadow-(--sf-shadow-lg)',
+                            hasImage ? PANEL_CLASS.onImage : PANEL_CLASS.onBand,
+                        ),
+                        contentAlignment === 'center' && 'text-center mx-auto',
+                        contentAlignment === 'right' && 'text-right ml-auto',
+                    )}
+                >
+                    {copy}
+                </div>
             </div>
         </section>
     )
