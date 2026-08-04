@@ -7,6 +7,8 @@ import {useStorefrontConfig} from '@/shared/config/storefrontConfig.context'
 import {formatAmount} from '@/shared/utils/formatAmount'
 import {CheckoutShell} from './components/CheckoutShell'
 import {CheckoutNotice} from './components/CheckoutNotice'
+import {clearFormDraft} from '@/shared/ui/components/form/useFormDraft'
+import {CHECKOUT_DRAFT_KEY} from './draftKey'
 
 /**
  * The end of the journey. Every state renders in the shared shell through the
@@ -24,12 +26,16 @@ export function CheckoutSuccessPage() {
     const {data, isTerminal, isTimedOut} = usePollOrderStatus(sessionId)
     const hasClearedSession = useRef(false)
 
-    // Clear cart and session only when payment is confirmed
+    // Clear cart, session and the saved form draft only when payment is
+    // confirmed. The draft joins them here rather than being dropped at submit
+    // time: a PayFast shopper leaves the site to pay, and one who abandons at the
+    // gateway must come back to their details still filled in.
     useEffect(() => {
         if (isTerminal && !hasClearedSession.current) {
             hasClearedSession.current = true
             clearCart()
             clearSession()
+            clearFormDraft(CHECKOUT_DRAFT_KEY)
         }
     }, [isTerminal, clearCart, clearSession])
 

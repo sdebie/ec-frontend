@@ -2,6 +2,7 @@ import {useEffect, useState} from 'react'
 import {type FieldPath, useForm} from 'react-hook-form'
 import {zodResolver} from '@hookform/resolvers/zod'
 import {ACCENT_BUTTON_HOVER, PageDivider, Section, SectionHeading, SF_FOCUS_RING_PAGE} from '@/storefront/sections/shared'
+import {useFormDraft} from '@/shared/ui/components/form/useFormDraft'
 import {Stepper} from '@/shared/ui/components'
 import {useCustomerAuthStore} from '@/shared/auth/customerAuthStore'
 import {
@@ -59,6 +60,21 @@ export function WholesaleApplicationPage() {
     const sameAsPhysical = form.watch('sameAsPhysical') ?? false
     const {register, control, formState: {errors}} = form
 
+    /*
+      Five steps asking for VAT and company registration numbers is the form most
+      likely to send someone out of the browser to look something up — which on a
+      phone is exactly what reloads the page. The step is saved alongside the
+      values so they come back where they left off, not on step 1 with the
+      answers already mysteriously filled in.
+    */
+    const {clearDraft} = useFormDraft({
+        storageKey: 'ec_draft_wholesale_application',
+        watch: form.watch,
+        reset: form.reset,
+        meta: step,
+        onRestoreMeta: setStep,
+    })
+
     // Prefill the account email from the signed-in session; never clobber a typed value.
     useEffect(() => {
         if (customerEmail && !form.getValues('accountEmail')) {
@@ -93,7 +109,14 @@ export function WholesaleApplicationPage() {
 
                 <form
                     onSubmit={form.handleSubmit(
-                        (values) => mutate(toDto(values), {onSuccess: () => setSubmitted(true)}),
+                        (values) => mutate(toDto(values), {
+                            onSuccess: () => {
+                                // The application is in; a resumable draft of it
+                                // would only refill the form behind the success card.
+                                clearDraft()
+                                setSubmitted(true)
+                            },
+                        }),
                         (errors) => {
                             const firstErrorKey = Object.keys(errors)[0]
                             if (!firstErrorKey) return

@@ -10,6 +10,8 @@ import {ContactSection} from './components/ContactSection'
 import {ShippingSection} from './components/ShippingSection'
 import {PaymentSection} from './components/PaymentSection'
 import {useCheckoutSubmit} from './hooks/useCheckoutSubmit'
+import {useFormDraft} from '@/shared/ui/components/form/useFormDraft'
+import {CHECKOUT_DRAFT_KEY} from './draftKey'
 import {useShippingMethods} from './hooks/useShippingMethods'
 import {usePaymentMethods} from './hooks/usePaymentMethods'
 import {useCheckoutSessionStore} from './store/checkoutSessionStore'
@@ -74,13 +76,20 @@ export function CheckoutPage() {
     // that collects — a collection order must not carry a stale address. Both
     // are form writes, so they live here rather than inside the section.
     useEffect(() => {
+        // Whether a method collects or delivers is unknowable until the methods
+        // have loaded: `selectedMethod` is undefined until then, which reads as
+        // "collects" and would wipe the address. Harmless while the form starts
+        // empty, but a restored draft arrives WITH a method and an address, and
+        // this effect would clear the address before the list resolved.
+        if (!shippingMethods) return
+
         setValue('requiresAddress', requiresAddress, {shouldValidate: false})
         if (requiresAddress) return
         setValue('streetAddress', '', {shouldValidate: false})
         setValue('city', '', {shouldValidate: false})
         setValue('province', '', {shouldValidate: false})
         setValue('postalCode', '', {shouldValidate: false})
-    }, [requiresAddress, setValue])
+    }, [requiresAddress, setValue, shippingMethods])
 
     // A lone payment method is the decision — select it rather than asking.
     useEffect(() => {
@@ -88,6 +97,18 @@ export function CheckoutPage() {
             setValue('paymentMethod', paymentMethods[0], {shouldValidate: false})
         }
     }, [paymentMethods, setValue])
+
+    /*
+      Declared AFTER the prefill effects on purpose: effects run in hook order, so
+      restoring last means what the shopper actually typed wins over the values
+      derived from their profile. The draft is cleared on the success page, not
+      here — see draftKey.ts.
+    */
+    useFormDraft({
+        storageKey: CHECKOUT_DRAFT_KEY,
+        watch,
+        reset: methods.reset,
+    })
 
     if (!session) {
         return (

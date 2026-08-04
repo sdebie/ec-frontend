@@ -6,6 +6,7 @@ import { useQuoteStore } from '../quoteStore'
 import { useSubmitQuoteRequest } from '../hooks/useSubmitQuoteRequest'
 import { InputField } from '@/shared/ui/components/form/InputField'
 import { Textarea } from '@/shared/ui/components/form/Textarea'
+import { useFormDraft } from '@/shared/ui/components/form/useFormDraft'
 import { ACCENT_BUTTON_HOVER, SF_FOCUS_RING_PAGE } from '@/storefront/sections/shared'
 
 /** Muted "(optional)" suffix used on the non-required field labels. */
@@ -50,6 +51,8 @@ export function QuoteDetailsForm({ onSuccess }: QuoteDetailsFormProps) {
   const {
     register,
     handleSubmit,
+    watch,
+    reset,
     formState: { errors, isValid },
   } = useForm<QuoteDetailsFormValues>({
     resolver: zodResolver(quoteDetailsSchema),
@@ -62,6 +65,17 @@ export function QuoteDetailsForm({ onSuccess }: QuoteDetailsFormProps) {
       message: '',
       website: '',
     },
+  })
+
+  /*
+    The quote LIST already survives a reload (`ec_quote_items`), so losing only
+    the contact details beside it left the funnel half-persisted — the shopper
+    kept the products they had chosen but had to retype who they were.
+  */
+  const { clearDraft } = useFormDraft({
+    storageKey: 'ec_draft_quote_details',
+    watch,
+    reset,
   })
 
   const isListEmpty = items.length === 0
@@ -83,6 +97,10 @@ export function QuoteDetailsForm({ onSuccess }: QuoteDetailsFormProps) {
       },
       {
         onSuccess: () => {
+          // The request is in. "Submit another quote request" must start blank,
+          // not refill itself from the request that just went out.
+          clearDraft()
+          reset()
           onSuccess()
         },
       }
