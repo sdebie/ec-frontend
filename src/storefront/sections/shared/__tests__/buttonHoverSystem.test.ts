@@ -67,7 +67,7 @@ describe('Button hover/pressed system (design C3)', () => {
             const violations: string[] = []
 
             for (const file of files) {
-                // Skip the focusRing utility itself (contains a JSDoc mentioning the old class)
+                // Skip the focusRing utility: its JSDoc names the banned class
                 if (file.endsWith('focusRing.ts')) continue
 
                 const content = readFileSync(file, 'utf-8')

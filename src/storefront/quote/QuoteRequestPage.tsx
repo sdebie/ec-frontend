@@ -75,9 +75,8 @@ export function QuoteRequestPage() {
     }
 
     return (
-        // The shared `Section` frame, adopted 2026-08-04. This page had kept its
-        // own `max-w-5xl px-4` container and was the single worst-aligned surface
-        // on the site — its content started at x=144 against every section's 64.
+        // The shared `Section` frame, not a container of this page's own — that
+        // is what keeps its left edge on the same line as every other page.
         <Section as="div">
             {/* The shared page-title composition — accent rule from SectionHeading,
                 then the divider — so this page carries the same heading treatment

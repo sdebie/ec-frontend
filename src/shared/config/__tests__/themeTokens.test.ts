@@ -8,16 +8,13 @@ import { DEFINED_SF_TOKENS } from '../themeTokens'
  * Fails the build when a source file reads an `--sf-*` custom property that no
  * seed and no stylesheet defines, unless the read supplies a fallback.
  *
- * This catches what neither the type system, the linter, the build nor jsdom
- * can: an undefined custom property produces an invalid declaration, the browser
- * drops it, and the element silently keeps its previous paint. The incident this
- * guards against is `hover:text-(--sf-text-hover)` in FilterGroup — a token in no
- * seed and no stylesheet, live long enough to be found only by hovering the real
- * element in a browser and reading back an unchanged colour.
+ * Catches what neither the type system, the linter, the build nor jsdom can: an
+ * undefined custom property is an invalid declaration, the browser drops it, and
+ * the element silently keeps its previous paint.
  *
- * A test that asserts the CLASS is present cannot catch this; jsdom has no CSS
- * engine, so it would have passed throughout. Checking the token names against
- * the vocabulary is a static check, which is exactly why it works here.
+ * Asserting the CLASS is present does not catch this — jsdom has no CSS engine,
+ * so such a test passes either way. Checking token names against the vocabulary
+ * is static, which is why it works.
  */
 
 // Vite raw-imports every source file's text; no fs / glob dependency needed.

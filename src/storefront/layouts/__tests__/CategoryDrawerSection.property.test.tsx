@@ -96,11 +96,11 @@ const treeWithParents: fc.Arbitrary<CategoryNode[]> = fc
   })
 
 /**
- * Permanent regression example, distilled from the 2026-08-02 flake's shrunk
- * counterexample (seed 309). The invalid part of that counterexample — two
- * roots sharing one slug — can't occur in the real system, so what's pinned
- * is the realistic near-miss it exposed: duplicate NAMES across nodes (leaf
- * root between two parents) with unique slugs.
+ * Permanent regression example, distilled from a shrunk property-test
+ * counterexample. The invalid part of that counterexample — two roots sharing
+ * one slug — cannot occur in the real system, so what is pinned is the
+ * realistic near-miss it exposed: duplicate NAMES across nodes (leaf root
+ * between two parents) with unique slugs.
  */
 const duplicateNamesExample: CategoryNode[] = [
   {

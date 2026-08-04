@@ -55,11 +55,8 @@ function resolveGradientStyle(gradient: string | undefined, themeColor: string):
  * frame carries here automatically. Only the vertical rhythm stays tighter than
  * Section's py-12.
  *
- * Until 2026-08-04 the skeleton wrote its own `max-w-7xl mx-auto px-4` container
- * directly beneath the comment above explaining why bands must not do that, so
- * the band jumped 48px sideways the moment its products arrived. Sharing the
- * frame is what makes that unrepeatable; a comment asking for the two to be kept
- * in sync would not have.
+ * Both branches render this rather than each writing its own container, so the
+ * band cannot jump sideways when its products arrive.
  */
 function ShowcaseBand({style, children}: { style: CSSProperties; children: ReactNode }) {
     return (
@@ -138,14 +135,9 @@ export function CategoryShowcaseSection({section}: { section: CategoryShowcaseSe
     // the contract ProductListPage reads.
     const categoryHref = `/products?category=${encodeURIComponent(categorySlug)}`
 
-    // ONE graphic at every breakpoint, sized against the heading beside it.
-    // It used to be two: a small inline icon on phones plus a 256px side rail on
-    // desktop. The rail is gone (owner directive 2026-08-03) — it consumed a
-    // quarter of the row, held the deck to three cards, and left the artwork
-    // visibly smaller than a product card, which read as unfinished rather than
-    // deliberate. Scaled against the heading it is unambiguously chrome, and the
-    // deck gets the full container: five cards at the same width as every other
-    // deck on the page.
+    // One graphic at every breakpoint, sized against the heading beside it so it
+    // reads as chrome. Anything larger becomes a side rail that eats a quarter of
+    // the row and holds the deck to three cards.
     const categoryIcon = showImage ? (
         <Link
             to={categoryHref}
@@ -163,11 +155,8 @@ export function CategoryShowcaseSection({section}: { section: CategoryShowcaseSe
     ) : null
 
     // Heading + graphic as one block. In carousel layout this becomes the
-    // Carousel's header node so the prev/next buttons share its row — that is
-    // what gets the arrows off the product cards. The deck now spans the full
-    // container, so nothing insets this block and the earlier reason for keeping
-    // the heading outside the Carousel (it would have started inset by the rail's
-    // width) no longer applies.
+    // Carousel's header node so the prev/next buttons share its row instead of
+    // overlaying the product cards.
     const headingBlock = (
         <div className="flex items-center gap-3">
             {categoryIcon}

@@ -125,9 +125,8 @@ describe('StorefrontHeader', () => {
     it('names the customer on the account control without printing the label', () => {
       renderHeader()
 
-      // Icon-only control (owner directive 2026-08-03): the visible text label
-      // is gone, so the name has to survive as the accessible name — otherwise
-      // the control announces as an unlabelled button.
+      // The control is icon-only, so the customer's name has to survive as the
+      // accessible name — otherwise it announces as an unlabelled button.
       expect(screen.getByRole('button', { name: 'Account menu for Jane' })).toBeInTheDocument()
       expect(screen.queryByText('Jane')).not.toBeInTheDocument()
     })

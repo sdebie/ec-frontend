@@ -66,10 +66,9 @@ function hasFooterChannels(contact: ContactConfig | undefined): boolean {
 const CONTACT_HEADING = 'Get in touch'
 
 /**
- * Where the business is and when it is open. Lives in the BRAND column, above
- * the social icons (owner directive 2026-08-02): it describes the company
- * rather than offering a way to reach it, so it belongs with the identity
- * block, not among the actionable channels.
+ * Where the business is and when it is open. Belongs in the brand column rather
+ * than under "Get in touch": it describes the company, it is not a way to reach
+ * it.
  */
 export function FooterLocationBlock({contact}: { contact: ContactConfig }) {
     const address = contact.physicalAddress?.trim()
@@ -149,13 +148,14 @@ export function FooterContactBlock({contact}: { contact: ContactConfig }) {
     )
 }
 
-// Desktop column count follows how many columns actually render (seeded columns
-// plus the contact column when the client has contact details). Complete literal
-// class strings — Tailwind scans source text, so `lg:grid-cols-${n}` emits nothing.
-// Applied from `sm` rather than `lg` (owner directive 2026-08-03): the four
-// lists go side by side as soon as there is room for them, instead of sitting as
-// a 2×2 block all the way up to the large breakpoint. The phone keeps 2×2 — see
-// the base class on the grid below.
+// Column count follows how many columns actually render — seeded columns plus
+// the contact column when the client has contact details.
+//
+// Complete literal class strings: Tailwind scans source text, so an interpolated
+// `sm:grid-cols-${n}` reaches the scanner as nothing and emits no CSS.
+//
+// Keyed at `sm` so the lists spread as soon as there is room for them; the phone
+// keeps the 2×2 set by the grid's base class.
 const FOOTER_COLS_CLASS: Record<number, string> = {
     1: 'sm:grid-cols-1',
     2: 'sm:grid-cols-2',
@@ -168,9 +168,8 @@ function NavigationColumns({columns, leading}: { columns: FooterColumn[]; leadin
     const colsClass = FOOTER_COLS_CLASS[Math.min(count, 4)] ?? FOOTER_COLS_CLASS[4]
 
     return (
-        // Two columns from the smallest screen up (owner directive 2026-08-03), so
-        // the four lists read as 2×2 on a phone — Get in touch | Products above
-        // Company | Legal — rather than one long stack.
+        // Two columns from the smallest screen up, so the four lists read as
+        // 2×2 on a phone rather than one long stack.
         <div className={`grid grid-cols-2 gap-8 ${colsClass}`}>
             {leading}
             {columns.map((column) => (
@@ -218,23 +217,17 @@ export function StorefrontFooter() {
             className="px-6 sm:px-8"
             style={{backgroundColor: 'var(--sf-nav-background)', color: 'var(--sf-nav-text)'}}
         >
-            {/* No opening rule (owner directive 2026-08-03): the footer runs straight
-          on from the dark band above it. The top padding carries the separation
-          the removed seam used to provide, so the brand block sits where it
-          always has rather than crowding the band. */}
-            {/* Gutter and width are the shared Section frame's — the same constant AND
-          the same two-element structure: gutter on the outer element (the
-          <footer> itself, which also paints the full-bleed background), width on
-          the inner one.
+            {/* No opening rule: the footer runs straight on from the dark band
+          above it, and the top padding carries the separation a seam would. */}
+            {/* Gutter and width are the shared Section frame's — the same constant
+          and the same two-element structure: gutter on the outer element (the
+          <footer>, which also paints the full-bleed background), width on the
+          inner one.
 
-          The split is the whole fix. The first attempt changed `px-4` +
-          max-w-7xl to `px-6 sm:px-8` + SECTION_WIDTH_CLASS.default but left both
-          on ONE element, so the padding applied inside the 1152px box rather
-          than around it and the footer's content started at x=96 against the
-          sections' x=64 — closer than the 112px it was out before, still
-          visibly wrong, and now carrying a comment that claimed it was aligned.
-          Importing the right constant is not the same as adopting the frame;
-          only a measurement settles this one. */}
+          The split is load-bearing. Both on one element applies the padding
+          inside the width box instead of around it, which starts the footer one
+          gutter further in than every section above it. Importing the constant
+          is not the same as adopting the frame — measure the left edge. */}
             <div className={`mx-auto ${SECTION_WIDTH_CLASS.default} pb-12 pt-14`}>
                 <div className="grid gap-8 lg:grid-cols-12">
                     {/* Brand column */}
@@ -274,10 +267,6 @@ export function StorefrontFooter() {
                             </div>
                         )}
 
-                        {/* When we're open and where we are — company facts, below the social
-                row (owner directive 2026-08-03). They describe the business
-                rather than offering a way to reach it, so they stay out of the
-                "Get in touch" column. */}
                         {config.contact && <FooterLocationBlock contact={config.contact}/>}
                     </div>
 
@@ -299,9 +288,9 @@ export function StorefrontFooter() {
                     )}
                 </div>
 
-                {/* Bottom bar — its rule tracks the content container's width (owner
-            directive 2026-08-03), so it starts and ends with the columns above
-            it rather than running to the viewport edges. */}
+                {/* The bottom bar's rule tracks the content container's width, so it
+            starts and ends with the columns above it rather than running to
+            the viewport edges. */}
                 <div
                     className="mt-12 flex flex-col items-center gap-4 pt-8 lg:flex-row lg:justify-between"
                     style={{borderTopWidth: '1px', borderTopStyle: 'solid', borderTopColor: 'var(--sf-nav-border)'}}

@@ -60,7 +60,7 @@ describe('ProductCard', () => {
         mockCustomerType.value = 'RETAIL'
     })
 
-    describe('border weight (owner directive 2026-08-02)', () => {
+    describe('border weight', () => {
         it('keeps the hairline outline by default — the catalogue must not thicken', () => {
             const {container} = renderCard()
 
@@ -81,8 +81,8 @@ describe('ProductCard', () => {
             const {container} = renderCard({}, {borderWeight: 'thick'})
 
             // An inset outline paints beneath the card's own children, so the
-            // full-bleed image stage hid it along the top edge and that side
-            // read thinner than the other three.
+            // full-bleed image stage occludes it along the top edge and that
+            // side reads thinner than the other three.
             const root = container.querySelector('[data-layout="grid"]')!
             expect(root.className).not.toContain('outline')
         })
@@ -94,7 +94,7 @@ describe('ProductCard', () => {
         })
     })
 
-    describe('wishlist affordance (owner directive 2026-08-02)', () => {
+    describe('wishlist affordance', () => {
         it('renders the real wishlist toggle when the card has a variant', () => {
             renderCard({}, {variantId: 'variant-1'})
 
@@ -129,7 +129,7 @@ describe('ProductCard', () => {
         })
     })
 
-    describe('standardized card contract (2026-07-24)', () => {
+    describe('standardized card contract', () => {
         it('renders the display price with an ex. VAT label', () => {
             renderCard()
             expect(screen.getByText('ex. VAT')).toBeInTheDocument()
@@ -290,7 +290,7 @@ describe('ProductCard', () => {
             expect(root?.tagName).toBe('DIV')
         })
 
-        it('row layout keeps a compact image rail beside the identity on mobile (owner adjustment 2026-08-01)', () => {
+        it('row layout keeps a compact image rail beside the identity on mobile', () => {
             // The original design stacked the whole row to a column below `sm`,
             // which rendered a viewport-wide square image per row on phones. The
             // image must stay a small fixed square at every width, with the
@@ -348,12 +348,12 @@ describe('ProductCard', () => {
         })
     })
 
-    describe('both tiers named (owner directive 2026-08-03, replaces Req 7 suppression)', () => {
+    describe('both tiers named', () => {
         it('still names both tiers when the two prices are EQUAL', () => {
-            // The old rule hid the wholesale line whenever it matched retail.
-            // That silently blanked it for the entire live catalogue — 0 of
-            // 5,590 variants have a differing wholesale price — so the card
-            // never showed the wholesale rate at all. Both are named now.
+            // Suppressing the wholesale line when it matches retail blanks it
+            // for every variant priced the same on both tiers — which, until
+            // differentiated wholesale pricing is imported, is all of them. The
+            // card would then never show a wholesale rate at all.
             renderCard({
                 retailPrice: {price: 179},
                 wholesalePrice: {price: 179},
@@ -838,7 +838,7 @@ describe('ProductCard', () => {
         it('does not add a second link to the same product — the name link IS the target', () => {
             const {container} = renderCard({}, {layout: 'grid', variantId: 'v1'})
             const productLinks = container.querySelectorAll('a[href="/products/test-product"]')
-            // Image and name only, exactly as before the stretch was added.
+            // Image and name only — the stretched link adds no third anchor.
             expect(productLinks).toHaveLength(2)
         })
 

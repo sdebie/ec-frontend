@@ -81,10 +81,10 @@ describe('checkoutFormSchema - Property Tests', () => {
 })
 
 
-// Address validation now lives in the schema (superRefine), so these properties
-// drive the REAL schema and the REAL delivery predicate. They previously called a
-// local re-implementation of the page's submit handler, which meant they could
-// pass while production behaved differently.
+// Address validation lives in the schema (superRefine), so these properties
+// drive the REAL schema and the REAL delivery predicate. A local
+// re-implementation of the page's submit handler would let them pass while
+// production behaved differently.
 
 const ADDRESS_FIELDS = ['streetAddress', 'city', 'province', 'postalCode'] as const
 

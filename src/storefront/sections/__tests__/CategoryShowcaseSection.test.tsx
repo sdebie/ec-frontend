@@ -133,12 +133,9 @@ describe('CategoryShowcaseSection', () => {
             <CategoryShowcaseSection section={buildSection({layout: 'carousel', carouselControls: 'header'})}/>,
         )
 
-        // Rewrite 2026-08-03 — this REVERSES the 2026-08-02 directive that the
-        // section own a heading above the deck. That directive existed so the
-        // heading would not start inset by the 256px image rail; the rail is
-        // gone, the deck spans the container, and putting the heading in the
-        // Carousel's header row is what gets the prev/next buttons off the
-        // product cards. Exactly one h2 either way.
+        // Under the 'header' hint the heading belongs in the Carousel's header
+        // row, which is what keeps the prev/next buttons off the product cards.
+        // Exactly one h2 either way.
         const sectionEl = container.querySelector('section')!
         expect(sectionEl.querySelectorAll('h2')).toHaveLength(1)
 
@@ -262,13 +259,8 @@ describe('CategoryShowcaseSection', () => {
         expect(img).toHaveAttribute('src', '/static/images/categories/medical.png')
     })
 
-    // --- Category graphic placement ---
-    //
-    // Rewritten 2026-08-03. There used to be TWO graphics: a `md:hidden` inline
-    // icon and a `hidden md:flex w-64` side rail. The rail is gone — it held the
-    // deck to three cards and rendered the artwork visibly smaller than a product
-    // card. There is now exactly ONE graphic, at heading scale, in the heading
-    // block at every breakpoint.
+    // Exactly ONE graphic, at heading scale, in the heading block at every
+    // breakpoint — a second one as a side rail holds the deck to three cards.
 
     describe('category graphic placement', () => {
         function graphicsOf(container: HTMLElement) {

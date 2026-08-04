@@ -3,15 +3,9 @@ import {cn} from '@/shared/utils/cn'
 /**
  * Colour context for the eyebrow.
  *
- * The rule, in one line: **the RULE is always the accent; the TEXT takes the
- * accent on light surfaces and the heading's own colour on dark ones** (owner
- * directive 2026-08-03). The accent mark is therefore constant everywhere — it
- * is the brand signature — while the label never fights its own heading.
- *
- * Dark surfaces read the heading colour rather than the accent because this
- * client's #7a0019 measures ~1.6:1 on the #121212 base and ~1.4:1 over the
- * scrimmed hero photo: legible in theory, unappealing and near-invisible in
- * practice.
+ * Rule: **the RULE is always the accent; the TEXT takes the accent on light
+ * surfaces and the heading's own colour on dark ones.** A dark accent is
+ * near-invisible on a dark band — this client's measures ~1.6:1 on #121212.
  *
  * - `default` — light page surface: text is the accent.
  * - `onDark` — a photo or dark chrome that is NOT a `data-variant` band, so no
@@ -19,13 +13,11 @@ import {cn} from '@/shared/utils/cn'
  * - `onAccent` — the surface IS the accent, where an accent rule would vanish,
  *   so both parts use accent-text.
  *
- * ⚠️ The `data-variant="dark"` band's text colour lives in `index.css`, keyed on
- * the `data-eyebrow` attribute this component sets, NOT as a utility class here:
- * the stylesheet's `[data-variant="dark"] p` rule has specificity (0,1,1), and
- * Tailwind's `in-data-[variant=dark]:` variant compiles to `:where(…)`,
- * contributing zero — so a class override is (0,1,0) and loses silently.
- * Verified in the built CSS after a first attempt that looked correct in the
- * markup and did nothing.
+ * ⚠️ The `data-variant="dark"` band's text colour belongs in `index.css`, keyed
+ * on the `data-eyebrow` attribute this component sets — not a utility class
+ * here. The stylesheet's `[data-variant="dark"] p` rule is specificity (0,1,1)
+ * and Tailwind's `in-data-[variant=dark]:` compiles to `:where(…)` at zero, so
+ * a class override is (0,1,0) and loses silently.
  */
 export type EyebrowTone = 'default' | 'onDark' | 'onAccent'
 

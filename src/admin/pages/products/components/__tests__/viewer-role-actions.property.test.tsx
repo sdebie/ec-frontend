@@ -8,8 +8,8 @@ import { ProductStatus } from '@/shared/types/enums'
 /**
  * Property: ProductActionsMenu renders toggle status and delete actions
  *
- * The ProductActionsMenu no longer handles canMutate gating or edit actions.
- * It always renders the menu (parent handles visibility), and only contains
+ * The ProductActionsMenu handles no canMutate gating and no edit actions. It
+ * always renders the menu — the parent owns visibility — and contains only
  * toggle status (Activate/Disable) and Delete items.
  *
  * **Validates: Requirements 5.4, 5.6**

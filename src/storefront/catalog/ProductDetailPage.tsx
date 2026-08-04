@@ -155,10 +155,9 @@ export function ProductDetailPage() {
             {/* Divider — same rhythm as the catalogue's toolbar rule */}
             <PageDivider/>
 
-            {/* Breadcrumb — desktop only (owner directive 2026-08-02). At 375px the
-                trail wrapped into a ragged three-line block, and the page heading
-                plus the panel already name the product; the header's back paths
-                serve navigation on a phone. */}
+            {/* Breadcrumb — desktop only. At 375px the trail wraps into a ragged
+                three-line block, and the heading plus the panel already name the
+                product; the header's back paths serve navigation on a phone. */}
             <nav aria-label="Breadcrumb" className="mb-4 hidden sm:block">
                 <ol className="flex items-center gap-2 text-sm text-(--sf-muted-text)">
                     <li>
@@ -298,7 +297,7 @@ export function ProductDetailPage() {
                                 <h3 className="text-sm font-semibold text-(--sf-text)">
                                     {categories.length > 1 ? 'Categories' : 'Category'}
                                 </h3>
-                                {/* Badges, not links (owner directive 2026-08-04).
+                                {/* Badges, not links.
                                     They label what this product IS; navigating away
                                     to a filtered catalogue mid-purchase is not what a
                                     shopper reading the panel wants. The hover

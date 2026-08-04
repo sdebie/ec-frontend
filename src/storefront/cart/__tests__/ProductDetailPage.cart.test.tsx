@@ -161,8 +161,7 @@ describe('ProductDetailPage — cart integration', () => {
         renderProductDetailPage()
 
         const inner = screen.getByRole('navigation', {name: /breadcrumb/i}).parentElement
-        // Default width, not `wide` (owner directive 2026-08-04) — one page width
-        // across the site.
+        // Default width, not `wide` — one page width across the site.
         expect(inner).toHaveClass('mx-auto', 'max-w-6xl')
         expect(inner?.parentElement).toHaveClass('py-12', 'px-6', 'sm:px-8')
     })

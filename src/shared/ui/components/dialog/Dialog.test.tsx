@@ -195,7 +195,7 @@ describe('DialogFooter', () => {
   })
 })
 
-describe('portal rendering (2026-08-02)', () => {
+describe('portal rendering', () => {
   /** The overlay is the fixed element carrying the backdrop colour. */
   function overlayOf() {
     return document.body.querySelector('.fixed.inset-0') as HTMLElement

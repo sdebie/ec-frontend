@@ -80,11 +80,11 @@ describe('useWholesaleApplicationAction', () => {
     expect(toast.success).toHaveBeenCalledWith('Wholesale application rejected')
   })
 
-  // These two tests previously asserted the OLD split-cache behaviour — including
-  // that the customer caches were NOT invalidated without a customerId, which was
-  // the staleness bug written down as a requirement. Approving an application
-  // changes the customer's tier wherever it is displayed, so every customer cache
-  // must refresh regardless of which screen invoked it.
+  // Approving an application changes the customer's tier wherever it is
+  // displayed, so every customer cache must refresh regardless of which screen
+  // invoked it — including when no customerId is supplied. Asserting that the
+  // caches are NOT invalidated without one would write the staleness bug down
+  // as a requirement.
   it('invalidates every customer cache with one prefix, with or without a customerId', async () => {
     for (const payload of [
       { applicationId: 'app-1', action: 'approve' as const },

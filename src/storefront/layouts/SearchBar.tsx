@@ -28,15 +28,15 @@ const toneClasses: Record<NonNullable<SearchBarProps['tone']>, { container: stri
 /**
  * The chrome search box — header (desktop and mobile) and nav drawer.
  *
- * **It is a draft box, not a view of the applied search** (owner directive
- * 2026-08-04). It holds only what is being typed right now: submitting hands the
- * term to the catalogue and empties the box, and it never reads the URL back.
+ * **It is a draft box, not a view of the applied search.** It holds only what is
+ * being typed right now: submitting hands the term to the catalogue and empties
+ * the box, and it never reads the URL back.
  *
  * The applied term lives in ONE place the shopper can see and edit — the filter
- * sidebar's Search field, alongside the chip that removes it. Previously this box
- * mirrored `?q=` too, so the same value sat in two controls: it stayed populated
- * after a search with no way to clear it from here, and a term typed in the
- * sidebar reappeared up here as if it had been typed in the header.
+ * sidebar's Search field, alongside the chip that removes it. Do not make this
+ * box mirror `?q=` as well: the same value in two controls leaves this one
+ * populated after a search with no way to clear it from here, and a term typed
+ * in the sidebar reappears up here as if it had been typed in the header.
  *
  * The consequence to keep in mind: this box going empty after a submit is NOT
  * the search being cleared. Nothing here revokes an applied search — that is the

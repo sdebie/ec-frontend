@@ -12,14 +12,13 @@ import {SF_FOCUS_RING} from '@/storefront/sections/shared/focusRing'
  * Card outline weight. 'thick' is for decks sitting on a saturated client colour
  * band, where the default hairline at 60% opacity disappears into the gradient.
  *
- * A real border, not an inset outline: an inset outline is painted beneath the
- * card's own children, so the full-bleed image stage covered it along the top
- * edge and that side read thinner than the other three. A border is drawn on
- * the box itself and is never occluded.
+ * A real border, not an inset outline: an inset outline paints beneath the
+ * card's own children, so the full-bleed image stage occludes it along the top
+ * edge and that side reads thinner than the other three.
  *
  * It costs 1px of content width per side, which is safe only because the lines
- * that could reflow can't: the name is `line-clamp-2` and the SKU truncates. If
- * a future line is allowed to wrap, re-check that decks still align.
+ * that could reflow cannot: the name is `line-clamp-2` and the SKU truncates.
+ * If a future line may wrap, re-check that decks still align.
  *
  * Each branch is a COMPLETE literal class string — Tailwind scans source text,
  * so a composed `border-${n}` would emit no CSS.
@@ -42,36 +41,32 @@ const WISHLIST_OVERLAY_CLASS = 'absolute top-2 right-2 z-10'
  * Turns the product-name link into the card's click target: an empty
  * pseudo-element stretched over the whole card.
  *
- * The card already advertised itself as clickable — accent border, shadow and
- * `hover:scale-[1.02]` on the root — while only the image and the name actually
- * navigated, so a click on the body, the price or the padding did nothing.
+ * The whole card advertises itself as clickable — accent border, shadow, hover
+ * lift — so the whole card must navigate, not just the image and the name.
  *
- * Done with the EXISTING name link rather than a second overlay anchor: the card
- * gains no extra tab stop and no second accessible name, and the destination
- * stays defined in exactly one place. Anything the shopper must be able to click
- * on its own — the heart, quick view, the add controls — carries `z-10` to sit
- * above it.
+ * Uses the EXISTING name link rather than a second overlay anchor: no extra tab
+ * stop, no second accessible name, one definition of the destination. Anything
+ * clickable in its own right — the heart, quick view, the add controls —
+ * carries `z-10` to sit above it.
  */
 const STRETCHED_LINK = 'after:absolute after:inset-0 after:content-[""]'
 
 /**
  * The row layout's image rail is a positioning context only from `sm`.
  *
- * That one switch is what moves the heart. The heart is a child of the rail, so
- * it resolves `top-2 right-2` against whichever ancestor is positioned: below
- * `sm` the rail is `static`, so the heart falls through to the card root and
- * lands in the CARD's top-right corner (where the wishlist's remove chip already
- * sits); from `sm` the rail is `relative` again and the heart returns to the
- * image, which is where it belongs once the rail is 160px wide.
+ * That switch is what moves the heart. The heart is a child of the rail and
+ * resolves `top-2 right-2` against the nearest positioned ancestor: below `sm`
+ * the rail is `static`, so the heart falls through to the card root and lands
+ * in the card's top-right corner; from `sm` the rail is `relative` and the
+ * heart sits on the image, where it belongs once the rail is 160px wide.
  *
- * Chosen over positioning the heart on the card root with a breakpoint-specific
- * offset: that offset would have to be the rail's width minus the chip, i.e. a
- * second copy of `sm:w-40` that nothing keeps in sync. Here the rail's geometry
- * stays the single source of truth.
+ * Preferred over a breakpoint-specific offset on the card root, which would
+ * have to restate the rail's width and could drift from `sm:w-40`. The rail's
+ * geometry stays the single source of truth.
  *
- * The rail's `overflow-hidden` does not clip the escaped heart — an absolutely
- * positioned box is only clipped by ancestors in its containing-block chain, and
- * below `sm` the static rail is not in it.
+ * The rail's `overflow-hidden` does not clip the escaped heart: an absolutely
+ * positioned box is clipped only by ancestors in its containing-block chain,
+ * and the static rail is not in it.
  */
 const ROW_IMAGE_RAIL_POSITION = 'static sm:relative'
 
@@ -108,9 +103,9 @@ interface TierLine {
 }
 
 /**
- * Both price tiers, each named (owner directive 2026-08-03). Both are public on
- * every surface, so a shopper can see the wholesale rate without holding a
- * wholesale account, and a wholesale customer can see what retail pays.
+ * Both price tiers, each named. Both are public on every surface, so a shopper
+ * can see the wholesale rate without holding a wholesale account, and a
+ * wholesale customer can see what retail pays.
  *
  * The shopper's OWN tier leads and carries the weight — it is what checkout will
  * charge, and the backend picks it from the signed JWT regardless of what the
@@ -241,11 +236,9 @@ export function ProductCard({product, variantId, variantLabel, badge, layout = '
     // Both tiers, own-first. A tier with no price at all is dropped rather than
     // rendered as a blank row.
     //
-    // ⚠️ These two figures are IDENTICAL for the entire live catalogue (verified
-    // 2026-08-03: 0 of 5,590 variants have a wholesale price differing from
-    // retail), so both lines currently show the same number. That is a seed-data
-    // gap, not a display bug — the card will show a real spread the moment
-    // differentiated wholesale pricing is imported.
+    // ⚠️ When both lines show the same number it is a seed-data gap — wholesale
+    // prices imported equal to retail — not a display bug. The card shows a real
+    // spread as soon as differentiated wholesale pricing exists.
     const isWholesaleShopper = customerType === 'WHOLESALE'
     const retailTier = getDisplayPrice(priceTiers, 'RETAIL')
     const wholesaleTier = getDisplayPrice(priceTiers, 'WHOLESALE')

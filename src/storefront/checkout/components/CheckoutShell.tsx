@@ -7,8 +7,8 @@ import {Section, SectionHeading} from '@/storefront/sections/shared'
  * shared heading and the `space-y-6` rhythm. Every checkout state renders inside
  * it, so the page never changes shape between states.
  *
- * Width is the frame's default, not `wide` (owner directive 2026-08-04): every
- * page starts on the same left edge as the marketing sections.
+ * Width is the frame's default, not `wide`: every page starts on the same left
+ * edge as the marketing sections.
  */
 export function CheckoutShell({title = 'Checkout', children}: { title?: string; children: ReactNode }) {
     return (

@@ -5,22 +5,21 @@ import {ACCENT_BUTTON_HOVER, SF_FOCUS_RING_PAGE} from '@/storefront/sections/sha
 
 /**
  * The card's single action control. Every branch renders exactly one of these,
- * so cards are the same height whether they buy, choose options or link out —
- * this is what replaced the reserved stepper row that used to do that job.
+ * so cards are the same height whether they buy, choose options or link out.
  *
- * `primary` is the accent-filled treatment. "Select options" uses it too
- * (owner directive 2026-08-03): it is the equivalent forward step for a variable
- * product, and an outlined control beside a filled one read as disabled.
- * `muted` stays reserved for genuinely unavailable states.
+ * `primary` is the accent-filled treatment. "Select options" uses it too: it is
+ * the equivalent forward step for a variable product, and an outlined control
+ * beside a filled one reads as disabled. `muted` is reserved for genuinely
+ * unavailable states.
  *
  * border-transparent on the filled variants matches the 1px the outlined ones
  * carry, so the two are exactly the same height.
  *
  * `relative z-10` lifts the control above ProductCard's stretched product link,
- * which covers the whole card — without it "Add to cart" would navigate to the
- * product page instead of adding. It goes on the control rather than on the
- * wrapper because in `bar` mode that wrapper is `display: contents` below `sm`
- * and can carry neither position nor stacking.
+ * which covers the whole card — without it "Add to cart" navigates instead of
+ * adding. It goes on the control, not the wrapper: in `bar` mode that wrapper
+ * is `display: contents` below `sm` and can carry neither position nor
+ * stacking.
  */
 const ACTION_BASE = 'relative z-10 inline-flex w-full items-center justify-center rounded-lg border px-4 py-2 text-sm font-medium transition-colors'
 const ACTION_PRIMARY = `${ACTION_BASE} border-transparent bg-(--sf-accent) text-(--sf-accent-text) ${ACCENT_BUTTON_HOVER} ${SF_FOCUS_RING_PAGE}`
@@ -41,11 +40,10 @@ interface CardActionsProps {
      * confirms in a dialog, then adds and removes the item). Absent: the button
      * adds to the cart directly, which is the catalogue's behaviour.
      *
-     * The card no longer has a quantity control (owner directive 2026-08-03), so
-     * this is always called with 1. The parameter stays because the contract is
-     * "add this many", not "add one" — the wishlist's bulk path and any future
-     * quantity affordance feed the same call, and the cart is where quantity is
-     * actually edited.
+     * The card has no quantity control, so this is always called with 1. The
+     * parameter stays because the contract is "add this many", not "add one" —
+     * the wishlist's bulk path feeds the same call, and quantity is edited in
+     * the cart.
      */
     onRequestAdd?: (quantity: number) => void
     /**
@@ -80,10 +78,6 @@ export function CardActions({variantId, productName, productSlug, inStock, hasPr
     // becomes an item of the PARENT's layout; from sm the original box returns.
     // Complete literal class strings — an interpolated `sm:${…}` never reaches
     // Tailwind's scanner and would emit no CSS.
-    //
-    // Every branch renders a single control of identical height, so there is
-    // nothing left to reserve — the QuantityStepperPlaceholder that used to keep
-    // mixed decks aligned went out with the stepper itself.
     const singleClass = layout === 'bar' ? 'contents sm:mt-3 sm:block' : 'mt-3'
 
     // No price → just a link to PDP

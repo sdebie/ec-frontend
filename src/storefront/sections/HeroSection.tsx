@@ -32,9 +32,9 @@ const SURFACE_EYEBROW_TONE: Record<HeroContentSurface, EyebrowTone> = {
 
 // Secondary CTAs are accent-outlined and fill with an accent-derived tint on
 // hover (color-mix with white — same accent-derivation family as the Section
-// dark glow; no literal palette). On the dark surface the label stays light
-// (owner UX call 2026-07-24); on the light `default` surface it must be accent
-// (a light label would vanish). `brand` keeps accent-text styling because an
+// dark glow; no literal palette). On the dark surface the label stays light; on
+// the light `default` surface it must be accent, because a light label would
+// vanish there. `brand` keeps accent-text styling because an
 // accent outline would vanish on the accent band itself.
 const SURFACE_SECONDARY_CTA_CLASS: Record<HeroContentSurface, string> = {
     default: 'border-(--sf-accent) text-(--sf-accent) hover:bg-[color-mix(in_srgb,var(--sf-accent)_80%,white)] hover:text-(--sf-accent-text)',
@@ -52,28 +52,25 @@ const SURFACE_BACKGROUND_STYLE: Partial<Record<HeroContentSurface, CSSProperties
     dark: {background: 'var(--sf-surface-dark, var(--sf-nav-background, #111827))'},
 }
 
-// Band height per the `height` display hint. 'tall' is viewport-relative but
-// reserves ~360px for the page chrome plus the band that follows the hero, so
-// the next section's top edge stays visible above the fold; the px floor keeps
-// short windows from collapsing the band below a usable minimum.
+// Band height per the `height` display hint.
 //
-// 'full' fills the viewport exactly once the chrome is subtracted:
-// `--sf-chrome-h` is the measured announcement-bar + header height published by
-// StorefrontLayout's useChromeHeight. The 0px fallback covers the frame before
-// the measurement lands (and any surface rendering a hero outside that layout),
-// where it degrades to a plain full-viewport band rather than breaking. `dvh`
-// tracks mobile browser chrome collapsing on scroll; the px floor is retained
-// so a short landscape window still gets a usable band.
-// Panel skin. Both entries are `bg-black/*` — the documented theme-law exception
-// for overlays (same family as the hero's own scrim and the Section dark band's
-// #121212 base); a token would be wrong here because the panel's job is to
-// darken whatever is behind it, not to carry a client colour.
+// 'tall' reserves ~360px for chrome plus the following band, so the next
+// section's top edge stays above the fold.
+//
+// 'full' fills the viewport once chrome is subtracted, via the `--sf-chrome-h`
+// published by useChromeHeight. The 0px fallback covers the pre-measure frame
+// and any hero rendered outside StorefrontLayout, degrading to a plain
+// full-viewport band. `dvh` tracks mobile chrome collapsing on scroll.
+//
+// Both keep a px floor so a short window still gets a usable band.
+// Panel skin. Both entries are `bg-black/*` — the documented theme-law overlay
+// exception. A token would be wrong: the panel darkens whatever is behind it
+// rather than carrying a client colour.
 //
 // Over a photo a bounded panel guarantees contrast but cuts a visible rectangle
-// out of the image; `overlayStyle: 'gradient-left'` is the treatment that
-// achieves the same thing without the seam. With no photo behind, the band
-// already supplies the colour and the panel only bounds the copy — hence the
-// much lighter wash.
+// out of the image; use `overlayStyle: 'gradient-left'` for the same contrast
+// without the seam. With no photo the band supplies the colour and the panel
+// only bounds the copy, hence the lighter wash.
 const PANEL_CLASS = {
     onImage: 'bg-black/40 backdrop-blur-sm',
     onBand: 'bg-black/10 backdrop-blur-sm',

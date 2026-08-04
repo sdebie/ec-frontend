@@ -1,16 +1,14 @@
 /**
  * The catalogue's search term lives in exactly ONE URL parameter.
  *
- * It briefly lived in two — the header search bar wrote `?q=` while the filter
- * sidebar wrote `?search=`, and `ProductListPage` read `q ?? search`. Because
- * `q` shadowed `search`, typing in the sidebar produced `?q=old&search=new`,
- * the page kept reading `old`, and the sidebar's own sync-back then reverted
- * the input under the shopper's cursor. Two parameters for one piece of state
- * is the defect; naming the canonical key here is the fix.
+ * Two parameters for one piece of state is a defect, not a convenience: as soon
+ * as one shadows the other, a write to the shadowed key leaves the page reading
+ * the stale value and the sync-back reverts the input under the shopper's
+ * cursor. Naming the canonical key here is what prevents that.
  *
  * `LEGACY_SEARCH_PARAM` is still READ so links and bookmarks carrying `?search=`
- * keep working, but nothing writes it any more — and any write of the canonical
- * key clears it, so a stale value can never shadow the live one again.
+ * keep working, but nothing writes it — and any write of the canonical key
+ * clears it, so a stale value can never shadow the live one.
  */
 export const SEARCH_PARAM = 'q'
 

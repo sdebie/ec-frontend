@@ -35,9 +35,8 @@ describe('CardActions', () => {
       renderCardActions({ variantId: 'v1', inStock: true, hasPrice: true })
 
       expect(screen.getByRole('button', { name: /add to cart/i })).toBeInTheDocument()
-      // The card has no quantity affordance (owner directive 2026-08-03) —
-      // quantity is edited in the cart, the one place it can be reconciled
-      // against stock and price.
+      // The card has no quantity affordance — quantity is edited in the cart,
+      // the one place it can be reconciled against stock and price.
       expect(screen.queryByRole('button', { name: /increase quantity/i })).not.toBeInTheDocument()
       expect(screen.queryByRole('button', { name: /decrease quantity/i })).not.toBeInTheDocument()
     })
@@ -367,8 +366,8 @@ describe('CardActions', () => {
     })
 
     it('every branch renders exactly one control, so mixed decks stay aligned', () => {
-      // This is what the removed QuantityStepperPlaceholder used to guarantee:
-      // a purchasable card and a variable one must be the same height.
+      // A purchasable card and a variable one must be the same height, or a
+      // mixed deck goes ragged.
       const branches = [
         { variantId: 'v1', inStock: true, hasPrice: true },
         { variantId: 'v1', inStock: false, hasPrice: true },

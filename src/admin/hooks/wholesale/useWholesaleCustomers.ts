@@ -6,12 +6,11 @@ import type { UseWholesaleCustomersParams, WholesaleCustomerListItem } from './t
  * — not a separate resource. This delegates to {@link useCustomers} rather than
  * issuing its own `AllCustomers`/`CustomerCount` pair.
  *
- * **That delegation is load-bearing, not tidiness.** Until 2026-07-28 this hook
- * was a copy of `useCustomers` with its own React Query key family
- * (`['admin','wholesale-customers',…]`) over the *same* server rows, so a status
- * change made on one screen left the other screen showing the stale value —
- * every mutation invalidated only its own family. Sharing one key family makes
- * invalidation correct by construction instead of by remembering.
+ * **That delegation is load-bearing, not tidiness.** A second key family over
+ * the *same* server rows means every mutation invalidates only its own family,
+ * so a status change made on one screen leaves the other showing the stale
+ * value. Sharing one key family makes invalidation correct by construction
+ * instead of by remembering.
  *
  * If this ever needs to diverge, change the *arguments*, never the key family.
  */

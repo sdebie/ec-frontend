@@ -21,12 +21,11 @@ function PriceSkeleton() {
  * name, SKU, variant and stock state on the left; unit price, quantity and line
  * total on the right.
  *
- * This is deliberately NOT a `ProductCard` variant (law 4). A cart line's
- * quantity is persisted state being edited, not a pre-purchase choice, and it
- * carries a line total and a remove control the card has no concept of —
- * teaching the shared card about carts is exactly the capability creep the
- * wishlist round had to undo. It reuses the shared pieces that DO transfer:
- * `QuantityStepper`, `formatAmount`, and the card's visual vocabulary.
+ * Deliberately NOT a `ProductCard` variant (law 4). A cart line's quantity is
+ * persisted state being edited, not a pre-purchase choice, and it carries a
+ * line total and a remove control the card has no concept of. Teaching the
+ * shared card about carts is capability creep. It reuses the pieces that DO
+ * transfer: `QuantityStepper`, `formatAmount`, the card's visual vocabulary.
  *
  * Blocking states (unavailable / out of stock / over stock / no price) each
  * carry their own message, because "remove this to continue" is only actionable

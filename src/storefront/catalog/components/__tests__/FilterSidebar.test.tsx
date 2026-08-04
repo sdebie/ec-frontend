@@ -63,7 +63,7 @@ describe('FilterSidebar', () => {
       expect(onDrawerClose).toHaveBeenCalledTimes(1)
     })
 
-    it('renders an X close button in the drawer header that closes the drawer (owner adjustment 2026-08-01)', async () => {
+    it('renders an X close button in the drawer header that closes the drawer', async () => {
       // The original design had "View results" as the drawer's only closer;
       // the owner then asked for a clear header close button as well — both
       // close, the sticky footer "View results" remains the primary action.

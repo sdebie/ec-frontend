@@ -1,6 +1,6 @@
 /**
  * Single source of truth for order-status badge styling, shared by the account
- * dashboard and order history/detail pages (previously triplicated).
+ * dashboard and the order history and detail pages.
  *
  * `--c-status-*` and `--c-info` are bound only under [data-surface='admin']
  * (see shared/ui/primitives/surface/tokens.css), so they resolve to nothing on

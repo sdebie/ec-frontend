@@ -10,9 +10,8 @@ import {useToggleEffective} from '../hooks/useToggleEffective'
  * The chip both affordances below are drawn on: a round button-sized target with
  * a transparent border reserved so highlighting it cannot shift the layout.
  *
- * Deliberately NOT exported. Callers were previously handed this string and
- * pasted it into their own `className`, which meant every new consumer had to
- * know the recipe and could drift from it. The components own their appearance;
+ * Deliberately NOT exported. Handing callers the string means every consumer has
+ * to know the recipe and can drift from it. The components own their appearance;
  * a caller passes only layout extras (position, size) through `className`.
  */
 const CHIP =

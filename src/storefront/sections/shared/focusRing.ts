@@ -26,9 +26,9 @@ export const SF_FOCUS_RING = {
 /**
  * Hover/active interaction classes for solid accent buttons.
  *
- * Replaces the old `hover:opacity-90` pattern with deterministic color-mix
- * tints that darken the accent at fixed ratios — consistent with the existing
- * accent-derivation family (`color-mix(in srgb, var(--sf-accent) N%, black)`).
+ * Deterministic color-mix tints that darken the accent at fixed ratios, in the
+ * same accent-derivation family used elsewhere. Not `hover:opacity-90`, which
+ * fades the button toward whatever sits behind it instead of darkening it.
  */
 export const ACCENT_BUTTON_HOVER =
   'hover:bg-[color-mix(in_srgb,var(--sf-accent)_88%,black)] active:bg-[color-mix(in_srgb,var(--sf-accent)_78%,black)]'

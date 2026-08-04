@@ -3,10 +3,10 @@ import { createContext, useContext, useMemo, type ReactNode } from 'react'
 /**
  * The two surfaces this platform has. Wholesale is a customer *tier*
  * (`shopperType`), not a surface — wholesale shoppers browse the same storefront
- * and differ only in which price tier is primary. A third `'wholesaler'` member
- * was removed 2026-07-28: nothing ever set it, and every `--ws-*` token its
- * stylesheet block referenced was undefined, so the block resolved to the
- * storefront values it was meant to override.
+ * and differ only in which price tier is primary. Do not add a third member for
+ * wholesale: there are no `--ws-*` tokens for its stylesheet block to resolve
+ * against, so it falls through to the storefront values it was meant to
+ * override — silently, because an undefined custom property just drops.
  */
 export type SurfaceElevation = 'admin' | 'storefront'
 export type Density = 'compact' | 'comfortable'

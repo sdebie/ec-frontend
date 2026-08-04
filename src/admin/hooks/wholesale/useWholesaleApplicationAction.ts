@@ -38,11 +38,10 @@ export function useWholesaleApplicationAction() {
       queryClient.invalidateQueries({ queryKey: ['admin', 'wholesale-applications'] })
       // Invalidate the detail query for this specific application.
       queryClient.invalidateQueries({ queryKey: ['admin', 'wholesale-application', applicationId] })
-      // One prefix now covers every customer cache — both list screens, both
-      // detail screens. This used to need a hand-maintained list of keys
-      // (including the retired ['admin','wholesale-customers'] family), which is
-      // exactly how the two screens drifted out of sync. Unconditional, because
-      // approving an application changes the customer's tier wherever it is shown.
+      // One prefix covers every customer cache — both list screens, both detail
+      // screens. A hand-maintained list of keys is how screens drift out of
+      // sync. Unconditional, because approving an application changes the
+      // customer's tier wherever it is shown.
       queryClient.invalidateQueries({ queryKey: ['admin', 'customers'] })
       toast.success(
         action === 'approve'

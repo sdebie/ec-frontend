@@ -2,39 +2,26 @@ import {useCallback, useEffect, useRef} from 'react'
 import type {FieldValues, UseFormReset, UseFormWatch} from 'react-hook-form'
 
 /**
- * Keeps a react-hook-form's in-progress values in `sessionStorage`, so a page
- * reload does not throw away what someone has typed.
+ * Keeps a react-hook-form's in-progress values in `sessionStorage`, so a reload
+ * does not discard what someone has typed. Mobile browsers reload on returning
+ * from another app, which is exactly when a long form is abandoned mid-entry.
  *
- * WHY THIS EXISTS: form state lives only in memory, so any reload starts the
- * form over blank. That is not hypothetical — the mobile site reloads whenever
- * a phone returns from another app, and "go and look something up" (a VAT
- * number, a company registration number, a delivery address) is exactly what
- * takes someone out of the browser mid-form. They came back to step 1 of five.
+ * `sessionStorage`, not `localStorage`: these forms carry personal data and
+ * company registration/VAT numbers. It survives a reload and an OS tab-restore,
+ * is gone when the tab closes, and is per-tab so two tabs never overwrite each
+ * other.
  *
- * ## Why sessionStorage, not localStorage
- *
- * These forms carry personal data and company registration/VAT numbers. Session
- * storage survives every reload — including an OS tab-restore, which is the case
- * we are actually fixing — but is gone the moment the tab closes, so nothing is
- * left behind on a shared or public device. It is also per-tab, so two tabs
- * filling the same form never overwrite each other. (Owner decision 2026-08-04;
- * a days-long localStorage draft was the alternative and was declined.)
- *
- * ## Contract
- *
- * - `watch` and `reset` are taken individually rather than the whole
- *   `UseFormReturn` — the signature is then the honest list of what this touches
- *   (law 14). It reads values and restores them; it never submits or validates.
- * - Restoring happens once, on mount, BEFORE the first save can run. Until that
- *   has happened nothing is written, or an empty initial render would overwrite
- *   the very draft it is about to restore.
- * - A pristine form writes nothing, so merely visiting a page leaves no trace.
- * - `clearDraft` is the caller's to invoke on a successful submit. It is not
- *   automatic: only the caller knows the submission actually succeeded.
- * - Storage failures and unparseable drafts are swallowed. A draft is a
- *   convenience; it must never be able to break the form it is helping. Safari's
- *   private mode throws on `sessionStorage.setItem`, and a draft written before a
- *   schema change may no longer fit the form.
+ * Contract:
+ * - Takes `watch` and `reset` individually, never the whole `UseFormReturn`
+ *   (law 14). Reads and restores values; never submits or validates.
+ * - Restores once on mount, before the first save. Nothing is written until
+ *   then, or an empty initial render overwrites the draft being restored.
+ * - A pristine form writes nothing, so visiting a page leaves no trace.
+ * - `clearDraft` is the caller's to invoke on success — only the caller knows
+ *   the submission succeeded.
+ * - Storage failures and unparseable drafts are swallowed: a draft must never
+ *   break the form it is helping. Safari private mode throws on `setItem`, and
+ *   a draft written before a schema change may not fit the form.
  */
 
 /** Bumped when the stored shape changes, so old drafts are ignored, not misread. */

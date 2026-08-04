@@ -45,8 +45,8 @@ export function ContentSplitSection({section}: { section: ContentSplitSectionCon
                     </div>
                 </div>
             ) : (
-                // No image: paragraphs take the full section width (owner call 2026-07-24 —
-                // a prose-capped column left the right half of the band empty).
+                // No image: paragraphs take the full section width. A prose-capped
+                // column would leave the right half of the band empty.
                 <div className="space-y-4">
                     {paragraphs.map((paragraph, index) => (
                         <p key={index} className="leading-relaxed text-(--sf-muted-text)">

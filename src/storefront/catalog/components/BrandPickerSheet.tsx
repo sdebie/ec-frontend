@@ -6,15 +6,14 @@ interface BrandPickerSheetProps {
   brands: Array<{ id: string; name: string; slug: string }>
   /** Currently selected brand slug ('' = all brands) */
   activeSlug: string
-  /** Live-apply: selecting a brand filters immediately (standing owner decision) */
+  /** Live-apply: selecting a brand filters immediately, with no confirm step. */
   onSelect: (slug: string) => void
   onClose: () => void
 }
 
 /**
- * Mobile-only full-screen brand picker (owner adjustment 2026-08-01) — replaces
- * the dropdown inside the filter drawer, where a portal listbox is cramped.
- * Desktop keeps the shared form-layer Select.
+ * Mobile-only full-screen brand picker — a portal listbox is cramped inside the
+ * filter drawer. Desktop keeps the shared form-layer Select.
  *
  * z-[100] deliberately clears the filter drawer (z-50) and any floating
  * chat/support widget so nothing bleeds through the active sheet.

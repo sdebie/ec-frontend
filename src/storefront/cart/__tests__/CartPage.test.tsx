@@ -111,9 +111,8 @@ describe('CartPage', () => {
             const shell = container.firstElementChild
             expect(shell?.tagName).toBe('DIV')
             expect(shell).toHaveClass('py-12', 'px-6', 'sm:px-8')
-            // Default width, not `wide` (owner directive 2026-08-04): one page
-            // width across the site, so the cart starts on the same left edge as
-            // the marketing sections.
+            // Default width, not `wide`: one page width across the site, so the
+            // cart starts on the same left edge as the marketing sections.
             expect(shell?.firstElementChild).toHaveClass('mx-auto', 'max-w-6xl')
         })
     })
@@ -212,9 +211,8 @@ describe('CartPage', () => {
             const shell = container.firstElementChild
             expect(shell?.tagName).toBe('DIV')
             expect(shell).toHaveClass('py-12', 'px-6', 'sm:px-8')
-            // Default width, not `wide` (owner directive 2026-08-04): one page
-            // width across the site, so the cart starts on the same left edge as
-            // the marketing sections.
+            // Default width, not `wide`: one page width across the site, so the
+            // cart starts on the same left edge as the marketing sections.
             expect(shell?.firstElementChild).toHaveClass('mx-auto', 'max-w-6xl')
         })
     })

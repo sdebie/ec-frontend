@@ -316,8 +316,7 @@ describe('WishlistPage', () => {
         it('renders an "Add to cart" button and no quantity control', () => {
             renderPage()
             expect(screen.getByRole('button', {name: /add to cart/i})).toBeInTheDocument()
-            // The shared card lost its stepper (owner directive 2026-08-03);
-            // quantity is edited in the cart.
+            // The shared card carries no stepper; quantity is edited in the cart.
             expect(screen.queryByRole('button', {name: /increase quantity/i})).not.toBeInTheDocument()
             expect(screen.queryByRole('button', {name: /decrease quantity/i})).not.toBeInTheDocument()
         })

@@ -8,8 +8,8 @@ import { ProductStatus } from '@/shared/types/enums'
  * Unit tests for ProductActionsMenu component.
  * Validates: Requirements 5.6, 5.4
  *
- * The component no longer has an onEdit prop or canMutate prop.
- * It renders only toggle status (Activate/Disable) and Delete menu items.
+ * The component takes no onEdit or canMutate prop: it renders only toggle
+ * status (Activate/Disable) and Delete menu items.
  */
 
 afterEach(() => {

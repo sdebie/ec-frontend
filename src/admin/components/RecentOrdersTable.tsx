@@ -22,7 +22,7 @@ function formatDate(dateString: string): string {
 
 /**
  * Shared read-only order-history table for the customer and wholesale-customer
- * detail pages. Previously duplicated verbatim in both (architectural law #4).
+ * detail pages — one implementation, per architectural law #4.
  */
 export function RecentOrdersTable({
   orders,

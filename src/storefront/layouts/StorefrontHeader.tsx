@@ -101,9 +101,8 @@ export function StorefrontHeader() {
           {/* Cart icon — visible on both desktop and mobile */}
           <CartIcon />
 
-          {/* Account / sign-in — after the cart (owner directive 2026-08-02).
-              Hidden below `md`: on a phone it lives in the nav drawer, so the
-              header keeps only the icons and the burger. */}
+          {/* Account / sign-in. Hidden below `md`: on a phone it lives in the
+              nav drawer, so the header keeps only the icons and the burger. */}
           <div className="hidden md:contents">
           {isSignedIn ? (
             <div ref={accountMenuRef} className="relative">

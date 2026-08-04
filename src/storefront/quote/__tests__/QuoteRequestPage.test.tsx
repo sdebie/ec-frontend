@@ -58,17 +58,16 @@ describe('QuoteRequestPage', () => {
     ).toBeInTheDocument()
   })
 
-  // Regression guard: this page must render the SHARED `Section` frame, not a
-  // container of its own. It kept `max-w-5xl px-4` until 2026-08-04 and was the
-  // worst-aligned surface on the site — content at x=144 against every section's
-  // 64. The shell is a div: StorefrontLayout owns the single <main> landmark.
+  // Regression guard: this page must render the SHARED `Section` frame rather
+  // than a container of its own, which is what keeps its left edge on the same
+  // line as every other page. The shell is a div — StorefrontLayout owns the
+  // single <main> landmark.
   //
-  // The old guard here asserted `w-full`, against the page collapsing to its
-  // content width when the quote list is empty. `Section`'s outer element is a
-  // plain block div inside `<main class="flex flex-1 flex-col">`, whose default
-  // align-items:stretch already makes it fill the width — which is why every
-  // other page shell works without `w-full`. jsdom does no layout, so that part
-  // is verified in a browser, not here.
+  // The frame carries no `w-full`, and does not need one: its outer element is
+  // a block div inside `<main class="flex flex-1 flex-col">`, whose default
+  // align-items:stretch fills the width. jsdom does no layout, so that the page
+  // does not collapse to its content width on an empty quote list is verified
+  // in a browser, not here.
   it('renders the shared storefront page frame at the default width', () => {
     const { container } = render(<QuoteRequestPage />, { wrapper: createWrapper() })
 
@@ -79,8 +78,8 @@ describe('QuoteRequestPage', () => {
   })
 
   // Regression guard: the REAL QuoteProductSearch must be mounted and always
-  // visible — a placeholder once shipped past the suite because nothing
-  // asserted this, and the toggle button was later removed as friction.
+  // visible. Without this assertion a placeholder satisfies the suite, and
+  // there is no toggle button to reveal it.
   it('always shows the real product search above the list', () => {
     render(<QuoteRequestPage />, { wrapper: createWrapper() })
 

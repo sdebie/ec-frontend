@@ -9,25 +9,21 @@ interface AccreditorTileProps {
     url?: string
 }
 
-// Tiles fill their GRID CELL rather than carrying a fixed width, which is what
-// stops the logos being small: previously each tile was pinned to w-52/w-64/w-72
-// no matter how much room the row had, so the artwork inside could never grow.
+// Tiles fill their GRID CELL rather than carrying a fixed width, so the artwork
+// inside can grow with the room the row has.
 //
 // The height comes from an ASPECT RATIO, not a fixed value, so a tile keeps its
 // proportions at every width and the logos scale with the viewport.
 //
-// UVH's artwork is now pre-normalised to a single 1200×400 canvas (3:1), so all
-// three logos are width-bound by `object-contain` and therefore already paint at
-// identical sizes. The ratio still earns its place as a guard: mismatched
-// artwork — the earlier 403×281 / 1301×605 / 1140×570 set — would otherwise have
-// some logos height-bound and some width-bound, which is what made them look
-// different sizes. Keeping the tile wider than any logo it holds keeps them
-// consistent whatever a client uploads.
+// The ratio is a guard against mismatched uploads: with artwork of differing
+// shapes, `object-contain` leaves some logos height-bound and some width-bound,
+// which makes them look like different sizes. A tile wider than any logo it
+// holds keeps them consistent whatever a client uploads.
 //
-// The `max-w` cap is what makes a phone logo SMALLER than a desktop one
-// (owner directive 2026-08-03). Without it a single-column phone tile is the
-// full 327px content width — wider than a desktop tile's third-of-the-row — so
-// the logos rendered *larger* on mobile than on desktop, which is backwards.
+// The `max-w` cap is what keeps a phone logo SMALLER than a desktop one.
+// Without it a single-column phone tile takes the full content width — wider
+// than a desktop tile's third-of-the-row — so logos render *larger* on mobile
+// than on desktop, which is backwards.
 //
 // The class goes on the OUTER element, not the bordered box: when a tile is
 // wrapped in its link, a percentage width on the inner div would resolve against

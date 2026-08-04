@@ -293,7 +293,7 @@ describe('FooterContactBlock', () => {
     })
   })
 
-  describe('every channel is listed (owner directive 2026-08-03)', () => {
+  describe('every channel is listed', () => {
     it('lists all numbers including the landline, and all e-mail addresses', () => {
       renderWithContact({
         phones: ['+27 11 111 1111', '+27 22 222 2222'],
@@ -322,7 +322,7 @@ describe('FooterContactBlock', () => {
     })
   })
 
-  describe('location vs channels split (owner directive 2026-08-02)', () => {
+  describe('location vs channels split', () => {
     it('puts address and hours in their own block, not among the channels', () => {
       renderWithContact(fullContact)
 

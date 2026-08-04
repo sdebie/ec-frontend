@@ -13,8 +13,8 @@ import type { CustomerStatus, WholesaleStatus } from '@/admin/hooks/customers/ty
  * entity has available transitions. Customer account actions require
  * `role === 'SUPER_ADMIN'` (backend updateCustomerStatus) with
  * `getAvailableActions(status).length > 0`; application decisions require
- * `SUPER_ADMIN` or `ORDER_MANAGER` (backend approve/rejectWholesaleApplication,
- * widened 2026-07-21) with `status === 'PENDING'`.
+ * `SUPER_ADMIN` or `ORDER_MANAGER` (backend approve/rejectWholesaleApplication)
+ * with `status === 'PENDING'`.
  *
  * **Validates: Requirements 1.6, 1.7, 2.6, 2.7, 3.8, 3.9, 8.2**
  */

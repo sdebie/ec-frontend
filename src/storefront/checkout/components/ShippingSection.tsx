@@ -10,9 +10,9 @@ import {CheckoutSection} from './CheckoutSection'
 
 /**
  * Capabilities only (law 14): `control` to bind fields and `errors` to report
- * them. It used to take `watch` and `setValue` as well — powers no reviewer
- * could see it needed. The selected method is read with `useWatch`, and clearing
- * the address on a switch to collection belongs to the page, which owns the form.
+ * them — not `watch` or `setValue`, powers no reviewer could see it needed. The
+ * selected method is read with `useWatch`, and clearing the address on a switch
+ * to collection belongs to the page, which owns the form.
  */
 interface ShippingSectionProps {
     control: Control<CheckoutFormValues>

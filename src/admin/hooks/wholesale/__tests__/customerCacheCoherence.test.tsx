@@ -18,14 +18,13 @@ vi.mock('@/shared/ui/components/toast', () => ({
 const mockedRequest = vi.mocked(adminGraphqlClient.request)
 
 /**
- * Regression guard for the 2026-07-28 consolidation.
+ * Regression guard for cache coherence between the two customer screens.
  *
  * The Customers screen and the Wholesale Customers screen show the SAME server
- * rows. They used to cache them under two independent React Query key families
- * (`['admin','customers',…]` and `['admin','wholesale-customers',…]`), and each
- * status mutation invalidated only its own — so changing a wholesale customer's
- * status on one screen left the other screen displaying the old status until its
- * cache expired.
+ * rows. Cached under two independent React Query key families, each status
+ * mutation invalidates only its own — so changing a wholesale customer's status
+ * on one screen leaves the other displaying the old status until its cache
+ * expires.
  *
  * These tests assert the structural property that makes that impossible: both
  * lists resolve through one key family, so one invalidation reaches both.

@@ -84,7 +84,6 @@ export function ProductListPage() {
     const updateStatus = useUpdateProductStatusGql()
 
     const pageCount = data?.totalPages ?? 0
-    // const totalElements = data?.totalElements ?? 0
 
     // Derive the visible page when a result set shrinks. This avoids a second
     // render that exists only to synchronise state with response metadata.
