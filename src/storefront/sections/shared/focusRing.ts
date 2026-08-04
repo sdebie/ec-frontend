@@ -90,42 +90,52 @@ export const SOCIAL_CHIP_CLASS =
  * Hover treatment for the header's icon controls (cart, wishlist, account,
  * burger).
  *
- * The accent arrives as the FILL, not the text colour: the nav sits on
- * `--sf-nav-background` (#111 for this client) and painting `--sf-accent`
- * (#7a0019) as text on it lands around 1.5:1 — unreadable. As a fill with
- * `--sf-accent-text` on top it is ~12:1 and unmistakably the brand colour.
+ * The bar is dark chrome, so its controls light UP toward the nav's own
+ * foreground instead of taking on the accent. `--sf-nav-icon-text-hover` is
+ * seeded for exactly this and the search button already reads it, so the whole
+ * header responds in one voice — and a client that brands a light nav gets a
+ * wash that darkens, because the token moves with the surface.
  *
- * The accent is LIGHTENED toward white rather than dimmed by opacity: on a near
- * black bar, lowering the accent's alpha only sinks it further into the
- * background. Mixing 80% accent with white lifts it to roughly rgb(149,51,71) —
- * visibly brighter than the raw accent, and white on it still measures ~7.4:1.
+ * Keeping the wash neutral and low-alpha is what lets the accent count badge
+ * stay legible on top of it. Brand presence in the header comes from that badge
+ * and the accent focus ring; painting the control itself accent puts a solid
+ * block of colour beside the accent-OUTLINED buttons on the page, which reads as
+ * a different design language rather than the same one.
  */
 export const NAV_ICON_HOVER =
-  'text-(--sf-nav-icon-text) transition-colors hover:bg-[color-mix(in_srgb,var(--sf-accent)_80%,white)] hover:text-(--sf-accent-text)'
+  'text-(--sf-nav-icon-text) transition-colors hover:bg-(--sf-nav-icon-text-hover)/10 hover:text-(--sf-nav-icon-text-hover)'
 
 /**
- * The header's icon control: a circular pill that fills with the lightened
- * accent on hover and carries a raw-accent ring around it.
+ * The header's icon control: a rounded square that washes toward the nav
+ * foreground on hover and carries a faint ring of the same colour.
+ *
+ * `rounded-md` is the header's radius throughout — the search field and its
+ * button, the account menu, the burger and the nav CTA all use it. A circle here
+ * is the one shape that disagrees with its own bar.
  *
  * Shared because the cart, wishlist and account controls must be identical —
  * they sit side by side, and any divergence in padding or radius reads as a
- * misalignment. `group` is part of the contract: the badge and any icon fill
- * below key off it.
+ * misalignment. `group` is part of the contract: the icon fill in WishlistIcon
+ * keys off it.
  *
- * `p-2.5` rather than `p-2`: a count badge overhangs the top-right corner, and
- * the extra padding is what lets the ring enclose the badge instead of slicing
- * through it. The border is always present but transparent, so nothing shifts
- * on hover.
+ * The ring is a quarter-alpha rather than solid: at full strength it competes
+ * with the wash instead of containing it, and the control stops reading as one
+ * shape.
+ *
+ * `p-2.5` rather than `p-2` keeps the hover wash a comfortable square around a
+ * 20px glyph instead of hugging it. The border is always present but
+ * transparent, so nothing shifts on hover.
  */
 export const NAV_ICON_PILL =
-  `group relative flex items-center justify-center rounded-full border border-transparent p-2.5 ${NAV_ICON_HOVER} hover:border-(--sf-accent)`
+  `group relative flex items-center justify-center rounded-md border border-transparent p-2.5 ${NAV_ICON_HOVER} hover:border-(--sf-nav-icon-text-hover)/25`
 
 /**
  * The count badge that rides in a NAV_ICON_PILL's top-right corner.
  *
- * It INVERTS on hover: an accent badge on the pill's lightened-accent fill
- * measures ~1.5:1 and would all but vanish, so the two colours swap. Requires
- * `group` on the pill — NAV_ICON_PILL provides it.
+ * It holds its accent identity through hover. The pill's wash is neutral and
+ * low-alpha, so the badge stays legible without swapping colours — and a count
+ * is information, not an affordance, so it should not appear to respond to the
+ * pointer while the control around it does.
  */
 export const NAV_ICON_BADGE =
-  'absolute right-0 top-0 flex h-4 min-w-4 items-center justify-center rounded-full bg-(--sf-accent) px-1 text-[10px] font-medium text-(--sf-accent-text) transition-colors group-hover:bg-(--sf-accent-text) group-hover:text-(--sf-accent)'
+  'absolute right-0 top-0 flex h-4 min-w-4 items-center justify-center rounded-full bg-(--sf-accent) px-1 text-[10px] font-medium text-(--sf-accent-text)'

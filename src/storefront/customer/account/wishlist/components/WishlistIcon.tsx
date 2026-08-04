@@ -20,16 +20,16 @@ export function WishlistIcon({className}: WishlistIconProps) {
                 as "saved" when solid, which the cart and account glyphs have no
                 equivalent of.
 
-                It fills with accent-TEXT, not accent: on the pill's lightened
-                accent fill a raw-accent heart measures ~1.5:1 and would vanish
-                into it. And `fill-(--sf-accent-text)`, never `fill-current` —
-                lucide sets a `fill="none"` presentation attribute and
-                `fill-current` emits no CSS in this build, so the class would
-                apply and the heart stay hollow. `fill-none` is stated so the
-                hover has something to override rather than relying on that
-                attribute. */}
+                It fills with the nav's hover foreground, the same colour the
+                glyph itself turns, so the icon reads as one shape lighting up
+                rather than an outline and a fill in two colours. Name the token,
+                never `fill-current` — lucide sets a `fill="none"` presentation
+                attribute and `fill-current` emits no CSS in this build, so the
+                class would apply and the heart stay hollow. `fill-none` is
+                stated so the hover has something to override rather than
+                relying on that attribute. */}
             <Heart
-                className="h-5 w-5 fill-none transition-colors group-hover:fill-(--sf-accent-text)"
+                className="h-5 w-5 fill-none transition-colors group-hover:fill-(--sf-nav-icon-text-hover)"
                 aria-hidden="true"
             />
             {count > 0 && <span className={NAV_ICON_BADGE}>{count}</span>}
