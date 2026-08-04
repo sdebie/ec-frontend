@@ -226,7 +226,7 @@ export function ProductDetailPage() {
                                             src={brandLogo}
                                             alt={product.brand.name}
                                             onError={() => setBrandLogoFailed(true)}
-                                            className="h-7 max-h-7 w-auto max-w-24 object-contain object-right"
+                                            className="h-9 max-h-9 w-auto max-w-32 object-contain object-right"
                                         />
                                     ) : (
                                         <span className="text-base font-semibold text-(--sf-text)">
@@ -295,14 +295,18 @@ export function ProductDetailPage() {
                                 {/* Badges, not links.
                                     They label what this product IS; navigating away
                                     to a filtered catalogue mid-purchase is not what a
-                                    shopper reading the panel wants. The hover
-                                    treatment is kept — it is what makes the pills
-                                    read as a set rather than as flat text. */}
+                                    shopper reading the panel wants.
+
+                                    They therefore carry NO hover. A pointer response
+                                    on a `span` advertises a click that does not
+                                    exist. The accent border and tint are painted at
+                                    rest instead, which is what makes the pills read
+                                    as a set rather than as flat text. */}
                                 <div className="mt-2 flex flex-wrap gap-2">
                                     {categories.map((category) => (
                                         <span
                                             key={category.id}
-                                            className="inline-flex items-center rounded-full border border-(--sf-border) px-3 py-1 text-sm font-medium text-(--sf-text) transition-colors hover:border-(--sf-accent) hover:bg-[color-mix(in_srgb,var(--sf-accent)_8%,var(--sf-panel))]"
+                                            className="inline-flex items-center rounded-full border border-(--sf-accent) bg-[color-mix(in_srgb,var(--sf-accent)_8%,var(--sf-panel))] px-3 py-1 text-sm font-medium text-(--sf-text)"
                                         >
                                             {category.name}
                                         </span>

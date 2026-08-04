@@ -20,15 +20,17 @@ interface AccreditorTileProps {
 // which makes them look like different sizes. A tile wider than any logo it
 // holds keeps them consistent whatever a client uploads.
 //
-// The `max-w` cap is what keeps a phone logo SMALLER than a desktop one.
-// Without it a single-column phone tile takes the full content width — wider
-// than a desktop tile's third-of-the-row — so logos render *larger* on mobile
-// than on desktop, which is backwards.
+// The `max-w` cap keeps a phone tile narrower than a desktop one, which is a
+// third of the row (368px at the standard page width). It is NOT there to leave
+// a gutter: a single-column tile should very nearly fill the phone's content
+// column, or the logos read as small with dead space either side. 320px lands
+// within a few px of full width on a 375px phone and still sits under the
+// desktop tile, so the cap only bites on large phones.
 //
 // The class goes on the OUTER element, not the bordered box: when a tile is
 // wrapped in its link, a percentage width on the inner div would resolve against
 // a shrink-to-fit anchor and collapse.
-const TILE_SIZE_CLASS = 'mx-auto w-full max-w-[240px] aspect-[5/2] sm:max-w-none'
+const TILE_SIZE_CLASS = 'mx-auto w-full max-w-[320px] aspect-[5/2] sm:max-w-none'
 
 function AccreditorTile({name, logoUrl, url}: AccreditorTileProps) {
     const [imgFailed, setImgFailed] = useState(false)
