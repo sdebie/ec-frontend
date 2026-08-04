@@ -61,20 +61,36 @@ describe('ProductCard', () => {
     })
 
     describe('border weight', () => {
-        it('keeps the hairline outline by default — the catalogue must not thicken', () => {
-            const {container} = renderCard()
+        it('reserves the same width at both weights, so hover cannot reflow', () => {
+            // Hover swaps the border to the accent. If it also changed the WIDTH,
+            // the content box would narrow by 2px per side under the pointer, and
+            // a name one word short of wrapping would reflow and push its whole
+            // row taller. Both weights reserve 2px; only the opacity differs.
+            const {container: def} = renderCard()
+            const {container: thick} = renderCard({}, {borderWeight: 'thick'})
 
-            const root = container.querySelector('[data-layout="grid"]')!
-            expect(root.className).toContain('border border-(--sf-border)/60')
-            expect(root.className).not.toContain('border-2')
+            expect(def.querySelector('[data-layout="grid"]')!.className)
+                .toContain('border-2 border-(--sf-border)/60')
+            expect(thick.querySelector('[data-layout="grid"]')!.className)
+                .toContain('border-2 border-(--sf-border)')
         })
 
-        it('renders a heavier border when the consumer opts in', () => {
+        it('distinguishes the two weights by opacity, not width', () => {
             const {container} = renderCard({}, {borderWeight: 'thick'})
 
             const root = container.querySelector('[data-layout="grid"]')!
             expect(root.className).toContain('border-2 border-(--sf-border)')
             expect(root.className).not.toContain('border-(--sf-border)/60')
+        })
+
+        it('never changes border width on hover', () => {
+            // A `hover:border-<n>` would reintroduce the reflow the reserved
+            // width exists to prevent. Hover may repaint the edge, never resize it.
+            for (const weight of ['default', 'thick'] as const) {
+                const {container} = renderCard({}, {borderWeight: weight})
+                const root = container.querySelector('[data-layout="grid"]')!
+                expect(root.className, weight).not.toMatch(/hover:border-\d/)
+            }
         })
 
         it('uses a border, not an inset outline the image stage would cover', () => {

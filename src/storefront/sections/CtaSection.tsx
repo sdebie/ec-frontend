@@ -2,6 +2,7 @@ import {Link} from 'react-router-dom'
 import type {CtaSectionConfig} from '@/shared/types/StorefrontConfig'
 import {
     ACCENT_BUTTON_HOVER,
+    ON_ACCENT_BUTTON_HOVER,
     SECONDARY_BUTTON_HOVER_DARK,
     SF_FOCUS_RING_PAGE,
     Section,
@@ -87,16 +88,14 @@ export function CtaSection({section}: { section: CtaSectionConfig }) {
                 <div className="mt-8 flex flex-wrap items-center justify-center gap-4">
                     <Link
                         to={cta.to}
-                        className="inline-block rounded-md border-2 border-transparent px-6 py-3 text-sm font-semibold shadow-sm"
-                        style={{ background: 'var(--sf-accent-text)', color: 'var(--sf-accent)' }}
+                        className={`inline-block rounded-md border-2 border-transparent bg-(--sf-accent-text) px-6 py-3 text-sm font-semibold text-(--sf-accent) shadow-sm transition-colors ${ON_ACCENT_BUTTON_HOVER} ${SF_FOCUS_RING_PAGE}`}
                     >
                         {cta.label}
                     </Link>
                     {secondaryCta && (
                         <Link
                             to={secondaryCta.to}
-                            className={`inline-block rounded-md border-2 bg-transparent px-6 py-3 text-sm font-semibold transition-colors ${SECONDARY_BUTTON_HOVER_DARK}`}
-                            style={{ borderColor: 'var(--sf-accent-text)', color: 'var(--sf-accent-text)' }}
+                            className={`inline-block rounded-md border-2 border-(--sf-accent-text)/50 bg-transparent px-6 py-3 text-sm font-semibold text-(--sf-accent-text) transition-colors ${SECONDARY_BUTTON_HOVER_DARK} ${SF_FOCUS_RING_PAGE}`}
                         >
                             {secondaryCta.label}
                         </Link>

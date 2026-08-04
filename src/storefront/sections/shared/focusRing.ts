@@ -67,11 +67,30 @@ export const SECONDARY_BUTTON_HOVER = {
 } as const
 
 /**
- * Hover class for text-accent links (text colour only, no background).
- * Uses a slightly tinted accent for the hover state.
+ * Hover for the solid button that sits ON an accent band, where the fill is
+ * `--sf-accent-text` because an accent fill would vanish into the band.
+ *
+ * The fill steps toward the accent rather than toward black or white, because
+ * `--sf-accent-text` may be either one: darkening does nothing to a black label
+ * on a light accent, and lightening does nothing to a white one. Moving toward
+ * its own accent always shifts it, and keeps the pair related instead of
+ * introducing a third colour.
+ *
+ * The button's colours must be CLASSES, not an inline `style` — an inline style
+ * outranks every hover rule, so the class applies and nothing paints.
  */
-export const ACCENT_LINK_HOVER =
-  'hover:text-[color-mix(in_srgb,var(--sf-accent)_80%,black)]'
+export const ON_ACCENT_BUTTON_HOVER =
+  'hover:bg-[color-mix(in_srgb,var(--sf-accent-text)_90%,var(--sf-accent))]'
+
+/**
+ * Hover for text-accent links (text colour only, no background).
+ *
+ * Steps to `--sf-accent-hover`, the same token the primary's fill and the light
+ * secondary's label take, so every accent-coloured thing on the page darkens by
+ * one consistent step. A percentage mix cannot do that: it is multiplicative, so
+ * the darker the client's accent the smaller the shift it produces.
+ */
+export const ACCENT_LINK_HOVER = 'hover:text-(--sf-accent-hover)'
 
 /**
  * Circular chip for a social icon link — used by the announcement bar and the
@@ -115,8 +134,8 @@ export const NAV_ICON_HOVER =
  *
  * Shared because the cart, wishlist and account controls must be identical —
  * they sit side by side, and any divergence in padding or radius reads as a
- * misalignment. `group` is part of the contract: the icon fill in WishlistIcon
- * keys off it.
+ * misalignment. Every glyph in the set answers the same way, with colour and the
+ * wash behind it; none of them fills or changes shape.
  *
  * The ring is a quarter-alpha rather than solid: at full strength it competes
  * with the wash instead of containing it, and the control stops reading as one
@@ -127,7 +146,7 @@ export const NAV_ICON_HOVER =
  * transparent, so nothing shifts on hover.
  */
 export const NAV_ICON_PILL =
-  `group relative flex items-center justify-center rounded-md border border-transparent p-2.5 ${NAV_ICON_HOVER} hover:border-(--sf-nav-icon-text-hover)/25`
+  `relative flex items-center justify-center rounded-md border border-transparent p-2.5 ${NAV_ICON_HOVER} hover:border-(--sf-nav-icon-text-hover)/25`
 
 /**
  * The count badge that rides in a NAV_ICON_PILL's top-right corner.

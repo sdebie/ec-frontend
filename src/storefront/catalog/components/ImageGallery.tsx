@@ -34,7 +34,7 @@ export function ImageGallery({ images, productName }: ImageGalleryProps) {
 
   if (!images.length || !selectedImage) {
     return (
-      <div className="aspect-square w-full overflow-hidden rounded-lg bg-(--sf-surface-muted)">
+      <div className="aspect-[4/3] w-full overflow-hidden rounded-lg bg-(--sf-surface-muted)">
         <div className="flex h-full w-full items-center justify-center text-(--sf-muted-text)">
           <svg
             xmlns="http://www.w3.org/2000/svg"
@@ -58,7 +58,7 @@ export function ImageGallery({ images, productName }: ImageGalleryProps) {
 
   return (
     <div className="mx-auto w-full max-w-lg space-y-3">
-      <div className="aspect-square w-full overflow-hidden rounded-lg bg-(--sf-surface-muted)">
+      <div className="aspect-[4/3] w-full overflow-hidden rounded-lg bg-(--sf-surface-muted)">
         <img
           src={selectedImage}
           alt={productName}

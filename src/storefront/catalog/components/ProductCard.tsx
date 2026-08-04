@@ -9,14 +9,21 @@ import {CardActions} from './CardActions'
 import {SF_FOCUS_RING} from '@/storefront/sections/shared/focusRing'
 
 /**
- * Card outline weight. 'thick' is for decks sitting on a saturated client colour
- * band, where the default hairline at 60% opacity disappears into the gradient.
+ * Card edge strength. 'thick' is for decks sitting on a saturated client colour
+ * band, where the default line at 60% opacity disappears into the gradient.
+ *
+ * Both weights reserve the SAME 2px, and differ only in how strongly the resting
+ * line is painted. The width is constant because hover swaps the colour to the
+ * accent: if hover also changed the width, the content box would narrow by a
+ * pixel per side under the pointer, and a name one word short of wrapping would
+ * reflow and push its whole row taller. Reserving the width means hover is a
+ * pure repaint.
  *
  * A real border, not an inset outline: an inset outline paints beneath the
  * card's own children, so the full-bleed image stage occludes it along the top
  * edge and that side reads thinner than the other three.
  *
- * It costs 1px of content width per side, which is safe only because the lines
+ * It costs 2px of content width per side, which is safe only because the lines
  * that could reflow cannot: the name is `line-clamp-2` and the SKU truncates.
  * If a future line may wrap, re-check that decks still align.
  *
@@ -24,7 +31,7 @@ import {SF_FOCUS_RING} from '@/storefront/sections/shared/focusRing'
  * so a composed `border-${n}` would emit no CSS.
  */
 const CARD_BORDER_CLASS: Record<'default' | 'thick', string> = {
-    default: 'border border-(--sf-border)/60',
+    default: 'border-2 border-(--sf-border)/60',
     thick: 'border-2 border-(--sf-border)',
 }
 
@@ -177,8 +184,9 @@ interface ProductCardProps {
      */
     mobileImage?: 'default' | 'thumbnail'
     /**
-     * Card outline weight. 'thick' suits a deck on a saturated colour band where
-     * the default hairline vanishes. Default preserves every existing consumer.
+     * Card edge strength. 'thick' suits a deck on a saturated colour band where
+     * the default line vanishes. Both reserve the same width and differ only in
+     * opacity, so hover is a repaint rather than a reflow.
      */
     borderWeight?: 'default' | 'thick'
     /**

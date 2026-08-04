@@ -16,22 +16,16 @@ export function WishlistIcon({className}: WishlistIconProps) {
             className={`${NAV_ICON_PILL} ${SF_FOCUS_RING.nav} ${className ?? ''}`}
             aria-label={count > 0 ? `Wishlist with ${count} items` : 'Wishlist'}
         >
-            {/* The heart is the one nav icon that FILLS on hover — a heart reads
-                as "saved" when solid, which the cart and account glyphs have no
-                equivalent of.
+            {/* The heart stays hollow through hover. The cart and account glyphs
+                beside it have no fill state, so filling this one alone would
+                break the header's single response — and a solid heart is the
+                "saved" signal on a product card, so filling it here would
+                announce a save that has not happened. The control answers with
+                colour and the wash behind it, exactly like its neighbours.
 
-                It fills with the nav's hover foreground, the same colour the
-                glyph itself turns, so the icon reads as one shape lighting up
-                rather than an outline and a fill in two colours. Name the token,
-                never `fill-current` — lucide sets a `fill="none"` presentation
-                attribute and `fill-current` emits no CSS in this build, so the
-                class would apply and the heart stay hollow. `fill-none` is
-                stated so the hover has something to override rather than
-                relying on that attribute. */}
-            <Heart
-                className="h-5 w-5 fill-none transition-colors group-hover:fill-(--sf-nav-icon-text-hover)"
-                aria-hidden="true"
-            />
+                `fill-none` is stated rather than left to lucide's `fill="none"`
+                presentation attribute, which any CSS rule would outrank. */}
+            <Heart className="h-5 w-5 fill-none" aria-hidden="true"/>
             {count > 0 && <span className={NAV_ICON_BADGE}>{count}</span>}
         </Link>
     )

@@ -7,6 +7,7 @@ import {
     NAV_ICON_BADGE,
     NAV_ICON_HOVER,
     NAV_ICON_PILL,
+    ON_ACCENT_BUTTON_HOVER,
     SECONDARY_BUTTON_HOVER,
     SECONDARY_BUTTON_HOVER_DARK,
     SECONDARY_BUTTON_HOVER_LIGHT,
@@ -50,9 +51,16 @@ describe('Button hover/pressed system (design C3)', () => {
             }
         })
 
-        it('ACCENT_LINK_HOVER contains color-mix text hover state', () => {
-            expect(ACCENT_LINK_HOVER).toContain('hover:text-[color-mix(in_srgb,var(--sf-accent)')
-            expect(ACCENT_LINK_HOVER).toMatch(/black\)]/g)
+        it('ACCENT_LINK_HOVER steps to the same token every other accent thing uses', () => {
+            expect(ACCENT_LINK_HOVER).toBe('hover:text-(--sf-accent-hover)')
+        })
+
+        it('ON_ACCENT_BUTTON_HOVER moves the fill toward the accent, not to black or white', () => {
+            // --sf-accent-text may be either, so a fixed darken or lighten is a
+            // no-op for one of the two pairings.
+            expect(ON_ACCENT_BUTTON_HOVER).toContain('var(--sf-accent-text)_90%,var(--sf-accent)')
+            expect(ON_ACCENT_BUTTON_HOVER).not.toContain(',black)')
+            expect(ON_ACCENT_BUTTON_HOVER).not.toContain(',white)')
         })
     })
 
@@ -110,8 +118,17 @@ describe('Button hover/pressed system (design C3)', () => {
             expect(NAV_ICON_BADGE).not.toContain('group-hover:')
         })
 
-        it('pill still provides the group WishlistIcon fills its heart from', () => {
-            expect(NAV_ICON_PILL).toContain('group ')
+        it('carries no group, because no descendant keys off one', () => {
+            // The heart was the only group-hover consumer. A `group` with nothing
+            // reading it is inert markup that reads as a live contract.
+            expect(NAV_ICON_PILL).not.toContain('group')
+        })
+
+        it('shares the header radius rather than being the one round thing in it', () => {
+            // The search field, its button, the account menu, the burger and the
+            // nav CTA are all rounded-md.
+            expect(NAV_ICON_PILL).toContain('rounded-md')
+            expect(NAV_ICON_PILL).not.toContain('rounded-full')
         })
     })
 
@@ -149,6 +166,21 @@ describe('Button hover/pressed system (design C3)', () => {
                     violations.push(file.replace(storefrontDir, 'src/storefront'))
                 }
             }
+
+            expect(violations).toEqual([])
+        })
+
+        it('no NAV_ICON_PILL consumer uses group-hover', () => {
+            // NAV_ICON_PILL carries no `group`, so a `group-hover:` inside one of
+            // these controls matches nothing and paints nothing — the class is
+            // present, the effect never happens, and no typecheck or jsdom test
+            // can see it. Re-add `group` to the pill or drop the variant.
+            const storefrontDir = join(__dirname, '..', '..', '..')
+            const violations = collectFiles(storefrontDir)
+                .filter((file) => !file.endsWith('focusRing.ts'))
+                .map((file) => [file, readFileSync(file, 'utf-8')] as const)
+                .filter(([, text]) => text.includes('NAV_ICON_PILL') && text.includes('group-hover:'))
+                .map(([file]) => file.replace(storefrontDir, 'src/storefront'))
 
             expect(violations).toEqual([])
         })
