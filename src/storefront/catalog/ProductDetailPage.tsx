@@ -146,7 +146,7 @@ export function ProductDetailPage() {
         null
 
     return (
-        <Section as="div" width="wide" className="pt-6">
+        <Section as="div" className="pt-6">
             {/* Page heading — the product name, with the accent rule every other
                 storefront page title carries (owner directive 2026-08-02, which
                 supersedes the 2026-07-26 exemption that kept this a plain h1). */}

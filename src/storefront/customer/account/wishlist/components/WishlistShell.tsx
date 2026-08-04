@@ -18,7 +18,7 @@ export function WishlistShell({isSignedIn, children}: { isSignedIn: boolean; chi
     }
 
     return (
-        <Section as="div" width="wide">
+        <Section as="div">
             <div className="space-y-6">
                 {children}
             </div>

@@ -14,8 +14,8 @@ import {CartSummary} from './components/CartSummary'
  *
  * Presentation is delegated: `CartItems` renders the lines, `CartSummary` the
  * totals and the checkout commitment, `CartEmptyState` the empty case. The page
- * shell matches the catalogue and the wishlist — `Section as="div" width="wide"`
- * with the items beside a sticky summary.
+ * shell matches the catalogue and the wishlist — `Section as="div"` with the
+ * items beside a sticky summary.
  */
 export function CartPage() {
     const {items, updateQty, remove} = useCartStore()
@@ -32,7 +32,7 @@ export function CartPage() {
 
     if (items.length === 0) {
         return (
-            <Section as="div" width="wide">
+            <Section as="div">
                 <div className="space-y-6">
                     {heading}
                     <CartEmptyState/>
@@ -51,7 +51,7 @@ export function CartPage() {
     const unitCount = items.reduce((sum, item) => sum + item.quantity, 0)
 
     return (
-        <Section as="div" width="wide">
+        <Section as="div">
             <div className="space-y-6">
                 {heading}
 

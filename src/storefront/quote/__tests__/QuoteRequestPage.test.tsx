@@ -58,17 +58,24 @@ describe('QuoteRequestPage', () => {
     ).toBeInTheDocument()
   })
 
-  // Regression guard: the page shell must carry w-full — the storefront layout
-  // centres children by content width, so without it the whole page shrinks
-  // when the quote list is empty (jsdom does no layout; assert the class).
-  // The shell is a div: StorefrontLayout owns the single <main> landmark.
-  it('page shell always takes full width up to its max-width cap', () => {
+  // Regression guard: this page must render the SHARED `Section` frame, not a
+  // container of its own. It kept `max-w-5xl px-4` until 2026-08-04 and was the
+  // worst-aligned surface on the site — content at x=144 against every section's
+  // 64. The shell is a div: StorefrontLayout owns the single <main> landmark.
+  //
+  // The old guard here asserted `w-full`, against the page collapsing to its
+  // content width when the quote list is empty. `Section`'s outer element is a
+  // plain block div inside `<main class="flex flex-1 flex-col">`, whose default
+  // align-items:stretch already makes it fill the width — which is why every
+  // other page shell works without `w-full`. jsdom does no layout, so that part
+  // is verified in a browser, not here.
+  it('renders the shared storefront page frame at the default width', () => {
     const { container } = render(<QuoteRequestPage />, { wrapper: createWrapper() })
 
     expect(container.querySelector('main')).not.toBeInTheDocument()
     const shell = container.firstElementChild
-    expect(shell?.className).toContain('w-full')
-    expect(shell?.className).toContain('max-w-5xl')
+    expect(shell).toHaveClass('py-12', 'px-6', 'sm:px-8')
+    expect(shell?.firstElementChild).toHaveClass('mx-auto', 'max-w-6xl')
   })
 
   // Regression guard: the REAL QuoteProductSearch must be mounted and always

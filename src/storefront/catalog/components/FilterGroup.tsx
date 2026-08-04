@@ -17,7 +17,13 @@ export function FilterGroup({ title, defaultOpen = false, isActive = false, chil
         type="button"
         aria-expanded={isOpen}
         onClick={() => setIsOpen((prev) => !prev)}
-        className="flex w-full items-center justify-between py-2 text-sm font-medium text-(--sf-text) hover:text-(--sf-text-hover) transition-colors"
+        // Accent on hover, matching the tree items this group wraps
+        // (CategoryTreeFilter uses the same pair). Until 2026-08-04 the hover
+        // read a "sf-text-hover" token that exists in no seed and no stylesheet,
+        // so the browser dropped the declaration and the header never changed
+        // colour at all. The vocabulary has hover tokens for the nav only —
+        // see shared/config/themeTokens.ts, which now guards this.
+        className="flex w-full items-center justify-between py-2 text-sm font-medium text-(--sf-text) hover:text-(--sf-accent) transition-colors"
       >
         <span>{title}</span>
         <ChevronDown

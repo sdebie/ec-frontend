@@ -156,7 +156,7 @@ export function ProductListPage({ onSale = false }: ProductListPageProps) {
   const emptyCopy = onSale ? 'No specials match your filters.' : 'No products found. Try adjusting your filters.'
 
   return (
-    <Section as="div" width="wide">
+    <Section as="div">
       <SectionHeading as="h1" title={pageTitle} className="mb-4" />
 
       {/* Toolbar — above the grid, contains filter button, chips, sort, view toggle */}

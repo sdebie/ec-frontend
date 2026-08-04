@@ -349,7 +349,7 @@ export function ContactUsPage() {
 
   if (isContactEmpty(contact)) {
     return (
-      <Section as="div" width="wide">
+      <Section as="div">
         {heading}
         <div className="rounded-lg border border-(--sf-border) bg-(--sf-panel) px-6 py-16 text-center">
           <p className="text-sm text-(--sf-muted-text)">Contact information coming soon</p>
@@ -366,7 +366,7 @@ export function ContactUsPage() {
   const hasRightColumn = showForm || showMapEmbed
 
   return (
-    <Section as="div" width="wide">
+    <Section as="div">
       {heading}
 
       <div className="overflow-hidden rounded-lg border border-(--sf-border) bg-(--sf-panel)">

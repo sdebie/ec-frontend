@@ -92,7 +92,7 @@ export function WholesaleApplicationPage() {
     }
 
     return (
-        <Section as="div" width="wide">
+        <Section as="div">
             <SectionHeading
                 as="h1"
                 title="Wholesale Application"
