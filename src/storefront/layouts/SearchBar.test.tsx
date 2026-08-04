@@ -143,37 +143,30 @@ describe('SearchBar', () => {
   })
 
   /*
-    Clearing the box has to revoke the APPLIED search too. Emptying the input
-    alone left the term in the URL, so the results stayed filtered by a search
-    the shopper could no longer see and had no way to undo from here.
+    The clear button discards the DRAFT. It must not revoke an applied search —
+    that belongs to the sidebar field and the chip, which are where the applied
+    term is visible. A control here that silently changed the results would be
+    acting on state this box no longer represents.
   */
   describe('clear button', () => {
-    it('is absent while the box is empty', () => {
-      renderSearchBar(['/products'])
+    it('is absent while nothing has been typed, even with a search applied', () => {
+      renderSearchBar(['/products?q=headphones'])
 
       expect(screen.queryByRole('button', { name: /clear search/i })).not.toBeInTheDocument()
     })
 
-    it('appears once the box has a term', () => {
-      renderSearchBar(['/products?q=headphones'])
+    it('appears once something has been typed', async () => {
+      const user = userEvent.setup()
+      renderSearchBar(['/products'])
+
+      await user.type(screen.getByRole('searchbox', { name: /search products/i }), 'dra')
 
       expect(screen.getByRole('button', { name: /clear search/i })).toBeInTheDocument()
     })
 
-    it('empties the input and drops the applied term from the URL', async () => {
+    it('empties the draft without navigating or touching the applied search', async () => {
       const user = userEvent.setup()
       renderSearchBar(['/products?q=headphones&category=audio'])
-
-      await user.click(screen.getByRole('button', { name: /clear search/i }))
-
-      expect(screen.getByRole('searchbox', { name: /search products/i })).toHaveValue('')
-      // Other filters survive: clearing a search narrows nothing else.
-      expect(window.location.search).not.toContain('headphones')
-    })
-
-    it('empties a typed-but-unapplied term without navigating', async () => {
-      const user = userEvent.setup()
-      renderSearchBar(['/'])
 
       const input = screen.getByRole('searchbox', { name: /search products/i })
       await user.type(input, 'draft')
@@ -181,6 +174,7 @@ describe('SearchBar', () => {
 
       expect(input).toHaveValue('')
       expect(mockNavigate).not.toHaveBeenCalled()
+      expect(window.location.search).not.toContain('draft')
     })
   })
 

@@ -33,45 +33,52 @@ function FilterContent({
                            onClearAll,
                        }: Omit<FilterSidebarProps, 'drawerOpen' | 'onDrawerClose'>) {
     const [searchValue, setSearchValue] = useState(activeFilters.search)
-    const [debouncedValue, setDebouncedValue] = useState(activeFilters.search)
     const [brandPickerOpen, setBrandPickerOpen] = useState(false)
 
     /*
-      Resync the box when the search term changes from OUTSIDE (Clear all, the
-      chip's ×, the header search bar).
+      ONE piece of local state — the draft in the box. The applied term lives in
+      the URL, and `searchValue !== activeFilters.search` is the whole of "there
+      is something unpublished here".
 
-      Keyed on the external value CHANGING, not on it differing from the local
-      one. The previous form — "if both local values differ from external, adopt
-      external" — destroyed every search typed here: the moment the debounce
-      settled, `debouncedValue` held the new term and by definition still differed
-      from the URL (publishing it is what this component was about to do), so this
-      ran during render and reverted both values before the publishing effect
-      below could fire. The term never reached the URL, and the input snapped back
-      under the cursor. That is the whole of "I cannot use the sidebar search" —
-      the `q`/`search` parameter collision was a second, independent defect.
+      This deliberately replaced a three-state arrangement (`searchValue`,
+      `debouncedValue`, and a render-phase resync guard) that could not be made
+      correct. Two defects came out of it, and the second is why the extra state
+      had to go rather than be patched:
+
+        1. The resync compared the local values against the URL, so the instant
+           the debounce settled — the one moment they MUST differ, because
+           publishing is the next step — it reverted them during render and the
+           term never reached setFilter. Nothing typed here ever searched.
+        2. With the resync fixed, `debouncedValue` still went stale: a header
+           search adopts the new term during render, and a discarded render-phase
+           pass could leave `debouncedValue` holding the PREVIOUS term (proven in
+           the browser — it read "" while the URL, the input and the resync guard
+           all read "blanket"). The publish effect then wrote that empty string
+           back and wiped the search the header had just applied.
+
+      Collapsing to one state removes the intermediate value that could go stale,
+      and folding the debounce into the publish effect means the timer and the
+      write can never disagree about which term they are carrying.
     */
     const externalSearch = activeFilters.search
     const [prevExternalSearch, setPrevExternalSearch] = useState(externalSearch)
     if (prevExternalSearch !== externalSearch) {
+        // Adopt a term set from outside: Clear all, the chip's ×, the header bar.
         setPrevExternalSearch(externalSearch)
         setSearchValue(externalSearch)
-        setDebouncedValue(externalSearch)
     }
 
-    // Debounce search input — 350ms delay before firing filter change
+    /*
+      Publish the draft once it settles. The early return is load-bearing: right
+      after adopting an external term the draft already equals the URL, so there
+      is nothing to publish — without it, adopting would immediately re-publish
+      and fight whatever set the term.
+    */
     useEffect(() => {
-        const timer = setTimeout(() => {
-            setDebouncedValue(searchValue)
-        }, 350)
+        if (searchValue === externalSearch) return
+        const timer = setTimeout(() => setFilter(SEARCH_PARAM, searchValue), 350)
         return () => clearTimeout(timer)
-    }, [searchValue])
-
-    // Fire the setFilter callback when the debounced value settles
-    useEffect(() => {
-        if (debouncedValue !== activeFilters.search) {
-            setFilter(SEARCH_PARAM, debouncedValue)
-        }
-    }, [debouncedValue, activeFilters.search, setFilter])
+    }, [searchValue, externalSearch, setFilter])
 
     return (
         <div className="flex flex-col gap-5">

@@ -142,5 +142,48 @@ describe('FilterSidebar', () => {
       rerender(<FilterSidebar {...defaultProps} activeFilters={{search: '', category: '', brand: ''}} />)
       expect(screen.getByLabelText('Search')).toHaveValue('')
     })
+
+    /*
+      Adopting must be SILENT. This one only surfaced in the browser: a header
+      search set ?q=blanket, the sidebar adopted it, and then published a stale
+      empty string straight back — wiping the search a fraction of a second after
+      it was applied. The URL visibly went ?q=blanket → ?page=1 on its own.
+
+      The cause was an intermediate `debouncedValue` state that could hold the
+      PREVIOUS term while the input and the resync guard already held the new one.
+      Collapsing to a single draft state removed the value that could go stale;
+      this guards the behaviour rather than that particular mechanism.
+    */
+    it('publishes NOTHING when it adopts an external term — a header search must survive', async () => {
+      const setFilter = vi.fn()
+      const {rerender} = render(
+        <FilterSidebar {...defaultProps} activeFilters={{search: '', category: '', brand: ''}} setFilter={setFilter} />,
+      )
+
+      // The header bar applies a term; the URL changes underneath the sidebar.
+      rerender(
+        <FilterSidebar {...defaultProps} activeFilters={{search: 'blanket', category: '', brand: ''}} setFilter={setFilter} />,
+      )
+      expect(screen.getByLabelText('Search')).toHaveValue('blanket')
+
+      // Outlast the 350ms debounce: nothing may be written back at any point.
+      await new Promise((resolve) => setTimeout(resolve, 700))
+      expect(setFilter).not.toHaveBeenCalled()
+      expect(screen.getByLabelText('Search')).toHaveValue('blanket')
+    })
+
+    it('publishes nothing when an external term is cleared either', async () => {
+      const setFilter = vi.fn()
+      const {rerender} = render(
+        <FilterSidebar {...defaultProps} activeFilters={{search: 'blanket', category: '', brand: ''}} setFilter={setFilter} />,
+      )
+
+      rerender(
+        <FilterSidebar {...defaultProps} activeFilters={{search: '', category: '', brand: ''}} setFilter={setFilter} />,
+      )
+
+      await new Promise((resolve) => setTimeout(resolve, 700))
+      expect(setFilter).not.toHaveBeenCalled()
+    })
   })
 })
