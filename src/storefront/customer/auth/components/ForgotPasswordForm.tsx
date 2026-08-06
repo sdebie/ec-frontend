@@ -7,8 +7,25 @@ import { useRequestPasswordReset } from '@/storefront/customer/auth/hooks/useReq
 import { useVerifyPasswordResetCode } from '@/storefront/customer/auth/hooks/useVerifyPasswordResetCode'
 import { useCompletePasswordReset } from '@/storefront/customer/auth/hooks/useCompletePasswordReset'
 import { ACCENT_BUTTON_HOVER, SF_FOCUS_RING_PAGE } from '@/storefront/sections/shared'
+import { AUTH_LINK_CLASS, AuthHeading } from './AuthPageShell'
 
 type ResetStep = 'request' | 'verify' | 'complete' | 'success'
+
+/**
+ * Every step's primary action. Shared because the four steps sit in one flow —
+ * a shopper sees them back to back, and a button that changes height or weight
+ * between them reads as the page reloading. `h-10` is the storefront control
+ * height, matching the fields above it.
+ */
+const RESET_SUBMIT_CLASS = `flex h-10 w-full items-center justify-center rounded-md bg-(--sf-accent) px-3 text-sm font-semibold text-(--sf-accent-text) shadow-sm transition-colors ${ACCENT_BUTTON_HOVER} ${SF_FOCUS_RING_PAGE} disabled:cursor-not-allowed disabled:opacity-50`
+
+/**
+ * The form fills whatever container it is given — the reset page's card, or the
+ * modal panel when a client seeds `auth.loginStyle: 'modal'`. It must not carry
+ * its own max-width: that is the shell's job, and duplicating it here means a
+ * change to the card width silently stops applying to this one page.
+ */
+const STEP_CLASS = 'w-full space-y-8'
 
 interface ForgotPasswordFormProps {
   onBackToLogin?: () => void
@@ -125,15 +142,10 @@ export function ForgotPasswordForm({ onBackToLogin }: ForgotPasswordFormProps) {
 
   if (step === 'request') {
     return (
-      <div className="w-full max-w-md space-y-8">
-        <div className="text-center">
-          <h1 className="text-2xl font-bold tracking-tight text-(--sf-text)">
-            Reset your password
-          </h1>
-          <p className="mt-2 text-sm text-(--sf-muted-text)">
-            Enter your email address and we'll send you a reset code.
-          </p>
-        </div>
+      <div className={STEP_CLASS}>
+        <AuthHeading title="Reset your password">
+          Enter your email address and we'll send you a reset code.
+        </AuthHeading>
 
         <form
           onSubmit={requestForm.handleSubmit(handleRequestSubmit)}
@@ -160,22 +172,14 @@ export function ForgotPasswordForm({ onBackToLogin }: ForgotPasswordFormProps) {
             />
           </div>
 
-          <button
-            type="submit"
-            disabled={requestMutation.isPending}
-            className={`flex w-full justify-center rounded-md bg-(--sf-accent) px-3 py-2 text-sm font-semibold text-(--sf-accent-text) shadow-sm transition-colors ${ACCENT_BUTTON_HOVER} ${SF_FOCUS_RING_PAGE} disabled:cursor-not-allowed disabled:opacity-50`}
-          >
+          <button type="submit" disabled={requestMutation.isPending} className={RESET_SUBMIT_CLASS}>
             {requestMutation.isPending ? 'Sending…' : 'Send code'}
           </button>
         </form>
 
         {onBackToLogin && (
           <div className="text-center">
-            <button
-              type="button"
-              onClick={onBackToLogin}
-              className="text-sm font-medium text-(--sf-accent) hover:opacity-80"
-            >
+            <button type="button" onClick={onBackToLogin} className={AUTH_LINK_CLASS}>
               Back to login
             </button>
           </div>
@@ -186,16 +190,11 @@ export function ForgotPasswordForm({ onBackToLogin }: ForgotPasswordFormProps) {
 
   if (step === 'verify') {
     return (
-      <div className="w-full max-w-md space-y-8">
-        <div className="text-center">
-          <h1 className="text-2xl font-bold tracking-tight text-(--sf-text)">
-            Enter verification code
-          </h1>
-          <p className="mt-2 text-sm text-(--sf-muted-text)">
-            If the account exists, a 6-digit reset code has been sent. The code is valid
-            for 10 minutes.
-          </p>
-        </div>
+      <div className={STEP_CLASS}>
+        <AuthHeading title="Enter verification code">
+          If the account exists, a 6-digit reset code has been sent. The code is valid for 10
+          minutes.
+        </AuthHeading>
 
         <form
           onSubmit={verifyForm.handleSubmit(handleVerifySubmit)}
@@ -225,11 +224,7 @@ export function ForgotPasswordForm({ onBackToLogin }: ForgotPasswordFormProps) {
             />
           </div>
 
-          <button
-            type="submit"
-            disabled={verifyMutation.isPending}
-            className={`flex w-full justify-center rounded-md bg-(--sf-accent) px-3 py-2 text-sm font-semibold text-(--sf-accent-text) shadow-sm transition-colors ${ACCENT_BUTTON_HOVER} ${SF_FOCUS_RING_PAGE} disabled:cursor-not-allowed disabled:opacity-50`}
-          >
+          <button type="submit" disabled={verifyMutation.isPending} className={RESET_SUBMIT_CLASS}>
             {verifyMutation.isPending ? 'Verifying…' : 'Verify code'}
           </button>
         </form>
@@ -239,7 +234,7 @@ export function ForgotPasswordForm({ onBackToLogin }: ForgotPasswordFormProps) {
             type="button"
             onClick={handleResendCode}
             disabled={requestMutation.isPending}
-            className="text-sm font-medium text-(--sf-accent) hover:opacity-80 disabled:opacity-50"
+            className={`${AUTH_LINK_CLASS} disabled:opacity-50`}
           >
             {requestMutation.isPending ? 'Resending…' : 'Resend code'}
           </button>
@@ -253,15 +248,8 @@ export function ForgotPasswordForm({ onBackToLogin }: ForgotPasswordFormProps) {
 
   if (step === 'complete') {
     return (
-      <div className="w-full max-w-md space-y-8">
-        <div className="text-center">
-          <h1 className="text-2xl font-bold tracking-tight text-(--sf-text)">
-            Set new password
-          </h1>
-          <p className="mt-2 text-sm text-(--sf-muted-text)">
-            Enter your new password below.
-          </p>
-        </div>
+      <div className={STEP_CLASS}>
+        <AuthHeading title="Set new password">Enter your new password below.</AuthHeading>
 
         <form
           onSubmit={completeForm.handleSubmit(handleCompleteSubmit)}
@@ -299,11 +287,7 @@ export function ForgotPasswordForm({ onBackToLogin }: ForgotPasswordFormProps) {
             />
           </div>
 
-          <button
-            type="submit"
-            disabled={completeMutation.isPending}
-            className={`flex w-full justify-center rounded-md bg-(--sf-accent) px-3 py-2 text-sm font-semibold text-(--sf-accent-text) shadow-sm transition-colors ${ACCENT_BUTTON_HOVER} ${SF_FOCUS_RING_PAGE} disabled:cursor-not-allowed disabled:opacity-50`}
-          >
+          <button type="submit" disabled={completeMutation.isPending} className={RESET_SUBMIT_CLASS}>
             {completeMutation.isPending ? 'Resetting…' : 'Reset password'}
           </button>
         </form>
@@ -313,23 +297,14 @@ export function ForgotPasswordForm({ onBackToLogin }: ForgotPasswordFormProps) {
 
   // step === 'success'
   return (
-    <div className="w-full max-w-md space-y-8">
-      <div className="text-center">
-        <h1 className="text-2xl font-bold tracking-tight text-(--sf-text)">
-          Password reset successful.
-        </h1>
-        <p className="mt-2 text-sm text-(--sf-muted-text)">
-          You can now sign in with your new password.
-        </p>
-      </div>
+    <div className={STEP_CLASS}>
+      <AuthHeading title="Password reset successful.">
+        You can now sign in with your new password.
+      </AuthHeading>
 
       {onBackToLogin && (
         <div className="text-center">
-          <button
-            type="button"
-            onClick={onBackToLogin}
-            className="text-sm font-medium text-(--sf-accent) hover:opacity-80"
-          >
+          <button type="button" onClick={onBackToLogin} className={AUTH_LINK_CLASS}>
             Back to login
           </button>
         </div>

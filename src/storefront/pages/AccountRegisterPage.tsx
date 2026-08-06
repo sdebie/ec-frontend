@@ -3,7 +3,7 @@ import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { z } from 'zod'
 import { Link, useNavigate, useSearchParams } from 'react-router-dom'
-import { GoogleLogin, type CredentialResponse } from '@react-oauth/google'
+import { type CredentialResponse } from '@react-oauth/google'
 import { Loader2 } from 'lucide-react'
 import { useCustomerRegister } from '@/storefront/customer/auth/hooks/useCustomerRegister'
 import { useCustomerGoogleLogin } from '@/storefront/customer/auth/hooks/useCustomerGoogleLogin'
@@ -12,6 +12,12 @@ import { isRelativePath } from '@/storefront/customer/auth/utils/urlValidation'
 import { InputField } from '@/shared/ui/components/form/InputField'
 import { PasswordField } from '@/shared/ui/components/form/PasswordField'
 import { ACCENT_BUTTON_HOVER, SF_FOCUS_RING_PAGE } from '@/storefront/sections/shared'
+import { GoogleAuthButton } from '@/storefront/customer/auth/components/GoogleAuthButton'
+import {
+  AUTH_LINK_CLASS,
+  AuthHeading,
+  AuthPageShell,
+} from '@/storefront/customer/auth/components/AuthPageShell'
 
 const registerSchema = z
   .object({
@@ -105,108 +111,94 @@ export function AccountRegisterPage() {
   }
 
   return (
-    <div className="flex min-h-screen items-center justify-center px-4 py-12">
-      <div className="w-full max-w-md space-y-8">
-        <div className="text-center">
-          <h1 className="text-2xl font-bold tracking-tight text-(--sf-text)">Create your account</h1>
-          <p className="mt-2 text-sm text-(--sf-muted-text)">
-            Already have an account?{' '}
-            <Link to="/account/login" className="font-medium text-(--sf-accent) hover:opacity-80">
-              Sign in
-            </Link>
-          </p>
-        </div>
+    <AuthPageShell>
+      <AuthHeading title="Create your account">
+        <p>Already have an account?</p>
+        <Link to="/account/login" className={`mt-1 inline-block ${AUTH_LINK_CLASS}`}>
+          Sign in
+        </Link>
+      </AuthHeading>
 
-        <form onSubmit={handleSubmit(onSubmit)} noValidate className="space-y-5">
-          {/* Server error */}
-          {getServerError()}
+      <form onSubmit={handleSubmit(onSubmit)} noValidate className="space-y-5">
+        {getServerError()}
 
-          {/* First name */}
-          <div>
-            <InputField
-              id="firstName"
-              type="text"
-              autoComplete="given-name"
-              label="First name"
-              error={errors.firstName?.message}
-              {...registerField('firstName')}
-            />
-          </div>
-
-          {/* Last name */}
-          <div>
-            <InputField
-              id="lastName"
-              type="text"
-              autoComplete="family-name"
-              label="Last name"
-              error={errors.lastName?.message}
-              {...registerField('lastName')}
-            />
-          </div>
-
-          {/* Email */}
-          <div>
-            <InputField
-              id="email"
-              type="email"
-              autoComplete="email"
-              label="Email address"
-              error={errors.email?.message}
-              {...registerField('email')}
-            />
-          </div>
-
-          <div>
-            <PasswordField
-              id="password"
-              autoComplete="new-password"
-              label="Password"
-              error={errors.password?.message}
-              {...registerField('password')}
-            />
-          </div>
-
-          {/* Confirm password */}
-          <div>
-            <PasswordField
-              id="confirmPassword"
-              autoComplete="new-password"
-              label="Confirm password"
-              error={errors.confirmPassword?.message}
-              {...registerField('confirmPassword')}
-            />
-          </div>
-
-          {/* Submit */}
-          <button
-            type="submit"
-            disabled={isPending}
-            className={`flex w-full items-center justify-center rounded-md bg-(--sf-accent) px-4 py-2 text-sm font-medium text-(--sf-accent-text) shadow-sm transition-colors ${ACCENT_BUTTON_HOVER} ${SF_FOCUS_RING_PAGE} disabled:cursor-not-allowed disabled:opacity-50`}
-          >
-            {isPending && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-            {isPending ? 'Creating account…' : 'Create account'}
-          </button>
-        </form>
-
-        {/* Divider */}
-        <div className="relative">
-          <div className="absolute inset-0 flex items-center">
-            <div className="w-full border-t border-(--sf-border)" />
-          </div>
-          <div className="relative flex justify-center text-sm">
-            <span className="bg-(--sf-panel) px-2 text-(--sf-muted-text)">Or</span>
-          </div>
-        </div>
-
-        {/* Google OAuth */}
-        <div className="flex justify-center">
-          <GoogleLogin
-            onSuccess={handleGoogleSuccess}
-            onError={() => {/* Silent cancel per requirement 8.6 */}}
+        <div>
+          <InputField
+            id="firstName"
+            type="text"
+            autoComplete="given-name"
+            label="First name"
+            error={errors.firstName?.message}
+            {...registerField('firstName')}
           />
         </div>
+
+        <div>
+          <InputField
+            id="lastName"
+            type="text"
+            autoComplete="family-name"
+            label="Last name"
+            error={errors.lastName?.message}
+            {...registerField('lastName')}
+          />
+        </div>
+
+        <div>
+          <InputField
+            id="email"
+            type="email"
+            autoComplete="email"
+            label="Email address"
+            error={errors.email?.message}
+            {...registerField('email')}
+          />
+        </div>
+
+        <div>
+          <PasswordField
+            id="password"
+            autoComplete="new-password"
+            label="Password"
+            error={errors.password?.message}
+            {...registerField('password')}
+          />
+        </div>
+
+        <div>
+          <PasswordField
+            id="confirmPassword"
+            autoComplete="new-password"
+            label="Confirm password"
+            error={errors.confirmPassword?.message}
+            {...registerField('confirmPassword')}
+          />
+        </div>
+
+        {/* h-10 matches the fields above and the Google button below — see the
+            note on the sign-in form's submit button. */}
+        <button
+          type="submit"
+          disabled={isPending}
+          className={`flex h-10 w-full items-center justify-center rounded-md bg-(--sf-accent) px-4 text-sm font-semibold text-(--sf-accent-text) shadow-sm transition-colors ${ACCENT_BUTTON_HOVER} ${SF_FOCUS_RING_PAGE} disabled:cursor-not-allowed disabled:opacity-50`}
+        >
+          {isPending && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+          {isPending ? 'Creating account…' : 'Create account'}
+        </button>
+      </form>
+
+      <div className="relative mt-6">
+        <div className="absolute inset-0 flex items-center">
+          <div className="w-full border-t border-(--sf-border)" />
+        </div>
+        <div className="relative flex justify-center text-sm">
+          <span className="bg-(--sf-panel) px-2 text-(--sf-muted-text)">Or continue with</span>
+        </div>
       </div>
-    </div>
+
+      <div className="mt-6">
+        <GoogleAuthButton onSuccess={handleGoogleSuccess} />
+      </div>
+    </AuthPageShell>
   )
 }

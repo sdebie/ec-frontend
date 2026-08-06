@@ -1,12 +1,14 @@
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { z } from 'zod'
-import { GoogleLogin, type CredentialResponse } from '@react-oauth/google'
+import { type CredentialResponse } from '@react-oauth/google'
 import { useCustomerLogin } from '@/storefront/customer/auth/hooks/useCustomerLogin'
 import { useCustomerGoogleLogin } from '@/storefront/customer/auth/hooks/useCustomerGoogleLogin'
 import { InputField } from '@/shared/ui/components/form/InputField'
 import { PasswordField } from '@/shared/ui/components/form/PasswordField'
 import { ACCENT_BUTTON_HOVER, SF_FOCUS_RING_PAGE } from '@/storefront/sections/shared'
+import { AUTH_LINK_CLASS } from './AuthPageShell'
+import { GoogleAuthButton } from './GoogleAuthButton'
 
 const loginSchema = z.object({
   email: z.string().email('Please enter a valid email address'),
@@ -112,20 +114,23 @@ export function CustomerLoginForm({ onSuccess, onForgotPassword }: CustomerLogin
 
         {onForgotPassword && (
           <div className="flex justify-end">
-            <button
-              type="button"
-              onClick={onForgotPassword}
-              className="text-sm font-medium text-(--sf-accent) hover:opacity-80"
-            >
+            <button type="button" onClick={onForgotPassword} className={AUTH_LINK_CLASS}>
               Forgot password?
             </button>
           </div>
         )}
 
+        {/* h-10 is the storefront's control height (--c-control-h-md at this
+            density), so the button matches the fields above it and, at the
+            default 16px root, the Google button below — GSI renders that one at
+            a hardcoded 40px. Staying on the rem scale is deliberate: a reader
+            who has enlarged their base font gets a taller control here and a
+            few px of divergence from Google, which is the better trade than
+            pinning this button to a pixel Google chose. */}
         <button
           type="submit"
           disabled={isPending}
-          className={`flex w-full justify-center rounded-md bg-(--sf-accent) px-3 py-2 text-sm font-semibold text-(--sf-accent-text) shadow-sm transition-colors ${ACCENT_BUTTON_HOVER} ${SF_FOCUS_RING_PAGE} disabled:cursor-not-allowed disabled:opacity-50`}
+          className={`flex h-10 w-full items-center justify-center rounded-md bg-(--sf-accent) px-3 text-sm font-semibold text-(--sf-accent-text) shadow-sm transition-colors ${ACCENT_BUTTON_HOVER} ${SF_FOCUS_RING_PAGE} disabled:cursor-not-allowed disabled:opacity-50`}
         >
           {isPending ? 'Signing in…' : 'Sign in'}
         </button>
@@ -140,15 +145,8 @@ export function CustomerLoginForm({ onSuccess, onForgotPassword }: CustomerLogin
         </div>
       </div>
 
-      <div className="mt-6 flex justify-center">
-        <GoogleLogin
-          onSuccess={handleGoogleSuccess}
-          onError={() => {
-            // Silent cancel — no error shown per requirement 8.6
-          }}
-          text="signin_with"
-          width="400"
-        />
+      <div className="mt-6">
+        <GoogleAuthButton onSuccess={handleGoogleSuccess} />
       </div>
     </>
   )

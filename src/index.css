@@ -221,6 +221,27 @@
 }
 
 /* ─────────────────────────────────────────────────────────────
+   Google Identity Services button (GoogleAuthButton.tsx)
+
+   GSI draws its button as a real div in this document — the iframe it also
+   renders is 0×0 and carries the credential flow — and hands that div a 4px
+   radius, where every other button on the storefront is `rounded-md`. The
+   override has to live here, as plain CSS with `!important`: GSI injects its
+   stylesheet UNLAYERED, and an unlayered declaration beats anything in a
+   cascade layer no matter how specific it is — so a Tailwind utility, which
+   ships inside `@layer utilities`, can never win this on its own.
+
+   `[role=button]` is the hook rather than Google's class names, which are
+   obfuscated and rotate; the role is part of the button's accessibility
+   contract and does not. Scoped to the wrapper so it reaches no other Google
+   surface, and reads the same `--radius-md` that `rounded-md` compiles to, so
+   the two cannot drift.
+   ───────────────────────────────────────────────────────────── */
+.sf-google-button [role='button'] {
+    border-radius: var(--radius-md) !important;
+}
+
+/* ─────────────────────────────────────────────────────────────
    TipTap rich-text editor content (RichTextEditor.tsx)
    Tailwind Preflight strips heading sizes and list markers, and the
    typography plugin is not installed, so headings/lists are restyled
