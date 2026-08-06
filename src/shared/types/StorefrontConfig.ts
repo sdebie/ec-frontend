@@ -50,11 +50,13 @@ export interface HeroSectionProps {
   /** Small uppercase label above the title, e.g. "ABOUT UVH HOLDINGS". */
   kicker?: string
   /**
-   * Band height: 'standard' (default, fixed minimum), 'tall' — viewport-filling
-   * with room reserved for the next section's top edge — or 'full', which fills
-   * the viewport exactly minus the measured announcement bar + header.
+   * Band height: 'compact' — a page header rather than a landing banner, for a
+   * content page whose hero introduces the page instead of carrying it;
+   * 'standard' (default, fixed minimum); 'tall' — viewport-filling with room
+   * reserved for the next section's top edge; or 'full', which fills the
+   * viewport exactly minus the measured announcement bar + header.
    */
-  height?: 'standard' | 'tall' | 'full'
+  height?: 'compact' | 'standard' | 'tall' | 'full'
   primaryCta?: StorefrontActionLink
   secondaryCta?: StorefrontActionLink
   backgroundImageUrl?: string

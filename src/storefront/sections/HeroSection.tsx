@@ -123,10 +123,14 @@ function mobileScrimStyle(opacity: number): CSSProperties {
     }
 }
 
-const HEIGHT_CLASS: Record<'standard' | 'tall' | 'full', string> = {
-    standard: 'min-h-[480px]',
-    tall: 'min-h-[max(480px,calc(100vh-360px))]',
-    full: 'min-h-[max(480px,calc(100dvh-var(--sf-chrome-h,0px)))]',
+// Vertical padding rides WITH the height rather than sitting on the section, so
+// a band's presence is one decision. A compact band at the standard `py-20`
+// spends most of its floor on empty space and stops reading as compact at all.
+const HEIGHT_CLASS: Record<'compact' | 'standard' | 'tall' | 'full', string> = {
+    compact: 'py-14 min-h-[320px]',
+    standard: 'py-20 min-h-[480px]',
+    tall: 'py-20 min-h-[max(480px,calc(100vh-360px))]',
+    full: 'py-20 min-h-[max(480px,calc(100dvh-var(--sf-chrome-h,0px)))]',
 }
 
 export function HeroFootnote({segments, surface, contentAlignment = 'center'}: {
@@ -282,7 +286,7 @@ export function HeroSection({section}: { section: HeroSectionConfig }) {
     return (
         <section
             aria-label={title}
-            className={cn('relative flex items-center px-6 sm:px-8 py-20 overflow-hidden', HEIGHT_CLASS[height], {
+            className={cn('relative flex items-center px-6 sm:px-8 overflow-hidden', HEIGHT_CLASS[height], {
                 'bg-(--sf-panel)': !hasImage && surface === 'default',
             })}
             style={hasImage ? undefined : SURFACE_BACKGROUND_STYLE[surface]}
