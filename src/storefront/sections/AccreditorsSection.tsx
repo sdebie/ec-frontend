@@ -1,7 +1,7 @@
 import {useState} from 'react'
 import type {AccreditorsSectionConfig} from '@/shared/types/StorefrontConfig'
 import {resolveImageUrl} from '@/shared/utils/imageUrl'
-import {SECTION_WIDTH_CLASS, Section, SectionHeading} from './shared'
+import {Section, SECTION_WIDTH_CLASS, SectionHeading} from './shared'
 
 interface AccreditorTileProps {
     name: string
@@ -30,7 +30,7 @@ interface AccreditorTileProps {
 // The class goes on the OUTER element, not the bordered box: when a tile is
 // wrapped in its link, a percentage width on the inner div would resolve against
 // a shrink-to-fit anchor and collapse.
-const TILE_SIZE_CLASS = 'mx-auto w-full max-w-[320px] aspect-[5/2] sm:max-w-none'
+const TILE_SIZE_CLASS = 'mx-auto w-full max-w-[420px] aspect-[5/2] sm:max-w-none'
 
 function AccreditorTile({name, logoUrl, url}: AccreditorTileProps) {
     const [imgFailed, setImgFailed] = useState(false)
@@ -81,7 +81,7 @@ export function AccreditorsSection({section}: { section: AccreditorsSectionConfi
 
     return (
         <Section variant={variant}>
-            {title && <SectionHeading title={title} eyebrow={eyebrow} />}
+            {title && <SectionHeading title={title} eyebrow={eyebrow}/>}
             {/* A real grid, not a wrapping flex row: every tile then gets an
                 equal share of the width and the logos scale with the viewport.
                 One column on a phone so they flow under each other at full

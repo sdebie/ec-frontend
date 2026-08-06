@@ -185,7 +185,7 @@ export interface BenefitsSectionProps {
    * `SectionIconBadge`. 'soft' (default) is the faint accent wash; 'solid' is
    * a muted accent tile with the icon in accent-text.
    */
-  iconTone?: 'soft' | 'solid'
+  iconTone?: 'soft' | 'muted' | 'solid'
   /** Explicit desktop column count; absent → derived from the item count (no-orphan rule). */
   columns?: 2 | 3 | 4
   items: BenefitItem[]

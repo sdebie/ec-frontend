@@ -20,7 +20,7 @@ function BrandTile({name, slug, logoUrl}: BrandTileProps) {
         <Link
             to={`/products?brand=${encodeURIComponent(slug)}`}
             aria-label={`Shop ${name} products`}
-            className="flex h-16 items-center justify-center overflow-hidden rounded-2xl border border-(--sf-border) bg-(--sf-panel) p-3 transition-all hover:-translate-y-0.5 hover:border-(--sf-accent) hover:bg-[color-mix(in_srgb,var(--sf-accent)_8%,var(--sf-panel))] hover:shadow-md sm:h-16 sm:p-4 lg:h-20">
+            className="flex h-16 items-center justify-center overflow-hidden rounded-2xl border-2 border-(--sf-border) bg-(--sf-panel) p-3 transition-all hover:-translate-y-0.5 hover:border-(--sf-accent) hover:bg-[color-mix(in_srgb,var(--sf-accent)_8%,var(--sf-panel))] hover:shadow-md sm:h-16 sm:p-4 lg:h-20">
             {showImage ? (
                 <img
                     src={src}
