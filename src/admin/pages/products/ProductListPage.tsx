@@ -324,7 +324,7 @@ export function ProductListPage() {
                     // roles land on the same page but its fields render disabled,
                     // so one action correctly serves both cases.
                     return (
-                        <div className="flex min-w-44 items-center gap-1 whitespace-nowrap">
+                        <div className="flex min-w-44 items-center justify-center gap-1 whitespace-nowrap">
                             <button
                                 type="button"
                                 onClick={() => navigate(`/admin/products/${product.id}/edit`)}

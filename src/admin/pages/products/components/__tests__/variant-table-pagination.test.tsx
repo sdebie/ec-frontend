@@ -12,6 +12,7 @@ function makeVariants(count: number, overrides: Record<number, Partial<ProductFo
         sku: `SKU-${String(i).padStart(3, '0')}`,
         price: '10.00',
         stock: i,
+        attributes: [],
         ...overrides[i],
     }))
 }

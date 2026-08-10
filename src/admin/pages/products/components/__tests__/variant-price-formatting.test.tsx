@@ -29,7 +29,7 @@ describe('VariantFields — price formatting', () => {
     it('renders retail and wholesale price as formatted currency when read-only', () => {
         render(
             <Wrapper
-                variants={[{id: 'var-1', sku: 'SKU-001', price: '99.99', wholesalePrice: '79.5', stock: 5}]}
+                variants={[{id: 'var-1', sku: 'SKU-001', price: '99.99', wholesalePrice: '79.5', stock: 5, attributes: []}]}
             />,
         )
 
@@ -42,22 +42,22 @@ describe('VariantFields — price formatting', () => {
     it('shows an em dash for a variant with no wholesale price, not "R 0.00"', () => {
         render(
             <Wrapper
-                variants={[{id: 'var-1', sku: 'SKU-001', price: '10.00', wholesalePrice: '', stock: 1}]}
+                variants={[{id: 'var-1', sku: 'SKU-001', price: '10.00', wholesalePrice: '', stock: 1, attributes: []}]}
             />,
         )
 
-        // The wholesale cell specifically must read as absent — an em dash —
+        // The wholesale display specifically must read as absent — an em dash —
         // and never a formatted zero, which would misreport "free".
-        const wholesaleCell = screen.getByTestId('variant-row-0').querySelectorAll('td')[2]
-        expect(wholesaleCell).toHaveTextContent('—')
-        expect(wholesaleCell.textContent).not.toMatch(/0[.,]00/)
+        const wholesaleDisplay = screen.getByTestId('variant-0-wholesale-display')
+        expect(wholesaleDisplay).toHaveTextContent('—')
+        expect(wholesaleDisplay.textContent).not.toMatch(/0[.,]00/)
     })
 
     it('edit mode keeps the raw numeric string, not the formatted display', async () => {
         const user = userEvent.setup()
         render(
             <Wrapper
-                variants={[{id: 'var-1', sku: 'SKU-001', price: '99.99', wholesalePrice: '79.50', stock: 5}]}
+                variants={[{id: 'var-1', sku: 'SKU-001', price: '99.99', wholesalePrice: '79.50', stock: 5, attributes: []}]}
             />,
         )
 
@@ -65,16 +65,35 @@ describe('VariantFields — price formatting', () => {
 
         // The input is editable with the exact stored value — formatting a
         // currency string back into a plain decimal input would corrupt typing.
-        expect(screen.getByLabelText('Price')).toHaveValue('99.99')
-        expect(screen.getByLabelText('Wholesale price')).toHaveValue('79.50')
+        expect(screen.getByLabelText('Retail Price')).toHaveValue('99.99')
+        expect(screen.getByLabelText('Wholesale Price')).toHaveValue('79.50')
     })
 
     it('a freshly-added row (blank price) shows the input, never a formatted "R NaN"', () => {
-        render(<Wrapper variants={[{sku: '', price: '', wholesalePrice: '', stock: 0}]}/>)
+        render(<Wrapper variants={[{sku: '', price: '', wholesalePrice: '', stock: 0, attributes: []}]}/>)
 
         // A brand-new row has a blank SKU, so it mounts in edit mode — the
         // read-only NaN-formatting branch is never reached for it.
-        expect(screen.getByLabelText('Price')).toBeInTheDocument()
+        expect(screen.getByLabelText('Retail Price')).toBeInTheDocument()
+        expect(screen.queryByText(/NaN/)).not.toBeInTheDocument()
+    })
+
+    it('shows a dash, never the literal string "NaN", when stock is cleared then collapsed', async () => {
+        const user = userEvent.setup()
+        render(
+            <Wrapper
+                variants={[{id: 'var-1', sku: 'SKU-001', price: '10.00', wholesalePrice: '', stock: 5, attributes: []}]}
+            />,
+        )
+
+        await user.click(screen.getByTestId('edit-variant-0'))
+        const stockInput = screen.getByLabelText('Stock')
+        await user.clear(stockInput)
+        // Clearing a number input drives the field to NaN via valueAsNumber —
+        // collapsing back to read-only must not render that raw NaN.
+        await user.click(screen.getByTestId('edit-variant-0'))
+
+        expect(screen.getByText(/—\s*in stock/)).toBeInTheDocument()
         expect(screen.queryByText(/NaN/)).not.toBeInTheDocument()
     })
 })

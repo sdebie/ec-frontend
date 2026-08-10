@@ -164,4 +164,30 @@ describe('MultiSelect', () => {
     )
     expect(screen.getByText('Required field')).toBeInTheDocument()
   })
+
+  it('removes a tag via the chip remove control without opening the dropdown', () => {
+    const onChange = vi.fn()
+    render(
+      <MultiSelect options={options} value={['a', 'b']} onChange={onChange} />
+    )
+    const removeA = screen.getByRole('button', { name: 'Remove Option A' })
+    fireEvent.click(removeA)
+    expect(onChange).toHaveBeenCalledWith(['b'])
+    expect(screen.queryByRole('listbox')).not.toBeInTheDocument()
+  })
+
+  it('removes a tag via the chip remove control on Enter key', () => {
+    const onChange = vi.fn()
+    render(<MultiSelect options={options} value={['a']} onChange={onChange} />)
+    const removeA = screen.getByRole('button', { name: 'Remove Option A' })
+    fireEvent.keyDown(removeA, { key: 'Enter' })
+    expect(onChange).toHaveBeenCalledWith([])
+  })
+
+  it('does not render a nested button inside the trigger button', () => {
+    render(<MultiSelect options={options} value={['a', 'b']} />)
+    const trigger = screen.getByRole('button', { expanded: false })
+    expect(trigger.tagName).toBe('BUTTON')
+    expect(trigger.querySelector('button')).toBeNull()
+  })
 })

@@ -60,7 +60,7 @@ describe('ProductForm — image lifecycle (no optimistic deletion + cleanup)', (
       slug: 'test-product',
       categoryIds: ['cat-1'],
       images: [{ url: 'existing-saved-image.jpg', altText: '' }],
-      variants: [{ sku: 'SKU-001', price: '10.00', stock: 5 }],
+      variants: [{ sku: 'SKU-001', price: '10.00', stock: 5, attributes: [] }],
     })
 
     const user = userEvent.setup()
@@ -83,7 +83,7 @@ describe('ProductForm — image lifecycle (no optimistic deletion + cleanup)', (
       slug: 'cancel-test',
       categoryIds: ['cat-1'],
       images: [],
-      variants: [{ sku: 'SKU-002', price: '15.00', stock: 3 }],
+      variants: [{ sku: 'SKU-002', price: '15.00', stock: 3, attributes: [] }],
     })
 
     const user = userEvent.setup()
@@ -124,7 +124,7 @@ describe('ProductForm — image lifecycle (no optimistic deletion + cleanup)', (
       slug: 'keep-test',
       categoryIds: ['cat-1'],
       images: [],
-      variants: [{ sku: 'SKU-003', price: '20.00', stock: 2 }],
+      variants: [{ sku: 'SKU-003', price: '20.00', stock: 2, attributes: [] }],
     })
 
     const user = userEvent.setup()
@@ -158,7 +158,7 @@ describe('ProductForm — image lifecycle (no optimistic deletion + cleanup)', (
       slug: 'submit-test',
       categoryIds: ['cat-1'],
       images: [],
-      variants: [{ sku: 'SKU-004', price: '25.00', stock: 1 }],
+      variants: [{ sku: 'SKU-004', price: '25.00', stock: 1, attributes: [] }],
     })
 
     const user = userEvent.setup()

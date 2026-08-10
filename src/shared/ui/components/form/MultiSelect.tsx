@@ -87,10 +87,20 @@ export const MultiSelect = React.forwardRef<HTMLDivElement, MultiSelectProps>(
       onChange?.(newValue)
     }
 
-    const handleRemove = (optionValue: string, e: React.MouseEvent) => {
+    const handleRemove = (optionValue: string, e: React.SyntheticEvent) => {
       e.stopPropagation()
       if (!disabled) {
         onChange?.(value.filter((v) => v !== optionValue))
+      }
+    }
+
+    const handleRemoveKeyDown = (
+      optionValue: string,
+      e: React.KeyboardEvent
+    ) => {
+      if (e.key === 'Enter' || e.key === ' ') {
+        e.preventDefault()
+        handleRemove(optionValue, e)
       }
     }
 
@@ -133,13 +143,16 @@ export const MultiSelect = React.forwardRef<HTMLDivElement, MultiSelectProps>(
                   >
                     {option.label}
                     {!disabled && (
-                      <button
-                        type="button"
+                      <span
+                        role="button"
+                        tabIndex={0}
+                        aria-label={`Remove ${option.label}`}
                         onClick={(e) => handleRemove(option.value, e)}
+                        onKeyDown={(e) => handleRemoveKeyDown(option.value, e)}
                         className="hover:text-(--c-accent)/70"
                       >
                         <X className="w-3 h-3" />
-                      </button>
+                      </span>
                     )}
                   </span>
                 ))

@@ -50,6 +50,7 @@ describe('useProductDetail — real mapping', () => {
             sku: 'WDG-001',
             stockQuantity: 42,
             status: 'ACTIVE',
+            attributesJson: '{"Colour":"Navy","Size":"L"}',
             prices: [
               { id: 'price-1', price: 29.99, priceType: 'RETAIL_PRICE' },
               { id: 'price-2', price: 19.99, priceType: 'SALE_PRICE' },
@@ -64,6 +65,7 @@ describe('useProductDetail — real mapping', () => {
             sku: 'WDG-002',
             stockQuantity: 10,
             status: 'ACTIVE',
+            attributesJson: null,
             prices: [
               { id: 'price-3', price: 39.99, priceType: 'RETAIL_PRICE' },
             ],
@@ -98,12 +100,14 @@ describe('useProductDetail — real mapping', () => {
     expect(detail.variants).toHaveLength(2)
     // The wire carries BigDecimal NUMBERS; the form model requires strings —
     // the mapping must coerce, or zod rejects every server-loaded variant.
+    // attributesJson is parsed into ordered {key, value} rows for the form.
     expect(detail.variants[0]).toEqual({
       id: 'var-1',
       priceId: 'price-1',
       sku: 'WDG-001',
       price: '29.99',
       stock: 42,
+      attributes: [{ key: 'Colour', value: 'Navy' }, { key: 'Size', value: 'L' }],
     })
     expect(detail.variants[1]).toEqual({
       id: 'var-2',
@@ -111,6 +115,7 @@ describe('useProductDetail — real mapping', () => {
       sku: 'WDG-002',
       price: '39.99',
       stock: 10,
+      attributes: [],
     })
 
     // Images flattened from all variants, sorted by sortOrder, deduplicated;

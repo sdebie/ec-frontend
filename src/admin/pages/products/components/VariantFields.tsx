@@ -1,9 +1,11 @@
 import {useState} from 'react'
-import {useController, useFormState, type Control, type UseFieldArrayReturn} from 'react-hook-form'
-import {Check, ChevronLeft, ChevronRight, Pencil, Trash2} from 'lucide-react'
+import {useController, useFieldArray, useFormState, useWatch, type Control, type UseFieldArrayReturn} from 'react-hook-form'
+import {Check, ChevronLeft, ChevronRight, Pencil, Plus, Trash2, X} from 'lucide-react'
 import {Button, Input} from '@/shared/ui/primitives'
+import {FormItem} from '@/shared/ui/components'
 import {cn} from '@/shared/utils/cn'
 import {formatAmount} from '@/shared/utils/formatAmount'
+import type {VariantAttribute} from '@/admin/hooks/products/types'
 // Operate on the parent product form's values — don't duplicate the shape.
 import type {ProductFormValues} from './ProductForm'
 
@@ -16,118 +18,113 @@ interface VariantFieldsProps {
 
 const ICON_BUTTON_CLASS = 'rounded-md p-1.5 text-(--c-text-muted) transition-colors hover:bg-(--c-surface-hover) hover:text-(--c-text) disabled:pointer-events-none disabled:opacity-40'
 
-interface VariantRowProps {
+// Suggested attribute names offered as one-click chips — the two the editor is
+// built around. Anything else (e.g. a legacy "Quantity" attribute) is still
+// fully supported via "+ Custom attribute", since the wire format underneath
+// (`attributesJson`) is a free-form JSON object, not a fixed pair of columns.
+const QUICK_ADD_ATTRIBUTE_KEYS = ['Colour', 'Size']
+
+function formatAttributesSummary(attributes: VariantAttribute[]): string {
+    return attributes
+        .filter((attribute) => attribute.key && attribute.value)
+        .map((attribute) => `${attribute.key}: ${attribute.value}`)
+        .join(' · ')
+}
+
+// Stock can transiently hold NaN while a number input is cleared mid-edit
+// (`valueAsNumber` on an empty input) — never format that straight to text.
+function formatStock(value: number): string {
+    return Number.isFinite(value) ? String(value) : '—'
+}
+
+interface VariantCardProps {
     control: Control<ProductFormValues>
     index: number
+    hasError: boolean
     onRemove: () => void
     disableRemove: boolean
 }
 
-function VariantRow({control, index, onRemove, disableRemove}: VariantRowProps) {
+function VariantCard({control, index, hasError, onRemove, disableRemove}: VariantCardProps) {
     const skuController = useController({control, name: `variants.${index}.sku`})
     const priceController = useController({control, name: `variants.${index}.price`})
     const wholesalePriceController = useController({control, name: `variants.${index}.wholesalePrice`})
     const stockController = useController({control, name: `variants.${index}.stock`})
+
+    const {fields: attributeFields, append: appendAttribute, remove: removeAttribute} = useFieldArray({
+        control,
+        name: `variants.${index}.attributes`,
+    })
+    // Live values (not just field identities) are needed to render the collapsed
+    // summary and to hide a quick-add chip once that attribute already exists.
+    const liveAttributes = useWatch({control, name: `variants.${index}.attributes`}) ?? []
 
     // A row added in this session has a blank SKU at MOUNT and opens editable;
     // a row hydrated from the server starts read-only. The initializer runs
     // once, so typing never collapses the row.
     const [isEditingToggled, setIsEditingToggled] = useState(() => !skuController.field.value)
 
-    const hasError = !!(
-        skuController.fieldState.error ||
-        priceController.fieldState.error ||
-        wholesalePriceController.fieldState.error ||
-        stockController.fieldState.error
-    )
-    // A row carrying validation errors cannot be collapsed — its messages
-    // must stay visible until fixed.
+    // A row carrying validation errors — on any field, including a nested
+    // attribute — cannot be collapsed — its messages must stay visible until fixed.
     const isEditing = isEditingToggled || hasError
 
     const cellError = (message: string | undefined) =>
         message && <p role="alert" className="mt-1 text-xs text-(--c-error)">{message}</p>
 
+    // Only the array-root error (the combined-length guard) is read here — a
+    // per-item error (duplicate/blank name or value) is rendered inline by the
+    // AttributeRow it belongs to instead.
+    const attributesRootError = useFormState({control, name: `variants.${index}.attributes`}).errors
+        .variants?.[index]?.attributes as {message?: string} | undefined
+
+    const hasAttributeKey = (key: string) =>
+        liveAttributes.some((attribute) => attribute?.key?.trim().toLowerCase() === key.toLowerCase())
+
+    const summary = formatAttributesSummary(liveAttributes)
+
     return (
-        <tr
+        <div
             data-testid={`variant-row-${index}`}
-            className="border-b border-(--c-border) last:border-b-0"
+            className="rounded-(--c-radius) border border-(--c-border) bg-(--c-panel)"
         >
-            <td className="px-3 py-2.5 align-top">
-                {isEditing ? (
-                    <>
-                        <Input
-                            {...skuController.field}
-                            placeholder="e.g. PROD-001"
-                            aria-label="SKU"
-                            variant={skuController.fieldState.error ? 'error' : 'default'}
-                        />
-                        {cellError(skuController.fieldState.error?.message)}
-                    </>
-                ) : (
-                    <span className="text-sm font-medium text-(--c-text)">{skuController.field.value}</span>
+            <div className="flex items-center gap-3 px-4 py-3">
+                <div className="min-w-0 flex-1">
+                    {isEditing ? (
+                        <>
+                            <Input
+                                {...skuController.field}
+                                placeholder="e.g. PROD-001"
+                                aria-label="SKU"
+                                variant={skuController.fieldState.error ? 'error' : 'default'}
+                            />
+                            {cellError(skuController.fieldState.error?.message)}
+                        </>
+                    ) : (
+                        <div className="flex flex-wrap items-baseline gap-x-2 gap-y-0.5">
+                            <span className="text-sm font-medium text-(--c-text)">{skuController.field.value}</span>
+                            {summary && <span className="text-xs text-(--c-text-muted)">{summary}</span>}
+                        </div>
+                    )}
+                </div>
+                {!isEditing && (
+                    <div className="hidden shrink-0 items-center gap-4 sm:flex">
+                        <span className="text-sm text-(--c-text)">
+                            {formatAmount(parseFloat(priceController.field.value))}
+                        </span>
+                        <span
+                            data-testid={`variant-${index}-wholesale-display`}
+                            className="text-sm text-(--c-text-muted)"
+                        >
+                            {wholesalePriceController.field.value
+                                ? formatAmount(parseFloat(wholesalePriceController.field.value))
+                                : '—'}
+                        </span>
+                        <span className="text-xs text-(--c-text-muted)">
+                            {formatStock(stockController.field.value)} in stock
+                        </span>
+                    </div>
                 )}
-            </td>
-            <td className="px-3 py-2.5 align-top">
-                {isEditing ? (
-                    <>
-                        <Input
-                            {...priceController.field}
-                            type="text"
-                            inputMode="decimal"
-                            placeholder="e.g. 99.99"
-                            aria-label="Price"
-                            variant={priceController.fieldState.error ? 'error' : 'default'}
-                        />
-                        {cellError(priceController.fieldState.error?.message)}
-                    </>
-                ) : (
-                    <span className="text-sm text-(--c-text)">
-                        {formatAmount(parseFloat(priceController.field.value))}
-                    </span>
-                )}
-            </td>
-            <td className="px-3 py-2.5 align-top">
-                {isEditing ? (
-                    <>
-                        <Input
-                            {...wholesalePriceController.field}
-                            value={wholesalePriceController.field.value ?? ''}
-                            type="text"
-                            inputMode="decimal"
-                            placeholder="Optional"
-                            aria-label="Wholesale price"
-                            variant={wholesalePriceController.fieldState.error ? 'error' : 'default'}
-                        />
-                        {cellError(wholesalePriceController.fieldState.error?.message)}
-                    </>
-                ) : (
-                    <span className="text-sm text-(--c-text)">
-                        {wholesalePriceController.field.value
-                            ? formatAmount(parseFloat(wholesalePriceController.field.value))
-                            : '—'}
-                    </span>
-                )}
-            </td>
-            <td className="px-3 py-2.5 align-top">
-                {isEditing ? (
-                    <>
-                        <Input
-                            {...stockController.field}
-                            type="number"
-                            step="1"
-                            placeholder="0"
-                            aria-label="Stock"
-                            variant={stockController.fieldState.error ? 'error' : 'default'}
-                            onChange={(e) => stockController.field.onChange(e.target.valueAsNumber)}
-                        />
-                        {cellError(stockController.fieldState.error?.message)}
-                    </>
-                ) : (
-                    <span className="text-sm text-(--c-text)">{stockController.field.value}</span>
-                )}
-            </td>
-            <td className="w-24 px-3 py-2.5 align-top">
-                <div className="flex items-center justify-end gap-1">
+                <div className="flex shrink-0 items-center gap-1">
                     <button
                         type="button"
                         onClick={() => setIsEditingToggled(!isEditing)}
@@ -153,8 +150,156 @@ function VariantRow({control, index, onRemove, disableRemove}: VariantRowProps) 
                         <Trash2 className="h-4 w-4" aria-hidden="true"/>
                     </button>
                 </div>
-            </td>
-        </tr>
+            </div>
+
+            {isEditing && (
+                <div className="space-y-5 border-t border-(--c-border) px-4 py-4">
+                    <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
+                        <FormItem label="Retail Price" invalid={!!priceController.fieldState.error}>
+                            <Input
+                                {...priceController.field}
+                                type="text"
+                                inputMode="decimal"
+                                placeholder="e.g. 99.99"
+                                aria-label="Retail Price"
+                                variant={priceController.fieldState.error ? 'error' : 'default'}
+                            />
+                        </FormItem>
+                        <FormItem label="Wholesale Price" invalid={!!wholesalePriceController.fieldState.error} helperText="Optional">
+                            <Input
+                                {...wholesalePriceController.field}
+                                value={wholesalePriceController.field.value ?? ''}
+                                type="text"
+                                inputMode="decimal"
+                                placeholder="Optional"
+                                aria-label="Wholesale Price"
+                                variant={wholesalePriceController.fieldState.error ? 'error' : 'default'}
+                            />
+                        </FormItem>
+                        <FormItem label="Stock" invalid={!!stockController.fieldState.error}>
+                            <Input
+                                {...stockController.field}
+                                type="number"
+                                step="1"
+                                placeholder="0"
+                                aria-label="Stock"
+                                variant={stockController.fieldState.error ? 'error' : 'default'}
+                                onChange={(e) => stockController.field.onChange(e.target.valueAsNumber)}
+                            />
+                        </FormItem>
+                    </div>
+                    {cellError(priceController.fieldState.error?.message)}
+                    {cellError(wholesalePriceController.fieldState.error?.message)}
+                    {cellError(stockController.fieldState.error?.message)}
+
+                    <div>
+                        <div className="mb-2 flex items-center justify-between gap-3">
+                            <span className="text-xs font-semibold tracking-wider text-(--c-text-muted) uppercase">Attributes</span>
+                            <div className="flex flex-wrap items-center gap-1.5">
+                                {QUICK_ADD_ATTRIBUTE_KEYS.filter((key) => !hasAttributeKey(key)).map((key) => (
+                                    <Button
+                                        key={key}
+                                        type="button"
+                                        variant="outline"
+                                        size="sm"
+                                        leftIcon={<Plus className="h-3.5 w-3.5" aria-hidden="true"/>}
+                                        onClick={() => appendAttribute({key, value: ''})}
+                                        data-testid={`add-attribute-${key.toLowerCase()}-${index}`}
+                                    >
+                                        {key}
+                                    </Button>
+                                ))}
+                                <Button
+                                    type="button"
+                                    variant="ghost"
+                                    size="sm"
+                                    leftIcon={<Plus className="h-3.5 w-3.5" aria-hidden="true"/>}
+                                    onClick={() => appendAttribute({key: '', value: ''})}
+                                    data-testid={`add-attribute-custom-${index}`}
+                                >
+                                    Custom attribute
+                                </Button>
+                            </div>
+                        </div>
+
+                        {attributeFields.length === 0 ? (
+                            <p className="text-xs text-(--c-text-muted)">
+                                No attributes yet — add Colour, Size, or a custom attribute.
+                            </p>
+                        ) : (
+                            <div className="space-y-2">
+                                <div className="flex gap-2 px-0.5 text-xs font-medium text-(--c-text-muted)">
+                                    <span className="w-1/3">Name</span>
+                                    <span className="flex-1">Value</span>
+                                </div>
+                                {attributeFields.map((attributeField, attrIndex) => (
+                                    <AttributeRow
+                                        key={attributeField.id}
+                                        control={control}
+                                        variantIndex={index}
+                                        attrIndex={attrIndex}
+                                        onRemove={() => removeAttribute(attrIndex)}
+                                    />
+                                ))}
+                            </div>
+                        )}
+                        {attributesRootError?.message && (
+                            <p role="alert" className="mt-2 text-xs text-(--c-error)">
+                                {attributesRootError.message}
+                            </p>
+                        )}
+                    </div>
+                </div>
+            )}
+        </div>
+    )
+}
+
+interface AttributeRowProps {
+    control: Control<ProductFormValues>
+    variantIndex: number
+    attrIndex: number
+    onRemove: () => void
+}
+
+function AttributeRow({control, variantIndex, attrIndex, onRemove}: AttributeRowProps) {
+    const keyController = useController({control, name: `variants.${variantIndex}.attributes.${attrIndex}.key`})
+    const valueController = useController({control, name: `variants.${variantIndex}.attributes.${attrIndex}.value`})
+
+    return (
+        <div data-testid={`variant-${variantIndex}-attribute-${attrIndex}`}>
+            <div className="flex items-center gap-2">
+                <Input
+                    {...keyController.field}
+                    placeholder="e.g. Colour"
+                    aria-label={`Attribute name (row ${attrIndex + 1})`}
+                    variant={keyController.fieldState.error ? 'error' : 'default'}
+                    className="w-1/3"
+                />
+                <Input
+                    {...valueController.field}
+                    placeholder="e.g. Navy"
+                    aria-label={`Attribute value (row ${attrIndex + 1})`}
+                    variant={valueController.fieldState.error ? 'error' : 'default'}
+                    className="flex-1"
+                />
+                <button
+                    type="button"
+                    onClick={onRemove}
+                    data-testid={`remove-attribute-${variantIndex}-${attrIndex}`}
+                    aria-label="Remove attribute"
+                    title="Remove attribute"
+                    className={cn(ICON_BUTTON_CLASS, 'hover:text-(--c-danger)')}
+                >
+                    <X className="h-4 w-4" aria-hidden="true"/>
+                </button>
+            </div>
+            {(keyController.fieldState.error || valueController.fieldState.error) && (
+                <p role="alert" className="mt-1 text-xs text-(--c-error)">
+                    {keyController.fieldState.error?.message ?? valueController.fieldState.error?.message}
+                </p>
+            )}
+        </div>
     )
 }
 
@@ -187,7 +332,7 @@ export function VariantFields({control, fields, append, remove}: VariantFieldsPr
     const pageFields = fields.slice(pageStart, pageStart + VARIANTS_PAGE_SIZE)
 
     const handleAppend = () => {
-        append({sku: '', price: '', wholesalePrice: '', stock: 0})
+        append({sku: '', price: '', wholesalePrice: '', stock: 0, attributes: []})
         // The new row lands at the end — show the page it lands on.
         setPageIndex(Math.floor(fields.length / VARIANTS_PAGE_SIZE))
     }
@@ -209,34 +354,22 @@ export function VariantFields({control, fields, append, remove}: VariantFieldsPr
                 </Button>
             </div>
 
-            <div className="overflow-x-auto rounded-(--c-radius) border border-(--c-border)">
-                <table className="w-full text-left">
-                    <thead>
-                        <tr className="border-b border-(--c-border) bg-(--c-surface-hover)">
-                            <th scope="col" className="px-3 py-2 text-xs font-semibold tracking-wider text-(--c-text-muted) uppercase">SKU</th>
-                            <th scope="col" className="px-3 py-2 text-xs font-semibold tracking-wider text-(--c-text-muted) uppercase">Retail Price</th>
-                            <th scope="col" className="px-3 py-2 text-xs font-semibold tracking-wider text-(--c-text-muted) uppercase">Wholesale Price</th>
-                            <th scope="col" className="px-3 py-2 text-xs font-semibold tracking-wider text-(--c-text-muted) uppercase">Stock</th>
-                            <th scope="col" className="px-3 py-2 text-right text-xs font-semibold tracking-wider text-(--c-text-muted) uppercase">Actions</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        {pageFields.map((field, pageOffset) => {
-                            // Controllers and testids address the GLOBAL field
-                            // index, not the position within the page.
-                            const index = pageStart + pageOffset
-                            return (
-                                <VariantRow
-                                    key={field.id}
-                                    control={control}
-                                    index={index}
-                                    onRemove={() => remove(index)}
-                                    disableRemove={fields.length <= 1}
-                                />
-                            )
-                        })}
-                    </tbody>
-                </table>
+            <div className="space-y-2">
+                {pageFields.map((field, pageOffset) => {
+                    // Controllers and testids address the GLOBAL field
+                    // index, not the position within the page.
+                    const index = pageStart + pageOffset
+                    return (
+                        <VariantCard
+                            key={field.id}
+                            control={control}
+                            index={index}
+                            hasError={!!errors.variants?.[index]}
+                            onRemove={() => remove(index)}
+                            disableRemove={fields.length <= 1}
+                        />
+                    )
+                })}
             </div>
 
             {pageCount > 1 && (

@@ -6,8 +6,9 @@ import {
     mapToAdminProductDetail,
     type GetProductInformationResponse,
 } from './useProductDetail'
-import {toProductInformationInput, UPDATE_PRODUCT_INFORMATION} from './useUpdateProduct'
-import type {ProductPayload} from './useCreateProduct'
+import {UPDATE_PRODUCT_INFORMATION} from './useUpdateProduct'
+import {toProductInformationInput} from './mappers'
+import type {ProductPayload} from './types'
 
 /**
  * Marks a product out of stock by zeroing every variant's stock through the

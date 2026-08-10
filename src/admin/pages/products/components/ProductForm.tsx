@@ -11,7 +11,18 @@ import {resolveImageUrl} from '@/shared/utils/imageUrl'
 import {ProductStatus} from '@/shared/types/enums'
 import {toSlug} from '@/admin/utils/slug'
 import {VariantFields} from './VariantFields'
-import type {ProductPayload} from '@/admin/hooks/products/useCreateProduct'
+import {serializeAttributes} from '@/admin/hooks/products/mappers'
+import type {ProductPayload} from '@/admin/hooks/products/types'
+
+// Matches the `product_variants.attributes` VARCHAR(254) column — validated
+// here (against the same serializer the mapper submits) so an overlong
+// attribute list is caught as a form error, not a backend truncation.
+const MAX_ATTRIBUTES_JSON_LENGTH = 254
+
+const attributeSchema = z.object({
+    key: z.string().trim().min(1, 'Name is required').max(40, 'Keep the name under 40 characters'),
+    value: z.string().trim().min(1, 'Value is required').max(60, 'Keep the value under 60 characters'),
+})
 
 const variantSchema = z.object({
     id: z.string().optional(),
@@ -29,6 +40,38 @@ const variantSchema = z.object({
         .optional()
         .or(z.literal('')),
     stock: z.coerce.number().int().min(0, 'Stock cannot be negative'),
+    // Deliberately no `.default([])` here: a zod default makes the field
+    // optional on INPUT but required on OUTPUT, and that divergence breaks
+    // zodResolver's type unification with useForm<ProductFormValues>(). Every
+    // call site (form defaults, handleAppend, the server-hydration mapper)
+    // already supplies `attributes: []` explicitly, so a plain required array
+    // costs nothing and keeps the schema's input/output shapes identical.
+    attributes: z.array(attributeSchema),
+}).superRefine((variant, ctx) => {
+    // Attribute names must be unique within a variant (case-insensitive) —
+    // a JSON object can't carry two "Colour" keys, so a second one would
+    // silently overwrite the first at submit time otherwise.
+    const seenKeys = new Set<string>()
+    variant.attributes.forEach((attribute, i) => {
+        const normalizedKey = attribute.key.toLowerCase()
+        if (seenKeys.has(normalizedKey)) {
+            ctx.addIssue({
+                code: z.ZodIssueCode.custom,
+                message: 'Attribute name is already used on this variant',
+                path: ['attributes', i, 'key'],
+            })
+        }
+        seenKeys.add(normalizedKey)
+    })
+
+    const serializedLength = serializeAttributes(variant.attributes).length
+    if (serializedLength > MAX_ATTRIBUTES_JSON_LENGTH) {
+        ctx.addIssue({
+            code: z.ZodIssueCode.custom,
+            message: `Attributes are too long once combined (${serializedLength}/${MAX_ATTRIBUTES_JSON_LENGTH} characters) — shorten a name or value`,
+            path: ['attributes'],
+        })
+    }
 })
 
 export const productSchema = z.object({
@@ -42,19 +85,22 @@ export const productSchema = z.object({
     imageIds: z.record(z.string()),
     variants: z.array(variantSchema).min(1, 'At least one variant is required'),
 }).superRefine((data, ctx) => {
-    // Validate duplicate SKUs within the form
-    const skus = data.variants.map((v) => v.sku).filter(Boolean)
+    // Validate duplicate SKUs within the form. Blank SKUs are skipped (already
+    // reported by the per-row 'required' rule) WITHOUT compacting the array,
+    // so `i` always stays the real index into `data.variants` — a filtered
+    // index here previously misattributed the error to an unrelated blank row.
     const seen = new Set<string>()
-    for (let i = 0; i < skus.length; i++) {
-        if (seen.has(skus[i])) {
+    data.variants.forEach((variant, i) => {
+        if (!variant.sku) return
+        if (seen.has(variant.sku)) {
             ctx.addIssue({
                 code: z.ZodIssueCode.custom,
                 message: 'Duplicate SKU',
                 path: ['variants', i, 'sku'],
             })
         }
-        seen.add(skus[i])
-    }
+        seen.add(variant.sku)
+    })
 })
 
 export type ProductFormValues = z.infer<typeof productSchema>
@@ -152,7 +198,7 @@ export function ProductForm({
             categoryIds: [],
             images: [],
             imageIds: {},
-            variants: [{sku: '', price: '', wholesalePrice: '', stock: 0}],
+            variants: [{sku: '', price: '', wholesalePrice: '', stock: 0, attributes: []}],
             ...defaultValues,
         },
     })

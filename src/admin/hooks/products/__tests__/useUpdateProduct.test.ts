@@ -59,7 +59,7 @@ describe('useUpdateProduct — real mapping', () => {
         status: 'ACTIVE' as 'ACTIVE',
         categoryIds: ['cat-1'],
         images: [],
-        variants: [{ id: 'var-1', sku: 'UPD-001', price: '25.00', stock: 7 }],
+        variants: [{ id: 'var-1', sku: 'UPD-001', price: '25.00', stock: 7, attributes: [] }],
       })
     })
 
@@ -98,8 +98,8 @@ describe('useUpdateProduct — real mapping', () => {
         categoryIds: ['cat-5'],
         images: [{ url: 'img-a.jpg', altText: 'Front view' }, { url: 'img-b.jpg' }],
         variants: [
-          { id: 'v1', sku: 'ME-001', price: '100.50', stock: 20 },
-          { sku: 'ME-002', price: '50.00', stock: 0 },
+          { id: 'v1', sku: 'ME-001', price: '100.50', stock: 20, attributes: [{ key: 'Size', value: 'M' }] },
+          { sku: 'ME-002', price: '50.00', stock: 0, attributes: [] },
         ],
       })
     })
@@ -115,6 +115,7 @@ describe('useUpdateProduct — real mapping', () => {
         id?: string
         sku: string
         stockQuantity: number
+        attributesJson: string
         prices: Array<{ priceType: string; price: string }>
         images?: Array<{ imageUrl: string; featured: boolean; sortOrder: number }>
       }>
@@ -128,6 +129,7 @@ describe('useUpdateProduct — real mapping', () => {
     // Variant 0 with existing id
     expect(input.variants[0].id).toBe('v1')
     expect(input.variants[0].stockQuantity).toBe(20)
+    expect(input.variants[0].attributesJson).toBe('{"Size":"M"}')
     expect(input.variants[0].prices).toEqual([{ priceType: 'RETAIL_PRICE', price: '100.50' }])
     expect(input.variants[0].images).toEqual([
       { imageUrl: 'img-a.jpg', featured: true, sortOrder: 0, altText: 'Front view' },
@@ -135,10 +137,11 @@ describe('useUpdateProduct — real mapping', () => {
       { imageUrl: 'img-b.jpg', featured: false, sortOrder: 1, altText: null },
     ])
 
-    // Variant 1 (new, no id)
+    // Variant 1 (new, no id), no attributes still serialises to '{}'
     expect(input.variants[1].id).toBeUndefined()
     expect(input.variants[1].sku).toBe('ME-002')
     expect(input.variants[1].stockQuantity).toBe(0)
+    expect(input.variants[1].attributesJson).toBe('{}')
     expect(input.variants[1].images).toBeUndefined()
   })
 
@@ -160,7 +163,7 @@ describe('useUpdateProduct — real mapping', () => {
         status: 'ACTIVE' as 'ACTIVE',
         categoryIds: ['cat-1'],
         images: [],
-        variants: [{ sku: 'F-001', price: '10.00', stock: 1 }],
+        variants: [{ sku: 'F-001', price: '10.00', stock: 1, attributes: [] }],
       })
     })
 
@@ -174,5 +177,41 @@ describe('useUpdateProduct — real mapping', () => {
     expect(toast.error).toHaveBeenCalledWith('Failed to save product', { duration: 0 })
 
     consoleErrorSpy.mockRestore()
+  })
+
+  it('invalidates the product list and stats caches on success', async () => {
+    vi.mocked(adminGraphqlClient.request).mockResolvedValue({
+      updateProductInformation: {
+        product: { id: 'prod-42', name: 'Updated', slug: 'updated', status: 'ACTIVE' },
+        variants: [],
+      },
+    })
+
+    const queryClient = new QueryClient({
+      defaultOptions: { mutations: { retry: false } },
+    })
+    const invalidateSpy = vi.spyOn(queryClient, 'invalidateQueries')
+    const wrapper = ({ children }: { children: React.ReactNode }) =>
+      createElement(QueryClientProvider, { client: queryClient }, children)
+
+    const { result } = renderHook(() => useUpdateProduct('prod-42'), { wrapper })
+
+    await act(async () => {
+      result.current.mutate({
+        name: 'Updated',
+        slug: 'updated',
+        shortDescription: '',
+        description: '',
+        status: 'ACTIVE' as 'ACTIVE',
+        categoryIds: ['cat-1'],
+        images: [],
+        variants: [{ id: 'var-1', sku: 'UPD-001', price: '25.00', stock: 7, attributes: [] }],
+      })
+    })
+
+    await waitFor(() => {
+      expect(invalidateSpy).toHaveBeenCalledWith({ queryKey: ['admin-products-list'] })
+    })
+    expect(invalidateSpy).toHaveBeenCalledWith({ queryKey: ['admin-product-stats'] })
   })
 })

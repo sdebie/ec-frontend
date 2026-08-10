@@ -3,17 +3,8 @@ import { gql } from 'graphql-request'
 
 import { adminGraphqlClient } from '@/shared/api/graphql/adminGraphqlClient'
 import type { ProductStatus } from '@/shared/types/enums'
-
-export interface AdminProductVariant {
-  id: string
-  priceId?: string
-  sku: string
-  price: string
-  wholesalePriceId?: string
-  /** Absent when the variant has no WHOLESALE_PRICE row. */
-  wholesalePrice?: string
-  stock: number
-}
+import { parseAttributesJson } from './mappers'
+import type { AdminProductVariant } from './types'
 
 export interface AdminProductImage {
   url: string
@@ -53,6 +44,7 @@ interface VariantResponse {
   sku: string
   stockQuantity: number
   status: string
+  attributesJson: string | null
   prices: VariantPriceResponse[]
   images: ProductImageResponse[]
 }
@@ -94,6 +86,7 @@ export const GET_PRODUCT_INFORMATION = gql`
         sku
         stockQuantity
         status
+        attributesJson
         prices {
           id
           price
@@ -137,6 +130,7 @@ export function mapToAdminProductDetail(
       ...(wholesalePrice?.id ? { wholesalePriceId: wholesalePrice.id } : {}),
       ...(wholesalePrice?.price != null ? { wholesalePrice: String(wholesalePrice.price) } : {}),
       stock: v.stockQuantity ?? 0,
+      attributes: parseAttributesJson(v.attributesJson),
     }
   })
 
