@@ -272,6 +272,8 @@ type ProductDto {
 }
 
 type ProductImageDto {
+  "Alt text for accessibility and image search"
+  altText: String
   "Whether this image is featured"
   featured: Boolean!
   "Image ID (UUID as string)"
@@ -452,9 +454,9 @@ type Query {
     "Optional main category UUID. If omitted or ALL, returns products across all categories."
     categoryId: String,
     filterRequest: FilterRequestInput,
+    inStockOnly: Boolean = false,
     "When true, includes products linked to the selected category and all descendant categories. When false, only products linked directly to the selected category are returned."
     includeSubCategories: Boolean = true,
-    inStockOnly: Boolean = false,
     onSale: Boolean = false,
     pageIndex: Int = 0,
     pageSize: Int = 20,
@@ -794,6 +796,8 @@ input ProductDtoInput {
 }
 
 input ProductImageDtoInput {
+  "Alt text for accessibility and image search"
+  altText: String
   "Whether this image is featured"
   featured: Boolean!
   "Image ID (UUID as string)"

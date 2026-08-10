@@ -34,7 +34,7 @@ function SingleVariantWrapper({
     defaultValues: {
       status: 'DRAFT',
       name: '',
-      categoryId: '',
+      categoryIds: [],
       images: [],
       slug: '',
       imageIds: {},

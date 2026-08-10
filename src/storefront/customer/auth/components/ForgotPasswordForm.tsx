@@ -67,6 +67,12 @@ function extractErrorMessage(error: unknown): string {
 }
 
 export function ForgotPasswordForm({ onBackToLogin }: ForgotPasswordFormProps) {
+  // Every step's tree is keyed on `step` so a transition remounts it. The four
+  // trees are structurally identical, so React would otherwise reconcile them
+  // and reuse the same <input> DOM node between steps — and an uncontrolled
+  // input's value is DOM state, not an attribute, so patching id/autocomplete/
+  // maxLength leaves the previous step's text sitting in the field. Remounting
+  // does not disturb form state: each step owns a separate useForm instance.
   const [step, setStep] = useState<ResetStep>('request')
   const [email, setEmail] = useState('')
   const [code, setCode] = useState('')
@@ -142,7 +148,7 @@ export function ForgotPasswordForm({ onBackToLogin }: ForgotPasswordFormProps) {
 
   if (step === 'request') {
     return (
-      <div className={STEP_CLASS}>
+      <div key={step} className={STEP_CLASS}>
         <AuthHeading title="Reset your password">
           Enter your email address and we'll send you a reset code.
         </AuthHeading>
@@ -190,7 +196,7 @@ export function ForgotPasswordForm({ onBackToLogin }: ForgotPasswordFormProps) {
 
   if (step === 'verify') {
     return (
-      <div className={STEP_CLASS}>
+      <div key={step} className={STEP_CLASS}>
         <AuthHeading title="Enter verification code">
           If the account exists, a 6-digit reset code has been sent. The code is valid for 10
           minutes.
@@ -248,7 +254,7 @@ export function ForgotPasswordForm({ onBackToLogin }: ForgotPasswordFormProps) {
 
   if (step === 'complete') {
     return (
-      <div className={STEP_CLASS}>
+      <div key={step} className={STEP_CLASS}>
         <AuthHeading title="Set new password">Enter your new password below.</AuthHeading>
 
         <form
@@ -297,7 +303,7 @@ export function ForgotPasswordForm({ onBackToLogin }: ForgotPasswordFormProps) {
 
   // step === 'success'
   return (
-    <div className={STEP_CLASS}>
+    <div key={step} className={STEP_CLASS}>
       <AuthHeading title="Password reset successful.">
         You can now sign in with your new password.
       </AuthHeading>

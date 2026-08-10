@@ -9,6 +9,9 @@ export type { ConfirmationDialogProps } from './dialog/ConfirmationDialog'
 export { Drawer, DrawerHeader, DrawerContent, DrawerFooter } from './drawer/Drawer'
 export type { DrawerProps } from './drawer/Drawer'
 
+export { SectionTabs } from './section-tabs/SectionTabs'
+export type { SectionTabItem, SectionTabsProps } from './section-tabs/SectionTabs'
+
 export { ToastContainer, toast } from './toast'
 export type { ToastItem, ToastVariant, ToastOptions } from './toast'
 
@@ -54,6 +57,8 @@ export { Upload } from './upload/Upload'
 export type { UploadProps } from './upload/Upload'
 export { ImageUpload } from './upload/ImageUpload'
 export type { ImageUploadProps } from './upload/ImageUpload'
+export { ImageGalleryManager } from './upload/ImageGalleryManager'
+export type { ImageGalleryManagerProps, ImageGalleryItem } from './upload/ImageGalleryManager'
 export { ImageGalleryPicker } from './upload/ImageGalleryPicker'
 export type { ImageGalleryPickerProps } from './upload/ImageGalleryPicker'
 export { ProductImage } from './upload/ProductImage'

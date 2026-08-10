@@ -89,7 +89,7 @@ export function FeaturedProductsPage() {
             <button
               type="button"
               onClick={() => handleRemove(row.original.id)}
-              className="inline-flex items-center justify-center p-1.5 rounded-lg hover:bg-(--c-surface-hover) text-(--c-text-muted) hover:text-red-500 transition-colors"
+              className="inline-flex items-center justify-center p-1.5 rounded-lg hover:bg-(--c-surface-hover) text-(--c-text-muted) hover:text-(--c-danger) transition-colors"
               aria-label={`Remove ${row.original.name} from featured`}
               data-testid="remove-featured"
             >

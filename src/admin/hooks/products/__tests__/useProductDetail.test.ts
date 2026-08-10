@@ -42,7 +42,7 @@ describe('useProductDetail — real mapping', () => {
           shortDescription: 'A pro widget',
           description: 'Full description',
           status: 'ACTIVE',
-          category: { id: 'cat-1', name: 'Electronics' },
+          categories: [{ id: 'cat-1', name: 'Electronics' }],
         },
         variants: [
           {
@@ -51,12 +51,12 @@ describe('useProductDetail — real mapping', () => {
             stockQuantity: 42,
             status: 'ACTIVE',
             prices: [
-              { id: 'price-1', price: '29.99', priceType: 'RETAIL_PRICE' },
-              { id: 'price-2', price: '19.99', priceType: 'SALE_PRICE' },
+              { id: 'price-1', price: 29.99, priceType: 'RETAIL_PRICE' },
+              { id: 'price-2', price: 19.99, priceType: 'SALE_PRICE' },
             ],
             images: [
-              { id: 'img-1', imageUrl: 'hero.jpg', featured: true, sortOrder: 0 },
-              { id: 'img-2', imageUrl: 'side.jpg', featured: false, sortOrder: 1 },
+              { id: 'img-1', imageUrl: 'hero.jpg', featured: true, sortOrder: 0, altText: 'Hero shot' },
+              { id: 'img-2', imageUrl: 'side.jpg', featured: false, sortOrder: 1, altText: null },
             ],
           },
           {
@@ -65,7 +65,7 @@ describe('useProductDetail — real mapping', () => {
             stockQuantity: 10,
             status: 'ACTIVE',
             prices: [
-              { id: 'price-3', price: '39.99', priceType: 'RETAIL_PRICE' },
+              { id: 'price-3', price: 39.99, priceType: 'RETAIL_PRICE' },
             ],
             images: [
               { id: 'img-3', imageUrl: 'other.jpg', featured: false, sortOrder: 2 },
@@ -92,10 +92,12 @@ describe('useProductDetail — real mapping', () => {
     expect(detail.name).toBe('Widget Pro')
     expect(detail.slug).toBe('widget-pro')
     expect(detail.status).toBe('ACTIVE')
-    expect(detail.category).toEqual({ id: 'cat-1', name: 'Electronics' })
+    expect(detail.categories).toEqual([{ id: 'cat-1', name: 'Electronics' }])
 
     // Variant mapping: stockQuantity → stock, RETAIL_PRICE → price
     expect(detail.variants).toHaveLength(2)
+    // The wire carries BigDecimal NUMBERS; the form model requires strings —
+    // the mapping must coerce, or zod rejects every server-loaded variant.
     expect(detail.variants[0]).toEqual({
       id: 'var-1',
       priceId: 'price-1',
@@ -111,8 +113,13 @@ describe('useProductDetail — real mapping', () => {
       stock: 10,
     })
 
-    // Images flattened from all variants, sorted by sortOrder, deduplicated
-    expect(detail.images).toEqual(['hero.jpg', 'side.jpg', 'other.jpg'])
+    // Images flattened from all variants, sorted by sortOrder, deduplicated;
+    // absent/null alt text normalises to ''
+    expect(detail.images).toEqual([
+      { url: 'hero.jpg', altText: 'Hero shot' },
+      { url: 'side.jpg', altText: '' },
+      { url: 'other.jpg', altText: '' },
+    ])
     expect(detail.imageIds).toEqual({
       'hero.jpg': 'img-1',
       'side.jpg': 'img-2',
@@ -133,7 +140,7 @@ describe('useProductDetail — real mapping', () => {
           shortDescription: '',
           description: '',
           status: 'ACTIVE',
-          category: null,
+          categories: null,
         },
         variants: [
           {
@@ -141,7 +148,7 @@ describe('useProductDetail — real mapping', () => {
             sku: 'ACT-001',
             stockQuantity: 5,
             status: 'ACTIVE',
-            prices: [{ id: 'p1', price: '10.00', priceType: 'RETAIL_PRICE' }],
+            prices: [{ id: 'p1', price: 10.00, priceType: 'RETAIL_PRICE' }],
             images: [],
           },
           {
@@ -149,7 +156,7 @@ describe('useProductDetail — real mapping', () => {
             sku: 'DIS-001',
             stockQuantity: 0,
             status: 'DISABLED',
-            prices: [{ id: 'p2', price: '5.00', priceType: 'RETAIL_PRICE' }],
+            prices: [{ id: 'p2', price: 5.00, priceType: 'RETAIL_PRICE' }],
             images: [],
           },
         ],

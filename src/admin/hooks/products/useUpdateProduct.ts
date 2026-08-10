@@ -10,7 +10,14 @@ interface VariantPayload {
   priceId?: string
   sku: string
   price: string
+  wholesalePriceId?: string
+  wholesalePrice?: string
   stock: number
+}
+
+interface ProductImagePayload {
+  url: string
+  altText?: string
 }
 
 interface ProductPayload {
@@ -19,8 +26,8 @@ interface ProductPayload {
   shortDescription: string
   description: string
   status: ProductStatus
-  categoryId: string
-  images: string[]
+  categoryIds: string[]
+  images: ProductImagePayload[]
   imageIds?: Record<string, string>
   variants: VariantPayload[]
 }
@@ -32,6 +39,7 @@ interface ProductImageDtoInput {
   imageUrl: string
   featured: boolean
   sortOrder: number
+  altText: string | null
 }
 
 interface VariantPriceDtoInput {
@@ -81,7 +89,7 @@ interface UpdateProductInformationResponse {
 
 // --- Mutation document ---
 
-const UPDATE_PRODUCT_INFORMATION = gql`
+export const UPDATE_PRODUCT_INFORMATION = gql`
   mutation UpdateProductInformation($productId: String!, $input: ProductInformationDtoInput) {
     updateProductInformation(productId: $productId, input: $input) {
       product { id name slug status }
@@ -97,7 +105,7 @@ const UPDATE_PRODUCT_INFORMATION = gql`
  * - Product images are carried on payload variant index 0 with featured/sortOrder
  * - The server determines the actual DB image-owner variant; we do NOT infer it client-side
  */
-function toProductInformationInput(payload: ProductPayload): ProductInformationDtoInput {
+export function toProductInformationInput(payload: ProductPayload): ProductInformationDtoInput {
   const variants: ProductVariantDtoInput[] = payload.variants.map((v, index) => {
     const variant: ProductVariantDtoInput = {
       ...(v.id ? { id: v.id } : {}),
@@ -109,16 +117,28 @@ function toProductInformationInput(payload: ProductPayload): ProductInformationD
           priceType: 'RETAIL_PRICE',
           price: v.price,
         },
+        // A blank wholesale field sends nothing: the backend upserts only what
+        // it receives and never deletes omitted price rows (sale prices ride
+        // on that guarantee), so blank means "leave any existing row as-is".
+        ...(v.wholesalePrice?.trim()
+          ? [{
+              ...(v.wholesalePriceId ? { id: v.wholesalePriceId } : {}),
+              priceType: 'WHOLESALE_PRICE',
+              price: v.wholesalePrice,
+            }]
+          : []),
       ],
     }
 
     // Carry the product image manifest on variant index 0
     if (index === 0 && payload.images.length > 0) {
-      variant.images = payload.images.map((imageUrl, imgIndex) => ({
-        ...(payload.imageIds?.[imageUrl] ? { id: payload.imageIds[imageUrl] } : {}),
-        imageUrl,
+      variant.images = payload.images.map((image, imgIndex) => ({
+        ...(payload.imageIds?.[image.url] ? { id: payload.imageIds[image.url] } : {}),
+        imageUrl: image.url,
         featured: imgIndex === 0,
         sortOrder: imgIndex,
+        // Blank alt text is stored as NULL, matching images that never had one
+        altText: image.altText?.trim() ? image.altText.trim() : null,
       }))
     }
 
@@ -132,7 +152,7 @@ function toProductInformationInput(payload: ProductPayload): ProductInformationD
       shortDescription: payload.shortDescription,
       description: payload.description,
       status: payload.status,
-      categories: [{ id: payload.categoryId }],
+      categories: payload.categoryIds.map((id) => ({ id })),
     },
     variants,
   }

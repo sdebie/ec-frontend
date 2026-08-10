@@ -54,7 +54,7 @@ describe('useCreateProduct — real mapping', () => {
       shortDescription: 'Short',
       description: 'Long',
       status: 'PENDING' as ProductPayload['status'],
-      categoryId: 'cat-1',
+      categoryIds: ['cat-1'],
       images: [],
       variants: [{ sku: 'SKU-1', price: '19.99', stock: 5 }],
     }
@@ -88,8 +88,8 @@ describe('useCreateProduct — real mapping', () => {
       shortDescription: 'A short desc',
       description: 'Full description',
       status: 'ACTIVE' as ProductPayload['status'],
-      categoryId: 'cat-99',
-      images: ['hero.jpg', 'detail.jpg'],
+      categoryIds: ['cat-99'],
+      images: [{ url: 'hero.jpg', altText: 'Hero shot' }, { url: 'detail.jpg', altText: '' }],
       variants: [
         { sku: 'M-001', price: '49.99', stock: 10 },
         { sku: 'M-002', price: '79.99', stock: 3 },
@@ -126,8 +126,9 @@ describe('useCreateProduct — real mapping', () => {
       { priceType: 'RETAIL_PRICE', price: '49.99' },
     ])
     expect(input.variants[0].images).toEqual([
-      { imageUrl: 'hero.jpg', featured: true, sortOrder: 0 },
-      { imageUrl: 'detail.jpg', featured: false, sortOrder: 1 },
+      { imageUrl: 'hero.jpg', featured: true, sortOrder: 0, altText: 'Hero shot' },
+      // Blank alt text is sent as null, matching images that never had one
+      { imageUrl: 'detail.jpg', featured: false, sortOrder: 1, altText: null },
     ])
 
     // Variant 1: same mapping, no images (images only on index 0)
@@ -156,7 +157,7 @@ describe('useCreateProduct — real mapping', () => {
         shortDescription: '',
         description: '',
         status: 'PENDING' as ProductPayload['status'],
-        categoryId: 'cat-1',
+        categoryIds: ['cat-1'],
         images: [],
         variants: [{ sku: 'NI-001', price: '9.99', stock: 1 }],
       })
@@ -188,7 +189,7 @@ describe('useCreateProduct — real mapping', () => {
         shortDescription: '',
         description: '',
         status: 'ACTIVE' as ProductPayload['status'],
-        categoryId: 'cat-1',
+        categoryIds: ['cat-1'],
         images: [],
         variants: [{ id: 'existing-var-id', sku: 'EX-001', price: '15.00', stock: 2 }],
       })

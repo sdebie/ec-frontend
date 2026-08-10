@@ -29,6 +29,9 @@ vi.mock('@/admin/hooks/products/useDeleteProductGql', () => ({
 vi.mock('@/admin/hooks/products/useUpdateProductStatusGql', () => ({
   useUpdateProductStatusGql: vi.fn(() => ({ mutate: vi.fn(), isPending: false })),
 }))
+vi.mock('@/admin/hooks/products/useZeroProductStock', () => ({
+  useZeroProductStock: vi.fn(() => ({ mutate: vi.fn(), isPending: false })),
+}))
 
 vi.mock('@/admin/hooks/products/useProductStats', () => ({
   useProductStats: vi.fn(() => ({

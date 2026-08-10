@@ -111,7 +111,7 @@ export function AccountRegisterPage() {
   }
 
   return (
-    <AuthPageShell>
+    <AuthPageShell width="wide">
       <AuthHeading title="Create your account">
         <p>Already have an account?</p>
         <Link to="/account/login" className={`mt-1 inline-block ${AUTH_LINK_CLASS}`}>
@@ -122,57 +122,66 @@ export function AccountRegisterPage() {
       <form onSubmit={handleSubmit(onSubmit)} noValidate className="space-y-5">
         {getServerError()}
 
-        <div>
-          <InputField
-            id="firstName"
-            type="text"
-            autoComplete="given-name"
-            label="First name"
-            error={errors.firstName?.message}
-            {...registerField('firstName')}
-          />
-        </div>
+        {/* Two columns from `sm` up, one below it. The pairs are the fields a
+            shopper reads as a unit — the two halves of a name, then a password
+            and its confirmation — so a row never splits an unrelated pair.
+            InputField renders a fragment, so each field keeps its own wrapper
+            div: that div is the grid cell. */}
+        <div className="grid grid-cols-1 gap-5 sm:grid-cols-2">
+          <div>
+            <InputField
+              id="firstName"
+              type="text"
+              autoComplete="given-name"
+              label="First name"
+              error={errors.firstName?.message}
+              {...registerField('firstName')}
+            />
+          </div>
 
-        <div>
-          <InputField
-            id="lastName"
-            type="text"
-            autoComplete="family-name"
-            label="Last name"
-            error={errors.lastName?.message}
-            {...registerField('lastName')}
-          />
-        </div>
+          <div>
+            <InputField
+              id="lastName"
+              type="text"
+              autoComplete="family-name"
+              label="Last name"
+              error={errors.lastName?.message}
+              {...registerField('lastName')}
+            />
+          </div>
 
-        <div>
-          <InputField
-            id="email"
-            type="email"
-            autoComplete="email"
-            label="Email address"
-            error={errors.email?.message}
-            {...registerField('email')}
-          />
-        </div>
+          {/* Full width: an address is the longest value on the form, and half a
+              column truncates it under the cursor while typing. */}
+          <div className="sm:col-span-2">
+            <InputField
+              id="email"
+              type="email"
+              autoComplete="email"
+              label="Email address"
+              error={errors.email?.message}
+              {...registerField('email')}
+            />
+          </div>
 
-        <div>
-          <PasswordField
-            id="password"
-            autoComplete="new-password"
-            label="Password"
-            error={errors.password?.message}
-            {...registerField('password')}
-          />
-        </div>
+          <div>
+            <PasswordField
+              id="password"
+              autoComplete="new-password"
+              label="Password"
+              error={errors.password?.message}
+              {...registerField('password')}
+            />
+          </div>
 
-        <div>
-          <PasswordField
-            id="confirmPassword"
-            autoComplete="new-password"
-            label="Confirm password"
-            error={errors.confirmPassword?.message}
-            {...registerField('confirmPassword')}
-          />
+          <div>
+            <PasswordField
+              id="confirmPassword"
+              autoComplete="new-password"
+              label="Confirm password"
+              error={errors.confirmPassword?.message}
+              {...registerField('confirmPassword')}
+            />
+          </div>
         </div>
 
         {/* h-10 matches the fields above and the Google button below — see the

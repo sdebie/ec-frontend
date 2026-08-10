@@ -110,8 +110,8 @@ export function LegalPageEditPage() {
           <span
             className={`inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium ${
               page.publishedAt
-                ? 'bg-green-100 text-green-800'
-                : 'bg-amber-100 text-amber-800'
+                ? 'bg-(--c-status-green-bg) text-(--c-status-green-text)'
+                : 'bg-(--c-status-yellow-bg) text-(--c-status-yellow-text)'
             }`}
           >
             {page.publishedAt ? 'Published' : 'Unpublished'}

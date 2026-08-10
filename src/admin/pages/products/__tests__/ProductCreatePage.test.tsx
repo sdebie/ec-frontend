@@ -102,6 +102,7 @@ describe('ProductCreatePage', () => {
 
       // Fill product name but leave variant SKU blank, fill price
       await user.type(screen.getByPlaceholderText('Product name'), 'SKU Test')
+      await user.click(screen.getByRole('tab', { name: /variants/i }))
       await user.type(screen.getByPlaceholderText('e.g. 99.99'), '19.99')
 
       // Submit — SKU still blank
@@ -127,6 +128,7 @@ describe('ProductCreatePage', () => {
       renderPage()
 
       await user.type(screen.getByPlaceholderText('Product name'), 'Dup SKU')
+      await user.click(screen.getByRole('tab', { name: /variants/i }))
 
       // Fill first variant
       const skuInput = screen.getByPlaceholderText('e.g. PROD-001')
@@ -157,6 +159,7 @@ describe('ProductCreatePage', () => {
 
       // Fill product name and SKU, set price to 0
       await user.type(screen.getByPlaceholderText('Product name'), 'Zero Price')
+      await user.click(screen.getByRole('tab', { name: /variants/i }))
       await user.type(screen.getByPlaceholderText('e.g. PROD-001'), 'ZP-001')
       await user.type(screen.getByPlaceholderText('e.g. 99.99'), '0')
 
@@ -175,6 +178,7 @@ describe('ProductCreatePage', () => {
       renderPage()
 
       await user.type(screen.getByPlaceholderText('Product name'), 'Zero Price 2')
+      await user.click(screen.getByRole('tab', { name: /variants/i }))
       await user.type(screen.getByPlaceholderText('e.g. PROD-001'), 'ZP-002')
       await user.type(screen.getByPlaceholderText('e.g. 99.99'), '0.00')
 

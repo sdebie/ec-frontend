@@ -2,28 +2,51 @@ import type { ReactNode } from 'react'
 import { ACCENT_LINK_HOVER, Section } from '@/storefront/sections/shared'
 
 /**
+ * Width of the card, as a complete literal class per branch — an interpolated
+ * `max-w-${…}` never reaches Tailwind's scanner and emits no CSS.
+ *
+ * `default` keeps the card's content box at or under the 400px Google Identity
+ * Services caps its button at, so GoogleAuthButton fills the column edge to
+ * edge. Past that ceiling GSI centres its button instead, which is why `wide`
+ * is for forms that earn the room — a two-column field grid — rather than a
+ * general-purpose knob.
+ */
+const SHELL_WIDTH_CLASS = {
+  default: 'max-w-md',
+  wide: 'max-w-2xl',
+} as const
+
+export interface AuthPageShellProps {
+  children: ReactNode
+  /** `wide` for a form whose fields sit in two columns. */
+  width?: keyof typeof SHELL_WIDTH_CLASS
+}
+
+/**
  * The frame every customer auth page renders into — sign in, register, and
  * password reset.
  *
  * These three pages are one flow and a shopper moves between them by following
- * a link, so any drift in card width, gutter or heading treatment reads as the
- * page jumping. Sharing the frame is what stops that, and it is why the pieces
- * live together in one module rather than being pasted into each page.
+ * a link, so any drift in gutter or heading treatment reads as the page
+ * jumping. Sharing the frame is what stops that, and it is why the pieces live
+ * together in one module rather than being pasted into each page.
+ *
+ * The card is centred in `Section`'s content column rather than pinned to its
+ * left gutter: a narrow card against a wide empty right-hand side reads as
+ * content that failed to load, and centring keeps the form the focus of a page
+ * that has nothing else on it.
  *
  * The page rides `Section`'s standard rhythm rather than centring itself in a
  * `min-h-screen` box: these pages render inside StorefrontLayout, so a
  * viewport-height box below the chrome pushes the card down by the height of
  * the header it is already sitting under.
- *
- * `max-w-md` at this padding keeps the card's content box at or under the 400px
- * Google Identity Services caps its button at, which is what lets
- * GoogleAuthButton fill the column edge to edge. Widen either one and the
- * Google button stops matching the submit button above it.
  */
-export function AuthPageShell({ children }: { children: ReactNode }) {
+export function AuthPageShell({ children, width = 'default' }: AuthPageShellProps) {
   return (
     <Section as="div">
-      <div className="mx-auto w-full max-w-md rounded-lg border border-(--sf-border) bg-(--sf-panel) p-6 shadow-(--sf-shadow-sm) sm:p-8">
+      <div
+        className={`mx-auto w-full ${SHELL_WIDTH_CLASS[width]} rounded-lg border border-(--sf-border) bg-(--sf-panel) p-6 shadow-(--sf-shadow-sm) sm:p-8`}
+      >
         {children}
       </div>
     </Section>

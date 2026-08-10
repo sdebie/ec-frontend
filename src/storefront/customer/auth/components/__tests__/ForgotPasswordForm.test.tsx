@@ -258,6 +258,49 @@ describe('ForgotPasswordForm', () => {
         })
     })
 
+    describe('Step transitions — field values must not leak', () => {
+        /**
+         * Each step returns a structurally identical tree at the same position, so
+         * React reconciles instead of remounting and reuses the same <input> DOM
+         * node. Attributes get patched; an uncontrolled input's value does not,
+         * because it is DOM state. Assert the VALUE — asserting that the field is
+         * present, or that typing into it works, passes in the broken state too.
+         */
+        it('Verification code is empty on arrival at step 2', async () => {
+            const user = userEvent.setup()
+            render(<ForgotPasswordForm/>)
+
+            await user.type(screen.getByLabelText('Email address'), 'test@example.com')
+            await user.click(screen.getByRole('button', {name: 'Send code'}))
+
+            await waitFor(() => {
+                expect(screen.getByText('Enter verification code')).toBeInTheDocument()
+            })
+
+            expect(screen.getByLabelText('Verification code')).toHaveValue('')
+        })
+
+        it('New password and Confirm password are empty on arrival at step 3', async () => {
+            const user = userEvent.setup()
+            render(<ForgotPasswordForm/>)
+
+            await user.type(screen.getByLabelText('Email address'), 'test@example.com')
+            await user.click(screen.getByRole('button', {name: 'Send code'}))
+            await waitFor(() => {
+                expect(screen.getByText('Enter verification code')).toBeInTheDocument()
+            })
+
+            fillInput(screen.getByLabelText('Verification code'), '123456')
+            await user.click(screen.getByRole('button', {name: 'Verify code'}))
+            await waitFor(() => {
+                expect(screen.getByText('Set new password')).toBeInTheDocument()
+            })
+
+            expect(screen.getByLabelText('New password')).toHaveValue('')
+            expect(screen.getByLabelText('Confirm password')).toHaveValue('')
+        })
+    })
+
     describe('Error handling', () => {
         it('backend 400 shows inline error, not toast', async () => {
             // Override request mutation to return error state

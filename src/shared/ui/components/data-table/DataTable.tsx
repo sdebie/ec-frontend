@@ -167,7 +167,7 @@ export function DataTable<TData>({
 
                 {/* Table */}
                 <div className="overflow-x-auto">
-                    <table className="w-full text-xs text-left text-(--c-text)">
+                    <table className="w-full text-sm text-left text-(--c-text)">
                         <thead
                             className="text-xs font-semibold text-(--c-text-muted) bg-(--c-table-row-bg) border-b border-(--c-border) shadow-sm">
                         {table.getHeaderGroups().map((headerGroup) => (

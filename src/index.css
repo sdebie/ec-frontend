@@ -108,6 +108,11 @@
 }
 
 [data-surface="admin"][data-theme="dark"] {
+    /* Native widgets (number-input spinners, scrollbars, select arrows) render
+       from the UA stylesheet, not our tokens — without this they stay light-mode
+       black and vanish against the dark inputs. */
+    color-scheme: dark;
+
     --admin-bg: #030712;
     --admin-panel: #111827;
     --admin-border: #1f2937;

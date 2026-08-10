@@ -161,7 +161,7 @@ export function TestimonialsPage() {
             <button
               type="button"
               onClick={() => setDeletingId(row.original.id)}
-              className="inline-flex items-center justify-center p-1.5 rounded-lg hover:bg-(--c-surface-hover) text-(--c-text-muted) hover:text-red-500 transition-colors"
+              className="inline-flex items-center justify-center p-1.5 rounded-lg hover:bg-(--c-surface-hover) text-(--c-text-muted) hover:text-(--c-danger) transition-colors"
               aria-label={`Delete testimonial by ${row.original.authorName}`}
             >
               <Trash2 className="h-4 w-4" />
@@ -208,7 +208,7 @@ export function TestimonialsPage() {
             <div className="space-y-4">
               <div>
                 <label htmlFor="quote" className="block text-sm font-medium text-(--c-text) mb-1">
-                  Quote <span className="text-red-500">*</span>
+                  Quote <span className="text-(--c-error)">*</span>
                 </label>
                 <textarea
                   id="quote"
@@ -218,13 +218,13 @@ export function TestimonialsPage() {
                   {...form.register('quote')}
                 />
                 {form.formState.errors.quote && (
-                  <p className="mt-1 text-xs text-red-500">{form.formState.errors.quote.message}</p>
+                  <p className="mt-1 text-xs text-(--c-error)">{form.formState.errors.quote.message}</p>
                 )}
               </div>
 
               <div>
                 <label htmlFor="authorName" className="block text-sm font-medium text-(--c-text) mb-1">
-                  Author Name <span className="text-red-500">*</span>
+                  Author Name <span className="text-(--c-error)">*</span>
                 </label>
                 <Input
                   id="authorName"
@@ -232,7 +232,7 @@ export function TestimonialsPage() {
                   {...form.register('authorName')}
                 />
                 {form.formState.errors.authorName && (
-                  <p className="mt-1 text-xs text-red-500">{form.formState.errors.authorName.message}</p>
+                  <p className="mt-1 text-xs text-(--c-error)">{form.formState.errors.authorName.message}</p>
                 )}
               </div>
 
@@ -258,7 +258,7 @@ export function TestimonialsPage() {
                   {...form.register('sortOrder', { valueAsNumber: true })}
                 />
                 {form.formState.errors.sortOrder && (
-                  <p className="mt-1 text-xs text-red-500">{form.formState.errors.sortOrder.message}</p>
+                  <p className="mt-1 text-xs text-(--c-error)">{form.formState.errors.sortOrder.message}</p>
                 )}
               </div>
 

@@ -57,7 +57,7 @@ describe('useUpdateProduct — real mapping', () => {
         shortDescription: '',
         description: '',
         status: 'ACTIVE' as 'ACTIVE',
-        categoryId: 'cat-1',
+        categoryIds: ['cat-1'],
         images: [],
         variants: [{ id: 'var-1', sku: 'UPD-001', price: '25.00', stock: 7 }],
       })
@@ -95,8 +95,8 @@ describe('useUpdateProduct — real mapping', () => {
         shortDescription: 'short',
         description: 'long',
         status: 'ACTIVE' as 'ACTIVE',
-        categoryId: 'cat-5',
-        images: ['img-a.jpg', 'img-b.jpg'],
+        categoryIds: ['cat-5'],
+        images: [{ url: 'img-a.jpg', altText: 'Front view' }, { url: 'img-b.jpg' }],
         variants: [
           { id: 'v1', sku: 'ME-001', price: '100.50', stock: 20 },
           { sku: 'ME-002', price: '50.00', stock: 0 },
@@ -130,8 +130,9 @@ describe('useUpdateProduct — real mapping', () => {
     expect(input.variants[0].stockQuantity).toBe(20)
     expect(input.variants[0].prices).toEqual([{ priceType: 'RETAIL_PRICE', price: '100.50' }])
     expect(input.variants[0].images).toEqual([
-      { imageUrl: 'img-a.jpg', featured: true, sortOrder: 0 },
-      { imageUrl: 'img-b.jpg', featured: false, sortOrder: 1 },
+      { imageUrl: 'img-a.jpg', featured: true, sortOrder: 0, altText: 'Front view' },
+      // Absent alt text is sent as null, matching images that never had one
+      { imageUrl: 'img-b.jpg', featured: false, sortOrder: 1, altText: null },
     ])
 
     // Variant 1 (new, no id)
@@ -157,7 +158,7 @@ describe('useUpdateProduct — real mapping', () => {
         shortDescription: '',
         description: '',
         status: 'ACTIVE' as 'ACTIVE',
-        categoryId: 'cat-1',
+        categoryIds: ['cat-1'],
         images: [],
         variants: [{ sku: 'F-001', price: '10.00', stock: 1 }],
       })

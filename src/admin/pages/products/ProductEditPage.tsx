@@ -73,7 +73,7 @@ export function ProductEditPage() {
     shortDescription: product.shortDescription,
     description: product.description,
     status: product.status,
-    categoryId: product.category.id,
+    categoryIds: product.categories.map((category) => category.id),
     images: product.images,
     imageIds: product.imageIds,
     variants: product.variants,

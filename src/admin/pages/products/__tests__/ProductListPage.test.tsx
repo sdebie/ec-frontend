@@ -1,5 +1,5 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest'
-import { render, screen, fireEvent } from '@testing-library/react'
+import { render, screen, fireEvent, waitFor } from '@testing-library/react'
 import { MemoryRouter } from 'react-router-dom'
 
 import { useAdminProductList } from '@/admin/hooks/products/useAdminProductList'
@@ -14,6 +14,7 @@ import { ProductListPage } from '../ProductListPage'
 const mockRefetch = vi.fn()
 const mockDeleteMutate = vi.fn()
 const mockStatusMutate = vi.fn()
+const mockStatusMutateAsync = vi.fn().mockResolvedValue({})
 const mockNavigate = vi.fn()
 
 vi.mock('@/admin/hooks/products/useAdminProductList', () => ({
@@ -24,6 +25,9 @@ vi.mock('@/admin/hooks/products/useDeleteProductGql', () => ({
 }))
 vi.mock('@/admin/hooks/products/useUpdateProductStatusGql', () => ({
   useUpdateProductStatusGql: vi.fn(),
+}))
+vi.mock('@/admin/hooks/products/useZeroProductStock', () => ({
+  useZeroProductStock: vi.fn(() => ({ mutate: vi.fn(), isPending: false })),
 }))
 vi.mock('@/admin/hooks/products/useProductStats', () => ({
   useProductStats: vi.fn(),
@@ -86,6 +90,7 @@ function setupDefaultMocks(overrides?: {
 
   vi.mocked(useUpdateProductStatusGql).mockReturnValue({
     mutate: mockStatusMutate,
+    mutateAsync: mockStatusMutateAsync,
     isPending: false,
   } as unknown as ReturnType<typeof useUpdateProductStatusGql>)
 
@@ -157,39 +162,75 @@ describe('ProductListPage', () => {
 
       renderPage()
 
-      const actionsMenu = screen.getByTestId('actions-menu')
-      const trigger = actionsMenu.querySelector('span')
-      fireEvent.click(trigger!)
-
-      const deleteAction = screen.getByTestId('action-delete')
-      fireEvent.click(deleteAction.querySelector('button')!)
+      // Delete is now an inline icon button in the Actions column
+      fireEvent.click(screen.getByTestId('action-delete'))
 
       expect(screen.getByRole('dialog')).toBeInTheDocument()
       expect(
-        screen.getByText(/Are you sure you want to delete "Test Product"\?/),
+        screen.getByText(/Delete "Test Product"\?/),
       ).toBeInTheDocument()
     })
   })
 
   describe('VIEWER role', () => {
-    it('hides Add Product button and actions menu for VIEWER role', () => {
+    it('hides Add Product button and mutating actions for VIEWER role', () => {
       setupDefaultMocks({ role: 'VIEWER' })
 
       renderPage()
 
       expect(screen.queryByRole('button', { name: /add product/i })).not.toBeInTheDocument()
-      expect(screen.queryByTestId('actions-menu')).not.toBeInTheDocument()
+      expect(screen.queryByTestId('action-delete')).not.toBeInTheDocument()
+      expect(screen.queryByTestId('action-out-of-stock')).not.toBeInTheDocument()
+    })
+  })
+
+  describe('bulk status update', () => {
+    it('shows the bulk bar when rows are selected and dispatches one update per product', async () => {
+      setupDefaultMocks()
+
+      renderPage()
+
+      // No bar until something is selected
+      expect(screen.queryByTestId('bulk-mark-active')).not.toBeInTheDocument()
+
+      fireEvent.click(screen.getByLabelText('Select all rows'))
+      expect(screen.getByText(/selected/)).toBeInTheDocument()
+
+      fireEvent.click(screen.getByTestId('bulk-mark-active'))
+
+      await waitFor(() => {
+        expect(mockStatusMutateAsync).toHaveBeenCalledWith({ id: '1', status: 'ACTIVE' })
+      })
+
+      // Selection clears after the batch completes
+      await waitFor(() => {
+        expect(screen.queryByTestId('bulk-mark-active')).not.toBeInTheDocument()
+      })
+    })
+
+    it('Mark Inactive sends DISABLED for every selected product', async () => {
+      setupDefaultMocks()
+
+      renderPage()
+
+      fireEvent.click(screen.getByLabelText('Select all rows'))
+      fireEvent.click(screen.getByTestId('bulk-mark-inactive'))
+
+      await waitFor(() => {
+        expect(mockStatusMutateAsync).toHaveBeenCalledWith({ id: '1', status: 'DISABLED' })
+      })
     })
   })
 
   describe('ORDER_MANAGER role', () => {
-    it('hides Add Product button and actions menu for ORDER_MANAGER role', () => {
+    it('hides Add Product button and mutating actions for ORDER_MANAGER role', () => {
       setupDefaultMocks({ role: 'ORDER_MANAGER' })
 
       renderPage()
 
       expect(screen.queryByRole('button', { name: /add product/i })).not.toBeInTheDocument()
-      expect(screen.queryByTestId('actions-menu')).not.toBeInTheDocument()
+      expect(screen.queryByTestId('action-delete')).not.toBeInTheDocument()
+      expect(screen.queryByTestId('action-out-of-stock')).not.toBeInTheDocument()
     })
   })
 })

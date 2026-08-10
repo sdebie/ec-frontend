@@ -3,10 +3,6 @@ import { Link, useNavigate } from 'react-router-dom'
 import { Menu, Sun, Moon, Monitor } from 'lucide-react'
 
 import { useAdminAuthStore } from '@/shared/auth/adminAuthStore'
-import { useClientName } from '@/admin/hooks/useClientName'
-
-// Generic admin-console chrome, not client data — safe as a constant.
-const clientTagline = 'Management Console'
 import { useThemeStore, type ThemeMode, type ThemePreset } from '@/admin/stores/themeStore'
 import { useBreadcrumbItems } from '@/admin/context/BreadcrumbContext'
 import { cn } from '@/shared/utils/cn'
@@ -26,7 +22,6 @@ interface AdminHeaderProps {
 
 export function AdminHeader({ onMenuClick, isCollapsed }: AdminHeaderProps) {
   const navigate = useNavigate()
-  const clientName = useClientName()
   const { userName, clearSession } = useAdminAuthStore()
   const breadcrumbs = useBreadcrumbItems()
   const [dropdownOpen, setDropdownOpen] = useState(false)
@@ -74,14 +69,6 @@ export function AdminHeader({ onMenuClick, isCollapsed }: AdminHeaderProps) {
         </div>
 
         <div className="flex items-center gap-4">
-          {/* Branding */}
-          <div className="hidden md:flex flex-col leading-tight mr-1">
-            <span className="text-sm font-bold tracking-tight text-(--c-text)">{clientName}</span>
-            <span className="text-xs text-(--c-text-muted)">{clientTagline}</span>
-          </div>
-
-          <div className="h-8 w-px bg-admin-border hidden md:block"></div>
-
           <Link
             to="/"
             className="hidden md:flex items-center gap-2 text-sm font-medium text-admin-text hover:text-primary transition-colors"
