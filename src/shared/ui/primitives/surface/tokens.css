@@ -20,7 +20,7 @@
   --c-error:        var(--admin-status-red-text);
   --c-warning:      var(--admin-status-yellow-text);
   --c-info:         var(--primary);
-  --c-input-bg:     var(--admin-panel);
+  --c-input-bg:     var(--admin-input-bg);
   --c-accent-fg:    #ffffff;
   --c-danger:       #ef4444;
   --c-danger-hover: #dc2626;
@@ -62,7 +62,7 @@
 
   /* Surface elevation */
   --c-surface:      var(--admin-panel);
-  --c-input-bg:     var(--admin-panel);
+  --c-input-bg:     var(--admin-input-bg);
   --c-accent-fg:    var(--c-accent-text);
   --c-danger:       #ef4444;
   --c-danger-hover: #dc2626;

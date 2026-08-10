@@ -31,6 +31,7 @@
     --admin-border: #e2e8f0;
     --admin-text: #0f172a;
     --admin-text-muted: #64748b;
+    --admin-input-bg: #e8edf3;
 
     --admin-sidebar-bg: #ffffff;
     --admin-sidebar-hover: #f1f5f9;
@@ -118,6 +119,7 @@
     --admin-border: #1f2937;
     --admin-text: #f9fafb;
     --admin-text-muted: #9ca3af;
+    --admin-input-bg: #161f2e;
     --admin-header-bg: #111827;
     --admin-sidebar-bg: #111827;
     --admin-sidebar-hover: #1f2937;
