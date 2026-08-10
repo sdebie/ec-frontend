@@ -1,4 +1,4 @@
-import { render, screen, fireEvent } from '@testing-library/react'
+import { render, screen, fireEvent, waitFor } from '@testing-library/react'
 import { describe, it, expect, vi } from 'vitest'
 import { Select } from './Select'
 import { SearchableSelect } from './SearchableSelect'
@@ -189,5 +189,91 @@ describe('MultiSelect', () => {
     const trigger = screen.getByRole('button', { expanded: false })
     expect(trigger.tagName).toBe('BUTTON')
     expect(trigger.querySelector('button')).toBeNull()
+  })
+
+  it('filters the option list as the user types', () => {
+    render(<MultiSelect options={options} />)
+    const trigger = screen.getByRole('button', { expanded: false })
+    fireEvent.click(trigger)
+
+    const search = screen.getByPlaceholderText('Search...')
+    fireEvent.change(search, { target: { value: 'b' } })
+
+    expect(screen.getByRole('option', { name: 'Option B' })).toBeInTheDocument()
+    expect(screen.queryByRole('option', { name: 'Option A' })).not.toBeInTheDocument()
+    expect(screen.queryByRole('option', { name: 'Option C' })).not.toBeInTheDocument()
+  })
+
+  it('auto-focuses the search input when the panel opens', () => {
+    render(<MultiSelect options={options} />)
+    const trigger = screen.getByRole('button', { expanded: false })
+    fireEvent.click(trigger)
+
+    expect(screen.getByPlaceholderText('Search...')).toHaveFocus()
+  })
+
+  it('shows a distinct empty state when the search matches nothing', () => {
+    render(<MultiSelect options={options} />)
+    const trigger = screen.getByRole('button', { expanded: false })
+    fireEvent.click(trigger)
+
+    const search = screen.getByPlaceholderText('Search...')
+    fireEvent.change(search, { target: { value: 'zzz' } })
+
+    expect(screen.getByText('No options match your search')).toBeInTheDocument()
+  })
+
+  it('selects a filtered option by clicking it', () => {
+    const onChange = vi.fn()
+    render(<MultiSelect options={options} value={['a']} onChange={onChange} />)
+    const trigger = screen.getByRole('button', { expanded: false })
+    fireEvent.click(trigger)
+
+    const search = screen.getByPlaceholderText('Search...')
+    fireEvent.change(search, { target: { value: 'Option B' } })
+    fireEvent.click(screen.getByRole('option', { name: 'Option B' }))
+
+    expect(onChange).toHaveBeenCalledWith(['a', 'b'])
+  })
+
+  it('selects the highlighted option on Enter after arrowing down', () => {
+    const onChange = vi.fn()
+    render(<MultiSelect options={options} onChange={onChange} />)
+    const trigger = screen.getByRole('button', { expanded: false })
+    fireEvent.click(trigger)
+
+    const search = screen.getByPlaceholderText('Search...')
+    fireEvent.keyDown(search, { key: 'ArrowDown' })
+    fireEvent.keyDown(search, { key: 'Enter' })
+
+    expect(onChange).toHaveBeenCalledWith(['b'])
+  })
+
+  it('selects the first option on Enter with no prior arrow key press', () => {
+    const onChange = vi.fn()
+    render(<MultiSelect options={options} onChange={onChange} />)
+    const trigger = screen.getByRole('button', { expanded: false })
+    fireEvent.click(trigger)
+
+    const search = screen.getByPlaceholderText('Search...')
+    fireEvent.keyDown(search, { key: 'Enter' })
+
+    expect(onChange).toHaveBeenCalledWith(['a'])
+  })
+
+  it('clears the search query and closes on Escape, restoring focus to the trigger', async () => {
+    render(<MultiSelect options={options} />)
+    const trigger = screen.getByRole('button', { expanded: false })
+    fireEvent.click(trigger)
+
+    const search = screen.getByPlaceholderText('Search...')
+    fireEvent.change(search, { target: { value: 'b' } })
+    fireEvent.keyDown(search, { key: 'Escape' })
+
+    expect(screen.queryByRole('listbox')).not.toBeInTheDocument()
+    // Focus restoration is deferred a frame (requestAnimationFrame), so it
+    // lands after fireEvent's synchronous act() flush — poll for it rather
+    // than asserting immediately.
+    await waitFor(() => expect(trigger).toHaveFocus())
   })
 })
