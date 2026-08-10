@@ -3,6 +3,7 @@ import {useController, useFormState, type Control, type UseFieldArrayReturn} fro
 import {Check, ChevronLeft, ChevronRight, Pencil, Trash2} from 'lucide-react'
 import {Button, Input} from '@/shared/ui/primitives'
 import {cn} from '@/shared/utils/cn'
+import {formatAmount} from '@/shared/utils/formatAmount'
 // Operate on the parent product form's values — don't duplicate the shape.
 import type {ProductFormValues} from './ProductForm'
 
@@ -80,7 +81,9 @@ function VariantRow({control, index, onRemove, disableRemove}: VariantRowProps) 
                         {cellError(priceController.fieldState.error?.message)}
                     </>
                 ) : (
-                    <span className="text-sm text-(--c-text)">{priceController.field.value}</span>
+                    <span className="text-sm text-(--c-text)">
+                        {formatAmount(parseFloat(priceController.field.value))}
+                    </span>
                 )}
             </td>
             <td className="px-3 py-2.5 align-top">
@@ -99,7 +102,9 @@ function VariantRow({control, index, onRemove, disableRemove}: VariantRowProps) 
                     </>
                 ) : (
                     <span className="text-sm text-(--c-text)">
-                        {wholesalePriceController.field.value || '—'}
+                        {wholesalePriceController.field.value
+                            ? formatAmount(parseFloat(wholesalePriceController.field.value))
+                            : '—'}
                     </span>
                 )}
             </td>

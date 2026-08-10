@@ -499,6 +499,7 @@ export function ProductListPage() {
                     pageCount={pageCount}
                     pagination={visiblePagination}
                     onPaginationChange={setPagination}
+                    onRowDoubleClick={(product) => navigate(`/admin/products/${product.id}/edit`)}
                     emptyMessage="No products found"
                 />
 

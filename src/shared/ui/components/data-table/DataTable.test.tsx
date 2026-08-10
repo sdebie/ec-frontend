@@ -1,5 +1,6 @@
 import { describe, expect, it, vi } from 'vitest'
 import { render, screen } from '@testing-library/react'
+import userEvent from '@testing-library/user-event'
 import { DataTable } from './DataTable'
 import type { ColumnDef } from '@tanstack/react-table'
 
@@ -93,6 +94,49 @@ describe('DataTable', () => {
     it('shows default empty message when no emptyMessage prop provided', () => {
       render(<DataTable columns={columns} data={[]} />)
       expect(screen.getByText('No results found')).toBeInTheDocument()
+    })
+  })
+
+  describe('onRowDoubleClick', () => {
+    const columnsWithAction: ColumnDef<TestRow, unknown>[] = [
+      ...columns,
+      {
+        id: 'actions',
+        header: 'Actions',
+        cell: () => <button type="button">Row action</button>,
+      },
+    ]
+
+    it('fires with the row data when a cell is double-clicked', async () => {
+      const user = userEvent.setup()
+      const onRowDoubleClick = vi.fn()
+      const data = makeRows(2)
+      render(<DataTable columns={columns} data={data} onRowDoubleClick={onRowDoubleClick} />)
+
+      await user.dblClick(screen.getByText('Row 2'))
+
+      expect(onRowDoubleClick).toHaveBeenCalledWith(data[1])
+      expect(onRowDoubleClick).toHaveBeenCalledTimes(1)
+    })
+
+    it('does NOT fire when the double-click lands on an interactive element in the row', async () => {
+      const user = userEvent.setup()
+      const onRowDoubleClick = vi.fn()
+      const data = makeRows(1)
+      render(<DataTable columns={columnsWithAction} data={data} onRowDoubleClick={onRowDoubleClick} />)
+
+      await user.dblClick(screen.getByRole('button', { name: 'Row action' }))
+
+      expect(onRowDoubleClick).not.toHaveBeenCalled()
+    })
+
+    it('is inert when no handler is provided', async () => {
+      const user = userEvent.setup()
+      const data = makeRows(1)
+      // Must not throw with onDoubleClick left undefined.
+      render(<DataTable columns={columns} data={data} />)
+
+      await expect(user.dblClick(screen.getByText('Row 1'))).resolves.not.toThrow()
     })
   })
 

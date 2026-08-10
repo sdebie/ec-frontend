@@ -37,6 +37,12 @@ export interface DataTableProps<TData> {
     className?: string
     /** Initial page size for client-side pagination */
     initialPageSize?: number
+    /**
+     * Fires on double-clicking a row, with that row's data. Double-clicks that
+     * land on an interactive element within the row (a button, link, checkbox)
+     * are ignored, so an in-row action can't also trigger this.
+     */
+    onRowDoubleClick?: (row: TData) => void
 }
 
 const DEFAULT_PAGE_SIZE = 10
@@ -55,6 +61,7 @@ export function DataTable<TData>({
                                      emptyMessage = 'No results found',
                                      className,
                                      initialPageSize = DEFAULT_PAGE_SIZE,
+                                     onRowDoubleClick,
                                  }: DataTableProps<TData>) {
     const [sorting, setSorting] = React.useState<SortingState>([])
     const [columnFilters, setColumnFilters] = React.useState<ColumnFiltersState>([])
@@ -240,6 +247,15 @@ export function DataTable<TData>({
                             table.getRowModel().rows.map((row) => (
                                 <tr
                                     key={row.id}
+                                    onDoubleClick={onRowDoubleClick ? (e) => {
+                                        // A double-click that lands on a button/link/input
+                                        // inside the row is that element's own action, not
+                                        // a row-level one — e.g. don't navigate away while
+                                        // the user is double-clicking a Delete icon.
+                                        const target = e.target as HTMLElement
+                                        if (target.closest('button, a, input, [role="button"]')) return
+                                        onRowDoubleClick(row.original)
+                                    } : undefined}
                                     className="border-b border-(--c-border) last:border-0 bg-(--c-table-header-bg) hover:bg-(--c-table-row-hover) transition-colors duration-100"
                                 >
                                     {row.getVisibleCells().map((cell) => (

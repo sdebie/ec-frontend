@@ -1,5 +1,6 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest'
 import { render, screen, fireEvent, waitFor } from '@testing-library/react'
+import userEvent from '@testing-library/user-event'
 import { MemoryRouter } from 'react-router-dom'
 
 import { useAdminProductList } from '@/admin/hooks/products/useAdminProductList'
@@ -153,6 +154,30 @@ describe('ProductListPage', () => {
       // After the filter change, useAdminProductList should be called with pageIndex=0
       const lastCall = vi.mocked(useAdminProductList).mock.calls.at(-1)
       expect(lastCall?.[0]).toMatchObject({ pageIndex: 0 })
+    })
+  })
+
+  describe('row double-click', () => {
+    it('navigates to the edit page when a row is double-clicked', () => {
+      setupDefaultMocks()
+
+      renderPage()
+
+      fireEvent.doubleClick(screen.getByText('Test Product'))
+
+      expect(mockNavigate).toHaveBeenCalledWith('/admin/products/1/edit')
+    })
+
+    it('double-clicking the Delete action opens the dialog instead of navigating', async () => {
+      setupDefaultMocks()
+      const user = userEvent.setup()
+
+      renderPage()
+
+      await user.dblClick(screen.getByTestId('action-delete'))
+
+      expect(screen.getByRole('dialog')).toBeInTheDocument()
+      expect(mockNavigate).not.toHaveBeenCalled()
     })
   })
 
