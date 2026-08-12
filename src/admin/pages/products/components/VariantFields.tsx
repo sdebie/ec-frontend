@@ -96,6 +96,7 @@ function VariantCard({control, index, hasError, onRemove, disableRemove}: Varian
                                 placeholder="e.g. PROD-001"
                                 aria-label="SKU"
                                 variant={skuController.fieldState.error ? 'error' : 'default'}
+                                className="bg-(--c-input-bg)"
                             />
                             {cellError(skuController.fieldState.error?.message)}
                         </>
@@ -163,6 +164,7 @@ function VariantCard({control, index, hasError, onRemove, disableRemove}: Varian
                                 placeholder="e.g. 99.99"
                                 aria-label="Retail Price"
                                 variant={priceController.fieldState.error ? 'error' : 'default'}
+                                className="bg-(--c-input-bg)"
                             />
                         </FormItem>
                         <FormItem label="Wholesale Price" invalid={!!wholesalePriceController.fieldState.error} helperText="Optional">
@@ -174,6 +176,7 @@ function VariantCard({control, index, hasError, onRemove, disableRemove}: Varian
                                 placeholder="Optional"
                                 aria-label="Wholesale Price"
                                 variant={wholesalePriceController.fieldState.error ? 'error' : 'default'}
+                                className="bg-(--c-input-bg)"
                             />
                         </FormItem>
                         <FormItem label="Stock" invalid={!!stockController.fieldState.error}>
@@ -185,6 +188,7 @@ function VariantCard({control, index, hasError, onRemove, disableRemove}: Varian
                                 aria-label="Stock"
                                 variant={stockController.fieldState.error ? 'error' : 'default'}
                                 onChange={(e) => stockController.field.onChange(e.target.valueAsNumber)}
+                                className="bg-(--c-input-bg)"
                             />
                         </FormItem>
                     </div>
@@ -274,14 +278,14 @@ function AttributeRow({control, variantIndex, attrIndex, onRemove}: AttributeRow
                     placeholder="e.g. Colour"
                     aria-label={`Attribute name (row ${attrIndex + 1})`}
                     variant={keyController.fieldState.error ? 'error' : 'default'}
-                    className="w-1/3"
+                    className="w-1/3 bg-(--c-input-bg)"
                 />
                 <Input
                     {...valueController.field}
                     placeholder="e.g. Navy"
                     aria-label={`Attribute value (row ${attrIndex + 1})`}
                     variant={valueController.fieldState.error ? 'error' : 'default'}
-                    className="flex-1"
+                    className="flex-1 bg-(--c-input-bg)"
                 />
                 <button
                     type="button"

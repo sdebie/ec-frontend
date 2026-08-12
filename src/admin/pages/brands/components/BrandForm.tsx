@@ -154,7 +154,7 @@ export function BrandForm({defaultValues, onSubmit, isSubmitting = false}: Brand
 
 
             {/* Actions */}
-            <div className="flex items-center gap-3 pt-4">
+            <div className="flex items-center gap-3 pt-2">
                 <Button
                     type="submit"
                     variant="solid"

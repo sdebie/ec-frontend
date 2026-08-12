@@ -4,7 +4,7 @@ import { zodResolver } from '@hookform/resolvers/zod'
 import { z } from 'zod'
 import { useNavigate } from 'react-router-dom'
 import { Form, FormItem, Textarea, Select } from '@/shared/ui/components'
-import { Button, Input } from '@/shared/ui/primitives'
+import { Button, Card, Input } from '@/shared/ui/primitives'
 import { toSlug } from '@/admin/utils/slug'
 import { getParentCategoryOptions } from '@/admin/utils/categoryOptions'
 import { useCategoryList } from '@/admin/hooks/categories'
@@ -83,86 +83,96 @@ export function CategoryForm({ defaultValues, onSubmit, isSubmitting = false, ed
 
   return (
     <Form onSubmit={handleSubmit(onSubmit)}>
-      {/* Name */}
-      <FormItem
-        label="Name"
-        required
-        invalid={!!errors.name}
-        errorMessage={errors.name?.message}
-      >
-        <Input
-          {...register('name')}
-          placeholder="Category name"
-          variant={errors.name ? 'error' : 'default'}
-        />
-      </FormItem>
-
-      {/* Slug */}
-      <FormItem
-        label="Slug"
-        required
-        invalid={!!errors.slug}
-        errorMessage={errors.slug?.message}
-        helperText="URL-safe identifier. Auto-generated from name unless manually edited."
-      >
-        <Input
-          {...register('slug', {
-            onChange: () => {
-              slugManuallyEdited.current = true
-              setSlugTouched(true)
-            },
-          })}
-          placeholder="category-slug"
-          variant={errors.slug ? 'error' : 'default'}
-        />
-      </FormItem>
-
-      {/* Description */}
-      <FormItem
-        label="Description"
-        invalid={!!errors.description}
-        errorMessage={errors.description?.message}
-      >
-        <Textarea
-          {...register('description')}
-          placeholder="Category description (optional)"
-        />
-      </FormItem>
-
-      {/* Image URL */}
-      <FormItem
-        label="Image URL"
-        invalid={!!errors.imageUrl}
-        errorMessage={errors.imageUrl?.message}
-        helperText="Full URL to the category image"
-      >
-        <Input
-          {...register('imageUrl')}
-          placeholder="https://example.com/image.png"
-          variant={errors.imageUrl ? 'error' : 'default'}
-        />
-      </FormItem>
-
-      {/* Parent Category */}
-      <FormItem
-        label="Parent Category"
-        invalid={!!errors.parentId}
-        errorMessage={errors.parentId?.message}
-        helperText="Assign to a top-level category or leave as top-level"
-      >
-        <Controller
-          name="parentId"
-          control={control}
-          render={({ field }) => (
-            <Select
-              options={parentSelectOptions}
-              value={field.value ?? ''}
-              onChange={(val) => field.onChange(val || null)}
-              placeholder="Select parent category"
+      <Card>
+        <Card.Header>Overview</Card.Header>
+        <Card.Body className="space-y-4">
+          {/* Name */}
+          <FormItem
+            label="Name"
+            required
+            invalid={!!errors.name}
+            errorMessage={errors.name?.message}
+          >
+            <Input
+              {...register('name')}
+              placeholder="Category name"
+              variant={errors.name ? 'error' : 'default'}
+              className="bg-(--c-input-bg)"
             />
-          )}
-        />
-      </FormItem>
+          </FormItem>
+
+          {/* Slug */}
+          <FormItem
+            label="Slug"
+            required
+            invalid={!!errors.slug}
+            errorMessage={errors.slug?.message}
+            helperText="URL-safe identifier. Auto-generated from name unless manually edited."
+          >
+            <Input
+              {...register('slug', {
+                onChange: () => {
+                  slugManuallyEdited.current = true
+                  setSlugTouched(true)
+                },
+              })}
+              placeholder="category-slug"
+              variant={errors.slug ? 'error' : 'default'}
+              className="bg-(--c-input-bg)"
+            />
+          </FormItem>
+
+          {/* Description */}
+          <FormItem
+            label="Description"
+            invalid={!!errors.description}
+            errorMessage={errors.description?.message}
+          >
+            <Textarea
+              {...register('description')}
+              placeholder="Category description (optional)"
+              className="bg-(--c-input-bg)"
+            />
+          </FormItem>
+
+          {/* Image URL */}
+          <FormItem
+            label="Image URL"
+            invalid={!!errors.imageUrl}
+            errorMessage={errors.imageUrl?.message}
+            helperText="Full URL to the category image"
+          >
+            <Input
+              {...register('imageUrl')}
+              placeholder="https://example.com/image.png"
+              variant={errors.imageUrl ? 'error' : 'default'}
+              className="bg-(--c-input-bg)"
+            />
+          </FormItem>
+
+          {/* Parent Category */}
+          <FormItem
+            label="Parent Category"
+            invalid={!!errors.parentId}
+            errorMessage={errors.parentId?.message}
+            helperText="Assign to a top-level category or leave as top-level"
+          >
+            <Controller
+              name="parentId"
+              control={control}
+              render={({ field }) => (
+                <Select
+                  options={parentSelectOptions}
+                  value={field.value ?? ''}
+                  onChange={(val) => field.onChange(val || null)}
+                  placeholder="Select parent category"
+                  triggerClassName="bg-(--c-input-bg)"
+                />
+              )}
+            />
+          </FormItem>
+        </Card.Body>
+      </Card>
 
       {/* Actions */}
       <div className="flex items-center gap-3 pt-4">

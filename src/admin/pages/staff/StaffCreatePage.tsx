@@ -3,7 +3,7 @@ import { zodResolver } from '@hookform/resolvers/zod'
 import { useNavigate } from 'react-router-dom'
 import { Form, FormItem, PageLayout, Select, Switcher } from '@/shared/ui/components'
 import { useBreadcrumb } from '@/admin/context/BreadcrumbContext'
-import { Button, Input } from '@/shared/ui/primitives'
+import { Button, Card, Input } from '@/shared/ui/primitives'
 import { useCreateStaff } from '@/admin/hooks/staff'
 import { staffCreateSchema, type StaffCreateFormValues } from './staffSchema'
 
@@ -51,89 +51,98 @@ export function StaffCreatePage() {
   return (
     <PageLayout title="Create Staff Member">
       <Form onSubmit={handleSubmit(onSubmit)}>
-        {/* Email */}
-        <FormItem
-          label="Email"
-          required
-          invalid={!!errors.email}
-          errorMessage={errors.email?.message}
-        >
-          <Input
-            {...register('email')}
-            type="email"
-            placeholder="staff@example.com"
-            variant={errors.email ? 'error' : 'default'}
-          />
-        </FormItem>
-
-        {/* Full Name */}
-        <FormItem
-          label="Full Name"
-          required
-          invalid={!!errors.fullName}
-          errorMessage={errors.fullName?.message}
-        >
-          <Input
-            {...register('fullName')}
-            placeholder="Full name"
-            variant={errors.fullName ? 'error' : 'default'}
-          />
-        </FormItem>
-
-        {/* Role */}
-        <FormItem
-          label="Role"
-          required
-          invalid={!!errors.role}
-          errorMessage={errors.role?.message}
-        >
-          <Controller
-            name="role"
-            control={control}
-            render={({ field }) => (
-              <Select
-                options={ROLE_OPTIONS}
-                value={field.value ?? ''}
-                onChange={(val) => field.onChange(val)}
-                placeholder="Select a role"
+        <Card>
+          <Card.Header>Overview</Card.Header>
+          <Card.Body className="space-y-4">
+            {/* Email */}
+            <FormItem
+              label="Email"
+              required
+              invalid={!!errors.email}
+              errorMessage={errors.email?.message}
+            >
+              <Input
+                {...register('email')}
+                type="email"
+                placeholder="staff@example.com"
+                variant={errors.email ? 'error' : 'default'}
+                className="bg-(--c-input-bg)"
               />
-            )}
-          />
-        </FormItem>
+            </FormItem>
 
-        {/* Temporary Password */}
-        <FormItem
-          label="Temporary Password"
-          required
-          invalid={!!errors.temporaryPassword}
-          errorMessage={errors.temporaryPassword?.message}
-        >
-          <Input
-            {...register('temporaryPassword')}
-            type="password"
-            placeholder="Minimum 8 characters"
-            variant={errors.temporaryPassword ? 'error' : 'default'}
-          />
-        </FormItem>
-
-        {/* Is Active */}
-        <FormItem
-          label="Active"
-          invalid={!!errors.isActive}
-          errorMessage={errors.isActive?.message}
-        >
-          <Controller
-            name="isActive"
-            control={control}
-            render={({ field }) => (
-              <Switcher
-                checked={field.value}
-                onChange={(checked) => field.onChange(checked)}
-                label={field.value ? 'Active' : 'Inactive'}
+            {/* Full Name */}
+            <FormItem
+              label="Full Name"
+              required
+              invalid={!!errors.fullName}
+              errorMessage={errors.fullName?.message}
+            >
+              <Input
+                {...register('fullName')}
+                placeholder="Full name"
+                variant={errors.fullName ? 'error' : 'default'}
+                className="bg-(--c-input-bg)"
               />
-            )}
-          />
-        </FormItem>
+            </FormItem>
+
+            {/* Role */}
+            <FormItem
+              label="Role"
+              required
+              invalid={!!errors.role}
+              errorMessage={errors.role?.message}
+            >
+              <Controller
+                name="role"
+                control={control}
+                render={({ field }) => (
+                  <Select
+                    options={ROLE_OPTIONS}
+                    value={field.value ?? ''}
+                    onChange={(val) => field.onChange(val)}
+                    placeholder="Select a role"
+                    triggerClassName="bg-(--c-input-bg)"
+                  />
+                )}
+              />
+            </FormItem>
+
+            {/* Temporary Password */}
+            <FormItem
+              label="Temporary Password"
+              required
+              invalid={!!errors.temporaryPassword}
+              errorMessage={errors.temporaryPassword?.message}
+            >
+              <Input
+                {...register('temporaryPassword')}
+                type="password"
+                placeholder="Minimum 8 characters"
+                variant={errors.temporaryPassword ? 'error' : 'default'}
+                className="bg-(--c-input-bg)"
+              />
+            </FormItem>
+
+            {/* Is Active */}
+            <FormItem
+              label="Active"
+              invalid={!!errors.isActive}
+              errorMessage={errors.isActive?.message}
+            >
+              <Controller
+                name="isActive"
+                control={control}
+                render={({ field }) => (
+                  <Switcher
+                    checked={field.value}
+                    onChange={(checked) => field.onChange(checked)}
+                    label={field.value ? 'Active' : 'Inactive'}
+                  />
+                )}
+              />
+            </FormItem>
+          </Card.Body>
+        </Card>
 
         {/* Actions */}
         <div className="flex items-center gap-3 pt-4">

@@ -51,6 +51,14 @@ describe('Select', () => {
     fireEvent.click(screen.getByText('Disabled'))
     expect(onChange).not.toHaveBeenCalled()
   })
+
+  it('applies triggerClassName to the visible trigger button, not the outer wrapper', () => {
+    render(<Select options={options} className="outer-class" triggerClassName="bg-(--c-input-bg)" />)
+    const trigger = screen.getByRole('button')
+    expect(trigger.className).toContain('bg-(--c-input-bg)')
+    expect(trigger.className).not.toContain('outer-class')
+    expect(trigger.parentElement?.className).toContain('outer-class')
+  })
 })
 
 describe('SearchableSelect', () => {
@@ -189,6 +197,20 @@ describe('MultiSelect', () => {
     const trigger = screen.getByRole('button', { expanded: false })
     expect(trigger.tagName).toBe('BUTTON')
     expect(trigger.querySelector('button')).toBeNull()
+  })
+
+  it('applies triggerClassName to the trigger button, not the outer wrapper', () => {
+    render(
+      <MultiSelect
+        options={options}
+        className="outer-class"
+        triggerClassName="bg-(--c-input-bg)"
+      />
+    )
+    const trigger = screen.getByRole('button', { expanded: false })
+    expect(trigger.className).toContain('bg-(--c-input-bg)')
+    expect(trigger.className).not.toContain('outer-class')
+    expect(trigger.parentElement?.className).toContain('outer-class')
   })
 
   it('filters the option list as the user types', () => {

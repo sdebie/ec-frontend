@@ -20,6 +20,8 @@ export interface MultiSelectProps {
   disabled?: boolean
   required?: boolean
   className?: string
+  /** Applied to the visible trigger button itself, not the outer wrapper `className` targets. */
+  triggerClassName?: string
 }
 
 export const MultiSelect = React.forwardRef<HTMLDivElement, MultiSelectProps>(
@@ -35,6 +37,7 @@ export const MultiSelect = React.forwardRef<HTMLDivElement, MultiSelectProps>(
       disabled,
       required,
       className,
+      triggerClassName,
       ...props
     },
     ref
@@ -231,7 +234,8 @@ export const MultiSelect = React.forwardRef<HTMLDivElement, MultiSelectProps>(
               'flex min-h-10 w-full items-center justify-between rounded-md border-2 border-(--c-border) bg-(--c-panel) px-3 py-2 text-sm text-(--c-text) transition-colors',
               'focus:outline-none focus:ring-2 focus:ring-(--c-ring) focus:border-transparent focus:ring-offset-1 focus:ring-offset-(--c-bg)',
               'disabled:cursor-not-allowed disabled:opacity-50 disabled:bg-(--c-bg)',
-              hasError && 'border-(--c-error) focus:ring-(--c-error)'
+              hasError && 'border-(--c-error) focus:ring-(--c-error)',
+              triggerClassName
             )}
             aria-haspopup="listbox"
             aria-expanded={isOpen}

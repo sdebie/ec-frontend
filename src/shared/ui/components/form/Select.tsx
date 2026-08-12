@@ -25,6 +25,8 @@ export interface SelectProps {
     /** Accessible name for the trigger button when no visible `label` is rendered
      *  (e.g. toolbar/inline usage where a stacked Label breaks the layout). */
     ariaLabel?: string
+    /** Applied to the visible trigger button itself, not the outer wrapper `className` targets. */
+    triggerClassName?: string
 }
 
 export const Select = React.forwardRef<HTMLDivElement, SelectProps>(
@@ -42,6 +44,7 @@ export const Select = React.forwardRef<HTMLDivElement, SelectProps>(
             className,
             fullWidth = true,
             ariaLabel,
+            triggerClassName,
             ...props
         },
         ref
@@ -143,7 +146,8 @@ export const Select = React.forwardRef<HTMLDivElement, SelectProps>(
                             'focus:outline-none focus:ring-2 focus:ring-(--c-ring) focus:border-transparent focus:ring-offset-1 focus:ring-offset-(--c-bg)',
                             'disabled:cursor-not-allowed disabled:opacity-50 disabled:bg-(--c-bg)',
                             hasError && 'border-(--c-error) focus:ring-(--c-error)',
-                            !selectedOption && 'text-(--c-text-muted)'
+                            !selectedOption && 'text-(--c-text-muted)',
+                            triggerClassName
                         )}
                         aria-haspopup="listbox"
                         aria-expanded={isOpen}

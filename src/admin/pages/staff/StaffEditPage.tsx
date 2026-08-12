@@ -4,7 +4,7 @@ import { useForm, Controller } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 
 import { Form, FormItem, Select, Switcher, PageLoadingSpinner, toast } from '@/shared/ui/components'
-import { Button, Input } from '@/shared/ui/primitives'
+import { Button, Card, Input } from '@/shared/ui/primitives'
 import { useAdminAuthStore } from '@/shared/auth/adminAuthStore'
 import { useStaffMember, useUpdateStaff } from '@/admin/hooks/staff'
 import { AdminNotFoundPage } from '@/admin/pages/AdminNotFoundPage'
@@ -89,71 +89,79 @@ export function StaffEditPage() {
       <h1 className="text-2xl font-semibold text-(--c-text)">Edit Staff Member</h1>
 
       <Form onSubmit={handleSubmit(onSubmit)}>
-        {/* Email */}
-        <FormItem
-          label="Email"
-          required
-          invalid={!!errors.email}
-          errorMessage={errors.email?.message}
-        >
-          <Input
-            {...register('email')}
-            type="email"
-            placeholder="staff@example.com"
-            variant={errors.email ? 'error' : 'default'}
-          />
-        </FormItem>
-
-        {/* Full Name */}
-        <FormItem
-          label="Full Name"
-          required
-          invalid={!!errors.fullName}
-          errorMessage={errors.fullName?.message}
-        >
-          <Input
-            {...register('fullName')}
-            placeholder="Full name"
-            variant={errors.fullName ? 'error' : 'default'}
-          />
-        </FormItem>
-
-        {/* Role */}
-        <FormItem
-          label="Role"
-          required
-          invalid={!!errors.role}
-          errorMessage={errors.role?.message}
-        >
-          <Controller
-            name="role"
-            control={control}
-            render={({ field }) => (
-              <Select
-                options={ROLE_OPTIONS}
-                value={field.value}
-                onChange={(val) => field.onChange(val)}
-                placeholder="Select a role"
-                disabled={isSelf}
+        <Card>
+          <Card.Header>Overview</Card.Header>
+          <Card.Body className="space-y-4">
+            {/* Email */}
+            <FormItem
+              label="Email"
+              required
+              invalid={!!errors.email}
+              errorMessage={errors.email?.message}
+            >
+              <Input
+                {...register('email')}
+                type="email"
+                placeholder="staff@example.com"
+                variant={errors.email ? 'error' : 'default'}
+                className="bg-(--c-input-bg)"
               />
-            )}
-          />
-        </FormItem>
+            </FormItem>
 
-        <FormItem label="Active">
-          <Controller
-            name="isActive"
-            control={control}
-            render={({ field }) => (
-              <Switcher
-                checked={field.value}
-                onChange={(checked) => field.onChange(checked)}
-                disabled={isSelf}
-                label={field.value ? 'Active' : 'Inactive'}
+            {/* Full Name */}
+            <FormItem
+              label="Full Name"
+              required
+              invalid={!!errors.fullName}
+              errorMessage={errors.fullName?.message}
+            >
+              <Input
+                {...register('fullName')}
+                placeholder="Full name"
+                variant={errors.fullName ? 'error' : 'default'}
+                className="bg-(--c-input-bg)"
               />
-            )}
-          />
-        </FormItem>
+            </FormItem>
+
+            {/* Role */}
+            <FormItem
+              label="Role"
+              required
+              invalid={!!errors.role}
+              errorMessage={errors.role?.message}
+            >
+              <Controller
+                name="role"
+                control={control}
+                render={({ field }) => (
+                  <Select
+                    options={ROLE_OPTIONS}
+                    value={field.value}
+                    onChange={(val) => field.onChange(val)}
+                    placeholder="Select a role"
+                    disabled={isSelf}
+                    triggerClassName="bg-(--c-input-bg)"
+                  />
+                )}
+              />
+            </FormItem>
+
+            <FormItem label="Active">
+              <Controller
+                name="isActive"
+                control={control}
+                render={({ field }) => (
+                  <Switcher
+                    checked={field.value}
+                    onChange={(checked) => field.onChange(checked)}
+                    disabled={isSelf}
+                    label={field.value ? 'Active' : 'Inactive'}
+                  />
+                )}
+              />
+            </FormItem>
+          </Card.Body>
+        </Card>
 
         {/* Actions */}
         <div className="flex items-center gap-3 pt-4">
