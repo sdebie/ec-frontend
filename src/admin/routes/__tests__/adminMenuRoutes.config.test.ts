@@ -78,15 +78,15 @@ describe('adminMenuRoutes — admin.brands-categories configuration', () => {
     expect(categoriesBrandsIndex).toBeLessThan(productsIndex)
   })
 
-  it('has a subMenu with exactly 2 children: categories then brands', () => {
+  it('has a subMenu with exactly 2 children: brands then categories', () => {
     expect(categoriesBrandsEntry!.subMenu).toHaveLength(2)
     expect(categoriesBrandsEntry!.subMenu!.map((child) => child.key)).toEqual([
-      'admin.products.categories',
       'admin.products.brands',
+      'admin.products.categories',
     ])
     expect(categoriesBrandsEntry!.subMenu!.map((child) => child.path)).toEqual([
-      '/admin/products/categories',
       '/admin/products/brands',
+      '/admin/products/categories',
     ])
   })
 

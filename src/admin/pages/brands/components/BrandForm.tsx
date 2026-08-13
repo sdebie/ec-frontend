@@ -9,7 +9,7 @@ import {Button, Card, Input} from '@/shared/ui/primitives'
 import {toast} from '@/shared/ui/components/toast'
 import {toSlug} from '@/admin/utils/slug'
 import {useImageList, useUploadBrandLogo} from '@/admin/hooks/images'
-import {resolveImageUrl, thumbnailUrl} from '@/shared/utils/imageUrl'
+import {thumbnailUrl} from '@/shared/utils/imageUrl'
 
 const brandSchema = z.object({
     name: z.string().min(1, 'Name is required'),
@@ -135,11 +135,11 @@ export function BrandForm({defaultValues, onSubmit, isSubmitting = false, backBu
     return (
         <Form onSubmit={handleSubmit(onSubmit)}>
             <Card>
-                <Card.Header className="flex items-center gap-3">
+                <Card.Header className="flex items-center gap-3 mb-1 pb-2">
                     {backButton}
                     {isEditMode ? 'Edit Brand' : 'Create Brand'}
                 </Card.Header>
-                <Card.Body className="space-y-4 p-4">
+                <Card.Body className="space-y-3 px-4 pb-4 pt-2">
                     {/* Name */}
                     <FormItem
                         label="Name"
@@ -183,6 +183,7 @@ export function BrandForm({defaultValues, onSubmit, isSubmitting = false, backBu
                         <Textarea
                             {...register('description')}
                             placeholder="Brand description (optional)"
+                            className="min-h-16"
                         />
                     </FormItem>
                     {/* Logo */}
@@ -201,7 +202,7 @@ export function BrandForm({defaultValues, onSubmit, isSubmitting = false, backBu
                         {logoMode === 'upload' ? (
                             <ImageUpload
                                 label=""
-                                images={logoUrlValue && resolveImageUrl(logoUrlValue) ? [resolveImageUrl(logoUrlValue)!] : []}
+                                images={logoUrlValue ? [thumbnailUrl(logoUrlValue)] : []}
                                 onUpload={handleLogoUpload}
                                 onRemove={() => setValue('logoUrl', '', {shouldValidate: true})}
                                 disabled={isUploading}
@@ -216,7 +217,6 @@ export function BrandForm({defaultValues, onSubmit, isSubmitting = false, backBu
                                         value={librarySearchInput}
                                         onChange={(e) => setLibrarySearchInput(e.target.value)}
                                         className="pl-9"
-                                        size="sm"
                                     />
                                 </div>
                                 <ImageGalleryPicker
@@ -244,7 +244,7 @@ export function BrandForm({defaultValues, onSubmit, isSubmitting = false, backBu
                 </Card.Body>
 
                 {/* Actions */}
-                <Card.Footer className="flex items-center justify-end gap-3">
+                <Card.Footer className="flex items-center justify-end gap-3 mt-2 pt-2">
                     <Button
                         type="button"
                         variant="outline"

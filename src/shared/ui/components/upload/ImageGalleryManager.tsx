@@ -1,4 +1,15 @@
-import {GripVertical, ImageIcon, ImagePlus, LayoutGrid, List, Pin, RefreshCw, Trash2, UploadCloud, X} from 'lucide-react'
+import {
+    GripVertical,
+    ImageIcon,
+    ImagePlus,
+    LayoutGrid,
+    List,
+    Pin,
+    RefreshCw,
+    Trash2,
+    UploadCloud,
+    X
+} from 'lucide-react'
 import * as React from 'react'
 import {cn} from '@/shared/utils/cn'
 import {Textarea} from '../form/Textarea'
@@ -103,16 +114,16 @@ interface ImageDetailsPanelProps {
 }
 
 function ImageDetailsPanel({
-    item,
-    isPrimary,
-    src,
-    disabled,
-    onClose,
-    onSetPrimary,
-    onRemove,
-    onAltTextChange,
-    onReplace,
-}: ImageDetailsPanelProps) {
+                               item,
+                               isPrimary,
+                               src,
+                               disabled,
+                               onClose,
+                               onSetPrimary,
+                               onRemove,
+                               onAltTextChange,
+                               onReplace,
+                           }: ImageDetailsPanelProps) {
     const altFieldId = React.useId()
     const replaceInputRef = React.useRef<HTMLInputElement>(null)
     // Dimensions are read from the loaded image itself — they are not stored
@@ -239,19 +250,19 @@ function ImageDetailsPanel({
  * component only reports value-level changes.
  */
 export const ImageGalleryManager: React.FC<ImageGalleryManagerProps> = ({
-    images,
-    onUpload,
-    onRemove,
-    onReorder,
-    onAltTextChange,
-    onReplace,
-    resolveSrc = (value) => value,
-    label,
-    description,
-    maxImages,
-    disabled = false,
-    className,
-}) => {
+                                                                            images,
+                                                                            onUpload,
+                                                                            onRemove,
+                                                                            onReorder,
+                                                                            onAltTextChange,
+                                                                            onReplace,
+                                                                            resolveSrc = (value) => value,
+                                                                            label,
+                                                                            description,
+                                                                            maxImages,
+                                                                            disabled = false,
+                                                                            className,
+                                                                        }) => {
     const fileInputRef = React.useRef<HTMLInputElement>(null)
     const [isFileDragOver, setIsFileDragOver] = React.useState(false)
     const [draggedIndex, setDraggedIndex] = React.useState<number | null>(null)
@@ -340,7 +351,8 @@ export const ImageGalleryManager: React.FC<ImageGalleryManagerProps> = ({
                 )}
                 <div className="ml-auto flex shrink-0 items-center gap-3">
                     <span className="text-xs text-(--c-text-muted)">{countLabel}</span>
-                    <div className="inline-flex overflow-hidden rounded-md border border-(--c-border)" role="group" aria-label="Image layout">
+                    <div className="inline-flex overflow-hidden rounded-md border border-(--c-border)" role="group"
+                         aria-label="Image layout">
                         <button
                             type="button"
                             onClick={() => setLayout('grid')}
@@ -432,7 +444,8 @@ export const ImageGalleryManager: React.FC<ImageGalleryManagerProps> = ({
                                         !disabled && 'cursor-grab',
                                     )}
                                 >
-                                    <GripVertical className="h-4 w-4 shrink-0 text-(--c-text-muted)" aria-hidden="true"/>
+                                    <GripVertical className="h-4 w-4 shrink-0 text-(--c-text-muted)"
+                                                  aria-hidden="true"/>
                                     <button
                                         type="button"
                                         onClick={() => setSelectedValue(isSelected ? null : item.url)}
@@ -451,7 +464,8 @@ export const ImageGalleryManager: React.FC<ImageGalleryManagerProps> = ({
                                         )}
                                     </button>
                                     <div className="min-w-0 flex-1">
-                                        <span className="block truncate text-sm font-medium text-(--c-text)" title={fileName}>
+                                        <span className="block truncate text-sm font-medium text-(--c-text)"
+                                              title={fileName}>
                                             {fileName}
                                         </span>
                                         <span className="block truncate text-xs text-(--c-text-muted)">
@@ -500,8 +514,10 @@ export const ImageGalleryManager: React.FC<ImageGalleryManagerProps> = ({
                                 </button>
 
                                 <div className="flex items-center gap-1.5 border-t border-(--c-border) px-2 py-1.5">
-                                    <GripVertical className="h-3.5 w-3.5 shrink-0 text-(--c-text-muted)" aria-hidden="true"/>
-                                    <span className="min-w-0 flex-1 truncate text-xs font-medium text-(--c-text-muted)" title={fileName}>
+                                    <GripVertical className="h-3.5 w-3.5 shrink-0 text-(--c-text-muted)"
+                                                  aria-hidden="true"/>
+                                    <span className="min-w-0 flex-1 truncate text-xs font-medium text-(--c-text-muted)"
+                                          title={fileName}>
                                         {fileName}
                                     </span>
                                     {itemActions}

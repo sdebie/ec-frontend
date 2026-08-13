@@ -14,7 +14,7 @@ export function BrandEditPage() {
 
     useBreadcrumb([
         {label: 'Home', href: '/admin'},
-        {label: 'Categories & Brands', href: '/admin/products/categories'},
+        {label: 'Brands & Categories', href: '/admin/products/brands'},
         {label: 'Edit Brand'},
     ])
     const mutation = useUpdateBrand(brandId!)

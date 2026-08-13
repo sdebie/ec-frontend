@@ -134,7 +134,7 @@ export function BrandListPage() {
 
     useBreadcrumb([
         { label: 'Home', href: '/admin' },
-        { label: 'Categories & Brands', href: '/admin/products/categories' },
+        { label: 'Brands & Categories', href: '/admin/products/brands' },
         { label: 'Brands' },
     ])
 
