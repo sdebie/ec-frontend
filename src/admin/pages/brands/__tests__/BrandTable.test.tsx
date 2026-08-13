@@ -3,7 +3,7 @@ import { render, screen, fireEvent } from '@testing-library/react'
 import { MemoryRouter } from 'react-router-dom'
 import type { ComponentProps } from 'react'
 import type { BrandListItem } from '@/admin/hooks/brands'
-import { BrandTable } from '../BrandTable'
+import { BrandTable } from '../components/BrandTable.tsx'
 
 const mockMutate = vi.fn()
 

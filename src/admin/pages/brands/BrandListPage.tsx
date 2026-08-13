@@ -12,39 +12,17 @@ import {BrandTable} from './components/BrandTable'
 const DEFAULT_PAGE_SIZE = 10
 
 export function BrandListPage() {
+
     const navigate = useNavigate()
     const canMutate = useAdminAuthStore((s) => s.role) === 'SUPER_ADMIN'
-
-    // Page, page size, and search live in the URL rather than component state
-    // — navigating away to edit/create a brand and back (navigate(-1)) lands
-    // on this same URL, restoring exactly where the user left off instead of
-    // resetting to page 1. Sort is URL-persisted the same way, but owned by
-    // useBrandList itself rather than here — see its sorting/onSortingChange.
     const [searchParams, setSearchParams] = useSearchParams()
     const pageIndex = Number(searchParams.get('page') ?? '0')
     const pageSize = Number(searchParams.get('pageSize') ?? String(DEFAULT_PAGE_SIZE))
     const urlSearch = searchParams.get('q') ?? ''
-
     const pagination = useMemo<PaginationState>(() => ({pageIndex, pageSize}), [pageIndex, pageSize])
-
     const [searchInput, setSearchInput] = useState(urlSearch)
     const [debouncedSearch, setDebouncedSearch] = useState(urlSearch)
 
-    // react-table's pagination plugin keeps its own internal state alongside
-    // the controlled pagination prop, and reconciles it back out via
-    // onPaginationChange during mount — with ITS OWN default ({pageIndex: 0,
-    // ...}), not the value we actually passed in. That reconciliation fires
-    // again every time this component remounts, which is exactly what
-    // navigate(-1) does when returning from edit/create — so without this
-    // guard, landing back on the list silently snaps to page 0 right after
-    // the URL was correctly restored. Real user interactions (clicking Next)
-    // only happen well after mount. That reconciliation call is synchronous
-    // within React's own render/commit/effect cycle — a plain useEffect
-    // flipping the flag still runs within that same cycle (child effects
-    // before parent effects) and is too early to help, so this defers one
-    // macrotask via setTimeout(0), past the point where any synchronous
-    // mount-time noise could possibly still be pending. useBrandList carries
-    // an independent copy of this same guard for sorting's own reconciliation.
     const hasMountedRef = useRef(false)
     useEffect(() => {
         const id = setTimeout(() => {
@@ -64,10 +42,6 @@ export function BrandListPage() {
         })
     }, [pagination, setSearchParams])
 
-    // 300ms debounce for search input. Guarded on searchInput !== debouncedSearch
-    // so the effect that also fires on mount (React runs effects after the
-    // first render too) doesn't immediately stomp a page/sort restored from
-    // the URL back to page 0 before the user has typed anything.
     useEffect(() => {
         if (searchInput === debouncedSearch) return
         const timer = setTimeout(() => {

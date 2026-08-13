@@ -1,6 +1,6 @@
 import { describe, it, expect, vi } from 'vitest'
 import { render, screen, fireEvent } from '@testing-library/react'
-import { CategoryToolbar } from '../CategoryToolbar'
+import { CategoryToolbar } from '../components/CategoryToolbar.tsx'
 
 describe('CategoryToolbar', () => {
   it('renders the search input with the current value', () => {
