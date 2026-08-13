@@ -1,6 +1,6 @@
 import { describe, it, expect, vi } from 'vitest'
 import { render, screen, fireEvent } from '@testing-library/react'
-import { BrandToolbar } from '../BrandToolbar'
+import { BrandToolbar } from '../components/BrandToolbar.tsx'
 
 describe('BrandToolbar', () => {
   it('renders the search input with the current value', () => {

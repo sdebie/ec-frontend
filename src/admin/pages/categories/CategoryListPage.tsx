@@ -1,13 +1,13 @@
 import {useEffect, useMemo, useState} from 'react'
 import {useNavigate} from 'react-router-dom'
 import {useBreadcrumb} from '@/admin/context/BreadcrumbContext'
-import {Pencil, Search, Trash2} from 'lucide-react'
+import {Pencil, Trash2} from 'lucide-react'
 import type {CategoryListItem} from '@/admin/hooks/categories'
 import {useCategoryList, useDeleteCategory} from '@/admin/hooks/categories'
 import type {ColumnDef} from '@/shared/ui/components'
 import {ConfirmationDialog, DataTable, PageLayout, RowActionButton, Thumbnail, toast,} from '@/shared/ui/components'
-import {Button, Input} from '@/shared/ui/primitives'
 import {useAdminAuthStore} from '@/shared/auth/adminAuthStore'
+import {CategoryToolbar} from './components/CategoryToolbar'
 
 export function CategoryListPage() {
 
@@ -151,27 +151,15 @@ export function CategoryListPage() {
         {label: 'Categories'},
     ])
 
-    const headerAction = canMutate ? (
-        <Button variant="solid" onClick={() => navigate('/admin/products/categories/new')}>
-            + New Category
-        </Button>
-    ) : undefined
-
     return (
-        <PageLayout title="Categories" action={headerAction}>
+        <PageLayout title="Categories">
             <div className="space-y-4">
-                {/* Search Bar */}
-                <div className="flex flex-wrap items-center gap-3">
-                    <div className="relative flex-1 min-w-50">
-                        <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-(--c-text-muted)"/>
-                        <Input
-                            placeholder="Search categories by name..."
-                            value={searchInput}
-                            onChange={(e) => setSearchInput(e.target.value)}
-                            className="pl-9"
-                        />
-                    </div>
-                </div>
+                <CategoryToolbar
+                    searchValue={searchInput}
+                    onSearchChange={setSearchInput}
+                    canMutate={canMutate}
+                    onCreateCategory={() => navigate('/admin/products/categories/new')}
+                />
 
                 <DataTable
                     columns={columns}

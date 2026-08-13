@@ -1,8 +1,8 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest'
 import { render, screen, fireEvent, waitFor } from '@testing-library/react'
 import { MemoryRouter } from 'react-router-dom'
-import { BrandForm } from '../BrandForm'
-import type { BrandFormValues } from '../BrandForm'
+import { BrandForm } from '../components/BrandForm.tsx'
+import type { BrandFormValues } from '../components/BrandForm.tsx'
 
 const mockUploadLogo = vi.fn()
 
