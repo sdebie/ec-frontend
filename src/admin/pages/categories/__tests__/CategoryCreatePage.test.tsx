@@ -68,6 +68,8 @@ describe('CategoryCreatePage', () => {
         renderCategoryCreatePage()
 
         expect(screen.queryByText('Categories List Page')).not.toBeInTheDocument()
-        expect(screen.getByRole('heading', {name: 'Create Category'})).toBeInTheDocument()
+        // "Create Category" titles the card AND labels the submit button, so
+        // target the button — it also proves the form is in create mode.
+        expect(screen.getByRole('button', {name: 'Create Category'})).toBeInTheDocument()
     })
 })

@@ -1,5 +1,5 @@
 import {Link, Navigate, useNavigate, useParams} from 'react-router-dom'
-import {PageLayout, PageLoadingSpinner, toast} from '@/shared/ui/components'
+import {PageBackButton, PageLoadingSpinner, toast} from '@/shared/ui/components'
 import {useBreadcrumb} from '@/admin/context/BreadcrumbContext'
 import {useAdminAuthStore} from '@/shared/auth/adminAuthStore'
 import {useCategoryDetail} from './hooks/useCategoryDetail'
@@ -84,7 +84,7 @@ export function CategoryEditPage() {
             {
                 onSuccess: () => {
                     toast.success('Category updated successfully')
-                    navigate('/admin/products/categories')
+                    navigate(-1)
                 },
                 onError: (error) => {
                     console.error(error)
@@ -95,13 +95,12 @@ export function CategoryEditPage() {
     }
 
     return (
-        <PageLayout title="Edit Category">
-            <CategoryForm
-                defaultValues={defaultValues}
-                onSubmit={handleSubmit}
-                isSubmitting={mutation.isPending}
-                editingCategoryId={categoryId}
-            />
-        </PageLayout>
+        <CategoryForm
+            defaultValues={defaultValues}
+            onSubmit={handleSubmit}
+            isSubmitting={mutation.isPending}
+            editingCategoryId={categoryId}
+            backButton={<PageBackButton/>}
+        />
     )
 }

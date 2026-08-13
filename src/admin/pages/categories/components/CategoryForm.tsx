@@ -1,21 +1,55 @@
-import {useEffect, useRef, useState} from 'react'
+import {type ReactNode, useEffect, useRef, useState} from 'react'
 import {Controller, useForm} from 'react-hook-form'
 import {zodResolver} from '@hookform/resolvers/zod'
 import {z} from 'zod'
 import {useNavigate} from 'react-router-dom'
-import {Form, FormItem, Select, Textarea} from '@/shared/ui/components'
+import {ChevronLeft, ChevronRight, Loader, Search} from 'lucide-react'
+import {
+    Form,
+    FormItem,
+    ImageGalleryPicker,
+    ImageUpload,
+    Label,
+    Select,
+    Textarea,
+    ToggleGroup,
+} from '@/shared/ui/components'
 import {Button, Card, Input} from '@/shared/ui/primitives'
+import {toast} from '@/shared/ui/components/toast'
 import {toSlug} from '@/admin/utils/slug'
 import {getParentCategoryOptions} from '@/admin/utils/categoryOptions'
+import {useImageListPage, useUploadImageAsset} from '@/admin/hooks/images'
+import {thumbnailUrl} from '@/shared/utils/imageUrl'
 import {useCategoryList} from '../hooks/useCategoryList'
 
 const categorySchema = z.object({
     name: z.string().min(1, 'Name is required'),
     slug: z.string().min(1, 'Slug is required').regex(/^[a-z0-9-]+$/, 'Slug may only contain lowercase letters, numbers, and hyphens'),
     description: z.string().optional().or(z.literal('')),
-    imageUrl: z.string().url('Must be a valid URL').optional().or(z.literal('')),
+    // A storage-relative filename written by the upload/library picker, not a
+    // full URL — resolveImageUrl prefixes it at render time.
+    imageUrl: z.string().optional().or(z.literal('')),
     parentId: z.string().nullable().optional(),
 })
+
+type ImageMode = 'upload' | 'library'
+
+const IMAGE_MODE_OPTIONS = [
+    {value: 'upload', label: 'Upload New'},
+    {value: 'library', label: 'Choose from Library'},
+]
+
+// Category images live under the "categories/" storage directory: uploads land
+// here and the picker browses only here, so it isn't the entire platform's
+// image library.
+const IMAGE_LIBRARY_DIRECTORY = 'categories'
+// 2 full rows at the picker's 6-column grid — a page never ends mid-row.
+const IMAGE_LIBRARY_PAGE_SIZE = 12
+const IMAGE_LIBRARY_SEARCH_DEBOUNCE_MS = 300
+
+// How many categories to load for the parent dropdown. Parents are top-level
+// only, so this ceiling applies to root categories rather than the full tree.
+const PARENT_OPTIONS_PAGE_SIZE = 100
 
 export type CategoryFormValues = z.infer<typeof categorySchema>
 
@@ -24,12 +58,49 @@ interface CategoryFormProps {
     onSubmit: (values: CategoryFormValues) => void
     isSubmitting?: boolean
     editingCategoryId?: string
+    backButton?: ReactNode
 }
 
-export function CategoryForm({defaultValues, onSubmit, isSubmitting = false, editingCategoryId}: CategoryFormProps) {
+export function CategoryForm({
+                                 defaultValues,
+                                 onSubmit,
+                                 isSubmitting = false,
+                                 editingCategoryId,
+                                 backButton,
+                             }: CategoryFormProps) {
     const navigate = useNavigate()
     const slugManuallyEdited = useRef(false)
     const [slugTouched, setSlugTouched] = useState(false)
+    const {mutate: uploadImage, isPending: isUploading} = useUploadImageAsset(IMAGE_LIBRARY_DIRECTORY)
+    const [imageMode, setImageMode] = useState<ImageMode>('upload')
+    const [librarySearchInput, setLibrarySearchInput] = useState('')
+    const [debouncedLibrarySearch, setDebouncedLibrarySearch] = useState('')
+    const [libraryPage, setLibraryPage] = useState(0)
+
+    useEffect(() => {
+        const timer = setTimeout(() => setDebouncedLibrarySearch(librarySearchInput), IMAGE_LIBRARY_SEARCH_DEBOUNCE_MS)
+        return () => clearTimeout(timer)
+    }, [librarySearchInput])
+
+    // A new search starts from page 1 — staying on e.g. page 3 of the old
+    // result set would likely just show "no images" against the new one.
+    useEffect(() => {
+        setLibraryPage(0)
+    }, [debouncedLibrarySearch])
+
+    const {
+        data: libraryData,
+        isLoading: isLoadingLibraryImages,
+        isFetching: isFetchingLibraryImages
+    } = useImageListPage({
+        page: libraryPage,
+        pageSize: IMAGE_LIBRARY_PAGE_SIZE,
+        search: debouncedLibrarySearch,
+        directory: IMAGE_LIBRARY_DIRECTORY,
+        enabled: imageMode === 'library',
+    })
+
+    const libraryTotalPages = libraryData ? Math.max(1, Math.ceil(libraryData.totalCount / IMAGE_LIBRARY_PAGE_SIZE)) : 1
 
     const {
         register,
@@ -50,14 +121,47 @@ export function CategoryForm({defaultValues, onSubmit, isSubmitting = false, edi
         },
     })
 
-    // Fetch all categories for the parent dropdown
-    const {data: categoryData} = useCategoryList({pageIndex: 0, pageSize: 100})
+    const {data: categoryData} = useCategoryList({pageIndex: 0, pageSize: PARENT_OPTIONS_PAGE_SIZE})
     const parentOptions = getParentCategoryOptions(
         categoryData?.content ?? [],
         editingCategoryId,
     )
 
+    const parentSelectOptions = [
+        {value: '', label: 'None (top-level)'},
+        ...parentOptions.map((cat) => ({value: cat.id, label: cat.name})),
+    ]
+
     const nameValue = watch('name')
+    const imageUrlValue = watch('imageUrl')
+
+    const handleImageUpload = async (file: File) => {
+        try {
+            // Copy the bytes up front: Safari revokes file handles used async, and
+            // cloud-placeholder files (iCloud "online-only") fail here with NotReadableError.
+            const buffer = await file.arrayBuffer()
+            const stableFile = new File([buffer], file.name, {type: file.type})
+            uploadImage(stableFile, {
+                onSuccess: (fileName) => {
+                    setValue('imageUrl', fileName, {shouldValidate: true})
+                },
+            })
+        } catch {
+            toast.error('Could not read the file. If it is stored in iCloud/Dropbox, download it locally first and try again.')
+        }
+    }
+
+    // The picker displays/identifies images by thumbnail URL, but imageUrl must stay
+    // the raw storage-relative filename (matching what upload writes) — this map
+    // recovers the filename behind a selected thumbnail without parsing URL strings.
+    const libraryFilenames = libraryData?.images ?? []
+    const libraryThumbnailUrls = libraryFilenames.map((filename) => thumbnailUrl(filename))
+    const libraryUrlToFilename = new Map(libraryThumbnailUrls.map((url, i) => [url, libraryFilenames[i]]))
+
+    const handleLibrarySelect = (url: string) => {
+        const filename = libraryUrlToFilename.get(url)
+        if (filename) setValue('imageUrl', filename, {shouldValidate: true})
+    }
 
     // Auto-generate slug from name when not manually edited
     useEffect(() => {
@@ -76,16 +180,14 @@ export function CategoryForm({defaultValues, onSubmit, isSubmitting = false, edi
 
     const isEditMode = !!defaultValues?.name
 
-    const parentSelectOptions = [
-        {value: '', label: 'None (top-level)'},
-        ...parentOptions.map((cat) => ({value: cat.id, label: cat.name})),
-    ]
-
     return (
         <Form onSubmit={handleSubmit(onSubmit)}>
             <Card>
-                <Card.Header>Overview</Card.Header>
-                <Card.Body className="space-y-4">
+                <Card.Header className="flex items-center gap-3 mb-1 pb-2">
+                    {backButton}
+                    {isEditMode ? 'Edit Category' : 'Create Category'}
+                </Card.Header>
+                <Card.Body className="space-y-3 px-4 pb-4 pt-2">
                     {/* Name */}
                     <FormItem
                         label="Name"
@@ -106,7 +208,11 @@ export function CategoryForm({defaultValues, onSubmit, isSubmitting = false, edi
                         required
                         invalid={!!errors.slug}
                         errorMessage={errors.slug?.message}
-                        helperText="URL-safe identifier. Auto-generated from name unless manually edited."
+                        helperText={
+                            isEditMode
+                                ? 'The slug is locked once a category is created, since changing it would break any existing links to it.'
+                                : 'Creates a simple, unique name used to identify this page. It is automatically created from the name, but you can change it.'
+                        }
                     >
                         <Input
                             {...register('slug', {
@@ -117,6 +223,10 @@ export function CategoryForm({defaultValues, onSubmit, isSubmitting = false, edi
                             })}
                             placeholder="category-slug"
                             variant={errors.slug ? 'error' : 'default'}
+                            readOnly={isEditMode}
+                            aria-readonly={isEditMode}
+                            tabIndex={isEditMode ? -1 : undefined}
+                            className={isEditMode ? 'cursor-not-allowed opacity-60' : undefined}
                         />
                     </FormItem>
 
@@ -129,20 +239,7 @@ export function CategoryForm({defaultValues, onSubmit, isSubmitting = false, edi
                         <Textarea
                             {...register('description')}
                             placeholder="Category description (optional)"
-                        />
-                    </FormItem>
-
-                    {/* Image URL */}
-                    <FormItem
-                        label="Image URL"
-                        invalid={!!errors.imageUrl}
-                        errorMessage={errors.imageUrl?.message}
-                        helperText="Full URL to the category image"
-                    >
-                        <Input
-                            {...register('imageUrl')}
-                            placeholder="https://example.com/image.png"
-                            variant={errors.imageUrl ? 'error' : 'default'}
+                            className="min-h-16"
                         />
                     </FormItem>
 
@@ -166,26 +263,108 @@ export function CategoryForm({defaultValues, onSubmit, isSubmitting = false, edi
                             )}
                         />
                     </FormItem>
-                </Card.Body>
-            </Card>
 
-            {/* Actions */}
-            <div className="flex items-center gap-3 pt-4">
-                <Button
-                    type="submit"
-                    variant="solid"
-                    disabled={isSubmitting}
-                >
-                    {isSubmitting ? 'Saving...' : isEditMode ? 'Save Changes' : 'Create Category'}
-                </Button>
-                <Button
-                    type="button"
-                    variant="outline"
-                    onClick={() => navigate('/admin/products/categories')}
-                >
-                    Cancel
-                </Button>
-            </div>
+                    {/* Image */}
+                    <div className="space-y-2">
+                        <div className="flex items-center justify-between gap-3">
+                            <Label className="mb-0">{isUploading ? 'Image — uploading…' : 'Image'}</Label>
+                            <ToggleGroup
+                                options={IMAGE_MODE_OPTIONS}
+                                value={imageMode}
+                                onChange={(value) => setImageMode(value as ImageMode)}
+                                disabled={isUploading}
+                                size="sm"
+                            />
+                        </div>
+
+                        {imageMode === 'upload' ? (
+                            <ImageUpload
+                                label=""
+                                images={imageUrlValue ? [thumbnailUrl(imageUrlValue)] : []}
+                                onUpload={handleImageUpload}
+                                onRemove={() => setValue('imageUrl', '', {shouldValidate: true})}
+                                disabled={isUploading}
+                                maxImages={1}
+                            />
+                        ) : (
+                            <div className="space-y-3">
+                                <div className="relative">
+                                    <Search
+                                        className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-(--c-text-muted)"/>
+                                    <Input
+                                        placeholder="Search library images..."
+                                        value={librarySearchInput}
+                                        onChange={(e) => setLibrarySearchInput(e.target.value)}
+                                        className="pl-9"
+                                    />
+                                </div>
+                                <div className="relative">
+                                    <ImageGalleryPicker
+                                        images={libraryThumbnailUrls}
+                                        selectedImage={imageUrlValue ? thumbnailUrl(imageUrlValue) : null}
+                                        onSelect={handleLibrarySelect}
+                                        isLoading={isLoadingLibraryImages}
+                                    />
+                                    {/* Paging keeps the previous page's images visible (placeholderData:
+                                        keepPreviousData) rather than blanking the grid — this is just a
+                                        subtle "still working" cue over them, not a full loading state. */}
+                                    {isFetchingLibraryImages && !isLoadingLibraryImages && (
+                                        <div
+                                            className="absolute inset-0 flex items-center justify-center bg-(--c-panel)/60 rounded-md">
+                                            <Loader className="h-5 w-5 animate-spin text-(--c-text-muted)"/>
+                                        </div>
+                                    )}
+                                </div>
+                                {libraryTotalPages > 1 && (
+                                    <div className="flex items-center justify-center gap-3">
+                                        <Button
+                                            type="button"
+                                            variant="ghost"
+                                            size="sm"
+                                            onClick={() => setLibraryPage((p) => p - 1)}
+                                            disabled={libraryPage === 0 || isFetchingLibraryImages}
+                                            aria-label="Previous page"
+                                        >
+                                            <ChevronLeft className="h-4 w-4"/>
+                                        </Button>
+                                        <span className="text-xs text-(--c-text-muted)">
+                                            Page {libraryPage + 1} of {libraryTotalPages}
+                                        </span>
+                                        <Button
+                                            type="button"
+                                            variant="ghost"
+                                            size="sm"
+                                            onClick={() => setLibraryPage((p) => p + 1)}
+                                            disabled={libraryPage + 1 >= libraryTotalPages || isFetchingLibraryImages}
+                                            aria-label="Next page"
+                                        >
+                                            <ChevronRight className="h-4 w-4"/>
+                                        </Button>
+                                    </div>
+                                )}
+                            </div>
+                        )}
+                    </div>
+                </Card.Body>
+
+                {/* Actions */}
+                <Card.Footer className="flex items-center justify-end gap-3 mt-2 pt-4">
+                    <Button
+                        type="button"
+                        variant="outline"
+                        onClick={() => navigate(-1)}
+                    >
+                        Cancel
+                    </Button>
+                    <Button
+                        type="submit"
+                        variant="solid"
+                        disabled={isSubmitting}
+                    >
+                        {isSubmitting ? 'Saving...' : isEditMode ? 'Save Changes' : 'Create Category'}
+                    </Button>
+                </Card.Footer>
+            </Card>
         </Form>
     )
 }

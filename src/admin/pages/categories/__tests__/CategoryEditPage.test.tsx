@@ -132,7 +132,8 @@ describe('CategoryEditPage', () => {
         renderCategoryEditPage()
 
         // The form renders with pre-filled values — verify form is rendered in edit mode
-        expect(screen.getByRole('heading', {name: 'Edit Category'})).toBeInTheDocument()
+        expect(screen.getByText('Edit Category')).toBeInTheDocument()
+        expect(screen.getByRole('button', {name: 'Save Changes'})).toBeInTheDocument()
         // The form input should have the pre-filled name value
         expect(screen.getByDisplayValue('Electronics')).toBeInTheDocument()
     })

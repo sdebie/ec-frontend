@@ -8,7 +8,7 @@ import {Form, FormItem, ImageGalleryPicker, ImageUpload, Label, Textarea, Toggle
 import {Button, Card, Input} from '@/shared/ui/primitives'
 import {toast} from '@/shared/ui/components/toast'
 import {toSlug} from '@/admin/utils/slug'
-import {useImageListPage, useUploadBrandLogo} from '@/admin/hooks/images'
+import {useImageListPage, useUploadImageAsset} from '@/admin/hooks/images'
 import {thumbnailUrl} from '@/shared/utils/imageUrl'
 
 const brandSchema = z.object({
@@ -25,8 +25,8 @@ const LOGO_MODE_OPTIONS = [
     {value: 'library', label: 'Choose from Library'},
 ]
 
-// Brand logos live under the "brands/" storage directory — scopes the picker to
-// brand-appropriate images, so it isn't the entire platform's image library.
+// Brand logos live under the "brands/" storage directory: uploads land here and
+// the picker browses only here, so it isn't the entire platform's image library.
 const LOGO_LIBRARY_DIRECTORY = 'brands'
 // 2 full rows at the picker's 6-column grid — a page never ends mid-row.
 const LOGO_LIBRARY_PAGE_SIZE = 12
@@ -45,7 +45,7 @@ export function BrandForm({defaultValues, onSubmit, isSubmitting = false, backBu
     const navigate = useNavigate()
     const slugManuallyEdited = useRef(false)
     const [slugTouched, setSlugTouched] = useState(false)
-    const {mutate: uploadLogo, isPending: isUploading} = useUploadBrandLogo()
+    const {mutate: uploadLogo, isPending: isUploading} = useUploadImageAsset(LOGO_LIBRARY_DIRECTORY)
     const [logoMode, setLogoMode] = useState<LogoMode>('upload')
     const [librarySearchInput, setLibrarySearchInput] = useState('')
     const [debouncedLibrarySearch, setDebouncedLibrarySearch] = useState('')

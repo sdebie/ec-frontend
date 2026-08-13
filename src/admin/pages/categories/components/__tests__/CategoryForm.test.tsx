@@ -1,13 +1,13 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest'
 import { render, screen, fireEvent, waitFor } from '@testing-library/react'
 import { MemoryRouter } from 'react-router-dom'
-import { BrandForm } from '../components/BrandForm'
-import type { BrandFormValues } from '../components/BrandForm'
+import { CategoryForm } from '../CategoryForm'
+import type { CategoryFormValues } from '../CategoryForm'
 
-const mockUploadLogo = vi.fn()
+const mockUploadImage = vi.fn()
 
 // Page-aware: two pages of results so pagination controls have something to
-// page between. totalCount must exceed BrandForm's own LOGO_LIBRARY_PAGE_SIZE
+// page between. totalCount must exceed CategoryForm's own IMAGE_LIBRARY_PAGE_SIZE
 // (12) for libraryTotalPages to come out to 2 — the mock's own pageSize field
 // is just descriptive, the component never reads it back.
 interface LibraryPage {
@@ -18,8 +18,8 @@ interface LibraryPage {
 }
 
 const LIBRARY_PAGES: Record<number, LibraryPage> = {
-  0: { images: ['brands/logo-a.png', 'brands/logo-b.png'], totalCount: 20, page: 0, pageSize: 12 },
-  1: { images: ['brands/logo-c.png'], totalCount: 20, page: 1, pageSize: 12 },
+  0: { images: ['categories/cat-a.png', 'categories/cat-b.png'], totalCount: 20, page: 0, pageSize: 12 },
+  1: { images: ['categories/cat-c.png'], totalCount: 20, page: 1, pageSize: 12 },
 }
 
 interface ImageListPageResult {
@@ -37,25 +37,41 @@ const mockUseImageListPage = vi.fn(
 )
 
 vi.mock('@/admin/hooks/images', () => ({
-  useUploadImageAsset: vi.fn(() => ({ mutate: mockUploadLogo, isPending: false })),
+  useUploadImageAsset: vi.fn(() => ({ mutate: mockUploadImage, isPending: false })),
   useImageListPage: (params: { page: number }) => mockUseImageListPage(params),
 }))
 
-function renderBrandForm(defaultValues?: Partial<BrandFormValues>) {
+// The parent-category dropdown is fed by this hook; the picker tests don't
+// exercise it, so a single top-level option is enough to render the Select.
+vi.mock('@/admin/pages/categories/hooks/useCategoryList', () => ({
+  useCategoryList: vi.fn(() => ({
+    data: {
+      content: [{ id: 'parent-1', name: 'Cleaning', slug: 'cleaning', description: null, imageUrl: null, parent: null }],
+      totalElements: 1,
+      totalPages: 1,
+    },
+    isLoading: false,
+    error: null,
+    sorting: [],
+    onSortingChange: vi.fn(),
+  })),
+}))
+
+function renderCategoryForm(defaultValues?: Partial<CategoryFormValues>) {
   return render(
     <MemoryRouter>
-      <BrandForm onSubmit={vi.fn()} defaultValues={defaultValues} />
+      <CategoryForm onSubmit={vi.fn()} defaultValues={defaultValues} />
     </MemoryRouter>,
   )
 }
 
-describe('BrandForm logo toggle', () => {
+describe('CategoryForm image toggle', () => {
   beforeEach(() => {
     vi.clearAllMocks()
   })
 
   it('defaults to upload mode with the dropzone visible', () => {
-    renderBrandForm()
+    renderCategoryForm()
 
     expect(screen.getByText('Click to upload')).toBeInTheDocument()
     expect(screen.getByRole('button', { name: 'Upload New' })).toBeInTheDocument()
@@ -63,51 +79,51 @@ describe('BrandForm logo toggle', () => {
   })
 
   it('switching to library mode shows the picker and hides the dropzone', () => {
-    renderBrandForm()
+    renderCategoryForm()
 
     fireEvent.click(screen.getByRole('button', { name: 'Choose from Library' }))
 
     expect(screen.queryByText('Click to upload')).not.toBeInTheDocument()
-    expect(screen.getByRole('button', { name: 'logo-a.png' })).toBeInTheDocument()
-    expect(screen.getByRole('button', { name: 'logo-b.png' })).toBeInTheDocument()
+    expect(screen.getByRole('button', { name: 'cat-a.png' })).toBeInTheDocument()
+    expect(screen.getByRole('button', { name: 'cat-b.png' })).toBeInTheDocument()
   })
 
-  it('selecting a library image sets the logo, reflected back in upload mode', () => {
-    renderBrandForm()
+  it('selecting a library image sets the image, reflected back in upload mode', () => {
+    renderCategoryForm()
 
     fireEvent.click(screen.getByRole('button', { name: 'Choose from Library' }))
-    fireEvent.click(screen.getByRole('button', { name: 'logo-a.png' }))
+    fireEvent.click(screen.getByRole('button', { name: 'cat-a.png' }))
     fireEvent.click(screen.getByRole('button', { name: 'Upload New' }))
 
-    const logoPreview = screen.getByRole('img', { name: 'Current' })
-    expect(logoPreview).toHaveAttribute('src', expect.stringContaining('logo-a.png'))
+    const imagePreview = screen.getByRole('img', { name: 'Current' })
+    expect(imagePreview).toHaveAttribute('src', expect.stringContaining('cat-a.png'))
   })
 })
 
-describe('BrandForm library pagination', () => {
+describe('CategoryForm library pagination', () => {
   beforeEach(() => {
     vi.clearAllMocks()
   })
 
   it('shows a page indicator and lets Next replace the grid with the next page', () => {
-    renderBrandForm()
+    renderCategoryForm()
 
     fireEvent.click(screen.getByRole('button', { name: 'Choose from Library' }))
 
     expect(screen.getByText('Page 1 of 2')).toBeInTheDocument()
     expect(screen.getByRole('button', { name: 'Previous page' })).toBeDisabled()
-    expect(screen.getByRole('button', { name: 'logo-a.png' })).toBeInTheDocument()
+    expect(screen.getByRole('button', { name: 'cat-a.png' })).toBeInTheDocument()
 
     fireEvent.click(screen.getByRole('button', { name: 'Next page' }))
 
     expect(screen.getByText('Page 2 of 2')).toBeInTheDocument()
     expect(screen.getByRole('button', { name: 'Next page' })).toBeDisabled()
-    expect(screen.queryByRole('button', { name: 'logo-a.png' })).not.toBeInTheDocument()
-    expect(screen.getByRole('button', { name: 'logo-c.png' })).toBeInTheDocument()
+    expect(screen.queryByRole('button', { name: 'cat-a.png' })).not.toBeInTheDocument()
+    expect(screen.getByRole('button', { name: 'cat-c.png' })).toBeInTheDocument()
   })
 
   it('resets to page 1 when the search term changes', async () => {
-    renderBrandForm()
+    renderCategoryForm()
 
     fireEvent.click(screen.getByRole('button', { name: 'Choose from Library' }))
     fireEvent.click(screen.getByRole('button', { name: 'Next page' }))
@@ -123,11 +139,11 @@ describe('BrandForm library pagination', () => {
     // mockReturnValue (not -Once): the component calls the hook on every
     // render, including several before the user ever opens library mode.
     mockUseImageListPage.mockReturnValue({
-      data: { images: ['brands/logo-a.png'], totalCount: 1, page: 0, pageSize: 12 },
+      data: { images: ['categories/cat-a.png'], totalCount: 1, page: 0, pageSize: 12 },
       isLoading: false,
       isFetching: false,
     })
-    renderBrandForm()
+    renderCategoryForm()
 
     fireEvent.click(screen.getByRole('button', { name: 'Choose from Library' }))
 
@@ -142,11 +158,11 @@ describe('BrandForm library pagination', () => {
       isLoading: false,
       isFetching: true,
     })
-    renderBrandForm()
+    renderCategoryForm()
 
     fireEvent.click(screen.getByRole('button', { name: 'Choose from Library' }))
 
-    expect(screen.getByRole('button', { name: 'logo-a.png' })).toBeInTheDocument()
+    expect(screen.getByRole('button', { name: 'cat-a.png' })).toBeInTheDocument()
     expect(document.querySelector('.animate-spin')).toBeInTheDocument()
   })
 
@@ -156,7 +172,7 @@ describe('BrandForm library pagination', () => {
       isLoading: true,
       isFetching: true,
     })
-    renderBrandForm()
+    renderCategoryForm()
 
     fireEvent.click(screen.getByRole('button', { name: 'Choose from Library' }))
 
@@ -166,31 +182,53 @@ describe('BrandForm library pagination', () => {
   })
 })
 
-describe('BrandForm slug lock (edit mode)', () => {
+describe('CategoryForm slug lock (edit mode)', () => {
   beforeEach(() => {
     vi.clearAllMocks()
   })
 
-  const editDefaults: Partial<BrandFormValues> = {
-    name: 'Dromex',
-    slug: 'dromex',
+  const editDefaults: Partial<CategoryFormValues> = {
+    name: 'Electronics',
+    slug: 'electronics',
     description: '',
-    logoUrl: '',
+    imageUrl: '',
+    parentId: null,
   }
 
-  it('makes the slug field read-only once a brand already exists', () => {
-    renderBrandForm(editDefaults)
+  it('makes the slug field read-only once a category already exists', () => {
+    renderCategoryForm(editDefaults)
 
-    const slugInput = screen.getByPlaceholderText('brand-slug')
+    const slugInput = screen.getByPlaceholderText('category-slug')
     expect(slugInput).toHaveAttribute('readonly')
-    expect(screen.getByText(/locked once a brand is created/i)).toBeInTheDocument()
+    expect(screen.getByText(/locked once a category is created/i)).toBeInTheDocument()
   })
 
-  it('leaves the slug field editable while creating a new brand', () => {
-    renderBrandForm()
+  it('leaves the slug field editable while creating a new category', () => {
+    renderCategoryForm()
 
-    const slugInput = screen.getByPlaceholderText('brand-slug')
+    const slugInput = screen.getByPlaceholderText('category-slug')
     expect(slugInput).not.toHaveAttribute('readonly')
     expect(screen.getByText(/automatically created from the name/i)).toBeInTheDocument()
+  })
+})
+
+describe('CategoryForm actions', () => {
+  beforeEach(() => {
+    vi.clearAllMocks()
+  })
+
+  it('labels the submit button by mode', () => {
+    const { unmount } = renderCategoryForm()
+    expect(screen.getByRole('button', { name: 'Create Category' })).toBeInTheDocument()
+    unmount()
+
+    renderCategoryForm({ name: 'Electronics', slug: 'electronics' })
+    expect(screen.getByRole('button', { name: 'Save Changes' })).toBeInTheDocument()
+  })
+
+  it('still offers the parent-category selector alongside the image picker', () => {
+    renderCategoryForm()
+
+    expect(screen.getByText('Parent Category')).toBeInTheDocument()
   })
 })

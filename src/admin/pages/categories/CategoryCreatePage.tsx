@@ -1,5 +1,5 @@
 import {Navigate, useNavigate} from 'react-router-dom'
-import {PageLayout, toast} from '@/shared/ui/components'
+import {PageBackButton, toast} from '@/shared/ui/components'
 import {useBreadcrumb} from '@/admin/context/BreadcrumbContext'
 import {useAdminAuthStore} from '@/shared/auth/adminAuthStore'
 import {useCreateCategory} from './hooks/useCreateCategory'
@@ -31,7 +31,7 @@ export function CategoryCreatePage() {
             {
                 onSuccess: () => {
                     toast.success('Category created successfully')
-                    navigate('/admin/products/categories')
+                    navigate(-1)
                 },
                 onError: (error) => {
                     console.error(error)
@@ -42,8 +42,10 @@ export function CategoryCreatePage() {
     }
 
     return (
-        <PageLayout title="Create Category">
-            <CategoryForm onSubmit={handleSubmit} isSubmitting={mutation.isPending}/>
-        </PageLayout>
+        <CategoryForm
+            onSubmit={handleSubmit}
+            isSubmitting={mutation.isPending}
+            backButton={<PageBackButton/>}
+        />
     )
 }
