@@ -28,8 +28,8 @@ const LOGO_MODE_OPTIONS = [
 // Brand logos live under the "brands/" storage directory — scopes the picker to
 // brand-appropriate images so it isn't the entire platform's image library.
 const LOGO_LIBRARY_DIRECTORY = 'brands'
-// 3 full rows at the picker's 6-column grid — a page never ends mid-row.
-const LOGO_LIBRARY_PAGE_SIZE = 18
+// 2 full rows at the picker's 6-column grid — a page never ends mid-row.
+const LOGO_LIBRARY_PAGE_SIZE = 12
 const LOGO_LIBRARY_SEARCH_DEBOUNCE_MS = 300
 
 export type BrandFormValues = z.infer<typeof brandSchema>

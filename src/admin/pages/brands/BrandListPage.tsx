@@ -68,14 +68,6 @@ export function BrandListPage() {
     const columns: ColumnDef<BrandListItem, unknown>[] = useMemo(
         () => [
             {
-                id: 'thumbnail',
-                header: 'Icon',
-                cell: ({row}) => (
-                    <Thumbnail logoUrl={row.original.logoUrl} name={row.original.name} size="md" className="h-10 w-10 rounded-md" />
-                ),
-                enableSorting: false,
-            },
-            {
                 accessorKey: 'name',
                 header: 'Name',
                 cell: ({row}) => {
@@ -84,10 +76,13 @@ export function BrandListPage() {
                         ? `${description.slice(0, 60)}…`
                         : description
                     return (
-                        <div>
-                            <div className="font-medium text-(--c-text)">{row.original.name}</div>
-                            <div className="text-xs text-(--c-text-muted)">
-                                {truncated || 'No description for brand'}
+                        <div className="flex items-center gap-3">
+                            <Thumbnail logoUrl={row.original.logoUrl} name={row.original.name} size="md" className="h-10 w-10 rounded-md shrink-0" />
+                            <div>
+                                <div className="font-medium text-(--c-text)">{row.original.name}</div>
+                                <div className="text-xs text-(--c-text-muted)">
+                                    {truncated || 'No description for brand'}
+                                </div>
                             </div>
                         </div>
                     )

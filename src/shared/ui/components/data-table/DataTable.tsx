@@ -176,7 +176,7 @@ export function DataTable<TData>({
                 <div className="overflow-x-auto">
                     <table className="w-full text-sm text-left text-(--c-text)">
                         <thead
-                            className="text-xs font-semibold uppercase text-(--c-text-muted) bg-(--c-table-header-bg) border-b border-(--c-border) shadow-sm">
+                            className="text-xs font-semibold text-(--c-text-muted) bg-(--c-table-header-bg) border-b border-(--c-border) shadow-sm">
                         {table.getHeaderGroups().map((headerGroup) => (
                             <tr key={headerGroup.id}>
                                 {headerGroup.headers.map((header) => {

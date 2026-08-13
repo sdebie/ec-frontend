@@ -55,8 +55,8 @@ export function AdminLayout() {
                     onSetCollapsed={setSidebarCollapsed}
                 />
                 <div
-                    className={cn('pt-16 flex-1 transition-all duration-300', isSidebarCollapsed ? 'md:ml-20' : 'md:ml-64')}>
-                    <main className="p-4 md:p-6">
+                    className={cn('pt-15 flex-1 transition-all duration-300', isSidebarCollapsed ? 'md:ml-20' : 'md:ml-64')}>
+                    <main className="px-4 pb-4 pt-3 md:px-6 md:pb-6 md:pt-4">
                         <Outlet/>
                     </main>
                 </div>

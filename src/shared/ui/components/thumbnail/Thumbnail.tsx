@@ -28,9 +28,12 @@ export function Thumbnail({logoUrl, name, size = 'md', className}: ThumbnailProp
             <img
                 src={resolvedUrl}
                 alt={`${name} logo`}
+                // Fixed white backing, not a theme token: most uploaded logos are dark
+                // artwork on a transparent background, drawn for a light page — on
+                // --c-bg in dark mode they'd blend in and disappear entirely.
                 className={cn(
                     sizeClasses[size],
-                    'rounded-md object-contain bg-(--c-bg) border border-(--c-border)',
+                    'rounded-md object-contain bg-white border border-(--c-border)',
                     className
                 )}
                 onError={() => setImgError(true)}
@@ -40,8 +43,7 @@ export function Thumbnail({logoUrl, name, size = 'md', className}: ThumbnailProp
 
     return (
         <div
-            className={cn(
-                sizeClasses[size],
+            className={cn(sizeClasses[size],
                 'rounded-md bg-(--c-bg) border border-(--c-border) flex items-center justify-center font-semibold text-(--c-text-muted) select-none',
                 className
             )}
