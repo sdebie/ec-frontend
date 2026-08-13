@@ -45,7 +45,7 @@ describe('CategoryListPage', () => {
   })
 
   describe('Table columns', () => {
-    it('renders column headers: Name, Slug, Parent, Description, Actions', () => {
+    it('renders column headers: Name, Parent, Slug, Actions — Description is folded into Name', () => {
       mockedUseCategoryList.mockReturnValue({
         data: {
           content: [
@@ -56,15 +56,17 @@ describe('CategoryListPage', () => {
         },
         isLoading: false,
         error: null,
+        sorting: [],
+        onSortingChange: vi.fn(),
       })
 
       renderCategoryListPage()
 
       expect(screen.getByText('Name')).toBeInTheDocument()
-      expect(screen.getByText('Slug')).toBeInTheDocument()
       expect(screen.getByText('Parent')).toBeInTheDocument()
-      expect(screen.getByText('Description')).toBeInTheDocument()
+      expect(screen.getByText('Slug')).toBeInTheDocument()
       expect(screen.getByText('Actions')).toBeInTheDocument()
+      expect(screen.queryByText('Description')).not.toBeInTheDocument()
     })
 
     it('renders parent name when category has a parent', () => {
@@ -78,6 +80,8 @@ describe('CategoryListPage', () => {
         },
         isLoading: false,
         error: null,
+        sorting: [],
+        onSortingChange: vi.fn(),
       })
 
       renderCategoryListPage()
@@ -85,7 +89,7 @@ describe('CategoryListPage', () => {
       expect(screen.getByText('Electronics')).toBeInTheDocument()
     })
 
-    it('renders "—" when category has no parent', () => {
+    it('renders "<main category>" when category has no parent', () => {
       mockedUseCategoryList.mockReturnValue({
         data: {
           content: [
@@ -96,12 +100,13 @@ describe('CategoryListPage', () => {
         },
         isLoading: false,
         error: null,
+        sorting: [],
+        onSortingChange: vi.fn(),
       })
 
       renderCategoryListPage()
 
-      // With a description provided, the only "—" in the row comes from the Parent column
-      expect(screen.getByText('—')).toBeInTheDocument()
+      expect(screen.getByText('<main category>')).toBeInTheDocument()
     })
   })
 
@@ -111,6 +116,8 @@ describe('CategoryListPage', () => {
         data: { content: [], totalElements: 0, totalPages: 0 },
         isLoading: false,
         error: null,
+        sorting: [],
+        onSortingChange: vi.fn(),
       })
 
       renderCategoryListPage()
@@ -129,6 +136,8 @@ describe('CategoryListPage', () => {
         },
         isLoading: false,
         error: null,
+        sorting: [],
+        onSortingChange: vi.fn(),
       })
 
       renderCategoryListPage()
@@ -155,6 +164,8 @@ describe('CategoryListPage', () => {
         data: { content: [], totalElements: 0, totalPages: 0 },
         isLoading: false,
         error: null,
+        sorting: [],
+        onSortingChange: vi.fn(),
       })
 
       renderCategoryListPage()
@@ -173,6 +184,8 @@ describe('CategoryListPage', () => {
         },
         isLoading: false,
         error: null,
+        sorting: [],
+        onSortingChange: vi.fn(),
       })
 
       renderCategoryListPage()
