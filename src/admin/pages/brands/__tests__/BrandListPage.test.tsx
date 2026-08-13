@@ -56,6 +56,8 @@ describe('BrandListPage', () => {
         },
         isLoading: false,
         error: null,
+        sorting: [],
+        onSortingChange: vi.fn(),
       })
 
       renderBrandListPage()
@@ -78,6 +80,8 @@ describe('BrandListPage', () => {
         },
         isLoading: false,
         error: null,
+        sorting: [],
+        onSortingChange: vi.fn(),
       })
 
       renderBrandListPage()
@@ -91,16 +95,19 @@ describe('BrandListPage', () => {
     })
   })
 
-  describe('page/sort/search restored from the URL', () => {
+  describe('page/search restored from the URL', () => {
     // This is the actual fix for "closing the edit/create form sends me back
     // to page 1" — BrandListPage reads its table state from the URL instead
     // of component state, and navigate(-1) from the form lands back on the
-    // exact URL (page/sort/search and all) the user came from.
-    it('requests the page, sort, and search encoded in the URL on mount, not page 1', () => {
+    // exact URL (page/search and all) the user came from. Sort restoration is
+    // useBrandList's own concern — see useBrandList.test.ts.
+    it('requests the page and search encoded in the URL on mount, not page 1', () => {
       mockedUseBrandList.mockReturnValue({
         data: { content: [], totalElements: 0, totalPages: 3 },
         isLoading: false,
         error: null,
+        sorting: [],
+        onSortingChange: vi.fn(),
       })
 
       renderBrandListPage('/admin/products/brands?page=2&sortBy=name&sortDir=desc&q=nike')
@@ -109,7 +116,6 @@ describe('BrandListPage', () => {
         expect.objectContaining({
           pageIndex: 2,
           search: 'nike',
-          sort: [{ field: 'name', direction: 'DESC' }],
         }),
       )
     })
@@ -119,6 +125,8 @@ describe('BrandListPage', () => {
         data: { content: [], totalElements: 0, totalPages: 1 },
         isLoading: false,
         error: null,
+        sorting: [],
+        onSortingChange: vi.fn(),
       })
 
       renderBrandListPage('/admin/products/brands?q=nike')
@@ -126,17 +134,19 @@ describe('BrandListPage', () => {
       expect(screen.getByPlaceholderText('Search brands by name...')).toHaveValue('nike')
     })
 
-    it('defaults to page 0 with no sort when the URL carries no table state', () => {
+    it('defaults to page 0 when the URL carries no page/search state', () => {
       mockedUseBrandList.mockReturnValue({
         data: { content: [], totalElements: 0, totalPages: 1 },
         isLoading: false,
         error: null,
+        sorting: [],
+        onSortingChange: vi.fn(),
       })
 
       renderBrandListPage()
 
       expect(mockedUseBrandList).toHaveBeenCalledWith(
-        expect.objectContaining({ pageIndex: 0, search: '', sort: undefined }),
+        expect.objectContaining({ pageIndex: 0, search: '' }),
       )
     })
   })
@@ -147,6 +157,8 @@ describe('BrandListPage', () => {
         data: { content: [], totalElements: 0, totalPages: 0 },
         isLoading: false,
         error: null,
+        sorting: [],
+        onSortingChange: vi.fn(),
       })
 
       renderBrandListPage()
@@ -165,6 +177,8 @@ describe('BrandListPage', () => {
         },
         isLoading: false,
         error: null,
+        sorting: [],
+        onSortingChange: vi.fn(),
       })
 
       renderBrandListPage()
@@ -191,6 +205,8 @@ describe('BrandListPage', () => {
         data: { content: [], totalElements: 0, totalPages: 0 },
         isLoading: false,
         error: null,
+        sorting: [],
+        onSortingChange: vi.fn(),
       })
 
       renderBrandListPage()
@@ -209,6 +225,8 @@ describe('BrandListPage', () => {
         },
         isLoading: false,
         error: null,
+        sorting: [],
+        onSortingChange: vi.fn(),
       })
 
       renderBrandListPage()

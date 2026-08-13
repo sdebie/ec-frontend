@@ -2,7 +2,7 @@ import {useEffect, useCallback, useMemo, useRef, useState} from 'react'
 import {useNavigate, useSearchParams} from 'react-router-dom'
 import {useBreadcrumb} from '@/admin/context/BreadcrumbContext'
 import {Pencil, Search, Trash2} from 'lucide-react'
-import type {PaginationState, SortingState, Updater} from '@tanstack/react-table'
+import type {PaginationState, Updater} from '@tanstack/react-table'
 
 import type {BrandListItem} from '@/admin/hooks/brands'
 import {useBrandList, useDeleteBrand} from '@/admin/hooks/brands'
@@ -17,41 +17,37 @@ export function BrandListPage() {
     const navigate = useNavigate()
     const canMutate = useAdminAuthStore((s) => s.role) === 'SUPER_ADMIN'
 
-    // Page, page size, sort, and search live in the URL rather than component
-    // state — navigating away to edit/create a brand and back (navigate(-1))
-    // lands on this same URL, restoring exactly where the user left off
-    // instead of resetting to page 1.
+    // Page, page size, and search live in the URL rather than component state
+    // — navigating away to edit/create a brand and back (navigate(-1)) lands
+    // on this same URL, restoring exactly where the user left off instead of
+    // resetting to page 1. Sort is URL-persisted the same way, but owned by
+    // useBrandList itself rather than here — see its sorting/onSortingChange.
     const [searchParams, setSearchParams] = useSearchParams()
     const pageIndex = Number(searchParams.get('page') ?? '0')
     const pageSize = Number(searchParams.get('pageSize') ?? String(DEFAULT_PAGE_SIZE))
-    const sortField = searchParams.get('sortBy')
-    const sortDesc = searchParams.get('sortDir') === 'desc'
     const urlSearch = searchParams.get('q') ?? ''
 
     const pagination = useMemo<PaginationState>(() => ({pageIndex, pageSize}), [pageIndex, pageSize])
-    const sorting = useMemo<SortingState>(
-        () => (sortField ? [{id: sortField, desc: sortDesc}] : []),
-        [sortField, sortDesc],
-    )
 
     const [searchInput, setSearchInput] = useState(urlSearch)
     const [debouncedSearch, setDebouncedSearch] = useState(urlSearch)
     const [deletingBrand, setDeletingBrand] = useState<BrandListItem | null>(null)
 
-    // react-table's pagination/sorting plugins keep their own internal state
-    // alongside the controlled pagination/sorting props, and reconcile it back
-    // out via onPaginationChange/onSortingChange during mount — with ITS OWN
-    // default ({pageIndex: 0, ...}), not the value we actually passed in. That
-    // reconciliation fires again every time this component remounts, which is
-    // exactly what navigate(-1) does when returning from edit/create — so
-    // without this guard, landing back on the list silently snaps to page 0
-    // right after the URL was correctly restored. Real user interactions
-    // (clicking Next, a column header) only happen well after mount. That
-    // reconciliation call is synchronous within React's own render/commit/
-    // effect cycle — a plain useEffect flipping the flag still runs within
-    // that same cycle (child effects before parent effects) and is too early
-    // to help, so this defers one macrotask via setTimeout(0), past the point
-    // where any synchronous mount-time noise could possibly still be pending.
+    // react-table's pagination plugin keeps its own internal state alongside
+    // the controlled pagination prop, and reconciles it back out via
+    // onPaginationChange during mount — with ITS OWN default ({pageIndex: 0,
+    // ...}), not the value we actually passed in. That reconciliation fires
+    // again every time this component remounts, which is exactly what
+    // navigate(-1) does when returning from edit/create — so without this
+    // guard, landing back on the list silently snaps to page 0 right after
+    // the URL was correctly restored. Real user interactions (clicking Next)
+    // only happen well after mount. That reconciliation call is synchronous
+    // within React's own render/commit/effect cycle — a plain useEffect
+    // flipping the flag still runs within that same cycle (child effects
+    // before parent effects) and is too early to help, so this defers one
+    // macrotask via setTimeout(0), past the point where any synchronous
+    // mount-time noise could possibly still be pending. useBrandList carries
+    // an independent copy of this same guard for sorting's own reconciliation.
     const hasMountedRef = useRef(false)
     useEffect(() => {
         const id = setTimeout(() => {
@@ -70,24 +66,6 @@ export function BrandListPage() {
             return params
         })
     }, [pagination, setSearchParams])
-
-    const handleSortingChange = useCallback((updater: Updater<SortingState>) => {
-        if (!hasMountedRef.current) return
-        const next = typeof updater === 'function' ? updater(sorting) : updater
-        setSearchParams((prev) => {
-            const params = new URLSearchParams(prev)
-            const nextSort = next[0]
-            if (nextSort) {
-                params.set('sortBy', nextSort.id)
-                params.set('sortDir', nextSort.desc ? 'desc' : 'asc')
-            } else {
-                params.delete('sortBy')
-                params.delete('sortDir')
-            }
-            params.set('page', '0')
-            return params
-        })
-    }, [sorting, setSearchParams])
 
     // 300ms debounce for search input. Guarded on searchInput !== debouncedSearch
     // so the effect that also fires on mount (React runs effects after the
@@ -109,11 +87,10 @@ export function BrandListPage() {
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [searchInput])
 
-    const {data, isLoading, error} = useBrandList({
+    const {data, isLoading, error, sorting, onSortingChange} = useBrandList({
         pageIndex,
         pageSize,
         search: debouncedSearch,
-        sort: sortField ? [{field: sortField, direction: sortDesc ? 'DESC' : 'ASC'}] : undefined,
     })
 
     const deleteBrand = useDeleteBrand()
@@ -248,7 +225,7 @@ export function BrandListPage() {
                     onPaginationChange={handlePaginationChange}
                     manualSorting
                     sorting={sorting}
-                    onSortingChange={handleSortingChange}
+                    onSortingChange={onSortingChange}
                     onRowDoubleClick={(brand) => navigate(`/admin/products/brands/${brand.id}/edit`)}
                     emptyMessage="No brands found"
                 />
