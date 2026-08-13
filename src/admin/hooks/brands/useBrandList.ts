@@ -2,7 +2,7 @@ import {useQuery} from '@tanstack/react-query'
 import {gql} from 'graphql-request'
 
 import {adminGraphqlClient} from '@/shared/api/graphql/adminGraphqlClient'
-import {buildSearchFilterRequest, type FilterRequestInput} from '@/admin/utils'
+import {buildSearchFilterRequest, type FilterRequestInput, type SortItem} from '@/admin/utils'
 
 export interface BrandListItem {
     id: string
@@ -44,15 +44,16 @@ export interface UseBrandListParams {
     pageIndex: number
     pageSize: number
     search?: string
+    sort?: SortItem[]
 }
 
 export function useBrandList(params: UseBrandListParams) {
-    const {pageIndex, pageSize, search = ''} = params
+    const {pageIndex, pageSize, search = '', sort} = params
 
-    const filterRequest: FilterRequestInput | undefined = buildSearchFilterRequest(search)
+    const filterRequest: FilterRequestInput | undefined = buildSearchFilterRequest(search, sort)
 
     const {data, isLoading, error} = useQuery({
-        queryKey: ['admin-brand-list', pageIndex, pageSize, search],
+        queryKey: ['admin-brand-list', pageIndex, pageSize, search, sort],
         queryFn: () =>
             adminGraphqlClient.request<GetBrandsResponse>(GET_BRANDS, {
                 pageIndex,

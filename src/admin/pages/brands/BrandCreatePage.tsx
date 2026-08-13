@@ -23,7 +23,7 @@ export function BrandCreatePage() {
         mutation.mutate(values, {
             onSuccess: () => {
                 toast.success('Brand created successfully')
-                navigate('/admin/products/brands')
+                navigate(-1)
             },
             onError: (error) => {
                 console.error(error)

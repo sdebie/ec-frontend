@@ -1,7 +1,8 @@
-import {useEffect, useMemo, useState} from 'react'
-import {useNavigate} from 'react-router-dom'
+import {useEffect, useCallback, useMemo, useState} from 'react'
+import {useNavigate, useSearchParams} from 'react-router-dom'
 import {useBreadcrumb} from '@/admin/context/BreadcrumbContext'
 import {Pencil, Search, Trash2} from 'lucide-react'
+import type {PaginationState, SortingState, Updater} from '@tanstack/react-table'
 
 import type {BrandListItem} from '@/admin/hooks/brands'
 import {useBrandList, useDeleteBrand} from '@/admin/hooks/brands'
@@ -10,28 +11,85 @@ import {ConfirmationDialog, DataTable, PageLayout, RowActionButton, Thumbnail, t
 import {Button, Input} from '@/shared/ui/primitives'
 import {useAdminAuthStore} from '@/shared/auth/adminAuthStore'
 
+const DEFAULT_PAGE_SIZE = 10
+
 export function BrandListPage() {
     const navigate = useNavigate()
     const canMutate = useAdminAuthStore((s) => s.role) === 'SUPER_ADMIN'
 
-    const [pagination, setPagination] = useState({pageIndex: 0, pageSize: 10})
-    const [searchInput, setSearchInput] = useState('')
-    const [debouncedSearch, setDebouncedSearch] = useState('')
+    // Page, page size, sort, and search live in the URL rather than component
+    // state — navigating away to edit/create a brand and back (navigate(-1))
+    // lands on this same URL, restoring exactly where the user left off
+    // instead of resetting to page 1.
+    const [searchParams, setSearchParams] = useSearchParams()
+    const pageIndex = Number(searchParams.get('page') ?? '0')
+    const pageSize = Number(searchParams.get('pageSize') ?? String(DEFAULT_PAGE_SIZE))
+    const sortField = searchParams.get('sortBy')
+    const sortDesc = searchParams.get('sortDir') === 'desc'
+    const urlSearch = searchParams.get('q') ?? ''
+
+    const pagination = useMemo<PaginationState>(() => ({pageIndex, pageSize}), [pageIndex, pageSize])
+    const sorting = useMemo<SortingState>(
+        () => (sortField ? [{id: sortField, desc: sortDesc}] : []),
+        [sortField, sortDesc],
+    )
+
+    const [searchInput, setSearchInput] = useState(urlSearch)
+    const [debouncedSearch, setDebouncedSearch] = useState(urlSearch)
     const [deletingBrand, setDeletingBrand] = useState<BrandListItem | null>(null)
 
-    // 300ms debounce for search input
+    const handlePaginationChange = useCallback((updater: Updater<PaginationState>) => {
+        const next = typeof updater === 'function' ? updater(pagination) : updater
+        setSearchParams((prev) => {
+            const params = new URLSearchParams(prev)
+            params.set('page', String(next.pageIndex))
+            params.set('pageSize', String(next.pageSize))
+            return params
+        })
+    }, [pagination, setSearchParams])
+
+    const handleSortingChange = useCallback((updater: Updater<SortingState>) => {
+        const next = typeof updater === 'function' ? updater(sorting) : updater
+        setSearchParams((prev) => {
+            const params = new URLSearchParams(prev)
+            const nextSort = next[0]
+            if (nextSort) {
+                params.set('sortBy', nextSort.id)
+                params.set('sortDir', nextSort.desc ? 'desc' : 'asc')
+            } else {
+                params.delete('sortBy')
+                params.delete('sortDir')
+            }
+            params.set('page', '0')
+            return params
+        })
+    }, [sorting, setSearchParams])
+
+    // 300ms debounce for search input. Guarded on searchInput !== debouncedSearch
+    // so the effect that also fires on mount (React runs effects after the
+    // first render too) doesn't immediately stomp a page/sort restored from
+    // the URL back to page 0 before the user has typed anything.
     useEffect(() => {
+        if (searchInput === debouncedSearch) return
         const timer = setTimeout(() => {
             setDebouncedSearch(searchInput)
-            setPagination((prev) => ({...prev, pageIndex: 0}))
+            setSearchParams((prev) => {
+                const params = new URLSearchParams(prev)
+                if (searchInput.trim()) params.set('q', searchInput)
+                else params.delete('q')
+                params.set('page', '0')
+                return params
+            })
         }, 300)
         return () => clearTimeout(timer)
+        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [searchInput])
 
     const {data, isLoading, error} = useBrandList({
-        pageIndex: pagination.pageIndex,
-        pageSize: pagination.pageSize,
+        pageIndex,
+        pageSize,
         search: debouncedSearch,
+        sort: sortField ? [{field: sortField, direction: sortDesc ? 'DESC' : 'ASC'}] : undefined,
     })
 
     const deleteBrand = useDeleteBrand()
@@ -87,7 +145,6 @@ export function BrandListPage() {
                         </div>
                     )
                 },
-                enableSorting: false,
             },
             {
                 accessorKey: 'slug',
@@ -95,7 +152,6 @@ export function BrandListPage() {
                 cell: ({row}) => (
                     <span className="text-sm text-(--c-text-muted)">{row.original.slug}</span>
                 ),
-                enableSorting: false,
             },
             {
                 id: 'actions',
@@ -165,7 +221,10 @@ export function BrandListPage() {
                     manualPagination
                     pageCount={pageCount}
                     pagination={pagination}
-                    onPaginationChange={setPagination}
+                    onPaginationChange={handlePaginationChange}
+                    manualSorting
+                    sorting={sorting}
+                    onSortingChange={handleSortingChange}
                     onRowDoubleClick={(brand) => navigate(`/admin/products/brands/${brand.id}/edit`)}
                     emptyMessage="No brands found"
                 />

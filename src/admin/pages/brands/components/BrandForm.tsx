@@ -3,7 +3,7 @@ import {useForm} from 'react-hook-form'
 import {zodResolver} from '@hookform/resolvers/zod'
 import {z} from 'zod'
 import {useNavigate} from 'react-router-dom'
-import {ChevronLeft, ChevronRight, Search} from 'lucide-react'
+import {ChevronLeft, ChevronRight, Loader, Search} from 'lucide-react'
 import {Form, FormItem, ImageGalleryPicker, ImageUpload, Label, Textarea, ToggleGroup} from '@/shared/ui/components'
 import {Button, Card, Input} from '@/shared/ui/primitives'
 import {toast} from '@/shared/ui/components/toast'
@@ -21,8 +21,8 @@ const brandSchema = z.object({
 type LogoMode = 'upload' | 'library'
 
 const LOGO_MODE_OPTIONS = [
-    {value: 'upload', label: 'Upload new'},
-    {value: 'library', label: 'Choose from library'},
+    {value: 'upload', label: 'Upload New'},
+    {value: 'library', label: 'Choose from Library'},
 ]
 
 // Brand logos live under the "brands/" storage directory — scopes the picker to
@@ -62,7 +62,11 @@ export function BrandForm({defaultValues, onSubmit, isSubmitting = false, backBu
         setLibraryPage(0)
     }, [debouncedLibrarySearch])
 
-    const {data: libraryData, isLoading: isLoadingLibraryImages, isFetching: isFetchingLibraryImages} = useImageListPage({
+    const {
+        data: libraryData,
+        isLoading: isLoadingLibraryImages,
+        isFetching: isFetchingLibraryImages
+    } = useImageListPage({
         page: libraryPage,
         pageSize: LOGO_LIBRARY_PAGE_SIZE,
         search: debouncedLibrarySearch,
@@ -165,7 +169,11 @@ export function BrandForm({defaultValues, onSubmit, isSubmitting = false, backBu
                         required
                         invalid={!!errors.slug}
                         errorMessage={errors.slug?.message}
-                        helperText="URL-safe identifier. Auto-generated from name unless manually edited."
+                        helperText={
+                            isEditMode
+                                ? 'The slug is locked once a brand is created, since changing it would break any existing links to it.'
+                                : 'Creates a simple, unique name used to identify this page. It is automatically created from the name, but you can change it.'
+                        }
                     >
                         <Input
                             {...register('slug', {
@@ -176,6 +184,10 @@ export function BrandForm({defaultValues, onSubmit, isSubmitting = false, backBu
                             })}
                             placeholder="brand-slug"
                             variant={errors.slug ? 'error' : 'default'}
+                            readOnly={isEditMode}
+                            aria-readonly={isEditMode}
+                            tabIndex={isEditMode ? -1 : undefined}
+                            className={isEditMode ? 'cursor-not-allowed opacity-60' : undefined}
                         />
                     </FormItem>
 
@@ -216,7 +228,8 @@ export function BrandForm({defaultValues, onSubmit, isSubmitting = false, backBu
                         ) : (
                             <div className="space-y-3">
                                 <div className="relative">
-                                    <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-(--c-text-muted)"/>
+                                    <Search
+                                        className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-(--c-text-muted)"/>
                                     <Input
                                         placeholder="Search library images..."
                                         value={librarySearchInput}
@@ -224,12 +237,23 @@ export function BrandForm({defaultValues, onSubmit, isSubmitting = false, backBu
                                         className="pl-9"
                                     />
                                 </div>
-                                <ImageGalleryPicker
-                                    images={libraryThumbnailUrls}
-                                    selectedImage={logoUrlValue ? thumbnailUrl(logoUrlValue) : null}
-                                    onSelect={handleLibrarySelect}
-                                    isLoading={isLoadingLibraryImages}
-                                />
+                                <div className="relative">
+                                    <ImageGalleryPicker
+                                        images={libraryThumbnailUrls}
+                                        selectedImage={logoUrlValue ? thumbnailUrl(logoUrlValue) : null}
+                                        onSelect={handleLibrarySelect}
+                                        isLoading={isLoadingLibraryImages}
+                                    />
+                                    {/* Paging keeps the previous page's images visible (placeholderData:
+                                        keepPreviousData) rather than blanking the grid — this is just a
+                                        subtle "still working" cue over them, not a full loading state. */}
+                                    {isFetchingLibraryImages && !isLoadingLibraryImages && (
+                                        <div
+                                            className="absolute inset-0 flex items-center justify-center bg-(--c-panel)/60 rounded-md">
+                                            <Loader className="h-5 w-5 animate-spin text-(--c-text-muted)"/>
+                                        </div>
+                                    )}
+                                </div>
                                 {libraryTotalPages > 1 && (
                                     <div className="flex items-center justify-center gap-3">
                                         <Button
@@ -263,11 +287,11 @@ export function BrandForm({defaultValues, onSubmit, isSubmitting = false, backBu
                 </Card.Body>
 
                 {/* Actions */}
-                <Card.Footer className="flex items-center justify-end gap-3 mt-2 pt-2">
+                <Card.Footer className="flex items-center justify-end gap-3 mt-2 pt-4">
                     <Button
                         type="button"
                         variant="outline"
-                        onClick={() => navigate('/admin/products/brands')}
+                        onClick={() => navigate(-1)}
                     >
                         Cancel
                     </Button>

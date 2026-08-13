@@ -27,6 +27,13 @@ export interface DataTableProps<TData> {
     pageCount?: number
     pagination?: PaginationState
     onPaginationChange?: OnChangeFn<PaginationState>
+    /** Server-driven sorting: the caller owns sorting state and refetches on change,
+     * instead of DataTable re-sorting the current page's rows client-side. Only
+     * meaningful alongside manualPagination — sorting one fetched page client-side
+     * on a server-paginated table wouldn't sort the full result set. */
+    manualSorting?: boolean
+    sorting?: SortingState
+    onSortingChange?: OnChangeFn<SortingState>
     /** Placeholder text for the global search input */
     globalSearchPlaceholder?: string
     /** Set to true to enable the built-in toolbar search input (only correct for fully client-side tables with no server pagination) */
@@ -56,6 +63,9 @@ export function DataTable<TData>({
                                      pageCount,
                                      pagination: controlledPagination,
                                      onPaginationChange,
+                                     manualSorting = false,
+                                     sorting: controlledSorting,
+                                     onSortingChange: onSortingChangeProp,
                                      globalSearchPlaceholder = 'Search...',
                                      showSearch = false,
                                      emptyMessage = 'No results found',
@@ -63,9 +73,12 @@ export function DataTable<TData>({
                                      initialPageSize = DEFAULT_PAGE_SIZE,
                                      onRowDoubleClick,
                                  }: DataTableProps<TData>) {
-    const [sorting, setSorting] = React.useState<SortingState>([])
+    const [internalSorting, setInternalSorting] = React.useState<SortingState>([])
     const [columnFilters, setColumnFilters] = React.useState<ColumnFiltersState>([])
     const [globalFilter, setGlobalFilter] = React.useState('')
+
+    const sorting = manualSorting && controlledSorting ? controlledSorting : internalSorting
+    const handleSortingChange = manualSorting && onSortingChangeProp ? onSortingChangeProp : setInternalSorting
 
     const table = useReactTable({
         data,
@@ -76,13 +89,14 @@ export function DataTable<TData>({
             globalFilter,
             ...(manualPagination && controlledPagination ? {pagination: controlledPagination} : {}),
         },
-        onSortingChange: setSorting,
+        onSortingChange: handleSortingChange,
         onColumnFiltersChange: setColumnFilters,
         onGlobalFilterChange: setGlobalFilter,
         getCoreRowModel: getCoreRowModel(),
         getSortedRowModel: getSortedRowModel(),
         getFilteredRowModel: getFilteredRowModel(),
         getPaginationRowModel: getPaginationRowModel(),
+        ...(manualSorting ? {manualSorting: true} : {}),
         ...(manualPagination
             ? {
                 manualPagination: true,
@@ -248,9 +262,9 @@ export function DataTable<TData>({
                                 <tr
                                     key={row.id}
                                     onDoubleClick={onRowDoubleClick ? (e) => {
-                                        // A double-click that lands on a button/link/input
+                                        // A double click that lands on a button/link/input
                                         // inside the row is that element's own action, not
-                                        // a row-level one — e.g. don't navigate away while
+                                        // a row-level one — e.g., don't navigate away while
                                         // the user is double-clicking a Delete icon.
                                         const target = e.target as HTMLElement
                                         if (target.closest('button, a, input, [role="button"]')) return

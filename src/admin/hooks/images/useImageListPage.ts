@@ -1,4 +1,4 @@
-import {useQuery} from '@tanstack/react-query'
+import {keepPreviousData, useQuery} from '@tanstack/react-query'
 import {adminHttpClient} from '@/shared/api/http/adminHttpClient'
 import type {ImageListParams, PaginatedImages} from './types'
 
@@ -18,5 +18,9 @@ export function useImageListPage({page, pageSize, search, directory, enabled = t
             return data
         },
         enabled,
+        // Keep the previous page's images on screen while the next page loads
+        // instead of the grid going empty — isFetching still flips so callers
+        // can show a small spinner over the (stale-but-visible) grid.
+        placeholderData: keepPreviousData,
     })
 }

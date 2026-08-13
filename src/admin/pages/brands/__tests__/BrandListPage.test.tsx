@@ -20,11 +20,11 @@ function createQueryClient() {
   })
 }
 
-function renderBrandListPage() {
+function renderBrandListPage(initialPath = '/admin/products/brands') {
   const queryClient = createQueryClient()
   return render(
     <QueryClientProvider client={queryClient}>
-      <MemoryRouter initialEntries={['/admin/products/brands']}>
+      <MemoryRouter initialEntries={[initialPath]}>
         <BrandListPage />
       </MemoryRouter>
     </QueryClientProvider>,
@@ -88,6 +88,56 @@ describe('BrandListPage', () => {
       expect(screen.getByText('Adidas')).toBeInTheDocument()
       expect(screen.getByText('adidas')).toBeInTheDocument()
       expect(screen.getByText('No description for brand')).toBeInTheDocument()
+    })
+  })
+
+  describe('page/sort/search restored from the URL', () => {
+    // This is the actual fix for "closing the edit/create form sends me back
+    // to page 1" — BrandListPage reads its table state from the URL instead
+    // of component state, and navigate(-1) from the form lands back on the
+    // exact URL (page/sort/search and all) the user came from.
+    it('requests the page, sort, and search encoded in the URL on mount, not page 1', () => {
+      mockedUseBrandList.mockReturnValue({
+        data: { content: [], totalElements: 0, totalPages: 3 },
+        isLoading: false,
+        error: null,
+      })
+
+      renderBrandListPage('/admin/products/brands?page=2&sortBy=name&sortDir=desc&q=nike')
+
+      expect(mockedUseBrandList).toHaveBeenCalledWith(
+        expect.objectContaining({
+          pageIndex: 2,
+          search: 'nike',
+          sort: [{ field: 'name', direction: 'DESC' }],
+        }),
+      )
+    })
+
+    it('the search box shows the restored search term instead of an empty box silently filtering', () => {
+      mockedUseBrandList.mockReturnValue({
+        data: { content: [], totalElements: 0, totalPages: 1 },
+        isLoading: false,
+        error: null,
+      })
+
+      renderBrandListPage('/admin/products/brands?q=nike')
+
+      expect(screen.getByPlaceholderText('Search brands by name...')).toHaveValue('nike')
+    })
+
+    it('defaults to page 0 with no sort when the URL carries no table state', () => {
+      mockedUseBrandList.mockReturnValue({
+        data: { content: [], totalElements: 0, totalPages: 1 },
+        isLoading: false,
+        error: null,
+      })
+
+      renderBrandListPage()
+
+      expect(mockedUseBrandList).toHaveBeenCalledWith(
+        expect.objectContaining({ pageIndex: 0, search: '', sort: undefined }),
+      )
     })
   })
 

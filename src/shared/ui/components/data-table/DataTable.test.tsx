@@ -57,6 +57,81 @@ describe('DataTable', () => {
     })
   })
 
+  describe('sorting (client-side, default)', () => {
+    it('clicking a sortable column header reorders the rendered rows', async () => {
+      const user = userEvent.setup()
+      const data = [{ id: 1, name: 'Zebra' }, { id: 2, name: 'Apple' }]
+      render(<DataTable columns={columns} data={data} />)
+
+      await user.click(screen.getByText('Name'))
+
+      const rows = screen.getAllByRole('row')
+      // Header row + 2 data rows, now ascending by name.
+      expect(rows[1]).toHaveTextContent('Apple')
+      expect(rows[2]).toHaveTextContent('Zebra')
+    })
+
+    it('a column with enableSorting: false is not clickable-sortable', async () => {
+      const user = userEvent.setup()
+      const unsortable: ColumnDef<TestRow, unknown>[] = [
+        { accessorKey: 'id', header: 'ID' },
+        { accessorKey: 'name', header: 'Name', enableSorting: false },
+      ]
+      const data = [{ id: 1, name: 'Zebra' }, { id: 2, name: 'Apple' }]
+      render(<DataTable columns={unsortable} data={data} />)
+
+      await user.click(screen.getByText('Name'))
+
+      // Order unchanged — the header isn't wired to a sort toggle.
+      const rows = screen.getAllByRole('row')
+      expect(rows[1]).toHaveTextContent('Zebra')
+      expect(rows[2]).toHaveTextContent('Apple')
+    })
+  })
+
+  describe('server-side sorting (manualSorting)', () => {
+    it('clicking a sortable header calls onSortingChange instead of reordering rows itself', async () => {
+      const user = userEvent.setup()
+      // Server already returned this order for the current sort — if DataTable
+      // sorted client-side too, this deliberately-unsorted data would flip.
+      const data = [{ id: 1, name: 'Zebra' }, { id: 2, name: 'Apple' }]
+      const onSortingChange = vi.fn()
+      render(
+        <DataTable
+          columns={columns}
+          data={data}
+          manualSorting
+          sorting={[]}
+          onSortingChange={onSortingChange}
+        />
+      )
+
+      await user.click(screen.getByText('Name'))
+
+      expect(onSortingChange).toHaveBeenCalledTimes(1)
+      // The server-provided order is left exactly as given.
+      const rows = screen.getAllByRole('row')
+      expect(rows[1]).toHaveTextContent('Zebra')
+      expect(rows[2]).toHaveTextContent('Apple')
+    })
+
+    it('reflects the controlled sorting prop as the sort-icon state', () => {
+      const data = makeRows(2)
+      const { container } = render(
+        <DataTable
+          columns={columns}
+          data={data}
+          manualSorting
+          sorting={[{ id: 'name', desc: true }]}
+          onSortingChange={vi.fn()}
+        />
+      )
+
+      // lucide ArrowDown renders with this class; ArrowUpDown (unsorted) does not.
+      expect(container.querySelector('.lucide-arrow-down')).toBeInTheDocument()
+    })
+  })
+
   describe('isLoading', () => {
     it('renders skeleton rows when isLoading is true', () => {
       render(<DataTable columns={columns} data={[]} isLoading />)
