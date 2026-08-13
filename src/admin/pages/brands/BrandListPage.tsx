@@ -3,7 +3,7 @@ import {useNavigate, useSearchParams} from 'react-router-dom'
 import {useBreadcrumb} from '@/admin/context/BreadcrumbContext'
 import type {PaginationState, Updater} from '@tanstack/react-table'
 
-import {useBrandList} from '@/admin/hooks/brands'
+import {useBrandList} from './hooks/useBrandList'
 import {PageLayout, toast} from '@/shared/ui/components'
 import {useAdminAuthStore} from '@/shared/auth/adminAuthStore'
 import {BrandToolbar} from './components/BrandToolbar'

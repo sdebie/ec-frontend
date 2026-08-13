@@ -5,12 +5,16 @@ import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 import { useAdminAuthStore } from '@/shared/auth/adminAuthStore'
 import { BrandListPage } from '../BrandListPage'
 
-vi.mock('@/admin/hooks/brands', () => ({
+vi.mock('@/admin/pages/brands/hooks/useBrandList', () => ({
   useBrandList: vi.fn(),
+}))
+
+// BrandListPage renders BrandTable, which calls this hook itself.
+vi.mock('@/admin/pages/brands/hooks/useDeleteBrand', () => ({
   useDeleteBrand: vi.fn(() => ({ mutate: vi.fn(), isPending: false })),
 }))
 
-import { useBrandList } from '@/admin/hooks/brands'
+import { useBrandList } from '@/admin/pages/brands/hooks/useBrandList'
 
 const mockedUseBrandList = vi.mocked(useBrandList)
 

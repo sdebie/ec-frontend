@@ -2,12 +2,12 @@ import { describe, it, expect, vi, beforeEach } from 'vitest'
 import { render, screen, fireEvent } from '@testing-library/react'
 import { MemoryRouter } from 'react-router-dom'
 import type { ComponentProps } from 'react'
-import type { BrandListItem } from '@/admin/hooks/brands'
-import { BrandTable } from '../components/BrandTable.tsx'
+import type { BrandListItem } from '../types'
+import { BrandTable } from '../components/BrandTable'
 
 const mockMutate = vi.fn()
 
-vi.mock('@/admin/hooks/brands', () => ({
+vi.mock('@/admin/pages/brands/hooks/useDeleteBrand', () => ({
   useDeleteBrand: vi.fn(() => ({ mutate: mockMutate, isPending: false })),
 }))
 

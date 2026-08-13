@@ -6,14 +6,7 @@ import type {OnChangeFn, SortingState, Updater} from '@tanstack/react-table'
 
 import {adminGraphqlClient} from '@/shared/api/graphql/adminGraphqlClient'
 import {buildSearchFilterRequest, type FilterRequestInput, type SortItem} from '@/admin/utils'
-
-export interface BrandListItem {
-    id: string
-    name: string
-    slug: string
-    description: string | null
-    logoUrl: string | null
-}
+import type {BrandListItem} from '../types'
 
 interface GetBrandsResponse {
     getBrands: {

@@ -1,6 +1,6 @@
 import { describe, it, expect, vi } from 'vitest'
 import { render, screen, fireEvent } from '@testing-library/react'
-import { BrandSearchInput } from '../components/BrandSearchInput.tsx'
+import { BrandSearchInput } from '../components/BrandSearchInput'
 
 describe('BrandSearchInput', () => {
   it('renders the current value in the search box', () => {

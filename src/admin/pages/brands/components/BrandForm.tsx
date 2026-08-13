@@ -26,7 +26,7 @@ const LOGO_MODE_OPTIONS = [
 ]
 
 // Brand logos live under the "brands/" storage directory — scopes the picker to
-// brand-appropriate images so it isn't the entire platform's image library.
+// brand-appropriate images, so it isn't the entire platform's image library.
 const LOGO_LIBRARY_DIRECTORY = 'brands'
 // 2 full rows at the picker's 6-column grid — a page never ends mid-row.
 const LOGO_LIBRARY_PAGE_SIZE = 12

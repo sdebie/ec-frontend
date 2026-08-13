@@ -5,7 +5,7 @@ import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 import { useAdminAuthStore } from '@/shared/auth/adminAuthStore'
 import { BrandCreatePage } from '../BrandCreatePage'
 
-vi.mock('@/admin/hooks/brands', () => ({
+vi.mock('@/admin/pages/brands/hooks/useCreateBrand', () => ({
   useCreateBrand: vi.fn(() => ({ mutate: vi.fn(), isPending: false })),
 }))
 

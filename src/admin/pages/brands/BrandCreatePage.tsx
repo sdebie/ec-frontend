@@ -2,7 +2,7 @@ import {Navigate, useNavigate} from 'react-router-dom'
 import {PageBackButton, toast} from '@/shared/ui/components'
 import {useBreadcrumb} from '@/admin/context/BreadcrumbContext'
 import {useAdminAuthStore} from '@/shared/auth/adminAuthStore'
-import {useCreateBrand} from '@/admin/hooks/brands'
+import {useCreateBrand} from './hooks/useCreateBrand'
 import type {BrandFormValues} from './components/BrandForm'
 import {BrandForm} from './components/BrandForm'
 

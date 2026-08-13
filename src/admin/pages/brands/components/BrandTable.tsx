@@ -2,9 +2,8 @@ import {useMemo, useState} from 'react'
 import {useNavigate} from 'react-router-dom'
 import {Pencil, Trash2} from 'lucide-react'
 import type {OnChangeFn, PaginationState, SortingState} from '@tanstack/react-table'
-
-import type {BrandListItem} from '@/admin/hooks/brands'
-import {useDeleteBrand} from '@/admin/hooks/brands'
+import type {BrandListItem} from '../types'
+import {useDeleteBrand} from '../hooks/useDeleteBrand'
 import type {ColumnDef} from '@/shared/ui/components'
 import {ConfirmationDialog, DataTable, RowActionButton, Thumbnail, toast} from '@/shared/ui/components'
 
@@ -20,15 +19,15 @@ interface BrandTableProps {
 }
 
 export function BrandTable({
-    data,
-    isLoading,
-    canMutate,
-    pageCount,
-    pagination,
-    onPaginationChange,
-    sorting,
-    onSortingChange,
-}: BrandTableProps) {
+                               data,
+                               isLoading,
+                               canMutate,
+                               pageCount,
+                               pagination,
+                               onPaginationChange,
+                               sorting,
+                               onSortingChange,
+                           }: BrandTableProps) {
     const navigate = useNavigate()
     const [deletingBrand, setDeletingBrand] = useState<BrandListItem | null>(null)
     const deleteBrand = useDeleteBrand()
