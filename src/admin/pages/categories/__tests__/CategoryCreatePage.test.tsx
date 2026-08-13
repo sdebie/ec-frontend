@@ -5,8 +5,12 @@ import {QueryClient, QueryClientProvider} from '@tanstack/react-query'
 import {useAdminAuthStore} from '@/shared/auth/adminAuthStore'
 import {CategoryCreatePage} from '../CategoryCreatePage'
 
-vi.mock('@/admin/hooks/categories', () => ({
+vi.mock('@/admin/pages/categories/hooks/useCreateCategory', () => ({
     useCreateCategory: vi.fn(() => ({mutate: vi.fn(), isPending: false})),
+}))
+
+// CategoryForm fetches the parent-category options through this hook.
+vi.mock('@/admin/pages/categories/hooks/useCategoryList', () => ({
     useCategoryList: vi.fn(() => ({data: {content: []}, isLoading: false})),
 }))
 

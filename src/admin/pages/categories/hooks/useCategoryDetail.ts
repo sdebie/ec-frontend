@@ -2,15 +2,7 @@ import { useQuery } from '@tanstack/react-query'
 import { gql } from 'graphql-request'
 
 import { adminGraphqlClient } from '@/shared/api/graphql/adminGraphqlClient'
-
-export interface CategoryDetail {
-  id: string
-  name: string
-  slug: string
-  description: string | null
-  imageUrl: string | null
-  parent: { id: string; name: string } | null
-}
+import type { CategoryDetail } from '../types'
 
 interface CategoryResponse {
   category: CategoryDetail | null

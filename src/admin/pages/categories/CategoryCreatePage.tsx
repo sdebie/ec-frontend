@@ -2,7 +2,7 @@ import {Navigate, useNavigate} from 'react-router-dom'
 import {PageLayout, toast} from '@/shared/ui/components'
 import {useBreadcrumb} from '@/admin/context/BreadcrumbContext'
 import {useAdminAuthStore} from '@/shared/auth/adminAuthStore'
-import {useCreateCategory} from '@/admin/hooks/categories'
+import {useCreateCategory} from './hooks/useCreateCategory'
 import type {CategoryFormValues} from './components/CategoryForm'
 import {CategoryForm} from './components/CategoryForm'
 

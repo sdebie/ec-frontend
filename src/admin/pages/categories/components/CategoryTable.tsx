@@ -3,8 +3,8 @@ import {useNavigate} from 'react-router-dom'
 import {Pencil, Trash2} from 'lucide-react'
 import type {OnChangeFn, PaginationState, SortingState} from '@tanstack/react-table'
 
-import type {CategoryListItem} from '@/admin/hooks/categories'
-import {useDeleteCategory} from '@/admin/hooks/categories'
+import type {CategoryListItem} from '../types'
+import {useDeleteCategory} from '../hooks/useDeleteCategory'
 import type {ColumnDef} from '@/shared/ui/components'
 import {ConfirmationDialog, DataTable, RowActionButton, Thumbnail, toast} from '@/shared/ui/components'
 

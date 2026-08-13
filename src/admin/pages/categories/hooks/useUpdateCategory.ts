@@ -2,14 +2,7 @@ import { useMutation, useQueryClient } from '@tanstack/react-query'
 import { gql } from 'graphql-request'
 
 import { adminGraphqlClient } from '@/shared/api/graphql/adminGraphqlClient'
-
-export interface UpdateCategoryPayload {
-  name: string
-  slug: string
-  description?: string
-  imageUrl?: string
-  parent?: { id: string } | null
-}
+import type { UpdateCategoryPayload } from '../types'
 
 const UPDATE_CATEGORY = gql`
   mutation UpdateCategory($id: String!, $categoryDto: CategoryDtoInput!) {

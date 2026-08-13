@@ -2,13 +2,13 @@ import {beforeEach, describe, expect, it, vi} from 'vitest'
 import {fireEvent, render, screen} from '@testing-library/react'
 import {MemoryRouter} from 'react-router-dom'
 import type {ComponentProps} from 'react'
-import type {CategoryListItem} from '@/admin/hooks/categories'
+import type {CategoryListItem} from '../../types'
 import {CategoryTable} from '../CategoryTable'
 
 const mockMutate = vi.fn()
 const mockNavigate = vi.fn()
 
-vi.mock('@/admin/hooks/categories', () => ({
+vi.mock('@/admin/pages/categories/hooks/useDeleteCategory', () => ({
     useDeleteCategory: vi.fn(() => ({mutate: mockMutate, isPending: false})),
 }))
 

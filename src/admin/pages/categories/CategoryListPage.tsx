@@ -3,7 +3,7 @@ import {useNavigate, useSearchParams} from 'react-router-dom'
 import {useBreadcrumb} from '@/admin/context/BreadcrumbContext'
 import type {PaginationState, Updater} from '@tanstack/react-table'
 
-import {useCategoryList} from '@/admin/hooks/categories'
+import {useCategoryList} from './hooks/useCategoryList'
 import {PageLayout, toast} from '@/shared/ui/components'
 import {useAdminAuthStore} from '@/shared/auth/adminAuthStore'
 import {CategoryToolbar} from './components/CategoryToolbar'

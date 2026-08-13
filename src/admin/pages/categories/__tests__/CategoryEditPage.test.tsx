@@ -4,11 +4,18 @@ import {MemoryRouter, Route, Routes} from 'react-router-dom'
 import {QueryClient, QueryClientProvider} from '@tanstack/react-query'
 import {useAdminAuthStore} from '@/shared/auth/adminAuthStore'
 import {CategoryEditPage} from '../CategoryEditPage'
-import {useCategoryDetail} from '@/admin/hooks/categories'
+import {useCategoryDetail} from '@/admin/pages/categories/hooks/useCategoryDetail'
 
-vi.mock('@/admin/hooks/categories', () => ({
+vi.mock('@/admin/pages/categories/hooks/useCategoryDetail', () => ({
     useCategoryDetail: vi.fn(),
+}))
+
+vi.mock('@/admin/pages/categories/hooks/useUpdateCategory', () => ({
     useUpdateCategory: vi.fn(() => ({mutate: vi.fn(), isPending: false})),
+}))
+
+// CategoryForm fetches the parent-category options through this hook.
+vi.mock('@/admin/pages/categories/hooks/useCategoryList', () => ({
     useCategoryList: vi.fn(() => ({data: {content: []}, isLoading: false})),
 }))
 

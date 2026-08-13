@@ -7,7 +7,7 @@ import {Form, FormItem, Select, Textarea} from '@/shared/ui/components'
 import {Button, Card, Input} from '@/shared/ui/primitives'
 import {toSlug} from '@/admin/utils/slug'
 import {getParentCategoryOptions} from '@/admin/utils/categoryOptions'
-import {useCategoryList} from '@/admin/hooks/categories'
+import {useCategoryList} from '../hooks/useCategoryList'
 
 const categorySchema = z.object({
     name: z.string().min(1, 'Name is required'),

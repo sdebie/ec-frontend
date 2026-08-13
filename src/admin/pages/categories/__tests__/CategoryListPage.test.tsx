@@ -4,10 +4,14 @@ import {MemoryRouter} from 'react-router-dom'
 import {QueryClient, QueryClientProvider} from '@tanstack/react-query'
 import {useAdminAuthStore} from '@/shared/auth/adminAuthStore'
 import {CategoryListPage} from '../CategoryListPage'
-import {useCategoryList} from '@/admin/hooks/categories'
+import {useCategoryList} from '@/admin/pages/categories/hooks/useCategoryList'
 
-vi.mock('@/admin/hooks/categories', () => ({
+vi.mock('@/admin/pages/categories/hooks/useCategoryList', () => ({
     useCategoryList: vi.fn(),
+}))
+
+// CategoryListPage renders CategoryTable, which calls this hook itself.
+vi.mock('@/admin/pages/categories/hooks/useDeleteCategory', () => ({
     useDeleteCategory: vi.fn(() => ({mutate: vi.fn(), isPending: false})),
 }))
 
