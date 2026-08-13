@@ -1,15 +1,13 @@
 import {useCallback, useEffect, useMemo, useRef, useState} from 'react'
 import {useNavigate, useSearchParams} from 'react-router-dom'
 import {useBreadcrumb} from '@/admin/context/BreadcrumbContext'
-import {Pencil, Trash2} from 'lucide-react'
 import type {PaginationState, Updater} from '@tanstack/react-table'
 
-import type {BrandListItem} from '@/admin/hooks/brands'
-import {useBrandList, useDeleteBrand} from '@/admin/hooks/brands'
-import type {ColumnDef} from '@/shared/ui/components'
-import {ConfirmationDialog, DataTable, PageLayout, RowActionButton, Thumbnail, toast,} from '@/shared/ui/components'
+import {useBrandList} from '@/admin/hooks/brands'
+import {PageLayout, toast} from '@/shared/ui/components'
 import {useAdminAuthStore} from '@/shared/auth/adminAuthStore'
 import {BrandToolbar} from './components/BrandToolbar'
+import {BrandTable} from './components/BrandTable'
 
 const DEFAULT_PAGE_SIZE = 10
 
@@ -31,8 +29,22 @@ export function BrandListPage() {
 
     const [searchInput, setSearchInput] = useState(urlSearch)
     const [debouncedSearch, setDebouncedSearch] = useState(urlSearch)
-    const [deletingBrand, setDeletingBrand] = useState<BrandListItem | null>(null)
 
+    // react-table's pagination plugin keeps its own internal state alongside
+    // the controlled pagination prop, and reconciles it back out via
+    // onPaginationChange during mount — with ITS OWN default ({pageIndex: 0,
+    // ...}), not the value we actually passed in. That reconciliation fires
+    // again every time this component remounts, which is exactly what
+    // navigate(-1) does when returning from edit/create — so without this
+    // guard, landing back on the list silently snaps to page 0 right after
+    // the URL was correctly restored. Real user interactions (clicking Next)
+    // only happen well after mount. That reconciliation call is synchronous
+    // within React's own render/commit/effect cycle — a plain useEffect
+    // flipping the flag still runs within that same cycle (child effects
+    // before parent effects) and is too early to help, so this defers one
+    // macrotask via setTimeout(0), past the point where any synchronous
+    // mount-time noise could possibly still be pending. useBrandList carries
+    // an independent copy of this same guard for sorting's own reconciliation.
     const hasMountedRef = useRef(false)
     useEffect(() => {
         const id = setTimeout(() => {
@@ -52,6 +64,10 @@ export function BrandListPage() {
         })
     }, [pagination, setSearchParams])
 
+    // 300ms debounce for search input. Guarded on searchInput !== debouncedSearch
+    // so the effect that also fires on mount (React runs effects after the
+    // first render too) doesn't immediately stomp a page/sort restored from
+    // the URL back to page 0 before the user has typed anything.
     useEffect(() => {
         if (searchInput === debouncedSearch) return
         const timer = setTimeout(() => {
@@ -74,8 +90,6 @@ export function BrandListPage() {
         search: debouncedSearch,
     })
 
-    const deleteBrand = useDeleteBrand()
-
     // Show toast on query error
     useEffect(() => {
         if (error) {
@@ -85,86 +99,6 @@ export function BrandListPage() {
     }, [error])
 
     const pageCount = data?.totalPages ?? 0
-
-    const handleDeleteConfirm = () => {
-        if (!deletingBrand) return
-
-        deleteBrand.mutate(
-            {id: deletingBrand.id},
-            {
-                onSuccess: () => {
-                    toast.success('Brand deleted successfully')
-                    setDeletingBrand(null)
-                },
-                onError: (err) => {
-                    console.error(err)
-                    toast.error('Failed to delete brand', {duration: 0})
-                    setDeletingBrand(null)
-                },
-            },
-        )
-    }
-
-    const columns: ColumnDef<BrandListItem, unknown>[] = useMemo(
-        () => [
-            {
-                accessorKey: 'name',
-                header: 'Name',
-                cell: ({row}) => {
-                    const description = row.original.description
-                    const truncated = description && description.length > 60
-                        ? `${description.slice(0, 60)}…`
-                        : description
-                    return (
-                        <div className="flex items-center gap-3">
-                            <Thumbnail logoUrl={row.original.logoUrl} name={row.original.name} size="md"
-                                       className="h-10 w-10 rounded-md shrink-0"/>
-                            <div>
-                                <div className="font-medium text-(--c-text)">{row.original.name}</div>
-                                <div className="text-xs text-(--c-text-muted)">
-                                    {truncated || 'No description for brand'}
-                                </div>
-                            </div>
-                        </div>
-                    )
-                },
-            },
-            {
-                accessorKey: 'slug',
-                header: 'Slug',
-                cell: ({row}) => (
-                    <span className="text-sm text-(--c-text-muted)">{row.original.slug}</span>
-                ),
-            },
-            {
-                id: 'actions',
-                header: 'Actions',
-                cell: ({row}) => {
-                    if (!canMutate) return null
-                    return (
-                        <div className="flex items-center gap-1">
-                            <RowActionButton
-                                onClick={() => navigate(`/admin/products/brands/${row.original.id}/edit`)}
-                                aria-label={`Edit ${row.original.name}`}
-                                data-testid="action-edit"
-                            >
-                                <Pencil className="h-4 w-4"/>
-                            </RowActionButton>
-                            <RowActionButton
-                                onClick={() => setDeletingBrand(row.original)}
-                                aria-label={`Delete ${row.original.name}`}
-                                data-testid="action-delete"
-                            >
-                                <Trash2 className="h-4 w-4"/>
-                            </RowActionButton>
-                        </div>
-                    )
-                },
-                enableSorting: false,
-            },
-        ],
-        [canMutate, navigate],
-    )
 
     useBreadcrumb([
         {label: 'Home', href: '/admin'},
@@ -182,32 +116,17 @@ export function BrandListPage() {
                     onCreateBrand={() => navigate('/admin/products/brands/new')}
                 />
 
-                <DataTable
-                    columns={columns}
+                <BrandTable
                     data={data?.content ?? []}
                     isLoading={isLoading}
-                    manualPagination
+                    canMutate={canMutate}
                     pageCount={pageCount}
                     pagination={pagination}
                     onPaginationChange={handlePaginationChange}
-                    manualSorting
                     sorting={sorting}
                     onSortingChange={onSortingChange}
-                    onRowDoubleClick={(brand) => navigate(`/admin/products/brands/${brand.id}/edit`)}
-                    emptyMessage="No brands found"
                 />
             </div>
-
-            <ConfirmationDialog
-                open={deletingBrand !== null}
-                onClose={() => setDeletingBrand(null)}
-                onConfirm={handleDeleteConfirm}
-                title="Delete Brand"
-                description={`Are you sure you want to delete "${deletingBrand?.name}"? This action cannot be undone.`}
-                confirmLabel="Delete"
-                variant="danger"
-                isLoading={deleteBrand.isPending}
-            />
         </PageLayout>
     )
 }
