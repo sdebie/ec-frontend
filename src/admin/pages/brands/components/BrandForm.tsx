@@ -3,12 +3,12 @@ import {useForm} from 'react-hook-form'
 import {zodResolver} from '@hookform/resolvers/zod'
 import {z} from 'zod'
 import {useNavigate} from 'react-router-dom'
-import {Search} from 'lucide-react'
+import {ChevronLeft, ChevronRight, Search} from 'lucide-react'
 import {Form, FormItem, ImageGalleryPicker, ImageUpload, Label, Textarea, ToggleGroup} from '@/shared/ui/components'
 import {Button, Card, Input} from '@/shared/ui/primitives'
 import {toast} from '@/shared/ui/components/toast'
 import {toSlug} from '@/admin/utils/slug'
-import {useImageList, useUploadBrandLogo} from '@/admin/hooks/images'
+import {useImageListPage, useUploadBrandLogo} from '@/admin/hooks/images'
 import {thumbnailUrl} from '@/shared/utils/imageUrl'
 
 const brandSchema = z.object({
@@ -28,7 +28,8 @@ const LOGO_MODE_OPTIONS = [
 // Brand logos live under the "brands/" storage directory — scopes the picker to
 // brand-appropriate images so it isn't the entire platform's image library.
 const LOGO_LIBRARY_DIRECTORY = 'brands'
-const LOGO_LIBRARY_PAGE_SIZE = 15
+// 3 full rows at the picker's 6-column grid — a page never ends mid-row.
+const LOGO_LIBRARY_PAGE_SIZE = 18
 const LOGO_LIBRARY_SEARCH_DEBOUNCE_MS = 300
 
 export type BrandFormValues = z.infer<typeof brandSchema>
@@ -48,24 +49,28 @@ export function BrandForm({defaultValues, onSubmit, isSubmitting = false, backBu
     const [logoMode, setLogoMode] = useState<LogoMode>('upload')
     const [librarySearchInput, setLibrarySearchInput] = useState('')
     const [debouncedLibrarySearch, setDebouncedLibrarySearch] = useState('')
+    const [libraryPage, setLibraryPage] = useState(0)
 
     useEffect(() => {
         const timer = setTimeout(() => setDebouncedLibrarySearch(librarySearchInput), LOGO_LIBRARY_SEARCH_DEBOUNCE_MS)
         return () => clearTimeout(timer)
     }, [librarySearchInput])
 
-    const {
-        data: libraryData,
-        isLoading: isLoadingLibraryImages,
-        fetchNextPage: fetchNextLibraryPage,
-        hasNextPage: hasNextLibraryPage,
-        isFetchingNextPage: isFetchingNextLibraryPage,
-    } = useImageList({
+    // A new search starts from page 1 — staying on e.g. page 3 of the old
+    // result set would likely just show "no images" against the new one.
+    useEffect(() => {
+        setLibraryPage(0)
+    }, [debouncedLibrarySearch])
+
+    const {data: libraryData, isLoading: isLoadingLibraryImages, isFetching: isFetchingLibraryImages} = useImageListPage({
+        page: libraryPage,
         pageSize: LOGO_LIBRARY_PAGE_SIZE,
         search: debouncedLibrarySearch,
         directory: LOGO_LIBRARY_DIRECTORY,
         enabled: logoMode === 'library',
     })
+
+    const libraryTotalPages = libraryData ? Math.max(1, Math.ceil(libraryData.totalCount / LOGO_LIBRARY_PAGE_SIZE)) : 1
 
     const {
         register,
@@ -106,7 +111,7 @@ export function BrandForm({defaultValues, onSubmit, isSubmitting = false, backBu
     // The picker displays/identifies images by thumbnail URL, but logoUrl must stay
     // the raw storage-relative filename (matching what upload writes) — this map
     // recovers the filename behind a selected thumbnail without parsing URL strings.
-    const libraryFilenames = libraryData?.pages.flatMap((page) => page.images) ?? []
+    const libraryFilenames = libraryData?.images ?? []
     const libraryThumbnailUrls = libraryFilenames.map((filename) => thumbnailUrl(filename))
     const libraryUrlToFilename = new Map(libraryThumbnailUrls.map((url, i) => [url, libraryFilenames[i]]))
 
@@ -225,16 +230,30 @@ export function BrandForm({defaultValues, onSubmit, isSubmitting = false, backBu
                                     onSelect={handleLibrarySelect}
                                     isLoading={isLoadingLibraryImages}
                                 />
-                                {hasNextLibraryPage && (
-                                    <div className="flex justify-center">
+                                {libraryTotalPages > 1 && (
+                                    <div className="flex items-center justify-center gap-3">
                                         <Button
                                             type="button"
                                             variant="ghost"
                                             size="sm"
-                                            onClick={() => fetchNextLibraryPage()}
-                                            disabled={isFetchingNextLibraryPage}
+                                            onClick={() => setLibraryPage((p) => p - 1)}
+                                            disabled={libraryPage === 0 || isFetchingLibraryImages}
+                                            aria-label="Previous page"
                                         >
-                                            {isFetchingNextLibraryPage ? 'Loading...' : 'Load more'}
+                                            <ChevronLeft className="h-4 w-4"/>
+                                        </Button>
+                                        <span className="text-xs text-(--c-text-muted)">
+                                            Page {libraryPage + 1} of {libraryTotalPages}
+                                        </span>
+                                        <Button
+                                            type="button"
+                                            variant="ghost"
+                                            size="sm"
+                                            onClick={() => setLibraryPage((p) => p + 1)}
+                                            disabled={libraryPage + 1 >= libraryTotalPages || isFetchingLibraryImages}
+                                            aria-label="Next page"
+                                        >
+                                            <ChevronRight className="h-4 w-4"/>
                                         </Button>
                                     </div>
                                 )}
