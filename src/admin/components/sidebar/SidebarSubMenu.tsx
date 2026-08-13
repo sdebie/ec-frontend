@@ -48,15 +48,15 @@ export function SidebarSubMenu({
   }
 
   return (
-    <div className="flex flex-col mb-0.5 w-full">
+    <div className="flex flex-col w-full">
       <button
         onClick={toggleExpand}
         type="button"
         className={cn(
-          'w-full flex items-center rounded-[var(--c-radius)] group text-left cursor-pointer text-sm',
+          'w-full flex items-center rounded-full group text-left cursor-pointer text-xs',
           isCollapsed ? 'justify-center px-2 py-1.5' : 'px-3 py-1.5',
           isParentActive
-            ? 'bg-primary-subtle text-primary font-semibold ring-2 ring-primary'
+            ? 'bg-primary-subtle text-primary font-semibold'
             : 'text-(--c-text-muted) hover:bg-(--c-surface-hover) hover:text-(--c-text)',
         )}
         title={isCollapsed ? route.meta.label : undefined}
@@ -79,7 +79,7 @@ export function SidebarSubMenu({
             )}
           />
           {authorizedChildren.map((child) => (
-            <li key={child.key} className="relative z-10 w-full mb-1 last:mb-0">
+            <li key={child.key} className="relative z-10 w-full">
               <SidebarItem
                 route={child}
                 isChild={true}

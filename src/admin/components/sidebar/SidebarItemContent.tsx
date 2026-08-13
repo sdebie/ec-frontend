@@ -29,12 +29,12 @@ export function SidebarItemContent({
         {icon && typeof icon === 'string' ? (
           <Icon
             name={icon}
-            className={cn('shrink-0 w-5 h-5')}
+            className={cn('shrink-0 w-3 h-3')}
           />
         ) : icon ? (
           <span
             className={cn(
-              'shrink-0 w-5 h-5 flex items-center justify-center',
+              'shrink-0 w-3 h-3 flex items-center justify-center',
             )}
           >
             {icon}
@@ -47,9 +47,9 @@ export function SidebarItemContent({
       {!isCollapsed && hasSubMenu && (
         <span className="flex items-center text-admin-text-muted shrink-0 ml-auto">
           {isExpanded ? (
-            <ChevronUp className="w-4 h-4" />
+            <ChevronUp className="w-3 h-3" />
           ) : (
-            <ChevronDown className="w-4 h-4" />
+            <ChevronDown className="w-3 h-3" />
           )}
         </span>
       )}

@@ -38,14 +38,16 @@ export function SidebarItem({
       onClick={onItemClick}
       className={({ isActive }) =>
         cn(
-          'group flex items-center rounded-[var(--c-radius)] mb-0.5 w-full text-sm',
+          'group flex items-center rounded-[var(--c-radius)] w-full text-xs',
           isCollapsed ? 'justify-center px-2 py-1.5' : 'px-3 py-1.5',
           isChild && !isCollapsed && 'pl-4 relative z-10',
           isActive
-            ? cn(
-                'bg-primary-subtle text-primary font-semibold ring-2 ring-primary',
-                isChild && 'border-l-2 border-primary'
-              )
+            ? isChild
+              // Sub-items sit beside the connector line already marking the active
+              // branch, so the active one only needs to read like a permanent
+              // hover — accent text, no background — not a second highlighted box.
+              ? 'text-primary font-semibold'
+              : 'bg-primary-subtle text-primary font-semibold ring-2 ring-primary'
             : 'text-(--c-text-muted) hover:bg-(--c-surface-hover) hover:text-(--c-text)',
         )
       }

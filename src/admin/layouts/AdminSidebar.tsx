@@ -79,11 +79,11 @@ export function AdminSidebar({ isOpen, onClose, isCollapsed, onToggleCollapsed, 
           isOpen ? 'translate-x-0' : '-translate-x-full md:translate-x-0',
         )}
       >
-        {/* Brand block — h-[61px] matches the fixed header's height (py-3 +
-            36px content + 1px border) so the two chrome borders line up. */}
+        {/* Brand block — h-[60px] matches the fixed header's height (py-3 +
+            36px content, header has no border) so the two rows line up. */}
         <div
           className={cn(
-            'flex h-[61px] shrink-0 items-center border-b border-admin-sidebar-border',
+            'flex h-[60px] shrink-0 items-center',
             isCollapsed ? 'md:justify-center md:px-2' : '',
             'px-4',
           )}

@@ -36,7 +36,7 @@ export function AdminHeader({ onMenuClick, isCollapsed }: AdminHeaderProps) {
 
   return (
     <header className={cn(
-      'fixed top-0 right-0 z-60 bg-admin-sidebar-bg border-b border-admin-border',
+      'fixed top-0 right-0 z-60 bg-admin-sidebar-bg',
       isCollapsed ? 'md:left-20' : 'md:left-64',
       'left-0',
     )}>
