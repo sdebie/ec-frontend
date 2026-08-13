@@ -9,6 +9,7 @@ import {
   DataTable,
   ConfirmationDialog,
   PageLayout,
+  RowActionButton,
   Thumbnail,
   toast,
 } from '@/shared/ui/components'
@@ -128,24 +129,20 @@ export function CategoryListPage() {
           if (!canMutate) return null
           return (
             <div className="flex items-center gap-1">
-              <button
-                type="button"
+              <RowActionButton
                 onClick={() => navigate(`/admin/products/categories/${row.original.id}/edit`)}
-                className="inline-flex items-center justify-center p-1 rounded-lg hover:bg-(--c-surface-hover)"
                 aria-label={`Edit ${row.original.name}`}
                 data-testid="action-edit"
               >
-                <Pencil className="h-4 w-4 text-(--c-text-muted)" />
-              </button>
-              <button
-                type="button"
+                <Pencil className="h-4 w-4" />
+              </RowActionButton>
+              <RowActionButton
                 onClick={() => setDeletingCategory(row.original)}
-                className="inline-flex items-center justify-center p-1 rounded-lg hover:bg-(--c-surface-hover)"
                 aria-label={`Delete ${row.original.name}`}
                 data-testid="action-delete"
               >
-                <Trash2 className="h-4 w-4 text-(--c-text-muted)" />
-              </button>
+                <Trash2 className="h-4 w-4" />
+              </RowActionButton>
             </div>
           )
         },

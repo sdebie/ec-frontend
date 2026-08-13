@@ -2,8 +2,7 @@ import {useState} from 'react'
 import {useController, useFieldArray, useFormState, useWatch, type Control, type UseFieldArrayReturn} from 'react-hook-form'
 import {Check, ChevronLeft, ChevronRight, Pencil, Plus, Trash2, X} from 'lucide-react'
 import {Button, Input} from '@/shared/ui/primitives'
-import {FormItem} from '@/shared/ui/components'
-import {cn} from '@/shared/utils/cn'
+import {FormItem, RowActionButton} from '@/shared/ui/components'
 import {formatAmount} from '@/shared/utils/formatAmount'
 import type {VariantAttribute} from '@/admin/hooks/products/types'
 // Operate on the parent product form's values — don't duplicate the shape.
@@ -15,8 +14,6 @@ interface VariantFieldsProps {
     append: UseFieldArrayReturn<ProductFormValues, 'variants'>['append']
     remove: UseFieldArrayReturn<ProductFormValues, 'variants'>['remove']
 }
-
-const ICON_BUTTON_CLASS = 'rounded-md p-1.5 text-(--c-text-muted) transition-colors hover:bg-(--c-surface-hover) hover:text-(--c-text) disabled:pointer-events-none disabled:opacity-40'
 
 // Suggested attribute names offered as one-click chips — the two the editor is
 // built around. Anything else (e.g. a legacy "Quantity" attribute) is still
@@ -126,8 +123,7 @@ function VariantCard({control, index, hasError, onRemove, disableRemove}: Varian
                     </div>
                 )}
                 <div className="flex shrink-0 items-center gap-1">
-                    <button
-                        type="button"
+                    <RowActionButton
                         onClick={() => setIsEditingToggled(!isEditing)}
                         data-testid={`edit-variant-${index}`}
                         aria-label={isEditing ? 'Finish editing variant' : 'Edit variant'}
@@ -135,21 +131,20 @@ function VariantCard({control, index, hasError, onRemove, disableRemove}: Varian
                         // Collapsing is blocked while the row has errors, and the
                         // check icon communicates "done" rather than "edit".
                         disabled={isEditing && hasError}
-                        className={cn(ICON_BUTTON_CLASS, isEditing && 'text-(--c-accent)')}
+                        className={isEditing ? 'text-(--c-accent)' : undefined}
                     >
                         {isEditing ? <Check className="h-4 w-4" aria-hidden="true"/> : <Pencil className="h-4 w-4" aria-hidden="true"/>}
-                    </button>
-                    <button
-                        type="button"
+                    </RowActionButton>
+                    <RowActionButton
+                        variant="danger"
                         onClick={onRemove}
                         disabled={disableRemove}
                         data-testid={`remove-variant-${index}`}
                         aria-label="Remove variant"
                         title="Remove"
-                        className={cn(ICON_BUTTON_CLASS, 'hover:text-(--c-danger)')}
                     >
                         <Trash2 className="h-4 w-4" aria-hidden="true"/>
-                    </button>
+                    </RowActionButton>
                 </div>
             </div>
 
@@ -287,16 +282,15 @@ function AttributeRow({control, variantIndex, attrIndex, onRemove}: AttributeRow
                     variant={valueController.fieldState.error ? 'error' : 'default'}
                     className="flex-1 bg-(--c-input-bg)"
                 />
-                <button
-                    type="button"
+                <RowActionButton
+                    variant="danger"
                     onClick={onRemove}
                     data-testid={`remove-attribute-${variantIndex}-${attrIndex}`}
                     aria-label="Remove attribute"
                     title="Remove attribute"
-                    className={cn(ICON_BUTTON_CLASS, 'hover:text-(--c-danger)')}
                 >
                     <X className="h-4 w-4" aria-hidden="true"/>
-                </button>
+                </RowActionButton>
             </div>
             {(keyController.fieldState.error || valueController.fieldState.error) && (
                 <p role="alert" className="mt-1 text-xs text-(--c-error)">

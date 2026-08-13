@@ -14,6 +14,7 @@ import {
   DialogHeader,
   PageLayout,
   ProductStatusDisplay,
+  RowActionButton,
   Thumbnail,
 } from '@/shared/ui/components'
 import { Button, Input } from '@/shared/ui/primitives'
@@ -86,15 +87,14 @@ export function FeaturedProductsPage() {
           id: 'actions',
           header: 'Actions',
           cell: ({ row }) => (
-            <button
-              type="button"
+            <RowActionButton
+              variant="danger"
               onClick={() => handleRemove(row.original.id)}
-              className="inline-flex items-center justify-center p-1.5 rounded-lg hover:bg-(--c-surface-hover) text-(--c-text-muted) hover:text-(--c-danger) transition-colors"
               aria-label={`Remove ${row.original.name} from featured`}
               data-testid="remove-featured"
             >
               <Trash2 className="h-4 w-4" />
-            </button>
+            </RowActionButton>
           ),
           enableSorting: false,
         })

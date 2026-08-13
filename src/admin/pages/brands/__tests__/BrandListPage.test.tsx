@@ -45,7 +45,7 @@ describe('BrandListPage', () => {
   })
 
   describe('Table columns', () => {
-    it('renders column headers: Name, Slug, Description, Actions', () => {
+    it('renders column headers: Name, Slug, Actions — Description is folded into Name', () => {
       mockedUseBrandList.mockReturnValue({
         data: {
           content: [
@@ -62,11 +62,11 @@ describe('BrandListPage', () => {
 
       expect(screen.getByText('Name')).toBeInTheDocument()
       expect(screen.getByText('Slug')).toBeInTheDocument()
-      expect(screen.getByText('Description')).toBeInTheDocument()
       expect(screen.getByText('Actions')).toBeInTheDocument()
+      expect(screen.queryByText('Description')).not.toBeInTheDocument()
     })
 
-    it('renders brand data in the table', () => {
+    it('renders brand data in the table, with description under the name or a placeholder when absent', () => {
       mockedUseBrandList.mockReturnValue({
         data: {
           content: [
@@ -87,6 +87,7 @@ describe('BrandListPage', () => {
       expect(screen.getByText('Sports brand')).toBeInTheDocument()
       expect(screen.getByText('Adidas')).toBeInTheDocument()
       expect(screen.getByText('adidas')).toBeInTheDocument()
+      expect(screen.getByText('No description for brand')).toBeInTheDocument()
     })
   })
 

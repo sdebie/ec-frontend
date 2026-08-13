@@ -2,7 +2,7 @@ import { useState, useMemo } from 'react'
 
 import { Pencil } from 'lucide-react'
 
-import { DataTable, StatusBadge } from '@/shared/ui/components'
+import { DataTable, RowActionButton, StatusBadge } from '@/shared/ui/components'
 import type { ColumnDef } from '@/shared/ui/components'
 import { Button } from '@/shared/ui/primitives'
 import { useAdminAuthStore } from '@/shared/auth/adminAuthStore'
@@ -72,14 +72,12 @@ export function ShippingMethodsPage() {
               header: 'Actions',
               cell: ({ row }: { row: { original: ShippingMethod } }) => (
                 <div className="flex items-center gap-1">
-                  <button
-                    type="button"
+                  <RowActionButton
                     onClick={() => handleEdit(row.original)}
-                    className="inline-flex items-center justify-center p-1 rounded-lg hover:bg-(--c-surface-hover)"
                     aria-label={`Edit ${row.original.name}`}
                   >
-                    <Pencil className="h-4 w-4 text-(--c-text-muted)" />
-                  </button>
+                    <Pencil className="h-4 w-4" />
+                  </RowActionButton>
                 </div>
               ),
             } as ColumnDef<ShippingMethod, unknown>,

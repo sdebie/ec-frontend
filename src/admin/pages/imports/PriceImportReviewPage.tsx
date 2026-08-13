@@ -3,7 +3,7 @@ import {useParams} from 'react-router-dom'
 import {Calendar, Eye, FileText, Hash, ShieldUser, User} from 'lucide-react'
 
 import type {ColumnDef} from '@/shared/ui/components'
-import {DataTable, Dialog, DialogContent, DialogHeader, PageLayout, StatusBadge, toast,} from '@/shared/ui/components'
+import {DataTable, Dialog, DialogContent, DialogHeader, PageLayout, RowActionButton, StatusBadge, toast,} from '@/shared/ui/components'
 import {useBreadcrumb} from '@/admin/context/BreadcrumbContext'
 import {Button} from '@/shared/ui/primitives'
 import {useAdminAuthStore} from '@/shared/auth/adminAuthStore'
@@ -205,14 +205,12 @@ export default function PriceImportReviewPage() {
                 cell: ({row}) => (
                     <div className="flex items-center gap-1">
                         {!!row.original.validationErrors && (
-                            <button
-                                type="button"
+                            <RowActionButton
                                 onClick={() => setErrorRow(row.original)}
-                                className="inline-flex items-center justify-center p-1 rounded-lg hover:bg-(--c-surface-hover)"
                                 aria-label={`View validation errors for ${row.original.sku}`}
                             >
-                                <Eye className="h-4 w-4 text-(--c-text-muted)"/>
-                            </button>
+                                <Eye className="h-4 w-4"/>
+                            </RowActionButton>
                         )}
                     </div>
                 ),

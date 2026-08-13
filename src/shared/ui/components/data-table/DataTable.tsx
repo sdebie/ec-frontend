@@ -148,10 +148,10 @@ export function DataTable<TData>({
     return (
         <div className={cn('w-full flex-1 flex flex-col', className)}>
             <div
-                className="rounded-xl border border-(--c-border) overflow-hidden bg-(--c-table-header-bg) shadow-[0_1px_3px_rgba(0,0,0,0.12),0_4px_16px_rgba(0,0,0,0.08)]">
+                className="rounded-xl border border-(--c-border) overflow-hidden bg-(--c-table-row-bg) shadow-[0_1px_3px_rgba(0,0,0,0.12),0_4px_16px_rgba(0,0,0,0.08)]">
                 {/* Toolbar — hidden when showSearch=false and no toolbarAction */}
                 {(showSearch || toolbarAction) && (
-                    <div className="p-4 border-b border-(--c-border) bg-(--c-table-row-bg)">
+                    <div className="p-4 border-b border-(--c-border) bg-(--c-table-header-bg)">
                         <div className="flex flex-col gap-6 sm:flex-row sm:items-center sm:justify-between">
                             {toolbarAction && (
                                 <div className="order-1 sm:order-2 w-full shrink-0 sm:w-auto *:w-full sm:*:w-auto">
@@ -176,7 +176,7 @@ export function DataTable<TData>({
                 <div className="overflow-x-auto">
                     <table className="w-full text-sm text-left text-(--c-text)">
                         <thead
-                            className="text-xs font-semibold text-(--c-text-muted) bg-(--c-table-row-bg) border-b border-(--c-border) shadow-sm">
+                            className="text-xs font-semibold uppercase text-(--c-text-muted) bg-(--c-table-header-bg) border-b border-(--c-border) shadow-sm">
                         {table.getHeaderGroups().map((headerGroup) => (
                             <tr key={headerGroup.id}>
                                 {headerGroup.headers.map((header) => {
@@ -226,7 +226,7 @@ export function DataTable<TData>({
                         {isLoading ? (
                             Array.from({length: 6}).map((_, i) => (
                                 <tr key={i}
-                                    className="border-b border-(--c-border) last:border-0 bg-(--c-table-header-bg)">
+                                    className="border-b border-(--c-border) last:border-0 bg-(--c-table-row-bg)">
                                     {columns.map((_, j) => (
                                         <td key={j} className="px-4 py-3">
                                             <div className="h-4 rounded bg-(--c-border) animate-pulse"/>
@@ -238,7 +238,7 @@ export function DataTable<TData>({
                             <tr>
                                 <td
                                     colSpan={columns.length}
-                                    className="h-36 text-center text-(--c-text-muted) bg-(--c-table-header-bg)"
+                                    className="h-36 text-center text-(--c-text-muted) bg-(--c-table-row-bg)"
                                 >
                                     {emptyMessage}
                                 </td>
@@ -256,7 +256,7 @@ export function DataTable<TData>({
                                         if (target.closest('button, a, input, [role="button"]')) return
                                         onRowDoubleClick(row.original)
                                     } : undefined}
-                                    className="border-b border-(--c-border) last:border-0 bg-(--c-table-header-bg) hover:bg-(--c-table-row-hover) transition-colors duration-100"
+                                    className="border-b border-(--c-border) last:border-0 bg-(--c-table-row-bg) hover:bg-(--c-table-row-hover) transition-colors duration-100"
                                 >
                                     {row.getVisibleCells().map((cell) => (
                                         <td key={cell.id} className="px-4 py-3 whitespace-nowrap">
@@ -279,7 +279,7 @@ export function DataTable<TData>({
                 {/* Pagination footer */}
                 {!isLoading && (
                     <div
-                        className="flex flex-col sm:flex-row items-center justify-between px-4 py-3 border-t border-(--c-border) bg-(--c-table-row-bg) gap-4">
+                        className="flex flex-col sm:flex-row items-center justify-between px-4 py-3 border-t border-(--c-border) bg-(--c-table-header-bg) gap-4">
                         <div className="text-sm text-(--c-text-muted)">
                             Showing{' '}
                             <span className="font-medium text-(--c-text)">{startItem}</span> to{' '}

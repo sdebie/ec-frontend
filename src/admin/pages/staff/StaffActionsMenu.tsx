@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom'
 import { EllipsisVertical } from 'lucide-react'
 
 import { useAdminAuthStore } from '@/shared/auth/adminAuthStore'
-import { DropdownMenu, DropdownItem, ConfirmationDialog } from '@/shared/ui/components'
+import { DropdownMenu, DropdownItem, ConfirmationDialog, RowActionButton } from '@/shared/ui/components'
 import { useUpdateStaff } from '@/admin/hooks/staff'
 import type { StaffMember } from '@/admin/hooks/staff'
 
@@ -44,9 +44,9 @@ export function StaffActionsMenu({ staff }: StaffActionsMenuProps) {
     <div data-testid="staff-actions-menu">
       <DropdownMenu
         trigger={
-          <span className="inline-flex items-center justify-center p-1 rounded-lg hover:bg-(--c-surface-hover)">
-            <EllipsisVertical className="h-5 w-5 text-(--c-text-muted)" />
-          </span>
+          <RowActionButton as="span">
+            <EllipsisVertical className="h-5 w-5" />
+          </RowActionButton>
         }
       >
         <DropdownItem onClick={() => navigate(`/admin/staff/${staff.id}/edit`)}>

@@ -2,7 +2,7 @@ import { EllipsisVertical } from 'lucide-react'
 
 import type { AdminCustomerSummary } from '@/admin/hooks/customers/types'
 import { getAvailableActions } from '@/admin/hooks/customers/types'
-import { DropdownMenu, DropdownItem } from '@/shared/ui/components'
+import { DropdownMenu, DropdownItem, RowActionButton } from '@/shared/ui/components'
 
 export interface CustomerActionsMenuProps {
   customer: AdminCustomerSummary
@@ -38,9 +38,9 @@ export function CustomerActionsMenu({
     <div data-testid="customer-actions-menu">
       <DropdownMenu
         trigger={
-          <span className="inline-flex items-center justify-center p-1 rounded-lg hover:bg-(--c-surface-hover)">
-            <EllipsisVertical className="h-5 w-5 text-(--c-text-muted)" />
-          </span>
+          <RowActionButton as="span">
+            <EllipsisVertical className="h-5 w-5" />
+          </RowActionButton>
         }
       >
         {availableActions.map((action) => {

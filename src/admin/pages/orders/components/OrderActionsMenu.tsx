@@ -1,7 +1,7 @@
 import { EllipsisVertical } from 'lucide-react'
 
 import type { AdminOrderSummary } from '@/admin/hooks/orders'
-import { DropdownMenu, DropdownItem } from '@/shared/ui/components'
+import { DropdownMenu, DropdownItem, RowActionButton } from '@/shared/ui/components'
 import { OrderStatus } from '@/shared/types/enums/OrderStatus'
 import { getAvailableTransitions } from '@/admin/pages/orders/utils/getAvailableTransitions'
 
@@ -49,9 +49,9 @@ export function OrderActionsMenu({
     <div data-testid="order-actions-menu">
       <DropdownMenu
         trigger={
-          <span className="inline-flex items-center justify-center p-1 rounded-lg hover:bg-(--c-surface-hover)">
-            <EllipsisVertical className="h-5 w-5 text-(--c-text-muted)" />
-          </span>
+          <RowActionButton as="span">
+            <EllipsisVertical className="h-5 w-5" />
+          </RowActionButton>
         }
       >
         {availableTransitions.map((transition) => {

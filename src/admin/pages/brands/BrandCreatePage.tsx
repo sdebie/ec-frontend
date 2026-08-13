@@ -1,5 +1,5 @@
 import {Navigate, useNavigate} from 'react-router-dom'
-import {PageLayout, toast} from '@/shared/ui/components'
+import {PageBackButton, toast} from '@/shared/ui/components'
 import {useBreadcrumb} from '@/admin/context/BreadcrumbContext'
 import {useAdminAuthStore} from '@/shared/auth/adminAuthStore'
 import {useCreateBrand} from '@/admin/hooks/brands'
@@ -12,10 +12,10 @@ export function BrandCreatePage() {
     const mutation = useCreateBrand()
 
     useBreadcrumb([
-        { label: 'Home', href: '/admin' },
-        { label: 'Products', href: '/admin/products' },
-        { label: 'Brands', href: '/admin/products/brands' },
-        { label: 'New Brand' },
+        {label: 'Home', href: '/admin'},
+        {label: 'Products', href: '/admin/products'},
+        {label: 'Brands', href: '/admin/products/brands'},
+        {label: 'New Brand'},
     ])
 
     if (!canMutate) return <Navigate to="/admin/products/brands" replace/>
@@ -34,8 +34,10 @@ export function BrandCreatePage() {
     }
 
     return (
-        <PageLayout title="Create Brand">
-            <BrandForm onSubmit={handleSubmit} isSubmitting={mutation.isPending}/>
-        </PageLayout>
+        <BrandForm
+            onSubmit={handleSubmit}
+            isSubmitting={mutation.isPending}
+            backButton={<PageBackButton/>}
+        />
     )
 }

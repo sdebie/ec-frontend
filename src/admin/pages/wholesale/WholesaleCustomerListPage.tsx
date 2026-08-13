@@ -3,7 +3,6 @@ import { Link } from 'react-router-dom'
 import type { PaginationState } from '@tanstack/react-table'
 
 import { EllipsisVertical } from 'lucide-react'
-import { cn } from '@/shared/utils/cn'
 
 import {
   DataTable,
@@ -12,6 +11,7 @@ import {
   StatusBadge,
   DropdownMenu,
   DropdownItem,
+  RowActionButton,
 } from '@/shared/ui/components'
 import type { ColumnDef } from '@/shared/ui/components'
 import { useAdminAuthStore } from '@/shared/auth/adminAuthStore'
@@ -162,14 +162,12 @@ export function WholesaleCustomerListPage() {
                 return (
                   <DropdownMenu
                     trigger={
-                      <span
-                        className={cn(
-                          'inline-flex items-center justify-center p-1 rounded-lg hover:bg-(--c-surface-hover)',
-                          isUpdatingStatus && 'opacity-50 pointer-events-none',
-                        )}
+                      <RowActionButton
+                        as="span"
+                        className={isUpdatingStatus ? 'opacity-50 pointer-events-none' : undefined}
                       >
-                        <EllipsisVertical className="h-5 w-5 text-(--c-text-muted)" />
-                      </span>
+                        <EllipsisVertical className="h-5 w-5" />
+                      </RowActionButton>
                     }
                   >
                     {actions.map((action) =>

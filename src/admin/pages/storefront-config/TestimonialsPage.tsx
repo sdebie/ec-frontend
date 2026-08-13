@@ -20,6 +20,7 @@ import {
   DialogFooter,
   DialogHeader,
   PageLayout,
+  RowActionButton,
   StatusBadge,
 } from '@/shared/ui/components'
 import { ConfirmationDialog } from '@/shared/ui/components/dialog/ConfirmationDialog'
@@ -150,22 +151,19 @@ export function TestimonialsPage() {
         header: 'Actions',
         cell: ({ row }) => (
           <div className="flex items-center gap-1">
-            <button
-              type="button"
+            <RowActionButton
               onClick={() => openEditForm(row.original)}
-              className="inline-flex items-center justify-center p-1.5 rounded-lg hover:bg-(--c-surface-hover) text-(--c-text-muted) hover:text-(--c-text) transition-colors"
               aria-label={`Edit testimonial by ${row.original.authorName}`}
             >
               <Pencil className="h-4 w-4" />
-            </button>
-            <button
-              type="button"
+            </RowActionButton>
+            <RowActionButton
+              variant="danger"
               onClick={() => setDeletingId(row.original.id)}
-              className="inline-flex items-center justify-center p-1.5 rounded-lg hover:bg-(--c-surface-hover) text-(--c-text-muted) hover:text-(--c-danger) transition-colors"
               aria-label={`Delete testimonial by ${row.original.authorName}`}
             >
               <Trash2 className="h-4 w-4" />
-            </button>
+            </RowActionButton>
           </div>
         ),
         enableSorting: false,

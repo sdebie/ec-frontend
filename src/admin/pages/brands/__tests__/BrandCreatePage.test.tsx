@@ -63,6 +63,6 @@ describe('BrandCreatePage', () => {
     renderBrandCreatePage()
 
     expect(screen.queryByText('Brands List Page')).not.toBeInTheDocument()
-    expect(screen.getByRole('heading', { name: 'Create Brand' })).toBeInTheDocument()
+    expect(screen.getByRole('button', { name: 'Create Brand' })).toBeInTheDocument()
   })
 })

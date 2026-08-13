@@ -31,7 +31,10 @@
     --admin-border: #e2e8f0;
     --admin-text: #0f172a;
     --admin-text-muted: #64748b;
-    --admin-input-bg: #e8edf3;
+    /* Same white as the panel: inputs read as clean-bordered fields rather
+       than filled blocks. Kept as its own token (not deleted) since form
+       pages reference --c-input-bg directly. */
+    --admin-input-bg: var(--admin-panel);
 
     --admin-sidebar-bg: #ffffff;
     --admin-sidebar-hover: #f1f5f9;
@@ -39,9 +42,14 @@
     --admin-sidebar-active-text: #1d4ed8;
     --admin-sidebar-border: #e2e8f0;
     --admin-header-bg: #ffffff;
-    --admin-table-header-bg: #e8edf3;
     --admin-table-row-bg: #ffffff;
-    --admin-table-row-hover: #f8fafc;
+    /* Same white as the rows, so the header/toolbar/footer chrome reads as part of
+       one seamless table rather than a separately-shaded band; the border-b/border-t
+       dividers in DataTable still mark where header and footer sit. */
+    --admin-table-header-bg: var(--admin-table-row-bg);
+    /* Accent-tinted, not plain gray — tracks --primary-subtle so the hover stays
+       coherent with whichever accent preset (blue/purple/green/orange/red) is active. */
+    --admin-table-row-hover: var(--primary-subtle);
 
     --admin-radius-sm: 0.25rem;
     --admin-radius: 0.5rem;

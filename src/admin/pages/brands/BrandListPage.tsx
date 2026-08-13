@@ -6,7 +6,7 @@ import {Pencil, Search, Trash2} from 'lucide-react'
 import type {BrandListItem} from '@/admin/hooks/brands'
 import {useBrandList, useDeleteBrand} from '@/admin/hooks/brands'
 import type {ColumnDef} from '@/shared/ui/components'
-import {ConfirmationDialog, DataTable, PageLayout, Thumbnail, toast,} from '@/shared/ui/components'
+import {ConfirmationDialog, DataTable, PageLayout, RowActionButton, Thumbnail, toast,} from '@/shared/ui/components'
 import {Button, Input} from '@/shared/ui/primitives'
 import {useAdminAuthStore} from '@/shared/auth/adminAuthStore'
 
@@ -78,9 +78,20 @@ export function BrandListPage() {
             {
                 accessorKey: 'name',
                 header: 'Name',
-                cell: ({row}) => (
-                    <span className="font-medium text-(--c-text)">{row.original.name}</span>
-                ),
+                cell: ({row}) => {
+                    const description = row.original.description
+                    const truncated = description && description.length > 60
+                        ? `${description.slice(0, 60)}…`
+                        : description
+                    return (
+                        <div>
+                            <div className="font-medium text-(--c-text)">{row.original.name}</div>
+                            <div className="text-xs text-(--c-text-muted)">
+                                {truncated || 'No description for brand'}
+                            </div>
+                        </div>
+                    )
+                },
                 enableSorting: false,
             },
             {
@@ -92,41 +103,26 @@ export function BrandListPage() {
                 enableSorting: false,
             },
             {
-                id: 'description',
-                header: 'Description',
-                cell: ({row}) => {
-                    const desc = row.original.description
-                    if (!desc) return <span className="text-sm text-(--c-text-muted)">—</span>
-                    const truncated = desc.length > 60 ? `${desc.slice(0, 60)}…` : desc
-                    return <span className="text-sm text-(--c-text-muted)">{truncated}</span>
-                },
-                enableSorting: false,
-            },
-            {
                 id: 'actions',
                 header: 'Actions',
                 cell: ({row}) => {
                     if (!canMutate) return null
                     return (
                         <div className="flex items-center gap-1">
-                            <button
-                                type="button"
+                            <RowActionButton
                                 onClick={() => navigate(`/admin/products/brands/${row.original.id}/edit`)}
-                                className="inline-flex items-center justify-center p-1 rounded-lg hover:bg-(--c-surface-hover)"
                                 aria-label={`Edit ${row.original.name}`}
                                 data-testid="action-edit"
                             >
-                                <Pencil className="h-4 w-4 text-(--c-text-muted)"/>
-                            </button>
-                            <button
-                                type="button"
+                                <Pencil className="h-4 w-4"/>
+                            </RowActionButton>
+                            <RowActionButton
                                 onClick={() => setDeletingBrand(row.original)}
-                                className="inline-flex items-center justify-center p-1 rounded-lg hover:bg-(--c-surface-hover)"
                                 aria-label={`Delete ${row.original.name}`}
                                 data-testid="action-delete"
                             >
-                                <Trash2 className="h-4 w-4 text-(--c-text-muted)"/>
-                            </button>
+                                <Trash2 className="h-4 w-4"/>
+                            </RowActionButton>
                         </div>
                     )
                 },
@@ -142,18 +138,12 @@ export function BrandListPage() {
         { label: 'Brands' },
     ])
 
-    const headerAction = canMutate ? (
-        <Button variant="solid" onClick={() => navigate('/admin/products/brands/new')}>
-            + New Brand
-        </Button>
-    ) : undefined
-
     return (
-        <PageLayout title="Brands" action={headerAction}>
+        <PageLayout title="Brands">
             <div className="space-y-4">
-                {/* Search Bar */}
-                <div className="flex flex-wrap items-center gap-3">
-                    <div className="relative flex-1 min-w-50">
+                {/* Search + New Brand */}
+                <div className="flex flex-col gap-3 sm:flex-row sm:items-center">
+                    <div className="relative flex-1 min-w-0">
                         <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-(--c-text-muted)"/>
                         <Input
                             placeholder="Search brands by name..."
@@ -162,6 +152,15 @@ export function BrandListPage() {
                             className="pl-9 bg-(--c-input-bg)"
                         />
                     </div>
+                    {canMutate && (
+                        <Button
+                            variant="solid"
+                            onClick={() => navigate('/admin/products/brands/new')}
+                            className="w-full sm:w-auto"
+                        >
+                            + New Brand
+                        </Button>
+                    )}
                 </div>
 
                 <DataTable
@@ -172,6 +171,7 @@ export function BrandListPage() {
                     pageCount={pageCount}
                     pagination={pagination}
                     onPaginationChange={setPagination}
+                    onRowDoubleClick={(brand) => navigate(`/admin/products/brands/${brand.id}/edit`)}
                     emptyMessage="No brands found"
                 />
             </div>

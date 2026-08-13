@@ -16,6 +16,7 @@ import {
     DataTable,
     PageLayout,
     ProductStatusDisplay,
+    RowActionButton,
     Thumbnail,
     toast,
 } from '@/shared/ui/components'
@@ -319,70 +320,60 @@ export function ProductListPage() {
                 header: 'Actions',
                 cell: ({row}) => {
                     const product = row.original
-                    const iconButtonClass = 'inline-flex items-center justify-center p-1.5 rounded-lg text-(--c-text-muted) transition-colors hover:bg-(--c-surface-hover) hover:text-(--c-text)'
                     // View and Edit both land on the same edit screen — VIEWER
                     // roles land on the same page but its fields render disabled,
                     // so one action correctly serves both cases.
                     return (
                         <div className="flex min-w-44 items-center justify-center gap-1 whitespace-nowrap">
-                            <button
-                                type="button"
+                            <RowActionButton
                                 onClick={() => navigate(`/admin/products/${product.id}/edit`)}
-                                className={iconButtonClass}
                                 aria-label={`View and edit ${product.name}`}
                                 title="View / edit product details"
                                 data-testid="action-view-edit"
                             >
                                 <SquarePen className="h-4 w-4"/>
-                            </button>
+                            </RowActionButton>
                             {canMutate && (
                                 <>
-                                    <button
-                                        type="button"
+                                    <RowActionButton
                                         onClick={() => setOutOfStockTarget(product)}
-                                        className={iconButtonClass}
                                         aria-label={`Mark ${product.name} out of stock`}
                                         title="Zero all variant stock — hides the Add to Cart button until restocked"
                                         data-testid="action-out-of-stock"
                                     >
                                         <PackageX className="h-4 w-4"/>
-                                    </button>
+                                    </RowActionButton>
                                     {canManageLifecycle && (
                                         <>
                                             {product.status !== ProductStatus.ACTIVE && (
-                                                <button
-                                                    type="button"
+                                                <RowActionButton
                                                     onClick={() => handleToggleStatus(product.id, 'ACTIVE')}
-                                                    className={iconButtonClass}
                                                     aria-label={`Activate ${product.name}`}
                                                     title="Activate — make visible on the storefront"
                                                     data-testid="action-activate"
                                                 >
                                                     <Power className="h-4 w-4"/>
-                                                </button>
+                                                </RowActionButton>
                                             )}
                                             {product.status !== ProductStatus.DISABLED && (
-                                                <button
-                                                    type="button"
+                                                <RowActionButton
                                                     onClick={() => handleToggleStatus(product.id, 'DISABLED')}
-                                                    className={iconButtonClass}
                                                     aria-label={`Archive ${product.name}`}
                                                     title="Archive — hides from the storefront, keeps the product and its order history"
                                                     data-testid="action-disable"
                                                 >
                                                     <Archive className="h-4 w-4"/>
-                                                </button>
+                                                </RowActionButton>
                                             )}
-                                            <button
-                                                type="button"
+                                            <RowActionButton
+                                                variant="danger"
                                                 onClick={() => setDeleteTarget(product)}
-                                                className={`${iconButtonClass} hover:text-(--c-danger)`}
                                                 aria-label={`Delete ${product.name}`}
                                                 title="Delete — permanent if never ordered, otherwise archives instead"
                                                 data-testid="action-delete"
                                             >
                                                 <Trash2 className="h-4 w-4"/>
-                                            </button>
+                                            </RowActionButton>
                                         </>
                                     )}
                                 </>

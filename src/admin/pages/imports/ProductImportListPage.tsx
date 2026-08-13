@@ -11,6 +11,7 @@ import {
   DialogHeader,
   DialogContent,
   DialogFooter,
+  RowActionButton,
   Upload,
   toast,
 } from '@/shared/ui/components'
@@ -41,15 +42,9 @@ function RefreshButton({ batchId, onSuccess }: { batchId: string; onSuccess: () 
   }
 
   return (
-    <button
-      type="button"
-      onClick={handleRefresh}
-      disabled={isPending}
-      className="inline-flex items-center justify-center p-1.5 rounded-lg hover:bg-(--c-surface-hover) disabled:opacity-50 disabled:cursor-not-allowed"
-      aria-label="Refresh batch status"
-    >
-      <RefreshCw className={`h-4 w-4 text-(--c-text-muted) ${isPending ? 'animate-spin' : ''}`} />
-    </button>
+    <RowActionButton onClick={handleRefresh} disabled={isPending} aria-label="Refresh batch status">
+      <RefreshCw className={`h-4 w-4 ${isPending ? 'animate-spin' : ''}`} />
+    </RowActionButton>
   )
 }
 
@@ -157,14 +152,12 @@ export default function ProductImportListPage() {
 
           return (
             <div className="flex items-center gap-1">
-              <button
-                type="button"
+              <RowActionButton
                 onClick={() => navigate(`/admin/imports/products/bulk-upload/review/${id}`)}
-                className="inline-flex items-center justify-center p-1 rounded-lg hover:bg-(--c-surface-hover)"
                 aria-label={status === 'PROCESSED' || status === 'FAILED' ? 'View results' : 'Review'}
               >
-                <Eye className="h-4 w-4 text-(--c-text-muted)" />
-              </button>
+                <Eye className="h-4 w-4" />
+              </RowActionButton>
               {isProcessing && (
                 <RefreshButton batchId={id} onSuccess={() => refetch()} />
               )}

@@ -5,6 +5,7 @@ import { Eye } from 'lucide-react'
 
 import {
   DataTable,
+  RowActionButton,
   Segment,
   StatusBadge,
 } from '@/shared/ui/components'
@@ -88,15 +89,13 @@ export function QuoteRequestQueuePage() {
         id: 'actions',
         header: 'Actions',
         cell: ({ row }) => (
-          <button
-            type="button"
+          <RowActionButton
             onClick={() => navigate(`/admin/quotes/${row.original.id}`)}
-            className="inline-flex items-center justify-center p-1 rounded-lg hover:bg-(--c-surface-hover)"
             aria-label="View quote request"
             data-testid="action-view"
           >
-            <Eye className="h-4 w-4 text-(--c-text-muted)" />
-          </button>
+            <Eye className="h-4 w-4" />
+          </RowActionButton>
         ),
       },
     ],

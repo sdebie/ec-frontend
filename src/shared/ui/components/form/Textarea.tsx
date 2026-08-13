@@ -40,9 +40,9 @@ export const Textarea = React.forwardRef<HTMLTextAreaElement, TextareaProps>(
           className={cn(
             'min-h-24 w-full rounded-md border-2 border-(--c-border) bg-(--c-panel) px-3 py-2 text-sm text-(--c-text) transition-colors',
             'placeholder:text-(--c-text-muted)',
-            'focus:outline-none focus:ring-2 focus:ring-(--c-ring) focus:border-transparent focus:ring-offset-1 focus:ring-offset-(--c-bg)',
+            'focus:outline-none',
             'disabled:cursor-not-allowed disabled:opacity-50 disabled:bg-(--c-bg)',
-            hasError && 'border-(--c-error) focus:ring-(--c-error)',
+            hasError ? 'border-(--c-error)' : 'focus:border-(--c-accent)',
             className
           )}
           {...props}
