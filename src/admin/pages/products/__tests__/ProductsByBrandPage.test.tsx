@@ -77,12 +77,12 @@ describe('ProductsByBrandPage', () => {
     )
   })
 
-  it('applies locked brand filter when a brand is selected via native select', () => {
+  it('applies locked brand filter when a brand is selected via the shared Select', () => {
     renderPage()
 
-    // ProductsByBrandPage uses a native <select> element
-    const brandSelect = screen.getByDisplayValue('All Brands')
-    fireEvent.change(brandSelect, { target: { value: 'brand-1' } })
+    // ProductsByBrandPage uses the shared Select component (a button + listbox)
+    fireEvent.click(screen.getByRole('button', { name: 'Filter by brand' }))
+    fireEvent.click(screen.getByRole('option', { name: 'Nike' }))
 
     // After selecting, useAdminProductList should be called with the brandId
     const lastCall = vi.mocked(useAdminProductList).mock.calls.at(-1)
@@ -94,8 +94,8 @@ describe('ProductsByBrandPage', () => {
   it('shows selected brand name as a label after selection', () => {
     renderPage()
 
-    const brandSelect = screen.getByDisplayValue('All Brands')
-    fireEvent.change(brandSelect, { target: { value: 'brand-1' } })
+    fireEvent.click(screen.getByRole('button', { name: 'Filter by brand' }))
+    fireEvent.click(screen.getByRole('option', { name: 'Nike' }))
 
     // The selected brand name should appear as a visible badge/label
     // It renders inside a span with inline-flex styling

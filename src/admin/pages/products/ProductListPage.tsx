@@ -17,6 +17,7 @@ import {
     PageLayout,
     ProductStatusDisplay,
     RowActionButton,
+    Select,
     Thumbnail,
     toast,
 } from '@/shared/ui/components'
@@ -29,6 +30,13 @@ import {cn} from '@/shared/utils/cn'
 export {getStatCardSubtitle} from './components/ProductStatCards'
 
 type StatusFilter = 'ALL' | ProductStatus
+
+const STATUS_FILTER_SELECT_OPTIONS = [
+    {value: 'ALL', label: 'All'},
+    {value: ProductStatus.ACTIVE, label: 'Active'},
+    {value: ProductStatus.PENDING, label: 'Pending'},
+    {value: ProductStatus.DISABLED, label: 'Disabled'},
+]
 
 /**
  * Derives the subtitle text for the Product column.
@@ -74,6 +82,21 @@ export function ProductListPage() {
 
     const {data: categories} = useCategories()
     const {data: brands} = useBrands()
+
+    const categoryFilterOptions = useMemo(
+        () => [
+            {value: 'ALL', label: 'All Categories'},
+            ...(categories?.map((cat) => ({value: cat.id, label: cat.name})) ?? []),
+        ],
+        [categories],
+    )
+    const brandFilterOptions = useMemo(
+        () => [
+            {value: 'ALL', label: 'All Brands'},
+            ...(brands?.map((brand) => ({value: brand.id, label: brand.name})) ?? []),
+        ],
+        [brands],
+    )
 
     const {data, isLoading, refetch} = useAdminProductList({
         pageIndex: pagination.pageIndex,
@@ -413,38 +436,32 @@ export function ProductListPage() {
                         />
                     </div>
 
-                    <select
-                        value={statusFilter}
-                        onChange={(e) => handleStatusFilterChange(e.target.value)}
-                        className="h-(--c-control-h-md) px-3 text-sm rounded-(--c-radius) border border-(--c-border) bg-(--c-panel) text-(--c-text) focus:outline-none focus:ring-2 focus:ring-(--c-ring)"
-                    >
-                        <option value="ALL">All</option>
-                        <option value={ProductStatus.ACTIVE}>Active</option>
-                        <option value={ProductStatus.PENDING}>Pending</option>
-                        <option value={ProductStatus.DISABLED}>Disabled</option>
-                    </select>
+                    <div className="w-40">
+                        <Select
+                            value={statusFilter}
+                            onChange={handleStatusFilterChange}
+                            options={STATUS_FILTER_SELECT_OPTIONS}
+                            ariaLabel="Filter by status"
+                        />
+                    </div>
 
-                    <select
-                        value={categoryFilter}
-                        onChange={(e) => handleCategoryFilterChange(e.target.value)}
-                        className="h-(--c-control-h-md) px-3 text-sm rounded-(--c-radius) border border-(--c-border) bg-(--c-panel) text-(--c-text) focus:outline-none focus:ring-2 focus:ring-(--c-ring)"
-                    >
-                        <option value="ALL">All Categories</option>
-                        {categories?.map((cat) => (
-                            <option key={cat.id} value={cat.id}>{cat.name}</option>
-                        ))}
-                    </select>
+                    <div className="w-56">
+                        <Select
+                            value={categoryFilter}
+                            onChange={handleCategoryFilterChange}
+                            options={categoryFilterOptions}
+                            ariaLabel="Filter by category"
+                        />
+                    </div>
 
-                    <select
-                        value={brandFilter}
-                        onChange={(e) => handleBrandFilterChange(e.target.value)}
-                        className="h-(--c-control-h-md) px-3 text-sm rounded-(--c-radius) border border-(--c-border) bg-(--c-panel) text-(--c-text) focus:outline-none focus:ring-2 focus:ring-(--c-ring)"
-                    >
-                        <option value="ALL">All Brands</option>
-                        {brands?.map((brand) => (
-                            <option key={brand.id} value={brand.id}>{brand.name}</option>
-                        ))}
-                    </select>
+                    <div className="w-56">
+                        <Select
+                            value={brandFilter}
+                            onChange={handleBrandFilterChange}
+                            options={brandFilterOptions}
+                            ariaLabel="Filter by brand"
+                        />
+                    </div>
                 </div>
 
                 {canManageLifecycle && selectedRows.size > 0 && (

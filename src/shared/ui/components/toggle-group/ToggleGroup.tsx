@@ -47,10 +47,10 @@ export const ToggleGroup = React.forwardRef<HTMLDivElement, ToggleGroupProps>(
               className={cn(
                 'inline-flex items-center gap-1.5 rounded-full font-medium whitespace-nowrap transition-colors',
                 'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-(--c-ring) focus-visible:ring-offset-1 focus-visible:ring-offset-(--c-bg)',
-                size === 'sm' ? 'px-3 py-1 text-xs' : 'px-4 py-1.5 text-sm',
+                size === 'sm' ? 'h-(--c-control-h-sm) px-3 text-xs' : 'h-(--c-control-h-md) px-4 text-sm',
                 isSelected
                   ? 'bg-(--c-accent) text-(--c-accent-text) shadow-(--c-shadow-sm)'
-                  : 'text-(--c-text-muted) hover:text-(--c-text)',
+                  : 'text-(--c-text) hover:bg-(--c-surface-hover) hover:text-(--c-accent)',
                 isDisabled && 'opacity-50 cursor-not-allowed'
               )}
             >

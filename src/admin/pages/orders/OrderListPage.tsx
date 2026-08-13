@@ -6,9 +6,11 @@ import {
   DataTable,
   Segment,
   ConfirmationDialog,
+  Label,
   OrderStatusDisplay,
 } from '@/shared/ui/components'
 import type { ColumnDef } from '@/shared/ui/components'
+import { Input } from '@/shared/ui/primitives'
 import { useAdminAuthStore } from '@/shared/auth/adminAuthStore'
 import { formatAmount } from '@/shared/utils/formatAmount'
 import { OrderStatus } from '@/shared/types/enums/OrderStatus'
@@ -189,33 +191,25 @@ export function OrderListPage() {
 
         <div className="flex items-center gap-4">
           <div className="flex items-center gap-2">
-            <label
-              htmlFor="from-date"
-              className="text-sm text-(--c-text-muted)"
-            >
+            <Label htmlFor="from-date" className="mb-0">
               From
-            </label>
-            <input
+            </Label>
+            <Input
               id="from-date"
               type="date"
               value={fromDate}
               onChange={handleFromDateChange}
-              className="rounded-md border border-(--c-border) bg-(--c-panel) px-3 py-2 text-sm text-(--c-text)"
             />
           </div>
           <div className="flex items-center gap-2">
-            <label
-              htmlFor="to-date"
-              className="text-sm text-(--c-text-muted)"
-            >
+            <Label htmlFor="to-date" className="mb-0">
               To
-            </label>
-            <input
+            </Label>
+            <Input
               id="to-date"
               type="date"
               value={toDate}
               onChange={handleToDateChange}
-              className="rounded-md border border-(--c-border) bg-(--c-panel) px-3 py-2 text-sm text-(--c-text)"
             />
           </div>
         </div>

@@ -1,10 +1,11 @@
 import {cva, type VariantProps} from 'class-variance-authority'
 import * as React from 'react'
 import {cn} from '@/shared/utils/cn'
+import {CONTROL_SIZE_CLASSES} from '@/shared/ui/primitives/controlSize'
 
 const inputVariants = cva(
     [
-        'w-full rounded-(--c-radius) border bg-(--c-panel) text-(--c-text)',
+        'w-full rounded-(--c-radius) border bg-(--c-input-bg) text-(--c-text)',
         'placeholder:text-(--c-text-muted)',
         'focus-visible:outline-none',
         'disabled:cursor-not-allowed disabled:opacity-50',
@@ -15,11 +16,7 @@ const inputVariants = cva(
                 default: 'border-(--c-border) focus-visible:border-(--c-accent)',
                 error: 'border-(--c-error)',
             },
-            size: {
-                sm: 'h-(--c-control-h-sm) px-3 text-xs',
-                md: 'h-(--c-control-h-md) px-4 text-sm',
-                lg: 'h-(--c-control-h-lg) px-5 text-base',
-            },
+            size: CONTROL_SIZE_CLASSES,
         },
         defaultVariants: {
             variant: 'default',

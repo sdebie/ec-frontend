@@ -356,7 +356,6 @@ export function ProductForm({
                     {...register('name')}
                     placeholder="Product name"
                     variant={errors.name ? 'error' : 'default'}
-                    className="bg-(--c-input-bg)"
                 />
             </FormItem>
 
@@ -377,7 +376,6 @@ export function ProductForm({
                     })}
                     placeholder="product-slug"
                     variant={slugError ? 'error' : 'default'}
-                    className="bg-(--c-input-bg)"
                 />
             </FormItem>
 
@@ -392,7 +390,6 @@ export function ProductForm({
                     {...register('shortDescription')}
                     placeholder="Brief product summary"
                     variant={errors.shortDescription ? 'error' : 'default'}
-                    className="bg-(--c-input-bg)"
                 />
             </FormItem>
 
@@ -405,7 +402,6 @@ export function ProductForm({
                 <Textarea
                     {...register('description')}
                     placeholder="Detailed product description"
-                    className="bg-(--c-input-bg)"
                 />
             </FormItem>
 
@@ -421,7 +417,6 @@ export function ProductForm({
                     value={categoryController.field.value}
                     onChange={categoryController.field.onChange}
                     placeholder="Select one or more categories"
-                    triggerClassName="bg-(--c-input-bg)"
                 />
             </FormItem>
 
@@ -437,7 +432,6 @@ export function ProductForm({
                     value={statusController.field.value}
                     onChange={statusController.field.onChange}
                     placeholder="Select status"
-                    triggerClassName="bg-(--c-input-bg)"
                 />
             </FormItem>
         </div>

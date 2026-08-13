@@ -1,6 +1,7 @@
 import { useState, useEffect, useMemo } from 'react'
 import { useNavigate } from 'react-router-dom'
 import type { PaginationState } from '@tanstack/react-table'
+import { Search } from 'lucide-react'
 
 import { DataTable, StatusBadge } from '@/shared/ui/components'
 import type { ColumnDef } from '@/shared/ui/components'
@@ -115,12 +116,14 @@ export function StaffListPage() {
       </div>
 
       {/* Search filter bar */}
-      <div className="flex items-center gap-4">
+      <div className="relative max-w-sm">
+        <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-(--c-text-muted)" />
         <Input
           type="text"
           placeholder="Search by name or email..."
           value={searchInput}
           onChange={handleSearchChange}
+          className="pl-9"
         />
       </div>
 

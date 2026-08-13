@@ -97,7 +97,6 @@ export function CategoryForm({ defaultValues, onSubmit, isSubmitting = false, ed
               {...register('name')}
               placeholder="Category name"
               variant={errors.name ? 'error' : 'default'}
-              className="bg-(--c-input-bg)"
             />
           </FormItem>
 
@@ -118,7 +117,6 @@ export function CategoryForm({ defaultValues, onSubmit, isSubmitting = false, ed
               })}
               placeholder="category-slug"
               variant={errors.slug ? 'error' : 'default'}
-              className="bg-(--c-input-bg)"
             />
           </FormItem>
 
@@ -131,7 +129,6 @@ export function CategoryForm({ defaultValues, onSubmit, isSubmitting = false, ed
             <Textarea
               {...register('description')}
               placeholder="Category description (optional)"
-              className="bg-(--c-input-bg)"
             />
           </FormItem>
 
@@ -146,7 +143,6 @@ export function CategoryForm({ defaultValues, onSubmit, isSubmitting = false, ed
               {...register('imageUrl')}
               placeholder="https://example.com/image.png"
               variant={errors.imageUrl ? 'error' : 'default'}
-              className="bg-(--c-input-bg)"
             />
           </FormItem>
 
@@ -166,7 +162,6 @@ export function CategoryForm({ defaultValues, onSubmit, isSubmitting = false, ed
                   value={field.value ?? ''}
                   onChange={(val) => field.onChange(val || null)}
                   placeholder="Select parent category"
-                  triggerClassName="bg-(--c-input-bg)"
                 />
               )}
             />

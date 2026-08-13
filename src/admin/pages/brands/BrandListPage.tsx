@@ -149,7 +149,7 @@ export function BrandListPage() {
                             placeholder="Search brands by name..."
                             value={searchInput}
                             onChange={(e) => setSearchInput(e.target.value)}
-                            className="pl-9 bg-(--c-input-bg)"
+                            className="pl-9"
                         />
                     </div>
                     {canMutate && (

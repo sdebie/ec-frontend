@@ -2,7 +2,7 @@ import { useState, useEffect, useMemo, useCallback } from 'react'
 import { Link } from 'react-router-dom'
 import type { PaginationState } from '@tanstack/react-table'
 
-import { EllipsisVertical } from 'lucide-react'
+import { EllipsisVertical, Search } from 'lucide-react'
 
 import {
   DataTable,
@@ -14,6 +14,7 @@ import {
   RowActionButton,
 } from '@/shared/ui/components'
 import type { ColumnDef } from '@/shared/ui/components'
+import { Input } from '@/shared/ui/primitives'
 import { useAdminAuthStore } from '@/shared/auth/adminAuthStore'
 import { useWholesaleCustomers, useWholesaleCustomerStatusAction } from '@/admin/hooks/wholesale'
 import type { WholesaleCustomerListItem } from '@/admin/hooks/wholesale'
@@ -205,13 +206,14 @@ export function WholesaleCustomerListPage() {
           onChange={handleStatusFilterChange}
         />
 
-        <div className="flex items-center gap-4">
-          <input
+        <div className="relative max-w-sm">
+          <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-(--c-text-muted)" />
+          <Input
             type="text"
             placeholder="Search by name or email..."
             value={searchInput}
             onChange={handleSearchChange}
-            className="rounded-md border border-(--c-border) bg-(--c-panel) px-3 py-2 text-sm text-(--c-text) placeholder:text-(--c-text-muted)"
+            className="pl-9"
           />
         </div>
       </div>

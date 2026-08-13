@@ -22,6 +22,7 @@ import {
   PageLayout,
   RowActionButton,
   StatusBadge,
+  Textarea,
 } from '@/shared/ui/components'
 import { ConfirmationDialog } from '@/shared/ui/components/dialog/ConfirmationDialog'
 import { Button, Input } from '@/shared/ui/primitives'
@@ -208,10 +209,10 @@ export function TestimonialsPage() {
                 <label htmlFor="quote" className="block text-sm font-medium text-(--c-text) mb-1">
                   Quote <span className="text-(--c-error)">*</span>
                 </label>
-                <textarea
+                <Textarea
                   id="quote"
                   rows={4}
-                  className="w-full rounded-md border border-(--c-border) bg-(--c-panel) px-3 py-2 text-sm text-(--c-text) placeholder:text-(--c-text-muted) focus:outline-none focus:ring-2 focus:ring-(--c-ring) resize-y"
+                  className="resize-y"
                   placeholder="Enter the customer testimonial..."
                   {...form.register('quote')}
                 />

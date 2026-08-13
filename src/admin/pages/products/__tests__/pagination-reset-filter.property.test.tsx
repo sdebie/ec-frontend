@@ -62,8 +62,21 @@ vi.mock('react-router-dom', async () => {
   }
 })
 
-// Status filter option values on the <select> element
+// Status filter option values on the shared Select component
 const STATUS_FILTER_VALUES = ['ALL', 'ACTIVE', 'PENDING', 'DISABLED'] as const
+const STATUS_VALUE_TO_LABEL: Record<(typeof STATUS_FILTER_VALUES)[number], string> = {
+  ALL: 'All',
+  ACTIVE: 'Active',
+  PENDING: 'Pending',
+  DISABLED: 'Disabled',
+}
+
+// The status filter is the shared Select component (a button that opens a
+// listbox), not a native <select> — each change requires opening it fresh.
+function selectStatusFilter(value: (typeof STATUS_FILTER_VALUES)[number]) {
+  fireEvent.click(screen.getByRole('button', { name: 'Filter by status' }))
+  fireEvent.click(screen.getByRole('option', { name: STATUS_VALUE_TO_LABEL[value] }))
+}
 
 describe('DataTable pagination reset on filter change — Property Tests', () => {
   beforeEach(() => {
@@ -92,10 +105,8 @@ describe('DataTable pagination reset on filter change — Property Tests', () =>
           </MemoryRouter>,
         )
 
-        // The status filter is a <select>; change it through the sequence
-        const statusSelect = screen.getByDisplayValue('All')
         for (const value of filterSequence) {
-          fireEvent.change(statusSelect, { target: { value } })
+          selectStatusFilter(value)
         }
 
         // After each filter change, useAdminProductList should be called with pageIndex=0
@@ -130,11 +141,9 @@ describe('DataTable pagination reset on filter change — Property Tests', () =>
           </MemoryRouter>,
         )
 
-        const statusSelect = screen.getByDisplayValue('All')
-
-        fireEvent.change(statusSelect, { target: { value: firstValue } })
+        selectStatusFilter(firstValue)
         mockUseAdminProductList.mockClear()
-        fireEvent.change(statusSelect, { target: { value: secondValue } })
+        selectStatusFilter(secondValue)
 
         const lastCall = mockUseAdminProductList.mock.calls[mockUseAdminProductList.mock.calls.length - 1]
         const params = lastCall[0] as { pageIndex: number; pageSize: number; status: string }
@@ -145,5 +154,5 @@ describe('DataTable pagination reset on filter change — Property Tests', () =>
       }),
       { numRuns: 50 },
     )
-  })
+  }, 15000)
 })

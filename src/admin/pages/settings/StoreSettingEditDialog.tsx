@@ -1,5 +1,5 @@
 import * as React from 'react'
-import { Dialog, DialogHeader, DialogContent, DialogFooter } from '@/shared/ui/components'
+import { Dialog, DialogHeader, DialogContent, DialogFooter, Textarea } from '@/shared/ui/components'
 import { Button, Input } from '@/shared/ui/primitives'
 import { useUpdateSetting } from '@/admin/hooks/settings/useUpdateSetting'
 import type { StoreSetting } from '@/admin/hooks/settings/types'
@@ -73,8 +73,8 @@ function StoreSettingEditDialogForm({ open, setting, onClose }: StoreSettingEdit
         <div className="space-y-2">
           <label className="text-sm font-medium text-(--c-text)">Value</label>
           {isTextarea ? (
-            <textarea
-              className="w-full rounded-(--c-radius) border border-(--c-border) bg-(--c-panel) text-(--c-text) px-4 py-2 font-mono text-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-(--c-ring) focus-visible:ring-offset-1 focus-visible:ring-offset-(--c-bg) min-h-32 resize-y"
+            <Textarea
+              className="min-h-32 font-mono resize-y"
               value={value}
               onChange={(e) => setValue(e.target.value)}
             />

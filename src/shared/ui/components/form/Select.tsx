@@ -3,6 +3,7 @@ import * as React from 'react'
 import * as ReactDOM from 'react-dom'
 import {Label} from './Label'
 import {cn} from '@/shared/utils/cn'
+import {CONTROL_SIZE_CLASSES, type ControlSize} from '@/shared/ui/primitives/controlSize'
 
 export interface SelectOption {
     value: string
@@ -22,6 +23,8 @@ export interface SelectProps {
     required?: boolean
     className?: string
     fullWidth?: boolean
+    /** Matches Input's size scale so a Select can sit flush with a same-size Input. */
+    size?: ControlSize
     /** Accessible name for the trigger button when no visible `label` is rendered
      *  (e.g. toolbar/inline usage where a stacked Label breaks the layout). */
     ariaLabel?: string
@@ -43,6 +46,7 @@ export const Select = React.forwardRef<HTMLDivElement, SelectProps>(
             required,
             className,
             fullWidth = true,
+            size = 'md',
             ariaLabel,
             triggerClassName,
             ...props
@@ -142,10 +146,11 @@ export const Select = React.forwardRef<HTMLDivElement, SelectProps>(
                         disabled={disabled}
                         onClick={() => !disabled && setIsOpen((prev) => !prev)}
                         className={cn(
-                            'flex h-10 w-full items-center justify-between rounded-md border-2 border-(--c-border) bg-(--c-panel) px-3 py-2 text-sm text-(--c-text) transition-colors',
-                            'focus:outline-none',
-                            'disabled:cursor-not-allowed disabled:opacity-50 disabled:bg-(--c-bg)',
-                            hasError ? 'border-(--c-error)' : 'focus:border-(--c-accent)',
+                            'flex w-full items-center justify-between rounded-(--c-radius) border border-(--c-border) bg-(--c-input-bg) text-(--c-text) transition-colors',
+                            CONTROL_SIZE_CLASSES[size],
+                            'focus-visible:outline-none',
+                            'disabled:cursor-not-allowed disabled:opacity-50',
+                            hasError ? 'border-(--c-error)' : 'focus-visible:border-(--c-accent)',
                             !selectedOption && 'text-(--c-text-muted)',
                             triggerClassName
                         )}

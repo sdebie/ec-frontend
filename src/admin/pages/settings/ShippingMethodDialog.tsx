@@ -70,7 +70,6 @@ export function ShippingMethodDialog({ open, mode, method, onClose }: ShippingMe
               {...register('name')}
               placeholder="e.g. Standard Delivery"
               variant={errors.name ? 'error' : 'default'}
-              className="bg-(--c-input-bg)"
             />
           </FormItem>
 
@@ -87,7 +86,6 @@ export function ShippingMethodDialog({ open, mode, method, onClose }: ShippingMe
               min="0"
               placeholder="0.00"
               variant={errors.baseFee ? 'error' : 'default'}
-              className="bg-(--c-input-bg)"
             />
           </FormItem>
 
@@ -101,7 +99,6 @@ export function ShippingMethodDialog({ open, mode, method, onClose }: ShippingMe
               {...register('estimatedDays')}
               placeholder="e.g. 2-3 business days"
               variant={errors.estimatedDays ? 'error' : 'default'}
-              className="bg-(--c-input-bg)"
             />
           </FormItem>
 

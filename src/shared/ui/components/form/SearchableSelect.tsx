@@ -2,6 +2,8 @@ import { Check, ChevronDown, Search, X } from 'lucide-react'
 import * as React from 'react'
 import { createPortal } from 'react-dom'
 import { cn } from '@/shared/utils/cn'
+import { Input } from '@/shared/ui/primitives'
+import { CONTROL_SIZE_CLASSES, type ControlSize } from '@/shared/ui/primitives/controlSize'
 
 export interface SearchableSelectOption {
   value: string
@@ -18,6 +20,8 @@ export interface SearchableSelectProps {
   emptyText?: string
   disabled?: boolean
   className?: string
+  /** Matches Input's size scale so the trigger can sit flush with a same-size Input. */
+  size?: ControlSize
   clearAriaLabel?: string
   usePortal?: boolean
   portalTarget?: HTMLElement | null
@@ -38,6 +42,7 @@ export const SearchableSelect = React.forwardRef<
       emptyText = 'No options found',
       disabled,
       className,
+      size = 'md',
       clearAriaLabel = 'Clear selection',
       usePortal = true,
       portalTarget,
@@ -464,18 +469,15 @@ export const SearchableSelect = React.forwardRef<
       >
         <div className="mb-2 relative">
           <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-(--c-text-muted) pointer-events-none" />
-          <input
+          <Input
             ref={searchInputRef}
             type="text"
+            size="sm"
             value={query}
             onChange={(event) => setQuery(event.target.value)}
             onKeyDown={handleMenuKeyDown}
             placeholder={searchPlaceholder}
-            className={cn(
-              'flex h-10 w-full rounded-md border border-(--c-border)/40 bg-(--c-panel)/30 pl-9 pr-9 py-2 text-sm text-(--c-text) transition-colors duration-150',
-              'placeholder:text-(--c-text-muted)/60',
-              'focus:outline-none focus:border-(--c-border)/70 focus:bg-(--c-panel)/50'
-            )}
+            className="pl-9 pr-9"
           />
           {query && (
             <button
@@ -566,11 +568,12 @@ export const SearchableSelect = React.forwardRef<
           onKeyDown={handleTriggerKeyDown}
           ref={triggerRef}
           className={cn(
-            'flex h-10 w-full items-center justify-between rounded-md border border-(--c-border) bg-(--c-panel) px-3 py-2 text-sm text-(--c-text) transition-all duration-200',
-            'focus:outline-none focus:border-(--c-text)/30 focus:bg-(--c-panel)/80',
+            'flex w-full items-center justify-between rounded-(--c-radius) border border-(--c-border) bg-(--c-input-bg) text-(--c-text) transition-colors',
+            CONTROL_SIZE_CLASSES[size],
+            'focus-visible:outline-none focus-visible:border-(--c-accent)',
             isOpen &&
               'border-(--c-accent)/30 bg-(--c-accent)/5 shadow-sm ring-1 ring-(--c-accent)/10',
-            'disabled:cursor-not-allowed disabled:opacity-50 disabled:bg-(--c-bg)'
+            'disabled:cursor-not-allowed disabled:opacity-50'
           )}
           aria-haspopup="listbox"
           aria-expanded={isOpen}

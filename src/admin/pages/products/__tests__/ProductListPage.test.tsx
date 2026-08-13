@@ -147,9 +147,10 @@ describe('ProductListPage', () => {
 
       renderPage()
 
-      // The status filter is a <select> element
-      const statusSelect = screen.getByDisplayValue('All')
-      fireEvent.change(statusSelect, { target: { value: 'ACTIVE' } })
+      // The status filter is the shared Select component (a button + listbox).
+      // Scoped to role="option" — "Active" also appears as a status badge elsewhere in the table.
+      fireEvent.click(screen.getByRole('button', { name: 'Filter by status' }))
+      fireEvent.click(screen.getByRole('option', { name: 'Active' }))
 
       // After the filter change, useAdminProductList should be called with pageIndex=0
       const lastCall = vi.mocked(useAdminProductList).mock.calls.at(-1)

@@ -151,7 +151,6 @@ export function BrandForm({defaultValues, onSubmit, isSubmitting = false, backBu
                             {...register('name')}
                             placeholder="Brand name"
                             variant={errors.name ? 'error' : 'default'}
-                            className="bg-(--c-input-bg)"
                         />
                     </FormItem>
 
@@ -172,7 +171,6 @@ export function BrandForm({defaultValues, onSubmit, isSubmitting = false, backBu
                             })}
                             placeholder="brand-slug"
                             variant={errors.slug ? 'error' : 'default'}
-                            className="bg-(--c-input-bg)"
                         />
                     </FormItem>
 
@@ -185,7 +183,6 @@ export function BrandForm({defaultValues, onSubmit, isSubmitting = false, backBu
                         <Textarea
                             {...register('description')}
                             placeholder="Brand description (optional)"
-                            className="bg-(--c-input-bg)"
                         />
                     </FormItem>
                     {/* Logo */}

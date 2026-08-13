@@ -104,7 +104,6 @@ export function StaffEditPage() {
                 type="email"
                 placeholder="staff@example.com"
                 variant={errors.email ? 'error' : 'default'}
-                className="bg-(--c-input-bg)"
               />
             </FormItem>
 
@@ -119,7 +118,6 @@ export function StaffEditPage() {
                 {...register('fullName')}
                 placeholder="Full name"
                 variant={errors.fullName ? 'error' : 'default'}
-                className="bg-(--c-input-bg)"
               />
             </FormItem>
 
@@ -140,7 +138,6 @@ export function StaffEditPage() {
                     onChange={(val) => field.onChange(val)}
                     placeholder="Select a role"
                     disabled={isSelf}
-                    triggerClassName="bg-(--c-input-bg)"
                   />
                 )}
               />

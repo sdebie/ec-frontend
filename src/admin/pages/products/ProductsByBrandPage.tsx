@@ -10,6 +10,7 @@ import { useBrands } from '@/admin/hooks/products/useBrands'
 import {
   DataTable,
   PageLayout,
+  Select,
   Thumbnail,
   ProductStatusDisplay,
 } from '@/shared/ui/components'
@@ -65,6 +66,14 @@ export function ProductsByBrandPage() {
     if (selectedBrandId === 'ALL' || !brands) return null
     return brands.find((b) => b.id === selectedBrandId)?.name ?? null
   }, [selectedBrandId, brands])
+
+  const brandFilterOptions = useMemo(
+    () => [
+      { value: 'ALL', label: 'All Brands' },
+      ...(brands?.map((brand) => ({ value: brand.id, label: brand.name })) ?? []),
+    ],
+    [brands],
+  )
 
   const columns: ColumnDef<AdminProductListItem, unknown>[] = useMemo(
     () => [
@@ -144,17 +153,15 @@ export function ProductsByBrandPage() {
       <div className="space-y-4">
         {/* Brand Selector */}
         <div className="flex flex-wrap items-center gap-3">
-          <select
-            value={selectedBrandId}
-            onChange={(e) => handleBrandChange(e.target.value)}
-            className="h-(--c-control-h-md) px-3 text-sm rounded-(--c-radius) border border-(--c-border) bg-(--c-panel) text-(--c-text) focus:outline-none focus:ring-2 focus:ring-(--c-ring)"
-            disabled={brandsLoading}
-          >
-            <option value="ALL">All Brands</option>
-            {brands?.map((brand) => (
-              <option key={brand.id} value={brand.id}>{brand.name}</option>
-            ))}
-          </select>
+          <div className="w-56">
+            <Select
+              value={selectedBrandId}
+              onChange={handleBrandChange}
+              options={brandFilterOptions}
+              disabled={brandsLoading}
+              ariaLabel="Filter by brand"
+            />
+          </div>
 
           <div className="relative flex-1 min-w-[200px]">
             <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-(--c-text-muted)" />

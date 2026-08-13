@@ -66,7 +66,6 @@ export function StaffCreatePage() {
                 type="email"
                 placeholder="staff@example.com"
                 variant={errors.email ? 'error' : 'default'}
-                className="bg-(--c-input-bg)"
               />
             </FormItem>
 
@@ -81,7 +80,6 @@ export function StaffCreatePage() {
                 {...register('fullName')}
                 placeholder="Full name"
                 variant={errors.fullName ? 'error' : 'default'}
-                className="bg-(--c-input-bg)"
               />
             </FormItem>
 
@@ -101,7 +99,6 @@ export function StaffCreatePage() {
                     value={field.value ?? ''}
                     onChange={(val) => field.onChange(val)}
                     placeholder="Select a role"
-                    triggerClassName="bg-(--c-input-bg)"
                   />
                 )}
               />
@@ -119,7 +116,6 @@ export function StaffCreatePage() {
                 type="password"
                 placeholder="Minimum 8 characters"
                 variant={errors.temporaryPassword ? 'error' : 'default'}
-                className="bg-(--c-input-bg)"
               />
             </FormItem>
 
