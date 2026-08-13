@@ -189,32 +189,32 @@
 
 /* Dark mode: accent shifts + --primary-subtle becomes the dark pill background for active items */
 [data-surface="admin"][data-theme="dark"][data-preset="blue"] {
-    --primary: #60a5fa;
-    --primary-hover: #3b82f6;
+    --primary: #3b82f6;
+    --primary-hover: #60a5fa;
     --primary-subtle: #1e3a5f;
 }
 
 [data-surface="admin"][data-theme="dark"][data-preset="purple"] {
-    --primary: #a78bfa;
-    --primary-hover: #8b5cf6;
+    --primary: #8b5cf6;
+    --primary-hover: #a78bfa;
     --primary-subtle: #3b0764;
 }
 
 [data-surface="admin"][data-theme="dark"][data-preset="green"] {
-    --primary: #34d399;
-    --primary-hover: #10b981;
+    --primary: #10b981;
+    --primary-hover: #34d399;
     --primary-subtle: #022c22;
 }
 
 [data-surface="admin"][data-theme="dark"][data-preset="orange"] {
-    --primary: #fb923c;
-    --primary-hover: #f97316;
+    --primary: #f97316;
+    --primary-hover: #fb923c;
     --primary-subtle: #431407;
 }
 
 [data-surface="admin"][data-theme="dark"][data-preset="red"] {
-    --primary: #f87171;
-    --primary-hover: #ef4444;
+    --primary: #ef4444;
+    --primary-hover: #f87171;
     --primary-subtle: #450a0a;
 }
 
