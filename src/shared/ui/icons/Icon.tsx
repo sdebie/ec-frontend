@@ -1,6 +1,8 @@
 import {
     Import,
     LayoutDashboard,
+    LayoutGrid,
+    type LucideProps,
     Mail,
     Megaphone,
     Menu,
@@ -12,7 +14,6 @@ import {
     Store,
     Users,
     Warehouse,
-    type LucideProps,
 } from 'lucide-react'
 import type {FC} from 'react'
 
@@ -22,6 +23,7 @@ interface IconProps extends LucideProps {
 
 const icons: Record<string, FC<LucideProps>> = {
     'layout-dashboard': LayoutDashboard,
+    'layout-grid': LayoutGrid,
     store: Store,
     import: Import,
     package: Package,

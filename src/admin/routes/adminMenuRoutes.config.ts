@@ -19,31 +19,17 @@ export const adminMenuRoutes: AdminRouteList = [
         },
     },
     {
-        key: 'admin.products',
-        path: '/admin/products',
-        authority: ['SUPER_ADMIN', 'CATALOG_MANAGER', 'ORDER_MANAGER', 'VIEWER'],
+        key: 'admin.brands-categories',
+        path: '/admin/products/categories',
+        authority: ['SUPER_ADMIN', 'VIEWER'],
         meta: {
-            label: 'Products',
+            label: 'Brands & Categories',
             section: 'PRODUCT MANAGEMENT',
             pageBackgroundType: 'plain',
             pageContainerType: 'contained',
-            icon: 'store',
+            icon: 'layout-grid',
         },
         subMenu: [
-            {
-                key: 'admin.products.list',
-                path: '/admin/products',
-                component: lazy(() =>
-                    import('@/admin/pages/products/ProductListPage').then((m) => ({default: m.ProductListPage}))
-                ),
-                authority: ['SUPER_ADMIN', 'CATALOG_MANAGER', 'ORDER_MANAGER', 'VIEWER'],
-                meta: {
-                    label: 'Product List',
-                    pageBackgroundType: 'plain',
-                    pageContainerType: 'contained',
-                    menuMatch: 'exact',
-                },
-            },
             {
                 key: 'admin.products.brands',
                 path: '/admin/products/brands',
@@ -68,6 +54,34 @@ export const adminMenuRoutes: AdminRouteList = [
                     label: 'Categories',
                     pageBackgroundType: 'plain',
                     pageContainerType: 'contained',
+                },
+            },
+        ],
+    },
+    {
+        key: 'admin.products',
+        path: '/admin/products',
+        authority: ['SUPER_ADMIN', 'CATALOG_MANAGER', 'ORDER_MANAGER', 'VIEWER'],
+        meta: {
+            label: 'Products',
+            section: 'PRODUCT MANAGEMENT',
+            pageBackgroundType: 'plain',
+            pageContainerType: 'contained',
+            icon: 'store',
+        },
+        subMenu: [
+            {
+                key: 'admin.products.list',
+                path: '/admin/products',
+                component: lazy(() =>
+                    import('@/admin/pages/products/ProductListPage').then((m) => ({default: m.ProductListPage}))
+                ),
+                authority: ['SUPER_ADMIN', 'CATALOG_MANAGER', 'ORDER_MANAGER', 'VIEWER'],
+                meta: {
+                    label: 'Product List',
+                    pageBackgroundType: 'plain',
+                    pageContainerType: 'contained',
+                    menuMatch: 'exact',
                 },
             },
             {

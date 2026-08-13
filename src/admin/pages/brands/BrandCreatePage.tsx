@@ -13,8 +13,7 @@ export function BrandCreatePage() {
 
     useBreadcrumb([
         {label: 'Home', href: '/admin'},
-        {label: 'Products', href: '/admin/products'},
-        {label: 'Brands', href: '/admin/products/brands'},
+        {label: 'Categories & Brands', href: '/admin/products/categories'},
         {label: 'New Brand'},
     ])
 

@@ -10,6 +10,7 @@ interface SidebarItemProps {
     isCollapsed: boolean
     setCollapsed: (collapsed: boolean) => void
     onItemClick?: () => void
+    isActiveGroup?: boolean
 }
 
 export function SidebarItem({
@@ -18,6 +19,7 @@ export function SidebarItem({
                                 isCollapsed,
                                 setCollapsed,
                                 onItemClick,
+                                isActiveGroup,
                             }: SidebarItemProps) {
     if (route.subMenu && route.subMenu.length > 0) {
         return (
@@ -26,6 +28,7 @@ export function SidebarItem({
                 isCollapsed={isCollapsed}
                 setCollapsed={setCollapsed}
                 onItemClick={onItemClick}
+                isActiveGroup={isActiveGroup}
             />
         )
     }

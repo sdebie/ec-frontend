@@ -14,8 +14,7 @@ export function CategoryEditPage() {
 
   useBreadcrumb([
     { label: 'Home', href: '/admin' },
-    { label: 'Products', href: '/admin/products' },
-    { label: 'Categories', href: '/admin/products/categories' },
+    { label: 'Categories & Brands', href: '/admin/products/categories' },
     { label: 'Edit Category' },
   ])
   const mutation = useUpdateCategory(categoryId!)

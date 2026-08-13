@@ -13,8 +13,7 @@ export function CategoryCreatePage() {
 
   useBreadcrumb([
     { label: 'Home', href: '/admin' },
-    { label: 'Products', href: '/admin/products' },
-    { label: 'Categories', href: '/admin/products/categories' },
+    { label: 'Categories & Brands', href: '/admin/products/categories' },
     { label: 'New Category' },
   ])
 

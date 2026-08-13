@@ -11,6 +11,9 @@ interface SidebarSubMenuProps {
     isCollapsed: boolean
     setCollapsed: (collapsed: boolean) => void
     onItemClick?: () => void
+    // Longest-matching-path group for the current URL, computed once across all
+    // top-level routes in AdminSidebar — see AdminSidebar.tsx's activeGroupKey.
+    isActiveGroup?: boolean
 }
 
 export function SidebarSubMenu({
@@ -18,6 +21,7 @@ export function SidebarSubMenu({
                                    isCollapsed,
                                    setCollapsed,
                                    onItemClick,
+                                   isActiveGroup,
                                }: SidebarSubMenuProps) {
     const location = useLocation()
 
@@ -35,7 +39,6 @@ export function SidebarSubMenu({
     }
 
     const hasActiveChild = authorizedChildren.some((child) => matchesRoute(child))
-    const isParentActive = matchesRoute(route) || hasActiveChild
     const [isExpanded, setIsExpanded] = useState(() => hasActiveChild)
 
     const toggleExpand = () => {
@@ -54,7 +57,7 @@ export function SidebarSubMenu({
                 type="button"
                 className={cn('w-full flex items-center rounded-(--c-radius) group text-left cursor-pointer text-[13px]',
                     isCollapsed ? 'justify-center px-2 py-1.5' : 'px-3 py-1.5',
-                    isParentActive ? 'bg-primary-subtle text-primary font-semibold' : 'text-(--c-text-muted) hover:bg-(--c-surface-hover) hover:text-(--c-text)',)}
+                    isActiveGroup ? 'bg-primary-subtle text-primary font-semibold' : 'text-(--c-text-muted) hover:bg-(--c-surface-hover) hover:text-(--c-text)',)}
                 title={isCollapsed ? route.meta.label : undefined}>
                 <SidebarItemContent
                     label={route.meta.label ?? ''}
