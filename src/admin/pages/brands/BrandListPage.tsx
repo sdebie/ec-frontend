@@ -1,4 +1,4 @@
-import {useEffect, useCallback, useMemo, useState} from 'react'
+import {useEffect, useCallback, useMemo, useRef, useState} from 'react'
 import {useNavigate, useSearchParams} from 'react-router-dom'
 import {useBreadcrumb} from '@/admin/context/BreadcrumbContext'
 import {Pencil, Search, Trash2} from 'lucide-react'
@@ -38,7 +38,30 @@ export function BrandListPage() {
     const [debouncedSearch, setDebouncedSearch] = useState(urlSearch)
     const [deletingBrand, setDeletingBrand] = useState<BrandListItem | null>(null)
 
+    // react-table's pagination/sorting plugins keep their own internal state
+    // alongside the controlled pagination/sorting props, and reconcile it back
+    // out via onPaginationChange/onSortingChange during mount — with ITS OWN
+    // default ({pageIndex: 0, ...}), not the value we actually passed in. That
+    // reconciliation fires again every time this component remounts, which is
+    // exactly what navigate(-1) does when returning from edit/create — so
+    // without this guard, landing back on the list silently snaps to page 0
+    // right after the URL was correctly restored. Real user interactions
+    // (clicking Next, a column header) only happen well after mount. That
+    // reconciliation call is synchronous within React's own render/commit/
+    // effect cycle — a plain useEffect flipping the flag still runs within
+    // that same cycle (child effects before parent effects) and is too early
+    // to help, so this defers one macrotask via setTimeout(0), past the point
+    // where any synchronous mount-time noise could possibly still be pending.
+    const hasMountedRef = useRef(false)
+    useEffect(() => {
+        const id = setTimeout(() => {
+            hasMountedRef.current = true
+        }, 0)
+        return () => clearTimeout(id)
+    }, [])
+
     const handlePaginationChange = useCallback((updater: Updater<PaginationState>) => {
+        if (!hasMountedRef.current) return
         const next = typeof updater === 'function' ? updater(pagination) : updater
         setSearchParams((prev) => {
             const params = new URLSearchParams(prev)
@@ -49,6 +72,7 @@ export function BrandListPage() {
     }, [pagination, setSearchParams])
 
     const handleSortingChange = useCallback((updater: Updater<SortingState>) => {
+        if (!hasMountedRef.current) return
         const next = typeof updater === 'function' ? updater(sorting) : updater
         setSearchParams((prev) => {
             const params = new URLSearchParams(prev)
