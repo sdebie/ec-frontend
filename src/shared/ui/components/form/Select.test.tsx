@@ -123,6 +123,17 @@ describe('SearchableSelect', () => {
     expect(screen.getByRole('button')).toHaveAttribute('id', 'field-1')
   })
 
+  it('highlights the selected option in the menu, distinct from unselected options', () => {
+    render(<SearchableSelect options={options} value="b" usePortal={false} />)
+    fireEvent.click(screen.getByRole('button', { name: 'Option B' }))
+
+    const selected = screen.getByRole('option', { name: /Option B/ })
+    const unselected = screen.getByRole('option', { name: /Option A/ })
+    expect(selected.className).toMatch(/bg-\(--c-accent\)\/10/)
+    expect(selected.className).toMatch(/text-\(--c-accent\)/)
+    expect(unselected.className).not.toMatch(/bg-\(--c-accent\)\/10/)
+  })
+
   it('offers the clear affordance only for a non-empty value', () => {
     const withNone = [{ value: '', label: 'None' }, ...options]
     const { rerender } = render(<SearchableSelect options={withNone} value="" />)
