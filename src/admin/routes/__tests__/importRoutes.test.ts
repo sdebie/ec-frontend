@@ -6,7 +6,6 @@ import { rolesFor } from '@/shared/auth/adminPermissions'
 /**
  * Unit tests for import route configuration
  *
- * Validates: Requirements 1.1, 1.2, 1.3, 1.4
  */
 
 describe('Import route configuration', () => {

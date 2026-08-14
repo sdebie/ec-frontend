@@ -14,7 +14,6 @@ import { formatAmount } from '@/shared/utils/formatAmount'
  * inputs: it never throws, always returns a non-empty string, and produces
  * deterministic output (calling it twice with the same value yields the same result).
  *
- * **Validates: Requirements 5.2**
  */
 
 // Arbitrary that generates monetary values in a realistic range

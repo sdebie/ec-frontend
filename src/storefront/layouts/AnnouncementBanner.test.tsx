@@ -476,7 +476,7 @@ describe('AnnouncementBanner', () => {
     expect(separators).toHaveLength(0)
   })
 
-  // --- Focus recipe on banner links (task 1.6) ---
+  // --- Focus recipe on banner links ---
 
   it('contact links have the banner focus ring classes', () => {
     mockUseStorefrontConfig.mockReturnValue({

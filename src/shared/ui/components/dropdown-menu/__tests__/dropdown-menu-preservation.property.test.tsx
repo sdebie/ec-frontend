@@ -10,7 +10,6 @@ import { DropdownMenu, DropdownItem } from '../DropdownMenu'
  * the menu state transitions are preserved. These tests run on UNFIXED code to
  * establish the baseline behavior that must remain intact after the portal fix.
  *
- * **Validates: Requirements 3.1, 3.2, 3.3, 3.4, 3.5**
  */
 
 // --- Arbitraries ---

@@ -59,8 +59,6 @@ const uniqueCategoryArrayArbitrary = fc
 
 describe('Feature: category-navigation, Property 1: Tree assembly preserves all categories', () => {
   /**
-   * **Validates: Requirements 1.2, 1.4**
-   *
    * For any flat array of categories (each with an optional parent.id that may
    * be valid, null, or referencing a missing ID), buildCategoryTree SHALL produce
    * a tree whose total node count equals the input array length — no category is
@@ -79,8 +77,6 @@ describe('Feature: category-navigation, Property 1: Tree assembly preserves all 
 
 describe('Feature: category-navigation, Property 2: Orphan and parentless categories become roots', () => {
   /**
-   * **Validates: Requirements 1.2, 1.4**
-   *
    * For any flat category array, every category whose parent is null OR whose
    * parent.id does not appear in the array SHALL appear as a root node in the
    * output tree.

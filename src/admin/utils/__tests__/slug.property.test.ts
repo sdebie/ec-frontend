@@ -9,7 +9,6 @@ import { toSlug } from '@/admin/utils/slug'
  * the toSlug function SHALL produce a string matching /^[a-z0-9-]*$/ — containing only
  * lowercase letters, digits, and hyphens — and SHALL never start or end with a hyphen.
  *
- * **Validates: Requirements 2.4, 6.3**
  */
 
 describe('toSlug — Property 1: Slug generation produces valid URL-safe strings', () => {

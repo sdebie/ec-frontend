@@ -43,7 +43,6 @@ const invalidEmailArb = fc.oneof(
 )
 
 describe('checkoutFormSchema - Property Tests', () => {
-    // **Validates: Requirements 3.1**
     it('Property 3: invalid emails produce validation error', () => {
         fc.assert(
             fc.property(invalidEmailArb, (invalidEmail) => {
@@ -64,7 +63,6 @@ describe('checkoutFormSchema - Property Tests', () => {
         )
     })
 
-    // **Validates: Requirements 3.1**
     it('Property 3: valid emails pass validation', () => {
         fc.assert(
             fc.property(validEmailArb, (validEmail) => {
@@ -136,7 +134,6 @@ const partialAddressArb = fc
     .filter((addr) => !addr.streetAddress || !addr.city || !addr.province || !addr.postalCode)
 
 describe('checkoutFormSchema - Delivery Address Validation Property Tests', () => {
-    // **Validates: Requirements 4.5**
     it('Property 5: the delivery predicate decides whether the address is required', () => {
         fc.assert(
             fc.property(deliveryMethodArb, (method) => {
@@ -152,7 +149,6 @@ describe('checkoutFormSchema - Delivery Address Validation Property Tests', () =
         )
     })
 
-    // **Validates: Requirements 4.5**
     it('Property 5: delivery address validation catches exactly the missing fields', () => {
         fc.assert(
             fc.property(partialAddressArb, (address) => {
@@ -169,7 +165,6 @@ describe('checkoutFormSchema - Delivery Address Validation Property Tests', () =
         )
     })
 
-    // **Validates: Requirements 4.5**
     it('Property 5: complete address with delivery method produces no errors', () => {
         const completeAddressArb = fc.record({
             streetAddress: fc.string({minLength: 1, maxLength: 50}).filter((s) => s.trim().length > 0),
@@ -186,7 +181,6 @@ describe('checkoutFormSchema - Delivery Address Validation Property Tests', () =
         )
     })
 
-    // **Validates: Requirements 4.5**
     it('Property 5: collection method never produces address errors regardless of address state', () => {
         const anyAddressArb = fc.record({
             streetAddress: addressFieldArb,

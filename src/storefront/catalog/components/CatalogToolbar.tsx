@@ -22,7 +22,7 @@ interface CatalogToolbarProps {
     onClearAll?: () => void
     /** Slot for ActiveFilterChips */
     chips?: ReactNode
-    /** Slot for view toggle (task 5.1) */
+    /** Slot for view toggle */
     viewToggle?: ReactNode
 }
 
@@ -111,7 +111,7 @@ export function CatalogToolbar({
                     className="min-w-0 flex-1 sm:flex-none sm:w-44"
                 />
 
-                {/* View toggle slot (task 5.1) */}
+                {/* View toggle slot */}
                 <div className="shrink-0">{viewToggle}</div>
             </div>
         </div>

@@ -72,8 +72,6 @@ describe('AccountDashboardPage — property-based tests', () => {
     })
 
     /**
-     * **Validates: Requirements 3.2**
-     *
      * Property 2: Dashboard recent orders limit
      *
      * For any list of orders of length N, the dashboard should display exactly

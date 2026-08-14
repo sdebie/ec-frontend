@@ -5,7 +5,6 @@ import { DataTable } from '../DataTable'
 import type { ColumnDef } from '@tanstack/react-table'
 
 /**
- * **Validates: Requirements 3.2**
  *
  * Property 5: DataTable manual pagination passthrough
  * For any data array passed to DataTable with `manualPagination={true}`,

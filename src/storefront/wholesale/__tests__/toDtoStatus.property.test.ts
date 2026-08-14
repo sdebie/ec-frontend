@@ -5,7 +5,6 @@ import type {WholesaleApplicationFormValues} from '../wholesaleApplicationSchema
 
 /**
  * Property 2: Status is always PENDING
- * Validates: Requirements 7.1
  *
  * For ANY valid form values (regardless of any other field values),
  * the DTO SHALL always include `status: 'PENDING'`.
@@ -41,9 +40,6 @@ const formValuesArb: fc.Arbitrary<WholesaleApplicationFormValues> = fc.record({
 })
 
 describe('toDto — Property 2: Status is always PENDING', () => {
-    /**
-     * **Validates: Requirements 7.1**
-     */
     it('DTO status is always PENDING regardless of input values', () => {
         fc.assert(
             fc.property(formValuesArb, (values) => {

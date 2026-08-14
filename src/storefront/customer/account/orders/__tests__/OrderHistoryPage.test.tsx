@@ -68,8 +68,6 @@ describe('OrderHistoryPage — property-based tests', () => {
     })
 
     /**
-     * **Validates: Requirements 4.2**
-     *
      * Property 3: Order row displays all required fields
      *
      * For any order object with valid date, status, itemCount, and totalAmount,
@@ -121,8 +119,6 @@ describe('OrderHistoryPage — property-based tests', () => {
     })
 
     /**
-     * **Validates: Requirements 4.7**
-     *
      * Property 4: Order status badge colour mapping
      *
      * For any valid order status (CREATED, PAID, SHIPPED, DELIVERED, CANCELLED),

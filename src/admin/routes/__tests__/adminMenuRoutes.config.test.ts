@@ -4,7 +4,6 @@ import { adminMenuRoutes } from '../adminMenuRoutes.config'
 /**
  * Unit test for sidebar route configuration — admin.products parent entry
  *
- * Validates: Requirements 8.1, 8.2, 8.5
  */
 
 describe('adminMenuRoutes — admin.products configuration', () => {

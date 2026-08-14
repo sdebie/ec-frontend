@@ -5,9 +5,6 @@ import * as fc from 'fast-check'
 import { derivePriceChangeIndicator } from '../utils'
 import type { ProductPriceComparisonDto } from '../types'
 
-/**
- * Validates: Requirements 7.2
- */
 describe('derivePriceChangeIndicator — Property Tests', () => {
   const productPriceComparisonArb = fc.record({
     stagedId: fc.uuid(),

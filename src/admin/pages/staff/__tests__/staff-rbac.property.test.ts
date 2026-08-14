@@ -2,7 +2,6 @@ import { describe, it, expect } from 'vitest'
 import fc from 'fast-check'
 
 /**
- * **Validates: Requirements 2.4, 3.6, 6.4**
  *
  * Property test: for every role value in ['CATALOG_MANAGER', 'ORDER_MANAGER', 'VIEWER'],
  * the route authority guard for `/admin/staff/new` and `/admin/staff/:id/edit` should

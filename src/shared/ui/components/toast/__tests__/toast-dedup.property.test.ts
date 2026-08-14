@@ -10,7 +10,6 @@ import type { ToastVariant } from '../toastStore'
  * with the same variant and message while both are currently visible in the stack
  * SHALL result in the store containing exactly one toast with that combination.
  *
- * **Validates: Requirements 5.4**
  */
 
 const variantArb = fc.constantFrom<ToastVariant>('success', 'error', 'warning', 'info')

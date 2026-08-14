@@ -33,7 +33,6 @@ describe('customerAuthStore — property-based tests', () => {
   })
 
   /**
-   * **Validates: Requirements 9.1**
    *
    * Property 14: setSession accepts optional name fields
    *
@@ -78,7 +77,6 @@ describe('customerAuthStore — property-based tests', () => {
   })
 
   /**
-   * **Validates: Requirements 9.3**
    *
    * Property 15: clearSession nulls name fields
    *
@@ -114,7 +112,6 @@ describe('customerAuthStore — property-based tests', () => {
   })
 
   /**
-   * **Validates: Requirements 9.4**
    *
    * Property 16: Name fields not persisted to localStorage
    *

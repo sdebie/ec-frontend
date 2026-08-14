@@ -5,7 +5,6 @@
  * The hook is NOT fully mocked — only adminGraphqlClient.request is mocked so the
  * real mapping code executes on valid submissions.
  *
- * Validates: Requirements 2.5, 8.2
  */
 import { render, screen, waitFor } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'

@@ -9,7 +9,6 @@ import { getAvailableActions, type CustomerStatus } from '@/admin/hooks/customer
  * For any valid CustomerStatus, getAvailableActions SHALL return exactly:
  * PENDING → ['activate'], ACTIVE → ['suspend'], DISABLED → ['activate']
  *
- * **Validates: Requirements 4.1**
  */
 
 const customerStatusArb: fc.Arbitrary<CustomerStatus> = fc.constantFrom(

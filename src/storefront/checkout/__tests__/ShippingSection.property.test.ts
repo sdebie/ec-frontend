@@ -17,7 +17,6 @@ const shippingMethodArb: fc.Arbitrary<ShippingMethod> = fc.record({
 })
 
 describe('ShippingSection - Property Tests', () => {
-    // **Validates: Requirements 4.3, 4.4**
     it('Property 4: isDeliveryMethod returns true iff baseFee > 0 OR (estimatedDays is non-null and not "0")', () => {
         fc.assert(
             fc.property(shippingMethodArb, (method) => {

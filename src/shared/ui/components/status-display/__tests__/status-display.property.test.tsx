@@ -13,7 +13,6 @@ import { ProductStatus, ProductStatusOptions } from '@/shared/types/enums/Produc
  * StatusDisplay component SHALL render a badge whose label and color match
  * the entry in the respective Options map.
  *
- * **Validates: Requirements 6.7, 6.8**
  */
 
 const orderStatusValues = Object.values(OrderStatus)

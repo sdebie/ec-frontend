@@ -12,7 +12,6 @@ import { getPaginationText, getPageNumbers } from '../paginationUtils'
  * X = (page - 1) * pageSize + 1, Y = min(page * pageSize, total), and Z = total.
  * When total === 0, X SHALL be 0.
  *
- * **Validates: Requirements 7.1**
  */
 
 describe('Pagination text calculation — Property Tests', () => {
@@ -103,7 +102,6 @@ describe('Pagination text calculation — Property Tests', () => {
  * At most one page on each side of the current page is shown. Gaps between
  * non-adjacent displayed pages SHALL be represented by "..." ellipsis elements.
  *
- * **Validates: Requirements 7.3**
  */
 
 describe('Pagination button constraints — Property Tests', () => {

@@ -4,7 +4,6 @@
  * form population from useProductDetail, and validation blocking.
  * Mocks adminGraphqlClient.request (not the hooks) so the mapping code executes.
  *
- * Validates: Requirements 1.3, 2.5, 8.2
  */
 import { describe, it, expect, vi, beforeEach } from 'vitest'
 import { render, screen, waitFor } from '@testing-library/react'

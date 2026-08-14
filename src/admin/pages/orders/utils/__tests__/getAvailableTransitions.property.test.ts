@@ -15,7 +15,6 @@ import { OrderStatus } from '@/shared/types/enums/OrderStatus'
  * CANCELLED → [], REFUNDED → [].
  * No other transitions are permitted.
  *
- * **Validates: Requirements 3.1**
  */
 
 const expectedTransitionMap: Record<OrderStatus, OrderStatus[]> = {

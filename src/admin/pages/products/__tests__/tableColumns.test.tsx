@@ -13,7 +13,6 @@ import { useAdminAuthStore } from '@/shared/auth/adminAuthStore'
 
 /**
  * Unit tests for table column rendering and order.
- * Validates: Requirement 4.1
  *
  * The product table SHALL have columns in this order:
  * checkbox (select), Product (thumbnail + name/category merged), SKU, Price, Stock, Status, Actions

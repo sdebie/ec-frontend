@@ -43,9 +43,6 @@ const variants = [
 ]
 
 describe('VariantSelector', () => {
-    /**
-     * Validates: Requirements 8.1
-     */
     describe('option grouping', () => {
         it('renders attribute keys as group labels with correct option buttons', () => {
             const onSelectionChange = vi.fn()
@@ -73,9 +70,6 @@ describe('VariantSelector', () => {
         })
     })
 
-    /**
-     * Validates: Requirements 8.2
-     */
     describe('disabled out-of-stock options', () => {
         it('disables options where all variants with that value are out of stock', () => {
             const onSelectionChange = vi.fn()
@@ -107,9 +101,6 @@ describe('VariantSelector', () => {
         })
     })
 
-    /**
-     * Validates: Requirements 8.3
-     */
     describe('multi-attribute selection', () => {
         it('calls onSelectionChange with combined attributes when selecting size and color', async () => {
             const user = userEvent.setup()

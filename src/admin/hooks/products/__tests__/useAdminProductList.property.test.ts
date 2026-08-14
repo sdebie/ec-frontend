@@ -6,7 +6,6 @@ import * as fc from 'fast-check'
 import { buildVariables, type UseAdminProductListParams } from '../useAdminProductList'
 
 /**
- * **Validates: Requirements 3.6**
  *
  * Property 2: Filter-to-GraphQL-variable mapping
  *

@@ -46,8 +46,6 @@ describe('TestimonialsSection', () => {
   })
 
   /**
-   * Validates: Requirements 6.2, 6.3, 6.4
-   *
    * Property: all layout × variant combinations render without throwing,
    * and dark classes only appear under variant="dark".
    */

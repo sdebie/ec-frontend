@@ -11,8 +11,6 @@ import type { CategoryNode } from '@/storefront/catalog/utils/buildCategoryTree'
  * For any category tree, the CategoryMegaMenu panel SHALL render one group per
  * root node, and each group SHALL contain links for exactly that root's direct
  * children (up to 12, since >12 are truncated with a "View all" link).
- *
- * **Validates: Requirements 2.1**
  */
 
 vi.mock('@/storefront/catalog/hooks/useCategoryTree', () => ({

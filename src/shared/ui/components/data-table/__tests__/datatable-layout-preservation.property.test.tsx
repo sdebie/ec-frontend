@@ -11,7 +11,6 @@ import type { ColumnDef } from '@tanstack/react-table'
  * inner table wrapper and rounded corners (`rounded-xl`) on the outer container
  * remain intact. These tests run on UNFIXED code to establish the baseline.
  *
- * **Validates: Requirements 3.1, 3.2, 3.3, 3.4, 3.5**
  */
 
 // --- Test helpers ---

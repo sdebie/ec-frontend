@@ -14,7 +14,6 @@ import type { CustomerStatus, AdminCustomerSummary } from '@/admin/hooks/custome
  *   - ACTIVE → 'Suspend' appears, 'Activate' does NOT appear
  *   - DISABLED → 'Activate' appears, 'Suspend' does NOT appear
  *
- * **Validates: Requirements 3.1**
  */
 
 const customerStatusArb: fc.Arbitrary<CustomerStatus> = fc.constantFrom(

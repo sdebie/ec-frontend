@@ -10,7 +10,6 @@ import type { ColumnDef } from '@tanstack/react-table'
  * For any dataset with length greater than the page size, when DataTable is rendered
  * without `manualPagination`, only `pageSize` rows SHALL be visible on any given page.
  *
- * **Validates: Requirements 3.1**
  */
 
 interface TestRow {

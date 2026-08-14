@@ -9,7 +9,6 @@ import {useCartStore} from '../store/cartStore'
  * Feature: cart-store
  * Property-based tests for the cart store.
  *
- * **Validates: Requirements 1.1, 1.2, 1.3, 1.7**
  */
 
 // Generator: arbitrary CartLineItem with non-empty strings and positive integer quantity
@@ -338,8 +337,6 @@ function applyMutation(store: ReturnType<typeof createCartStoreWithStorage>, mut
 }
 
 describe('cartStore — Property 4: Cart persistence round-trip', () => {
-    // **Validates: Requirements 1.4, 1.5, 1.6**
-
     it('localStorage value matches in-memory state after any mutation sequence', () => {
         fc.assert(
             fc.property(mutationSequenceArb, (mutations) => {

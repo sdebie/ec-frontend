@@ -28,7 +28,6 @@ describe('checkoutSessionStore - Property Tests', () => {
         useCheckoutSessionStore.setState({session: null})
     })
 
-    // **Validates: Requirements 1.2**
     it('Property 1: setSession followed by getState().session produces deeply equal output', () => {
         fc.assert(
             fc.property(checkoutSessionArb, (session) => {

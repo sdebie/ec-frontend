@@ -12,7 +12,6 @@ import { deriveStockLevel } from '../types'
  * - LOW_STOCK when 1 <= stockCount <= 10
  * - IN_STOCK when stockCount > 10
  *
- * **Validates: Requirements 4.7, 6.5**
  */
 
 describe('deriveStockLevel — Property Tests', () => {

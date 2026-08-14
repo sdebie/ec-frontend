@@ -3,7 +3,6 @@
  * Hook-level test — exercises the REAL request mapping in useProductDetail.
  * Mocks only the boundary (adminGraphqlClient.request), not the hook itself.
  *
- * Validates: Requirements 1.3, 8.2
  */
 import { describe, it, expect, vi, beforeEach } from 'vitest'
 import { renderHook, waitFor } from '@testing-library/react'

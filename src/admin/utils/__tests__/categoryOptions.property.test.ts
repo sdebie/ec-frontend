@@ -11,7 +11,6 @@ import { getParentCategoryOptions } from '../categoryOptions'
  * returns only categories where `parent === null` AND `id !== editingCategoryId`.
  * The result is a strict subset of the input list.
  *
- * **Validates: Requirements 6.4, 7.6**
  */
 
 const parentArb = fc.oneof(

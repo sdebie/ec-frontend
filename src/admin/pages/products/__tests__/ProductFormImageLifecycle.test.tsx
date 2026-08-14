@@ -3,8 +3,6 @@
  * Integration test — ProductForm image lifecycle: no optimistic deletion,
  * abandoned-upload cleanup on cancel.
  *
- * Validates: Requirements 2.6, 3.7, 5.2
- *
  * These tests exercise that:
  * - Image removal in the form only changes local state (no file/association deletion)
  * - On cancel, every session upload is cleaned up because none has been saved

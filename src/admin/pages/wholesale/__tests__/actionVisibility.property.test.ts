@@ -17,7 +17,6 @@ import type { CustomerStatus, WholesaleStatus } from '@/admin/hooks/customers/ty
  * `SUPER_ADMIN` or `ORDER_MANAGER` (backend approve/rejectWholesaleApplication)
  * with `status === 'PENDING'`.
  *
- * **Validates: Requirements 1.6, 1.7, 2.6, 2.7, 3.8, 3.9, 8.2**
  */
 
 // Arbitrary that generates a wide variety of role values including edge cases

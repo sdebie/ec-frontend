@@ -9,7 +9,6 @@ import { Dialog } from '../Dialog'
  * For any valid Dialog size (sm | md | lg | xl | full), the dialog panel element
  * SHALL have the corresponding width constraint class applied.
  *
- * **Validates: Requirements 4.6**
  */
 
 const dialogSizes = ['sm', 'md', 'lg', 'xl', 'full'] as const

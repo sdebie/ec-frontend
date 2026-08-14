@@ -6,7 +6,6 @@ import * as fc from 'fast-check'
 import { buildSearchFilterRequest } from '../filterBuilder'
 
 /**
- * **Validates: Requirements 1.4, 5.4**
  *
  * Property 2: Search filter construction preserves the search term
  *

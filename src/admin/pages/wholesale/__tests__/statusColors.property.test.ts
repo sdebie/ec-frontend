@@ -14,7 +14,6 @@ import {
  * For any CustomerStatus: ACTIVE→green, PENDING→yellow, DISABLED→red
  * For any WholesaleStatus: APPROVED→green, PENDING→yellow, REJECTED→red
  *
- * **Validates: Requirements 9.1, 9.2**
  */
 
 const customerStatusArb: fc.Arbitrary<CustomerStatus> = fc.constantFrom(

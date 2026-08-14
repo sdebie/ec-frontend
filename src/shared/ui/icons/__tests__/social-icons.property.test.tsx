@@ -15,7 +15,6 @@ import { IconYouTube } from '../IconYouTube'
  * Use fast-check to generate className, width, height props; assert they appear
  * on root SVG; assert defaults are 24×24 when not provided.
  *
- * **Validates: Requirements 7.2, 7.3**
  */
 
 const socialIcons = [

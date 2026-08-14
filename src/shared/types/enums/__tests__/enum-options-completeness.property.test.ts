@@ -13,7 +13,6 @@ import {
  * For every value in OrderStatus and ProductStatus, the corresponding Options map
  * contains an entry with a non-empty label and non-empty color.
  *
- * **Validates: Requirements 8.4, 8.5**
  */
 
 const orderStatusValues = Object.values(OrderStatus)

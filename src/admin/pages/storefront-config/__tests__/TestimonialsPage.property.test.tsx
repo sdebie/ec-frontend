@@ -38,9 +38,6 @@ const testimonialArb = fc.record({
   updatedAt: fc.constant('2024-01-01T00:00:00Z'),
 })
 
-/**
- * **Validates: Requirements 4.2**
- */
 describe('Feature: testimonials-management, Property 4: Admin table row renders all required fields', () => {
   it('for any valid AdminTestimonial, the table renders truncated quote, author name, published indicator, and sort order', () => {
     fc.assert(

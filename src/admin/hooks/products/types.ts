@@ -10,9 +10,10 @@ export interface VariantAttribute {
 
 /**
  * Canonical variant shape shared by the read (hydration), write (payload), and
- * form-default surfaces — previously duplicated four ways across this feature.
- * `id`/`priceId`/`wholesalePriceId` are absent for a variant that doesn't exist
- * on the server yet (a freshly added row, or a product being created).
+ * form-default surfaces — the single shape all three use rather than each
+ * defining its own. `id`/`priceId`/`wholesalePriceId` are absent for a variant
+ * that doesn't exist on the server yet (a freshly added row, or a product
+ * being created).
  */
 export interface AdminProductVariant {
   id?: string

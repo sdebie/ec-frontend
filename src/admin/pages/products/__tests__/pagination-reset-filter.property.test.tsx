@@ -9,7 +9,6 @@ import { MemoryRouter } from 'react-router-dom'
  * For any status filter change, the DataTable pageIndex SHALL reset to 0
  * before the refetch is triggered, regardless of the previous pageIndex.
  *
- * **Validates: Requirements 3.3, 7.2**
  */
 
 const mockUseAdminProductList = vi.fn((..._args: unknown[]) => ({

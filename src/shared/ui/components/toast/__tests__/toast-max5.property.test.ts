@@ -10,7 +10,6 @@ import type { ToastVariant } from '../toastStore'
  * contain more than 5 toasts simultaneously, and the oldest toast SHALL always be
  * evicted first when the limit is reached.
  *
- * **Validates: Requirements 5.3**
  */
 
 const variantArb: fc.Arbitrary<ToastVariant> = fc.constantFrom(

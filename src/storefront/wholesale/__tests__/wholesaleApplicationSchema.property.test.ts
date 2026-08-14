@@ -67,8 +67,6 @@ const requiredFields = [
 
 describe('Feature: wholesale-application-enhancements, Property 1: Required field validation blocks submission', () => {
     /**
-     * **Validates: Requirements 3.2**
-     *
      * For any form input where at least one required field is blank or missing,
      * the schema validation SHALL reject the input.
      */
@@ -124,8 +122,6 @@ describe('Feature: wholesale-application-enhancements, Property 1: Required fiel
 
 describe('Feature: wholesale-application-enhancements, Property 2: Email format validation', () => {
     /**
-     * **Validates: Requirements 3.3**
-     *
      * For any string provided to an email field (applicantEmail, accountEmail,
      * companyEmail, financeContactEmail), if the string does not conform to email
      * format, the Zod schema SHALL reject it; if it does conform, the schema SHALL

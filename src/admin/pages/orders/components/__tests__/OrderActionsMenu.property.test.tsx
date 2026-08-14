@@ -16,7 +16,6 @@ import type { AdminOrderSummary } from '@/admin/hooks/orders'
  * getAvailableTransitions(status).length > 0. In all other cases, the menu
  * SHALL not be rendered.
  *
- * **Validates: Requirements 1.6, 1.7, 4.2**
  */
 
 const orderStatusArb = fc.constantFrom(...Object.values(OrderStatus))

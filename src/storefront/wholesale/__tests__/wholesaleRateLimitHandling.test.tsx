@@ -2,8 +2,6 @@
  * Tests that the rate-limit GraphQL error message surfaces through the existing
  * useWholesaleApplicationSubmit onError handler as a persistent toast, and that
  * console.error is called per the project convention.
- *
- * Validates: Requirements 8.3
  */
 import { describe, it, expect, vi, beforeEach } from 'vitest'
 import { renderHook, act, waitFor } from '@testing-library/react'

@@ -15,7 +15,6 @@ import { DropdownMenu, DropdownItem } from '../DropdownMenu'
  * renders the menu with `position: absolute` as a child of the trigger's relative
  * container — it does NOT use a portal.
  *
- * **Validates: Requirements 1.1, 1.2, 1.3**
  */
 
 // Arbitrary for container dimensions that would cause clipping

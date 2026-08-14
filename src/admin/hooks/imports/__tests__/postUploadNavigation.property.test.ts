@@ -3,9 +3,6 @@
 import { describe, it, expect } from 'vitest'
 import * as fc from 'fast-check'
 
-/**
- * Validates: Requirements 3.7, 6.3
- */
 describe('Post-upload navigation — Property Tests', () => {
   it('product upload navigates to correct review URL for any batch ID', () => {
     fc.assert(

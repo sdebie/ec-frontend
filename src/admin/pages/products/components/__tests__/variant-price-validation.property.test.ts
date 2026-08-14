@@ -8,7 +8,6 @@ import * as fc from 'fast-check'
  * strings matching `/^\d+(\.\d{1,2})?$/` and SHALL reject all other strings,
  * including empty strings, negative values, and strings with more than 2 decimal places.
  *
- * **Validates: Requirements 2.5, 7.3**
  */
 
 // The exact regex from variantSchema in ProductForm.tsx

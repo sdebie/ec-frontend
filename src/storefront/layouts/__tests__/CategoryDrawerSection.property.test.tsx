@@ -10,8 +10,6 @@ import type { CategoryNode } from '@/storefront/catalog/hooks/useCategoryTree'
  * For any category node that has children, the NavDrawer SHALL render two
  * distinct interactive elements: one that navigates to the parent's product
  * list (a link), and one that expands/collapses the children list (a button).
- *
- * **Validates: Requirements 3.1, 3.2**
  */
 
 const mockUseCategoryTree = vi.fn<() => { tree: CategoryNode[]; isLoading: boolean; isError: boolean }>()

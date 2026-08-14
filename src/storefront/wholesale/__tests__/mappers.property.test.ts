@@ -6,8 +6,6 @@ import type { WholesaleApplicationFormValues } from '../wholesaleApplicationSche
 /**
  * Feature: wholesale-application-enhancements, Property 4: Same as company address copies physical to postal
  *
- * **Validates: Requirements 4.3**
- *
  * For any form submission where `sameAsPhysical` is true, the resulting DTO
  * (from the `toDto` mapper) SHALL have postal address columns equal to the
  * physical address columns. Conversely, when `sameAsPhysical` is false, the
@@ -76,8 +74,6 @@ function formValuesArb(sameAsPhysical: boolean): fc.Arbitrary<WholesaleApplicati
 
 describe('Feature: wholesale-application-enhancements, Property 4: Same as company address copies physical to postal', () => {
   /**
-   * **Validates: Requirements 4.3**
-   *
    * When sameAsPhysical is true, all postal address fields in the DTO
    * SHALL equal the corresponding physical address fields.
    */
@@ -98,8 +94,6 @@ describe('Feature: wholesale-application-enhancements, Property 4: Same as compa
   })
 
   /**
-   * **Validates: Requirements 4.3**
-   *
    * When sameAsPhysical is false, the postal address fields in the DTO
    * SHALL reflect the independently provided postal input values (defaulting
    * to empty string when undefined).

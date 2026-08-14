@@ -5,7 +5,6 @@ import { adminRoutingRoutes } from '../adminPageRoutes.config'
 /**
  * Unit tests for wholesale route configuration
  *
- * Validates: Requirements 6.1, 6.2, 6.3
  */
 
 describe('Wholesale route configuration', () => {

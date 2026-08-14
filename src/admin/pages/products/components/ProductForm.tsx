@@ -87,8 +87,8 @@ export const productSchema = z.object({
 }).superRefine((data, ctx) => {
     // Validate duplicate SKUs within the form. Blank SKUs are skipped (already
     // reported by the per-row 'required' rule) WITHOUT compacting the array,
-    // so `i` always stays the real index into `data.variants` — a filtered
-    // index here previously misattributed the error to an unrelated blank row.
+    // so `i` always stays the real index into `data.variants` — compacting
+    // first would shift a later duplicate's index onto an unrelated blank row.
     const seen = new Set<string>()
     data.variants.forEach((variant, i) => {
         if (!variant.sku) return

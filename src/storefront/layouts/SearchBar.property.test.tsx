@@ -5,8 +5,6 @@ import * as fc from 'fast-check'
 import { SearchBar } from './SearchBar'
 
 /**
- * **Validates: Requirements 3.3, 3.5**
- *
  * Property 1: Search param round-trip preservation
  * For any non-empty search term submitted via the SearchBar, navigating to
  * `/products?q=<encoded term>` and reading back the `?q=` param SHALL yield

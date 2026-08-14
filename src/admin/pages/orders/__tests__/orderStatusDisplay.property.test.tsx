@@ -13,7 +13,6 @@ import { OrderStatus, OrderStatusOptions } from '@/shared/types/enums/OrderStatu
  * OrderStatusOptions[status].color. No hardcoded Tailwind colour utilities shall
  * appear in the rendered output.
  *
- * **Validates: Requirements 5.1**
  */
 
 // Admin-relevant statuses only

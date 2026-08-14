@@ -4,7 +4,6 @@ import * as fc from 'fast-check'
 import { InputField } from '../InputField'
 
 /**
- * **Validates: Requirements 2.7**
  *
  * Property 3: InputField error display
  * For any non-empty error string passed to InputField, the rendered output

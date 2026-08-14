@@ -74,7 +74,7 @@ export function GoogleAuthButton({ onSuccess, text = 'signin_with' }: GoogleAuth
       <GoogleLogin
         onSuccess={onSuccess}
         onError={() => {
-          // Silent cancel — no error shown per requirement 8.6
+          // Silent cancel — no error shown
         }}
         text={text}
         shape="rectangular"

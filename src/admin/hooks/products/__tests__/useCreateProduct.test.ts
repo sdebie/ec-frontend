@@ -4,7 +4,6 @@
  * Mocks only adminGraphqlClient.request so the toProductInformationInput mapping
  * actually executes (if someone breaks the mapping, this test fails).
  *
- * Validates: Requirements 2.5, 8.2
  */
 import { describe, it, expect, vi, beforeEach } from 'vitest'
 import { renderHook, act, waitFor } from '@testing-library/react'

@@ -5,9 +5,6 @@ import * as fc from 'fast-check'
 import { getBatchStatusColor } from '../utils'
 import type { BatchStatus } from '../types'
 
-/**
- * Validates: Requirements 2.3, 5.3
- */
 describe('getBatchStatusColor — Property Tests', () => {
   it('maps every BatchStatus to the correct color with no undefined return', () => {
     fc.assert(

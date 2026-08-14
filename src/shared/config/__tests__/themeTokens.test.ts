@@ -119,9 +119,10 @@ describe('storefront theme tokens', () => {
   })
 
   it('scans every stylesheet, and reads real text from each', () => {
-    // Guards the guard, and it takes BOTH halves. The glob this replaced did
-    // match both stylesheets — it handed back an empty string for each, so a
-    // count on its own would have passed while nothing was scanned at all.
+    // Guards the guard, and it takes BOTH halves: a stylesheet count alone is
+    // not enough, because a glob that matches a file but hands back an empty
+    // string would pass that check while scanning nothing at all — this also
+    // asserts real content length for each file.
     expect(Object.keys(stylesheetSources).length).toBeGreaterThan(0)
 
     for (const [file, text] of Object.entries(stylesheetSources)) {
