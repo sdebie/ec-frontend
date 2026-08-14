@@ -48,7 +48,7 @@ describe('staff RBAC — route authority guard', () => {
           const userAuthority = [role]
           const canAccess = hasRequiredAuthority(staffCreateRoute.authority, userAuthority)
           expect(canAccess).toBe(false)
-          return canAccess === false
+          return !canAccess
         },
       ),
       { numRuns: 100 },
@@ -63,7 +63,7 @@ describe('staff RBAC — route authority guard', () => {
           const userAuthority = [role]
           const canAccess = hasRequiredAuthority(staffEditRoute.authority, userAuthority)
           expect(canAccess).toBe(false)
-          return canAccess === false
+          return !canAccess
         },
       ),
       { numRuns: 100 },
@@ -85,7 +85,7 @@ describe('staff RBAC — route authority guard', () => {
           const userAuthority = [...roles]
           const canAccessCreate = hasRequiredAuthority(staffCreateRoute.authority, userAuthority)
           const canAccessEdit = hasRequiredAuthority(staffEditRoute.authority, userAuthority)
-          return canAccessCreate === false && canAccessEdit === false
+          return !canAccessCreate && !canAccessEdit
         },
       ),
       { numRuns: 100 },

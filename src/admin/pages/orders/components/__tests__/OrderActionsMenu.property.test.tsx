@@ -57,7 +57,7 @@ describe('Actions menu visibility — Property Tests', () => {
           )
 
           const menuElement = container.querySelector('[data-testid="order-actions-menu"]')
-          const shouldRender = canMutate === true && getAvailableTransitions(status).length > 0
+          const shouldRender = canMutate && getAvailableTransitions(status).length > 0
 
           if (shouldRender) {
             expect(menuElement).not.toBeNull()
