@@ -2,6 +2,7 @@ import {Link, Navigate, useNavigate, useParams} from 'react-router-dom'
 import {PageBackButton, PageLoadingSpinner, toast} from '@/shared/ui/components'
 import {useBreadcrumb} from '@/admin/context/BreadcrumbContext'
 import {useAdminAuthStore} from '@/shared/auth/adminAuthStore'
+import {mutationErrorMessage} from '@/admin/utils'
 import {useCategoryDetail} from './hooks/useCategoryDetail'
 import {useUpdateCategory} from './hooks/useUpdateCategory'
 import type {CategoryFormValues} from './components/CategoryForm'
@@ -87,8 +88,7 @@ export function CategoryEditPage() {
                     navigate(-1)
                 },
                 onError: (error) => {
-                    console.error(error)
-                    toast.error('Failed to save category', {duration: 0})
+                    toast.error(mutationErrorMessage(error, 'Failed to save category'), {duration: 0})
                 },
             },
         )

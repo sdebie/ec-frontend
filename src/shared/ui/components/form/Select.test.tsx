@@ -117,6 +117,20 @@ describe('SearchableSelect', () => {
     fireEvent.change(searchInput, { target: { value: 'xyz' } })
     expect(screen.getByText('Nothing found')).toBeInTheDocument()
   })
+
+  it('applies id to the trigger button so a Label htmlFor (e.g. FormItem) can target it', () => {
+    render(<SearchableSelect options={options} id="field-1" />)
+    expect(screen.getByRole('button')).toHaveAttribute('id', 'field-1')
+  })
+
+  it('offers the clear affordance only for a non-empty value', () => {
+    const withNone = [{ value: '', label: 'None' }, ...options]
+    const { rerender } = render(<SearchableSelect options={withNone} value="" />)
+    expect(screen.queryByRole('button', { name: 'Clear selection' })).not.toBeInTheDocument()
+
+    rerender(<SearchableSelect options={withNone} value="a" />)
+    expect(screen.getByRole('button', { name: 'Clear selection' })).toBeInTheDocument()
+  })
 })
 
 describe('MultiSelect', () => {

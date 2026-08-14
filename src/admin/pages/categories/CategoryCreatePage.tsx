@@ -2,6 +2,7 @@ import {Navigate, useNavigate} from 'react-router-dom'
 import {PageBackButton, toast} from '@/shared/ui/components'
 import {useBreadcrumb} from '@/admin/context/BreadcrumbContext'
 import {useAdminAuthStore} from '@/shared/auth/adminAuthStore'
+import {mutationErrorMessage} from '@/admin/utils'
 import {useCreateCategory} from './hooks/useCreateCategory'
 import type {CategoryFormValues} from './components/CategoryForm'
 import {CategoryForm} from './components/CategoryForm'
@@ -34,8 +35,7 @@ export function CategoryCreatePage() {
                     navigate(-1)
                 },
                 onError: (error) => {
-                    console.error(error)
-                    toast.error('Failed to create category', {duration: 0})
+                    toast.error(mutationErrorMessage(error, 'Failed to create category'), {duration: 0})
                 },
             },
         )

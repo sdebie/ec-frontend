@@ -15,6 +15,8 @@ export interface SearchableSelectProps {
   options: SearchableSelectOption[]
   value?: string
   onChange?: (value: string) => void
+  /** Applied to the trigger button so a Label's htmlFor (e.g. FormItem's injected id) targets it. */
+  id?: string
   placeholder?: string
   searchPlaceholder?: string
   emptyText?: string
@@ -37,6 +39,7 @@ export const SearchableSelect = React.forwardRef<
       options,
       value,
       onChange,
+      id,
       placeholder = 'Select an option',
       searchPlaceholder = 'Search...',
       emptyText = 'No options found',
@@ -524,10 +527,19 @@ export const SearchableSelect = React.forwardRef<
                       option.disabled
                         ? 'cursor-not-allowed text-(--c-text-muted) opacity-60'
                         : 'text-(--c-text)',
+                      // Highlight (hover/keyboard) and selected each own the background so
+                      // they never collide; selected keeps its accent text even when the
+                      // transient highlight is painting a different background on top.
                       isHighlighted &&
                         !option.disabled &&
                         'bg-(--c-surface-hover)',
-                      isSelected && !isHighlighted && 'text-(--c-text)'
+                      isSelected &&
+                        !option.disabled &&
+                        'text-(--c-accent) font-medium',
+                      isSelected &&
+                        !isHighlighted &&
+                        !option.disabled &&
+                        'bg-(--c-accent)/10'
                     )}
                     onMouseEnter={() => {
                       setHighlightedIndex(index)
@@ -563,6 +575,7 @@ export const SearchableSelect = React.forwardRef<
       >
         <button
           type="button"
+          id={id}
           disabled={disabled}
           onClick={() => !disabled && setIsOpen((prev) => !prev)}
           onKeyDown={handleTriggerKeyDown}
@@ -587,7 +600,10 @@ export const SearchableSelect = React.forwardRef<
             {selectedOption ? selectedOption.label : placeholder}
           </span>
           <span className="ml-2 flex items-center gap-1">
-            {selectedOption && !disabled && (
+            {/* No clear affordance for an empty-string value: clearing resolves to
+                onChange('') — a no-op when '' is already selected (e.g. a "None"
+                option using '' as its value). */}
+            {selectedOption && !!value && !disabled && (
               <span
                 role="button"
                 aria-label={clearAriaLabel}

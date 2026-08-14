@@ -7,6 +7,7 @@ import type {CategoryListItem} from '../types'
 import {useDeleteCategory} from '../hooks/useDeleteCategory'
 import type {ColumnDef} from '@/shared/ui/components'
 import {ConfirmationDialog, DataTable, RowActionButton, Thumbnail, toast} from '@/shared/ui/components'
+import {mutationErrorMessage} from '@/admin/utils'
 
 interface CategoryTableProps {
     data: CategoryListItem[]
@@ -45,8 +46,7 @@ export function CategoryTable({
                     setDeletingCategory(null)
                 },
                 onError: (err) => {
-                    console.error(err)
-                    toast.error('Failed to delete category', {duration: 0})
+                    toast.error(mutationErrorMessage(err, 'Failed to delete category'), {duration: 0})
                     setDeletingCategory(null)
                 },
             },

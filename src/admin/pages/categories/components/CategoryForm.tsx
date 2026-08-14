@@ -1,5 +1,5 @@
 import {type ReactNode, useEffect, useRef, useState} from 'react'
-import {Controller, useForm} from 'react-hook-form'
+import {useController, useForm} from 'react-hook-form'
 import {zodResolver} from '@hookform/resolvers/zod'
 import {z} from 'zod'
 import {useNavigate} from 'react-router-dom'
@@ -10,7 +10,7 @@ import {
     ImageGalleryPicker,
     ImageUpload,
     Label,
-    Select,
+    SearchableSelect,
     Textarea,
     ToggleGroup,
 } from '@/shared/ui/components'
@@ -47,9 +47,12 @@ const IMAGE_LIBRARY_DIRECTORY = 'categories'
 const IMAGE_LIBRARY_PAGE_SIZE = 12
 const IMAGE_LIBRARY_SEARCH_DEBOUNCE_MS = 300
 
-// How many categories to load for the parent dropdown. Parents are top-level
-// only, so this ceiling applies to root categories rather than the full tree.
-const PARENT_OPTIONS_PAGE_SIZE = 100
+// How many categories to load for the parent dropdown and the duplicate
+// name/slug pre-check. The page holds ALL categories (top-level filtering
+// happens client-side afterwards), so this must cover the whole tree —
+// getCategories caps pageSize at 500. A category beyond the cap would only
+// be missing from the picker/pre-check; the server still validates on save.
+const CATEGORY_LOOKUP_PAGE_SIZE = 500
 
 export type CategoryFormValues = z.infer<typeof categorySchema>
 
@@ -69,8 +72,12 @@ export function CategoryForm({
                                  backButton,
                              }: CategoryFormProps) {
     const navigate = useNavigate()
-    const slugManuallyEdited = useRef(false)
-    const [slugTouched, setSlugTouched] = useState(false)
+    // Seeded from props, not synced by effect: the auto-slug effect below runs
+    // before any effect could flip these, so an effect-based guard would let a
+    // name-derived slug overwrite the stored (locked) slug on the first render
+    // of edit mode whenever the name has diverged from the slug.
+    const slugManuallyEdited = useRef(!!defaultValues?.slug)
+    const [slugTouched, setSlugTouched] = useState(!!defaultValues?.slug)
     const {mutate: uploadImage, isPending: isUploading} = useUploadImageAsset(IMAGE_LIBRARY_DIRECTORY)
     const [imageMode, setImageMode] = useState<ImageMode>('upload')
     const [librarySearchInput, setLibrarySearchInput] = useState('')
@@ -107,6 +114,7 @@ export function CategoryForm({
         handleSubmit,
         watch,
         setValue,
+        setError,
         control,
         formState: {errors},
     } = useForm<CategoryFormValues>({
@@ -121,16 +129,20 @@ export function CategoryForm({
         },
     })
 
-    const {data: categoryData} = useCategoryList({pageIndex: 0, pageSize: PARENT_OPTIONS_PAGE_SIZE})
+    const {data: categoryData} = useCategoryList({pageIndex: 0, pageSize: CATEGORY_LOOKUP_PAGE_SIZE})
+    // getParentCategoryOptions returns a fresh filtered array, so sorting in
+    // place is safe; the list arrives in insertion order otherwise.
     const parentOptions = getParentCategoryOptions(
         categoryData?.content ?? [],
         editingCategoryId,
-    )
+    ).sort((a, b) => a.name.localeCompare(b.name))
 
     const parentSelectOptions = [
         {value: '', label: 'None (top-level)'},
         ...parentOptions.map((cat) => ({value: cat.id, label: cat.name})),
     ]
+
+    const parentField = useController({name: 'parentId', control}).field
 
     const nameValue = watch('name')
     const imageUrlValue = watch('imageUrl')
@@ -180,8 +192,28 @@ export function CategoryForm({
 
     const isEditMode = !!defaultValues?.name
 
+    // Mirrors CategoryService's case-insensitive uniqueness rules so a duplicate
+    // surfaces as a field error before the request goes out. The server re-checks
+    // regardless (and the DB's unique slug constraint decides concurrent creates),
+    // so this is a UX guard, not the authority.
+    const submitWithUniquenessCheck = (values: CategoryFormValues) => {
+        const others = (categoryData?.content ?? []).filter((cat) => cat.id !== editingCategoryId)
+        const nameTaken = others.some((cat) => cat.name.toLowerCase() === values.name.toLowerCase())
+        const slugTaken = others.some((cat) => cat.slug.toLowerCase() === values.slug.toLowerCase())
+
+        if (nameTaken) {
+            setError('name', {type: 'duplicate', message: 'A category with this name already exists'}, {shouldFocus: true})
+        }
+        if (slugTaken) {
+            setError('slug', {type: 'duplicate', message: 'This slug is already used by another category'}, {shouldFocus: !nameTaken})
+        }
+        if (nameTaken || slugTaken) return
+
+        onSubmit(values)
+    }
+
     return (
-        <Form onSubmit={handleSubmit(onSubmit)}>
+        <Form onSubmit={handleSubmit(submitWithUniquenessCheck)}>
             <Card>
                 <Card.Header className="flex items-center gap-3 mb-1 pb-2">
                     {backButton}
@@ -250,17 +282,18 @@ export function CategoryForm({
                         errorMessage={errors.parentId?.message}
                         helperText="Assign to a top-level category or leave as top-level"
                     >
-                        <Controller
-                            name="parentId"
-                            control={control}
-                            render={({field}) => (
-                                <Select
-                                    options={parentSelectOptions}
-                                    value={field.value ?? ''}
-                                    onChange={(val) => field.onChange(val || null)}
-                                    placeholder="Select parent category"
-                                />
-                            )}
+                        {/* In-place menu (no portal): a body portal would sit outside the
+                            [data-density] scope, so the menu's search input would lose its
+                            --c-control-h-* height token (ThemeApplier mirrors surface/theme/
+                            preset onto <body>, but not density). */}
+                        <SearchableSelect
+                            options={parentSelectOptions}
+                            value={parentField.value ?? ''}
+                            onChange={(val) => parentField.onChange(val || null)}
+                            placeholder="Select parent category"
+                            searchPlaceholder="Search categories..."
+                            emptyText="No matching categories"
+                            usePortal={false}
                         />
                     </FormItem>
 
