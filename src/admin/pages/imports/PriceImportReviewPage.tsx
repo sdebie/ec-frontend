@@ -6,12 +6,12 @@ import type {ColumnDef} from '@/shared/ui/components'
 import {DataTable, Dialog, DialogContent, DialogHeader, PageLayout, RowActionButton, StatusBadge, toast,} from '@/shared/ui/components'
 import {useBreadcrumb} from '@/admin/context/BreadcrumbContext'
 import {Button} from '@/shared/ui/primitives'
-import {useAdminAuthStore} from '@/shared/auth/adminAuthStore'
+import {useCan} from '@/shared/auth/adminPermissions'
 import {usePriceImportRows} from '@/admin/hooks/imports/usePriceImportRows'
 import {usePriceUploadBatches} from '@/admin/hooks/imports/usePriceUploadBatches'
 import {useBatchStatusPolling} from '@/admin/hooks/imports/useBatchStatusPolling'
 import {useApproveBatch} from '@/admin/hooks/imports/useApproveBatch'
-import {deriveCanMutate, derivePriceChangeIndicator, getValidationStatusColor,} from '@/admin/hooks/imports/utils'
+import {derivePriceChangeIndicator, getValidationStatusColor,} from '@/admin/hooks/imports/utils'
 import type {BatchStatusResponse, ProductPriceComparisonDto} from '@/admin/hooks/imports/types'
 import {formatAmount} from '@/shared/utils/formatAmount'
 
@@ -48,7 +48,7 @@ function BatchMetaItem({icon, label, value}: BatchMetaItemProps) {
 
 export default function PriceImportReviewPage() {
     const {batchId} = useParams<{ batchId: string }>()
-    const canMutate = deriveCanMutate(useAdminAuthStore((s) => s.role))
+    const canMutate = useCan('import:manage')
 
     useBreadcrumb([
         {label: 'Home', href: '/admin'},

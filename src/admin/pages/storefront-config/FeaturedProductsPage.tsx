@@ -19,12 +19,12 @@ import {
 } from '@/shared/ui/components'
 import { Button, Input } from '@/shared/ui/primitives'
 import { formatAmount } from '@/shared/utils/formatAmount'
-import { useAdminAuthStore } from '@/shared/auth/adminAuthStore'
+import { useCan } from '@/shared/auth/adminPermissions'
 
 const FEATURED_CAP = 50
 
 export function FeaturedProductsPage() {
-  const isSuperAdmin = useAdminAuthStore((s) => s.role) === 'SUPER_ADMIN'
+  const canEdit = useCan('featured:write')
   const [isAddDialogOpen, setIsAddDialogOpen] = useState(false)
 
   const { data, isLoading, isError, refetch } = useFeaturedProducts()
@@ -82,7 +82,7 @@ export function FeaturedProductsPage() {
         },
       ]
 
-      if (isSuperAdmin) {
+      if (canEdit) {
         cols.push({
           id: 'actions',
           header: 'Actions',
@@ -102,7 +102,7 @@ export function FeaturedProductsPage() {
 
       return cols
     },
-    [isSuperAdmin, handleRemove],
+    [canEdit, handleRemove],
   )
 
   useBreadcrumb([
@@ -124,7 +124,7 @@ export function FeaturedProductsPage() {
     )
   }
 
-  const headerAction = isSuperAdmin ? (
+  const headerAction = canEdit ? (
     <Button
       variant="solid"
       disabled={isAtCap}
@@ -142,7 +142,7 @@ export function FeaturedProductsPage() {
       subtitle="Manage which products appear in the featured section on your storefront"
       action={headerAction}
     >
-      {isAtCap && isSuperAdmin && (
+      {isAtCap && canEdit && (
         <p className="text-xs text-(--c-text-muted) mb-2">
           Featured limit reached ({FEATURED_CAP}/{FEATURED_CAP}). Remove a product before adding another.
         </p>

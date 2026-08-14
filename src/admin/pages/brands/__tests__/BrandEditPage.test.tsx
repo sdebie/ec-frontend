@@ -111,4 +111,18 @@ describe('BrandEditPage', () => {
 
     expect(screen.getByText('Brands List Page')).toBeInTheDocument()
   })
+
+  it('renders the edit form for CATALOG_MANAGER (brand:write admits it)', () => {
+    useAdminAuthStore.setState({ role: 'CATALOG_MANAGER' })
+
+    mockedUseBrandDetail.mockReturnValue({
+      data: { id: '1', name: 'Nike', slug: 'nike', description: null, logoUrl: null },
+      isLoading: false,
+      error: null,
+    })
+
+    renderBrandEditPage()
+
+    expect(screen.queryByText('Brands List Page')).not.toBeInTheDocument()
+  })
 })

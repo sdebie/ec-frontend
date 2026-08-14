@@ -3,7 +3,7 @@ import { useParams, Link, useNavigate } from 'react-router-dom'
 
 import { PageLoadingSpinner, ConfirmationDialog } from '@/shared/ui/components'
 import { Button } from '@/shared/ui/primitives'
-import { useAdminAuthStore } from '@/shared/auth/adminAuthStore'
+import { useCan } from '@/shared/auth/adminPermissions'
 import { useBreadcrumb } from '@/admin/context/BreadcrumbContext'
 import { usePageContent } from '@/admin/hooks/pages/usePageContent'
 import { useSavePageDraft } from '@/admin/hooks/pages/useSavePageDraft'
@@ -14,8 +14,7 @@ export function LegalPageEditPage() {
   const { id } = useParams<{ id: string }>()
   const navigate = useNavigate()
   const { data, isLoading, isFetched } = usePageContent(id!)
-  const role = useAdminAuthStore((s) => s.role)
-  const isSuperAdmin = role === 'SUPER_ADMIN'
+  const canEdit = useCan('legal:write')
 
   const saveDraft = useSavePageDraft()
   const publishPage = usePublishPage()
@@ -118,7 +117,7 @@ export function LegalPageEditPage() {
           </span>
         </div>
 
-        {isSuperAdmin && (
+        {canEdit && (
           <div className="flex gap-3">
             <Button
               variant="outline"
@@ -144,7 +143,7 @@ export function LegalPageEditPage() {
       <RichTextEditor
         value={content}
         onChange={setContent}
-        disabled={!isSuperAdmin}
+        disabled={!canEdit}
       />
 
       <ConfirmationDialog

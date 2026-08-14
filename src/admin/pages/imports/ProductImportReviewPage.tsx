@@ -6,7 +6,7 @@ import { DataTable, StatusBadge, PageLayout, PageLoadingSpinner, toast } from '@
 import { useBreadcrumb } from '@/admin/context/BreadcrumbContext'
 import type { ColumnDef } from '@/shared/ui/components'
 import { Button } from '@/shared/ui/primitives'
-import { useAdminAuthStore } from '@/shared/auth/adminAuthStore'
+import { useCan } from '@/shared/auth/adminPermissions'
 import { useProductImportRows } from '@/admin/hooks/imports/useProductImportRows'
 import { useProductUploadBatches } from '@/admin/hooks/imports/useProductUploadBatches'
 import { useBatchStatusPolling } from '@/admin/hooks/imports/useBatchStatusPolling'
@@ -14,7 +14,6 @@ import { useApproveBatch } from '@/admin/hooks/imports/useApproveBatch'
 import {
   getValidationStatusColor,
   deriveChangeType,
-  deriveCanMutate,
 } from '@/admin/hooks/imports/utils'
 import type { ProductComparisonDto, BatchStatusResponse } from '@/admin/hooks/imports/types'
 
@@ -51,7 +50,7 @@ function BatchMetaItem({ icon, label, value }: BatchMetaItemProps) {
 
 export default function ProductImportReviewPage() {
   const { batchId } = useParams<{ batchId: string }>()
-  const canMutate = deriveCanMutate(useAdminAuthStore((s) => s.role))
+  const canMutate = useCan('import:manage')
 
   useBreadcrumb([
     { label: 'Home', href: '/admin' },

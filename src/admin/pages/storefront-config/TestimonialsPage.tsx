@@ -26,7 +26,7 @@ import {
 } from '@/shared/ui/components'
 import { ConfirmationDialog } from '@/shared/ui/components/dialog/ConfirmationDialog'
 import { Button, Input } from '@/shared/ui/primitives'
-import { hasRequiredAuthority } from '@/shared/utils/authorizationHelper'
+import { useCan } from '@/shared/auth/adminPermissions'
 
 function truncateQuote(quote: string, maxLength = 80): string {
   if (quote.length <= maxLength) return quote
@@ -34,7 +34,7 @@ function truncateQuote(quote: string, maxLength = 80): string {
 }
 
 export function TestimonialsPage() {
-  const isSuperAdmin = hasRequiredAuthority(['SUPER_ADMIN'])
+  const canEdit = useCan('testimonial:write')
 
   const { data: testimonials = [], isLoading } = useAdminTestimonials()
   const createTestimonial = useCreateTestimonial()
@@ -146,7 +146,7 @@ export function TestimonialsPage() {
       },
     ]
 
-    if (isSuperAdmin) {
+    if (canEdit) {
       cols.push({
         id: 'actions',
         header: 'Actions',
@@ -172,9 +172,9 @@ export function TestimonialsPage() {
     }
 
     return cols
-  }, [isSuperAdmin, openEditForm])
+  }, [canEdit, openEditForm])
 
-  const headerAction = isSuperAdmin ? (
+  const headerAction = canEdit ? (
     <Button variant="solid" onClick={openCreateForm} leftIcon={<Plus className="h-4 w-4" />}>
       Add Testimonial
     </Button>

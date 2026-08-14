@@ -1,7 +1,7 @@
 import {Link, Navigate, useNavigate, useParams} from 'react-router-dom'
 import {PageBackButton, PageLoadingSpinner, toast} from '@/shared/ui/components'
 import {useBreadcrumb} from '@/admin/context/BreadcrumbContext'
-import {useAdminAuthStore} from '@/shared/auth/adminAuthStore'
+import {useCan} from '@/shared/auth/adminPermissions'
 import {mutationErrorMessage} from '@/admin/utils'
 import {useCategoryDetail} from './hooks/useCategoryDetail'
 import {useUpdateCategory} from './hooks/useUpdateCategory'
@@ -9,7 +9,7 @@ import type {CategoryFormValues} from './components/CategoryForm'
 import {CategoryForm} from './components/CategoryForm'
 
 export function CategoryEditPage() {
-    const canMutate = useAdminAuthStore((s) => s.role) === 'SUPER_ADMIN'
+    const canMutate = useCan('category:write')
     const {categoryId} = useParams<{ categoryId: string }>()
     const navigate = useNavigate()
     const {data: category, isLoading} = useCategoryDetail(categoryId!)

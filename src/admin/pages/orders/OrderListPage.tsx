@@ -11,7 +11,7 @@ import {
 } from '@/shared/ui/components'
 import type { ColumnDef } from '@/shared/ui/components'
 import { Input } from '@/shared/ui/primitives'
-import { useAdminAuthStore } from '@/shared/auth/adminAuthStore'
+import { useCan } from '@/shared/auth/adminPermissions'
 import { formatAmount } from '@/shared/utils/formatAmount'
 import { OrderStatus } from '@/shared/types/enums/OrderStatus'
 import { useOrders, useUpdateOrderStatus } from '@/admin/hooks/orders'
@@ -39,7 +39,7 @@ function formatDate(dateString: string): string {
 }
 
 export function OrderListPage() {
-  const canMutate = useAdminAuthStore((s) => s.role) === 'SUPER_ADMIN'
+  const canMutate = useCan('order:write')
 
   const [statusFilter, setStatusFilter] = useState('ALL')
   const [fromDate, setFromDate] = useState('')

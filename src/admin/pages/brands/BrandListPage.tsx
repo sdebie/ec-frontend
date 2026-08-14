@@ -5,7 +5,7 @@ import type {PaginationState, Updater} from '@tanstack/react-table'
 
 import {useBrandList} from './hooks/useBrandList'
 import {PageLayout, toast} from '@/shared/ui/components'
-import {useAdminAuthStore} from '@/shared/auth/adminAuthStore'
+import {useCan} from '@/shared/auth/adminPermissions'
 import {BrandToolbar} from './components/BrandToolbar'
 import {BrandTable} from './components/BrandTable'
 
@@ -14,7 +14,7 @@ const DEFAULT_PAGE_SIZE = 10
 export function BrandListPage() {
 
     const navigate = useNavigate()
-    const canMutate = useAdminAuthStore((s) => s.role) === 'SUPER_ADMIN'
+    const canMutate = useCan('brand:write')
     const [searchParams, setSearchParams] = useSearchParams()
     const pageIndex = Number(searchParams.get('page') ?? '0')
     const pageSize = Number(searchParams.get('pageSize') ?? String(DEFAULT_PAGE_SIZE))

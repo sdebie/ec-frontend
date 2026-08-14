@@ -5,7 +5,7 @@ import type {PaginationState, Updater} from '@tanstack/react-table'
 
 import {useCategoryList} from './hooks/useCategoryList'
 import {PageLayout, toast} from '@/shared/ui/components'
-import {useAdminAuthStore} from '@/shared/auth/adminAuthStore'
+import {useCan} from '@/shared/auth/adminPermissions'
 import {CategoryToolbar} from './components/CategoryToolbar'
 import {CategoryTable} from './components/CategoryTable'
 
@@ -14,7 +14,7 @@ const DEFAULT_PAGE_SIZE = 10
 export function CategoryListPage() {
 
     const navigate = useNavigate()
-    const canMutate = useAdminAuthStore((s) => s.role) === 'SUPER_ADMIN'
+    const canMutate = useCan('category:write')
     const [searchParams, setSearchParams] = useSearchParams()
     const pageIndex = Number(searchParams.get('page') ?? '0')
     const pageSize = Number(searchParams.get('pageSize') ?? String(DEFAULT_PAGE_SIZE))

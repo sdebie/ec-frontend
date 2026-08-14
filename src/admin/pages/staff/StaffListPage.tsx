@@ -6,8 +6,7 @@ import { Search } from 'lucide-react'
 import { DataTable, StatusBadge } from '@/shared/ui/components'
 import type { ColumnDef } from '@/shared/ui/components'
 import { Button, Input } from '@/shared/ui/primitives'
-import { useAdminAuthStore } from '@/shared/auth/adminAuthStore'
-import { deriveCanMutate } from '@/admin/hooks/imports/utils'
+import { useCan } from '@/shared/auth/adminPermissions'
 import { useStaff } from '@/admin/hooks/staff'
 import type { StaffMember } from '@/admin/hooks/staff'
 import { StaffActionsMenu } from './StaffActionsMenu'
@@ -28,7 +27,7 @@ const ROLE_COLORS: Record<StaffMember['role'], string> = {
 
 export function StaffListPage() {
   const navigate = useNavigate()
-  const canMutate = deriveCanMutate(useAdminAuthStore((s) => s.role))
+  const canMutate = useCan('staff:manage')
 
   const [searchInput, setSearchInput] = useState('')
   const [search, setSearch] = useState('')

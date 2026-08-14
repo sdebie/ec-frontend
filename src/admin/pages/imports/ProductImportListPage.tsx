@@ -17,11 +17,11 @@ import {
 } from '@/shared/ui/components'
 import type { ColumnDef } from '@/shared/ui/components'
 import { Button } from '@/shared/ui/primitives'
-import { useAdminAuthStore } from '@/shared/auth/adminAuthStore'
+import { useCan } from '@/shared/auth/adminPermissions'
 import { useProductUploadBatches } from '@/admin/hooks/imports/useProductUploadBatches'
 import { useRefreshBatchStatus } from '@/admin/hooks/imports/useRefreshBatchStatus'
 import { useUploadCsv } from '@/admin/hooks/imports/useUploadCsv'
-import { getBatchStatusColor, deriveCanMutate } from '@/admin/hooks/imports/utils'
+import { getBatchStatusColor } from '@/admin/hooks/imports/utils'
 import type { ProductUploadBatchDto } from '@/admin/hooks/imports/types'
 
 function RefreshButton({ batchId, onSuccess }: { batchId: string; onSuccess: () => void }) {
@@ -50,7 +50,7 @@ function RefreshButton({ batchId, onSuccess }: { batchId: string; onSuccess: () 
 
 export default function ProductImportListPage() {
   const navigate = useNavigate()
-  const canMutate = deriveCanMutate(useAdminAuthStore((s) => s.role))
+  const canMutate = useCan('import:manage')
   const { data, isLoading, refetch } = useProductUploadBatches()
 
   useBreadcrumb([

@@ -183,6 +183,39 @@ describe('CategoryListPage', () => {
         })
     })
 
+    describe('RBAC — CATALOG_MANAGER', () => {
+        // category:write mirrors CategoryResource's @RolesAllowed, which admits CATALOG_MANAGER.
+        it('shows "New Category" and the row actions for CATALOG_MANAGER', () => {
+            useAdminAuthStore.setState({role: 'CATALOG_MANAGER'})
+            mockedUseCategoryList.mockReturnValue({
+                data: {
+                    content: [
+                        {
+                            id: '1',
+                            name: 'Electronics',
+                            slug: 'electronics',
+                            description: null,
+                            imageUrl: null,
+                            parent: null
+                        },
+                    ],
+                    totalElements: 1,
+                    totalPages: 1,
+                },
+                isLoading: false,
+                error: null,
+                sorting: [],
+                onSortingChange: vi.fn(),
+            })
+
+            renderCategoryListPage()
+
+            expect(screen.getByText('+ New Category')).toBeInTheDocument()
+            expect(screen.getByLabelText('Edit Electronics')).toBeInTheDocument()
+            expect(screen.getByLabelText('Delete Electronics')).toBeInTheDocument()
+        })
+    })
+
     describe('RBAC — VIEWER', () => {
         beforeEach(() => {
             useAdminAuthStore.setState({

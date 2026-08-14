@@ -171,6 +171,19 @@ describe('OrderListPage', () => {
       expect(screen.getByTestId('order-actions-menu')).toBeInTheDocument()
     })
 
+    it('renders actions menu for ORDER_MANAGER (order:write mirrors updateOrderStatus)', () => {
+      setupDefaultMocks({
+        role: 'ORDER_MANAGER',
+        ordersData: createMockOrdersPage({
+          data: [createMockOrder({ status: OrderStatus.PAID })],
+        }),
+      })
+
+      renderPage()
+
+      expect(screen.getByTestId('order-actions-menu')).toBeInTheDocument()
+    })
+
     it('does not render actions menu for VIEWER role', () => {
       setupDefaultMocks({
         role: 'VIEWER',

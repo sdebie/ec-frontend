@@ -7,7 +7,7 @@ import {
   ConfirmationDialog,
 } from '@/shared/ui/components'
 import { Button } from '@/shared/ui/primitives'
-import { useAdminAuthStore } from '@/shared/auth/adminAuthStore'
+import { useCan } from '@/shared/auth/adminPermissions'
 import {
   useCustomerDetail,
   useUpdateCustomerStatus,
@@ -34,11 +34,8 @@ function formatTimestamp(dateString: string): string {
 export function CustomerDetailPage() {
   const { customerId } = useParams<{ customerId: string }>()
   const { data, isLoading } = useCustomerDetail(customerId!)
-  const role = useAdminAuthStore((s) => s.role)
-  // Account-status actions require SUPER_ADMIN (backend updateCustomerStatus);
-  // application decisions mirror approve/rejectWholesaleApplication's roles.
-  const canMutate = role === 'SUPER_ADMIN'
-  const canDecideApplication = role === 'SUPER_ADMIN' || role === 'ORDER_MANAGER'
+  const canMutate = useCan('customer:write')
+  const canDecideApplication = useCan('wholesale-application:decide')
   const updateStatus = useUpdateCustomerStatus()
   const wholesaleAction = useWholesaleApplicationAction()
 

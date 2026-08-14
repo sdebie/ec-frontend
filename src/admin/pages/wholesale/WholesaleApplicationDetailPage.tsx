@@ -11,7 +11,7 @@ import {
   useWholesaleApplicationDetail,
   useWholesaleApplicationAction,
 } from '@/admin/hooks/wholesale'
-import { useAdminAuthStore } from '@/shared/auth/adminAuthStore'
+import { useCan } from '@/shared/auth/adminPermissions'
 import { RejectApplicationDialog } from '@/admin/components/RejectApplicationDialog'
 
 function formatTimestamp(dateString: string): string {
@@ -45,9 +45,7 @@ export function WholesaleApplicationDetailPage() {
   const { applicationId } = useParams<{ applicationId: string }>()
   const { data, isLoading } = useWholesaleApplicationDetail(applicationId!)
   const applicationAction = useWholesaleApplicationAction()
-  const role = useAdminAuthStore((s) => s.role)
-  // Mirrors the backend @RolesAllowed on approve/rejectWholesaleApplication
-  const hasAccess = role === 'SUPER_ADMIN' || role === 'ORDER_MANAGER'
+  const hasAccess = useCan('wholesale-application:decide')
 
   const [approveDialogOpen, setApproveDialogOpen] = useState(false)
   const [rejectDialogOpen, setRejectDialogOpen] = useState(false)

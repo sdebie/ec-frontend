@@ -123,6 +123,25 @@ describe('ImageGalleryPage', () => {
       expect(screen.getByRole('button', { name: /upload image/i })).toBeInTheDocument()
       expect(screen.getByRole('button', { name: /bulk upload/i })).toBeInTheDocument()
     })
+
+    it('shows "Upload image" button and "Bulk upload" link for CATALOG_MANAGER (image:write mirrors ImageResource)', async () => {
+      setupDefaultMocks({ role: 'CATALOG_MANAGER' })
+
+      vi.mocked(useImageList).mockReturnValue({
+        data: { pages: [{ images: ['photo.jpg'], totalCount: 1, page: 0, pageSize: 80 }] },
+        isLoading: false,
+        hasNextPage: false,
+      } as any)
+
+      renderPage()
+
+      await waitFor(() => {
+        expect(screen.getByAltText('photo.jpg')).toBeInTheDocument()
+      })
+
+      expect(screen.getByRole('button', { name: /upload image/i })).toBeInTheDocument()
+      expect(screen.getByRole('button', { name: /bulk upload/i })).toBeInTheDocument()
+    })
   })
 
   describe('"Load more" appends images to existing grid', () => {

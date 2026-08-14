@@ -1,5 +1,6 @@
 import {lazy} from 'react'
 import type {AdminRouteList} from '@/admin/types/routes'
+import {rolesFor} from '@/shared/auth/adminPermissions'
 
 export const adminMenuRoutes: AdminRouteList = [
     {
@@ -21,7 +22,7 @@ export const adminMenuRoutes: AdminRouteList = [
     {
         key: 'admin.brands-categories',
         path: '/admin/products/categories',
-        authority: ['SUPER_ADMIN', 'VIEWER'],
+        authority: ['SUPER_ADMIN', 'CATALOG_MANAGER', 'VIEWER'],
         meta: {
             label: 'Brands & Categories',
             section: 'PRODUCT MANAGEMENT',
@@ -36,7 +37,7 @@ export const adminMenuRoutes: AdminRouteList = [
                 component: lazy(() =>
                     import('@/admin/pages/brands/BrandListPage').then((m) => ({default: m.BrandListPage}))
                 ),
-                authority: ['SUPER_ADMIN', 'VIEWER'],
+                authority: ['SUPER_ADMIN', 'CATALOG_MANAGER', 'VIEWER'],
                 meta: {
                     label: 'Brands',
                     pageBackgroundType: 'plain',
@@ -49,7 +50,7 @@ export const adminMenuRoutes: AdminRouteList = [
                 component: lazy(() =>
                     import('@/admin/pages/categories/CategoryListPage').then((m) => ({default: m.CategoryListPage}))
                 ),
-                authority: ['SUPER_ADMIN', 'VIEWER'],
+                authority: ['SUPER_ADMIN', 'CATALOG_MANAGER', 'VIEWER'],
                 meta: {
                     label: 'Categories',
                     pageBackgroundType: 'plain',
@@ -90,7 +91,7 @@ export const adminMenuRoutes: AdminRouteList = [
                 component: lazy(() =>
                     import('@/admin/pages/products/ProductsOnSalePage').then((m) => ({default: m.ProductsOnSalePage}))
                 ),
-                authority: ['SUPER_ADMIN', 'VIEWER'],
+                authority: ['SUPER_ADMIN', 'CATALOG_MANAGER', 'ORDER_MANAGER', 'VIEWER'],
                 meta: {
                     label: 'Products on Sale',
                     pageBackgroundType: 'plain',
@@ -103,7 +104,7 @@ export const adminMenuRoutes: AdminRouteList = [
                 component: lazy(() =>
                     import('@/admin/pages/products/ProductsByCategoryPage').then((m) => ({default: m.ProductsByCategoryPage}))
                 ),
-                authority: ['SUPER_ADMIN', 'VIEWER'],
+                authority: ['SUPER_ADMIN', 'CATALOG_MANAGER', 'ORDER_MANAGER', 'VIEWER'],
                 meta: {
                     label: 'Products by Category',
                     pageBackgroundType: 'plain',
@@ -116,7 +117,7 @@ export const adminMenuRoutes: AdminRouteList = [
                 component: lazy(() =>
                     import('@/admin/pages/products/ProductsByBrandPage').then((m) => ({default: m.ProductsByBrandPage}))
                 ),
-                authority: ['SUPER_ADMIN', 'VIEWER'],
+                authority: ['SUPER_ADMIN', 'CATALOG_MANAGER', 'ORDER_MANAGER', 'VIEWER'],
                 meta: {
                     label: 'Products by Brand',
                     pageBackgroundType: 'plain',
@@ -128,7 +129,7 @@ export const adminMenuRoutes: AdminRouteList = [
     {
         key: 'admin.imports',
         path: '/admin/imports',
-        authority: ['SUPER_ADMIN', 'VIEWER'],
+        authority: rolesFor('import:manage'),
         meta: {
             label: 'Imports',
             section: 'PRODUCT MANAGEMENT',
@@ -143,7 +144,7 @@ export const adminMenuRoutes: AdminRouteList = [
                 component: lazy(() =>
                     import('@/admin/pages/images/ImageGalleryPage').then((m) => ({default: m.ImageGalleryPage}))
                 ),
-                authority: ['SUPER_ADMIN', 'CATALOG_MANAGER', 'ORDER_MANAGER', 'VIEWER'],
+                authority: rolesFor('image:write'),
                 meta: {
                     label: 'Image Gallery',
                     pageBackgroundType: 'plain',
@@ -155,7 +156,7 @@ export const adminMenuRoutes: AdminRouteList = [
                 key: 'admin.imports.products',
                 path: '/admin/imports/products/list',
                 component: lazy(() => import('@/admin/pages/imports/ProductImportListPage')),
-                authority: ['SUPER_ADMIN', 'VIEWER'],
+                authority: rolesFor('import:manage'),
                 meta: {
                     label: 'Product Upload',
                     pageBackgroundType: 'plain',
@@ -166,7 +167,7 @@ export const adminMenuRoutes: AdminRouteList = [
                 key: 'admin.imports.price',
                 path: '/admin/imports/products/price/list',
                 component: lazy(() => import('@/admin/pages/imports/PriceImportListPage')),
-                authority: ['SUPER_ADMIN', 'VIEWER'],
+                authority: rolesFor('import:manage'),
                 meta: {
                     label: 'Price Changes',
                     pageBackgroundType: 'plain',
@@ -181,7 +182,7 @@ export const adminMenuRoutes: AdminRouteList = [
         component: lazy(() =>
             import('@/admin/pages/orders/OrderListPage').then((m) => ({default: m.OrderListPage}))
         ),
-        authority: ['SUPER_ADMIN', 'VIEWER'],
+        authority: ['SUPER_ADMIN', 'ORDER_MANAGER', 'VIEWER'],
         meta: {
             label: 'Orders',
             section: 'ORDER MANAGEMENT',
@@ -213,7 +214,7 @@ export const adminMenuRoutes: AdminRouteList = [
         component: lazy(() =>
             import('@/admin/pages/customers/CustomerListPage').then((m) => ({default: m.CustomerListPage}))
         ),
-        authority: ['SUPER_ADMIN', 'VIEWER'],
+        authority: ['SUPER_ADMIN', 'ORDER_MANAGER', 'VIEWER'],
         meta: {
             label: 'Retail',
             section: 'CUSTOMER MANAGEMENT',
@@ -416,7 +417,7 @@ export const adminMenuRoutes: AdminRouteList = [
         component: lazy(() =>
             import('@/admin/pages/staff/StaffListPage').then((m) => ({default: m.StaffListPage}))
         ),
-        authority: ['SUPER_ADMIN', 'CATALOG_MANAGER', 'ORDER_MANAGER', 'VIEWER'],
+        authority: rolesFor('staff:manage'),
         meta: {
             label: 'Staff',
             section: 'STAFF MANAGEMENT',

@@ -16,6 +16,5 @@ export {
   getValidationStatusColor,
   deriveChangeType,
   derivePriceChangeIndicator,
-  deriveCanMutate,
   computeProductReviewSummary,
 } from './utils'

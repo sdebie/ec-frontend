@@ -6,7 +6,7 @@ import { Plus, Trash2 } from 'lucide-react'
 
 import { useStoreSettings } from '@/admin/hooks/settings/useStoreSettings'
 import { useUpdateSetting } from '@/admin/hooks/settings/useUpdateSetting'
-import { useAdminAuthStore } from '@/shared/auth/adminAuthStore'
+import { useCan } from '@/shared/auth/adminPermissions'
 import { isValidHttpsUrl, isApprovedMapEmbedUrl } from '@/shared/utils/contactMapUrls'
 import { PageLayout, InputField, Textarea, toast } from '@/shared/ui/components'
 import { Button } from '@/shared/ui/primitives'
@@ -108,8 +108,7 @@ function formToContactConfig(form: ContactFormValues): ContactConfig {
 // --- Component ---
 
 export function ContactEditorPage() {
-  const role = useAdminAuthStore((s) => s.role)
-  const isSuperAdmin = role === 'SUPER_ADMIN'
+  const canEdit = useCan('settings:write')
 
   useBreadcrumb([
     { label: 'Home', href: '/admin' },
@@ -170,7 +169,7 @@ export function ContactEditorPage() {
     )
   }
 
-  const headerAction = isSuperAdmin ? (
+  const headerAction = canEdit ? (
     <Button
       type="submit"
       form="contact-editor-form"
@@ -200,7 +199,7 @@ export function ContactEditorPage() {
             placeholder="e.g. info@store.co.za"
             helperText="The email address that receives enquiry form submissions. Leave empty to disable the enquiry form on the storefront."
             error={errors.enquiryEmail?.message}
-            disabled={!isSuperAdmin}
+            disabled={!canEdit}
             {...register('enquiryEmail')}
           />
         </fieldset>
@@ -217,11 +216,11 @@ export function ContactEditorPage() {
                 <InputField
                   placeholder="e.g. info@store.co.za"
                   error={errors.emails?.[index]?.value?.message}
-                  disabled={!isSuperAdmin}
+                  disabled={!canEdit}
                   {...register(`emails.${index}.value`)}
                 />
               </div>
-              {isSuperAdmin && (
+              {canEdit && (
                 <button
                   type="button"
                   onClick={() => removeEmail(index)}
@@ -233,7 +232,7 @@ export function ContactEditorPage() {
               )}
             </div>
           ))}
-          {isSuperAdmin && (
+          {canEdit && (
             <Button
               type="button"
               variant="outline"
@@ -258,11 +257,11 @@ export function ContactEditorPage() {
                 <InputField
                   placeholder="e.g. +27123456789"
                   error={errors.phones?.[index]?.value?.message}
-                  disabled={!isSuperAdmin}
+                  disabled={!canEdit}
                   {...register(`phones.${index}.value`)}
                 />
               </div>
-              {isSuperAdmin && (
+              {canEdit && (
                 <button
                   type="button"
                   onClick={() => removePhone(index)}
@@ -274,7 +273,7 @@ export function ContactEditorPage() {
               )}
             </div>
           ))}
-          {isSuperAdmin && (
+          {canEdit && (
             <Button
               type="button"
               variant="outline"
@@ -292,7 +291,7 @@ export function ContactEditorPage() {
           <InputField
             label="Landline"
             placeholder="e.g. +27219876543"
-            disabled={!isSuperAdmin}
+            disabled={!canEdit}
             {...register('landline')}
           />
         </div>
@@ -303,7 +302,7 @@ export function ContactEditorPage() {
             label="Physical Address"
             placeholder="e.g. 123 Main Street&#10;Cape Town&#10;8001"
             rows={3}
-            disabled={!isSuperAdmin}
+            disabled={!canEdit}
             {...register('physicalAddress')}
           />
         </div>
@@ -313,7 +312,7 @@ export function ContactEditorPage() {
           <InputField
             label="Business Hours"
             placeholder="e.g. Mon-Fri 08:00-17:00, Sat 09:00-13:00"
-            disabled={!isSuperAdmin}
+            disabled={!canEdit}
             {...register('businessHours')}
           />
         </div>
@@ -323,7 +322,7 @@ export function ContactEditorPage() {
           <InputField
             label="Response Time"
             placeholder="e.g. We respond within 24 hours"
-            disabled={!isSuperAdmin}
+            disabled={!canEdit}
             {...register('responseSla')}
           />
         </div>
@@ -335,7 +334,7 @@ export function ContactEditorPage() {
             placeholder="https://www.google.com/maps/place/..."
             helperText="Must be a valid HTTPS URL"
             error={errors.mapUrl?.message}
-            disabled={!isSuperAdmin}
+            disabled={!canEdit}
             {...register('mapUrl')}
           />
         </div>
@@ -347,7 +346,7 @@ export function ContactEditorPage() {
             placeholder="https://www.google.com/maps/embed?pb=..."
             helperText="Google Maps or OpenStreetMap embed URLs only"
             error={errors.mapEmbedUrl?.message}
-            disabled={!isSuperAdmin}
+            disabled={!canEdit}
             {...register('mapEmbedUrl')}
           />
         </div>

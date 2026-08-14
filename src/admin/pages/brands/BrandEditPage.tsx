@@ -1,14 +1,14 @@
 import {Link, Navigate, useNavigate, useParams} from 'react-router-dom'
 import {PageBackButton, PageLoadingSpinner, toast} from '@/shared/ui/components'
 import {useBreadcrumb} from '@/admin/context/BreadcrumbContext'
-import {useAdminAuthStore} from '@/shared/auth/adminAuthStore'
+import {useCan} from '@/shared/auth/adminPermissions'
 import {useBrandDetail} from './hooks/useBrandDetail'
 import {useUpdateBrand} from './hooks/useUpdateBrand'
 import type {BrandFormValues} from './components/BrandForm'
 import {BrandForm} from './components/BrandForm'
 
 export function BrandEditPage() {
-    const canMutate = useAdminAuthStore((s) => s.role) === 'SUPER_ADMIN'
+    const canMutate = useCan('brand:write')
     const {brandId} = useParams<{ brandId: string }>()
     const navigate = useNavigate()
     const {data: brand, isLoading} = useBrandDetail(brandId!)

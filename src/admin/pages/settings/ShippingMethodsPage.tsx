@@ -5,15 +5,14 @@ import { Pencil } from 'lucide-react'
 import { DataTable, RowActionButton, StatusBadge } from '@/shared/ui/components'
 import type { ColumnDef } from '@/shared/ui/components'
 import { Button } from '@/shared/ui/primitives'
-import { useAdminAuthStore } from '@/shared/auth/adminAuthStore'
-import { deriveCanMutate } from '@/admin/hooks/imports/utils'
+import { useCan } from '@/shared/auth/adminPermissions'
 import { useShippingMethods } from '@/admin/hooks/settings'
 import type { ShippingMethod } from '@/admin/hooks/settings'
 import { formatAmount } from '@/shared/utils/formatAmount'
 import { ShippingMethodDialog } from './ShippingMethodDialog'
 
 export function ShippingMethodsPage() {
-  const canMutate = deriveCanMutate(useAdminAuthStore((s) => s.role))
+  const canMutate = useCan('settings:write')
 
   const { data, isLoading, isError, refetch } = useShippingMethods()
 

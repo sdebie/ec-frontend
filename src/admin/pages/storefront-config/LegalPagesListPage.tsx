@@ -3,7 +3,7 @@ import { Pencil } from 'lucide-react'
 
 import { StatusBadge } from '@/shared/ui/components'
 import { Card } from '@/shared/ui/primitives'
-import { useAdminAuthStore } from '@/shared/auth/adminAuthStore'
+import { useCan } from '@/shared/auth/adminPermissions'
 import { useLegalPages } from '@/admin/hooks/pages'
 
 function formatPublishedDate(dateString: string): string {
@@ -16,8 +16,7 @@ function formatPublishedDate(dateString: string): string {
 
 export function LegalPagesListPage() {
   const { data: pages, isLoading, error } = useLegalPages()
-  const role = useAdminAuthStore((s) => s.role)
-  const isSuperAdmin = role === 'SUPER_ADMIN'
+  const canEdit = useCan('legal:write')
 
   if (isLoading) {
     return <div className="p-8 text-sm text-(--c-text-muted)">Loading legal pages…</div>
@@ -68,7 +67,7 @@ export function LegalPagesListPage() {
                 aria-label={`Edit ${page.title}`}
               >
                 <Pencil className="h-4 w-4" />
-                {isSuperAdmin ? 'Edit' : 'View'}
+                {canEdit ? 'Edit' : 'View'}
               </Link>
             </Card.Footer>
           </Card>

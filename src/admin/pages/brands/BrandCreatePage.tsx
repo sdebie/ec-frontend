@@ -1,13 +1,13 @@
 import {Navigate, useNavigate} from 'react-router-dom'
 import {PageBackButton, toast} from '@/shared/ui/components'
 import {useBreadcrumb} from '@/admin/context/BreadcrumbContext'
-import {useAdminAuthStore} from '@/shared/auth/adminAuthStore'
+import {useCan} from '@/shared/auth/adminPermissions'
 import {useCreateBrand} from './hooks/useCreateBrand'
 import type {BrandFormValues} from './components/BrandForm'
 import {BrandForm} from './components/BrandForm'
 
 export function BrandCreatePage() {
-    const canMutate = useAdminAuthStore((s) => s.role) === 'SUPER_ADMIN'
+    const canMutate = useCan('brand:write')
     const navigate = useNavigate()
     const mutation = useCreateBrand()
 

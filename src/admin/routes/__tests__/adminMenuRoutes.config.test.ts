@@ -49,14 +49,12 @@ describe('adminMenuRoutes — admin.products configuration', () => {
     expect(actualPaths).toEqual(expectedPaths)
   })
 
-  it('makes the product list readable by all staff while keeping the other product sections restricted', () => {
-    const listRoute = productsEntry!.subMenu!.find((child) => child.key === 'admin.products.list')
-    const otherRoutes = productsEntry!.subMenu!.filter((child) => child.key !== 'admin.products.list')
+  it('makes every product view readable by all staff — adminProductList/saleProductList admit all four roles', () => {
+    const allStaff = ['SUPER_ADMIN', 'CATALOG_MANAGER', 'ORDER_MANAGER', 'VIEWER']
 
-    expect(productsEntry!.authority).toEqual(['SUPER_ADMIN', 'CATALOG_MANAGER', 'ORDER_MANAGER', 'VIEWER'])
-    expect(listRoute!.authority).toEqual(['SUPER_ADMIN', 'CATALOG_MANAGER', 'ORDER_MANAGER', 'VIEWER'])
-    otherRoutes.forEach((child) => {
-      expect(child.authority).toEqual(['SUPER_ADMIN', 'VIEWER'])
+    expect(productsEntry!.authority).toEqual(allStaff)
+    productsEntry!.subMenu!.forEach((child) => {
+      expect(child.authority).toEqual(allStaff)
     })
   })
 })
@@ -90,10 +88,11 @@ describe('adminMenuRoutes — admin.brands-categories configuration', () => {
     ])
   })
 
-  it('is readable by SUPER_ADMIN and VIEWER, matching its children', () => {
-    expect(categoriesBrandsEntry!.authority).toEqual(['SUPER_ADMIN', 'VIEWER'])
+  it('is readable by the brand/category write roles plus VIEWER, matching its children', () => {
+    const expected = ['SUPER_ADMIN', 'CATALOG_MANAGER', 'VIEWER']
+    expect(categoriesBrandsEntry!.authority).toEqual(expected)
     categoriesBrandsEntry!.subMenu!.forEach((child) => {
-      expect(child.authority).toEqual(['SUPER_ADMIN', 'VIEWER'])
+      expect(child.authority).toEqual(expected)
     })
   })
 })

@@ -1,6 +1,7 @@
 import {lazy} from 'react'
 import {toAdminPageRoutes} from '@/app/router/buildAdminRoutes'
 import {adminMenuRoutes} from './adminMenuRoutes.config'
+import {rolesFor} from '@/shared/auth/adminPermissions'
 import type {AdminRouteList} from '@/admin/types/routes'
 
 const adminPageOnlyRoutes: AdminRouteList = [
@@ -27,7 +28,7 @@ const adminPageOnlyRoutes: AdminRouteList = [
                 default: m.ProductCreatePage,
             }))
         ),
-        authority: ['SUPER_ADMIN', 'CATALOG_MANAGER'],
+        authority: rolesFor('product:write'),
         meta: {
             pageBackgroundType: 'plain',
             pageContainerType: 'contained',
@@ -41,7 +42,7 @@ const adminPageOnlyRoutes: AdminRouteList = [
                 default: m.ProductEditPage,
             }))
         ),
-        authority: ['SUPER_ADMIN', 'CATALOG_MANAGER'],
+        authority: rolesFor('product:write'),
         meta: {
             pageBackgroundType: 'plain',
             pageContainerType: 'contained',
@@ -55,7 +56,7 @@ const adminPageOnlyRoutes: AdminRouteList = [
                 default: m.BrandCreatePage,
             }))
         ),
-        authority: ['SUPER_ADMIN'],
+        authority: rolesFor('brand:write'),
         meta: {
             pageBackgroundType: 'plain',
             pageContainerType: 'contained',
@@ -69,7 +70,7 @@ const adminPageOnlyRoutes: AdminRouteList = [
                 default: m.BrandEditPage,
             }))
         ),
-        authority: ['SUPER_ADMIN'],
+        authority: rolesFor('brand:write'),
         meta: {
             pageBackgroundType: 'plain',
             pageContainerType: 'contained',
@@ -83,7 +84,7 @@ const adminPageOnlyRoutes: AdminRouteList = [
                 default: m.CategoryCreatePage,
             }))
         ),
-        authority: ['SUPER_ADMIN'],
+        authority: rolesFor('category:write'),
         meta: {
             pageBackgroundType: 'plain',
             pageContainerType: 'contained',
@@ -97,7 +98,7 @@ const adminPageOnlyRoutes: AdminRouteList = [
                 default: m.CategoryEditPage,
             }))
         ),
-        authority: ['SUPER_ADMIN'],
+        authority: rolesFor('category:write'),
         meta: {
             pageBackgroundType: 'plain',
             pageContainerType: 'contained',
@@ -111,7 +112,7 @@ const adminPageOnlyRoutes: AdminRouteList = [
                 default: m.OrderDetailPage,
             }))
         ),
-        authority: ['SUPER_ADMIN', 'VIEWER'],
+        authority: ['SUPER_ADMIN', 'ORDER_MANAGER', 'VIEWER'],
         meta: {
             pageBackgroundType: 'plain',
             pageContainerType: 'contained',
@@ -125,7 +126,7 @@ const adminPageOnlyRoutes: AdminRouteList = [
                 default: m.CustomerDetailPage,
             }))
         ),
-        authority: ['SUPER_ADMIN', 'VIEWER'],
+        authority: ['SUPER_ADMIN', 'ORDER_MANAGER', 'VIEWER'],
         meta: {
             pageBackgroundType: 'plain',
             pageContainerType: 'contained',
@@ -177,7 +178,7 @@ const adminPageOnlyRoutes: AdminRouteList = [
         key: 'admin.imports.products.upload',
         path: '/admin/imports/products/bulk-upload',
         component: lazy(() => import('@/admin/pages/imports/ProductImportUploadPage')),
-        authority: ['SUPER_ADMIN', 'VIEWER'],
+        authority: rolesFor('import:manage'),
         meta: {
             pageBackgroundType: 'plain',
             pageContainerType: 'contained',
@@ -187,7 +188,7 @@ const adminPageOnlyRoutes: AdminRouteList = [
         key: 'admin.imports.products.review',
         path: '/admin/imports/products/bulk-upload/review/:batchId',
         component: lazy(() => import('@/admin/pages/imports/ProductImportReviewPage')),
-        authority: ['SUPER_ADMIN', 'VIEWER'],
+        authority: rolesFor('import:manage'),
         meta: {
             pageBackgroundType: 'plain',
             pageContainerType: 'contained',
@@ -197,7 +198,7 @@ const adminPageOnlyRoutes: AdminRouteList = [
         key: 'admin.imports.price.upload',
         path: '/admin/imports/products/price/bulk-upload',
         component: lazy(() => import('@/admin/pages/imports/PriceImportUploadPage')),
-        authority: ['SUPER_ADMIN', 'VIEWER'],
+        authority: rolesFor('import:manage'),
         meta: {
             pageBackgroundType: 'plain',
             pageContainerType: 'contained',
@@ -207,7 +208,7 @@ const adminPageOnlyRoutes: AdminRouteList = [
         key: 'admin.imports.price.review',
         path: '/admin/imports/products/price/bulk-upload/review/:batchId',
         component: lazy(() => import('@/admin/pages/imports/PriceImportReviewPage')),
-        authority: ['SUPER_ADMIN', 'VIEWER'],
+        authority: rolesFor('import:manage'),
         meta: {
             pageBackgroundType: 'plain',
             pageContainerType: 'contained',
@@ -236,7 +237,7 @@ const adminPageOnlyRoutes: AdminRouteList = [
                 default: m.StaffCreatePage,
             }))
         ),
-        authority: ['SUPER_ADMIN'],
+        authority: rolesFor('staff:manage'),
         meta: {
             pageBackgroundType: 'plain',
             pageContainerType: 'contained',
@@ -250,7 +251,7 @@ const adminPageOnlyRoutes: AdminRouteList = [
                 default: m.StaffEditPage,
             }))
         ),
-        authority: ['SUPER_ADMIN'],
+        authority: rolesFor('staff:manage'),
         meta: {
             pageBackgroundType: 'plain',
             pageContainerType: 'contained',

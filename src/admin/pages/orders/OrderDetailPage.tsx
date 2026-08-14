@@ -7,7 +7,7 @@ import {
   ConfirmationDialog,
 } from '@/shared/ui/components'
 import { Button } from '@/shared/ui/primitives'
-import { useAdminAuthStore } from '@/shared/auth/adminAuthStore'
+import { useCan } from '@/shared/auth/adminPermissions'
 import { formatAmount } from '@/shared/utils/formatAmount'
 import { OrderStatus } from '@/shared/types/enums/OrderStatus'
 import { useOrderDetail, useUpdateOrderStatus } from '@/admin/hooks/orders'
@@ -28,7 +28,7 @@ function formatTimestamp(dateString: string): string {
 export function OrderDetailPage() {
   const { orderId } = useParams<{ orderId: string }>()
   const { data, isLoading } = useOrderDetail(orderId!)
-  const canMutate = useAdminAuthStore((s) => s.role) === 'SUPER_ADMIN'
+  const canMutate = useCan('order:write')
   const updateStatus = useUpdateOrderStatus()
 
   const [confirmDialog, setConfirmDialog] = useState<{

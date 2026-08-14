@@ -192,6 +192,35 @@ describe('BrandListPage', () => {
     })
   })
 
+  describe('RBAC — CATALOG_MANAGER', () => {
+    // brand:write mirrors BrandResource's @RolesAllowed, which admits CATALOG_MANAGER.
+    beforeEach(() => {
+      useAdminAuthStore.setState({ role: 'CATALOG_MANAGER' })
+    })
+
+    it('shows "New Brand" and the row actions for CATALOG_MANAGER', () => {
+      mockedUseBrandList.mockReturnValue({
+        data: {
+          content: [
+            { id: '1', name: 'Nike', slug: 'nike', description: null, logoUrl: null },
+          ],
+          totalElements: 1,
+          totalPages: 1,
+        },
+        isLoading: false,
+        error: null,
+        sorting: [],
+        onSortingChange: vi.fn(),
+      })
+
+      renderBrandListPage()
+
+      expect(screen.getByText('+ New Brand')).toBeInTheDocument()
+      expect(screen.getByLabelText('Edit Nike')).toBeInTheDocument()
+      expect(screen.getByLabelText('Delete Nike')).toBeInTheDocument()
+    })
+  })
+
   describe('RBAC — VIEWER', () => {
     beforeEach(() => {
       useAdminAuthStore.setState({

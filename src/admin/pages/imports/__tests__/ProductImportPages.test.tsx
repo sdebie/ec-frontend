@@ -281,6 +281,13 @@ describe('ProductImportUploadPage', () => {
     expect(screen.getByRole('heading', { name: 'Upload Product CSV' })).toBeInTheDocument()
   })
 
+  it('renders upload page for CATALOG_MANAGER (import:manage mirrors ProductUploadResource)', () => {
+    setupUploadPageDefaults({ role: 'CATALOG_MANAGER' })
+    renderUploadPage()
+
+    expect(screen.getByRole('heading', { name: 'Upload Product CSV' })).toBeInTheDocument()
+  })
+
   it('renders Upload button disabled when no file is selected', () => {
     setupUploadPageDefaults({ role: 'SUPER_ADMIN' })
     renderUploadPage()

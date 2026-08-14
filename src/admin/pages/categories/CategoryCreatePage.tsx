@@ -1,14 +1,14 @@
 import {Navigate, useNavigate} from 'react-router-dom'
 import {PageBackButton, toast} from '@/shared/ui/components'
 import {useBreadcrumb} from '@/admin/context/BreadcrumbContext'
-import {useAdminAuthStore} from '@/shared/auth/adminAuthStore'
+import {useCan} from '@/shared/auth/adminPermissions'
 import {mutationErrorMessage} from '@/admin/utils'
 import {useCreateCategory} from './hooks/useCreateCategory'
 import type {CategoryFormValues} from './components/CategoryForm'
 import {CategoryForm} from './components/CategoryForm'
 
 export function CategoryCreatePage() {
-    const canMutate = useAdminAuthStore((s) => s.role) === 'SUPER_ADMIN'
+    const canMutate = useCan('category:write')
     const navigate = useNavigate()
     const mutation = useCreateCategory()
 

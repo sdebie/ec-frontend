@@ -1,6 +1,7 @@
 import { describe, it, expect } from 'vitest'
 import * as fc from 'fast-check'
 import { getAvailableActions } from '@/admin/hooks/customers/types'
+import { roleCan } from '@/shared/auth/adminPermissions'
 import type { CustomerStatus, WholesaleStatus } from '@/admin/hooks/customers/types'
 
 /**
@@ -33,20 +34,13 @@ const roleArb = fc.oneof(
 const customerStatusArb: fc.Arbitrary<CustomerStatus> = fc.constantFrom('ACTIVE', 'PENDING', 'DISABLED')
 const wholesaleStatusArb: fc.Arbitrary<WholesaleStatus> = fc.constantFrom('PENDING', 'APPROVED', 'REJECTED')
 
-/**
- * Pure derivation matching production logic for customer list actions:
- * `canMutate && getAvailableActions(status).length > 0`
- */
+// Production derivations, composed from the real capability rule the pages use.
 function shouldShowCustomerActions(role: string, status: CustomerStatus): boolean {
-  return role === 'SUPER_ADMIN' && getAvailableActions(status).length > 0
+  return roleCan(role, 'customer:write') && getAvailableActions(status).length > 0
 }
 
-/**
- * Pure derivation matching production logic for application actions:
- * `canDecideApplication && status === 'PENDING'`
- */
 function shouldShowApplicationActions(role: string, status: WholesaleStatus): boolean {
-  return (role === 'SUPER_ADMIN' || role === 'ORDER_MANAGER') && status === 'PENDING'
+  return roleCan(role, 'wholesale-application:decide') && status === 'PENDING'
 }
 
 describe('Feature: admin-wholesale-management, Property 2: Action visibility rule', () => {

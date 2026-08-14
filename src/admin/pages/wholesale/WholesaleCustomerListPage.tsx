@@ -15,7 +15,7 @@ import {
 } from '@/shared/ui/components'
 import type { ColumnDef } from '@/shared/ui/components'
 import { Input } from '@/shared/ui/primitives'
-import { useAdminAuthStore } from '@/shared/auth/adminAuthStore'
+import { useCan } from '@/shared/auth/adminPermissions'
 import { useWholesaleCustomers, useWholesaleCustomerStatusAction } from '@/admin/hooks/wholesale'
 import type { WholesaleCustomerListItem } from '@/admin/hooks/wholesale'
 import {
@@ -41,7 +41,7 @@ function formatDate(dateString: string): string {
 }
 
 export function WholesaleCustomerListPage() {
-  const canMutate = useAdminAuthStore((s) => s.role) === 'SUPER_ADMIN'
+  const canMutate = useCan('wholesale-customer:write')
 
   const [statusFilter, setStatusFilter] = useState<CustomerStatus | 'ALL'>('ALL')
   const [searchInput, setSearchInput] = useState('')

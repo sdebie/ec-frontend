@@ -115,6 +115,28 @@ describe('CategoryEditPage', () => {
         expect(screen.getByText('Categories List Page')).toBeInTheDocument()
     })
 
+    it('renders the edit form for CATALOG_MANAGER (category:write admits it)', () => {
+        useAdminAuthStore.setState({role: 'CATALOG_MANAGER'})
+
+        mockedUseCategoryDetail.mockReturnValue({
+            data: {
+                id: 'cat-1',
+                name: 'Electronics',
+                slug: 'electronics',
+                description: null,
+                imageUrl: null,
+                parent: null,
+            },
+            isLoading: false,
+            error: null,
+        })
+
+        renderCategoryEditPage()
+
+        expect(screen.queryByText('Categories List Page')).not.toBeInTheDocument()
+        expect(screen.getByRole('button', {name: 'Save Changes'})).toBeInTheDocument()
+    })
+
     it('passes editingCategoryId to CategoryForm when category is loaded', () => {
         mockedUseCategoryDetail.mockReturnValue({
             data: {

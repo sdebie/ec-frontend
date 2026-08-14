@@ -65,4 +65,13 @@ describe('BrandCreatePage', () => {
     expect(screen.queryByText('Brands List Page')).not.toBeInTheDocument()
     expect(screen.getByRole('button', { name: 'Create Brand' })).toBeInTheDocument()
   })
+
+  it('renders create form for CATALOG_MANAGER (brand:write admits it)', () => {
+    useAdminAuthStore.setState({ role: 'CATALOG_MANAGER' })
+
+    renderBrandCreatePage()
+
+    expect(screen.queryByText('Brands List Page')).not.toBeInTheDocument()
+    expect(screen.getByRole('button', { name: 'Create Brand' })).toBeInTheDocument()
+  })
 })

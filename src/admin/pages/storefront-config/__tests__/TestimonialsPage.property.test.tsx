@@ -16,12 +16,12 @@ vi.mock('@/admin/hooks/testimonials', async () => {
   }
 })
 
-vi.mock('@/shared/utils/authorizationHelper', () => ({
-  hasRequiredAuthority: vi.fn(() => true),
-}))
 
 import { useAdminTestimonials } from '@/admin/hooks/testimonials'
+import { useAdminAuthStore } from '@/shared/auth/adminAuthStore'
 import { TestimonialsPage } from '../TestimonialsPage'
+
+useAdminAuthStore.setState({ role: 'SUPER_ADMIN' })
 
 function createQueryClient() {
   return new QueryClient({ defaultOptions: { queries: { retry: false } } })

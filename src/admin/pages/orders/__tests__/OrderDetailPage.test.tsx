@@ -189,6 +189,14 @@ describe('OrderDetailPage', () => {
       expect(screen.getByRole('button', { name: 'Refund' })).toBeInTheDocument()
     })
 
+    it('renders action buttons for ORDER_MANAGER (order:write mirrors updateOrderStatus)', () => {
+      setupMocks({ role: 'ORDER_MANAGER', data: mockOrder })
+
+      renderPage()
+
+      expect(screen.getByTestId('order-action-buttons')).toBeInTheDocument()
+    })
+
     it('does not render action buttons for VIEWER role', () => {
       setupMocks({ role: 'VIEWER', data: mockOrder })
 

@@ -24,7 +24,7 @@ import {
 import {Button, Input} from '@/shared/ui/primitives'
 import {ProductStatus} from '@/shared/types/enums'
 import {formatAmount} from '@/shared/utils/formatAmount'
-import {canManageCatalog, hasRequiredAuthority} from '@/shared/utils/authorizationHelper'
+import {useCan} from '@/shared/auth/adminPermissions'
 import {cn} from '@/shared/utils/cn'
 
 export {getStatCardSubtitle} from './components/ProductStatCards'
@@ -57,8 +57,8 @@ export function getFormattedPrice(retailPrice: string | null): string {
 
 export function ProductListPage() {
     const navigate = useNavigate()
-    const canMutate = canManageCatalog()
-    const canManageLifecycle = hasRequiredAuthority(['SUPER_ADMIN'])
+    const canMutate = useCan('product:write')
+    const canManageLifecycle = useCan('product:lifecycle')
 
     const [pagination, setPagination] = useState({pageIndex: 0, pageSize: 10})
     const [statusFilter, setStatusFilter] = useState<StatusFilter>('ALL')

@@ -72,4 +72,13 @@ describe('CategoryCreatePage', () => {
         // target the button — it also proves the form is in create mode.
         expect(screen.getByRole('button', {name: 'Create Category'})).toBeInTheDocument()
     })
+
+    it('renders create form for CATALOG_MANAGER (category:write admits it)', () => {
+        useAdminAuthStore.setState({role: 'CATALOG_MANAGER'})
+
+        renderCategoryCreatePage()
+
+        expect(screen.queryByText('Categories List Page')).not.toBeInTheDocument()
+        expect(screen.getByRole('button', {name: 'Create Category'})).toBeInTheDocument()
+    })
 })

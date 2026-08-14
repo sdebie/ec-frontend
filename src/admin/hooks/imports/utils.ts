@@ -41,13 +41,6 @@ export function derivePriceChangeIndicator(row: ProductPriceComparisonDto): Pric
 }
 
 /**
- * Derives canMutate from a role string. Extracted as a pure function so it can be property-tested.
- */
-export function deriveCanMutate(role: string | null): boolean {
-  return role === 'SUPER_ADMIN'
-}
-
-/**
  * Computes summary statistics from an array of ProductComparisonDto rows.
  */
 export function computeProductReviewSummary(rows: ProductComparisonDto[]) {

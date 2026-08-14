@@ -8,7 +8,7 @@ import {useUpdateProductStatusGql} from '@/admin/hooks/products/useUpdateProduct
 import {useProductStats} from '@/admin/hooks/products/useProductStats'
 import {useCategories} from '@/admin/hooks/products/useCategories'
 import {useBrands} from '@/admin/hooks/products/useBrands'
-import * as authorizationHelper from '@/shared/utils/authorizationHelper'
+import {useAdminAuthStore} from '@/shared/auth/adminAuthStore'
 import {ProductListPage} from '../ProductListPage'
 
 const mockRefetch = vi.fn()
@@ -37,10 +37,6 @@ vi.mock('@/admin/hooks/products/useCategories', () => ({
 }))
 vi.mock('@/admin/hooks/products/useBrands', () => ({
     useBrands: vi.fn(),
-}))
-vi.mock('@/shared/utils/authorizationHelper', () => ({
-    canManageCatalog: vi.fn(),
-    hasRequiredAuthority: vi.fn(),
 }))
 vi.mock('react-router-dom', async () => {
     const actual = await vi.importActual('react-router-dom')
@@ -104,8 +100,7 @@ function setupDefaultMocks(overrides?: {
         isLoading: false,
     })
 
-    vi.mocked(authorizationHelper.canManageCatalog).mockReturnValue(!(overrides?.role === 'VIEWER' || overrides?.role === 'ORDER_MANAGER'),)
-    vi.mocked(authorizationHelper.hasRequiredAuthority).mockReturnValue(overrides?.role !== 'VIEWER' && overrides?.role !== 'ORDER_MANAGER',)
+    useAdminAuthStore.setState({role: overrides?.role ?? 'SUPER_ADMIN'})
 }
 
 function renderPage() {

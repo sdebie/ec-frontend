@@ -49,10 +49,6 @@ vi.mock('@/admin/hooks/products/useBrands', () => ({
   useBrands: vi.fn(() => ({ data: [], isLoading: false })),
 }))
 
-vi.mock('@/shared/utils/authorizationHelper', () => ({
-  canManageCatalog: vi.fn(() => true),
-  hasRequiredAuthority: vi.fn(() => true),
-}))
 
 vi.mock('react-router-dom', async () => {
   const actual = await vi.importActual('react-router-dom')
@@ -63,6 +59,10 @@ vi.mock('react-router-dom', async () => {
 })
 
 // Status filter option values on the shared Select component
+import { useAdminAuthStore } from '@/shared/auth/adminAuthStore'
+
+useAdminAuthStore.setState({ role: 'SUPER_ADMIN' })
+
 const STATUS_FILTER_VALUES = ['ALL', 'ACTIVE', 'PENDING', 'DISABLED'] as const
 const STATUS_VALUE_TO_LABEL: Record<(typeof STATUS_FILTER_VALUES)[number], string> = {
   ALL: 'All',

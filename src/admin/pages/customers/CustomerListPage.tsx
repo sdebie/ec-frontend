@@ -11,7 +11,7 @@ import {
 } from '@/shared/ui/components'
 import type { ColumnDef } from '@/shared/ui/components'
 import { Input } from '@/shared/ui/primitives'
-import { useAdminAuthStore } from '@/shared/auth/adminAuthStore'
+import { useCan } from '@/shared/auth/adminPermissions'
 import { useCustomers, useUpdateCustomerStatus } from '@/admin/hooks/customers'
 import type { AdminCustomerSummary } from '@/admin/hooks/customers'
 import { getAvailableActions, getCustomerStatusColor } from '@/admin/hooks/customers'
@@ -33,7 +33,7 @@ function formatDate(dateString: string): string {
 }
 
 export function CustomerListPage() {
-  const canMutate = useAdminAuthStore((s) => s.role) === 'SUPER_ADMIN'
+  const canMutate = useCan('customer:write')
 
   const [statusFilter, setStatusFilter] = useState('ALL')
   const [searchInput, setSearchInput] = useState('')

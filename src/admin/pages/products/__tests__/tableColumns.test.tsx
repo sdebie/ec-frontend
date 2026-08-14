@@ -9,7 +9,7 @@ import { useUpdateProductStatusGql } from '@/admin/hooks/products/useUpdateProdu
 import { useProductStats } from '@/admin/hooks/products/useProductStats'
 import { useCategories } from '@/admin/hooks/products/useCategories'
 import { useBrands } from '@/admin/hooks/products/useBrands'
-import * as authorizationHelper from '@/shared/utils/authorizationHelper'
+import { useAdminAuthStore } from '@/shared/auth/adminAuthStore'
 
 /**
  * Unit tests for table column rendering and order.
@@ -39,10 +39,6 @@ vi.mock('@/admin/hooks/products/useCategories', () => ({
 }))
 vi.mock('@/admin/hooks/products/useBrands', () => ({
   useBrands: vi.fn(),
-}))
-vi.mock('@/shared/utils/authorizationHelper', () => ({
-  canManageCatalog: vi.fn(),
-  hasRequiredAuthority: vi.fn(),
 }))
 
 const mockNavigate = vi.fn()
@@ -102,10 +98,7 @@ function setupMocks() {
     isLoading: false,
   })
 
-  vi.mocked(authorizationHelper.canManageCatalog).mockReturnValue(true)
-  vi.mocked(authorizationHelper.hasRequiredAuthority).mockImplementation((roles) =>
-    roles.includes('SUPER_ADMIN'),
-  )
+  useAdminAuthStore.setState({ role: 'SUPER_ADMIN' })
 }
 
 function renderPage() {
@@ -193,7 +186,7 @@ describe('Product table columns', () => {
   })
 
   it('renders Actions column with only the view/edit button for VIEWER role', () => {
-    vi.mocked(authorizationHelper.canManageCatalog).mockReturnValue(false)
+    useAdminAuthStore.setState({ role: 'VIEWER' })
 
     renderPage()
 
@@ -201,6 +194,19 @@ describe('Product table columns', () => {
     expect(screen.getByTestId('action-view-edit')).toBeInTheDocument()
     // Mutating actions should not be rendered for read-only roles
     expect(screen.queryByTestId('action-out-of-stock')).not.toBeInTheDocument()
+    expect(screen.queryByTestId('action-disable')).not.toBeInTheDocument()
+    expect(screen.queryByTestId('action-delete')).not.toBeInTheDocument()
+  })
+
+  it('splits the two capabilities for CATALOG_MANAGER: write actions render, lifecycle actions do not', () => {
+    // CM is in product:write but not product:lifecycle — this pin fails if the
+    // page ever reads one capability where it means the other.
+    useAdminAuthStore.setState({ role: 'CATALOG_MANAGER' })
+
+    renderPage()
+
+    expect(screen.getByTestId('action-view-edit')).toBeInTheDocument()
+    expect(screen.getByTestId('action-out-of-stock')).toBeInTheDocument()
     expect(screen.queryByTestId('action-disable')).not.toBeInTheDocument()
     expect(screen.queryByTestId('action-delete')).not.toBeInTheDocument()
   })
