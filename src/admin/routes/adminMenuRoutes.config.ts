@@ -179,9 +179,8 @@ export const adminMenuRoutes: AdminRouteList = [
     {
         key: 'admin.orders',
         path: '/admin/orders',
-        component: lazy(() =>
-            import('@/admin/pages/orders/OrderListPage').then((m) => ({default: m.OrderListPage}))
-        ),
+        // No component: the parent only expands the section. Its own path is served by
+        // the `admin.orders.list` child below, mirroring `admin.products`.
         authority: ['SUPER_ADMIN', 'ORDER_MANAGER', 'VIEWER'],
         meta: {
             label: 'Orders',
@@ -190,6 +189,65 @@ export const adminMenuRoutes: AdminRouteList = [
             pageContainerType: 'contained',
             icon: 'package',
         },
+        // ⚠️ Every path here is a literal sitting under `/admin/orders/`, which is also
+        // where `/admin/orders/:orderId` lives. React Router ranks static segments above
+        // dynamic ones so these win, but the failure mode if that ever changes is silent —
+        // the order detail page would render with "returns" as an order id and simply say
+        // "Order not found". `orderRoutes.test.ts` pins the resolution for each path.
+        subMenu: [
+            {
+                key: 'admin.orders.list',
+                path: '/admin/orders',
+                component: lazy(() =>
+                    import('@/admin/pages/orders/OrderListPage').then((m) => ({default: m.OrderListPage}))
+                ),
+                authority: ['SUPER_ADMIN', 'ORDER_MANAGER', 'VIEWER'],
+                meta: {
+                    label: 'All Orders',
+                    pageBackgroundType: 'plain',
+                    pageContainerType: 'contained',
+                },
+            },
+            {
+                key: 'admin.orders.returns',
+                path: '/admin/orders/returns',
+                component: lazy(() =>
+                    import('@/admin/pages/AdminToDoPage').then((m) => ({default: m.AdminToDoPage}))
+                ),
+                authority: ['SUPER_ADMIN', 'ORDER_MANAGER', 'VIEWER'],
+                meta: {
+                    label: 'Return & Refund',
+                    pageBackgroundType: 'plain',
+                    pageContainerType: 'contained',
+                },
+            },
+            {
+                key: 'admin.orders.abandoned-carts',
+                path: '/admin/orders/abandoned-carts',
+                component: lazy(() =>
+                    import('@/admin/pages/AdminToDoPage').then((m) => ({default: m.AdminToDoPage}))
+                ),
+                authority: ['SUPER_ADMIN', 'ORDER_MANAGER', 'VIEWER'],
+                meta: {
+                    label: 'Abandoned Cart',
+                    pageBackgroundType: 'plain',
+                    pageContainerType: 'contained',
+                },
+            },
+            {
+                key: 'admin.orders.transactions',
+                path: '/admin/orders/transactions',
+                component: lazy(() =>
+                    import('@/admin/pages/AdminToDoPage').then((m) => ({default: m.AdminToDoPage}))
+                ),
+                authority: ['SUPER_ADMIN', 'ORDER_MANAGER', 'VIEWER'],
+                meta: {
+                    label: 'Transactions',
+                    pageBackgroundType: 'plain',
+                    pageContainerType: 'contained',
+                },
+            },
+        ],
     },
     {
         key: 'admin.quotes',

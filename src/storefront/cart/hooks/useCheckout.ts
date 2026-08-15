@@ -60,6 +60,12 @@ export function useCheckout() {
                 const responseData = err.response.data as CheckoutError422
                 setUnavailableVariantIds(responseData.unavailableVariantIds ?? [])
                 setError(null)
+            } else if (err.response?.status === 429) {
+                // Waiting is the only thing that clears this, and the window is a
+                // fixed one, so "try again" would invite the one action that cannot
+                // work yet. The cart is untouched, so there is nothing to redo.
+                setUnavailableVariantIds([])
+                setError('Too many checkout attempts — please wait a few minutes and try again')
             } else {
                 setUnavailableVariantIds([])
                 setError('Something went wrong — please try again')

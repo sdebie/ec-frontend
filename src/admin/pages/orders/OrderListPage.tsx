@@ -1,12 +1,14 @@
 import { useState, useMemo, useCallback } from 'react'
 import { Link } from 'react-router-dom'
+import { Eye } from 'lucide-react'
 import type { PaginationState } from '@tanstack/react-table'
 
 import {
   DataTable,
-  Segment,
+  Select,
   Label,
   OrderStatusDisplay,
+  RowActionButton,
 } from '@/shared/ui/components'
 import type { ColumnDef } from '@/shared/ui/components'
 import { Input } from '@/shared/ui/primitives'
@@ -16,7 +18,6 @@ import { OrderStatus, OrderStatusOptions } from '@/shared/types/enums/OrderStatu
 import { useOrders, useUpdateOrderStatus } from '@/admin/hooks/orders'
 import type { AdminOrderSummary } from '@/admin/hooks/orders'
 import { OrderActionsMenu } from './components/OrderActionsMenu'
-import { getAvailableTransitions } from './utils/getAvailableTransitions'
 import { useOrderStatusConfirmation } from './hooks/useOrderStatusConfirmation'
 import type { ConfirmedAction } from './utils/confirmedActions'
 import { OrderStatusConfirmationDialog } from './components/OrderStatusConfirmationDialog'
@@ -156,26 +157,39 @@ export function OrderListPage() {
         header: 'Status',
         cell: ({ row }) => <OrderStatusDisplay status={row.original.status} />,
       },
-      ...(canMutate
-        ? [
-            {
-              id: 'actions',
-              header: 'Actions',
-              cell: ({ row }: { row: { original: AdminOrderSummary } }) => {
-                const order = row.original
-                const transitions = getAvailableTransitions(order.status)
-                if (transitions.length === 0) return null
-                return (
-                  <OrderActionsMenu
-                    order={order}
-                    canMutate={canMutate}
-                    onSelect={(target) => handleSelect(order.id, order.status, target)}
-                  />
-                )
-              },
-            } as ColumnDef<AdminOrderSummary, unknown>,
-          ]
-        : []),
+      {
+        id: 'actions',
+        header: 'Actions',
+        cell: ({ row }: { row: { original: AdminOrderSummary } }) => {
+          const order = row.original
+          return (
+            <div className="flex items-center gap-1">
+              {/*
+                A link rather than a button so it behaves like one — middle-click and
+                open-in-new-tab both work, which matters on a list somebody works
+                through. Rendered as a span inside it because RowActionButton would
+                otherwise nest a button in the anchor.
+              */}
+              <Link to={`/admin/orders/${order.id}`} aria-label={`View order ${order.reference}`}>
+                <RowActionButton as="span" title="View order">
+                  <Eye className="h-4 w-4" />
+                </RowActionButton>
+              </Link>
+              {/*
+                Gated separately from the view action: viewing is not mutating, so a
+                VIEWER keeps the eye and loses only this.
+              */}
+              {canMutate && (
+                <OrderActionsMenu
+                  order={order}
+                  canMutate={canMutate}
+                  onSelect={(target) => handleSelect(order.id, order.status, target)}
+                />
+              )}
+            </div>
+          )
+        },
+      } as ColumnDef<AdminOrderSummary, unknown>,
     ],
     [canMutate, handleSelect],
   )
@@ -186,38 +200,41 @@ export function OrderListPage() {
     <div className="flex flex-col gap-6">
       <h1 className="text-2xl font-semibold text-(--c-text)">Orders</h1>
 
-      {/* Filters */}
-      <div className="flex flex-col gap-4">
-        <Segment
-          options={STATUS_FILTER_OPTIONS}
-          value={statusFilter}
-          onChange={handleStatusFilterChange}
-          className="max-w-full overflow-x-auto"
-        />
-
-        <div className="flex items-center gap-4">
-          <div className="flex items-center gap-2">
-            <Label htmlFor="from-date" className="mb-0">
-              From
-            </Label>
-            <Input
-              id="from-date"
-              type="date"
-              value={fromDate}
-              onChange={handleFromDateChange}
-            />
-          </div>
-          <div className="flex items-center gap-2">
-            <Label htmlFor="to-date" className="mb-0">
-              To
-            </Label>
-            <Input
-              id="to-date"
-              type="date"
-              value={toDate}
-              onChange={handleToDateChange}
-            />
-          </div>
+      {/* Filters — status sits alongside the date range, all three on one row. */}
+      <div className="flex flex-wrap items-center gap-4">
+        <div className="flex items-center gap-2">
+          <Label htmlFor="status-filter" className="mb-0">
+            Status
+          </Label>
+          <Select
+            options={STATUS_FILTER_OPTIONS}
+            value={statusFilter}
+            onChange={handleStatusFilterChange}
+            ariaLabel="Filter by status"
+            className="min-w-56"
+          />
+        </div>
+        <div className="flex items-center gap-2">
+          <Label htmlFor="from-date" className="mb-0">
+            From
+          </Label>
+          <Input
+            id="from-date"
+            type="date"
+            value={fromDate}
+            onChange={handleFromDateChange}
+          />
+        </div>
+        <div className="flex items-center gap-2">
+          <Label htmlFor="to-date" className="mb-0">
+            To
+          </Label>
+          <Input
+            id="to-date"
+            type="date"
+            value={toDate}
+            onChange={handleToDateChange}
+          />
         </div>
       </div>
 

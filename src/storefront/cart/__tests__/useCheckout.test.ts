@@ -143,6 +143,34 @@ describe('useCheckout', () => {
         expect(useCartStore.getState().items).toHaveLength(2)
     })
 
+    it('tells the shopper to wait on 429 rather than to retry', async () => {
+        const axiosError = {
+            isAxiosError: true,
+            response: {
+                status: 429,
+                data: {},
+            },
+        }
+        mockPost.mockRejectedValueOnce(axiosError)
+
+        const {result} = renderHook(() => useCheckout(), {wrapper: createWrapper()})
+
+        await act(async () => {
+            result.current.checkout()
+        })
+
+        // The generic copy invites the one action that cannot succeed while the
+        // window is open, and every retry extends it.
+        await waitFor(() => {
+            expect(result.current.error).not.toBeNull()
+        })
+        expect(result.current.error).not.toBe('Something went wrong — please try again')
+        expect(result.current.error).toMatch(/too many/i)
+
+        expect(result.current.unavailableVariantIds).toEqual([])
+        expect(useCartStore.getState().items).toHaveLength(2)
+    })
+
     it('sets generic error message on other errors', async () => {
         const axiosError = {
             isAxiosError: true,

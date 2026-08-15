@@ -103,15 +103,54 @@ describe('OrderListPage', () => {
     })
   })
 
+  /**
+   * The status filter is a dropdown, not a row of tabs. With twenty-one statuses the tab
+   * strip overflowed into a horizontal scroll that hid most of them behind a swipe, and a
+   * filter nobody can see is a filter nobody uses.
+   */
+  describe('status filter', () => {
+    // `Select` is a custom listbox rather than a native <select>, so each change means
+    // opening the trigger and then picking the option — mirrors the products page.
+    function chooseStatus(label: string) {
+      fireEvent.click(screen.getByRole('button', { name: 'Filter by status' }))
+      fireEvent.click(screen.getByRole('option', { name: label }))
+    }
+
+    it('is a dropdown rather than a tab strip', () => {
+      setupDefaultMocks()
+      renderPage()
+
+      expect(screen.getByRole('button', { name: 'Filter by status' })).toBeInTheDocument()
+    })
+
+    it('passes the chosen status through to the query', () => {
+      setupDefaultMocks()
+      renderPage()
+
+      chooseStatus('Processing')
+
+      expect(vi.mocked(useOrders).mock.calls.at(-1)?.[0]).toMatchObject({ status: 'PROCESSING' })
+    })
+
+    it('sends no status filter at all when All is chosen', () => {
+      setupDefaultMocks()
+      renderPage()
+
+      chooseStatus('Processing')
+      chooseStatus('All')
+
+      expect(vi.mocked(useOrders).mock.calls.at(-1)?.[0]).toMatchObject({ status: undefined })
+    })
+  })
+
   describe('filter interactions reset pagination', () => {
     it('resets pagination to page 1 when status filter changes', () => {
       setupDefaultMocks()
 
       renderPage()
 
-      // Any live status will do; "Pending" is deliberately not offered any more, being
-      // a legacy value no order can reach.
-      fireEvent.click(screen.getByRole('button', { name: 'Processing' }))
+      fireEvent.click(screen.getByRole('button', { name: 'Filter by status' }))
+      fireEvent.click(screen.getByRole('option', { name: 'Processing' }))
 
       // Verify useOrders was called with page: 1
       const lastCall = vi.mocked(useOrders).mock.calls.at(-1)
@@ -154,6 +193,49 @@ describe('OrderListPage', () => {
       const link = screen.getByRole('link', { name: 'ORD-00001' })
       expect(link).toBeInTheDocument()
       expect(link).toHaveAttribute('href', '/admin/orders/order-1')
+    })
+  })
+
+  /**
+   * Viewing is not mutating, so the view action is gated differently from the rest of the
+   * row actions: a VIEWER can reach every order's detail but must still be offered no way
+   * to change one. Pinned in both directions, because collapsing the two gates would be
+   * invisible — the page would simply look slightly wrong to one role.
+   */
+  describe('view action', () => {
+    it('links to the order detail page', () => {
+      setupDefaultMocks()
+
+      renderPage()
+
+      const view = screen.getByRole('link', { name: /view order ORD-00001/i })
+      expect(view).toHaveAttribute('href', '/admin/orders/order-1')
+    })
+
+    it('is offered to a VIEWER, who cannot mutate anything', () => {
+      setupDefaultMocks({ role: 'VIEWER' })
+
+      renderPage()
+
+      expect(screen.getByRole('link', { name: /view order ORD-00001/i })).toBeInTheDocument()
+      expect(screen.queryByTestId('order-actions-menu')).not.toBeInTheDocument()
+    })
+
+    /**
+     * A terminal order has no transitions, so its kebab menu is gone — but it is exactly
+     * the kind of order somebody needs to open and read.
+     */
+    it('survives on an order with no available transitions', () => {
+      setupDefaultMocks({
+        ordersData: createMockOrdersPage({
+          data: [createMockOrder({ status: OrderStatus.REFUNDED })],
+        }),
+      })
+
+      renderPage()
+
+      expect(screen.getByRole('link', { name: /view order ORD-00001/i })).toBeInTheDocument()
+      expect(screen.queryByTestId('order-actions-menu')).not.toBeInTheDocument()
     })
   })
 
