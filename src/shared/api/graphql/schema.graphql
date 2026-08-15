@@ -168,7 +168,7 @@ type Mutation {
   updateCategory(categoryDto: CategoryDtoInput, id: String): Void
   updateCustomerStatus(id: String, status: String): AdminCustomerListItemDto
   "Move one order to a new status. Staff JWT required."
-  updateOrderStatus(orderId: String, restockItems: Boolean, status: String): OrderResponseDto
+  updateOrderStatus(orderId: String, status: String): OrderResponseDto
   "Update an existing product with variants, images, and multiple categories. When updating categories, all previous category assignments are replaced with the new ones provided."
   updateProductInformation(input: ProductInformationDtoInput, productId: String): ProductInformationDto
   "Update a product's status. SUPER_ADMIN only."
@@ -737,16 +737,27 @@ enum LogicalOperator {
 }
 
 enum OrderStatusEn {
+  ADMIN_CANCELED
   CANCELLED
+  COLLECTED
   CREATED
   DELIVERED
+  DELIVERY_FAILED
   FAILED
   IN_STORE_PAYMENT
   IN_TRANSIT
   PAID
+  PARTIALLY_REFUNDED
+  PAYMENT_FAILED
   PENDING
+  PENDING_PAYMENT
+  PROCESSING
+  READY_FOR_COLLECTION
+  READY_TO_SHIP
   REFUNDED
+  RETURNED_TO_ORIGIN
   SYSTEM_CANCELED
+  USER_CANCELED
 }
 
 enum PriceBasisEn {

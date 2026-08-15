@@ -63,7 +63,7 @@ function setup(orders: AdminOrderSummary[], role = 'SUPER_ADMIN') {
  */
 async function openRowAction(
   user: ReturnType<typeof userEvent.setup>,
-  action: 'refund' | 'cancel',
+  action: string,
   rowIndex = 0,
 ) {
   const menus = screen.getAllByTestId('order-actions-menu')
@@ -73,95 +73,83 @@ async function openRowAction(
   await user.click(within(screen.getByTestId(`action-${action}`)).getByRole('menuitem'))
 }
 
-const openRefund = (user: ReturnType<typeof userEvent.setup>, rowIndex = 0) =>
-  openRowAction(user, 'refund', rowIndex)
-
 /**
- * The list page shares its confirmation state with the detail page via
- * `useOrderStatusConfirmation`, so the logic is covered once in that hook's own tests.
- * What is only exercised here is the list's own wiring: each row must pass *its* status
- * into the prompt. A row passing the wrong order's status would default the restock
- * decision from the wrong order — invisible in a hook test.
+ * The list shares its confirmation state with the detail page via
+ * `useOrderStatusConfirmation`, so the payload logic is covered once in that hook's own
+ * tests. What is only exercised here is the list's own wiring: each row must act on
+ * *its* order, and offer only the actions that row's status actually allows.
  */
-describe('OrderListPage — refund restock decision', () => {
+describe('OrderListPage — status actions', () => {
   beforeEach(() => {
     vi.clearAllMocks()
   })
 
-  it('defaults from the row being refunded, not from the first row', async () => {
+  it('acts on the row that was clicked, not the first row', async () => {
     const user = userEvent.setup()
-    // Row 0 is dispatched, row 1 is not: if the page passed a fixed or wrong row's
-    // status, one of these two assertions has to fail.
     setup([
       order({ id: 'delivered-order', reference: 'ORD-1', status: OrderStatus.DELIVERED }),
       order({ id: 'paid-order', reference: 'ORD-2', status: OrderStatus.PAID }),
     ])
 
-    await openRefund(user, 1)
-    expect(within(screen.getByTestId('refund-restock-choice')).getByRole('checkbox')).toBeChecked()
-
-    await user.click(screen.getByRole('button', { name: 'Refund Order' }))
+    await openRowAction(user, 'cancel — store', 1)
+    await user.click(screen.getByRole('button', { name: 'Cancel Order' }))
 
     expect(mutate).toHaveBeenCalledWith(
-      expect.objectContaining({
-        orderId: 'paid-order',
-        status: OrderStatus.REFUNDED,
-        restockItems: true,
-      }),
+      { orderId: 'paid-order', status: OrderStatus.ADMIN_CANCELED },
       expect.anything(),
     )
   })
 
-  it('leaves the choice unticked when refunding a delivered row', async () => {
+  it('sends a refund with no stock instruction attached', async () => {
     const user = userEvent.setup()
     setup([order({ id: 'delivered-order', status: OrderStatus.DELIVERED })])
 
-    await openRefund(user)
-    expect(within(screen.getByTestId('refund-restock-choice')).getByRole('checkbox')).not.toBeChecked()
-
+    await openRowAction(user, 'refund')
     await user.click(screen.getByRole('button', { name: 'Refund Order' }))
-
-    expect(mutate).toHaveBeenCalledWith(
-      expect.objectContaining({ orderId: 'delivered-order', restockItems: false }),
-      expect.anything(),
-    )
-  })
-
-  it('sends the staff answer over the row-derived default', async () => {
-    const user = userEvent.setup()
-    setup([order({ id: 'paid-order', status: OrderStatus.PAID })])
-
-    await openRefund(user)
-    // Dispatched but never marked In Transit — the case the prompt exists for.
-    await user.click(within(screen.getByTestId('refund-restock-choice')).getByRole('checkbox'))
-    await user.click(screen.getByRole('button', { name: 'Refund Order' }))
-
-    expect(mutate).toHaveBeenCalledWith(
-      expect.objectContaining({ orderId: 'paid-order', restockItems: false }),
-      expect.anything(),
-    )
-  })
-
-  it('does not attach a restock decision to a cancellation', async () => {
-    const user = userEvent.setup()
-    setup([order({ id: 'paid-order', status: OrderStatus.PAID })])
-
-    await openRowAction(user, 'cancel')
-
-    expect(screen.queryByTestId('refund-restock-choice')).toBeNull()
-
-    await user.click(screen.getByRole('button', { name: 'Cancel Order' }))
 
     const [payload] = mutate.mock.calls[0]
-    expect(payload.status).toBe(OrderStatus.CANCELLED)
-    expect(payload).not.toHaveProperty('restockItems')
+    expect(payload).toEqual({ orderId: 'delivered-order', status: OrderStatus.REFUNDED })
   })
 
+  /**
+   * A forward fulfilment step is reversible by moving forward again and has nothing
+   * outward-facing to warn about, so it fires straight away rather than prompting.
+   */
+  it('runs a forward fulfilment step without a confirmation prompt', async () => {
+    const user = userEvent.setup()
+    setup([order({ id: 'paid-order', status: OrderStatus.PAID })])
+
+    await openRowAction(user, 'start processing')
+
+    expect(mutate).toHaveBeenCalledWith({
+      orderId: 'paid-order',
+      status: OrderStatus.PROCESSING,
+    })
+  })
+
+  /** The UI half of "no step may be skipped". */
+  it('offers only the next step of the workflow for a row, never one further on', async () => {
+    const user = userEvent.setup()
+    setup([order({ id: 'paid-order', status: OrderStatus.PAID })])
+
+    await user.click(within(screen.getAllByTestId('order-actions-menu')[0]).getByRole('button'))
+
+    expect(screen.getByTestId('action-start processing')).toBeInTheDocument()
+    expect(screen.queryByTestId('action-ship')).toBeNull()
+    expect(screen.queryByTestId('action-deliver')).toBeNull()
+  })
+
+  /**
+   * A middle-privilege role, not just the two extremes: a capability collapsed onto
+   * the wrong backend role passes a SUPER_ADMIN-vs-VIEWER check by accident.
+   */
   it('offers the refund action to ORDER_MANAGER, not only SUPER_ADMIN', async () => {
     const user = userEvent.setup()
-    setup([order({ id: 'paid-order', status: OrderStatus.PAID })], 'ORDER_MANAGER')
+    setup([order({ id: 'delivered-order', status: OrderStatus.DELIVERED })], 'ORDER_MANAGER')
 
-    await openRefund(user)
-    expect(screen.getByTestId('refund-restock-choice')).toBeInTheDocument()
+    await openRowAction(user, 'refund')
+    await user.click(screen.getByRole('button', { name: 'Refund Order' }))
+
+    expect(mutate.mock.calls[0][0].status).toBe(OrderStatus.REFUNDED)
   })
 })

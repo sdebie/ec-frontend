@@ -178,14 +178,18 @@ describe('OrderDetailPage', () => {
       expect(screen.getByTestId('order-action-buttons')).toBeInTheDocument()
     })
 
-    it('renders correct action buttons for PAID status (Ship, Cancel, Refund)', () => {
+    it('renders the actions a PAID order allows, and none it does not', () => {
       setupMocks({ role: 'SUPER_ADMIN', data: mockOrder })
 
       renderPage()
 
-      expect(screen.getByRole('button', { name: 'Ship' })).toBeInTheDocument()
-      expect(screen.getByRole('button', { name: 'Cancel' })).toBeInTheDocument()
-      expect(screen.getByRole('button', { name: 'Refund' })).toBeInTheDocument()
+      // A paid order is processed next; the cancellations stay available because its
+      // goods have not left. Refunding needs the goods delivered or collected first.
+      expect(screen.getByRole('button', { name: 'Start Processing' })).toBeInTheDocument()
+      expect(screen.getByRole('button', { name: 'Cancel — Store' })).toBeInTheDocument()
+      expect(screen.getByRole('button', { name: 'Cancel — Customer' })).toBeInTheDocument()
+      expect(screen.queryByRole('button', { name: 'Ship' })).toBeNull()
+      expect(screen.queryByRole('button', { name: 'Refund' })).toBeNull()
     })
 
     it('renders action buttons for ORDER_MANAGER (order:write mirrors updateOrderStatus)', () => {

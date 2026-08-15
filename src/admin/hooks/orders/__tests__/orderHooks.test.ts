@@ -159,12 +159,12 @@ describe('admin order hooks', () => {
   describe('useUpdateOrderStatus', () => {
     it('sends the mutation keyed by orderId, which is what the backend accepts', async () => {
       vi.mocked(adminGraphqlClient.request).mockResolvedValue({
-        updateOrderStatus: { id: 'o1', status: OrderStatus.CANCELLED },
+        updateOrderStatus: { id: 'o1', status: OrderStatus.ADMIN_CANCELED },
       })
 
       const { result } = renderHook(() => useUpdateOrderStatus(), { wrapper: createWrapper() })
 
-      result.current.mutate({ orderId: 'o1', status: OrderStatus.CANCELLED })
+      result.current.mutate({ orderId: 'o1', status: OrderStatus.ADMIN_CANCELED })
 
       await waitFor(() => expect(result.current.isSuccess).toBe(true))
 
@@ -172,51 +172,29 @@ describe('admin order hooks', () => {
       expect(document).toContain('updateOrderStatus')
       expect(document).toContain('$orderId')
       expect(document).not.toContain('sessionId')
-      // Explicit null, not omitted: the server distinguishes "no decision supplied"
-      // from "do not restock", and rejects the former on a refund rather than guess.
-      expect(variables).toEqual({
-        orderId: 'o1',
-        status: OrderStatus.CANCELLED,
-        restockItems: null,
-      })
+      expect(variables).toEqual({ orderId: 'o1', status: OrderStatus.ADMIN_CANCELED })
     })
 
-    it('forwards an affirmative restock decision on a refund', async () => {
+    /**
+     * What happens to an order's goods follows from the status it moves to, so the
+     * wire carries no stock instruction at all. Sending one would be a way for a
+     * caller to move stock by asking, which is exactly what the server no longer
+     * accepts.
+     */
+    it('sends no stock instruction, not even on a refund', async () => {
       vi.mocked(adminGraphqlClient.request).mockResolvedValue({
         updateOrderStatus: { id: 'o1', status: OrderStatus.REFUNDED },
       })
 
       const { result } = renderHook(() => useUpdateOrderStatus(), { wrapper: createWrapper() })
 
-      result.current.mutate({ orderId: 'o1', status: OrderStatus.REFUNDED, restockItems: true })
+      result.current.mutate({ orderId: 'o1', status: OrderStatus.REFUNDED })
 
       await waitFor(() => expect(result.current.isSuccess).toBe(true))
 
-      expect(lastRequest().variables).toEqual({
-        orderId: 'o1',
-        status: OrderStatus.REFUNDED,
-        restockItems: true,
-      })
-    })
-
-    it('forwards a negative restock decision as false, never as absent', async () => {
-      vi.mocked(adminGraphqlClient.request).mockResolvedValue({
-        updateOrderStatus: { id: 'o1', status: OrderStatus.REFUNDED },
-      })
-
-      const { result } = renderHook(() => useUpdateOrderStatus(), { wrapper: createWrapper() })
-
-      result.current.mutate({ orderId: 'o1', status: OrderStatus.REFUNDED, restockItems: false })
-
-      await waitFor(() => expect(result.current.isSuccess).toBe(true))
-
-      // false must survive the ?? null coalescing — collapsing it to null would turn a
-      // deliberate "do not restock" into a server-side rejection.
-      expect(lastRequest().variables).toEqual({
-        orderId: 'o1',
-        status: OrderStatus.REFUNDED,
-        restockItems: false,
-      })
+      const { document, variables } = lastRequest()
+      expect(document).not.toContain('restockItems')
+      expect(Object.keys(variables)).toEqual(['orderId', 'status'])
     })
   })
 })

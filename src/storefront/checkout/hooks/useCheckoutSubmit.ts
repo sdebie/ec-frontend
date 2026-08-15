@@ -3,6 +3,7 @@ import {useNavigate} from 'react-router-dom'
 import {useCheckoutSessionStore} from '../store/checkoutSessionStore'
 import {applyServerTotals, toContactPayload} from '../mappers'
 import {submitPayFastForm} from '../utils/submitPayFastForm'
+import {useConfirmInStorePayment} from './useConfirmInStorePayment'
 import {useInitiatePayment} from './useInitiatePayment'
 import {useSubmitContact} from './useSubmitContact'
 import type {CheckoutFormValues} from '../checkoutFormSchema'
@@ -21,6 +22,7 @@ export function useCheckoutSubmit(orderId: string) {
     const navigate = useNavigate()
     const submitContact = useSubmitContact(orderId)
     const initiatePayment = useInitiatePayment()
+    const confirmInStorePayment = useConfirmInStorePayment()
 
     const [error, setError] = useState<string | null>(null)
     const [isSubmitting, setIsSubmitting] = useState(false)
@@ -55,6 +57,18 @@ export function useCheckoutSubmit(orderId: string) {
                 setError('Could not start the payment. Please try again.')
                 setIsSubmitting(false)
             }
+            return
+        }
+
+        // Pay-at-collection needs confirming on the server before the shopper
+        // leaves, exactly as PayFast needs its handoff. Navigating without it
+        // strands the order at CREATED, where the stock-recovery sweep treats it
+        // as an abandoned cart and cancels it.
+        try {
+            await confirmInStorePayment.mutateAsync(orderId)
+        } catch {
+            setError('Could not place your order. Please try again.')
+            setIsSubmitting(false)
             return
         }
 

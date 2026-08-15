@@ -93,22 +93,24 @@ export function OrderDetailPage() {
     (line): line is string => !!line,
   )
 
-  const handleShip = () => {
-    updateStatus.mutate({ orderId: order.id, status: OrderStatus.IN_TRANSIT })
-  }
-
-  const handleDeliver = () => {
-    updateStatus.mutate({ orderId: order.id, status: OrderStatus.DELIVERED })
-  }
-
   const askToConfirm = (type: ConfirmedAction) => () => {
     confirmation.ask(type, order.id, order.status)
+  }
+
+  const moveTo = (status: OrderStatus) => () => {
+    updateStatus.mutate({ orderId: order.id, status })
   }
 
   const handleConfirmAction = () => {
     updateStatus.mutate(confirmation.buildPayload(), { onSettled: confirmation.close })
   }
 
+  /**
+   * One entry per status a staff member can move an order to, filtered below against
+   * the transitions the order's current status actually allows. A forward fulfilment
+   * step goes straight through; anything that ends an order, or emails the customer,
+   * asks first.
+   */
   const transitionButtons: {
     target: OrderStatus
     label: string
@@ -117,13 +119,67 @@ export function OrderDetailPage() {
   }[] = [
     {
       target: OrderStatus.IN_STORE_PAYMENT,
-      label: 'Mark Paid In Store',
-      handler: askToConfirm('mark-paid-in-store'),
+      label: 'Await In-Store Payment',
+      handler: askToConfirm('await-in-store-payment'),
       variant: 'solid',
     },
-    { target: OrderStatus.IN_TRANSIT, label: 'Ship', handler: handleShip, variant: 'solid' },
-    { target: OrderStatus.DELIVERED, label: 'Deliver', handler: handleDeliver, variant: 'solid' },
-    { target: OrderStatus.CANCELLED, label: 'Cancel', handler: askToConfirm('cancel'), variant: 'outline' },
+    { target: OrderStatus.PAID, label: 'Mark Paid', handler: moveTo(OrderStatus.PAID), variant: 'solid' },
+    {
+      target: OrderStatus.PROCESSING,
+      label: 'Start Processing',
+      handler: moveTo(OrderStatus.PROCESSING),
+      variant: 'solid',
+    },
+    {
+      target: OrderStatus.READY_TO_SHIP,
+      label: 'Ready to Ship',
+      handler: moveTo(OrderStatus.READY_TO_SHIP),
+      variant: 'solid',
+    },
+    {
+      target: OrderStatus.READY_FOR_COLLECTION,
+      label: 'Ready for Collection',
+      handler: moveTo(OrderStatus.READY_FOR_COLLECTION),
+      variant: 'solid',
+    },
+    { target: OrderStatus.IN_TRANSIT, label: 'Ship', handler: moveTo(OrderStatus.IN_TRANSIT), variant: 'solid' },
+    { target: OrderStatus.DELIVERED, label: 'Deliver', handler: moveTo(OrderStatus.DELIVERED), variant: 'solid' },
+    {
+      target: OrderStatus.COLLECTED,
+      label: 'Mark Collected',
+      handler: moveTo(OrderStatus.COLLECTED),
+      variant: 'solid',
+    },
+    {
+      target: OrderStatus.DELIVERY_FAILED,
+      label: 'Delivery Failed',
+      handler: moveTo(OrderStatus.DELIVERY_FAILED),
+      variant: 'outline',
+    },
+    {
+      target: OrderStatus.RETURNED_TO_ORIGIN,
+      label: 'Returned to Store',
+      handler: askToConfirm('return-to-origin'),
+      variant: 'outline',
+    },
+    {
+      target: OrderStatus.USER_CANCELED,
+      label: 'Cancel — Customer',
+      handler: askToConfirm('cancel-customer'),
+      variant: 'outline',
+    },
+    {
+      target: OrderStatus.ADMIN_CANCELED,
+      label: 'Cancel — Store',
+      handler: askToConfirm('cancel-staff'),
+      variant: 'outline',
+    },
+    {
+      target: OrderStatus.PARTIALLY_REFUNDED,
+      label: 'Partial Refund',
+      handler: askToConfirm('refund-partial'),
+      variant: 'outline',
+    },
     { target: OrderStatus.REFUNDED, label: 'Refund', handler: askToConfirm('refund'), variant: 'outline' },
   ]
 
@@ -220,8 +276,6 @@ export function OrderDetailPage() {
 
       <OrderStatusConfirmationDialog
         state={confirmation.state}
-        restockItems={confirmation.restockItems}
-        onRestockChange={confirmation.setRestockItems}
         onConfirm={handleConfirmAction}
         onClose={confirmation.close}
         isLoading={updateStatus.isPending}

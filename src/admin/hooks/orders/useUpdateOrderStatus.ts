@@ -6,38 +6,30 @@ import { adminGraphqlClient } from '@/shared/api/graphql/adminGraphqlClient'
 import type { OrderStatus } from '@/shared/types/enums/OrderStatus'
 
 const UPDATE_ORDER_STATUS = gql`
-  mutation UpdateOrderStatus($orderId: String!, $status: String!, $restockItems: Boolean) {
-    updateOrderStatus(orderId: $orderId, status: $status, restockItems: $restockItems) {
+  mutation UpdateOrderStatus($orderId: String!, $status: String!) {
+    updateOrderStatus(orderId: $orderId, status: $status) {
       id
       status
     }
   }
 `
 
+/**
+ * The mutation carries no stock instruction. What happens to an order's goods
+ * follows from the status it is moving to, so there is nothing here a caller could
+ * use to move stock by asking: cancelling always returns it, a refund never does.
+ */
 interface UpdateOrderStatusParams {
   orderId: string
   status: OrderStatus
-  /**
-   * Whether a refund returns its items to stock. Required by the server for
-   * REFUNDED and rejected for every other status — it is the staff member's
-   * answer, since only they know whether the goods physically left.
-   */
-  restockItems?: boolean
 }
 
 export function useUpdateOrderStatus() {
   const queryClient = useQueryClient()
 
   return useMutation({
-    mutationFn: async ({ orderId, status, restockItems }: UpdateOrderStatusParams) => {
-      // Sent as null rather than omitted when absent: the server distinguishes
-      // "no decision supplied" from "do not restock", and rejects the former on a
-      // refund instead of guessing.
-      await adminGraphqlClient.request(UPDATE_ORDER_STATUS, {
-        orderId,
-        status,
-        restockItems: restockItems ?? null,
-      })
+    mutationFn: async ({ orderId, status }: UpdateOrderStatusParams) => {
+      await adminGraphqlClient.request(UPDATE_ORDER_STATUS, { orderId, status })
     },
     onSuccess: () => {
       // Prefix-matching covers the list, its count and the detail view, all of

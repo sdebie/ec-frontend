@@ -1,7 +1,7 @@
 import { useCallback, useState } from 'react'
 
 import { OrderStatus } from '@/shared/types/enums/OrderStatus'
-import { CONFIRMED_ACTIONS, defaultRestockForStatus } from '../utils/confirmedActions'
+import { CONFIRMED_ACTIONS } from '../utils/confirmedActions'
 import type { ConfirmedAction } from '../utils/confirmedActions'
 
 export interface OrderStatusConfirmationState {
@@ -19,31 +19,29 @@ export interface OrderStatusConfirmationState {
 export interface UpdateOrderStatusPayload {
   orderId: string
   status: OrderStatus
-  restockItems?: boolean
 }
 
 /**
  * Owns the confirm-before-acting state shared by the order list and the order detail
- * page: which action is pending, and — for a refund — whether its items return to stock.
+ * page: which action is pending, and on which order.
  *
  * One implementation because both pages must send an identical payload. When the two
  * pages held their own copies they had already drifted (one snapshotted the order's
  * status, the other read it live), and only one of them was tested.
  *
- * The restock default is re-derived on every open, so it follows the order being acted
- * on rather than whatever the previous refund left behind.
+ * The payload carries no stock instruction. What happens to an order's goods follows
+ * from the status it is moving to, so there is nothing here for a staff member to get
+ * wrong: cancelling always returns the stock, and a refund never touches it.
  */
 export function useOrderStatusConfirmation() {
   const [state, setState] = useState<OrderStatusConfirmationState>({
     open: false,
-    type: 'cancel',
+    type: 'cancel-staff',
     orderId: '',
     fromStatus: OrderStatus.CREATED,
   })
-  const [restockItems, setRestockItems] = useState(false)
 
   const ask = useCallback((type: ConfirmedAction, orderId: string, fromStatus: OrderStatus) => {
-    setRestockItems(defaultRestockForStatus(fromStatus))
     setState({ open: true, type, orderId, fromStatus })
   }, [])
 
@@ -51,18 +49,13 @@ export function useOrderStatusConfirmation() {
   // while it animates out.
   const close = useCallback(() => setState((prev) => ({ ...prev, open: false })), [])
 
-  /**
-   * The mutation payload for the pending action. `restockItems` is attached only to a
-   * refund — the server rejects it on any other transition rather than ignoring it.
-   */
-  const buildPayload = useCallback((): UpdateOrderStatusPayload => {
-    const isRefund = state.type === 'refund'
-    return {
+  const buildPayload = useCallback(
+    (): UpdateOrderStatusPayload => ({
       orderId: state.orderId,
       status: CONFIRMED_ACTIONS[state.type].status,
-      ...(isRefund ? { restockItems } : {}),
-    }
-  }, [state.type, state.orderId, restockItems])
+    }),
+    [state.type, state.orderId],
+  )
 
-  return { state, restockItems, setRestockItems, ask, close, buildPayload }
+  return { state, ask, close, buildPayload }
 }

@@ -1,4 +1,4 @@
-import {useEffect} from 'react'
+import {useEffect, useMemo} from 'react'
 import {Link, useSearchParams} from 'react-router-dom'
 import {ChevronLeft} from 'lucide-react'
 import {FormProvider, useForm} from 'react-hook-form'
@@ -18,6 +18,7 @@ import {useCheckoutSessionStore} from './store/checkoutSessionStore'
 import {useCustomerAuthStore} from '@/shared/auth/customerAuthStore'
 import {checkoutFormSchema, type CheckoutFormValues} from './checkoutFormSchema'
 import {requiresDeliveryAddress} from './utils/requiresDeliveryAddress'
+import {availablePaymentMethods} from './utils/availablePaymentMethods'
 import {ACCENT_BUTTON_HOVER, SF_FOCUS_RING_PAGE} from '@/storefront/sections/shared'
 
 /**
@@ -63,6 +64,12 @@ export function CheckoutPage() {
     const selectedMethod = shippingMethods?.find((m) => m.id === selectedMethodId) ?? null
     const requiresAddress = requiresDeliveryAddress(selectedMethod)
 
+    const selectedPaymentMethod = watch('paymentMethod')
+    const offeredPaymentMethods = useMemo(
+        () => availablePaymentMethods(paymentMethods ?? [], requiresAddress),
+        [paymentMethods, requiresAddress],
+    )
+
     // Pre-fill from the signed-in profile
     useEffect(() => {
         if (!isSignedIn) return
@@ -91,12 +98,22 @@ export function CheckoutPage() {
         setValue('postalCode', '', {shouldValidate: false})
     }, [requiresAddress, setValue, shippingMethods])
 
-    // A lone payment method is the decision — select it rather than asking.
+    // The delivery choice can invalidate the payment choice, so both cases are
+    // reconciled together: drop a selection the shopper may no longer make after
+    // switching to a couriered method, and take the decision for them when only
+    // one option is left. Waits for the methods to load — an empty list before
+    // then is not the same as no options.
     useEffect(() => {
-        if (paymentMethods?.length === 1) {
-            setValue('paymentMethod', paymentMethods[0], {shouldValidate: false})
+        if (!paymentMethods) return
+
+        if (selectedPaymentMethod && !offeredPaymentMethods.includes(selectedPaymentMethod)) {
+            setValue('paymentMethod', '', {shouldValidate: false})
+            return
         }
-    }, [paymentMethods, setValue])
+        if (!selectedPaymentMethod && offeredPaymentMethods.length === 1) {
+            setValue('paymentMethod', offeredPaymentMethods[0], {shouldValidate: false})
+        }
+    }, [offeredPaymentMethods, paymentMethods, selectedPaymentMethod, setValue])
 
     /*
       Declared AFTER the prefill effects on purpose: effects run in hook order, so
@@ -162,7 +179,7 @@ export function CheckoutPage() {
 
                             <ShippingSection control={control} errors={errors}/>
 
-                            <PaymentSection control={control} paymentMethods={paymentMethods ?? []}/>
+                            <PaymentSection control={control} paymentMethods={offeredPaymentMethods}/>
 
                             {submitError && (
                                 <p className="text-sm text-(--sf-error)" role="alert">
@@ -173,7 +190,7 @@ export function CheckoutPage() {
                             <div className="space-y-2">
                                 <button
                                     type="submit"
-                                    disabled={isSubmitting || paymentMethods?.length === 0}
+                                    disabled={isSubmitting || offeredPaymentMethods.length === 0}
                                     className={`min-h-11 w-full cursor-pointer rounded-lg bg-(--sf-accent) px-6 py-3 text-sm font-medium text-(--sf-accent-text) transition-colors ${ACCENT_BUTTON_HOVER} ${SF_FOCUS_RING_PAGE} disabled:cursor-not-allowed disabled:opacity-50`}
                                 >
                                     {isSubmitting ? 'Processing…' : 'Place order'}

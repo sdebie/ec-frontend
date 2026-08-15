@@ -18,6 +18,7 @@ import type { AdminOrderSummary } from '@/admin/hooks/orders'
 import { OrderActionsMenu } from './components/OrderActionsMenu'
 import { getAvailableTransitions } from './utils/getAvailableTransitions'
 import { useOrderStatusConfirmation } from './hooks/useOrderStatusConfirmation'
+import type { ConfirmedAction } from './utils/confirmedActions'
 import { OrderStatusConfirmationDialog } from './components/OrderStatusConfirmationDialog'
 
 // Derived from the status vocabulary itself so a new status cannot become
@@ -73,15 +74,36 @@ export function OrderListPage() {
     setPagination((prev) => ({ ...prev, pageIndex: 0 }))
   }
 
-  const handleShip = useCallback((orderId: string) => {
-    updateOrderStatus({ orderId, status: OrderStatus.IN_TRANSIT })
-  }, [updateOrderStatus])
-
-  const handleDeliver = useCallback((orderId: string) => {
-    updateOrderStatus({ orderId, status: OrderStatus.DELIVERED })
-  }, [updateOrderStatus])
-
   const askToConfirm = confirmation.ask
+
+  /**
+   * The transitions that ask before they run, by target status. Anything absent is a
+   * forward fulfilment step: reversible by moving forward again, with nothing
+   * outward-facing to warn about, so it goes straight through.
+   */
+  const CONFIRMED_BY_TARGET: Partial<Record<OrderStatus, ConfirmedAction>> = useMemo(
+    () => ({
+      [OrderStatus.IN_STORE_PAYMENT]: 'await-in-store-payment',
+      [OrderStatus.USER_CANCELED]: 'cancel-customer',
+      [OrderStatus.ADMIN_CANCELED]: 'cancel-staff',
+      [OrderStatus.RETURNED_TO_ORIGIN]: 'return-to-origin',
+      [OrderStatus.PARTIALLY_REFUNDED]: 'refund-partial',
+      [OrderStatus.REFUNDED]: 'refund',
+    }),
+    [],
+  )
+
+  const handleSelect = useCallback(
+    (orderId: string, fromStatus: OrderStatus, target: OrderStatus) => {
+      const confirmed = CONFIRMED_BY_TARGET[target]
+      if (confirmed) {
+        askToConfirm(confirmed, orderId, fromStatus)
+        return
+      }
+      updateOrderStatus({ orderId, status: target })
+    },
+    [CONFIRMED_BY_TARGET, askToConfirm, updateOrderStatus],
+  )
 
   const handleConfirmAction = () => {
     updateOrderStatus(confirmation.buildPayload(), { onSettled: confirmation.close })
@@ -137,11 +159,7 @@ export function OrderListPage() {
                   <OrderActionsMenu
                     order={order}
                     canMutate={canMutate}
-                    onMarkPaidInStore={() => askToConfirm('mark-paid-in-store', order.id, order.status)}
-                    onShip={() => handleShip(order.id)}
-                    onDeliver={() => handleDeliver(order.id)}
-                    onCancel={() => askToConfirm('cancel', order.id, order.status)}
-                    onRefund={() => askToConfirm('refund', order.id, order.status)}
+                    onSelect={(target) => handleSelect(order.id, order.status, target)}
                   />
                 )
               },
@@ -149,7 +167,7 @@ export function OrderListPage() {
           ]
         : []),
     ],
-    [askToConfirm, canMutate, handleDeliver, handleShip],
+    [canMutate, handleSelect],
   )
 
   const pageCount = data ? Math.ceil(data.total / pagination.pageSize) : 0
@@ -205,8 +223,6 @@ export function OrderListPage() {
 
       <OrderStatusConfirmationDialog
         state={confirmation.state}
-        restockItems={confirmation.restockItems}
-        onRestockChange={confirmation.setRestockItems}
         onConfirm={handleConfirmAction}
         onClose={confirmation.close}
         isLoading={isUpdatingStatus}
