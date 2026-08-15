@@ -183,30 +183,44 @@ describe('OrderListPage', () => {
       expect(lastCall?.[0]).toMatchObject({ page: 1 })
     })
 
-    it('resets pagination to page 1 when from-date filter changes', () => {
+    it('resets pagination to page 1 when the date filter changes', () => {
       setupDefaultMocks()
 
       renderPage()
 
-      const fromDateInput = screen.getByLabelText('From')
-      fireEvent.change(fromDateInput, { target: { value: '2025-01-01' } })
+      fireEvent.click(screen.getByRole('button', { name: 'Filter by order date' }))
+      fireEvent.click(screen.getByRole('option', { name: 'This Month' }))
 
       // Verify useOrders was called with page: 1
       const lastCall = vi.mocked(useOrders).mock.calls.at(-1)
       expect(lastCall?.[0]).toMatchObject({ page: 1 })
     })
+  })
 
-    it('resets pagination to page 1 when to-date filter changes', () => {
+  describe('date filter', () => {
+    it('sends no date bounds until a range is chosen', () => {
       setupDefaultMocks()
 
       renderPage()
 
-      const toDateInput = screen.getByLabelText('To')
-      fireEvent.change(toDateInput, { target: { value: '2025-12-31' } })
-
-      // Verify useOrders was called with page: 1
       const lastCall = vi.mocked(useOrders).mock.calls.at(-1)
-      expect(lastCall?.[0]).toMatchObject({ page: 1 })
+      expect(lastCall?.[0].fromDate).toBeUndefined()
+      expect(lastCall?.[0].toDate).toBeUndefined()
+    })
+
+    it('resolves the chosen range into inclusive yyyy-MM-dd bounds', () => {
+      setupDefaultMocks()
+
+      renderPage()
+
+      fireEvent.click(screen.getByRole('button', { name: 'Filter by order date' }))
+      fireEvent.click(screen.getByRole('option', { name: 'Today' }))
+
+      // Asserted against a shape rather than a fixed date: the page resolves the preset
+      // against the real clock on purpose, so that "Today" keeps meaning today.
+      const lastCall = vi.mocked(useOrders).mock.calls.at(-1)
+      expect(lastCall?.[0].fromDate).toMatch(/^\d{4}-\d{2}-\d{2}$/)
+      expect(lastCall?.[0].fromDate).toBe(lastCall?.[0].toDate)
     })
   })
 

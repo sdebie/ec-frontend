@@ -1,6 +1,7 @@
 import { useQuery } from '@tanstack/react-query'
 
 import { adminGraphqlClient } from '@/shared/api/graphql/adminGraphqlClient'
+import type { SortItem } from '@/admin/utils'
 import { STAFF_LIST, STAFF_COUNT } from './queries'
 import type { StaffMember } from './types'
 
@@ -8,6 +9,7 @@ export interface UseStaffParams {
   pageIndex: number
   pageSize: number
   search: string
+  sort?: SortItem[]
 }
 
 interface StaffListResponse {
@@ -23,41 +25,48 @@ export interface StaffPage {
   total: number
 }
 
-function buildFilterRequest(search: string) {
+function buildFilterGroups(search: string) {
   if (!search.trim()) {
-    return {}
+    return undefined
   }
 
-  return {
-    filterGroups: [
-      {
-        operator: 'OR',
-        filters: [
-          { key: 'fullName', operator: 'ILIKE', value: search.trim() },
-          { key: 'email', operator: 'ILIKE', value: search.trim() },
-        ],
-      },
-    ],
-  }
+  return [
+    {
+      operator: 'OR',
+      filters: [
+        { key: 'fullName', operator: 'ILIKE', value: search.trim() },
+        { key: 'email', operator: 'ILIKE', value: search.trim() },
+      ],
+    },
+  ]
 }
 
 export function useStaff(params: UseStaffParams) {
   const pageRequest = { pageIndex: params.pageIndex, pageSize: params.pageSize }
-  const filterRequest = buildFilterRequest(params.search)
+  const filterGroups = buildFilterGroups(params.search)
+  const sort = params.sort?.length ? params.sort : undefined
 
   const listQuery = useQuery({
-    queryKey: ['admin', 'staff', 'list', { pageIndex: params.pageIndex, pageSize: params.pageSize, search: params.search }],
+    queryKey: [
+      'admin',
+      'staff',
+      'list',
+      { pageIndex: params.pageIndex, pageSize: params.pageSize, search: params.search, sort },
+    ],
     queryFn: () =>
       adminGraphqlClient.request<StaffListResponse>(STAFF_LIST, {
         pageRequest,
-        filterRequest,
+        filterRequest: { ...(filterGroups ? { filterGroups } : {}), ...(sort ? { sort } : {}) },
       }),
   })
 
+  // Sorting the list changes nothing about how many rows match — the count is keyed
+  // on search alone, so toggling a sort does not throw away a cached total.
+  const countFilterRequest = filterGroups ? { filterGroups } : {}
   const countQuery = useQuery({
-    queryKey: ['admin', 'staff', 'count', filterRequest],
+    queryKey: ['admin', 'staff', 'count', countFilterRequest],
     queryFn: () =>
-      adminGraphqlClient.request<StaffCountResponse>(STAFF_COUNT, { filterRequest }),
+      adminGraphqlClient.request<StaffCountResponse>(STAFF_COUNT, { filterRequest: countFilterRequest }),
   })
 
   const data: StaffPage | undefined = listQuery.data

@@ -1,4 +1,5 @@
 import type { AdminOrderRef, CustomerStatus, WholesaleStatus } from '@/admin/hooks/customers/types'
+import type { SortItem } from '@/admin/utils'
 
 export type { AdminOrderRef as WholesaleOrderRef }
 
@@ -22,6 +23,7 @@ export interface UseWholesaleApplicationsParams {
   page: number
   pageSize: number
   status?: WholesaleStatus | 'ALL'
+  sort?: SortItem[]
 }
 
 // --- Customer List ---

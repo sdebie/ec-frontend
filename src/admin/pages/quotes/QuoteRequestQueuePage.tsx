@@ -12,6 +12,7 @@ import {
 import type { ColumnDef } from '@/shared/ui/components'
 import { useQuoteRequests } from '@/admin/hooks/quotes'
 import type { QuoteRequestListItem } from '@/admin/hooks/quotes'
+import { useTableSort } from '@/admin/hooks/useTableSort'
 import {
   QuoteRequestStatusOptions,
   type QuoteRequestStatus,
@@ -41,10 +42,13 @@ export function QuoteRequestQueuePage() {
     pageSize: 10,
   })
 
+  const { sorting, onSortingChange, sort } = useTableSort()
+
   const { data, total, isLoading } = useQuoteRequests({
     page: pagination.pageIndex + 1,
     pageSize: pagination.pageSize,
     status: statusFilter,
+    sort,
   })
 
   const handleStatusFilterChange = (value: string) => {
@@ -64,8 +68,11 @@ export function QuoteRequestQueuePage() {
         cell: ({ row }) => row.original.company ?? '—',
       },
       {
+        // Not sortable: itemCount is a mapper-computed count of the request's line items,
+        // not a column on QuoteRequestEntity — there is no server field for it to sort by.
         accessorKey: 'itemCount',
         header: 'Items',
+        enableSorting: false,
       },
       {
         accessorKey: 'createdAt',
@@ -88,6 +95,7 @@ export function QuoteRequestQueuePage() {
       {
         id: 'actions',
         header: 'Actions',
+        enableSorting: false,
         cell: ({ row }) => (
           <RowActionButton
             onClick={() => navigate(`/admin/quotes/${row.original.id}`)}
@@ -125,6 +133,9 @@ export function QuoteRequestQueuePage() {
         pageCount={pageCount}
         pagination={pagination}
         onPaginationChange={setPagination}
+        manualSorting
+        sorting={sorting}
+        onSortingChange={onSortingChange}
       />
     </div>
   )

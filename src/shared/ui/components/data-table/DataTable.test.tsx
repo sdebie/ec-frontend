@@ -89,6 +89,80 @@ describe('DataTable', () => {
     })
   })
 
+  describe('manualPagination without manualSorting (the guard)', () => {
+    /**
+     * `data` here is one server-paginated page, not the full result set. If DataTable let
+     * a column header sort it locally, the click would only reorder the ten rows it holds —
+     * which answers a different question than "sort every matching order" and, because the
+     * sort state then outlives the rows, would go on silently reordering every later fetch
+     * too. A table in this configuration has no way to sort the full result set, so it must
+     * not look sortable at all.
+     */
+    it('does not reorder rows when a header is clicked', async () => {
+      const user = userEvent.setup()
+      const data = [{ id: 1, name: 'Zebra' }, { id: 2, name: 'Apple' }]
+      render(
+        <DataTable
+          columns={columns}
+          data={data}
+          manualPagination
+          pageCount={1}
+          pagination={{ pageIndex: 0, pageSize: 10 }}
+          onPaginationChange={vi.fn()}
+        />
+      )
+
+      await user.click(screen.getByText('Name'))
+
+      const rows = screen.getAllByRole('row')
+      expect(rows[1]).toHaveTextContent('Zebra')
+      expect(rows[2]).toHaveTextContent('Apple')
+    })
+
+    it('renders no sort affordance on any header', () => {
+      const data = [{ id: 1, name: 'Zebra' }]
+      render(
+        <DataTable
+          columns={columns}
+          data={data}
+          manualPagination
+          pageCount={1}
+          pagination={{ pageIndex: 0, pageSize: 10 }}
+          onPaginationChange={vi.fn()}
+        />
+      )
+
+      // ArrowUpDown is the "sortable but unsorted" affordance — its absence means no
+      // header offers a click a caller cannot honour.
+      expect(document.querySelector('.lucide-arrow-up-down')).not.toBeInTheDocument()
+    })
+
+    it('passing manualSorting + sorting + onSortingChange opts back in to real server sorting', async () => {
+      // The guard blocks the unsafe default; it must not block the safe, explicit case
+      // that useTableSort exists for.
+      const user = userEvent.setup()
+      const data = [{ id: 1, name: 'Zebra' }, { id: 2, name: 'Apple' }]
+      const onSortingChange = vi.fn()
+      render(
+        <DataTable
+          columns={columns}
+          data={data}
+          manualPagination
+          pageCount={1}
+          pagination={{ pageIndex: 0, pageSize: 10 }}
+          onPaginationChange={vi.fn()}
+          manualSorting
+          sorting={[]}
+          onSortingChange={onSortingChange}
+        />
+      )
+
+      await user.click(screen.getByText('Name'))
+
+      expect(onSortingChange).toHaveBeenCalledTimes(1)
+    })
+  })
+
   describe('server-side sorting (manualSorting)', () => {
     it('clicking a sortable header calls onSortingChange instead of reordering rows itself', async () => {
       const user = userEvent.setup()

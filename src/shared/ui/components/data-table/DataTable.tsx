@@ -80,6 +80,30 @@ export function DataTable<TData>({
     const sorting = manualSorting && controlledSorting ? controlledSorting : internalSorting
     const handleSortingChange = manualSorting && onSortingChangeProp ? onSortingChangeProp : setInternalSorting
 
+    /*
+      A server-paginated table holds one page of a larger result set, not the full thing.
+      Sorting it locally can only reorder the rows already fetched, which answers a
+      different question than "sort every matching row" — and because the sort state
+      outlives that page, it goes on silently reordering every later fetch too. A table in
+      this shape has no way to sort correctly, so every header must render as unsortable
+      rather than offer a click nothing can honour. `manualSorting` is the caller stating it
+      has wired up a real server sort (see `useTableSort`) instead of leaving this unset by
+      omission.
+    */
+    const sortingDisabledByGuard = manualPagination && !manualSorting
+    if (sortingDisabledByGuard && import.meta.env.DEV) {
+        const stillSortable = columns.some((column) => column.enableSorting !== false)
+        if (stillSortable) {
+            console.warn(
+                '[DataTable] manualPagination is set without manualSorting — every column is ' +
+                'being rendered unsortable rather than sorting the current page locally, which ' +
+                "would only reorder the rows already fetched. Wire up server-side sorting with " +
+                'useTableSort (sorting + onSortingChange + manualSorting) if these columns should ' +
+                'be sortable.',
+            )
+        }
+    }
+
     const table = useReactTable({
         data,
         columns,
@@ -96,6 +120,7 @@ export function DataTable<TData>({
         getSortedRowModel: getSortedRowModel(),
         getFilteredRowModel: getFilteredRowModel(),
         getPaginationRowModel: getPaginationRowModel(),
+        enableSorting: !sortingDisabledByGuard,
         ...(manualSorting ? {manualSorting: true} : {}),
         ...(manualPagination
             ? {

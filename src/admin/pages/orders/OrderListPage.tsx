@@ -1,7 +1,7 @@
 import {useCallback, useState} from 'react'
 import type {PaginationState} from '@tanstack/react-table'
 
-import {PageLayout} from '@/shared/ui/components'
+import {DateRangePreset, PageLayout, resolveDateRange} from '@/shared/ui/components'
 import {useCan} from '@/shared/auth/adminPermissions'
 import {useOrders} from './hooks/useOrders'
 import type {OrderListFilters} from './components/OrderListToolbar'
@@ -11,12 +11,11 @@ import {OrderTable} from './components/OrderTable'
 const NO_FILTERS: OrderListFilters = {
     paymentState: 'ALL',
     fulfilmentState: 'ALL',
-    fromDate: '',
-    toDate: '',
+    datePreset: DateRangePreset.ALL,
 }
 
-/** `'ALL'`/`''` are the UI's "no filter" sentinels — neither may reach the backend. */
-const asArgument = (value: string) => (value && value !== 'ALL' ? value : undefined)
+/** `'ALL'` is the UI's "no filter" sentinel — it must never reach the backend. */
+const asArgument = (value: string) => (value === 'ALL' ? undefined : value)
 
 export function OrderListPage() {
     const canMutate = useCan('order:write')
@@ -37,13 +36,20 @@ export function OrderListPage() {
         setPagination((prev) => ({...prev, pageIndex: 0}))
     }, [])
 
+    /*
+      Resolved on every render rather than stored, so "Today" still means today on a page
+      left open overnight. The result is date-granular, so it is the same value all day and
+      the query key stays stable until it genuinely should change.
+    */
+    const {fromDate, toDate} = resolveDateRange(filters.datePreset)
+
     const {data, isLoading} = useOrders({
         page: pagination.pageIndex + 1,
         pageSize: pagination.pageSize,
         paymentState: asArgument(filters.paymentState),
         fulfilmentState: asArgument(filters.fulfilmentState),
-        fromDate: asArgument(filters.fromDate),
-        toDate: asArgument(filters.toDate),
+        fromDate,
+        toDate,
     })
 
     const pageCount = data ? Math.ceil(data.total / pagination.pageSize) : 0

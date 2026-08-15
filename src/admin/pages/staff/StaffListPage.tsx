@@ -9,6 +9,7 @@ import { Button, Input } from '@/shared/ui/primitives'
 import { useCan } from '@/shared/auth/adminPermissions'
 import { useStaff } from '@/admin/hooks/staff'
 import type { StaffMember } from '@/admin/hooks/staff'
+import { useTableSort } from '@/admin/hooks/useTableSort'
 import { StaffActionsMenu } from './StaffActionsMenu'
 import { StaffRoleLabels } from '@/shared/types/enums/StaffRoles'
 
@@ -40,10 +41,13 @@ export function StaffListPage() {
     return () => clearTimeout(t)
   }, [searchInput])
 
+  const { sorting, onSortingChange, sort } = useTableSort()
+
   const { data, isLoading } = useStaff({
     pageIndex: pagination.pageIndex,
     pageSize: pagination.pageSize,
     search,
+    sort,
   })
 
   const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -72,8 +76,13 @@ export function StaffListPage() {
         ),
       },
       {
+        // Not sortable: this column has no accessorKey (its id, 'active', is a display
+        // name only) and the underlying entity field is boolean isActive — whether that
+        // resolves in JPQL as `isActive` or `active` needs checking against the entity
+        // before this could be wired to a real sort key.
         id: 'active',
         header: 'Active',
+        enableSorting: false,
         cell: ({ row }) => (
           <StatusBadge
             label={row.original.active ? 'Active' : 'Inactive'}
@@ -86,6 +95,7 @@ export function StaffListPage() {
             {
               id: 'actions',
               header: 'Actions',
+              enableSorting: false,
               cell: ({ row }: { row: { original: StaffMember } }) => (
                 <StaffActionsMenu staff={row.original} />
               ),
@@ -130,6 +140,9 @@ export function StaffListPage() {
         pageCount={pageCount}
         pagination={pagination}
         onPaginationChange={setPagination}
+        manualSorting
+        sorting={sorting}
+        onSortingChange={onSortingChange}
       />
     </div>
   )

@@ -1,17 +1,19 @@
-import {Label, Select} from '@/shared/ui/components'
-import {Input} from '@/shared/ui/primitives'
+import {DateFilter, type DateRangePreset, Label, Select} from '@/shared/ui/components'
 import {FULFILMENT_STATE_OPTIONS, PAYMENT_STATE_OPTIONS} from '../utils/orderFacets'
 
 /**
- * The four ways the order list narrows. `ALL` clears a facet and `''` clears a date, which
- * is what the page translates into "send no argument" — the server has no value meaning
- * "any", so an unset filter must be absent rather than sent.
+ * The three ways the order list narrows. `ALL` clears a facet, which is what the page
+ * translates into "send no argument" — the server has no value meaning "any", so an unset
+ * filter must be absent rather than sent.
+ *
+ * The date is held as a preset rather than as resolved bounds: a resolved range is only
+ * true on the day it was resolved, so the page turns it into dates at the moment it
+ * queries.
  */
 export interface OrderListFilters {
     paymentState: string
     fulfilmentState: string
-    fromDate: string
-    toDate: string
+    datePreset: DateRangePreset
 }
 
 interface OrderListToolbarProps {
@@ -28,7 +30,7 @@ export function OrderListToolbar({filters, onChange}: OrderListToolbarProps) {
         <div className="flex flex-wrap items-center gap-4">
             <div className="flex items-center gap-2">
                 {/*
-                  No htmlFor on the two facets: Select renders a button rather than a native
+                  No htmlFor on the facets: Select renders a button rather than a native
                   select and takes no id, so an association would point at nothing. ariaLabel
                   gives each one its accessible name.
                 */}
@@ -51,28 +53,11 @@ export function OrderListToolbar({filters, onChange}: OrderListToolbarProps) {
                     className="min-w-48"
                 />
             </div>
-            <div className="flex items-center gap-2">
-                <Label htmlFor="from-date" className="mb-0">
-                    From
-                </Label>
-                <Input
-                    id="from-date"
-                    type="date"
-                    value={filters.fromDate}
-                    onChange={(e) => onChange({fromDate: e.target.value})}
-                />
-            </div>
-            <div className="flex items-center gap-2">
-                <Label htmlFor="to-date" className="mb-0">
-                    To
-                </Label>
-                <Input
-                    id="to-date"
-                    type="date"
-                    value={filters.toDate}
-                    onChange={(e) => onChange({toDate: e.target.value})}
-                />
-            </div>
+            <DateFilter
+                value={filters.datePreset}
+                onChange={(datePreset) => onChange({datePreset})}
+                ariaLabel="Filter by order date"
+            />
         </div>
     )
 }

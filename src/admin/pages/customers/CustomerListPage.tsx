@@ -96,11 +96,19 @@ export function CustomerListPage() {
     setConfirmDialog((prev) => ({ ...prev, open: false }))
   }
 
+  // None of these columns are sortable. CustomerRepository.findForAdmin/countForAdmin
+  // build their own JPQL by hand rather than going through PanacheQueryBuilder, so a sort
+  // sent from here would be silently ignored server-side — wiring these to useTableSort
+  // would look like it worked and never actually reorder anything. Fixing that is a
+  // backend change (either route CustomerRepository through PanacheQueryBuilder, or thread
+  // FilterRequest.getSort() into its hand-built query), not something this page can do
+  // alone.
   const columns = useMemo<ColumnDef<AdminCustomerSummary, unknown>[]>(
     () => [
       {
         id: 'name',
         header: 'Name',
+        enableSorting: false,
         cell: ({ row }) => (
           <Link
             to={`/admin/customers/${row.original.id}`}
@@ -113,14 +121,17 @@ export function CustomerListPage() {
       {
         accessorKey: 'email',
         header: 'Email',
+        enableSorting: false,
       },
       {
         accessorKey: 'shopperType',
         header: 'Type',
+        enableSorting: false,
       },
       {
         accessorKey: 'status',
         header: 'Status',
+        enableSorting: false,
         cell: ({ row }) => (
           <StatusBadge
             label={row.original.status}
@@ -131,6 +142,7 @@ export function CustomerListPage() {
       {
         accessorKey: 'registeredAt',
         header: 'Registered',
+        enableSorting: false,
         cell: ({ row }) => formatDate(row.original.registeredAt),
       },
       ...(canMutate
@@ -138,6 +150,7 @@ export function CustomerListPage() {
             {
               id: 'actions',
               header: 'Actions',
+              enableSorting: false,
               cell: ({ row }: { row: { original: AdminCustomerSummary } }) => {
                 const customer = row.original
                 const actions = getAvailableActions(customer.status)

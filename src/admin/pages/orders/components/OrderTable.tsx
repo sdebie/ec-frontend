@@ -73,8 +73,8 @@ export function OrderTable({
         updateOrderStatus(confirmation.buildPayload(), {onSettled: confirmation.close})
     }
 
-    const columns = useMemo<ColumnDef<AdminOrderSummary, unknown>[]>(
-        () => [
+    const columns = useMemo<ColumnDef<AdminOrderSummary, unknown>[]>(() => {
+        const definitions: ColumnDef<AdminOrderSummary, unknown>[] = [
             {
                 accessorKey: 'placedAt',
                 header: 'Order Date',
@@ -139,9 +139,16 @@ export function OrderTable({
                     )
                 },
             } as ColumnDef<AdminOrderSummary, unknown>,
-        ],
-        [canMutate, handleSelect],
-    )
+        ]
+
+        // The server orders newest first and pages against that order, so no column here is
+        // sortable. A client-side sort can only reach the rows already fetched — it would
+        // reorder this page of ten and leave the rest of the result set where it was, which
+        // answers a different question from the one the header appears to ask. The state
+        // also outlives the rows, so a sort clicked once silently reorders every later
+        // filter and page. Sorting by a column has to be asked of the server first.
+        return definitions.map((column) => ({...column, enableSorting: false}))
+    }, [canMutate, handleSelect])
 
     return (
         <>

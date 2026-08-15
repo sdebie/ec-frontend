@@ -13,6 +13,7 @@ import type { ColumnDef } from '@/shared/ui/components'
 import { useWholesaleApplications } from '@/admin/hooks/wholesale'
 import type { WholesaleApplicationListItem } from '@/admin/hooks/wholesale'
 import { getWholesaleStatusColor } from '@/admin/hooks/customers/types'
+import { useTableSort } from '@/admin/hooks/useTableSort'
 
 const STATUS_FILTER_OPTIONS = [
   { value: 'ALL', label: 'All' },
@@ -38,10 +39,13 @@ export function WholesaleApplicationQueuePage() {
     pageSize: 10,
   })
 
+  const { sorting, onSortingChange, sort } = useTableSort()
+
   const { data, total, isLoading } = useWholesaleApplications({
     page: pagination.pageIndex + 1,
     pageSize: pagination.pageSize,
     status: statusFilter === 'ALL' ? undefined : (statusFilter as 'PENDING' | 'APPROVED' | 'REJECTED'),
+    sort,
   })
 
   const handleStatusFilterChange = (value: string) => {
@@ -52,8 +56,11 @@ export function WholesaleApplicationQueuePage() {
   const columns = useMemo<ColumnDef<WholesaleApplicationListItem, unknown>[]>(
     () => [
       {
+        // Not sortable: this cell concatenates firstName + lastName, and there is no
+        // single backend field a "full name" sort could map to.
         id: 'name',
         header: 'Name',
+        enableSorting: false,
         cell: ({ row }) => (
           <span>
             {row.original.firstName} {row.original.lastName}
@@ -61,9 +68,13 @@ export function WholesaleApplicationQueuePage() {
         ),
       },
       {
+        // Not sortable: the entity's email fields are applicantEmail/accountEmail — this
+        // column's accessorKey ('email') is the flattened DTO name and does not match
+        // either, so sending it as a sort key would fail server-side.
         id: 'email',
         header: 'Email',
         accessorKey: 'email',
+        enableSorting: false,
       },
       {
         accessorKey: 'status',
@@ -83,6 +94,7 @@ export function WholesaleApplicationQueuePage() {
       {
         id: 'actions',
         header: 'Actions',
+        enableSorting: false,
         cell: ({ row }) => (
           <RowActionButton
             onClick={() => navigate(`/admin/wholesale/applications/${row.original.id}`)}
@@ -120,6 +132,9 @@ export function WholesaleApplicationQueuePage() {
         pageCount={pageCount}
         pagination={pagination}
         onPaginationChange={setPagination}
+        manualSorting
+        sorting={sorting}
+        onSortingChange={onSortingChange}
       />
     </div>
   )

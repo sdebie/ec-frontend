@@ -104,11 +104,16 @@ export function WholesaleCustomerListPage() {
     setConfirmDialog((prev) => ({ ...prev, open: false }))
   }
 
+  // None of these columns are sortable — this list is useCustomers scoped to WHOLESALER
+  // (see useWholesaleCustomers), so it inherits the same gap: CustomerRepository never
+  // wires a sort into its hand-built JPQL, and 'wholesaleApplicationStatus' has no backing
+  // column on CustomerEntity at all (it comes from a joined application row).
   const columns = useMemo<ColumnDef<WholesaleCustomerListItem, unknown>[]>(
     () => [
       {
         id: 'name',
         header: 'Name',
+        enableSorting: false,
         cell: ({ row }) => (
           <Link
             to={`/admin/wholesale/customers/${row.original.id}`}
@@ -121,10 +126,12 @@ export function WholesaleCustomerListPage() {
       {
         accessorKey: 'email',
         header: 'Email',
+        enableSorting: false,
       },
       {
         accessorKey: 'status',
         header: 'Account Status',
+        enableSorting: false,
         cell: ({ row }) => (
           <StatusBadge
             label={row.original.status}
@@ -135,6 +142,7 @@ export function WholesaleCustomerListPage() {
       {
         id: 'wholesaleApplicationStatus',
         header: 'Application Status',
+        enableSorting: false,
         cell: ({ row }) => {
           const appStatus = row.original.wholesaleApplicationStatus
           if (!appStatus) return '—'
@@ -149,6 +157,7 @@ export function WholesaleCustomerListPage() {
       {
         accessorKey: 'registeredAt',
         header: 'Registered Date',
+        enableSorting: false,
         cell: ({ row }) => formatDate(row.original.registeredAt),
       },
       ...(canMutate
@@ -156,6 +165,7 @@ export function WholesaleCustomerListPage() {
             {
               id: 'actions',
               header: 'Actions',
+              enableSorting: false,
               cell: ({ row }: { row: { original: WholesaleCustomerListItem } }) => {
                 const customer = row.original
                 const actions = getAvailableActions(customer.status)

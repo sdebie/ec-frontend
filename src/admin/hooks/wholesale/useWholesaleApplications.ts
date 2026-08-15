@@ -31,34 +31,38 @@ interface WholesaleApplicationCountResponse {
   wholesaleApplicationCount: number
 }
 
-function buildFilterRequest(params: UseWholesaleApplicationsParams) {
+function buildFilters(params: UseWholesaleApplicationsParams) {
   const filters: Array<{ key: string; operator: string; value: string }> = []
 
   if (params.status && params.status !== 'ALL') {
     filters.push({ key: 'status', operator: 'EQUALS', value: params.status })
   }
 
-  return { filters }
+  return filters
 }
 
 export function useWholesaleApplications(params: UseWholesaleApplicationsParams) {
   const pageRequest = { pageIndex: params.page - 1, pageSize: params.pageSize }
-  const filterRequest = buildFilterRequest(params)
+  const filters = buildFilters(params)
+  const sort = params.sort?.length ? params.sort : undefined
 
   const listQuery = useQuery({
     queryKey: ['admin', 'wholesale-applications', params],
     queryFn: () =>
       adminGraphqlClient.request<AllWholesaleApplicationsResponse>(ALL_WHOLESALE_APPLICATIONS, {
         pageRequest,
-        filterRequest,
+        filterRequest: { filters, ...(sort ? { sort } : {}) },
       }),
   })
 
+  // Sorting the list changes nothing about how many rows match — the count is keyed
+  // on the status filter alone, so toggling a sort does not throw away a cached total.
+  const countFilterRequest = { filters }
   const countQuery = useQuery({
-    queryKey: ['admin', 'wholesale-applications', 'count', filterRequest],
+    queryKey: ['admin', 'wholesale-applications', 'count', countFilterRequest],
     queryFn: () =>
       adminGraphqlClient.request<WholesaleApplicationCountResponse>(WHOLESALE_APPLICATION_COUNT, {
-        filterRequest,
+        filterRequest: countFilterRequest,
       }),
   })
 

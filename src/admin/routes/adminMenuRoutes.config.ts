@@ -263,7 +263,7 @@ export const adminMenuRoutes: AdminRouteList = [
             section: 'ORDER MANAGEMENT',
             pageBackgroundType: 'plain',
             pageContainerType: 'contained',
-            icon: 'file-text',
+            icon: 'file-spreadsheet',
         },
     },
     {
