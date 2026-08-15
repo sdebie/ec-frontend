@@ -10,13 +10,8 @@ import { useCan } from '@/shared/auth/adminPermissions'
 import { useStaff } from '@/admin/hooks/staff'
 import type { StaffMember } from '@/admin/hooks/staff'
 import { StaffActionsMenu } from './StaffActionsMenu'
+import { StaffRoleLabels } from '@/shared/types/enums/StaffRoles'
 
-const ROLE_LABELS: Record<StaffMember['role'], string> = {
-  SUPER_ADMIN: 'Super Admin',
-  CATALOG_MANAGER: 'Catalog Manager',
-  ORDER_MANAGER: 'Order Manager',
-  VIEWER: 'Viewer',
-}
 
 const ROLE_COLORS: Record<StaffMember['role'], string> = {
   SUPER_ADMIN: 'blue',
@@ -71,7 +66,7 @@ export function StaffListPage() {
         header: 'Role',
         cell: ({ row }) => (
           <StatusBadge
-            label={ROLE_LABELS[row.original.role]}
+            label={StaffRoleLabels[row.original.role]}
             color={ROLE_COLORS[row.original.role]}
           />
         ),

@@ -10,13 +10,7 @@ import { useStaffMember, useUpdateStaff } from '@/admin/hooks/staff'
 import { AdminNotFoundPage } from '@/admin/pages/AdminNotFoundPage'
 import { staffEditSchema } from './staffSchema'
 import type { StaffEditFormValues } from './staffSchema'
-
-const ROLE_OPTIONS = [
-  { value: 'SUPER_ADMIN', label: 'Super Admin' },
-  { value: 'CATALOG_MANAGER', label: 'Catalog Manager' },
-  { value: 'ORDER_MANAGER', label: 'Order Manager' },
-  { value: 'VIEWER', label: 'Viewer' },
-]
+import { StaffRoleOptions } from '@/shared/types/enums/StaffRoles'
 
 export function StaffEditPage() {
   const { id } = useParams<{ id: string }>()
@@ -133,7 +127,7 @@ export function StaffEditPage() {
                 control={control}
                 render={({ field }) => (
                   <Select
-                    options={ROLE_OPTIONS}
+                    options={StaffRoleOptions}
                     value={field.value}
                     onChange={(val) => field.onChange(val)}
                     placeholder="Select a role"

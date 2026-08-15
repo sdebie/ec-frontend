@@ -88,4 +88,63 @@ describe('AdminHeader', () => {
 
     expect(onMenuClick).toHaveBeenCalledTimes(1)
   })
+
+  describe('profile menu dismissal', () => {
+    // Reported bug: the menu stayed open after clicking elsewhere, so it sat over the
+    // page until the trigger was pressed again.
+    it('closes when the user clicks away', async () => {
+      const user = userEvent.setup()
+      renderHeader()
+
+      await user.click(screen.getByTitle('Staff Profile'))
+      expect(screen.getByRole('menu')).toBeInTheDocument()
+
+      await user.click(document.body)
+
+      expect(screen.queryByRole('menu')).not.toBeInTheDocument()
+    })
+
+    it('closes on Escape', async () => {
+      const user = userEvent.setup()
+      renderHeader()
+
+      await user.click(screen.getByTitle('Staff Profile'))
+      expect(screen.getByRole('menu')).toBeInTheDocument()
+
+      await user.keyboard('{Escape}')
+
+      expect(screen.queryByRole('menu')).not.toBeInTheDocument()
+    })
+
+    it('stays open when clicking inside it, so the theme controls remain usable', async () => {
+      const user = userEvent.setup()
+      renderHeader()
+
+      await user.click(screen.getByTitle('Staff Profile'))
+      await user.click(screen.getByLabelText('Dark Mode'))
+
+      expect(screen.getByRole('menu')).toBeInTheDocument()
+    })
+
+    it('reports its state to assistive tech and flips the chevron', async () => {
+      const user = userEvent.setup()
+      renderHeader()
+
+      const trigger = screen.getByTitle('Staff Profile')
+      expect(trigger).toHaveAttribute('aria-expanded', 'false')
+
+      await user.click(trigger)
+      expect(trigger).toHaveAttribute('aria-expanded', 'true')
+    })
+  })
+
+  describe('identity in the header', () => {
+    it('shows the signed-in name and their role label', () => {
+      renderHeader()
+
+      expect(screen.getAllByText('TestUser').length).toBeGreaterThan(0)
+      // The stored value is SUPER_ADMIN; staff see the human label.
+      expect(screen.getAllByText('Super Admin').length).toBeGreaterThan(0)
+    })
+  })
 })

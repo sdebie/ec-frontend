@@ -13,8 +13,7 @@ export function useDeleteTestimonial() {
       queryClient.invalidateQueries({ queryKey: ['admin', 'testimonials'] })
       toast.success('Testimonial deleted')
     },
-    onError: (error) => {
-      console.error('[Testimonials] action failed:', error)
+    onError: () => {
       toast.error('Failed to delete testimonial', { duration: 0 })
     },
   })

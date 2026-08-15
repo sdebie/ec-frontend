@@ -19,17 +19,3 @@ export const LEGACY_SEARCH_PARAM = 'search'
 export function readSearchParam(params: URLSearchParams): string {
     return params.get(SEARCH_PARAM) ?? params.get(LEGACY_SEARCH_PARAM) ?? ''
 }
-
-/**
- * Writes the search term onto `params` in place, clearing the legacy alias.
- * An empty term removes both keys rather than leaving `?q=`.
- */
-export function writeSearchParam(params: URLSearchParams, term: string): void {
-    const trimmed = term.trim()
-    if (trimmed) {
-        params.set(SEARCH_PARAM, trimmed)
-    } else {
-        params.delete(SEARCH_PARAM)
-    }
-    params.delete(LEGACY_SEARCH_PARAM)
-}

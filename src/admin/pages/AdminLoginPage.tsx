@@ -35,7 +35,6 @@ export function AdminLoginPage() {
                 }
             },
             onError: (err: unknown) => {
-                console.error('[AdminLogin] login failed:', err)
                 const status =
                     err && typeof err === 'object' && 'response' in err
                         ? (err as { response?: { status?: number; data?: unknown } }).response?.status

@@ -7,6 +7,7 @@ import {useMyOrders} from '../hooks/useMyOrders'
 import {useCustomerProfile} from '../hooks/useCustomerProfile'
 import {useWishlist} from '../wishlist/hooks/useWishlist'
 import {AccountDashboardPage} from '../AccountDashboardPage'
+import { OrderStatus } from '@/shared/types/enums/OrderStatus'
 
 vi.mock('../hooks/useMyOrders')
 vi.mock('../hooks/useCustomerProfile')
@@ -16,14 +17,12 @@ const mockedUseMyOrders = vi.mocked(useMyOrders)
 const mockedUseCustomerProfile = vi.mocked(useCustomerProfile)
 const mockedUseWishlist = vi.mocked(useWishlist)
 
-/** Arbitrary for a valid order status */
-const orderStatusArb = fc.constantFrom(
-    'CREATED' as const,
-    'PAID' as const,
-    'SHIPPED' as const,
-    'DELIVERED' as const,
-    'CANCELLED' as const,
-)
+/**
+ * Drawn from the OrderStatus vocabulary itself. Hand-listing the statuses is how
+ * `SHIPPED` — which the enum has never contained — survived here while the six real
+ * statuses it omitted went untested.
+ */
+const orderStatusArb = fc.constantFrom(...Object.values(OrderStatus))
 
 /** Arbitrary for a valid ISO date string (within a reasonable range) */
 const orderDateArb = fc

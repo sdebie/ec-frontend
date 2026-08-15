@@ -14,8 +14,7 @@ export function usePublishPage() {
       queryClient.invalidateQueries({ queryKey: ['admin', 'pages'] })
       toast.success('Policy published')
     },
-    onError: (error) => {
-      console.error('[PageContent] publish failed:', error)
+    onError: () => {
       toast.error('Failed to publish page')
     },
   })

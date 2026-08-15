@@ -102,25 +102,4 @@ describe('useWholesaleApplicationSubmit — rate-limit error path', () => {
     expect(toast.error).toHaveBeenCalledWith(RATE_LIMIT_MESSAGE, { duration: 0 })
   })
 
-  it('calls console.error with [WholesaleApplication] prefix on rate-limit error', async () => {
-    const consoleSpy = vi.spyOn(console, 'error').mockImplementation(() => {})
-    const rateLimitError = createRateLimitClientError()
-    vi.mocked(graphqlClient.request).mockRejectedValue(rateLimitError)
-
-    const { result } = renderHook(() => useWholesaleApplicationSubmit(), {
-      wrapper: createWrapper(),
-    })
-
-    act(() => {
-      result.current.mutate(sampleInput)
-    })
-
-    await waitFor(() => expect(result.current.isPending).toBe(false))
-
-    expect(consoleSpy).toHaveBeenCalledWith(
-      '[WholesaleApplication] submit failed:',
-      rateLimitError,
-    )
-    consoleSpy.mockRestore()
-  })
 })

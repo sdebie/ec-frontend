@@ -12,7 +12,7 @@ export const myOrdersFixture: MyOrder[] = [
   {
     id: 'order-002',
     orderDate: '2024-12-01T14:20:00Z',
-    status: 'SHIPPED',
+    status: 'IN_TRANSIT',
     itemCount: 1,
     totalAmount: 1299.99,
   },
@@ -62,7 +62,7 @@ export const orderDetailFixture: OrderDetail = {
   statusHistory: [
     { status: 'CREATED', timestamp: '2024-11-15T10:30:00Z' },
     { status: 'PAID', timestamp: '2024-11-15T10:32:00Z' },
-    { status: 'SHIPPED', timestamp: '2024-11-17T08:00:00Z' },
+    { status: 'IN_TRANSIT', timestamp: '2024-11-17T08:00:00Z' },
     { status: 'DELIVERED', timestamp: '2024-11-20T14:15:00Z' },
   ],
 }

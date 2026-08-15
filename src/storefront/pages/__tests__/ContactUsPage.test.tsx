@@ -19,6 +19,7 @@ vi.mock('@/shared/ui/components/toast', () => ({
 }))
 
 import { storefrontHttpClient } from '@/shared/api/http/storefrontHttpClient'
+import { toast } from '@/shared/ui/components/toast'
 import { ContactUsPage } from '../ContactUsPage'
 
 const mockedPost = vi.mocked(storefrontHttpClient.post)
@@ -322,9 +323,8 @@ describe('ContactUsPage', () => {
       expect(screen.queryByLabelText('Name')).not.toBeInTheDocument()
     })
 
-    it('calls console.error with [ContactEnquiry] marker on submission error', async () => {
+    it('tells the user the submission failed instead of showing the success state', async () => {
       const user = userEvent.setup()
-      const consoleSpy = vi.spyOn(console, 'error').mockImplementation(() => {})
       const submitError = new Error('Network failure')
       mockedPost.mockRejectedValue(submitError)
 
@@ -340,14 +340,12 @@ describe('ContactUsPage', () => {
 
       await user.click(screen.getByRole('button', { name: /send message/i }))
 
+      // Logging moved to the global handler; what matters to the shopper is that
+      // the form stays put and says so rather than flipping to "message sent".
       await waitFor(() => {
-        expect(consoleSpy).toHaveBeenCalledWith(
-          '[ContactEnquiry] submit failed:',
-          expect.anything(),
-        )
+        expect(toast.error).toHaveBeenCalledWith('Something went wrong. Please try again.')
       })
-
-      consoleSpy.mockRestore()
+      expect(screen.getByLabelText('Name')).toBeInTheDocument()
     })
   })
 

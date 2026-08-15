@@ -21,35 +21,97 @@
     }
 }
 
+/*
+  ADMIN PALETTE — one semantic hierarchy, given a light and a dark value.
+
+      page → panel → secondary surface → hover → selected
+
+  Two rules keep this coherent, and both were learned by breaking them:
+
+  1. NEUTRAL MEANS "I am hovering". ACCENT MEANS "I selected something".
+     Hover states are grey at every elevation. The accent is reserved for
+     genuine selection — active nav, selected row, checked filter. When
+     ordinary table hover was accent-tinted, an orange or red preset put the
+     accent on every row the pointer crossed and it stopped reading as an
+     accent at all.
+
+  2. EVERY PRESET OWNS ITS OWN FOREGROUND IN EVERY THEME. A preset that sets a
+     background but not the text on it inherits the other theme's text — see
+     the dark preset block for what that produced.
+
+  Depth comes from borders and small elevation steps, not from strong
+  background contrast: a light mode built on heavier greys reads as flat and
+  drab across a full-height admin page, and a dark mode that jumps too far
+  from page to panel makes cards float as separate rectangles instead of
+  reading as one interface.
+*/
 :root {
-    --primary: #3b82f6;
-    --primary-hover: #2563eb;
+    --primary: #2563eb;
+    --primary-hover: #1d4ed8;
+    --primary-active: #1e40af;
     --primary-subtle: #eff6ff;
+    --primary-subtle-hover: #dbeafe;
 
-    --admin-bg: #f1f5f9;
+    /*
+      FOUR surface levels, not two. Light mode previously ran white panels on a
+      near-white page with the secondary surface and the row hover set to the
+      same value — so the whole workspace collapsed into "white or pale grey"
+      and read as washed out next to dark mode's four distinct steps.
+
+      The neutrals are also nudged a few degrees off pure slate. Cold slate on
+      every surface is what makes an admin look like an unstyled starter; the
+      shift is small enough to stay neutral under any accent preset, and only
+      shows as warmth against a large area.
+
+           PAGE #f4f7f6 → SIDEBAR #fbfcfc → PANEL/TABLE #ffffff
+                                          → TABLE HEADER #f2f5f4
+                                          → HOVER        #f5f9f7
+    */
+
+    /* Page */
+    --admin-bg: #f4f7f6;
+
+    /* Surfaces */
     --admin-panel: #ffffff;
-    --admin-border: #e2e8f0;
-    --admin-text: #0f172a;
-    --admin-text-muted: #64748b;
-    /* Same white as the panel: inputs read as clean-bordered fields rather
-       than filled blocks. Kept as its own token (not deleted) since form
-       pages reference --c-input-bg directly. */
-    --admin-input-bg: var(--admin-panel);
+    --admin-panel-secondary: #f7f9f8;
+    --admin-panel-hover: #f0f4f2;
 
-    --admin-sidebar-bg: #ffffff;
-    --admin-sidebar-hover: #f1f5f9;
+    /* Borders */
+    --admin-border: #dfe6e2;
+    --admin-border-strong: #cbd5cf;
+
+    /* Typography */
+    --admin-text: #18231f;
+    --admin-text-secondary: #41534b;
+    --admin-text-muted: #6b7c74;
+    --admin-text-disabled: #9aa8a2;
+
+    /* Forms — the field reads as bordered rather than filled, so its own
+       background matches the panel and the border carries the affordance. */
+    --admin-input-bg: #ffffff;
+    --admin-input-border: #d4ddd8;
+    --admin-input-hover-border: #afbeb6;
+    --admin-input-focus: var(--primary);
+
+    /* Chrome — sidebar and header sit just off pure white so they read as one
+       frame around the workspace, rather than as two white slabs with a grey
+       canvas between them. */
+    --admin-sidebar-bg: #fbfcfc;
+    --admin-sidebar-hover: #f1f5f3;
     --admin-sidebar-active: #eff6ff;
     --admin-sidebar-active-text: #1d4ed8;
-    --admin-sidebar-border: #e2e8f0;
-    --admin-header-bg: #ffffff;
+    --admin-sidebar-border: #e2e8e5;
+    --admin-header-bg: #fbfcfc;
+
+    /* Tables — the header is one step off the rows, enough to organise the
+       grid without announcing itself as a band. Rows stay plain white at rest
+       (no zebra striping: it makes a dense screen busier, not clearer) and
+       come to life only on hover. */
+    --admin-table-header-bg: #f2f5f4;
     --admin-table-row-bg: #ffffff;
-    /* Same white as the rows, so the header/toolbar/footer chrome reads as part of
-       one seamless table rather than a separately-shaded band; the border-b/border-t
-       dividers in DataTable still mark where header and footer sit. */
-    --admin-table-header-bg: var(--admin-table-row-bg);
-    /* Accent-tinted, not plain gray — tracks --primary-subtle so the hover stays
-       coherent with whichever accent preset (blue/purple/green/orange/red) is active. */
-    --admin-table-row-hover: var(--primary-subtle);
+    --admin-table-row-hover: #f5f9f7;
+    --admin-table-row-selected: var(--primary-subtle);
+    --admin-table-border: #dfe6e2;
 
     --admin-radius-sm: 0.25rem;
     --admin-radius: 0.5rem;
@@ -116,41 +178,99 @@
     }
 }
 
+/*
+  ⚠️ Accent-DERIVED tokens must be declared here, on the element that carries
+  `data-preset` — never only on :root.
+
+  A custom property whose value is `var(--other)` is substituted where it is
+  DECLARED, not where it is used. `--admin-table-row-selected: var(--primary-subtle)`
+  on :root therefore freezes to :root's blue, and a preset changing
+  `--primary-subtle` further down cannot retroactively alter the value already
+  computed at :root and inherited from it.
+
+  This hid because dark mode looked correct: its own block re-declares these on
+  this same element, where the preset IS in scope. Verified by probe — with these
+  on :root alone, the green and red presets rendered selected rows and focused
+  inputs in BLUE while every other accent surface was correctly green or red.
+
+  Any future token defined as var(--primary…) belongs in this block.
+*/
+[data-surface="admin"] {
+    --admin-table-row-selected: var(--primary-subtle);
+    --admin-input-focus: var(--primary);
+}
+
 [data-surface="admin"][data-theme="dark"] {
     /* Native widgets (number-input spinners, scrollbars, select arrows) render
        from the UA stylesheet, not our tokens — without this they stay light-mode
        black and vanish against the dark inputs. */
     color-scheme: dark;
 
-    --admin-bg: #030712;
-    --admin-panel: #111827;
-    --admin-border: #1f2937;
-    --admin-text: #f9fafb;
-    --admin-text-muted: #9ca3af;
-    --admin-input-bg: #161f2e;
-    --admin-header-bg: #111827;
-    --admin-sidebar-bg: #111827;
-    --admin-sidebar-hover: #1f2937;
-    --admin-sidebar-border: #1f2937;
-    --admin-table-header-bg: #161f2e;
-    --admin-table-row-bg: #111827;
-    --admin-table-row-hover: #1f2937;
+    /* Page — one step under the panel rather than near-black. The former
+       #030712 against a #111827 panel was a large enough jump that cards read
+       as separate floating rectangles instead of one surface. */
+    --admin-bg: #0b1120;
 
-    --admin-status-red-bg: #450a0a;
-    --admin-status-red-text: #f87171;
+    /* Surfaces — each step is a deliberate elevation, not an arbitrary grey. */
+    --admin-panel: #111827;
+    --admin-panel-secondary: #172033;
+    --admin-panel-hover: #1e293b;
+
+    /* Borders */
+    --admin-border: #1f2937;
+    --admin-border-strong: #374151;
+
+    /* Typography */
+    --admin-text: #f1f5f9;
+    --admin-text-secondary: #cbd5e1;
+    --admin-text-muted: #94a3b8;
+    --admin-text-disabled: #64748b;
+
+    /* Forms — the field sits *below* the panel here. Inverting the light-mode
+       relationship is deliberate: a recessed well reads as an input on dark,
+       where a raised field would compete with the panel it sits on. */
+    --admin-input-bg: #0f172a;
+    --admin-input-border: #334155;
+    --admin-input-hover-border: #475569;
+    --admin-input-focus: var(--primary);
+
+    /* Chrome sits just under the panel, mirroring light mode where it sits just
+       off white — so sidebar and header read as the frame and the panel as the
+       content, rather than the sidebar being indistinguishable from a table. */
+    --admin-header-bg: #0f1828;
+    --admin-sidebar-bg: #0f1828;
+    --admin-sidebar-hover: #1e293b;
+    --admin-sidebar-border: #1f2937;
+
+    /* Tables */
+    --admin-table-header-bg: #172033;
+    --admin-table-row-bg: #111827;
+    --admin-table-row-hover: #1e293b;
+    --admin-table-row-selected: var(--primary-subtle);
+    --admin-table-border: #1f2937;
+
+    /* Status surfaces sit in the same elevation range as the panels rather than
+       as saturated blocks, so a badge reads as tinted rather than as a hole cut
+       in the page. The red surface is also deliberately distinct from the red
+       preset's --primary-subtle (#450a0a), which it used to collide with — an
+       error badge and a selected row must never be the same colour. */
+    --admin-status-red-bg: #2b1215;
+    --admin-status-red-text: #fca5a5;
     --admin-status-red-border: #7f1d1d;
-    --admin-status-green-bg: #052e16;
+    --admin-status-green-bg: #0b2418;
     --admin-status-green-text: #86efac;
-    --admin-status-green-border: #14532d;
-    --admin-status-yellow-bg: #451a03;
-    --admin-status-yellow-text: #fcd34d;
-    --admin-status-yellow-border: #78350f;
+    --admin-status-green-border: #166534;
+    --admin-status-yellow-bg: #2a1d08;
+    --admin-status-yellow-text: #fde68a;
+    --admin-status-yellow-border: #854d0e;
 }
 
 [data-surface="admin"][data-preset="blue"] {
-    --primary: #3b82f6;
-    --primary-hover: #2563eb;
+    --primary: #2563eb;
+    --primary-hover: #1d4ed8;
+    --primary-active: #1e40af;
     --primary-subtle: #eff6ff;
+    --primary-subtle-hover: #dbeafe;
     --admin-sidebar-active: #eff6ff;
     --admin-sidebar-active-text: #1d4ed8;
 }
@@ -158,7 +278,9 @@
 [data-surface="admin"][data-preset="purple"] {
     --primary: #8b5cf6;
     --primary-hover: #7c3aed;
+    --primary-active: #6d28d9;
     --primary-subtle: #f3e8ff;
+    --primary-subtle-hover: #e9d5ff;
     --admin-sidebar-active: #f3e8ff;
     --admin-sidebar-active-text: #6d28d9;
 }
@@ -166,7 +288,9 @@
 [data-surface="admin"][data-preset="green"] {
     --primary: #10b981;
     --primary-hover: #059669;
+    --primary-active: #047857;
     --primary-subtle: #ecfdf5;
+    --primary-subtle-hover: #d1fae5;
     --admin-sidebar-active: #ecfdf5;
     --admin-sidebar-active-text: #047857;
 }
@@ -174,65 +298,122 @@
 [data-surface="admin"][data-preset="orange"] {
     --primary: #f97316;
     --primary-hover: #ea580c;
+    --primary-active: #c2410c;
     --primary-subtle: #fff7ed;
+    --primary-subtle-hover: #ffedd5;
     --admin-sidebar-active: #fff7ed;
     --admin-sidebar-active-text: #c2410c;
 }
 
+/*
+  The red preset's subtle sits in the rose family, not red-50 — red-50 (#fef2f2)
+  is exactly --admin-status-red-bg, which would make a selected row and an error
+  badge the same colour under this preset. Same collision the dark status
+  surfaces were re-tuned to avoid.
+*/
 [data-surface="admin"][data-preset="red"] {
     --primary: #ef4444;
     --primary-hover: #dc2626;
-    --primary-subtle: #fef2f2;
-    --admin-sidebar-active: #fef2f2;
+    --primary-active: #b91c1c;
+    --primary-subtle: #fff1f2;
+    --primary-subtle-hover: #ffe4e6;
+    --admin-sidebar-active: #fff1f2;
     --admin-sidebar-active-text: #b91c1c;
 }
 
-/* Dark mode: accent shifts + --primary-subtle becomes the dark pill background for active items */
+/*
+  Dark presets must set their OWN active foreground. Each light preset sets
+  --admin-sidebar-active-text, and the dark blocks previously set only --primary,
+  --primary-hover and --primary-subtle — so a dark preset inherited the LIGHT
+  text colour (blue's #1d4ed8) and painted it on a near-black active pill.
+  Every preset below owns the full set, background and foreground together.
+*/
 [data-surface="admin"][data-theme="dark"][data-preset="blue"] {
     --primary: #3b82f6;
     --primary-hover: #60a5fa;
-    --primary-subtle: #1e3a5f;
+    --primary-active: #2563eb;
+    --primary-subtle: #172554;
+    --primary-subtle-hover: #1e3a8a;
+    --admin-sidebar-active: #172554;
+    --admin-sidebar-active-text: #93c5fd;
 }
 
 [data-surface="admin"][data-theme="dark"][data-preset="purple"] {
     --primary: #8b5cf6;
     --primary-hover: #a78bfa;
-    --primary-subtle: #3b0764;
+    --primary-active: #7c3aed;
+    --primary-subtle: #2e1065;
+    --primary-subtle-hover: #4c1d95;
+    --admin-sidebar-active: #2e1065;
+    --admin-sidebar-active-text: #c4b5fd;
 }
 
 [data-surface="admin"][data-theme="dark"][data-preset="green"] {
     --primary: #10b981;
     --primary-hover: #34d399;
-    --primary-subtle: #022c22;
+    --primary-active: #059669;
+    --primary-subtle: #052e2b;
+    --primary-subtle-hover: #064e3b;
+    --admin-sidebar-active: #052e2b;
+    --admin-sidebar-active-text: #6ee7b7;
 }
 
 [data-surface="admin"][data-theme="dark"][data-preset="orange"] {
     --primary: #f97316;
     --primary-hover: #fb923c;
+    --primary-active: #ea580c;
     --primary-subtle: #431407;
+    --primary-subtle-hover: #7c2d12;
+    --admin-sidebar-active: #431407;
+    --admin-sidebar-active-text: #fdba74;
 }
 
 [data-surface="admin"][data-theme="dark"][data-preset="red"] {
     --primary: #ef4444;
     --primary-hover: #f87171;
+    --primary-active: #dc2626;
     --primary-subtle: #450a0a;
+    --primary-subtle-hover: #7f1d1d;
+    --admin-sidebar-active: #450a0a;
+    --admin-sidebar-active-text: #fca5a5;
 }
 
+/*
+  Every palette token gets a Tailwind colour so a component can name what it
+  means (`bg-admin-panel`) instead of picking a raw shade. A component that
+  reaches for `bg-white dark:bg-gray-900` is bypassing the hierarchy above and
+  will drift the moment a token moves — which is what law 2 forbids.
+*/
 @theme inline {
     --color-admin-bg: var(--admin-bg);
     --color-admin-panel: var(--admin-panel);
+    --color-admin-panel-secondary: var(--admin-panel-secondary);
+    --color-admin-panel-hover: var(--admin-panel-hover);
     --color-admin-border: var(--admin-border);
+    --color-admin-border-strong: var(--admin-border-strong);
     --color-admin-text: var(--admin-text);
+    --color-admin-text-secondary: var(--admin-text-secondary);
     --color-admin-text-muted: var(--admin-text-muted);
+    --color-admin-text-disabled: var(--admin-text-disabled);
+    --color-admin-input-bg: var(--admin-input-bg);
+    --color-admin-input-border: var(--admin-input-border);
+    --color-admin-input-hover-border: var(--admin-input-hover-border);
     --color-admin-header-bg: var(--admin-header-bg);
     --color-admin-sidebar-bg: var(--admin-sidebar-bg);
     --color-admin-sidebar-hover: var(--admin-sidebar-hover);
     --color-admin-sidebar-active: var(--admin-sidebar-active);
     --color-admin-sidebar-active-text: var(--admin-sidebar-active-text);
     --color-admin-sidebar-border: var(--admin-sidebar-border);
+    --color-admin-table-header-bg: var(--admin-table-header-bg);
+    --color-admin-table-row-bg: var(--admin-table-row-bg);
+    --color-admin-table-row-hover: var(--admin-table-row-hover);
+    --color-admin-table-row-selected: var(--admin-table-row-selected);
+    --color-admin-table-border: var(--admin-table-border);
     --color-primary: var(--primary);
     --color-primary-hover: var(--primary-hover);
+    --color-primary-active: var(--primary-active);
     --color-primary-subtle: var(--primary-subtle);
+    --color-primary-subtle-hover: var(--primary-subtle-hover);
 }
 
 /* ─────────────────────────────────────────────────────────────

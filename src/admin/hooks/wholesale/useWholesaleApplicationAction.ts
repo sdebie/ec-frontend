@@ -52,7 +52,6 @@ export function useWholesaleApplicationAction() {
     onError: (error) => {
       const serverMessage =
         error instanceof ClientError ? error.response.errors?.[0]?.message : undefined
-      console.error('[WholesaleApplicationAction] action failed:', serverMessage ?? error)
       toast.error(serverMessage ?? 'Failed to process wholesale application', { duration: 0 })
     },
   })

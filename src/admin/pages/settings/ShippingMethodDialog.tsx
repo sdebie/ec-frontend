@@ -30,12 +30,14 @@ export function ShippingMethodDialog({ open, mode, method, onClose }: ShippingMe
             baseFee: method.baseFee ?? 0,
             estimatedDays: method.estimatedDays ?? '',
             active: method.active ?? true,
+            requiresAddress: method.requiresAddress ?? true,
           }
         : {
             name: '',
             baseFee: 0,
             estimatedDays: '',
             active: true,
+            requiresAddress: true,
           },
   })
 
@@ -46,6 +48,7 @@ export function ShippingMethodDialog({ open, mode, method, onClose }: ShippingMe
       baseFee: values.baseFee,
       estimatedDays: values.estimatedDays,
       active: values.active,
+      requiresAddress: values.requiresAddress,
     }
 
     mutation.mutate(methodDto, {
@@ -115,6 +118,28 @@ export function ShippingMethodDialog({ open, mode, method, onClose }: ShippingMe
                   checked={field.value}
                   onChange={(checked) => field.onChange(checked)}
                   label={field.value ? 'Active' : 'Inactive'}
+                />
+              )}
+            />
+          </FormItem>
+
+          <FormItem
+            label="Delivery address"
+            invalid={!!errors.requiresAddress}
+            errorMessage={errors.requiresAddress?.message}
+          >
+            <Controller
+              name="requiresAddress"
+              control={control}
+              render={({ field }) => (
+                <Switcher
+                  checked={field.value}
+                  onChange={(checked) => field.onChange(checked)}
+                  label={
+                    field.value
+                      ? 'Checkout collects a delivery address'
+                      : 'Collection — no address needed'
+                  }
                 />
               )}
             />

@@ -17,7 +17,7 @@ import {usePaymentMethods} from './hooks/usePaymentMethods'
 import {useCheckoutSessionStore} from './store/checkoutSessionStore'
 import {useCustomerAuthStore} from '@/shared/auth/customerAuthStore'
 import {checkoutFormSchema, type CheckoutFormValues} from './checkoutFormSchema'
-import {isDeliveryMethod} from './utils/isDeliveryMethod'
+import {requiresDeliveryAddress} from './utils/requiresDeliveryAddress'
 import {ACCENT_BUTTON_HOVER, SF_FOCUS_RING_PAGE} from '@/storefront/sections/shared'
 
 /**
@@ -61,7 +61,7 @@ export function CheckoutPage() {
 
     const selectedMethodId = watch('shippingMethodId')
     const selectedMethod = shippingMethods?.find((m) => m.id === selectedMethodId) ?? null
-    const requiresAddress = selectedMethod ? isDeliveryMethod(selectedMethod) : false
+    const requiresAddress = requiresDeliveryAddress(selectedMethod)
 
     // Pre-fill from the signed-in profile
     useEffect(() => {

@@ -3,6 +3,7 @@ import { useStorefrontConfig } from '@/shared/config/storefrontConfig.context'
 import { formatAmount } from '@/shared/utils/formatAmount'
 import { QuantityStepper } from '@/storefront/catalog/components/QuantityStepper'
 import type { CartRow } from '../types'
+import {ProductImagePlaceholder} from '@/storefront/catalog/components/ProductImageStage'
 
 interface CartItemRowProps {
     row: CartRow
@@ -62,20 +63,7 @@ export function CartItemRow({row, isLoading, onQuantityChange, onRemove}: CartIt
                         className="h-full w-full object-contain p-1.5 sm:p-2"
                     />
                 ) : (
-                    <div
-                        className="flex h-full w-full items-center justify-center text-(--sf-muted-text)"
-                        aria-hidden="true"
-                    >
-                        <svg xmlns="http://www.w3.org/2000/svg" className="h-8 w-8" fill="none"
-                             viewBox="0 0 24 24" stroke="currentColor">
-                            <path
-                                strokeLinecap="round"
-                                strokeLinejoin="round"
-                                strokeWidth={1.5}
-                                d="M2.25 15.75l5.159-5.159a2.25 2.25 0 013.182 0l5.159 5.159m-1.5-1.5l1.409-1.409a2.25 2.25 0 013.182 0l2.909 2.909M3.75 21h16.5A2.25 2.25 0 0022.5 18.75V5.25A2.25 2.25 0 0020.25 3H3.75A2.25 2.25 0 001.5 5.25v13.5A2.25 2.25 0 003.75 21z"
-                            />
-                        </svg>
-                    </div>
+                    <ProductImagePlaceholder className="h-8 w-8"/>
                 )}
             </div>
 

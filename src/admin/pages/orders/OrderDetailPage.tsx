@@ -1,10 +1,8 @@
-import { useState } from 'react'
 import { useParams, Link } from 'react-router-dom'
 
 import {
   PageLoadingSpinner,
   OrderStatusDisplay,
-  ConfirmationDialog,
 } from '@/shared/ui/components'
 import { Button } from '@/shared/ui/primitives'
 import { useCan } from '@/shared/auth/adminPermissions'
@@ -14,9 +12,9 @@ import { useOrderDetail, useUpdateOrderStatus } from '@/admin/hooks/orders'
 import { OrderLineItemsTable } from './components/OrderLineItemsTable'
 import { OrderStatusHistory } from './components/OrderStatusHistory'
 import { getAvailableTransitions } from './utils/getAvailableTransitions'
-import { CONFIRMED_ACTIONS, defaultRestockForStatus } from './utils/confirmedActions'
 import type { ConfirmedAction } from './utils/confirmedActions'
-import { RefundRestockChoice } from './components/RefundRestockChoice'
+import { useOrderStatusConfirmation } from './hooks/useOrderStatusConfirmation'
+import { OrderStatusConfirmationDialog } from './components/OrderStatusConfirmationDialog'
 
 function formatTimestamp(dateString: string): string {
   return new Intl.DateTimeFormat(undefined, {
@@ -34,11 +32,7 @@ export function OrderDetailPage() {
   const canMutate = useCan('order:write')
   const updateStatus = useUpdateOrderStatus()
 
-  const [confirmDialog, setConfirmDialog] = useState<{
-    open: boolean
-    type: ConfirmedAction
-  }>({ open: false, type: 'cancel' })
-  const [restockItems, setRestockItems] = useState(false)
+  const confirmation = useOrderStatusConfirmation()
 
   // 404 guard
   if (!isLoading && !data) {
@@ -91,8 +85,10 @@ export function OrderDetailPage() {
 
   // Guest checkout can reach payment without an address, and any single part of
   // one may be missing, so build the block from whatever is actually there
-  // rather than rendering stray commas around blanks.
-  const { street, city, province, postalCode } = order.shippingAddress
+  // rather than rendering stray commas around blanks. The whole object is
+  // nullable in the schema, not just its parts — an empty list renders the same
+  // "no address" state either way.
+  const { street, city, province, postalCode } = order.shippingAddress ?? {}
   const addressLines = [street, [city, province, postalCode].filter(Boolean).join(', ')].filter(
     (line): line is string => !!line,
   )
@@ -106,27 +102,11 @@ export function OrderDetailPage() {
   }
 
   const askToConfirm = (type: ConfirmedAction) => () => {
-    // Re-derive the default each time the prompt opens, so it follows the order's
-    // current status rather than whatever the last refund happened to leave behind.
-    setRestockItems(defaultRestockForStatus(order.status))
-    setConfirmDialog({ open: true, type })
+    confirmation.ask(type, order.id, order.status)
   }
 
   const handleConfirmAction = () => {
-    const isRefund = confirmDialog.type === 'refund'
-    updateStatus.mutate(
-      {
-        orderId: order.id,
-        status: CONFIRMED_ACTIONS[confirmDialog.type].status,
-        // Only a refund may carry this; the server rejects it on anything else.
-        ...(isRefund ? { restockItems } : {}),
-      },
-      { onSettled: () => setConfirmDialog((prev) => ({ ...prev, open: false })) },
-    )
-  }
-
-  const handleCloseDialog = () => {
-    setConfirmDialog((prev) => ({ ...prev, open: false }))
+    updateStatus.mutate(confirmation.buildPayload(), { onSettled: confirmation.close })
   }
 
   const transitionButtons: {
@@ -238,25 +218,14 @@ export function OrderDetailPage() {
         <OrderStatusHistory history={order.statusHistory} />
       </section>
 
-      <ConfirmationDialog
-        open={confirmDialog.open}
-        onClose={handleCloseDialog}
+      <OrderStatusConfirmationDialog
+        state={confirmation.state}
+        restockItems={confirmation.restockItems}
+        onRestockChange={confirmation.setRestockItems}
         onConfirm={handleConfirmAction}
-        title={CONFIRMED_ACTIONS[confirmDialog.type].title}
-        description={CONFIRMED_ACTIONS[confirmDialog.type].description}
-        variant={CONFIRMED_ACTIONS[confirmDialog.type].variant}
-        confirmLabel={CONFIRMED_ACTIONS[confirmDialog.type].confirmLabel}
+        onClose={confirmation.close}
         isLoading={updateStatus.isPending}
-      >
-        {confirmDialog.type === 'refund' && (
-          <RefundRestockChoice
-            fromStatus={order.status}
-            checked={restockItems}
-            onChange={setRestockItems}
-            disabled={updateStatus.isPending}
-          />
-        )}
-      </ConfirmationDialog>
+      />
     </div>
   )
 }

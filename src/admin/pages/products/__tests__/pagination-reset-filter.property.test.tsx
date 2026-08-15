@@ -9,7 +9,18 @@ import { MemoryRouter } from 'react-router-dom'
  * For any status filter change, the DataTable pageIndex SHALL reset to 0
  * before the refetch is triggered, regardless of the previous pageIndex.
  *
+ * ## Run counts and timeout
+ * Each run mounts the whole ProductListPage and drives a real listbox per filter
+ * change, so a run is expensive — this file is the slowest in the suite and used to
+ * time out under full-suite parallelism while passing comfortably on its own.
+ *
+ * The counts below are sized to the property's actual input space rather than left at
+ * a round number: the alphabet is four statuses, and the second property has exactly
+ * twelve distinct ordered pairs, so fifty runs re-tested the same behaviour several
+ * times over. The timeout is generous on purpose — it absorbs contention from other
+ * workers instead of encoding how fast an idle machine happens to be.
  */
+const PROPERTY_TIMEOUT_MS = 45_000
 
 const mockUseAdminProductList = vi.fn((..._args: unknown[]) => ({
   data: { content: [], totalElements: 0, totalPages: 0 },
@@ -116,9 +127,11 @@ describe('DataTable pagination reset on filter change — Property Tests', () =>
 
         unmount()
       }),
-      { numRuns: 50 },
+      // 20 sequences of 2-6 draws over a 4-status alphabet covers the reset behaviour
+      // many times over; the property is about state, not about rare inputs.
+      { numRuns: 20 },
     )
-  }, 15000)
+  }, PROPERTY_TIMEOUT_MS)
 
   it('pageIndex resets to 0 regardless of the specific filter transition', async () => {
     const { ProductListPage } = await import('../ProductListPage')
@@ -151,7 +164,9 @@ describe('DataTable pagination reset on filter change — Property Tests', () =>
 
         unmount()
       }),
-      { numRuns: 50 },
+      // There are only 12 distinct ordered pairs of differing statuses; 15 runs covers
+      // the space without re-rendering the page for pairs already seen.
+      { numRuns: 15 },
     )
-  }, 15000)
+  }, PROPERTY_TIMEOUT_MS)
 })

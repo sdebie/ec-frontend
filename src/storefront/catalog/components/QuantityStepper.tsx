@@ -107,27 +107,3 @@ export function QuantityStepper({
     </div>
   )
 }
-
-/**
- * An invisible stand-in occupying exactly the segmented stepper's height, for
- * cards whose action is a single control ("Select options", "Out of stock",
- * "View product"). Without it a deck's height follows whichever products happen
- * to be simple, and sections that should align diverge.
- *
- * Built from this module's own geometry constants and plain `<span>`s:
- * `visibility: hidden` keeps the box in layout while removing it from paint,
- * the accessibility tree and the tab order.
- */
-export function QuantityStepperPlaceholder() {
-  return (
-    <div aria-hidden="true" className={`${SEGMENT_BOX} invisible`}>
-      <span className={SEGMENT_SIDE}>
-        <Minus className="h-4 w-4" />
-      </span>
-      <span className={SEGMENT_COUNT}>1</span>
-      <span className={SEGMENT_SIDE}>
-        <Plus className="h-4 w-4" />
-      </span>
-    </div>
-  )
-}

@@ -19,8 +19,7 @@ export function useSubmitEnquiry() {
       )
       return data
     },
-    onError: (error) => {
-      console.error('[ContactEnquiry] submit failed:', error)
+    onError: () => {
     },
   })
 }

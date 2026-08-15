@@ -21,6 +21,18 @@
   --c-warning:      var(--admin-status-yellow-text);
   --c-info:         var(--primary);
   --c-input-bg:     var(--admin-input-bg);
+  /* Portals render at document.body with no [data-surface] ancestor, so the
+     elevation steps have to exist here too or a portalled dialog loses the
+     hierarchy the page it came from is using. */
+  --c-panel-secondary: var(--admin-panel-secondary);
+  --c-panel-hover:  var(--admin-panel-hover);
+  --c-border-strong: var(--admin-border-strong);
+  --c-text-secondary: var(--admin-text-secondary);
+  --c-text-disabled: var(--admin-text-disabled);
+  --c-input-border: var(--admin-input-border);
+  --c-input-hover-border: var(--admin-input-hover-border);
+  --c-table-row-selected: var(--admin-table-row-selected);
+  --c-table-border: var(--admin-table-border);
   --c-accent-fg:    #ffffff;
   --c-danger:       #ef4444;
   --c-danger-hover: #dc2626;
@@ -42,10 +54,23 @@
   --c-ring: var(--primary);
   --c-shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.05);
 
-  /* Table-specific */
-  --c-table-header-bg:     var(--admin-table-header-bg, var(--c-surface-hover));
+  /* Elevation steps above the panel, for secondary bands and neutral hovers. */
+  --c-panel-secondary: var(--admin-panel-secondary, var(--c-panel));
+  --c-panel-hover: var(--admin-panel-hover, var(--c-surface-hover));
+  --c-border-strong: var(--admin-border-strong, var(--c-border));
+  --c-text-secondary: var(--admin-text-secondary, var(--c-text));
+  --c-text-disabled: var(--admin-text-disabled, var(--c-text-muted));
+  --c-input-border: var(--admin-input-border, var(--c-border));
+  --c-input-hover-border: var(--admin-input-hover-border, var(--c-border-strong));
+
+  /* Table-specific. Hover is neutral and selection is accent — they answer two
+     different questions ("am I pointing at this?" vs "did I choose this?") and
+     must never resolve to the same colour. */
+  --c-table-header-bg:     var(--admin-table-header-bg, var(--c-panel-secondary));
   --c-table-row-bg:        var(--admin-table-row-bg, var(--c-panel));
-  --c-table-row-hover:     var(--admin-table-row-hover, var(--c-surface-hover));
+  --c-table-row-hover:     var(--admin-table-row-hover, var(--c-panel-hover));
+  --c-table-row-selected:  var(--admin-table-row-selected, var(--primary-subtle));
+  --c-table-border:        var(--admin-table-border, var(--c-border));
 
   /* Sidebar-specific */
   --c-sidebar-bg:          var(--admin-sidebar-bg, #ffffff);

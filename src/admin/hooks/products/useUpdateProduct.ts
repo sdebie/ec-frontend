@@ -47,8 +47,7 @@ export function useUpdateProduct(productId: string) {
       queryClient.invalidateQueries({ queryKey: ['admin-products-list'] })
       queryClient.invalidateQueries({ queryKey: ['admin-product-stats'] })
     },
-    onError: (error) => {
-      console.error('[ProductWrite] action failed:', error)
+    onError: () => {
       toast.error('Failed to save product', { duration: 0 })
     },
   })

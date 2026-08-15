@@ -25,8 +25,7 @@ export function useUpdateProfile() {
       // Invalidate profile cache so next visit fetches fresh data
       queryClient.invalidateQueries({ queryKey: ['customer', 'profile'] })
     },
-    onError(error) {
-      console.error('[Profile] action failed:', error)
+    onError() {
     },
   })
 }

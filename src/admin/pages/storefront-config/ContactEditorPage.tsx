@@ -156,8 +156,7 @@ export function ContactEditorPage() {
         onSuccess: () => {
           toast.success('Contact settings saved successfully')
         },
-        onError: (error) => {
-          console.error('[Contact] save failed:', error)
+        onError: () => {
         },
       },
     )

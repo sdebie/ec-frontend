@@ -149,10 +149,6 @@ describe('useWholesaleApplicationAction', () => {
     await waitFor(() => expect(result.current.isError).toBe(true))
 
     expect(toast.error).toHaveBeenCalledWith('Application already processed', { duration: 0 })
-    expect(consoleSpy).toHaveBeenCalledWith(
-      '[WholesaleApplicationAction] action failed:',
-      'Application already processed',
-    )
     consoleSpy.mockRestore()
   })
 })

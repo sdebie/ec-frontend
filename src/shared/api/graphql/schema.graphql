@@ -587,6 +587,7 @@ type ShippingMethodDto {
   estimatedDays: String
   id: String
   name: String
+  requiresAddress: Boolean!
 }
 
 type StaffDto {
@@ -903,6 +904,7 @@ input ShippingMethodDtoInput {
   estimatedDays: String
   id: String
   name: String
+  requiresAddress: Boolean!
 }
 
 input SortRequestInput {

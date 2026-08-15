@@ -44,7 +44,6 @@ export function useQuoteRequestStatusAction() {
     onError: (error) => {
       const serverMessage =
         error instanceof ClientError ? error.response.errors?.[0]?.message : undefined
-      console.error('[QuoteRequests] status update failed:', serverMessage ?? error)
       toast.error(serverMessage ?? 'Failed to update quote request status', { duration: 0 })
     },
   })

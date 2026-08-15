@@ -43,8 +43,12 @@ export function Thumbnail({logoUrl, name, size = 'md', className}: ThumbnailProp
 
     return (
         <div
+            // The secondary surface, not the page background: this sits inside a panel
+            // or a table row, so painting it the page colour leaves it with almost no
+            // presence against white. Text is the secondary tone rather than muted —
+            // initials are the content here, not a caption.
             className={cn(sizeClasses[size],
-                'rounded-md bg-(--c-bg) border border-(--c-border) flex items-center justify-center font-semibold text-(--c-text-muted) select-none',
+                'rounded-md bg-(--c-panel-secondary) border border-(--c-border) flex items-center justify-center font-semibold text-(--c-text-secondary) select-none',
                 className
             )}
         >

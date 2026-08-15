@@ -37,7 +37,8 @@ export interface OrderStatusHistoryEntry {
 
 export interface AdminOrderDetail extends AdminOrderSummary {
   customerEmail: string | null
-  shippingAddress: ShippingAddress
+  /** Nullable in the schema (`shippingAddress: AdminOrderAddressDto`), so it is nullable here. */
+  shippingAddress: ShippingAddress | null
   lineItems: OrderLineItem[]
   subtotal: number
   shippingCost: number

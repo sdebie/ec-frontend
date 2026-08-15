@@ -42,8 +42,7 @@ export function BrandTable({
                     toast.success('Brand deleted successfully')
                     setDeletingBrand(null)
                 },
-                onError: (err) => {
-                    console.error(err)
+                onError: () => {
                     toast.error('Failed to delete brand', {duration: 0})
                     setDeletingBrand(null)
                 },
@@ -78,8 +77,12 @@ export function BrandTable({
             {
                 accessorKey: 'slug',
                 header: 'Slug',
+                // Primary cell data reads at full contrast. Muting is reserved for a
+                // secondary sub-line under a name (the description above), not for a
+                // whole column — a column set in the muted tone looks disabled next to
+                // its neighbours.
                 cell: ({row}) => (
-                    <span className="text-sm text-(--c-text-muted)">{row.original.slug}</span>
+                    <span className="text-sm text-(--c-text)">{row.original.slug}</span>
                 ),
             },
             {

@@ -3,7 +3,7 @@
 import {describe, expect, it} from 'vitest'
 import * as fc from 'fast-check'
 import {checkoutFormSchema} from '../checkoutFormSchema'
-import {isDeliveryMethod} from '../utils/isDeliveryMethod'
+import {requiresDeliveryAddress} from '../utils/requiresDeliveryAddress'
 
 // Valid base form data — all other required fields are valid so only email affects the result
 const validBaseData = {
@@ -95,27 +95,32 @@ function addressIssues(values: Record<string, unknown>): string[] {
         .filter((field) => (ADDRESS_FIELDS as readonly string[]).includes(field))
 }
 
-// Delivery methods: baseFee > 0 OR estimatedDays non-null and not "0"
-const deliveryMethodArb = fc.oneof(
-    fc.record({
-        id: fc.constant('m1'),
-        name: fc.constant('Courier'),
-        baseFee: fc.float({min: Math.fround(0.01), max: Math.fround(1000), noNaN: true}).filter((n) => n > 0),
-        estimatedDays: fc.oneof(fc.constant(null), fc.string({minLength: 1, maxLength: 5})),
-    }),
-    fc.record({
-        id: fc.constant('m2'),
-        name: fc.constant('Courier'),
-        baseFee: fc.constant(0),
-        estimatedDays: fc.string({minLength: 1, maxLength: 5}).filter((s) => s !== '0'),
-    })
-)
+// Fee and lead time vary freely on BOTH arbitraries: whether an address is needed is
+// stated by the method, so neither may influence it. These previously encoded the old
+// inference (a fee, or a lead time other than '0', meant delivery) — which is exactly
+// what classified free same-day In-Store Pickup as a delivery and blocked collection.
+const anyFeeAndLeadTime = {
+    baseFee: fc.float({min: 0, max: Math.fround(1000), noNaN: true}),
+    estimatedDays: fc.oneof(
+        fc.constant(null),
+        fc.constant('0'),
+        fc.constant('Same Day'),
+        fc.string({minLength: 1, maxLength: 5}),
+    ),
+}
+
+const deliveryMethodArb = fc.record({
+    id: fc.constant('m1'),
+    name: fc.constant('Courier'),
+    ...anyFeeAndLeadTime,
+    requiresAddress: fc.constant(true),
+})
 
 const collectionMethodArb = fc.record({
     id: fc.constant('m3'),
     name: fc.constant('Collection'),
-    baseFee: fc.constant(0),
-    estimatedDays: fc.oneof(fc.constant(null), fc.constant('0')),
+    ...anyFeeAndLeadTime,
+    requiresAddress: fc.constant(false),
 })
 
 const addressFieldArb = fc.oneof(
@@ -134,16 +139,16 @@ const partialAddressArb = fc
     .filter((addr) => !addr.streetAddress || !addr.city || !addr.province || !addr.postalCode)
 
 describe('checkoutFormSchema - Delivery Address Validation Property Tests', () => {
-    it('Property 5: the delivery predicate decides whether the address is required', () => {
+    it('Property 5: the method decides whether the address is required, not its fee or speed', () => {
         fc.assert(
             fc.property(deliveryMethodArb, (method) => {
-                expect(isDeliveryMethod(method)).toBe(true)
+                expect(requiresDeliveryAddress(method)).toBe(true)
             }),
             {numRuns: 100}
         )
         fc.assert(
             fc.property(collectionMethodArb, (method) => {
-                expect(isDeliveryMethod(method)).toBe(false)
+                expect(requiresDeliveryAddress(method)).toBe(false)
             }),
             {numRuns: 100}
         )

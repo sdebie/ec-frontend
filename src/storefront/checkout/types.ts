@@ -21,6 +21,12 @@ export interface ShippingMethod {
     name: string
     baseFee: number
     estimatedDays: string | null
+    /**
+     * Whether choosing this method needs a delivery address. Stated by the method, not
+     * inferred from its fee or lead time — a free same-day collection looks exactly
+     * like a free same-day delivery from those two alone.
+     */
+    requiresAddress: boolean
 }
 
 export interface HtmlFormField {

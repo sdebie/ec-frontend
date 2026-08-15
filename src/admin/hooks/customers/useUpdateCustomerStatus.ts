@@ -38,7 +38,6 @@ export function useUpdateCustomerStatus() {
       toast.success('Customer status updated')
     },
     onError: (error) => {
-      console.error('[Customers] update customer status failed:', error)
       const message =
         error instanceof ClientError
           ? error.response.errors?.[0]?.message ?? 'Failed to update customer status'

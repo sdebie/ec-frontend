@@ -144,10 +144,9 @@ describe('useUpdateProduct — real mapping', () => {
     expect(input.variants[1].images).toBeUndefined()
   })
 
-  it('calls console.error and toast.error on mutation failure (onError handler)', async () => {
+  it('surfaces a mutation failure to the user via toast (onError handler)', async () => {
     const networkError = new Error('GraphQL request failed')
     vi.mocked(adminGraphqlClient.request).mockRejectedValue(networkError)
-    const consoleErrorSpy = vi.spyOn(console, 'error').mockImplementation(() => {})
 
     const { result } = renderHook(() => useUpdateProduct('prod-fail'), {
       wrapper: createWrapper(),
@@ -166,16 +165,11 @@ describe('useUpdateProduct — real mapping', () => {
       })
     })
 
+    // Logging is the global handler's job in queryClient.ts; onError is only
+    // responsible for what the user sees.
     await waitFor(() => {
-      expect(consoleErrorSpy).toHaveBeenCalledWith(
-        '[ProductWrite] action failed:',
-        networkError,
-      )
+      expect(toast.error).toHaveBeenCalledWith('Failed to save product', { duration: 0 })
     })
-
-    expect(toast.error).toHaveBeenCalledWith('Failed to save product', { duration: 0 })
-
-    consoleErrorSpy.mockRestore()
   })
 
   it('invalidates the product list and stats caches on success', async () => {

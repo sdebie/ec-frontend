@@ -118,8 +118,7 @@ describe('AdminLoginPage', () => {
     })
   })
 
-  it('logs the error to console on login failure', async () => {
-    const consoleErrorSpy = vi.spyOn(console, 'error').mockImplementation(() => {})
+  it('tells the user they are rate limited rather than that their password was wrong', async () => {
     const mockError = { response: { status: 429 } }
 
     mockLoginMutate.mockImplementation((_values: unknown, options: { onError: (err: unknown) => void }) => {
@@ -133,10 +132,10 @@ describe('AdminLoginPage', () => {
     await user.type(screen.getByPlaceholderText('••••••••'), 'password123')
     await user.click(screen.getByRole('button', { name: 'Sign in' }))
 
+    // A 429 is a distinct branch from a bad credential: telling the user their
+    // password was wrong when they are merely throttled sends them to reset it.
     await waitFor(() => {
-      expect(consoleErrorSpy).toHaveBeenCalledWith('[AdminLogin] login failed:', mockError)
+      expect(screen.getByText('Too many attempts — please try again later.')).toBeInTheDocument()
     })
-
-    consoleErrorSpy.mockRestore()
   })
 })

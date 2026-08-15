@@ -83,7 +83,7 @@ export function CategoryTable({
                 cell: ({row}) => {
                     const parent = row.original.parent
                     return (
-                        <span className="text-sm text-(--c-text-muted)">
+                        <span className="text-sm text-(--c-text)">
                             {parent ? parent.name : 'Main Category'}
                         </span>
                     )
@@ -94,7 +94,7 @@ export function CategoryTable({
                 accessorKey: 'slug',
                 header: 'Slug',
                 cell: ({row}) => (
-                    <span className="text-sm text-(--c-text-muted)">{row.original.slug}</span>
+                    <span className="text-sm text-(--c-text)">{row.original.slug}</span>
                 ),
             },
             {

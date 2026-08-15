@@ -4,7 +4,7 @@ import {useShippingMethods} from '../hooks/useShippingMethods'
 import {useStorefrontConfig} from '@/shared/config/storefrontConfig.context'
 import {formatAmount} from '@/shared/utils/formatAmount'
 import type {CheckoutFormValues} from '../checkoutFormSchema'
-import {isDeliveryMethod} from '../utils/isDeliveryMethod'
+import {requiresDeliveryAddress} from '../utils/requiresDeliveryAddress'
 import {InputField} from '@/shared/ui/components/form/InputField'
 import {CheckoutSection} from './CheckoutSection'
 
@@ -32,7 +32,7 @@ export function ShippingSection({control, errors}: ShippingSectionProps) {
 
     const selectedMethodId = useWatch({control, name: 'shippingMethodId'})
     const selectedMethod = shippingMethods?.find((m) => m.id === selectedMethodId)
-    const showAddressForm = selectedMethod ? isDeliveryMethod(selectedMethod) : false
+    const showAddressForm = requiresDeliveryAddress(selectedMethod)
 
     if (isLoading) {
         return (

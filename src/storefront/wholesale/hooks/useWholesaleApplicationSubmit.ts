@@ -20,7 +20,6 @@ export function useWholesaleApplicationSubmit() {
         mutationFn: (input: WholesaleCustomerDtoInput) =>
             graphqlClient.request(CREATE_WHOLESALE_APPLICATION, {customer: input}),
         onError: (error) => {
-            console.error('[WholesaleApplication] submit failed:', error)
             const message = error instanceof ClientError ? error.response.errors?.[0]?.message ?? 'Failed to submit application' : 'Failed to submit application'
             toast.error(message, {duration: 0})
         },

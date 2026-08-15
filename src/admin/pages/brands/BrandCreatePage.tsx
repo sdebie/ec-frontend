@@ -25,8 +25,7 @@ export function BrandCreatePage() {
                 toast.success('Brand created successfully')
                 navigate(-1)
             },
-            onError: (error) => {
-                console.error(error)
+            onError: () => {
                 toast.error('Failed to create brand', {duration: 0})
             },
         })

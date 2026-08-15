@@ -106,8 +106,7 @@ export function AnnouncementEditorPage() {
       toast.success('Announcement settings saved')
       queryClient.invalidateQueries({ queryKey: ['admin', 'store-settings'] })
     },
-    onError: (error) => {
-      console.error(error)
+    onError: () => {
       toast.error('Failed to save announcement settings', { duration: 0 })
     },
   })

@@ -144,8 +144,7 @@ export function ProductListPage() {
                         refetch()
                         toast.success('Product status updated successfully')
                     },
-                    onError: (err) => {
-                        console.error(err)
+                    onError: () => {
                         toast.error('Failed to update product status', {duration: 0})
                     },
                 },
@@ -198,8 +197,7 @@ export function ProductListPage() {
                 toast.success('Product deleted successfully')
                 setDeleteTarget(null)
             },
-            onError: (err) => {
-                console.error(err)
+            onError: () => {
                 toast.error('Failed to delete product', {duration: 0})
                 setDeleteTarget(null)
             },

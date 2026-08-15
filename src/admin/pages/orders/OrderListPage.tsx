@@ -5,7 +5,6 @@ import type { PaginationState } from '@tanstack/react-table'
 import {
   DataTable,
   Segment,
-  ConfirmationDialog,
   Label,
   OrderStatusDisplay,
 } from '@/shared/ui/components'
@@ -18,9 +17,8 @@ import { useOrders, useUpdateOrderStatus } from '@/admin/hooks/orders'
 import type { AdminOrderSummary } from '@/admin/hooks/orders'
 import { OrderActionsMenu } from './components/OrderActionsMenu'
 import { getAvailableTransitions } from './utils/getAvailableTransitions'
-import { CONFIRMED_ACTIONS, defaultRestockForStatus } from './utils/confirmedActions'
-import type { ConfirmedAction } from './utils/confirmedActions'
-import { RefundRestockChoice } from './components/RefundRestockChoice'
+import { useOrderStatusConfirmation } from './hooks/useOrderStatusConfirmation'
+import { OrderStatusConfirmationDialog } from './components/OrderStatusConfirmationDialog'
 
 // Derived from the status vocabulary itself so a new status cannot become
 // unfilterable, and so no option can offer a status the backend does not have.
@@ -48,14 +46,7 @@ export function OrderListPage() {
     pageSize: 10,
   })
 
-  const [confirmDialog, setConfirmDialog] = useState<{
-    open: boolean
-    type: ConfirmedAction
-    orderId: string
-    /** Carried so the refund prompt can word itself and default from the row's status. */
-    fromStatus: OrderStatus
-  }>({ open: false, type: 'cancel', orderId: '', fromStatus: OrderStatus.CREATED })
-  const [restockItems, setRestockItems] = useState(false)
+  const confirmation = useOrderStatusConfirmation()
 
   const { mutate: updateOrderStatus, isPending: isUpdatingStatus } = useUpdateOrderStatus()
 
@@ -90,31 +81,10 @@ export function OrderListPage() {
     updateOrderStatus({ orderId, status: OrderStatus.DELIVERED })
   }, [updateOrderStatus])
 
-  const askToConfirm = useCallback(
-    (type: ConfirmedAction, orderId: string, fromStatus: OrderStatus) => {
-      // Re-derive per row, so the prompt follows this order's status rather than
-      // whatever the previous refund left behind.
-      setRestockItems(defaultRestockForStatus(fromStatus))
-      setConfirmDialog({ open: true, type, orderId, fromStatus })
-    },
-    [],
-  )
+  const askToConfirm = confirmation.ask
 
   const handleConfirmAction = () => {
-    const { type, orderId } = confirmDialog
-    updateOrderStatus(
-      {
-        orderId,
-        status: CONFIRMED_ACTIONS[type].status,
-        // Only a refund may carry this; the server rejects it on anything else.
-        ...(type === 'refund' ? { restockItems } : {}),
-      },
-      { onSettled: () => setConfirmDialog((prev) => ({ ...prev, open: false })) },
-    )
-  }
-
-  const handleCloseDialog = () => {
-    setConfirmDialog((prev) => ({ ...prev, open: false }))
+    updateOrderStatus(confirmation.buildPayload(), { onSettled: confirmation.close })
   }
 
   const columns = useMemo<ColumnDef<AdminOrderSummary, unknown>[]>(
@@ -233,25 +203,14 @@ export function OrderListPage() {
         onPaginationChange={setPagination}
       />
 
-      <ConfirmationDialog
-        open={confirmDialog.open}
-        onClose={handleCloseDialog}
+      <OrderStatusConfirmationDialog
+        state={confirmation.state}
+        restockItems={confirmation.restockItems}
+        onRestockChange={confirmation.setRestockItems}
         onConfirm={handleConfirmAction}
-        title={CONFIRMED_ACTIONS[confirmDialog.type].title}
-        description={CONFIRMED_ACTIONS[confirmDialog.type].description}
-        variant={CONFIRMED_ACTIONS[confirmDialog.type].variant}
-        confirmLabel={CONFIRMED_ACTIONS[confirmDialog.type].confirmLabel}
+        onClose={confirmation.close}
         isLoading={isUpdatingStatus}
-      >
-        {confirmDialog.type === 'refund' && (
-          <RefundRestockChoice
-            fromStatus={confirmDialog.fromStatus}
-            checked={restockItems}
-            onChange={setRestockItems}
-            disabled={isUpdatingStatus}
-          />
-        )}
-      </ConfirmationDialog>
+      />
     </div>
   )
 }

@@ -20,8 +20,7 @@ export function useUploadImageAsset(directory: string) {
       const { data } = await adminHttpClient.post<{ fileName: string }>('/admin/images/upload', formData)
       return data.fileName
     },
-    onError: (error) => {
-      console.error('[Images] upload image asset failed:', error)
+    onError: () => {
       toast.error('Failed to upload image')
     },
   })

@@ -6,6 +6,7 @@ import {getDisplayPrice} from '../utils/pricing'
 import {pickFeaturedImage} from '@/storefront/catalog'
 import {WishlistButton, WishlistPromptLink} from '@/storefront/customer/account/wishlist/components/WishlistButton'
 import {CardActions} from './CardActions'
+import {ProductImageStage} from './ProductImageStage'
 import {SF_FOCUS_RING} from '@/storefront/sections/shared/focusRing'
 
 /**
@@ -274,35 +275,12 @@ export function ProductCard({product, variantId, variantLabel, badge, layout = '
                     image would turn each "row" into a ~viewport-tall card) */}
                 <div
                     className={`${ROW_IMAGE_RAIL_POSITION} ${mobileImage === 'thumbnail' ? 'w-20' : 'w-28'} sm:w-40 aspect-square shrink-0 self-start overflow-hidden bg-(--sf-surface-muted)`}>
-                    <Link to={productUrl} className={`block h-full w-full ${SF_FOCUS_RING.page} rounded-sm`}>
-                        {imageUrl ? (
-                            <img
-                                src={imageUrl}
-                                alt={product.name}
-                                loading="lazy"
-                                className="h-full w-full object-contain p-2 sm:p-3 transition-transform group-hover:scale-105"
-                            />
-                        ) : (
-                            <div
-                                className="flex h-full w-full items-center justify-center bg-(--sf-surface-muted) text-(--sf-muted-text)">
-                                <svg
-                                    xmlns="http://www.w3.org/2000/svg"
-                                    className="h-12 w-12"
-                                    fill="none"
-                                    viewBox="0 0 24 24"
-                                    stroke="currentColor"
-                                    aria-hidden="true"
-                                >
-                                    <path
-                                        strokeLinecap="round"
-                                        strokeLinejoin="round"
-                                        strokeWidth={1.5}
-                                        d="M2.25 15.75l5.159-5.159a2.25 2.25 0 013.182 0l5.159 5.159m-1.5-1.5l1.409-1.409a2.25 2.25 0 013.182 0l2.909 2.909M3.75 21h16.5A2.25 2.25 0 0022.5 18.75V5.25A2.25 2.25 0 0020.25 3H3.75A2.25 2.25 0 001.5 5.25v13.5A2.25 2.25 0 003.75 21z"
-                                    />
-                                </svg>
-                            </div>
-                        )}
-                    </Link>
+                    <ProductImageStage
+                            imageUrl={imageUrl}
+                            alt={product.name}
+                            productUrl={productUrl}
+                            padding="p-2 sm:p-3"
+                        />
                     {/* Quick-view hover treatment: a semi-transparent dark wash over the
                         image (documented overlay exception) so the revealed button and
                         card stand out. Only where quick view exists, only md+ where it
@@ -408,35 +386,12 @@ export function ProductCard({product, variantId, variantLabel, badge, layout = '
             data-layout="grid"
         >
             <div className={`relative ${gridImageStageClass} overflow-hidden bg-(--sf-surface-muted)`}>
-                <Link to={productUrl} className={`block h-full w-full ${SF_FOCUS_RING.page} rounded-sm`}>
-                    {imageUrl ? (
-                        <img
-                            src={imageUrl}
+                <ProductImageStage
+                            imageUrl={imageUrl}
                             alt={product.name}
-                            loading="lazy"
-                            className="h-full w-full object-contain p-2 sm:p-4 transition-transform group-hover:scale-105"
+                            productUrl={productUrl}
+                            padding="p-2 sm:p-4"
                         />
-                    ) : (
-                        <div
-                            className="flex h-full w-full items-center justify-center bg-(--sf-surface-muted) text-(--sf-muted-text)">
-                            <svg
-                                xmlns="http://www.w3.org/2000/svg"
-                                className="h-12 w-12"
-                                fill="none"
-                                viewBox="0 0 24 24"
-                                stroke="currentColor"
-                                aria-hidden="true"
-                            >
-                                <path
-                                    strokeLinecap="round"
-                                    strokeLinejoin="round"
-                                    strokeWidth={1.5}
-                                    d="M2.25 15.75l5.159-5.159a2.25 2.25 0 013.182 0l5.159 5.159m-1.5-1.5l1.409-1.409a2.25 2.25 0 013.182 0l2.909 2.909M3.75 21h16.5A2.25 2.25 0 0022.5 18.75V5.25A2.25 2.25 0 0020.25 3H3.75A2.25 2.25 0 001.5 5.25v13.5A2.25 2.25 0 003.75 21z"
-                                />
-                            </svg>
-                        </div>
-                    )}
-                </Link>
                 {/* Quick-view hover treatment — see the row-layout comment above */}
                 {onQuickView && (
                     <div

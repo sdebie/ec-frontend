@@ -6,6 +6,7 @@ import {OrderHistoryPage} from '../OrderHistoryPage'
 import {formatAmount} from '@/shared/utils/formatAmount'
 import type {MyOrder} from '../../hooks/useMyOrders'
 import {orderStatusBadgeClasses} from '../../orderStatusBadge'
+import { OrderStatus } from '@/shared/types/enums/OrderStatus'
 
 const mockUseMyOrders = vi.fn()
 
@@ -18,7 +19,7 @@ vi.mock('react-router-dom', async () => {
     return {...actual, useNavigate: () => vi.fn()}
 })
 
-const ORDER_STATUSES = ['CREATED', 'PAID', 'SHIPPED', 'DELIVERED', 'CANCELLED'] as const
+const ORDER_STATUSES = Object.values(OrderStatus)
 
 // Derived from the real source of truth so the test can never drift from it.
 const STATUS_BADGE_CLASSES: Record<string, string> = Object.fromEntries(
@@ -121,7 +122,7 @@ describe('OrderHistoryPage — property-based tests', () => {
     /**
      * Property 4: Order status badge colour mapping
      *
-     * For any valid order status (CREATED, PAID, SHIPPED, DELIVERED, CANCELLED),
+     * For any status in the OrderStatus vocabulary,
      * the rendered badge should apply the Tailwind colour classes defined in the
      * status-to-colour mapping and no other status colour classes.
      */

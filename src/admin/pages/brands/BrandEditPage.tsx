@@ -77,8 +77,7 @@ export function BrandEditPage() {
                 toast.success('Brand updated successfully')
                 navigate(-1)
             },
-            onError: (error) => {
-                console.error(error)
+            onError: () => {
                 toast.error('Failed to save brand', {duration: 0})
             },
         })
