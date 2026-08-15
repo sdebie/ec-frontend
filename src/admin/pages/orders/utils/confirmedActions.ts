@@ -35,3 +35,22 @@ export const CONFIRMED_ACTIONS = {
 } as const
 
 export type ConfirmedAction = keyof typeof CONFIRMED_ACTIONS
+
+/**
+ * Whether the goods are still with the store, given only the order's status.
+ * Mirrors `OrderStatusEn.isPreDispatch()` — keep the two in step.
+ *
+ * This picks the *default* for the refund prompt and is never the answer itself.
+ * Status lags reality: an order dispatched without being moved to In Transit still
+ * reads Paid, so deciding from status alone would return stock for goods that have
+ * already gone and overstate what is available to sell. The staff member issuing the
+ * refund is the only one who knows, so they confirm it.
+ */
+export function defaultRestockForStatus(status: OrderStatus): boolean {
+  return (
+    status === OrderStatus.CREATED ||
+    status === OrderStatus.PENDING ||
+    status === OrderStatus.PAID ||
+    status === OrderStatus.IN_STORE_PAYMENT
+  )
+}

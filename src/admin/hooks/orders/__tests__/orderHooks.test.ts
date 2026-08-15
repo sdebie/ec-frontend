@@ -172,7 +172,51 @@ describe('admin order hooks', () => {
       expect(document).toContain('updateOrderStatus')
       expect(document).toContain('$orderId')
       expect(document).not.toContain('sessionId')
-      expect(variables).toEqual({ orderId: 'o1', status: OrderStatus.CANCELLED })
+      // Explicit null, not omitted: the server distinguishes "no decision supplied"
+      // from "do not restock", and rejects the former on a refund rather than guess.
+      expect(variables).toEqual({
+        orderId: 'o1',
+        status: OrderStatus.CANCELLED,
+        restockItems: null,
+      })
+    })
+
+    it('forwards an affirmative restock decision on a refund', async () => {
+      vi.mocked(adminGraphqlClient.request).mockResolvedValue({
+        updateOrderStatus: { id: 'o1', status: OrderStatus.REFUNDED },
+      })
+
+      const { result } = renderHook(() => useUpdateOrderStatus(), { wrapper: createWrapper() })
+
+      result.current.mutate({ orderId: 'o1', status: OrderStatus.REFUNDED, restockItems: true })
+
+      await waitFor(() => expect(result.current.isSuccess).toBe(true))
+
+      expect(lastRequest().variables).toEqual({
+        orderId: 'o1',
+        status: OrderStatus.REFUNDED,
+        restockItems: true,
+      })
+    })
+
+    it('forwards a negative restock decision as false, never as absent', async () => {
+      vi.mocked(adminGraphqlClient.request).mockResolvedValue({
+        updateOrderStatus: { id: 'o1', status: OrderStatus.REFUNDED },
+      })
+
+      const { result } = renderHook(() => useUpdateOrderStatus(), { wrapper: createWrapper() })
+
+      result.current.mutate({ orderId: 'o1', status: OrderStatus.REFUNDED, restockItems: false })
+
+      await waitFor(() => expect(result.current.isSuccess).toBe(true))
+
+      // false must survive the ?? null coalescing — collapsing it to null would turn a
+      // deliberate "do not restock" into a server-side rejection.
+      expect(lastRequest().variables).toEqual({
+        orderId: 'o1',
+        status: OrderStatus.REFUNDED,
+        restockItems: false,
+      })
     })
   })
 })

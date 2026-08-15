@@ -14,8 +14,9 @@ import { useOrderDetail, useUpdateOrderStatus } from '@/admin/hooks/orders'
 import { OrderLineItemsTable } from './components/OrderLineItemsTable'
 import { OrderStatusHistory } from './components/OrderStatusHistory'
 import { getAvailableTransitions } from './utils/getAvailableTransitions'
-import { CONFIRMED_ACTIONS } from './utils/confirmedActions'
+import { CONFIRMED_ACTIONS, defaultRestockForStatus } from './utils/confirmedActions'
 import type { ConfirmedAction } from './utils/confirmedActions'
+import { RefundRestockChoice } from './components/RefundRestockChoice'
 
 function formatTimestamp(dateString: string): string {
   return new Intl.DateTimeFormat(undefined, {
@@ -37,6 +38,7 @@ export function OrderDetailPage() {
     open: boolean
     type: ConfirmedAction
   }>({ open: false, type: 'cancel' })
+  const [restockItems, setRestockItems] = useState(false)
 
   // 404 guard
   if (!isLoading && !data) {
@@ -104,12 +106,21 @@ export function OrderDetailPage() {
   }
 
   const askToConfirm = (type: ConfirmedAction) => () => {
+    // Re-derive the default each time the prompt opens, so it follows the order's
+    // current status rather than whatever the last refund happened to leave behind.
+    setRestockItems(defaultRestockForStatus(order.status))
     setConfirmDialog({ open: true, type })
   }
 
   const handleConfirmAction = () => {
+    const isRefund = confirmDialog.type === 'refund'
     updateStatus.mutate(
-      { orderId: order.id, status: CONFIRMED_ACTIONS[confirmDialog.type].status },
+      {
+        orderId: order.id,
+        status: CONFIRMED_ACTIONS[confirmDialog.type].status,
+        // Only a refund may carry this; the server rejects it on anything else.
+        ...(isRefund ? { restockItems } : {}),
+      },
       { onSettled: () => setConfirmDialog((prev) => ({ ...prev, open: false })) },
     )
   }
@@ -236,7 +247,16 @@ export function OrderDetailPage() {
         variant={CONFIRMED_ACTIONS[confirmDialog.type].variant}
         confirmLabel={CONFIRMED_ACTIONS[confirmDialog.type].confirmLabel}
         isLoading={updateStatus.isPending}
-      />
+      >
+        {confirmDialog.type === 'refund' && (
+          <RefundRestockChoice
+            fromStatus={order.status}
+            checked={restockItems}
+            onChange={setRestockItems}
+            disabled={updateStatus.isPending}
+          />
+        )}
+      </ConfirmationDialog>
     </div>
   )
 }
