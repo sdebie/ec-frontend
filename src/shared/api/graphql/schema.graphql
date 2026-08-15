@@ -44,6 +44,8 @@ type AdminOrderDetailDto {
   statusHistory: [AdminOrderStatusHistoryDto]
   subtotal: BigDecimal
   total: BigDecimal
+  trackingCarrier: String
+  trackingNumber: String
   vatAmount: BigDecimal
 }
 
@@ -168,7 +170,7 @@ type Mutation {
   updateCategory(categoryDto: CategoryDtoInput, id: String): Void
   updateCustomerStatus(id: String, status: String): AdminCustomerListItemDto
   "Move one order to a new status. Staff JWT required."
-  updateOrderStatus(orderId: String, status: String): OrderResponseDto
+  updateOrderStatus(orderId: String, status: String, trackingCarrier: String, trackingNumber: String): OrderResponseDto
   "Update an existing product with variants, images, and multiple categories. When updating categories, all previous category assignments are replaced with the new ones provided."
   updateProductInformation(input: ProductInformationDtoInput, productId: String): ProductInformationDto
   "Update a product's status. SUPER_ADMIN only."

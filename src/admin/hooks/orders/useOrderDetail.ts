@@ -26,6 +26,8 @@ const ADMIN_ORDER = gql`
         province
         postalCode
       }
+      trackingNumber
+      trackingCarrier
       lineItems {
         id
         productName

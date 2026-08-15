@@ -1,3 +1,4 @@
+import { useState } from 'react'
 import { useParams, Link } from 'react-router-dom'
 
 import {
@@ -15,6 +16,7 @@ import { getAvailableTransitions } from './utils/getAvailableTransitions'
 import type { ConfirmedAction } from './utils/confirmedActions'
 import { useOrderStatusConfirmation } from './hooks/useOrderStatusConfirmation'
 import { OrderStatusConfirmationDialog } from './components/OrderStatusConfirmationDialog'
+import { ShipOrderDialog } from './components/ShipOrderDialog'
 
 function formatTimestamp(dateString: string): string {
   return new Intl.DateTimeFormat(undefined, {
@@ -33,6 +35,7 @@ export function OrderDetailPage() {
   const updateStatus = useUpdateOrderStatus()
 
   const confirmation = useOrderStatusConfirmation()
+  const [shipOpen, setShipOpen] = useState(false)
 
   // 404 guard
   if (!isLoading && !data) {
@@ -101,6 +104,13 @@ export function OrderDetailPage() {
     updateStatus.mutate({ orderId: order.id, status })
   }
 
+  const handleShip = (tracking: { trackingNumber?: string; trackingCarrier?: string }) => {
+    updateStatus.mutate(
+      { orderId: order.id, status: OrderStatus.IN_TRANSIT, ...tracking },
+      { onSettled: () => setShipOpen(false) },
+    )
+  }
+
   const handleConfirmAction = () => {
     updateStatus.mutate(confirmation.buildPayload(), { onSettled: confirmation.close })
   }
@@ -142,7 +152,7 @@ export function OrderDetailPage() {
       handler: moveTo(OrderStatus.READY_FOR_COLLECTION),
       variant: 'solid',
     },
-    { target: OrderStatus.IN_TRANSIT, label: 'Ship', handler: moveTo(OrderStatus.IN_TRANSIT), variant: 'solid' },
+    { target: OrderStatus.IN_TRANSIT, label: 'Ship', handler: () => setShipOpen(true), variant: 'solid' },
     { target: OrderStatus.DELIVERED, label: 'Deliver', handler: moveTo(OrderStatus.DELIVERED), variant: 'solid' },
     {
       target: OrderStatus.COLLECTED,
@@ -278,6 +288,13 @@ export function OrderDetailPage() {
         state={confirmation.state}
         onConfirm={handleConfirmAction}
         onClose={confirmation.close}
+        isLoading={updateStatus.isPending}
+      />
+
+      <ShipOrderDialog
+        open={shipOpen}
+        onClose={() => setShipOpen(false)}
+        onConfirm={handleShip}
         isLoading={updateStatus.isPending}
       />
     </div>

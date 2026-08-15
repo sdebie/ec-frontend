@@ -172,7 +172,10 @@ describe('admin order hooks', () => {
       expect(document).toContain('updateOrderStatus')
       expect(document).toContain('$orderId')
       expect(document).not.toContain('sessionId')
-      expect(variables).toEqual({ orderId: 'o1', status: OrderStatus.ADMIN_CANCELED })
+      expect(variables).toMatchObject({ orderId: 'o1', status: OrderStatus.ADMIN_CANCELED })
+      // Tracking is declared on the operation, so it is always sent — null when the
+      // transition has none, which is every transition except Ship.
+      expect(variables).toMatchObject({ trackingNumber: null, trackingCarrier: null })
     })
 
     /**
@@ -194,7 +197,7 @@ describe('admin order hooks', () => {
 
       const { document, variables } = lastRequest()
       expect(document).not.toContain('restockItems')
-      expect(Object.keys(variables)).toEqual(['orderId', 'status'])
+      expect(variables).not.toHaveProperty('restockItems')
     })
   })
 })

@@ -109,9 +109,9 @@ describe('OrderListPage', () => {
 
       renderPage()
 
-      // Click a status filter option (e.g., "Pending")
-      const pendingButton = screen.getByRole('button', { name: 'Pending' })
-      fireEvent.click(pendingButton)
+      // Any live status will do; "Pending" is deliberately not offered any more, being
+      // a legacy value no order can reach.
+      fireEvent.click(screen.getByRole('button', { name: 'Processing' }))
 
       // Verify useOrders was called with page: 1
       const lastCall = vi.mocked(useOrders).mock.calls.at(-1)

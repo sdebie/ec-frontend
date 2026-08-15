@@ -21,11 +21,21 @@ import { useOrderStatusConfirmation } from './hooks/useOrderStatusConfirmation'
 import type { ConfirmedAction } from './utils/confirmedActions'
 import { OrderStatusConfirmationDialog } from './components/OrderStatusConfirmationDialog'
 
-// Derived from the status vocabulary itself so a new status cannot become
-// unfilterable, and so no option can offer a status the backend does not have.
+/**
+ * Derived from the status vocabulary itself so a new status cannot become unfilterable,
+ * and so no option can offer a status the backend does not have.
+ *
+ * The legacy values are excluded: no order can reach them any more, so offering them
+ * gives staff filters that are empty for every order placed since the workflow changed.
+ * They stay in the enum only so historic rows still render.
+ */
+const LEGACY_STATUSES: OrderStatus[] = [OrderStatus.PENDING, OrderStatus.CANCELLED]
+
 const STATUS_FILTER_OPTIONS = [
   { value: 'ALL', label: 'All' },
-  ...Object.entries(OrderStatusOptions).map(([value, { label }]) => ({ value, label })),
+  ...Object.entries(OrderStatusOptions)
+    .filter(([value]) => !LEGACY_STATUSES.includes(value as OrderStatus))
+    .map(([value, { label }]) => ({ value, label })),
 ]
 
 function formatDate(dateString: string): string {
