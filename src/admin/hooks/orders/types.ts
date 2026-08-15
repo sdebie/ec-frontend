@@ -3,7 +3,8 @@ import type { OrderStatus } from '@/shared/types/enums/OrderStatus'
 export interface AdminOrderSummary {
   id: string
   reference: string
-  customerName: string
+  /** Empty for an order placed without contact details captured. */
+  customerName: string | null
   placedAt: string
   itemCount: number
   total: number
@@ -12,8 +13,8 @@ export interface AdminOrderSummary {
 
 export interface OrderLineItem {
   id: string
-  productName: string
-  variantSku: string
+  productName: string | null
+  variantSku: string | null
   thumbnailUrl: string | null
   unitPrice: number
   quantity: number
@@ -21,21 +22,21 @@ export interface OrderLineItem {
 }
 
 export interface ShippingAddress {
-  street: string
-  city: string
-  province: string
-  postalCode: string
-  country: string
+  street: string | null
+  city: string | null
+  province: string | null
+  postalCode: string | null
 }
 
 export interface OrderStatusHistoryEntry {
   status: OrderStatus
   timestamp: string
-  staffName?: string
+  /** "SYSTEM" for an automated transition. */
+  staffName?: string | null
 }
 
 export interface AdminOrderDetail extends AdminOrderSummary {
-  customerEmail: string
+  customerEmail: string | null
   shippingAddress: ShippingAddress
   lineItems: OrderLineItem[]
   subtotal: number
@@ -48,8 +49,4 @@ export interface AdminOrderDetail extends AdminOrderSummary {
 export interface OrdersPage {
   data: AdminOrderSummary[]
   total: number
-}
-
-export interface OrderStatusUpdatePayload {
-  status: OrderStatus
 }

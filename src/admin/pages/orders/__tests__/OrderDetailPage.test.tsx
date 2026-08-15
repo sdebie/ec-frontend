@@ -1,5 +1,5 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest'
-import { render, screen } from '@testing-library/react'
+import { render, screen, cleanup } from '@testing-library/react'
 import { MemoryRouter } from 'react-router-dom'
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 
@@ -43,7 +43,6 @@ const mockOrder: AdminOrderDetail = {
     city: 'Cape Town',
     province: 'Western Cape',
     postalCode: '8001',
-    country: 'South Africa',
   },
   lineItems: [
     {
@@ -246,8 +245,30 @@ describe('OrderDetailPage', () => {
       expect(screen.getByText('Cape Town, Western Cape, 8001')).toBeInTheDocument()
     })
 
-    it('renders shipping address country', () => {
-      expect(screen.getByText('South Africa')).toBeInTheDocument()
+    it('omits blank address parts rather than rendering stray separators', () => {
+      cleanup()
+      setupMocks({
+        data: {
+          ...mockOrder,
+          shippingAddress: { street: null, city: 'Cape Town', province: null, postalCode: '8001' },
+        },
+      })
+      renderPage()
+
+      expect(screen.getByText('Cape Town, 8001')).toBeInTheDocument()
+    })
+
+    it('says so when an order carries no address at all', () => {
+      cleanup()
+      setupMocks({
+        data: {
+          ...mockOrder,
+          shippingAddress: { street: null, city: null, province: null, postalCode: null },
+        },
+      })
+      renderPage()
+
+      expect(screen.getByText('No address captured')).toBeInTheDocument()
     })
 
     it('renders order summary values using formatAmount', () => {

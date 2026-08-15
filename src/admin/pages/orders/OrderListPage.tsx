@@ -13,21 +13,19 @@ import type { ColumnDef } from '@/shared/ui/components'
 import { Input } from '@/shared/ui/primitives'
 import { useCan } from '@/shared/auth/adminPermissions'
 import { formatAmount } from '@/shared/utils/formatAmount'
-import { OrderStatus } from '@/shared/types/enums/OrderStatus'
+import { OrderStatus, OrderStatusOptions } from '@/shared/types/enums/OrderStatus'
 import { useOrders, useUpdateOrderStatus } from '@/admin/hooks/orders'
 import type { AdminOrderSummary } from '@/admin/hooks/orders'
 import { OrderActionsMenu } from './components/OrderActionsMenu'
 import { getAvailableTransitions } from './utils/getAvailableTransitions'
+import { CONFIRMED_ACTIONS } from './utils/confirmedActions'
+import type { ConfirmedAction } from './utils/confirmedActions'
 
+// Derived from the status vocabulary itself so a new status cannot become
+// unfilterable, and so no option can offer a status the backend does not have.
 const STATUS_FILTER_OPTIONS = [
   { value: 'ALL', label: 'All' },
-  { value: 'PENDING', label: 'Pending' },
-  { value: 'PAID', label: 'Paid' },
-  { value: 'IN_STORE_PAYMENT', label: 'In-store Payment' },
-  { value: 'IN_TRANSIT', label: 'In Transit' },
-  { value: 'DELIVERED', label: 'Delivered' },
-  { value: 'CANCELLED', label: 'Cancelled' },
-  { value: 'REFUNDED', label: 'Refunded' },
+  ...Object.entries(OrderStatusOptions).map(([value, { label }]) => ({ value, label })),
 ]
 
 function formatDate(dateString: string): string {
@@ -49,10 +47,9 @@ export function OrderListPage() {
     pageSize: 10,
   })
 
-  // Confirmation dialog state
   const [confirmDialog, setConfirmDialog] = useState<{
     open: boolean
-    type: 'cancel' | 'refund'
+    type: ConfirmedAction
     orderId: string
   }>({ open: false, type: 'cancel', orderId: '' })
 
@@ -82,27 +79,21 @@ export function OrderListPage() {
   }
 
   const handleShip = useCallback((orderId: string) => {
-    updateOrderStatus({ orderId, payload: { status: OrderStatus.IN_TRANSIT } })
+    updateOrderStatus({ orderId, status: OrderStatus.IN_TRANSIT })
   }, [updateOrderStatus])
 
   const handleDeliver = useCallback((orderId: string) => {
-    updateOrderStatus({ orderId, payload: { status: OrderStatus.DELIVERED } })
+    updateOrderStatus({ orderId, status: OrderStatus.DELIVERED })
   }, [updateOrderStatus])
 
-  const handleCancel = useCallback((orderId: string) => {
-    setConfirmDialog({ open: true, type: 'cancel', orderId })
-  }, [])
-
-  const handleRefund = useCallback((orderId: string) => {
-    setConfirmDialog({ open: true, type: 'refund', orderId })
+  const askToConfirm = useCallback((type: ConfirmedAction, orderId: string) => {
+    setConfirmDialog({ open: true, type, orderId })
   }, [])
 
   const handleConfirmAction = () => {
     const { type, orderId } = confirmDialog
-    const status =
-      type === 'cancel' ? OrderStatus.CANCELLED : OrderStatus.REFUNDED
     updateOrderStatus(
-      { orderId, payload: { status } },
+      { orderId, status: CONFIRMED_ACTIONS[type].status },
       { onSettled: () => setConfirmDialog((prev) => ({ ...prev, open: false })) },
     )
   }
@@ -161,10 +152,11 @@ export function OrderListPage() {
                   <OrderActionsMenu
                     order={order}
                     canMutate={canMutate}
+                    onMarkPaidInStore={() => askToConfirm('mark-paid-in-store', order.id)}
                     onShip={() => handleShip(order.id)}
                     onDeliver={() => handleDeliver(order.id)}
-                    onCancel={() => handleCancel(order.id)}
-                    onRefund={() => handleRefund(order.id)}
+                    onCancel={() => askToConfirm('cancel', order.id)}
+                    onRefund={() => askToConfirm('refund', order.id)}
                   />
                 )
               },
@@ -172,7 +164,7 @@ export function OrderListPage() {
           ]
         : []),
     ],
-    [canMutate, handleCancel, handleDeliver, handleRefund, handleShip],
+    [askToConfirm, canMutate, handleDeliver, handleShip],
   )
 
   const pageCount = data ? Math.ceil(data.total / pagination.pageSize) : 0
@@ -187,6 +179,7 @@ export function OrderListPage() {
           options={STATUS_FILTER_OPTIONS}
           value={statusFilter}
           onChange={handleStatusFilterChange}
+          className="max-w-full overflow-x-auto"
         />
 
         <div className="flex items-center gap-4">
@@ -229,14 +222,10 @@ export function OrderListPage() {
         open={confirmDialog.open}
         onClose={handleCloseDialog}
         onConfirm={handleConfirmAction}
-        title={confirmDialog.type === 'cancel' ? 'Cancel Order' : 'Refund Order'}
-        description={
-          confirmDialog.type === 'cancel'
-            ? 'Are you sure you want to cancel this order?'
-            : 'Are you sure you want to refund this order?'
-        }
-        variant="danger"
-        confirmLabel={confirmDialog.type === 'cancel' ? 'Cancel Order' : 'Refund Order'}
+        title={CONFIRMED_ACTIONS[confirmDialog.type].title}
+        description={CONFIRMED_ACTIONS[confirmDialog.type].description}
+        variant={CONFIRMED_ACTIONS[confirmDialog.type].variant}
+        confirmLabel={CONFIRMED_ACTIONS[confirmDialog.type].confirmLabel}
         isLoading={isUpdatingStatus}
       />
     </div>

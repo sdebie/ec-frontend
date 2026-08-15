@@ -14,6 +14,8 @@ import { useOrderDetail, useUpdateOrderStatus } from '@/admin/hooks/orders'
 import { OrderLineItemsTable } from './components/OrderLineItemsTable'
 import { OrderStatusHistory } from './components/OrderStatusHistory'
 import { getAvailableTransitions } from './utils/getAvailableTransitions'
+import { CONFIRMED_ACTIONS } from './utils/confirmedActions'
+import type { ConfirmedAction } from './utils/confirmedActions'
 
 function formatTimestamp(dateString: string): string {
   return new Intl.DateTimeFormat(undefined, {
@@ -33,7 +35,7 @@ export function OrderDetailPage() {
 
   const [confirmDialog, setConfirmDialog] = useState<{
     open: boolean
-    type: 'cancel' | 'refund'
+    type: ConfirmedAction
   }>({ open: false, type: 'cancel' })
 
   // 404 guard
@@ -85,27 +87,29 @@ export function OrderDetailPage() {
 
   const availableTransitions = getAvailableTransitions(order.status)
 
+  // Guest checkout can reach payment without an address, and any single part of
+  // one may be missing, so build the block from whatever is actually there
+  // rather than rendering stray commas around blanks.
+  const { street, city, province, postalCode } = order.shippingAddress
+  const addressLines = [street, [city, province, postalCode].filter(Boolean).join(', ')].filter(
+    (line): line is string => !!line,
+  )
+
   const handleShip = () => {
-    updateStatus.mutate({ orderId: order.id, payload: { status: OrderStatus.IN_TRANSIT } })
+    updateStatus.mutate({ orderId: order.id, status: OrderStatus.IN_TRANSIT })
   }
 
   const handleDeliver = () => {
-    updateStatus.mutate({ orderId: order.id, payload: { status: OrderStatus.DELIVERED } })
+    updateStatus.mutate({ orderId: order.id, status: OrderStatus.DELIVERED })
   }
 
-  const handleCancel = () => {
-    setConfirmDialog({ open: true, type: 'cancel' })
-  }
-
-  const handleRefund = () => {
-    setConfirmDialog({ open: true, type: 'refund' })
+  const askToConfirm = (type: ConfirmedAction) => () => {
+    setConfirmDialog({ open: true, type })
   }
 
   const handleConfirmAction = () => {
-    const status =
-      confirmDialog.type === 'cancel' ? OrderStatus.CANCELLED : OrderStatus.REFUNDED
     updateStatus.mutate(
-      { orderId: order.id, payload: { status } },
+      { orderId: order.id, status: CONFIRMED_ACTIONS[confirmDialog.type].status },
       { onSettled: () => setConfirmDialog((prev) => ({ ...prev, open: false })) },
     )
   }
@@ -120,10 +124,16 @@ export function OrderDetailPage() {
     handler: () => void
     variant: 'solid' | 'secondary' | 'outline'
   }[] = [
+    {
+      target: OrderStatus.IN_STORE_PAYMENT,
+      label: 'Mark Paid In Store',
+      handler: askToConfirm('mark-paid-in-store'),
+      variant: 'solid',
+    },
     { target: OrderStatus.IN_TRANSIT, label: 'Ship', handler: handleShip, variant: 'solid' },
     { target: OrderStatus.DELIVERED, label: 'Deliver', handler: handleDeliver, variant: 'solid' },
-    { target: OrderStatus.CANCELLED, label: 'Cancel', handler: handleCancel, variant: 'outline' },
-    { target: OrderStatus.REFUNDED, label: 'Refund', handler: handleRefund, variant: 'outline' },
+    { target: OrderStatus.CANCELLED, label: 'Cancel', handler: askToConfirm('cancel'), variant: 'outline' },
+    { target: OrderStatus.REFUNDED, label: 'Refund', handler: askToConfirm('refund'), variant: 'outline' },
   ]
 
   return (
@@ -167,12 +177,15 @@ export function OrderDetailPage() {
           <p className="text-sm text-(--c-text-muted)">{order.customerEmail}</p>
           <div className="mt-3 border-t border-(--c-border) pt-3">
             <p className="text-sm font-medium text-(--c-text)">Shipping Address</p>
-            <p className="text-sm text-(--c-text-muted)">{order.shippingAddress.street}</p>
-            <p className="text-sm text-(--c-text-muted)">
-              {order.shippingAddress.city}, {order.shippingAddress.province},{' '}
-              {order.shippingAddress.postalCode}
-            </p>
-            <p className="text-sm text-(--c-text-muted)">{order.shippingAddress.country}</p>
+            {addressLines.length === 0 ? (
+              <p className="text-sm text-(--c-text-muted)">No address captured</p>
+            ) : (
+              addressLines.map((line) => (
+                <p key={line} className="text-sm text-(--c-text-muted)">
+                  {line}
+                </p>
+              ))
+            )}
           </div>
         </div>
       </section>
@@ -218,14 +231,10 @@ export function OrderDetailPage() {
         open={confirmDialog.open}
         onClose={handleCloseDialog}
         onConfirm={handleConfirmAction}
-        title={confirmDialog.type === 'cancel' ? 'Cancel Order' : 'Refund Order'}
-        description={
-          confirmDialog.type === 'cancel'
-            ? 'Are you sure you want to cancel this order?'
-            : 'Are you sure you want to refund this order?'
-        }
-        variant="danger"
-        confirmLabel={confirmDialog.type === 'cancel' ? 'Cancel Order' : 'Refund Order'}
+        title={CONFIRMED_ACTIONS[confirmDialog.type].title}
+        description={CONFIRMED_ACTIONS[confirmDialog.type].description}
+        variant={CONFIRMED_ACTIONS[confirmDialog.type].variant}
+        confirmLabel={CONFIRMED_ACTIONS[confirmDialog.type].confirmLabel}
         isLoading={updateStatus.isPending}
       />
     </div>

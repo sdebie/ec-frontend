@@ -7,6 +7,7 @@ import { getAvailableTransitions } from '@/admin/pages/orders/utils/getAvailable
 
 export interface OrderActionsMenuProps {
   order: AdminOrderSummary
+  onMarkPaidInStore: () => void
   onShip: () => void
   onDeliver: () => void
   onCancel: () => void
@@ -14,10 +15,16 @@ export interface OrderActionsMenuProps {
   canMutate: boolean
 }
 
+type OrderActionHandler = keyof Pick<
+  OrderActionsMenuProps,
+  'onMarkPaidInStore' | 'onShip' | 'onDeliver' | 'onCancel' | 'onRefund'
+>
+
 const transitionActions: Record<
   string,
-  { label: string; handler: keyof Pick<OrderActionsMenuProps, 'onShip' | 'onDeliver' | 'onCancel' | 'onRefund'>; destructive?: boolean }
+  { label: string; handler: OrderActionHandler; destructive?: boolean }
 > = {
+  [OrderStatus.IN_STORE_PAYMENT]: { label: 'Mark Paid In Store', handler: 'onMarkPaidInStore' },
   [OrderStatus.IN_TRANSIT]: { label: 'Ship', handler: 'onShip' },
   [OrderStatus.DELIVERED]: { label: 'Deliver', handler: 'onDeliver' },
   [OrderStatus.CANCELLED]: { label: 'Cancel', handler: 'onCancel', destructive: true },
@@ -26,6 +33,7 @@ const transitionActions: Record<
 
 export function OrderActionsMenu({
   order,
+  onMarkPaidInStore,
   onShip,
   onDeliver,
   onCancel,
@@ -38,7 +46,8 @@ export function OrderActionsMenu({
     return null
   }
 
-  const handlers: Record<string, () => void> = {
+  const handlers: Record<OrderActionHandler, () => void> = {
+    onMarkPaidInStore,
     onShip,
     onDeliver,
     onCancel,

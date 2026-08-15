@@ -48,6 +48,7 @@ describe('Actions menu visibility — Property Tests', () => {
           const { container } = render(
             <OrderActionsMenu
               order={order}
+              onMarkPaidInStore={noop}
               onShip={noop}
               onDeliver={noop}
               onCancel={noop}

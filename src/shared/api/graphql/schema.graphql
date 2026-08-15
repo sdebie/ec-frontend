@@ -22,12 +22,64 @@ type AdminCustomerListItemDto {
   wholesaleApplicationStatus: String
 }
 
+type AdminOrderAddressDto {
+  city: String
+  postalCode: String
+  province: String
+  street: String
+}
+
+type AdminOrderDetailDto {
+  customerEmail: String
+  customerName: String
+  grandTotal: BigDecimal
+  id: String
+  itemCount: Int!
+  lineItems: [AdminOrderLineItemDto]
+  placedAt: String
+  reference: String
+  shippingAddress: AdminOrderAddressDto
+  shippingCost: BigDecimal
+  status: String
+  statusHistory: [AdminOrderStatusHistoryDto]
+  subtotal: BigDecimal
+  total: BigDecimal
+  vatAmount: BigDecimal
+}
+
+type AdminOrderLineItemDto {
+  id: String
+  lineTotal: BigDecimal
+  productName: String
+  quantity: Int!
+  thumbnailUrl: String
+  unitPrice: BigDecimal
+  variantSku: String
+}
+
+type AdminOrderListItemDto {
+  customerName: String
+  id: String
+  itemCount: Int!
+  placedAt: String
+  reference: String
+  status: String
+  total: BigDecimal
+}
+
 type AdminOrderRefDto {
   id: String
   placedAt: String
   reference: String
   status: String
   total: Float!
+}
+
+type AdminOrderStatusHistoryDto {
+  comment: String
+  staffName: String
+  status: String
+  timestamp: String
 }
 
 type AdminProductListItemDto {
@@ -115,8 +167,8 @@ type Mutation {
   "Update an existing category"
   updateCategory(categoryDto: CategoryDtoInput, id: String): Void
   updateCustomerStatus(id: String, status: String): AdminCustomerListItemDto
-  "Update the status of the latest order for a given sessionId"
-  updateOrderStatus(sessionId: String, status: String): OrderResponseDto
+  "Move one order to a new status. Staff JWT required."
+  updateOrderStatus(orderId: String, status: String): OrderResponseDto
   "Update an existing product with variants, images, and multiple categories. When updating categories, all previous category assignments are replaced with the new ones provided."
   updateProductInformation(input: ProductInformationDtoInput, productId: String): ProductInformationDto
   "Update a product's status. SUPER_ADMIN only."
@@ -179,6 +231,14 @@ type OrderSummaryDto {
   orderDate: String
   status: String
   totalAmount: Float!
+}
+
+type PageResponse_AdminOrderListItemDto {
+  content: [AdminOrderListItemDto]
+  pageIndex: Int!
+  pageSize: Int!
+  totalElements: BigInteger!
+  totalPages: Int!
 }
 
 type PageResponse_AdminProductListItemDto {
@@ -381,6 +441,10 @@ type ProductVariantDto {
 "Query root"
 type Query {
   adminCustomer(id: String): AdminCustomerDetailDto
+  "Admin order detail: lines, address, money breakdown and status timeline. Staff JWT required."
+  adminOrder(id: String): AdminOrderDetailDto
+  "Admin paginated order list with customer, item count and total. Staff JWT required."
+  adminOrderList(fromDate: String, pageIndex: Int = 0, pageSize: Int = 10, status: String, toDate: String): PageResponse_AdminOrderListItemDto
   "Admin paginated product list with SKU, stock, and price. Staff JWT required."
   adminProductList(brandId: String, categoryId: String, pageIndex: Int = 0, pageSize: Int = 10, search: String, status: String): PageResponse_AdminProductListItemDto
   "Product count breakdown by status. Staff JWT required."
@@ -680,6 +744,7 @@ enum OrderStatusEn {
   IN_TRANSIT
   PAID
   PENDING
+  REFUNDED
   SYSTEM_CANCELED
 }
 
