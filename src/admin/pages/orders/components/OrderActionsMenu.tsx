@@ -1,6 +1,6 @@
 import { EllipsisVertical } from 'lucide-react'
 
-import type { AdminOrderSummary } from '@/admin/hooks/orders'
+import type { AdminOrderSummary } from '@/admin/pages/orders/types'
 import { DropdownMenu, DropdownItem, RowActionButton } from '@/shared/ui/components'
 import { OrderStatus } from '@/shared/types/enums/OrderStatus'
 import { getAvailableTransitions } from '@/admin/pages/orders/utils/getAvailableTransitions'

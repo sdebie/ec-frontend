@@ -2,14 +2,17 @@ import { useState } from 'react'
 import { useParams, Link } from 'react-router-dom'
 
 import {
+  PageBackButton,
   PageLoadingSpinner,
   OrderStatusDisplay,
 } from '@/shared/ui/components'
-import { Button } from '@/shared/ui/primitives'
+import { Button, Card } from '@/shared/ui/primitives'
 import { useCan } from '@/shared/auth/adminPermissions'
 import { formatAmount } from '@/shared/utils/formatAmount'
+import { formatDate, formatTime } from '@/shared/utils/formatDateTime'
 import { OrderStatus } from '@/shared/types/enums/OrderStatus'
-import { useOrderDetail, useUpdateOrderStatus } from '@/admin/hooks/orders'
+import { useOrderDetail } from './hooks/useOrderDetail'
+import { useUpdateOrderStatus } from './hooks/useUpdateOrderStatus'
 import { OrderLineItemsTable } from './components/OrderLineItemsTable'
 import { OrderStatusHistory } from './components/OrderStatusHistory'
 import { getAvailableTransitions } from './utils/getAvailableTransitions'
@@ -18,14 +21,19 @@ import { useOrderStatusConfirmation } from './hooks/useOrderStatusConfirmation'
 import { OrderStatusConfirmationDialog } from './components/OrderStatusConfirmationDialog'
 import { ShipOrderDialog } from './components/ShipOrderDialog'
 
-function formatTimestamp(dateString: string): string {
-  return new Intl.DateTimeFormat(undefined, {
-    day: 'numeric',
-    month: 'short',
-    year: 'numeric',
-    hour: '2-digit',
-    minute: '2-digit',
-  }).format(new Date(dateString))
+/**
+ * One headline figure. Neutral surface rather than the design's pastel blocks: those
+ * colours carry no meaning here, and on the admin surface a colour that means nothing
+ * competes with the status badges, which mean a great deal.
+ */
+function OrderStatTile({ label, value, sub }: { label: string; value: string; sub?: string }) {
+  return (
+    <div className="rounded-lg border border-(--c-border) bg-(--c-panel-secondary) p-4">
+      <p className="text-xs font-medium text-(--c-text-muted)">{label}</p>
+      <p className="mt-1 text-lg font-semibold text-(--c-text)">{value}</p>
+      {sub && <p className="text-xs text-(--c-text-muted)">{sub}</p>}
+    </div>
+  )
 }
 
 export function OrderDetailPage() {
@@ -194,95 +202,126 @@ export function OrderDetailPage() {
   ]
 
   return (
-    <div className="flex flex-col gap-8">
-      {/* Top section */}
-      <div className="flex flex-col gap-4">
-        <div className="flex flex-wrap items-center gap-4">
-          <h1 className="font-mono text-2xl font-semibold uppercase text-(--c-text)">
-            {order.reference}
-          </h1>
-          <OrderStatusDisplay status={order.status} />
-        </div>
-        <p className="text-sm text-(--c-text-muted)">
-          Placed on {formatTimestamp(order.placedAt)}
-        </p>
-      </div>
+    <div className="flex flex-col gap-6">
+      {/*
+        One card owns the page. Order Information, Customer Information and Order Tracking
+        are panels inside it rather than three floating siblings, so the whole order reads
+        as one document — which is what a staff member is actually looking at.
+      */}
+      <Card as="article" elevation="sm" className="p-5">
+        <Card.Header className="flex flex-wrap items-center gap-3">
+          <PageBackButton />
+          <span className="text-xl font-semibold text-(--c-text)">Details</span>
+        </Card.Header>
 
-      {/* Action buttons (SUPER_ADMIN only) */}
-      {canMutate && availableTransitions.length > 0 && (
-        <div className="flex flex-wrap gap-3" data-testid="order-action-buttons">
-          {transitionButtons
-            .filter((btn) => availableTransitions.includes(btn.target))
-            .map((btn) => (
-              <Button
-                key={btn.target}
-                variant={btn.variant}
-                size="sm"
-                onClick={btn.handler}
-              >
-                {btn.label}
-              </Button>
-            ))}
-        </div>
-      )}
+        <Card.Body className="flex flex-col gap-6">
+          <Card as="section" elevation="none" className="p-5">
+            <Card.Header>Order Information</Card.Header>
+            <Card.Body className="flex flex-col gap-6">
+              <div className="flex flex-wrap items-center gap-4">
+                <h1 className="font-mono text-xl font-semibold uppercase text-(--c-text)">
+                  {order.reference}
+                </h1>
+                <OrderStatusDisplay status={order.status} />
+              </div>
 
-      {/* Customer section */}
-      <section className="flex flex-col gap-2">
-        <h2 className="text-lg font-semibold text-(--c-text)">Customer</h2>
-        <div className="rounded-lg border border-(--c-border) bg-(--c-panel) p-4">
-          <p className="font-medium text-(--c-text)">{order.customerName}</p>
-          <p className="text-sm text-(--c-text-muted)">{order.customerEmail}</p>
-          <div className="mt-3 border-t border-(--c-border) pt-3">
-            <p className="text-sm font-medium text-(--c-text)">Shipping Address</p>
-            {addressLines.length === 0 ? (
-              <p className="text-sm text-(--c-text-muted)">No address captured</p>
-            ) : (
-              addressLines.map((line) => (
-                <p key={line} className="text-sm text-(--c-text-muted)">
-                  {line}
-                </p>
-              ))
-            )}
-          </div>
-        </div>
-      </section>
+              {/*
+                Three figures a staff member wants before reading anything else.
+                Deliberately not "Delivery Date" as in the design: an order carries no
+                promised or actual delivery date, and a tile that is always empty is
+                worse than one fewer tile.
+              */}
+              <div className="grid gap-4 sm:grid-cols-3">
+                <OrderStatTile label="Order Date" value={formatDate(order.placedAt)} sub={formatTime(order.placedAt)} />
+                <OrderStatTile label="Total Items" value={`${order.itemCount} pcs`} />
+                <OrderStatTile label="Order Total" value={formatAmount(order.grandTotal)} />
+              </div>
 
-      {/* Line items section */}
-      <section className="flex flex-col gap-2">
-        <h2 className="text-lg font-semibold text-(--c-text)">Line Items</h2>
-        <OrderLineItemsTable lineItems={order.lineItems} />
-      </section>
+              {canMutate && availableTransitions.length > 0 && (
+                <div className="flex flex-wrap gap-3" data-testid="order-action-buttons">
+                  {transitionButtons
+                    .filter((btn) => availableTransitions.includes(btn.target))
+                    .map((btn) => (
+                      <Button key={btn.target} variant={btn.variant} size="sm" onClick={btn.handler}>
+                        {btn.label}
+                      </Button>
+                    ))}
+                </div>
+              )}
 
-      {/* Order summary section */}
-      <section className="flex flex-col gap-2">
-        <h2 className="text-lg font-semibold text-(--c-text)">Order Summary</h2>
-        <div className="rounded-lg border border-(--c-border) bg-(--c-panel) p-4">
-          <dl className="space-y-2 text-sm">
-            <div className="flex justify-between">
-              <dt className="text-(--c-text-muted)">Subtotal</dt>
-              <dd className="font-medium text-(--c-text)">{formatAmount(order.subtotal)}</dd>
-            </div>
-            <div className="flex justify-between">
-              <dt className="text-(--c-text-muted)">Shipping</dt>
-              <dd className="font-medium text-(--c-text)">{formatAmount(order.shippingCost)}</dd>
-            </div>
-            <div className="flex justify-between">
-              <dt className="text-(--c-text-muted)">VAT</dt>
-              <dd className="font-medium text-(--c-text)">{formatAmount(order.vatAmount)}</dd>
-            </div>
-            <div className="flex justify-between border-t border-(--c-border) pt-2">
-              <dt className="font-semibold text-(--c-text)">Grand Total</dt>
-              <dd className="font-semibold text-(--c-text)">{formatAmount(order.grandTotal)}</dd>
-            </div>
-          </dl>
-        </div>
-      </section>
+              {/* Lines and money side by side on a wide screen, stacked on a narrow one. */}
+              <div className="grid gap-6 lg:grid-cols-[minmax(0,1fr)_20rem]">
+                <div className="min-w-0">
+                  <OrderLineItemsTable lineItems={order.lineItems} />
+                </div>
 
-      {/* Status history section */}
-      <section className="flex flex-col gap-2">
-        <h2 className="text-lg font-semibold text-(--c-text)">Status History</h2>
-        <OrderStatusHistory history={order.statusHistory} />
-      </section>
+                <div className="rounded-(--c-radius) border border-(--c-border) bg-(--c-panel-secondary) p-4">
+                  <h2 className="mb-3 text-sm font-semibold text-(--c-text)">Order Summary</h2>
+                  <dl className="space-y-2 text-sm">
+                    <div className="flex justify-between">
+                      <dt className="text-(--c-text-muted)">Sub-Total</dt>
+                      <dd className="font-medium text-(--c-text)">{formatAmount(order.subtotal)}</dd>
+                    </div>
+                    <div className="flex justify-between">
+                      <dt className="text-(--c-text-muted)">Shipping</dt>
+                      <dd className="font-medium text-(--c-text)">{formatAmount(order.shippingCost)}</dd>
+                    </div>
+                    <div className="flex justify-between">
+                      <dt className="text-(--c-text-muted)">VAT</dt>
+                      <dd className="font-medium text-(--c-text)">{formatAmount(order.vatAmount)}</dd>
+                    </div>
+                    <div className="flex justify-between border-t border-(--c-border) pt-2">
+                      <dt className="font-semibold text-(--c-text)">Total</dt>
+                      <dd className="font-semibold text-(--c-text)">{formatAmount(order.grandTotal)}</dd>
+                    </div>
+                  </dl>
+                </div>
+              </div>
+            </Card.Body>
+          </Card>
+
+          <Card as="section" elevation="none" className="p-5">
+            <Card.Header>Customer Information</Card.Header>
+            <Card.Body className="flex flex-col gap-1">
+              {/* Guest checkout is ordinary here, so an unnamed customer reads as Guest. */}
+              <p className="font-medium text-(--c-text)">{order.customerName?.trim() || 'Guest'}</p>
+              {order.customerEmail && (
+                <p className="text-sm text-(--c-text-muted)">{order.customerEmail}</p>
+              )}
+              <div className="mt-3 border-t border-(--c-border) pt-3">
+                <p className="text-sm font-medium text-(--c-text)">Shipping Address</p>
+                {addressLines.length === 0 ? (
+                  <p className="text-sm text-(--c-text-muted)">No address captured</p>
+                ) : (
+                  addressLines.map((line) => (
+                    <p key={line} className="text-sm text-(--c-text-muted)">
+                      {line}
+                    </p>
+                  ))
+                )}
+              </div>
+              {(order.trackingNumber || order.trackingCarrier) && (
+                <div className="mt-3 border-t border-(--c-border) pt-3">
+                  <p className="text-sm font-medium text-(--c-text)">Tracking</p>
+                  {order.trackingNumber && (
+                    <p className="text-sm text-(--c-text-muted)">{order.trackingNumber}</p>
+                  )}
+                  {order.trackingCarrier && (
+                    <p className="text-sm text-(--c-text-muted)">{order.trackingCarrier}</p>
+                  )}
+                </div>
+              )}
+            </Card.Body>
+          </Card>
+
+          <Card as="section" elevation="none" className="p-5">
+            <Card.Header>Order Tracking</Card.Header>
+            <Card.Body>
+              <OrderStatusHistory history={order.statusHistory} />
+            </Card.Body>
+          </Card>
+        </Card.Body>
+      </Card>
 
       <OrderStatusConfirmationDialog
         state={confirmation.state}

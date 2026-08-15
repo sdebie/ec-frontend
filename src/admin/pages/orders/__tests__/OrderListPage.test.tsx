@@ -2,19 +2,19 @@ import { describe, it, expect, vi, beforeEach } from 'vitest'
 import { render, screen, fireEvent } from '@testing-library/react'
 import { MemoryRouter } from 'react-router-dom'
 
-import { useOrders } from '@/admin/hooks/orders/useOrders'
-import { useUpdateOrderStatus } from '@/admin/hooks/orders/useUpdateOrderStatus'
+import { useOrders } from '@/admin/pages/orders/hooks/useOrders'
+import { useUpdateOrderStatus } from '@/admin/pages/orders/hooks/useUpdateOrderStatus'
 import { useAdminAuthStore } from '@/shared/auth/adminAuthStore'
 import { OrderStatus } from '@/shared/types/enums/OrderStatus'
-import type { AdminOrderSummary, OrdersPage } from '@/admin/hooks/orders/types'
+import type { AdminOrderSummary, OrdersPage } from '@/admin/pages/orders/types'
 import { OrderListPage } from '../OrderListPage'
 
 const mockNavigate = vi.fn()
 
-vi.mock('@/admin/hooks/orders/useOrders', () => ({
+vi.mock('@/admin/pages/orders/hooks/useOrders', () => ({
   useOrders: vi.fn(),
 }))
-vi.mock('@/admin/hooks/orders/useUpdateOrderStatus', () => ({
+vi.mock('@/admin/pages/orders/hooks/useUpdateOrderStatus', () => ({
   useUpdateOrderStatus: vi.fn(),
 }))
 vi.mock('@/shared/auth/adminAuthStore', () => ({

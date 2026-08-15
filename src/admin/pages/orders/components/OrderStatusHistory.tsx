@@ -1,4 +1,4 @@
-import type { OrderStatusHistoryEntry } from '@/admin/hooks/orders'
+import type { OrderStatusHistoryEntry } from '@/admin/pages/orders/types'
 import { OrderStatusDisplay } from '@/shared/ui/components'
 
 export interface OrderStatusHistoryProps {

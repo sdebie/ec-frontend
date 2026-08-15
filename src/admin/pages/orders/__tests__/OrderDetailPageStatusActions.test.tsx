@@ -4,15 +4,15 @@ import userEvent from '@testing-library/user-event'
 import { MemoryRouter } from 'react-router-dom'
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 
-import { useOrderDetail } from '@/admin/hooks/orders/useOrderDetail'
-import { useUpdateOrderStatus } from '@/admin/hooks/orders/useUpdateOrderStatus'
+import { useOrderDetail } from '@/admin/pages/orders/hooks/useOrderDetail'
+import { useUpdateOrderStatus } from '@/admin/pages/orders/hooks/useUpdateOrderStatus'
 import { useAdminAuthStore } from '@/shared/auth/adminAuthStore'
 import { OrderStatus } from '@/shared/types/enums/OrderStatus'
-import type { AdminOrderDetail } from '@/admin/hooks/orders/types'
+import type { AdminOrderDetail } from '@/admin/pages/orders/types'
 import { OrderDetailPage } from '../OrderDetailPage'
 
-vi.mock('@/admin/hooks/orders/useOrderDetail', () => ({ useOrderDetail: vi.fn() }))
-vi.mock('@/admin/hooks/orders/useUpdateOrderStatus', () => ({ useUpdateOrderStatus: vi.fn() }))
+vi.mock('@/admin/pages/orders/hooks/useOrderDetail', () => ({ useOrderDetail: vi.fn() }))
+vi.mock('@/admin/pages/orders/hooks/useUpdateOrderStatus', () => ({ useUpdateOrderStatus: vi.fn() }))
 vi.mock('@/shared/auth/adminAuthStore', () => ({ useAdminAuthStore: vi.fn() }))
 vi.mock('react-router-dom', async () => {
   const actual = await vi.importActual('react-router-dom')

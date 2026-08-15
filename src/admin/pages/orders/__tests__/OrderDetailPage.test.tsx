@@ -3,17 +3,17 @@ import { render, screen, cleanup } from '@testing-library/react'
 import { MemoryRouter } from 'react-router-dom'
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 
-import { useOrderDetail } from '@/admin/hooks/orders/useOrderDetail'
-import { useUpdateOrderStatus } from '@/admin/hooks/orders/useUpdateOrderStatus'
+import { useOrderDetail } from '@/admin/pages/orders/hooks/useOrderDetail'
+import { useUpdateOrderStatus } from '@/admin/pages/orders/hooks/useUpdateOrderStatus'
 import { useAdminAuthStore } from '@/shared/auth/adminAuthStore'
 import { OrderStatus } from '@/shared/types/enums/OrderStatus'
-import type { AdminOrderDetail } from '@/admin/hooks/orders/types'
+import type { AdminOrderDetail } from '@/admin/pages/orders/types'
 import { OrderDetailPage } from '../OrderDetailPage'
 
-vi.mock('@/admin/hooks/orders/useOrderDetail', () => ({
+vi.mock('@/admin/pages/orders/hooks/useOrderDetail', () => ({
   useOrderDetail: vi.fn(),
 }))
-vi.mock('@/admin/hooks/orders/useUpdateOrderStatus', () => ({
+vi.mock('@/admin/pages/orders/hooks/useUpdateOrderStatus', () => ({
   useUpdateOrderStatus: vi.fn(),
 }))
 vi.mock('@/shared/auth/adminAuthStore', () => ({
@@ -68,6 +68,8 @@ const mockOrder: AdminOrderDetail = {
   shippingCost: 1500,
   vatAmount: 3750,
   grandTotal: 30250,
+  trackingNumber: null,
+  trackingCarrier: null,
   statusHistory: [
     {
       status: OrderStatus.CREATED,
@@ -282,20 +284,19 @@ describe('OrderDetailPage', () => {
       expect(summarySection).toBeInTheDocument()
 
       // Check labels are present
-      expect(screen.getByText('Subtotal')).toBeInTheDocument()
+      expect(screen.getByText('Sub-Total')).toBeInTheDocument()
       expect(screen.getByText('Shipping')).toBeInTheDocument()
       expect(screen.getByText('VAT')).toBeInTheDocument()
-      expect(screen.getByText('Grand Total')).toBeInTheDocument()
+      expect(screen.getByText('Total')).toBeInTheDocument()
     })
 
     it('renders line items section', () => {
-      expect(screen.getByText('Line Items')).toBeInTheDocument()
       expect(screen.getByText('Premium Widget')).toBeInTheDocument()
       expect(screen.getByText('Basic Gadget')).toBeInTheDocument()
     })
 
     it('renders status history section', () => {
-      expect(screen.getByText('Status History')).toBeInTheDocument()
+      expect(screen.getByText('Order Tracking')).toBeInTheDocument()
     })
   })
 })

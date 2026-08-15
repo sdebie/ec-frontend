@@ -5,7 +5,7 @@ import { render, cleanup } from '@testing-library/react'
 import { OrderActionsMenu } from '@/admin/pages/orders/components/OrderActionsMenu'
 import { getAvailableTransitions } from '@/admin/pages/orders/utils/getAvailableTransitions'
 import { OrderStatus } from '@/shared/types/enums/OrderStatus'
-import type { AdminOrderSummary } from '@/admin/hooks/orders'
+import type { AdminOrderSummary } from '@/admin/pages/orders/types'
 
 /**
  * Feature: admin-order-management

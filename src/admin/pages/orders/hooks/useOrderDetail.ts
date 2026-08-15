@@ -3,7 +3,7 @@ import { gql } from 'graphql-request'
 
 import { adminGraphqlClient } from '@/shared/api/graphql/adminGraphqlClient'
 
-import type { AdminOrderDetail } from './types'
+import type { AdminOrderDetail } from '../types'
 
 interface AdminOrderResponse {
   adminOrder: AdminOrderDetail

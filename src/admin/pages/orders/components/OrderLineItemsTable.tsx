@@ -1,6 +1,6 @@
 import { Thumbnail } from '@/shared/ui/components'
 import { formatAmount } from '@/shared/utils/formatAmount'
-import type { OrderLineItem } from '@/admin/hooks/orders'
+import type { OrderLineItem } from '@/admin/pages/orders/types'
 
 interface OrderLineItemsTableProps {
   lineItems: OrderLineItem[]
