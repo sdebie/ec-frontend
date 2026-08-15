@@ -175,7 +175,11 @@ export const Select = React.forwardRef<HTMLDivElement, SelectProps>(
                             style={dropdownStyle}
                             data-surface={dropdownTheme.surface}
                             data-theme={dropdownTheme.theme}
-                            className="max-h-60 overflow-auto rounded-md border border-(--c-border) bg-(--c-panel) py-1 shadow-lg text-sm"
+                            // No vertical padding: it read as a gap above the first option
+                            // rather than as breathing room, and the options already carry
+                            // their own py-2. `overflow-auto` both scrolls past max-h-60
+                            // and clips the first and last rows to the rounded corners.
+                            className="max-h-60 overflow-auto rounded-md border border-(--c-border) bg-(--c-panel) shadow-lg text-sm"
                         >
                             <ul role="listbox" className="outline-none">
                                 {options.map((option) => (

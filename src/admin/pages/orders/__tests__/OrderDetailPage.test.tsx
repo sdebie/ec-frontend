@@ -229,7 +229,8 @@ describe('OrderDetailPage', () => {
     })
 
     it('renders order reference in uppercase monospace', () => {
-      const reference = screen.getByText('ORD-00123')
+      // Rendered with a leading # — the reference itself is unchanged.
+      const reference = screen.getByText('#ORD-00123')
       expect(reference).toBeInTheDocument()
       expect(reference).toHaveClass('uppercase')
       expect(reference.className).toMatch(/mono/)

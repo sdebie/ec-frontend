@@ -104,52 +104,78 @@ describe('OrderListPage', () => {
   })
 
   /**
-   * The status filter is a dropdown, not a row of tabs. With twenty-one statuses the tab
-   * strip overflowed into a horizontal scroll that hid most of them behind a swipe, and a
-   * filter nobody can see is a filter nobody uses.
+   * One status answers two questions staff ask separately — has the money arrived, and
+   * where are the goods — so the filter is two dropdowns over two derived facets rather
+   * than one list of every status.
    */
-  describe('status filter', () => {
+  describe('payment and fulfilment filters', () => {
     // `Select` is a custom listbox rather than a native <select>, so each change means
-    // opening the trigger and then picking the option — mirrors the products page.
-    function chooseStatus(label: string) {
-      fireEvent.click(screen.getByRole('button', { name: 'Filter by status' }))
+    // opening the trigger and then picking the option.
+    function choose(control: string, label: string) {
+      fireEvent.click(screen.getByRole('button', { name: control }))
       fireEvent.click(screen.getByRole('option', { name: label }))
     }
 
-    it('is a dropdown rather than a tab strip', () => {
+    it('offers a dropdown per facet, not a tab strip', () => {
       setupDefaultMocks()
       renderPage()
 
-      expect(screen.getByRole('button', { name: 'Filter by status' })).toBeInTheDocument()
+      expect(screen.getByRole('button', { name: 'Filter by payment status' })).toBeInTheDocument()
+      expect(screen.getByRole('button', { name: 'Filter by fulfilment status' })).toBeInTheDocument()
     })
 
-    it('passes the chosen status through to the query', () => {
+    it('passes the chosen payment state through to the query', () => {
       setupDefaultMocks()
       renderPage()
 
-      chooseStatus('Processing')
+      choose('Filter by payment status', 'Paid')
 
-      expect(vi.mocked(useOrders).mock.calls.at(-1)?.[0]).toMatchObject({ status: 'PROCESSING' })
+      expect(vi.mocked(useOrders).mock.calls.at(-1)?.[0]).toMatchObject({ paymentState: 'PAID' })
     })
 
-    it('sends no status filter at all when All is chosen', () => {
+    it('passes the chosen fulfilment state through to the query', () => {
       setupDefaultMocks()
       renderPage()
 
-      chooseStatus('Processing')
-      chooseStatus('All')
+      choose('Filter by fulfilment status', 'Not started')
 
-      expect(vi.mocked(useOrders).mock.calls.at(-1)?.[0]).toMatchObject({ status: undefined })
+      expect(vi.mocked(useOrders).mock.calls.at(-1)?.[0]).toMatchObject({
+        fulfilmentState: 'NOT_STARTED',
+      })
+    })
+
+    /** The point of two facets: "paid but nobody has picked it" is one question. */
+    it('combines both facets in a single query', () => {
+      setupDefaultMocks()
+      renderPage()
+
+      choose('Filter by payment status', 'Paid')
+      choose('Filter by fulfilment status', 'Not started')
+
+      expect(vi.mocked(useOrders).mock.calls.at(-1)?.[0]).toMatchObject({
+        paymentState: 'PAID',
+        fulfilmentState: 'NOT_STARTED',
+      })
+    })
+
+    it('sends no filter at all when a facet is cleared', () => {
+      setupDefaultMocks()
+      renderPage()
+
+      choose('Filter by payment status', 'Paid')
+      choose('Filter by payment status', 'Any payment')
+
+      expect(vi.mocked(useOrders).mock.calls.at(-1)?.[0]).toMatchObject({ paymentState: undefined })
     })
   })
 
   describe('filter interactions reset pagination', () => {
-    it('resets pagination to page 1 when status filter changes', () => {
+    it('resets pagination to page 1 when a status filter changes', () => {
       setupDefaultMocks()
 
       renderPage()
 
-      fireEvent.click(screen.getByRole('button', { name: 'Filter by status' }))
+      fireEvent.click(screen.getByRole('button', { name: 'Filter by fulfilment status' }))
       fireEvent.click(screen.getByRole('option', { name: 'Processing' }))
 
       // Verify useOrders was called with page: 1

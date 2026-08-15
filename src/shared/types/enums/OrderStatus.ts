@@ -34,7 +34,19 @@ export const OrderStatus = {
 
 export type OrderStatus = (typeof OrderStatus)[keyof typeof OrderStatus]
 
-export const OrderStatusOptions: Record<OrderStatus, { label: string; color: string }> = {
+/**
+ * `note` is a qualifier the status carries that is not the status itself — shown as quiet
+ * secondary text beside the badge, never folded into the label. A badge answers one
+ * question; a label reading "Cancelled — Not Paid" answers two and shouts both in red.
+ *
+ * It cannot come from `PaymentState`: every cancellation maps to `PaymentState.CANCELLED`,
+ * which deliberately says only that the order ended. That an abandoned cart was never paid
+ * is knowable from the status alone, so it belongs here.
+ */
+export const OrderStatusOptions: Record<
+  OrderStatus,
+  { label: string; color: string; note?: string }
+> = {
   [OrderStatus.CREATED]: { label: 'Created', color: 'gray' },
   [OrderStatus.PENDING_PAYMENT]: { label: 'Awaiting Payment', color: 'yellow' },
   [OrderStatus.IN_STORE_PAYMENT]: { label: 'Awaiting In-Store Payment', color: 'yellow' },
@@ -50,7 +62,9 @@ export const OrderStatusOptions: Record<OrderStatus, { label: string; color: str
   [OrderStatus.COLLECTED]: { label: 'Collected', color: 'green' },
   [OrderStatus.USER_CANCELED]: { label: 'Cancelled by Customer', color: 'red' },
   [OrderStatus.ADMIN_CANCELED]: { label: 'Cancelled by Staff', color: 'red' },
-  [OrderStatus.SYSTEM_CANCELED]: { label: 'Cancelled — Not Paid', color: 'red' },
+  // The sweep only ever reclaims orders that never got past payment, so this one status
+  // does know the money never arrived.
+  [OrderStatus.SYSTEM_CANCELED]: { label: 'Cancelled', color: 'red', note: 'Not paid' },
   [OrderStatus.FAILED]: { label: 'Failed', color: 'red' },
   [OrderStatus.PARTIALLY_REFUNDED]: { label: 'Partially Refunded', color: 'orange' },
   [OrderStatus.REFUNDED]: { label: 'Refunded', color: 'orange' },

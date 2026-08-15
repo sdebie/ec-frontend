@@ -1,12 +1,12 @@
-import { ConfirmationDialog } from '@/shared/ui/components'
-import { CONFIRMED_ACTIONS } from '../utils/confirmedActions'
-import type { OrderStatusConfirmationState } from '../hooks/useOrderStatusConfirmation'
+import {ConfirmationDialog} from '@/shared/ui/components'
+import {CONFIRMED_ACTIONS} from '../utils/confirmedActions'
+import type {OrderStatusConfirmationState} from '../hooks/useOrderStatusConfirmation'
 
 export interface OrderStatusConfirmationDialogProps {
-  state: OrderStatusConfirmationState
-  onConfirm: () => void
-  onClose: () => void
-  isLoading: boolean
+    state: OrderStatusConfirmationState
+    onConfirm: () => void
+    onClose: () => void
+    isLoading: boolean
 }
 
 /**
@@ -18,23 +18,23 @@ export interface OrderStatusConfirmationDialogProps {
  * wrong. Cancelling always returns the goods; a refund never touches them.
  */
 export function OrderStatusConfirmationDialog({
-  state,
-  onConfirm,
-  onClose,
-  isLoading,
-}: OrderStatusConfirmationDialogProps) {
-  const action = CONFIRMED_ACTIONS[state.type]
+                                                  state,
+                                                  onConfirm,
+                                                  onClose,
+                                                  isLoading,
+                                              }: OrderStatusConfirmationDialogProps) {
+    const action = CONFIRMED_ACTIONS[state.type]
 
-  return (
-    <ConfirmationDialog
-      open={state.open}
-      onClose={onClose}
-      onConfirm={onConfirm}
-      title={action.title}
-      description={action.description}
-      variant={action.variant}
-      confirmLabel={action.confirmLabel}
-      isLoading={isLoading}
-    />
-  )
+    return (
+        <ConfirmationDialog
+            open={state.open}
+            onClose={onClose}
+            onConfirm={onConfirm}
+            title={action.title}
+            description={action.description}
+            variant={action.variant}
+            confirmLabel={action.confirmLabel}
+            isLoading={isLoading}
+        />
+    )
 }

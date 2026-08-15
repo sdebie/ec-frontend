@@ -9,54 +9,56 @@ import {ProductStatus, ProductStatusOptions} from '@/shared/types/enums/ProductS
 /**
  * Property 9: Status display renders the correct badge
  *
- * For any enum value from OrderStatus or ProductStatus, the corresponding
- * StatusDisplay component SHALL render a badge whose label and colour match
- * the entry in the respective Options map.
+ * For any enum value from OrderStatus or ProductStatus, the corresponding StatusDisplay
+ * SHALL render a badge carrying that status's label and a defined token family.
  *
+ * These assertions deliberately do not restate StatusBadge's colour map. A copy of the map
+ * can only detect that it changed, never that it is wrong — an earlier version of this file
+ * held one, and it pinned two live defects rather than catching them: neutral statuses were
+ * painted amber, and in-progress statuses shared the completed palette, so an order still in
+ * transit was indistinguishable from one delivered. What is asserted instead is what a
+ * reader needs to be true: every status is styled from a token, and statuses that mean
+ * different things look different.
  */
 
 const orderStatusValues = Object.values(OrderStatus)
 const productStatusValues = Object.values(ProductStatus)
 
-// Map colour string to expected CSS token classes used by StatusBadge
-const colorTokens: Record<string, { bg: string; text: string }> = {
-    gray: {bg: 'bg-(--c-status-yellow-bg)', text: 'text-(--c-status-yellow-text)'},
-    yellow: {bg: 'bg-(--c-status-yellow-bg)', text: 'text-(--c-status-yellow-text)'},
-    green: {bg: 'bg-(--c-status-green-bg)', text: 'text-(--c-status-green-text)'},
-    blue: {bg: 'bg-(--c-status-green-bg)', text: 'text-(--c-status-green-text)'},
-    red: {bg: 'bg-(--c-status-red-bg)', text: 'text-(--c-status-red-text)'},
-    orange: {bg: 'bg-(--c-status-yellow-bg)', text: 'text-(--c-status-yellow-text)'},
-}
-const neutralTokens = {bg: 'bg-(--c-status-yellow-bg)', text: 'text-(--c-status-yellow-text)'}
-
-const expectedTokens = (color: string) => colorTokens[color] ?? neutralTokens
-
-// Arbitraries for every enum value
 const orderStatusArb = fc.constantFrom(...orderStatusValues)
 const productStatusArb = fc.constantFrom(...productStatusValues)
+
+const badgeIn = (container: HTMLElement) => {
+    const badge = container.querySelector<HTMLElement>('[data-testid="status-badge"]')
+    expect(badge).not.toBeNull()
+    return badge!
+}
+
+/** The background utility a badge resolved to, which is its whole visual identity. */
+const backgroundOf = (status: string) => {
+    const {container, unmount} = render(<OrderStatusDisplay status={status}/>)
+    const className = badgeIn(container).className
+    unmount()
+    return className.match(/bg-\(--[\w-]+\)/)?.[0]
+}
 
 describe('Status display renders correct badge — Property Tests', () => {
     afterEach(() => {
         cleanup()
     })
 
-    it('OrderStatusDisplay renders badge with correct label and colour for any OrderStatus value', () => {
+    it('OrderStatusDisplay labels every status from the Options map and styles it from a token', () => {
         fc.assert(
             fc.property(orderStatusArb, (status) => {
                 const {unmount, container} = render(<OrderStatusDisplay status={status}/>)
-
-                const badge = container.querySelector('span')
-                expect(badge).not.toBeNull()
-
+                const badge = badgeIn(container)
                 const option = OrderStatusOptions[status]
-                // Assert label text matched Options map
-                expect(badge!.textContent).toBe(option.label)
 
-                // Assert colour token classes match Options map
-                const className = badge!.className
-                const tokens = expectedTokens(option.color)
-                expect(className).toContain(tokens.bg)
-                expect(className).toContain(tokens.text)
+                expect(badge.textContent).toBe(option.label)
+                // Every colour utility is a token reference. A literal palette class here
+                // would be a theme-layer bypass — invisible to a preset, wrong in dark mode.
+                expect(badge.className).toMatch(/bg-\(--c-[\w-]+\)/)
+                expect(badge.className).toMatch(/text-\(--c-[\w-]+\)/)
+                expect(badge.className).toMatch(/border-\(--c-[\w-]+\)/)
 
                 unmount()
             }),
@@ -64,27 +66,40 @@ describe('Status display renders correct badge — Property Tests', () => {
         )
     })
 
-    it('ProductStatusDisplay renders badge with correct label and colour for any ProductStatus value', () => {
+    it('ProductStatusDisplay labels every status from the Options map and styles it from a token', () => {
         fc.assert(
             fc.property(productStatusArb, (status) => {
                 const {unmount, container} = render(<ProductStatusDisplay status={status}/>)
+                const badge = badgeIn(container)
 
-                const badge = container.querySelector('span')
-                expect(badge).not.toBeNull()
-
-                const option = ProductStatusOptions[status]
-                // Assert label text matched Options map
-                expect(badge!.textContent).toBe(option.label)
-
-                // Assert colour token classes match Options map
-                const className = badge!.className
-                const tokens = expectedTokens(option.color)
-                expect(className).toContain(tokens.bg)
-                expect(className).toContain(tokens.text)
+                expect(badge.textContent).toBe(ProductStatusOptions[status].label)
+                expect(badge.className).toMatch(/bg-\(--c-[\w-]+\)/)
+                expect(badge.className).toMatch(/text-\(--c-[\w-]+\)/)
 
                 unmount()
             }),
             {numRuns: 100},
         )
+    })
+
+    it('a status still in progress does not wear the same colour as one already finished', () => {
+        // The distinction the shopper-facing outcome turns on: goods on a van and goods in
+        // the customer's hands are different answers, and staff read the colour before the
+        // word. Same for an order that ended badly.
+        const inProgress = backgroundOf(OrderStatus.IN_TRANSIT)
+        const finished = backgroundOf(OrderStatus.DELIVERED)
+        const failed = backgroundOf(OrderStatus.ADMIN_CANCELED)
+        const notStarted = backgroundOf(OrderStatus.CREATED)
+
+        expect(new Set([inProgress, finished, failed, notStarted]).size).toBe(4)
+    })
+
+    it('a qualifier is rendered beside the badge, never folded into its label', () => {
+        // SYSTEM_CANCELED carries two facts. Only the status belongs in the pill; the
+        // payment note is context, and reads as quiet secondary text.
+        const {container} = render(<OrderStatusDisplay status={OrderStatus.SYSTEM_CANCELED}/>)
+
+        expect(badgeIn(container).textContent).toBe('Cancelled')
+        expect(container.textContent).toContain('Not paid')
     })
 })

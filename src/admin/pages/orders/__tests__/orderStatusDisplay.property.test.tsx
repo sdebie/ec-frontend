@@ -5,17 +5,14 @@ import { OrderStatusDisplay } from '@/shared/ui/components'
 import { OrderStatus, OrderStatusOptions } from '@/shared/types/enums/OrderStatus'
 
 /**
- * Feature: admin-order-management, Property 4: OrderStatusDisplay color mapping
+ * Feature: admin-order-management, Property 4: OrderStatusDisplay colour mapping
  *
- * For any admin-relevant OrderStatus enum value (PENDING, PAID, IN_STORE_PAYMENT,
- * IN_TRANSIT, DELIVERED, CANCELLED, REFUNDED), OrderStatusDisplay SHALL render a
- * StatusBadge with the color prop matching the value defined in
- * OrderStatusOptions[status].color. No hardcoded Tailwind colour utilities shall
- * appear in the rendered output.
- *
+ * For any admin-relevant OrderStatus value, OrderStatusDisplay SHALL style the badge
+ * entirely from theme tokens. No hardcoded Tailwind palette utility may appear in the
+ * rendered output — that is the assertion this file exists for, and the one the shared
+ * status-display property test does not make.
  */
 
-// Admin-relevant statuses only
 const adminRelevantStatuses = [
   OrderStatus.PENDING,
   OrderStatus.PAID,
@@ -26,45 +23,32 @@ const adminRelevantStatuses = [
   OrderStatus.REFUNDED,
 ] as const
 
-// Map color string to expected CSS token classes used by StatusBadge
-const colorTokens: Record<string, { bg: string; text: string }> = {
-  gray: { bg: 'bg-(--c-status-yellow-bg)', text: 'text-(--c-status-yellow-text)' },
-  yellow: { bg: 'bg-(--c-status-yellow-bg)', text: 'text-(--c-status-yellow-text)' },
-  green: { bg: 'bg-(--c-status-green-bg)', text: 'text-(--c-status-green-text)' },
-  blue: { bg: 'bg-(--c-status-green-bg)', text: 'text-(--c-status-green-text)' },
-  red: { bg: 'bg-(--c-status-red-bg)', text: 'text-(--c-status-red-text)' },
-  orange: { bg: 'bg-(--c-status-yellow-bg)', text: 'text-(--c-status-yellow-text)' },
-}
-const neutralTokens = { bg: 'bg-(--c-status-yellow-bg)', text: 'text-(--c-status-yellow-text)' }
+/**
+ * Tailwind palette utilities, which a themed component must never carry: a literal colour
+ * cannot follow a preset and is wrong in whichever theme it was not authored against.
+ * Matches `bg-red-500`, `text-gray-700`, `border-indigo-200`, `bg-white`, and the `dark:`
+ * variants of each.
+ */
+const HARDCODED_PALETTE =
+  /(?:^|\s|:)(?:bg|text|border|ring|fill|stroke)-(?:white|black|slate|gray|grey|zinc|neutral|stone|red|orange|amber|yellow|lime|green|emerald|teal|cyan|sky|blue|indigo|violet|purple|fuchsia|pink|rose)(?:-\d{2,3})?(?:\/\d+)?(?:\s|$)/
 
-const expectedTokens = (color: string) => colorTokens[color] ?? neutralTokens
-
-// Arbitrary for admin-relevant statuses
 const adminOrderStatusArb = fc.constantFrom(...adminRelevantStatuses)
 
-describe('Feature: admin-order-management, Property 4: OrderStatusDisplay color mapping', () => {
+describe('Feature: admin-order-management, Property 4: OrderStatusDisplay colour mapping', () => {
   afterEach(() => {
     cleanup()
   })
 
-  it('OrderStatusDisplay renders badge with correct label and color tokens for any admin-relevant OrderStatus', () => {
+  it('styles every admin-relevant status from tokens alone, with no hardcoded palette class', () => {
     fc.assert(
       fc.property(adminOrderStatusArb, (status) => {
         const { unmount, container } = render(<OrderStatusDisplay status={status} />)
 
-        const badge = container.querySelector('span')
+        const badge = container.querySelector<HTMLElement>('[data-testid="status-badge"]')
         expect(badge).not.toBeNull()
-
-        const option = OrderStatusOptions[status]
-
-        // Assert label text matches Options map
-        expect(badge!.textContent).toBe(option.label)
-
-        // Assert colour token classes match Options map
-        const className = badge!.className
-        const tokens = expectedTokens(option.color)
-        expect(className).toContain(tokens.bg)
-        expect(className).toContain(tokens.text)
+        expect(badge!.textContent).toBe(OrderStatusOptions[status].label)
+        expect(badge!.className).not.toMatch(HARDCODED_PALETTE)
+        expect(badge!.className).not.toContain('dark:')
 
         unmount()
       }),

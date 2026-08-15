@@ -2,7 +2,7 @@ import type {ReactNode} from 'react'
 import {cn} from '@/shared/utils/cn'
 
 export interface PageLayoutProps {
-    /** Page title rendered as an h1 */
+    /** Page title rendered as a h1 */
     title: string
     /** Optional subtitle rendered below the title */
     subtitle?: string
@@ -22,7 +22,7 @@ export function PageLayout({
                                className,
                            }: PageLayoutProps) {
     return (
-        <div className={cn('space-y-3', className)}>
+        <div className={cn('space-y-3 mt-3', className)}>
             <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
                 <div>
                     <h1 className="text-2xl font-bold tracking-tight" style={{color: 'var(--c-text)'}}>

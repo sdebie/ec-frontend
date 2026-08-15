@@ -94,26 +94,42 @@ describe('admin order hooks', () => {
       const variables = buildVariables({
         page: 1,
         pageSize: 10,
-        status: 'ALL',
+        paymentState: 'ALL',
+        fulfilmentState: 'ALL',
         fromDate: '',
         toDate: '',
       })
 
-      expect(variables).not.toHaveProperty('status')
+      expect(variables).not.toHaveProperty('paymentState')
+      expect(variables).not.toHaveProperty('fulfilmentState')
       expect(variables).not.toHaveProperty('fromDate')
       expect(variables).not.toHaveProperty('toDate')
     })
 
-    it('passes a real status and date range through', () => {
+    it('passes both facets and a date range through', () => {
       expect(
         buildVariables({
           page: 1,
           pageSize: 10,
-          status: 'PAID',
+          paymentState: 'PAID',
+          fulfilmentState: 'NOT_STARTED',
           fromDate: '2026-08-01',
           toDate: '2026-08-15',
         }),
-      ).toMatchObject({ status: 'PAID', fromDate: '2026-08-01', toDate: '2026-08-15' })
+      ).toMatchObject({
+        paymentState: 'PAID',
+        fulfilmentState: 'NOT_STARTED',
+        fromDate: '2026-08-01',
+        toDate: '2026-08-15',
+      })
+    })
+
+    /** The two facets are independent, so either may be set without the other. */
+    it('sends only the facet that is set', () => {
+      expect(buildVariables({ page: 1, pageSize: 10, paymentState: 'PAID' }))
+        .not.toHaveProperty('fulfilmentState')
+      expect(buildVariables({ page: 1, pageSize: 10, fulfilmentState: 'READY' }))
+        .not.toHaveProperty('paymentState')
     })
   })
 

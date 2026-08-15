@@ -254,9 +254,9 @@
        in the page. The red surface is also deliberately distinct from the red
        preset's --primary-subtle (#450a0a), which it used to collide with — an
        error badge and a selected row must never be the same colour. */
-    --admin-status-red-bg: #2b1215;
-    --admin-status-red-text: #fca5a5;
-    --admin-status-red-border: #7f1d1d;
+    --admin-status-red-bg: #2a1518;
+    --admin-status-red-text: #fda4af;
+    --admin-status-red-border: #5f252d;
     --admin-status-green-bg: #0b2418;
     --admin-status-green-text: #86efac;
     --admin-status-green-border: #166534;
