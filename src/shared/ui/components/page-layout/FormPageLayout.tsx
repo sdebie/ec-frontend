@@ -7,6 +7,8 @@ export interface FormPageLayoutProps {
     title: string
     /** Optional subtitle rendered below the title. */
     subtitle?: string
+    /** Optional slot rendered at the far right of the header, e.g. a status badge. */
+    action?: ReactNode
     /** Page content — typically a Card wrapping a form or a detail view. */
     children: ReactNode
     /** Additional CSS classes. */
@@ -19,21 +21,24 @@ export interface FormPageLayoutProps {
  * pages. Content stays whatever the caller renders — this only standardises
  * what sits above it.
  */
-export function FormPageLayout({title, subtitle, children, className}: FormPageLayoutProps) {
+export function FormPageLayout({title, subtitle, action, children, className}: FormPageLayoutProps) {
     return (
         <div className={cn('space-y-3 mt-3', className)}>
-            <div>
-                <div className="flex items-center gap-3">
-                    <PageBackButton/>
-                    <h1 className="text-2xl font-bold tracking-tight text-(--c-text)">
-                        {title}
-                    </h1>
+            <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
+                <div className="flex items-start gap-3">
+                    <PageBackButton className="mt-1"/>
+                    <div>
+                        <h1 className="text-2xl font-bold tracking-tight text-(--c-text)">
+                            {title}
+                        </h1>
+                        {subtitle && (
+                            <p className="mt-1 text-sm text-(--c-text-muted)">
+                                {subtitle}
+                            </p>
+                        )}
+                    </div>
                 </div>
-                {subtitle && (
-                    <p className="mt-1 text-sm text-(--c-text-muted)">
-                        {subtitle}
-                    </p>
-                )}
+                {action && <div className="shrink-0">{action}</div>}
             </div>
             <div>
                 {children}

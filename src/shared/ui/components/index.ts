@@ -1,3 +1,6 @@
+export { Alert } from './alert/Alert'
+export type { AlertProps } from './alert/Alert'
+
 export { DataTable } from './data-table/DataTable'
 export type { DataTableProps, ColumnDef } from './data-table/DataTable'
 

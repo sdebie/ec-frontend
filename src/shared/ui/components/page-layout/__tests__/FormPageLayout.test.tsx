@@ -57,4 +57,16 @@ describe('FormPageLayout', () => {
 
         expect(screen.queryByText('Editing Acme Corp')).not.toBeInTheDocument()
     })
+
+    it('renders an optional action at the far right of the header', () => {
+        renderLayout({action: <span>Pending</span>})
+
+        expect(screen.getByText('Pending')).toBeInTheDocument()
+    })
+
+    it('omits the action slot when none is given', () => {
+        renderLayout()
+
+        expect(screen.queryByText('Pending')).not.toBeInTheDocument()
+    })
 })

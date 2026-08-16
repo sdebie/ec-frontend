@@ -5,6 +5,7 @@ import { Search } from 'lucide-react'
 
 import {
   DataTable,
+  PageLayout,
   Segment,
   ConfirmationDialog,
   StatusBadge,
@@ -187,54 +188,54 @@ export function CustomerListPage() {
   const pageCount = data ? Math.ceil(data.total / pagination.pageSize) : 0
 
   return (
-    <div className="flex flex-col gap-6">
-      <h1 className="text-2xl font-semibold text-(--c-text)">Customers</h1>
+    <PageLayout title="Customers">
+      <div className="flex flex-col gap-6">
+        {/* Filters */}
+        <div className="flex flex-col gap-4 sm:flex-row sm:items-center">
+          <Segment
+            options={STATUS_FILTER_OPTIONS}
+            value={statusFilter}
+            onChange={handleStatusFilterChange}
+          />
 
-      {/* Filters */}
-      <div className="flex flex-col gap-4">
-        <Segment
-          options={STATUS_FILTER_OPTIONS}
-          value={statusFilter}
-          onChange={handleStatusFilterChange}
+          <div className="relative max-w-sm">
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-(--c-text-muted)" />
+            <Input
+              type="text"
+              placeholder="Search by name or email..."
+              value={searchInput}
+              onChange={handleSearchChange}
+              className="pl-9"
+            />
+          </div>
+        </div>
+
+        <DataTable
+          columns={columns}
+          data={data?.data ?? []}
+          isLoading={isLoading}
+          manualPagination
+          pageCount={pageCount}
+          totalRowCount={data?.total ?? 0}
+          pagination={pagination}
+          onPaginationChange={setPagination}
+          manualSorting
+          sorting={sorting}
+          onSortingChange={onSortingChange}
         />
 
-        <div className="relative max-w-sm">
-          <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-(--c-text-muted)" />
-          <Input
-            type="text"
-            placeholder="Search by name or email..."
-            value={searchInput}
-            onChange={handleSearchChange}
-            className="pl-9"
-          />
-        </div>
+        {/* Confirmation Dialog for Suspend */}
+        <ConfirmationDialog
+          open={confirmDialog.open}
+          onClose={handleCloseDialog}
+          onConfirm={handleConfirmSuspend}
+          title="Suspend Customer"
+          description="Are you sure you want to suspend this customer? They will no longer be able to access the storefront."
+          variant="danger"
+          confirmLabel="Suspend Customer"
+          isLoading={isUpdatingStatus}
+        />
       </div>
-
-      <DataTable
-        columns={columns}
-        data={data?.data ?? []}
-        isLoading={isLoading}
-        manualPagination
-        pageCount={pageCount}
-        totalRowCount={data?.total ?? 0}
-        pagination={pagination}
-        onPaginationChange={setPagination}
-        manualSorting
-        sorting={sorting}
-        onSortingChange={onSortingChange}
-      />
-
-      {/* Confirmation Dialog for Suspend */}
-      <ConfirmationDialog
-        open={confirmDialog.open}
-        onClose={handleCloseDialog}
-        onConfirm={handleConfirmSuspend}
-        title="Suspend Customer"
-        description="Are you sure you want to suspend this customer? They will no longer be able to access the storefront."
-        variant="danger"
-        confirmLabel="Suspend Customer"
-        isLoading={isUpdatingStatus}
-      />
-    </div>
+    </PageLayout>
   )
 }
