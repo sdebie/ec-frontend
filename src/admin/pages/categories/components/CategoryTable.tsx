@@ -14,6 +14,7 @@ interface CategoryTableProps {
     isLoading: boolean
     canMutate: boolean
     pageCount: number
+    totalRowCount: number
     pagination: PaginationState
     onPaginationChange: OnChangeFn<PaginationState>
     sorting: SortingState
@@ -25,6 +26,7 @@ export function CategoryTable({
                                   isLoading,
                                   canMutate,
                                   pageCount,
+                                  totalRowCount,
                                   pagination,
                                   onPaginationChange,
                                   sorting,
@@ -135,6 +137,7 @@ export function CategoryTable({
                 isLoading={isLoading}
                 manualPagination
                 pageCount={pageCount}
+                totalRowCount={totalRowCount}
                 pagination={pagination}
                 onPaginationChange={onPaginationChange}
                 manualSorting

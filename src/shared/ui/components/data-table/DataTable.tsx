@@ -25,6 +25,12 @@ export interface DataTableProps<TData> {
     toolbarAction?: React.ReactNode
     manualPagination?: boolean
     pageCount?: number
+    /**
+     * The true row count across every page, for the "Showing X to Y of Z" summary.
+     * `data` under manualPagination is only the current page's rows, so without this the
+     * summary's Z falls back to that page's length instead of the real total.
+     */
+    totalRowCount?: number
     pagination?: PaginationState
     onPaginationChange?: OnChangeFn<PaginationState>
     /** Server-driven sorting: the caller owns sorting state and refetches on change,
@@ -61,6 +67,7 @@ export function DataTable<TData>({
                                      toolbarAction,
                                      manualPagination = false,
                                      pageCount,
+                                     totalRowCount,
                                      pagination: controlledPagination,
                                      onPaginationChange,
                                      manualSorting = false,
@@ -149,7 +156,7 @@ export function DataTable<TData>({
         ? (pageCount ?? 1)
         : table.getPageCount()
     const totalRows = manualPagination
-        ? data.length
+        ? (totalRowCount ?? data.length)
         : table.getFilteredRowModel().rows.length
 
     const startItem = totalRows === 0 ? 0 : (currentPage - 1) * currentPageSize + 1

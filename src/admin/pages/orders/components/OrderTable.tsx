@@ -34,6 +34,7 @@ interface OrderTableProps {
     isLoading: boolean
     canMutate: boolean
     pageCount: number
+    totalRowCount: number
     pagination: PaginationState
     onPaginationChange: OnChangeFn<PaginationState>
     sorting: SortingState
@@ -50,6 +51,7 @@ export function OrderTable({
                                isLoading,
                                canMutate,
                                pageCount,
+                               totalRowCount,
                                pagination,
                                onPaginationChange,
                                sorting,
@@ -177,6 +179,7 @@ export function OrderTable({
                 onRowDoubleClick={(order) => navigate(`/admin/orders/${order.id}`)}
                 manualPagination
                 pageCount={pageCount}
+                totalRowCount={totalRowCount}
                 pagination={pagination}
                 onPaginationChange={onPaginationChange}
                 manualSorting

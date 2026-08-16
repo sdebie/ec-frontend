@@ -55,6 +55,41 @@ describe('DataTable', () => {
       // 1 header + 5 data rows (all of them — no internal slicing)
       expect(rows.length).toBe(6)
     })
+
+    it('summary text uses totalRowCount, not the current page\'s row count, for the "of Z" figure', () => {
+      // Page 2 of a 15-row result set, fetched 10 at a time: the server returns only
+      // this page's 5 remaining rows, but the true total across all pages is 15.
+      const data = makeRows(5)
+      render(
+        <DataTable
+          columns={columns}
+          data={data}
+          manualPagination
+          pageCount={2}
+          totalRowCount={15}
+          pagination={{ pageIndex: 1, pageSize: 10 }}
+          onPaginationChange={vi.fn()}
+        />
+      )
+
+      expect(screen.getByText(/Showing/)).toHaveTextContent('Showing 11 to 15 of 15 results')
+    })
+
+    it('falls back to data.length when totalRowCount is omitted (back-compat)', () => {
+      const data = makeRows(5)
+      render(
+        <DataTable
+          columns={columns}
+          data={data}
+          manualPagination
+          pageCount={1}
+          pagination={{ pageIndex: 0, pageSize: 10 }}
+          onPaginationChange={vi.fn()}
+        />
+      )
+
+      expect(screen.getByText(/Showing/)).toHaveTextContent('Showing 1 to 5 of 5 results')
+    })
   })
 
   describe('sorting (client-side, default)', () => {

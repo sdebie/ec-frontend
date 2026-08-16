@@ -39,7 +39,11 @@ const mockOnSaleProducts: OnSaleProductItem[] = [
 
 function setupMocks() {
   vi.mocked(useOnSaleProducts).mockReturnValue({
-    data: mockOnSaleProducts,
+    data: {
+      content: mockOnSaleProducts,
+      totalElements: mockOnSaleProducts.length,
+      totalPages: 1,
+    },
     isLoading: false,
     refetch: vi.fn(),
   })

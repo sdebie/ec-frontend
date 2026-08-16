@@ -253,6 +253,7 @@ export function WholesaleCustomerListPage() {
         isLoading={isLoading}
         manualPagination
         pageCount={pageCount}
+        totalRowCount={total ?? 0}
         pagination={pagination}
         onPaginationChange={setPagination}
         manualSorting

@@ -216,6 +216,7 @@ export function CustomerListPage() {
         isLoading={isLoading}
         manualPagination
         pageCount={pageCount}
+        totalRowCount={data?.total ?? 0}
         pagination={pagination}
         onPaginationChange={setPagination}
         manualSorting

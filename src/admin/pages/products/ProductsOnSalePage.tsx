@@ -24,6 +24,8 @@ export function ProductsOnSalePage() {
     pageSize: pagination.pageSize,
   })
 
+  const pageCount = data?.totalPages ?? 0
+
   const columns: ColumnDef<OnSaleProductItem, unknown>[] = useMemo(
     () => [
       {
@@ -81,10 +83,11 @@ export function ProductsOnSalePage() {
     <PageLayout title="Products on Sale">
       <DataTable
         columns={columns}
-        data={data ?? []}
+        data={data?.content ?? []}
         isLoading={isLoading}
         manualPagination
-        pageCount={0}
+        pageCount={pageCount}
+        totalRowCount={data?.totalElements ?? 0}
         pagination={pagination}
         onPaginationChange={setPagination}
         emptyMessage="No products on sale found"

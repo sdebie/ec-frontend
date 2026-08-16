@@ -503,6 +503,7 @@ export function ProductListPage() {
                     isLoading={isLoading}
                     manualPagination
                     pageCount={pageCount}
+                    totalRowCount={data?.totalElements ?? 0}
                     pagination={visiblePagination}
                     onPaginationChange={setPagination}
                     onRowDoubleClick={(product) => navigate(`/admin/products/${product.id}/edit`)}

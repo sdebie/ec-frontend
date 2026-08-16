@@ -508,7 +508,7 @@ type Query {
     "When true, skips the default ACTIVE product and variant status restriction."
     ignoreStatus: Boolean = false,
     pageRequest: PageRequestInput
-  ): [ProductShoppingListItemDto]
+  ): PageResponse_ProductShoppingListItemDto
   "Get all settings including store settings and shipping methods"
   settings: SettingsDto
   "Get all available shipping options"

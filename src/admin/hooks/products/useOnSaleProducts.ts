@@ -29,27 +29,35 @@ export interface OnSaleProductItem {
 }
 
 interface SaleProductListResponse {
-  saleProductList: OnSaleProductItem[]
+  saleProductList: {
+    content: OnSaleProductItem[]
+    totalElements: number
+    totalPages: number
+  }
 }
 
 const SALE_PRODUCT_LIST = gql`
   query SaleProductList($pageRequest: PageRequestInput, $ignoreStatus: Boolean) {
     saleProductList(pageRequest: $pageRequest, ignoreStatus: $ignoreStatus) {
-      id
-      name
-      slug
-      images {
+      content {
         id
-        imageUrl
-        featured
-        sortOrder
+        name
+        slug
+        images {
+          id
+          imageUrl
+          featured
+          sortOrder
+        }
+        retailPrice {
+          price
+        }
+        retailSalePrice {
+          price
+        }
       }
-      retailPrice {
-        price
-      }
-      retailSalePrice {
-        price
-      }
+      totalElements
+      totalPages
     }
   }
 `
@@ -67,7 +75,13 @@ export function useOnSaleProducts(params: UseOnSaleProductsParams) {
   })
 
   return {
-    data: data?.saleProductList ?? undefined,
+    data: data
+      ? {
+          content: data.saleProductList.content,
+          totalElements: data.saleProductList.totalElements,
+          totalPages: data.saleProductList.totalPages,
+        }
+      : undefined,
     isLoading,
     refetch,
   }

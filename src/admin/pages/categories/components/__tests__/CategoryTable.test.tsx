@@ -43,6 +43,7 @@ function renderCategoryTable(overrides: Partial<ComponentProps<typeof CategoryTa
         isLoading: false,
         canMutate: true,
         pageCount: 1,
+        totalRowCount: 0,
         pagination: {pageIndex: 0, pageSize: 10},
         onPaginationChange: vi.fn(),
         sorting: [],

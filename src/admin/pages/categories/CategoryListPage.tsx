@@ -95,6 +95,7 @@ export function CategoryListPage() {
                     isLoading={isLoading}
                     canMutate={canMutate}
                     pageCount={pageCount}
+                    totalRowCount={data?.totalElements ?? 0}
                     pagination={pagination}
                     onPaginationChange={handlePaginationChange}
                     sorting={sorting}

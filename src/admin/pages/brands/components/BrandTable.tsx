@@ -12,6 +12,7 @@ interface BrandTableProps {
     isLoading: boolean
     canMutate: boolean
     pageCount: number
+    totalRowCount: number
     pagination: PaginationState
     onPaginationChange: OnChangeFn<PaginationState>
     sorting: SortingState
@@ -23,6 +24,7 @@ export function BrandTable({
                                isLoading,
                                canMutate,
                                pageCount,
+                               totalRowCount,
                                pagination,
                                onPaginationChange,
                                sorting,
@@ -123,6 +125,7 @@ export function BrandTable({
                 isLoading={isLoading}
                 manualPagination
                 pageCount={pageCount}
+                totalRowCount={totalRowCount}
                 pagination={pagination}
                 onPaginationChange={onPaginationChange}
                 manualSorting

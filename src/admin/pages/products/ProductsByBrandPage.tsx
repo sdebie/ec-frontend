@@ -189,6 +189,7 @@ export function ProductsByBrandPage() {
           isLoading={isLoading}
           manualPagination
           pageCount={pageCount}
+          totalRowCount={data?.totalElements ?? 0}
           pagination={visiblePagination}
           onPaginationChange={setPagination}
           emptyMessage="No products found"
