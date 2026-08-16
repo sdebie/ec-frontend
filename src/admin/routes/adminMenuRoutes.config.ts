@@ -270,7 +270,7 @@ export const adminMenuRoutes: AdminRouteList = [
         key: 'admin.customers',
         path: '/admin/customers',
         component: lazy(() =>
-            import('@/admin/pages/customers/CustomerListPage').then((m) => ({default: m.CustomerListPage}))
+            import('@/admin/pages/customers/retail/CustomerListPage').then((m) => ({default: m.CustomerListPage}))
         ),
         authority: ['SUPER_ADMIN', 'ORDER_MANAGER', 'VIEWER'],
         meta: {
@@ -297,7 +297,7 @@ export const adminMenuRoutes: AdminRouteList = [
                 key: 'admin.wholesale.applications',
                 path: '/admin/wholesale',
                 component: lazy(() =>
-                    import('@/admin/pages/wholesale/WholesaleApplicationQueuePage').then((m) => ({
+                    import('@/admin/pages/customers/wholesale/WholesaleApplicationQueuePage').then((m) => ({
                         default: m.WholesaleApplicationQueuePage,
                     }))
                 ),
@@ -313,7 +313,7 @@ export const adminMenuRoutes: AdminRouteList = [
                 key: 'admin.wholesale.customers',
                 path: '/admin/wholesale/customers',
                 component: lazy(() =>
-                    import('@/admin/pages/wholesale/WholesaleCustomerListPage').then((m) => ({
+                    import('@/admin/pages/customers/wholesale/WholesaleCustomerListPage').then((m) => ({
                         default: m.WholesaleCustomerListPage,
                     }))
                 ),

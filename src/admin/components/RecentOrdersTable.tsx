@@ -4,7 +4,7 @@ import { StatusBadge } from '@/shared/ui/components'
 import { formatAmount } from '@/shared/utils/formatAmount'
 import { OrderStatusOptions } from '@/shared/types/enums/OrderStatus'
 import type { OrderStatus } from '@/shared/types/enums/OrderStatus'
-import type { AdminOrderRef } from '@/admin/hooks/customers/types'
+import type { AdminOrderRef } from '@/admin/pages/customers/types'
 
 interface RecentOrdersTableProps {
   orders: AdminOrderRef[]

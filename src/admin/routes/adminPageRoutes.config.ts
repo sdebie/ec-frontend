@@ -122,7 +122,7 @@ const adminPageOnlyRoutes: AdminRouteList = [
         key: 'admin.customers.detail',
         path: '/admin/customers/:customerId',
         component: lazy(() =>
-            import('@/admin/pages/customers/CustomerDetailPage').then((m) => ({
+            import('@/admin/pages/customers/retail/CustomerDetailPage').then((m) => ({
                 default: m.CustomerDetailPage,
             }))
         ),
@@ -136,7 +136,7 @@ const adminPageOnlyRoutes: AdminRouteList = [
         key: 'admin.wholesale.customers.detail',
         path: '/admin/wholesale/customers/:customerId',
         component: lazy(() =>
-            import('@/admin/pages/wholesale/WholesaleCustomerDetailPage').then((m) => ({
+            import('@/admin/pages/customers/wholesale/WholesaleCustomerDetailPage').then((m) => ({
                 default: m.WholesaleCustomerDetailPage,
             }))
         ),
@@ -150,7 +150,7 @@ const adminPageOnlyRoutes: AdminRouteList = [
         key: 'admin.wholesale.applications.detail',
         path: '/admin/wholesale/applications/:applicationId',
         component: lazy(() =>
-            import('@/admin/pages/wholesale/WholesaleApplicationDetailPage').then((m) => ({
+            import('@/admin/pages/customers/wholesale/WholesaleApplicationDetailPage').then((m) => ({
                 default: m.WholesaleApplicationDetailPage,
             }))
         ),
