@@ -1,4 +1,4 @@
-import {type ReactNode, useEffect, useRef, useState} from 'react'
+import {useEffect, useRef, useState} from 'react'
 import {useForm} from 'react-hook-form'
 import {zodResolver} from '@hookform/resolvers/zod'
 import {z} from 'zod'
@@ -38,10 +38,9 @@ interface BrandFormProps {
     defaultValues?: Partial<BrandFormValues>
     onSubmit: (values: BrandFormValues) => void
     isSubmitting?: boolean
-    backButton?: ReactNode
 }
 
-export function BrandForm({defaultValues, onSubmit, isSubmitting = false, backButton}: BrandFormProps) {
+export function BrandForm({defaultValues, onSubmit, isSubmitting = false}: BrandFormProps) {
     const navigate = useNavigate()
     const slugManuallyEdited = useRef(false)
     const [slugTouched, setSlugTouched] = useState(false)
@@ -144,10 +143,6 @@ export function BrandForm({defaultValues, onSubmit, isSubmitting = false, backBu
     return (
         <Form onSubmit={handleSubmit(onSubmit)}>
             <Card>
-                <Card.Header className="flex items-center gap-3 mb-1 pb-2">
-                    {backButton}
-                    {isEditMode ? 'Edit Brand' : 'Create Brand'}
-                </Card.Header>
                 <Card.Body className="space-y-3 px-4 pb-4 pt-2">
                     {/* Name */}
                     <FormItem

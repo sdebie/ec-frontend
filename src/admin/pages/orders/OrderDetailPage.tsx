@@ -1,7 +1,7 @@
 import {useState} from 'react'
 import {CalendarDays, Package, Wallet} from 'lucide-react'
 import {useParams} from 'react-router-dom'
-import {OrderStatusDisplay, PageBackButton, PageLoadingSpinner} from '@/shared/ui/components'
+import {FormPageLayout, FormPageNotFound, OrderStatusDisplay, PageLoadingSpinner} from '@/shared/ui/components'
 import {Card} from '@/shared/ui/primitives'
 import {useCan} from '@/shared/auth/adminPermissions'
 import {formatAmount} from '@/shared/utils/formatAmount'
@@ -13,7 +13,6 @@ import {useOrderStatusConfirmation} from './hooks/useOrderStatusConfirmation'
 import type {ConfirmedAction} from './utils/confirmedActions'
 import {OrderCustomerCard} from './components/OrderCustomerCard'
 import {OrderLineItemsTable} from './components/OrderLineItemsTable'
-import {OrderNotFound} from './components/OrderNotFound'
 import {OrderStatTile} from './components/OrderStatTile'
 import {OrderStatusConfirmationDialog} from './components/OrderStatusConfirmationDialog'
 import {OrderStatusHistory} from './components/OrderStatusHistory'
@@ -35,7 +34,7 @@ export function OrderDetailPage() {
     }
 
     if (!data) {
-        return <OrderNotFound/>
+        return <FormPageNotFound entityName="Order" backHref="/admin/orders" backLabel="Back to orders"/>
     }
 
     const order = data
@@ -52,104 +51,98 @@ export function OrderDetailPage() {
     }
 
     return (
-        <div className="flex flex-col gap-6">
-
-            <Card as="article" elevation="sm" padded={false}>
-                <Card.Header className="m-0 flex flex-wrap items-center gap-3 px-5 py-4">
-                    <PageBackButton/>
-                    <span className="text-xl font-semibold text-(--c-text)">
-                        Details
-                    </span>
-                </Card.Header>
-
-                <Card.Body className="flex flex-col gap-6 p-5">
-                    <Card as="section" elevation="none" padded={false}>
-                        <Card.Header className="m-0 px-5 py-4">
-                            Order Information
-                        </Card.Header>
-                        <Card.Body className="flex flex-col gap-6 p-5">
-                            <div className="flex flex-wrap items-center justify-between gap-4">
-                                <h1 className="font-mono text-xl font-semibold uppercase text-(--c-text)">
-                                    #{order.reference}
-                                </h1>
-                                <OrderStatusDisplay status={order.status}/>
-                            </div>
-
-                            <div className="grid gap-4 sm:grid-cols-3">
-                                <OrderStatTile
-                                    label="Order Date"
-                                    value={formatDateTime(order.placedAt)}
-                                    icon={CalendarDays}
-                                />
-                                <OrderStatTile
-                                    label="Total Items"
-                                    value={`${order.itemCount} items`}
-                                    icon={Package}
-                                />
-                                <OrderStatTile
-                                    label="Order Total"
-                                    value={formatAmount(order.grandTotal)}
-                                    icon={Wallet}
-                                />
-                            </div>
-
-                            {canMutate && (
-                                <OrderTransitionActions
-                                    status={order.status}
-                                    onMove={(status) => updateStatus.mutate({orderId: order.id, status})}
-                                    onConfirm={(action: ConfirmedAction) =>
-                                        confirmation.ask(action, order.id, order.status)
-                                    }
-                                    onShip={() => setShipOpen(true)}
-                                />
-                            )}
-
-                            {/* Lines and money side by side on a wide screen, stacked on a narrow one. */}
-                            <div className="grid gap-6 lg:grid-cols-[minmax(0,1fr)_20rem]">
-                                <div className="min-w-0">
-                                    <OrderLineItemsTable lineItems={order.lineItems}/>
+        <FormPageLayout title="Order Details">
+            <div className="flex flex-col gap-6">
+                <Card as="article" elevation="sm" padded={false}>
+                    <Card.Body className="flex flex-col gap-6 p-5">
+                        <Card as="section" elevation="none" padded={false}>
+                            <Card.Header className="m-0 px-5 py-4">
+                                Order Information
+                            </Card.Header>
+                            <Card.Body className="flex flex-col gap-6 p-5">
+                                <div className="flex flex-wrap items-center justify-between gap-4">
+                                    <h2 className="font-mono text-xl font-semibold uppercase text-(--c-text)">
+                                        #{order.reference}
+                                    </h2>
+                                    <OrderStatusDisplay status={order.status}/>
                                 </div>
 
-                                <OrderSummaryPanel
-                                    subtotal={order.subtotal}
-                                    shippingCost={order.shippingCost}
-                                    vatAmount={order.vatAmount}
-                                    grandTotal={order.grandTotal}
-                                />
-                            </div>
-                        </Card.Body>
-                    </Card>
+                                <div className="grid gap-4 sm:grid-cols-3">
+                                    <OrderStatTile
+                                        label="Order Date"
+                                        value={formatDateTime(order.placedAt)}
+                                        icon={CalendarDays}
+                                    />
+                                    <OrderStatTile
+                                        label="Total Items"
+                                        value={`${order.itemCount} items`}
+                                        icon={Package}
+                                    />
+                                    <OrderStatTile
+                                        label="Order Total"
+                                        value={formatAmount(order.grandTotal)}
+                                        icon={Wallet}
+                                    />
+                                </div>
 
-                    <OrderCustomerCard
-                        customerName={order.customerName}
-                        customerEmail={order.customerEmail}
-                        shippingAddress={order.shippingAddress}
-                        trackingNumber={order.trackingNumber}
-                        trackingCarrier={order.trackingCarrier}
-                    />
+                                {canMutate && (
+                                    <OrderTransitionActions
+                                        status={order.status}
+                                        onMove={(status) => updateStatus.mutate({orderId: order.id, status})}
+                                        onConfirm={(action: ConfirmedAction) =>
+                                            confirmation.ask(action, order.id, order.status)
+                                        }
+                                        onShip={() => setShipOpen(true)}
+                                    />
+                                )}
 
-                    <Card as="section" elevation="none" padded={false}>
-                        <Card.Header className="m-0 px-5 py-4">Order Tracking</Card.Header>
-                        <Card.Body className="p-5">
-                            <OrderStatusHistory history={order.statusHistory}/>
-                        </Card.Body>
-                    </Card>
-                </Card.Body>
-            </Card>
+                                {/* Lines and money side by side on a wide screen, stacked on a narrow one. */}
+                                <div className="grid gap-6 lg:grid-cols-[minmax(0,1fr)_20rem]">
+                                    <div className="min-w-0">
+                                        <OrderLineItemsTable lineItems={order.lineItems}/>
+                                    </div>
 
-            <OrderStatusConfirmationDialog
-                state={confirmation.state}
-                onConfirm={handleConfirmAction}
-                onClose={confirmation.close}
-                isLoading={updateStatus.isPending}
-            />
+                                    <OrderSummaryPanel
+                                        subtotal={order.subtotal}
+                                        shippingCost={order.shippingCost}
+                                        vatAmount={order.vatAmount}
+                                        grandTotal={order.grandTotal}
+                                    />
+                                </div>
+                            </Card.Body>
+                        </Card>
 
-            <ShipOrderDialog
-                open={shipOpen}
-                onClose={() => setShipOpen(false)}
-                onConfirm={handleShip}
-                isLoading={updateStatus.isPending}
-            />
-        </div>
+                        <OrderCustomerCard
+                            customerName={order.customerName}
+                            customerEmail={order.customerEmail}
+                            shippingAddress={order.shippingAddress}
+                            trackingNumber={order.trackingNumber}
+                            trackingCarrier={order.trackingCarrier}
+                        />
+
+                        <Card as="section" elevation="none" padded={false}>
+                            <Card.Header className="m-0 px-5 py-4">Order Tracking</Card.Header>
+                            <Card.Body className="p-5">
+                                <OrderStatusHistory history={order.statusHistory}/>
+                            </Card.Body>
+                        </Card>
+                    </Card.Body>
+                </Card>
+
+                <OrderStatusConfirmationDialog
+                    state={confirmation.state}
+                    onConfirm={handleConfirmAction}
+                    onClose={confirmation.close}
+                    isLoading={updateStatus.isPending}
+                />
+
+                <ShipOrderDialog
+                    open={shipOpen}
+                    onClose={() => setShipOpen(false)}
+                    onConfirm={handleShip}
+                    isLoading={updateStatus.isPending}
+                />
+            </div>
+        </FormPageLayout>
     )
 }

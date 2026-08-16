@@ -1,4 +1,4 @@
-import {type ReactNode, useEffect, useRef, useState} from 'react'
+import {useEffect, useRef, useState} from 'react'
 import {useController, useForm} from 'react-hook-form'
 import {zodResolver} from '@hookform/resolvers/zod'
 import {z} from 'zod'
@@ -61,7 +61,6 @@ interface CategoryFormProps {
     onSubmit: (values: CategoryFormValues) => void
     isSubmitting?: boolean
     editingCategoryId?: string
-    backButton?: ReactNode
 }
 
 export function CategoryForm({
@@ -69,7 +68,6 @@ export function CategoryForm({
                                  onSubmit,
                                  isSubmitting = false,
                                  editingCategoryId,
-                                 backButton,
                              }: CategoryFormProps) {
     const navigate = useNavigate()
     // Seeded from props, not synced by effect: the auto-slug effect below runs
@@ -215,10 +213,6 @@ export function CategoryForm({
     return (
         <Form onSubmit={handleSubmit(submitWithUniquenessCheck)}>
             <Card>
-                <Card.Header className="flex items-center gap-3 mb-1 pb-2">
-                    {backButton}
-                    {isEditMode ? 'Edit Category' : 'Create Category'}
-                </Card.Header>
                 <Card.Body className="space-y-3 px-4 pb-4 pt-2">
                     {/* Name */}
                     <FormItem

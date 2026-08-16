@@ -1,5 +1,5 @@
 import {Navigate, useNavigate} from 'react-router-dom'
-import {PageBackButton, toast} from '@/shared/ui/components'
+import {FormPageLayout, toast} from '@/shared/ui/components'
 import {useBreadcrumb} from '@/admin/context/BreadcrumbContext'
 import {useCan} from '@/shared/auth/adminPermissions'
 import {mutationErrorMessage} from '@/admin/utils'
@@ -42,10 +42,11 @@ export function CategoryCreatePage() {
     }
 
     return (
-        <CategoryForm
-            onSubmit={handleSubmit}
-            isSubmitting={mutation.isPending}
-            backButton={<PageBackButton/>}
-        />
+        <FormPageLayout title="Create Category">
+            <CategoryForm
+                onSubmit={handleSubmit}
+                isSubmitting={mutation.isPending}
+            />
+        </FormPageLayout>
     )
 }
