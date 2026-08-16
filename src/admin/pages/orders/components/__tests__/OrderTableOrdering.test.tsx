@@ -11,14 +11,18 @@ vi.mock('../../hooks/useUpdateOrderStatus', () => ({
 }))
 
 /**
- * The server pages the orders and returns them newest first. That makes the row order part
- * of the answer, not a local presentation choice — and a table that re-sorts what it was
- * given can only ever sort the one page it holds, silently reordering 10 rows out of
- * however many matched.
+ * The server pages the orders and returns them in the order it was asked for — that makes
+ * row order part of the answer, not a local presentation choice, and a table that re-sorts
+ * what it was given can only ever sort the one page it holds, silently reordering 10 rows
+ * out of however many matched.
  *
- * The failure this pins is not the click itself but what it leaves behind: the sort state
- * outlives the rows, so every later fetch — a new filter, a new page — arrives correct from
- * the server and is reordered on the way to the screen.
+ * The failure this originally pinned is not the click itself but what it leaves behind: the
+ * sort state outlives the rows, so every later fetch — a new filter, a new page — arrives
+ * correct from the server and is reordered on the way to the screen. `OrderTable` now offers
+ * real server-side sorting on the three columns with a backing column, so `sorting`/
+ * `onSortingChange` are controlled props here rather than left empty — the "Customer" column
+ * clicked below stays unsortable on its own terms (it is a computed fallback, not a stored
+ * field), which is what proves the guard still holds where sorting is genuinely absent.
  */
 
 const order = (reference: string, placedAt: string, customerName: string): AdminOrderSummary => ({
@@ -48,6 +52,8 @@ const renderTable = (data: AdminOrderSummary[]) =>
                 pageCount={1}
                 pagination={{pageIndex: 0, pageSize: 10}}
                 onPaginationChange={vi.fn()}
+                sorting={[]}
+                onSortingChange={vi.fn()}
             />
         </MemoryRouter>,
     )
@@ -93,10 +99,36 @@ describe('OrderTable preserves the order the server returned', () => {
                     pageCount={1}
                     pagination={{pageIndex: 0, pageSize: 10}}
                     onPaginationChange={vi.fn()}
+                    sorting={[]}
+                    onSortingChange={vi.fn()}
                 />
             </MemoryRouter>,
         )
 
         expect(referencesInOrder()).toEqual(['ORD-9', 'ORD-8'])
+    })
+
+    it('clicking a real sortable column asks the server instead of reordering locally', () => {
+        const onSortingChange = vi.fn()
+        render(
+            <MemoryRouter>
+                <OrderTable
+                    data={NEWEST_FIRST}
+                    isLoading={false}
+                    canMutate={false}
+                    pageCount={1}
+                    pagination={{pageIndex: 0, pageSize: 10}}
+                    onPaginationChange={vi.fn()}
+                    sorting={[]}
+                    onSortingChange={onSortingChange}
+                />
+            </MemoryRouter>,
+        )
+
+        fireEvent.click(screen.getByText('Order Date'))
+
+        expect(onSortingChange).toHaveBeenCalledTimes(1)
+        // The rows themselves must not move — only the server's next response should.
+        expect(referencesInOrder()).toEqual(['ORD-3', 'ORD-2', 'ORD-1'])
     })
 })

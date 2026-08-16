@@ -131,6 +131,24 @@ describe('admin order hooks', () => {
       expect(buildVariables({ page: 1, pageSize: 10, fulfilmentState: 'READY' }))
         .not.toHaveProperty('paymentState')
     })
+
+    it('omits sortBy/sortDir when no sort is given', () => {
+      const variables = buildVariables({ page: 1, pageSize: 10 })
+      expect(variables).not.toHaveProperty('sortBy')
+      expect(variables).not.toHaveProperty('sortDir')
+    })
+
+    it('sends only the first sort entry — adminOrderList accepts one column, not a list', () => {
+      const variables = buildVariables({
+        page: 1,
+        pageSize: 10,
+        sort: [
+          { field: 'total', direction: 'DESC' },
+          { field: 'status', direction: 'ASC' },
+        ],
+      })
+      expect(variables).toMatchObject({ sortBy: 'total', sortDir: 'DESC' })
+    })
   })
 
   describe('useOrderDetail', () => {

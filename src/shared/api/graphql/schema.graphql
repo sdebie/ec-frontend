@@ -446,7 +446,7 @@ type Query {
   "Admin order detail: lines, address, money breakdown and status timeline. Staff JWT required."
   adminOrder(id: String): AdminOrderDetailDto
   "Admin paginated order list with customer, item count and total. Staff JWT required."
-  adminOrderList(fromDate: String, fulfilmentState: String, pageIndex: Int = 0, pageSize: Int = 10, paymentState: String, toDate: String): PageResponse_AdminOrderListItemDto
+  adminOrderList(fromDate: String, fulfilmentState: String, pageIndex: Int = 0, pageSize: Int = 10, paymentState: String, sortBy: String, sortDir: String, toDate: String): PageResponse_AdminOrderListItemDto
   "Admin paginated product list with SKU, stock, and price. Staff JWT required."
   adminProductList(brandId: String, categoryId: String, pageIndex: Int = 0, pageSize: Int = 10, search: String, status: String): PageResponse_AdminProductListItemDto
   "Product count breakdown by status. Staff JWT required."

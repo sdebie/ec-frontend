@@ -1,3 +1,5 @@
+import type {SortItem} from '@/admin/utils'
+
 export type CustomerStatus = 'ACTIVE' | 'PENDING' | 'DISABLED'
 export type CustomerType = 'GUEST' | 'RETAILER' | 'WHOLESALER'
 export type WholesaleStatus = 'PENDING' | 'APPROVED' | 'REJECTED'
@@ -50,6 +52,7 @@ export interface UseCustomersParams {
     status?: string
     search?: string
     shopperType?: string
+    sort?: SortItem[]
 }
 
 export interface CustomerStatusUpdatePayload {

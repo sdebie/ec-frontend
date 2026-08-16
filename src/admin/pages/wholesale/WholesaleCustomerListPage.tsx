@@ -16,6 +16,7 @@ import {
 import type { ColumnDef } from '@/shared/ui/components'
 import { Input } from '@/shared/ui/primitives'
 import { useCan } from '@/shared/auth/adminPermissions'
+import { useTableSort } from '@/admin/hooks/useTableSort'
 import { useWholesaleCustomers, useWholesaleCustomerStatusAction } from '@/admin/hooks/wholesale'
 import type { WholesaleCustomerListItem } from '@/admin/hooks/wholesale'
 import {
@@ -60,6 +61,19 @@ export function WholesaleCustomerListPage() {
     return () => clearTimeout(t)
   }, [searchInput])
 
+  const { sorting, onSortingChange: onSortingChangeUrl, sort } = useTableSort()
+
+  // useTableSort resets `page` in the URL on a sort change, which is a no-op here —
+  // this page's pagination is local component state, not URL-driven. The reset has
+  // to happen explicitly, the same way it does for the status filter and search.
+  const onSortingChange: typeof onSortingChangeUrl = useCallback(
+    (updater) => {
+      onSortingChangeUrl(updater)
+      setPagination((prev) => ({ ...prev, pageIndex: 0 }))
+    },
+    [onSortingChangeUrl],
+  )
+
   // Confirmation dialog state for suspend action
   const [confirmDialog, setConfirmDialog] = useState<{
     open: boolean
@@ -73,6 +87,7 @@ export function WholesaleCustomerListPage() {
     pageSize: pagination.pageSize,
     status: statusFilter === 'ALL' ? undefined : statusFilter,
     search: search || undefined,
+    sort,
   })
 
   const handleStatusFilterChange = (value: string) => {
@@ -104,13 +119,10 @@ export function WholesaleCustomerListPage() {
     setConfirmDialog((prev) => ({ ...prev, open: false }))
   }
 
-  // None of these columns are sortable — this list is useCustomers scoped to WHOLESALER
-  // (see useWholesaleCustomers), so it inherits the same gap: CustomerRepository never
-  // wires a sort into its hand-built JPQL, and 'wholesaleApplicationStatus' has no backing
-  // column on CustomerEntity at all (it comes from a joined application row).
   const columns = useMemo<ColumnDef<WholesaleCustomerListItem, unknown>[]>(
     () => [
       {
+        // Not sortable: concatenates firstName + lastName, no single backend field.
         id: 'name',
         header: 'Name',
         enableSorting: false,
@@ -124,14 +136,17 @@ export function WholesaleCustomerListPage() {
         ),
       },
       {
+        // accessorKey stays 'email' (the flattened DTO field, needed for TanStack to
+        // treat the header as clickable); id is overridden to 'user.email', the real
+        // column — email lives on the linked UserEntity, and that id is sent to the
+        // server unmodified as the sort key.
         accessorKey: 'email',
+        id: 'user.email',
         header: 'Email',
-        enableSorting: false,
       },
       {
         accessorKey: 'status',
         header: 'Account Status',
-        enableSorting: false,
         cell: ({ row }) => (
           <StatusBadge
             label={row.original.status}
@@ -140,6 +155,9 @@ export function WholesaleCustomerListPage() {
         ),
       },
       {
+        // Not sortable: resolved per row from a separate WholesaleApplicationEntity
+        // lookup (CustomerAdminService.wholesaleApplicationFor), not a JPQL property on
+        // CustomerEntity — there is no column here to sort by.
         id: 'wholesaleApplicationStatus',
         header: 'Application Status',
         enableSorting: false,
@@ -155,9 +173,10 @@ export function WholesaleCustomerListPage() {
         },
       },
       {
+        // Same accessorKey/id split as email: registeredAt is customer.user.createdAt.
         accessorKey: 'registeredAt',
+        id: 'user.createdAt',
         header: 'Registered Date',
-        enableSorting: false,
         cell: ({ row }) => formatDate(row.original.registeredAt),
       },
       ...(canMutate
@@ -236,6 +255,9 @@ export function WholesaleCustomerListPage() {
         pageCount={pageCount}
         pagination={pagination}
         onPaginationChange={setPagination}
+        manualSorting
+        sorting={sorting}
+        onSortingChange={onSortingChange}
       />
 
       {/* Confirmation Dialog for Suspend */}

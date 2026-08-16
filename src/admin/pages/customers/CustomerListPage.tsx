@@ -12,6 +12,7 @@ import {
 import type { ColumnDef } from '@/shared/ui/components'
 import { Input } from '@/shared/ui/primitives'
 import { useCan } from '@/shared/auth/adminPermissions'
+import { useTableSort } from '@/admin/hooks/useTableSort'
 import { useCustomers, useUpdateCustomerStatus } from '@/admin/hooks/customers'
 import type { AdminCustomerSummary } from '@/admin/hooks/customers'
 import { getAvailableActions, getCustomerStatusColor } from '@/admin/hooks/customers'
@@ -52,6 +53,19 @@ export function CustomerListPage() {
     return () => clearTimeout(t)
   }, [searchInput])
 
+  const { sorting, onSortingChange: onSortingChangeUrl, sort } = useTableSort()
+
+  // useTableSort resets `page` in the URL on a sort change, which is a no-op here —
+  // this page's pagination is local component state, not URL-driven. The reset has
+  // to happen explicitly, the same way it does for the status filter and search.
+  const onSortingChange: typeof onSortingChangeUrl = useCallback(
+    (updater) => {
+      onSortingChangeUrl(updater)
+      setPagination((prev) => ({ ...prev, pageIndex: 0 }))
+    },
+    [onSortingChangeUrl],
+  )
+
   // Confirmation dialog state for suspend action
   const [confirmDialog, setConfirmDialog] = useState<{
     open: boolean
@@ -65,6 +79,7 @@ export function CustomerListPage() {
     pageSize: pagination.pageSize,
     status: statusFilter === 'ALL' ? undefined : statusFilter,
     search: search || undefined,
+    sort,
   })
 
   const handleStatusFilterChange = (value: string) => {
@@ -96,16 +111,11 @@ export function CustomerListPage() {
     setConfirmDialog((prev) => ({ ...prev, open: false }))
   }
 
-  // None of these columns are sortable. CustomerRepository.findForAdmin/countForAdmin
-  // build their own JPQL by hand rather than going through PanacheQueryBuilder, so a sort
-  // sent from here would be silently ignored server-side — wiring these to useTableSort
-  // would look like it worked and never actually reorder anything. Fixing that is a
-  // backend change (either route CustomerRepository through PanacheQueryBuilder, or thread
-  // FilterRequest.getSort() into its hand-built query), not something this page can do
-  // alone.
   const columns = useMemo<ColumnDef<AdminCustomerSummary, unknown>[]>(
     () => [
       {
+        // Not sortable: concatenates firstName + lastName, and there is no single
+        // backend field a "full name" sort could map to.
         id: 'name',
         header: 'Name',
         enableSorting: false,
@@ -119,19 +129,21 @@ export function CustomerListPage() {
         ),
       },
       {
+        // accessorKey stays 'email' (the flattened DTO field, needed for TanStack to
+        // treat the header as clickable); id is overridden to 'user.email', the real
+        // column — email lives on the linked UserEntity, not on Customer itself, and
+        // that id is sent to the server unmodified as the sort key.
         accessorKey: 'email',
+        id: 'user.email',
         header: 'Email',
-        enableSorting: false,
       },
       {
         accessorKey: 'shopperType',
         header: 'Type',
-        enableSorting: false,
       },
       {
         accessorKey: 'status',
         header: 'Status',
-        enableSorting: false,
         cell: ({ row }) => (
           <StatusBadge
             label={row.original.status}
@@ -140,9 +152,11 @@ export function CustomerListPage() {
         ),
       },
       {
+        // Same accessorKey/id split as email: registeredAt is customer.user.createdAt,
+        // one hop through the same join.
         accessorKey: 'registeredAt',
+        id: 'user.createdAt',
         header: 'Registered',
-        enableSorting: false,
         cell: ({ row }) => formatDate(row.original.registeredAt),
       },
       ...(canMutate
@@ -204,6 +218,9 @@ export function CustomerListPage() {
         pageCount={pageCount}
         pagination={pagination}
         onPaginationChange={setPagination}
+        manualSorting
+        sorting={sorting}
+        onSortingChange={onSortingChange}
       />
 
       {/* Confirmation Dialog for Suspend */}

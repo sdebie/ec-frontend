@@ -32,7 +32,12 @@ function createWrapper() {
 
 describe('useCheckout', () => {
     beforeEach(() => {
-        vi.clearAllMocks()
+        // resetAllMocks, not clearAllMocks: clearAllMocks leaves queued
+        // mockResolvedValueOnce/mockRejectedValueOnce values in place, and a test
+        // whose implementation doesn't consume every queued response it set up
+        // (e.g. an auto-retry that isn't wired yet) leaks its leftover response
+        // into the next test's first call.
+        vi.resetAllMocks()
         useCheckoutSessionStore.getState().clearSession()
         useCartStore.setState({
             items: [
@@ -233,5 +238,140 @@ describe('useCheckout', () => {
         await waitFor(() => {
             expect(result.current.isLoading).toBe(false)
         })
+    })
+
+    // ── Idempotency key (.kiro/specs/checkout-idempotency, task 7.1) ───────
+
+    function keyHeaderOf(callIndex: number): string {
+        const [, , config] = mockPost.mock.calls[callIndex]
+        return config?.headers?.['Idempotency-Key']
+    }
+
+    it('sends an Idempotency-Key header', async () => {
+        mockPost.mockResolvedValueOnce({
+            data: {orderId: 'o1', sessionId: 's1', lines: [], subtotal: 0, vatAmount: 0, shippingEstimate: 0, grandTotal: 0},
+        })
+
+        const {result} = renderHook(() => useCheckout(), {wrapper: createWrapper()})
+        await act(async () => result.current.checkout())
+        await waitFor(() => expect(mockPost).toHaveBeenCalledTimes(1))
+
+        expect(keyHeaderOf(0)).toBeTruthy()
+    })
+
+    it('sends the same key on a retry of one intent (cart unchanged)', async () => {
+        mockPost.mockRejectedValueOnce({isAxiosError: true, response: {status: 500, data: {}}})
+        mockPost.mockResolvedValueOnce({
+            data: {orderId: 'o1', sessionId: 's1', lines: [], subtotal: 0, vatAmount: 0, shippingEstimate: 0, grandTotal: 0},
+        })
+
+        const {result} = renderHook(() => useCheckout(), {wrapper: createWrapper()})
+        await act(async () => result.current.checkout())
+        await waitFor(() => expect(result.current.error).not.toBeNull())
+
+        await act(async () => result.current.checkout())
+        await waitFor(() => expect(mockPost).toHaveBeenCalledTimes(2))
+
+        expect(keyHeaderOf(0)).toBe(keyHeaderOf(1))
+    })
+
+    it('sends a different key after the cart changes', async () => {
+        mockPost.mockRejectedValueOnce({isAxiosError: true, response: {status: 500, data: {}}})
+        mockPost.mockResolvedValueOnce({
+            data: {orderId: 'o1', sessionId: 's1', lines: [], subtotal: 0, vatAmount: 0, shippingEstimate: 0, grandTotal: 0},
+        })
+
+        const {result} = renderHook(() => useCheckout(), {wrapper: createWrapper()})
+        await act(async () => result.current.checkout())
+        await waitFor(() => expect(result.current.error).not.toBeNull())
+
+        useCartStore.setState({
+            items: [{variantId: 'variant-1', productName: 'Product A', variantLabel: 'Red / M', quantity: 5}],
+            itemCount: 5,
+        })
+
+        await act(async () => result.current.checkout())
+        await waitFor(() => expect(mockPost).toHaveBeenCalledTimes(2))
+
+        expect(keyHeaderOf(0)).not.toBe(keyHeaderOf(1))
+    })
+
+    it.each(['IDEMPOTENCY_KEY_EXPIRED', 'IDEMPOTENCY_CART_MISMATCH', 'IDEMPOTENCY_ORDER_VOIDED'])(
+        'on %s: clears the stored key and automatically resubmits with a fresh one',
+        async (code) => {
+            mockPost.mockRejectedValueOnce({isAxiosError: true, response: {status: 409, data: {code}}})
+            mockPost.mockResolvedValueOnce({
+                data: {orderId: 'o1', sessionId: 's1', lines: [], subtotal: 0, vatAmount: 0, shippingEstimate: 0, grandTotal: 0},
+            })
+
+            const {result} = renderHook(() => useCheckout(), {wrapper: createWrapper()})
+            await act(async () => result.current.checkout())
+
+            // Recoverable and invisible to the shopper: no click needed, and it lands on success.
+            await waitFor(() => expect(mockNavigate).toHaveBeenCalledWith('/checkout?orderId=o1'))
+            expect(mockPost).toHaveBeenCalledTimes(2)
+            expect(keyHeaderOf(0)).not.toBe(keyHeaderOf(1))
+        }
+    )
+
+    it('on IDEMPOTENCY_WRONG_OWNER: does NOT clear the key and does NOT auto-resubmit', async () => {
+        mockPost.mockRejectedValueOnce({
+            isAxiosError: true,
+            response: {status: 409, data: {code: 'IDEMPOTENCY_WRONG_OWNER'}},
+        })
+
+        const {result} = renderHook(() => useCheckout(), {wrapper: createWrapper()})
+        await act(async () => result.current.checkout())
+
+        await waitFor(() => expect(result.current.error).not.toBeNull())
+        // Give any errant auto-retry a chance to have fired before asserting it didn't.
+        await new Promise((resolve) => setTimeout(resolve, 0))
+
+        expect(mockPost).toHaveBeenCalledTimes(1)
+        expect(mockNavigate).not.toHaveBeenCalled()
+    })
+
+    it('an unrecognised 409 code fails closed onto the wrong-owner behaviour (no auto-retry)', async () => {
+        mockPost.mockRejectedValueOnce({
+            isAxiosError: true,
+            response: {status: 409, data: {code: 'SOME_FUTURE_CODE'}},
+        })
+
+        const {result} = renderHook(() => useCheckout(), {wrapper: createWrapper()})
+        await act(async () => result.current.checkout())
+
+        await waitFor(() => expect(result.current.error).not.toBeNull())
+        await new Promise((resolve) => setTimeout(resolve, 0))
+
+        expect(mockPost).toHaveBeenCalledTimes(1)
+    })
+
+    it('a 400 says to refresh, not to try again', async () => {
+        mockPost.mockRejectedValueOnce({isAxiosError: true, response: {status: 400, data: 'Idempotency-Key header is required'}})
+
+        const {result} = renderHook(() => useCheckout(), {wrapper: createWrapper()})
+        await act(async () => result.current.checkout())
+
+        await waitFor(() => expect(result.current.error).not.toBeNull())
+        expect(result.current.error).not.toBe('Something went wrong — please try again')
+        expect(result.current.error).toMatch(/refresh/i)
+    })
+
+    it('refuses a cart over the line cap before sending any request', async () => {
+        useCartStore.setState({
+            items: Array.from({length: 201}, (_, i) => ({
+                variantId: `variant-${i}`,
+                productName: 'P',
+                variantLabel: 'L',
+                quantity: 1,
+            })),
+            itemCount: 201,
+        })
+
+        const {result} = renderHook(() => useCheckout(), {wrapper: createWrapper()})
+        await act(async () => result.current.checkout())
+
+        expect(mockPost).not.toHaveBeenCalled()
+        expect(result.current.error).not.toBeNull()
     })
 })

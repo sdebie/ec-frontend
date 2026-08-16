@@ -1,6 +1,7 @@
 import { useEffect } from 'react'
 import { useCartStore, type CartLineItem } from '@/storefront/cart/store/cartStore'
 import { useCheckoutSessionStore } from '../store/checkoutSessionStore'
+import { cartSignature } from '../utils/cartSignature'
 import type { CheckoutSession } from '../types'
 
 /**
@@ -26,14 +27,6 @@ export function useExpireStaleCheckoutSession() {
             expireIfStale(state.items)
         })
     }, [])
-}
-
-/** variantId:quantity pairs, order-independent. */
-function cartSignature(items: CartLineItem[]): string {
-    return items
-        .map((item) => `${item.variantId}:${item.quantity}`)
-        .sort()
-        .join('|')
 }
 
 function sessionSignature(session: CheckoutSession): string {

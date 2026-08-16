@@ -1,7 +1,7 @@
 import {useCallback, useMemo} from 'react'
 import {Link, useNavigate} from 'react-router-dom'
 import {Eye} from 'lucide-react'
-import type {OnChangeFn, PaginationState} from '@tanstack/react-table'
+import type {OnChangeFn, PaginationState, SortingState} from '@tanstack/react-table'
 
 import type {ColumnDef} from '@/shared/ui/components'
 import {DataTable, OrderStatusDisplay, RowActionButton} from '@/shared/ui/components'
@@ -36,6 +36,8 @@ interface OrderTableProps {
     pageCount: number
     pagination: PaginationState
     onPaginationChange: OnChangeFn<PaginationState>
+    sorting: SortingState
+    onSortingChange: OnChangeFn<SortingState>
 }
 
 /**
@@ -50,6 +52,8 @@ export function OrderTable({
                                pageCount,
                                pagination,
                                onPaginationChange,
+                               sorting,
+                               onSortingChange,
                            }: OrderTableProps) {
     const navigate = useNavigate()
     const confirmation = useOrderStatusConfirmation()
@@ -73,10 +77,16 @@ export function OrderTable({
         updateOrderStatus(confirmation.buildPayload(), {onSettled: confirmation.close})
     }
 
-    const columns = useMemo<ColumnDef<AdminOrderSummary, unknown>[]>(() => {
-        const definitions: ColumnDef<AdminOrderSummary, unknown>[] = [
+    const columns = useMemo<ColumnDef<AdminOrderSummary, unknown>[]>(
+        () => [
             {
+                // accessorKey stays 'placedAt' — TanStack only makes a header clickable
+                // when the column has a real accessorFn (getCanSort() checks it
+                // explicitly), and accessorKey is what produces one. id is overridden to
+                // 'createdAt', the entity's real column, because that id is sent to the
+                // server unmodified as the sort key — see useTableSort's contract.
                 accessorKey: 'placedAt',
+                id: 'createdAt',
                 header: 'Order Date',
                 cell: ({row}) => (
                     <span className="whitespace-nowrap">
@@ -87,6 +97,10 @@ export function OrderTable({
             {
                 accessorKey: 'reference',
                 header: 'Reference',
+                // Not sortable: derived from the id (see OrderEntity.getReference()), not a
+                // stored column, and a UUID carries no chronological order to sort by
+                // anyway.
+                enableSorting: false,
                 cell: ({row}) => (
                     <Link
                         to={`/admin/orders/${row.original.id}`}
@@ -99,14 +113,24 @@ export function OrderTable({
             {
                 accessorKey: 'customerName',
                 header: 'Customer',
+                // Not sortable: falls back from the customer's name to the checkout
+                // contact's, so there is no single backend column it means.
+                enableSorting: false,
                 cell: ({row}) => row.original.customerName?.trim() || 'Guest',
             },
             {
+                // Not sortable: the sum of line quantities, computed per order, not a
+                // column — same shape as Quote Requests' itemCount.
                 accessorKey: 'itemCount',
                 header: 'Items',
+                enableSorting: false,
             },
             {
+                // Same accessorKey/id split as Order Date: 'total' produces the accessorFn
+                // a clickable header needs, 'totalAmount' is the real column sent as the
+                // sort key.
                 accessorKey: 'total',
+                id: 'totalAmount',
                 header: 'Total',
                 cell: ({row}) => formatAmount(row.original.total),
             },
@@ -118,6 +142,7 @@ export function OrderTable({
             {
                 id: 'actions',
                 header: 'Actions',
+                enableSorting: false,
                 cell: ({row}: { row: { original: AdminOrderSummary } }) => {
                     const order = row.original
                     return (
@@ -139,16 +164,9 @@ export function OrderTable({
                     )
                 },
             } as ColumnDef<AdminOrderSummary, unknown>,
-        ]
-
-        // The server orders newest first and pages against that order, so no column here is
-        // sortable. A client-side sort can only reach the rows already fetched — it would
-        // reorder this page of ten and leave the rest of the result set where it was, which
-        // answers a different question from the one the header appears to ask. The state
-        // also outlives the rows, so a sort clicked once silently reorders every later
-        // filter and page. Sorting by a column has to be asked of the server first.
-        return definitions.map((column) => ({...column, enableSorting: false}))
-    }, [canMutate, handleSelect])
+        ],
+        [canMutate, handleSelect],
+    )
 
     return (
         <>
@@ -161,6 +179,9 @@ export function OrderTable({
                 pageCount={pageCount}
                 pagination={pagination}
                 onPaginationChange={onPaginationChange}
+                manualSorting
+                sorting={sorting}
+                onSortingChange={onSortingChange}
             />
 
             <OrderStatusConfirmationDialog

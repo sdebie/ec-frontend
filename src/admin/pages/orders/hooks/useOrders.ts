@@ -2,6 +2,7 @@ import {useQuery} from '@tanstack/react-query'
 import {gql} from 'graphql-request'
 
 import {adminGraphqlClient} from '@/shared/api/graphql/adminGraphqlClient'
+import type {SortItem} from '@/admin/utils'
 
 import type {AdminOrderSummary, OrdersPage} from '../types'
 
@@ -12,6 +13,8 @@ export interface UseOrdersParams {
     fulfilmentState?: string
     fromDate?: string
     toDate?: string
+    /** Only the first entry is used — `adminOrderList` accepts one sort column, not a list. */
+    sort?: SortItem[]
 }
 
 interface AdminOrderListResponse {
@@ -29,6 +32,8 @@ const ADMIN_ORDER_LIST = gql`
         $fulfilmentState: String
         $fromDate: String
         $toDate: String
+        $sortBy: String
+        $sortDir: String
     ) {
         adminOrderList(
             pageIndex: $pageIndex
@@ -37,6 +42,8 @@ const ADMIN_ORDER_LIST = gql`
             fulfilmentState: $fulfilmentState
             fromDate: $fromDate
             toDate: $toDate
+            sortBy: $sortBy
+            sortDir: $sortDir
         ) {
             content {
                 id
@@ -75,6 +82,10 @@ export function buildVariables(params: UseOrdersParams) {
     }
     if (params.toDate) {
         variables.toDate = params.toDate
+    }
+    if (params.sort?.[0]) {
+        variables.sortBy = params.sort[0].field
+        variables.sortDir = params.sort[0].direction
     }
 
     return variables

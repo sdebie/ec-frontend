@@ -48,6 +48,7 @@ export interface UseWholesaleCustomersParams {
   pageSize: number
   status?: CustomerStatus | 'ALL'
   search?: string
+  sort?: SortItem[]
 }
 
 // --- Customer Detail ---

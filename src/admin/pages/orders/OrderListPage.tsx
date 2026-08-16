@@ -3,6 +3,7 @@ import type {PaginationState} from '@tanstack/react-table'
 
 import {DateRangePreset, PageLayout, resolveDateRange} from '@/shared/ui/components'
 import {useCan} from '@/shared/auth/adminPermissions'
+import {useTableSort} from '@/admin/hooks/useTableSort'
 import {useOrders} from './hooks/useOrders'
 import type {OrderListFilters} from './components/OrderListToolbar'
 import {OrderListToolbar} from './components/OrderListToolbar'
@@ -25,6 +26,22 @@ export function OrderListPage() {
         pageIndex: 0,
         pageSize: 10,
     })
+
+    const {sorting, onSortingChange: onSortingChangeUrl, sort} = useTableSort()
+
+    /*
+      useTableSort resets `page` in the URL on a sort change, which is a no-op here — this
+      page's pagination is local component state, not URL-driven, unlike Brands/Categories.
+      The reset has to happen the same way a filter change resets it: explicitly, alongside
+      the URL write.
+    */
+    const onSortingChange: typeof onSortingChangeUrl = useCallback(
+        (updater) => {
+            onSortingChangeUrl(updater)
+            setPagination((prev) => ({...prev, pageIndex: 0}))
+        },
+        [onSortingChangeUrl],
+    )
 
     /**
      * Narrowing the list invalidates the page along with it: page 3 of the old result set
@@ -50,6 +67,7 @@ export function OrderListPage() {
         fulfilmentState: asArgument(filters.fulfilmentState),
         fromDate,
         toDate,
+        sort,
     })
 
     const pageCount = data ? Math.ceil(data.total / pagination.pageSize) : 0
@@ -66,6 +84,8 @@ export function OrderListPage() {
                     pageCount={pageCount}
                     pagination={pagination}
                     onPaginationChange={setPagination}
+                    sorting={sorting}
+                    onSortingChange={onSortingChange}
                 />
             </div>
         </PageLayout>
