@@ -3,23 +3,38 @@ import { render, screen, fireEvent, waitFor } from '@testing-library/react'
 import { MemoryRouter } from 'react-router-dom'
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 
-import { useImageList } from '@/admin/hooks/images/useImageList'
-import { useImageDirectories } from '@/admin/hooks/images/useImageDirectories'
-import { useUploadImage } from '@/admin/hooks/images/useUploadImage'
+import { useImageList } from '@/admin/pages/images/hooks/useImageList'
+import { useImageDirectories } from '@/admin/pages/images/hooks/useImageDirectories'
+import { useUploadImage } from '@/admin/pages/images/hooks/useUploadImage'
+import { useImageListPage } from '@/admin/hooks/images/useImageListPage'
+import { useDeleteImage } from '@/admin/pages/images/hooks/useDeleteImage'
 import { useAdminAuthStore } from '@/shared/auth/adminAuthStore'
+import { toast } from '@/shared/ui/components/toast'
 import { ImageGalleryPage } from '../ImageGalleryPage'
 
-vi.mock('@/admin/hooks/images/useImageList', () => ({
+vi.mock('@/admin/pages/images/hooks/useImageList', () => ({
   useImageList: vi.fn(),
 }))
-vi.mock('@/admin/hooks/images/useImageDirectories', () => ({
+vi.mock('@/admin/pages/images/hooks/useImageDirectories', () => ({
   useImageDirectories: vi.fn(),
 }))
-vi.mock('@/admin/hooks/images/useUploadImage', () => ({
+vi.mock('@/admin/pages/images/hooks/useUploadImage', () => ({
   useUploadImage: vi.fn(),
+}))
+vi.mock('@/admin/hooks/images/useImageListPage', () => ({
+  useImageListPage: vi.fn(),
+}))
+vi.mock('@/admin/pages/images/hooks/useDeleteImage', () => ({
+  useDeleteImage: vi.fn(),
 }))
 vi.mock('@/shared/auth/adminAuthStore', () => ({
   useAdminAuthStore: vi.fn(),
+}))
+vi.mock('@/shared/ui/components/toast', () => ({
+  toast: {
+    success: vi.fn(),
+    error: vi.fn(),
+  },
 }))
 
 function createQueryClient() {
@@ -41,6 +56,17 @@ function setupDefaultMocks(overrides?: { role?: string }) {
 
   vi.mocked(useUploadImage).mockReturnValue({
     mutate: vi.fn(),
+    isPending: false,
+  } as any)
+
+  vi.mocked(useImageListPage).mockReturnValue({
+    data: { images: [], totalCount: 0, page: 0, pageSize: 10 },
+    isLoading: false,
+  } as any)
+
+  vi.mocked(useDeleteImage).mockReturnValue({
+    mutate: vi.fn(),
+    mutateAsync: vi.fn(),
     isPending: false,
   } as any)
 }
@@ -198,6 +224,115 @@ describe('ImageGalleryPage', () => {
         expect(screen.getByAltText('page1-img1.jpg')).toBeInTheDocument()
         expect(screen.getByAltText('page1-img2.jpg')).toBeInTheDocument()
       })
+    })
+  })
+
+  describe('grid/list view toggle', () => {
+    it('switches from the thumbnail grid to the list table and back', async () => {
+      setupDefaultMocks()
+
+      vi.mocked(useImageList).mockReturnValue({
+        data: { pages: [{ images: ['grid-photo.jpg'], totalCount: 1, page: 0, pageSize: 80 }] },
+        isLoading: false,
+        hasNextPage: false,
+      } as any)
+
+      vi.mocked(useImageListPage).mockReturnValue({
+        data: { images: ['list-photo.jpg'], totalCount: 1, page: 0, pageSize: 10 },
+        isLoading: false,
+      } as any)
+
+      renderPage()
+
+      await waitFor(() => {
+        expect(screen.getByAltText('grid-photo.jpg')).toBeInTheDocument()
+      })
+
+      fireEvent.click(screen.getByRole('button', { name: /^list$/i }))
+
+      await waitFor(() => {
+        expect(screen.getByText('list-photo.jpg')).toBeInTheDocument()
+      })
+      expect(screen.queryByAltText('grid-photo.jpg')).not.toBeInTheDocument()
+
+      fireEvent.click(screen.getByRole('button', { name: /^grid$/i }))
+
+      await waitFor(() => {
+        expect(screen.getByAltText('grid-photo.jpg')).toBeInTheDocument()
+      })
+      expect(screen.queryByText('list-photo.jpg')).not.toBeInTheDocument()
+    })
+  })
+
+  describe('list view bulk selection', () => {
+    it('shows the bulk action bar with the selected count once a row is checked, and hides it on Clear', async () => {
+      setupDefaultMocks()
+
+      vi.mocked(useImageListPage).mockReturnValue({
+        data: { images: ['a.jpg', 'b.jpg'], totalCount: 2, page: 0, pageSize: 10 },
+        isLoading: false,
+      } as any)
+
+      renderPage()
+
+      fireEvent.click(screen.getByRole('button', { name: /^list$/i }))
+      await waitFor(() => {
+        expect(screen.getByText('a.jpg')).toBeInTheDocument()
+      })
+
+      expect(screen.queryByTestId('bulk-delete-images')).not.toBeInTheDocument()
+
+      fireEvent.click(screen.getByRole('checkbox', { name: 'Select a.jpg' }))
+
+      await waitFor(() => {
+        expect(screen.getByText('1 selected')).toBeInTheDocument()
+      })
+      expect(screen.getByTestId('bulk-delete-images')).toBeInTheDocument()
+
+      fireEvent.click(screen.getByRole('button', { name: /^clear$/i }))
+
+      await waitFor(() => {
+        expect(screen.queryByTestId('bulk-delete-images')).not.toBeInTheDocument()
+      })
+    })
+  })
+
+  describe('delete refused while the image is still in use', () => {
+    it('surfaces the backend reason as an error toast instead of silently succeeding', async () => {
+      setupDefaultMocks()
+
+      vi.mocked(useImageListPage).mockReturnValue({
+        data: { images: ['brand-logo.jpg'], totalCount: 1, page: 0, pageSize: 10 },
+        isLoading: false,
+      } as any)
+
+      const mockMutate = vi.fn(
+        (_filename: string, options?: { onSuccess?: () => void; onError?: (error: unknown) => void }) => {
+          options?.onError?.(new Error('Image is still in use (1 brand)'))
+        },
+      )
+      vi.mocked(useDeleteImage).mockReturnValue({
+        mutate: mockMutate,
+        mutateAsync: vi.fn(),
+        isPending: false,
+      } as any)
+
+      renderPage()
+
+      fireEvent.click(screen.getByRole('button', { name: /^list$/i }))
+      await waitFor(() => {
+        expect(screen.getByText('brand-logo.jpg')).toBeInTheDocument()
+      })
+
+      fireEvent.click(screen.getByRole('button', { name: /delete brand-logo\.jpg/i }))
+
+      const confirmButton = await screen.findByRole('button', { name: 'Delete' })
+      fireEvent.click(confirmButton)
+
+      await waitFor(() => {
+        expect(toast.error).toHaveBeenCalledWith('Image is still in use (1 brand)', { duration: 0 })
+      })
+      expect(toast.success).not.toHaveBeenCalled()
     })
   })
 })

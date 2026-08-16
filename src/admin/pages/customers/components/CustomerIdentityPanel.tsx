@@ -69,7 +69,7 @@ export function CustomerIdentityPanel({
                                 {availableActions.includes('activate') && (
                                     <Button
                                         variant="solid"
-                                        size="lg"
+                                        size="md"
                                         onClick={handleActivate}
                                         disabled={statusAction.isPending}
                                     >
@@ -79,7 +79,7 @@ export function CustomerIdentityPanel({
                                 {availableActions.includes('suspend') && (
                                     <Button
                                         variant="outline"
-                                        size="lg"
+                                        size="md"
                                         onClick={() => setSuspendDialogOpen(true)}
                                         disabled={statusAction.isPending}
                                     >

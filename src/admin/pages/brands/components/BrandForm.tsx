@@ -8,7 +8,8 @@ import {Form, FormItem, ImageGalleryPicker, ImageUpload, Label, Textarea, Toggle
 import {Button, Card, Input} from '@/shared/ui/primitives'
 import {toast} from '@/shared/ui/components/toast'
 import {toSlug} from '@/admin/utils/slug'
-import {useImageListPage, useUploadImageAsset} from '@/admin/hooks/images'
+import {useImageListPage} from '@/admin/hooks/images/useImageListPage'
+import {useUploadImageAsset} from '@/admin/hooks/images/useUploadImageAsset'
 import {thumbnailUrl} from '@/shared/utils/imageUrl'
 
 const brandSchema = z.object({

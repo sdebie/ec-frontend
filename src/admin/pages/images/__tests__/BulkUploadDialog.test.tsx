@@ -1,18 +1,18 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest'
 import { render, screen, fireEvent } from '@testing-library/react'
 
-import { useBulkUpload, useImageDirectories } from '@/admin/hooks/images'
+import { useBulkUpload } from '@/admin/pages/images/hooks/useBulkUpload'
+import { useImageDirectories } from '@/admin/pages/images/hooks/useImageDirectories'
 
 import { BulkUploadDialog } from '../BulkUploadDialog'
 
 // --- Mocks ---
 
-vi.mock('@/admin/hooks/images', () => ({
+vi.mock('@/admin/pages/images/hooks/useBulkUpload', () => ({
   useBulkUpload: vi.fn(),
+}))
+vi.mock('@/admin/pages/images/hooks/useImageDirectories', () => ({
   useImageDirectories: vi.fn(),
-  useUploadImage: vi.fn(),
-  useImageList: vi.fn(),
-  useUploadImageAsset: vi.fn(),
 }))
 
 // --- Helpers ---

@@ -1,9 +1,10 @@
-import { useRef, useState } from 'react'
+import {useRef, useState} from 'react'
 
-import { Dialog, DialogContent, DialogFooter, DialogHeader, Select, Upload, toast } from '@/shared/ui/components'
-import { Button } from '@/shared/ui/primitives'
-import { useBulkUpload, useImageDirectories } from '@/admin/hooks/images'
-import { isImageFile } from './imageFileValidation'
+import {Dialog, DialogContent, DialogFooter, DialogHeader, Select, toast, Upload} from '@/shared/ui/components'
+import {Button} from '@/shared/ui/primitives'
+import {useBulkUpload} from './hooks/useBulkUpload'
+import {useImageDirectories} from './hooks/useImageDirectories'
+import {isImageFile} from './imageFileValidation'
 
 interface BulkUploadDialogProps {
     open: boolean
@@ -17,7 +18,8 @@ function isFolderImageFile(file: File): boolean {
     return file.type.startsWith('image/') || /\.(jpg|jpeg|png|webp)$/i.test(file.name)
 }
 
-export function BulkUploadDialog({ open, onClose }: BulkUploadDialogProps) {
+export function BulkUploadDialog({open, onClose}: BulkUploadDialogProps) {
+
     const [mode, setMode] = useState<UploadMode>('files')
     const [directory, setDirectory] = useState('')
 
@@ -35,14 +37,14 @@ export function BulkUploadDialog({ open, onClose }: BulkUploadDialogProps) {
     // Shared
     const [result, setResult] = useState<{ uploaded: number; skipped: number } | null>(null)
 
-    const { data: directories } = useImageDirectories()
-    const { upload, progress, isUploading } = useBulkUpload()
+    const {data: directories} = useImageDirectories()
+    const {upload, progress, isUploading} = useBulkUpload()
 
     const destinationLabel = directory || 'Storage root'
 
     const directoryOptions = [
-        { value: '', label: 'Storage root' },
-        ...(directories?.map((dir) => ({ value: dir, label: dir })) ?? []),
+        {value: '', label: 'Storage root'},
+        ...(directories?.map((dir) => ({value: dir, label: dir})) ?? []),
     ]
 
     // --- Files mode handlers ---
@@ -126,12 +128,13 @@ export function BulkUploadDialog({ open, onClose }: BulkUploadDialogProps) {
     return (
         <>
             <Dialog open={open} onClose={handleClose} size="lg">
-                <DialogHeader title="Bulk Upload Images" />
+                <DialogHeader title="Bulk Upload Images"/>
 
                 <DialogContent>
                     <div className="flex flex-col gap-4">
                         {/* Mode toggle */}
-                        <div className="flex items-center gap-1 rounded-lg border border-(--c-border) bg-(--c-panel) p-1 w-fit">
+                        <div
+                            className="flex items-center gap-1 rounded-lg border border-(--c-border) bg-(--c-panel) p-1 w-fit">
                             {(['files', 'folder'] as UploadMode[]).map((m) => (
                                 <button
                                     key={m}
@@ -182,9 +185,13 @@ export function BulkUploadDialog({ open, onClose }: BulkUploadDialogProps) {
                                     multiple
                                     className="sr-only"
                                     onChange={handleFolderInputChange}
-                                    {...({ webkitdirectory: '', directory: '' } as React.InputHTMLAttributes<HTMLInputElement>)}
+                                    {...({
+                                        webkitdirectory: '',
+                                        directory: ''
+                                    } as React.InputHTMLAttributes<HTMLInputElement>)}
                                 />
-                                <div className="flex flex-col items-center justify-center gap-3 rounded-lg border-2 border-dashed border-(--c-border) px-6 py-8 text-center">
+                                <div
+                                    className="flex flex-col items-center justify-center gap-3 rounded-lg border-2 border-dashed border-(--c-border) px-6 py-8 text-center">
                                     <Button
                                         type="button"
                                         variant="solid"
@@ -194,7 +201,8 @@ export function BulkUploadDialog({ open, onClose }: BulkUploadDialogProps) {
                                         Select Images Folder
                                     </Button>
                                     <p className="text-sm text-(--c-text-muted)">
-                                        Images must be named as <span className="font-medium text-(--c-text)">[SKU].jpg</span>
+                                        Images must be named as <span
+                                        className="font-medium text-(--c-text)">[SKU].jpg</span>
                                     </p>
                                 </div>
                             </>
@@ -209,7 +217,7 @@ export function BulkUploadDialog({ open, onClose }: BulkUploadDialogProps) {
                                 <div className="h-2 w-full rounded-full bg-(--c-border)">
                                     <div
                                         className="h-2 rounded-full bg-(--c-accent) transition-all"
-                                        style={{ width: `${progressPercent}%` }}
+                                        style={{width: `${progressPercent}%`}}
                                     />
                                 </div>
                             </div>
@@ -218,7 +226,9 @@ export function BulkUploadDialog({ open, onClose }: BulkUploadDialogProps) {
                         {result && (
                             <div className="rounded-lg border border-(--c-border) bg-(--c-panel) p-4 text-sm space-y-1">
                                 <p className="text-(--c-text)">
-                                    <span className="font-medium">{result.uploaded}</span> image{result.uploaded !== 1 ? 's' : ''} uploaded to{' '}
+                                    <span
+                                        className="font-medium">{result.uploaded}</span> image{result.uploaded !== 1 ? 's' : ''} uploaded
+                                    to{' '}
                                     <span className="font-medium">{destinationLabel}</span>
                                 </p>
                                 {result.skipped > 0 && (
@@ -256,9 +266,11 @@ export function BulkUploadDialog({ open, onClose }: BulkUploadDialogProps) {
                 <DialogContent>
                     <div className="space-y-4">
                         <p className="text-sm text-(--c-text-muted)">
-                            Your browser will ask for permission to access the folder contents. This is a standard security measure.
+                            Your browser will ask for permission to access the folder contents. This is a standard
+                            security measure.
                         </p>
-                        <div className="rounded border border-(--c-border) bg-(--c-bg) px-3 py-2 text-sm text-(--c-text-muted)">
+                        <div
+                            className="rounded border border-(--c-border) bg-(--c-bg) px-3 py-2 text-sm text-(--c-text-muted)">
                             Destination:{' '}
                             <span className="font-medium text-(--c-text)">{destinationLabel}</span>
                         </div>
@@ -282,18 +294,25 @@ export function BulkUploadDialog({ open, onClose }: BulkUploadDialogProps) {
             </Dialog>
 
             {/* Folder review dialog — shown after folder picker, before upload starts */}
-            <Dialog open={reviewOpen} onClose={() => { setReviewOpen(false); setFolderFiles([]) }} size="md">
+            <Dialog open={reviewOpen} onClose={() => {
+                setReviewOpen(false);
+                setFolderFiles([])
+            }} size="md">
                 <DialogHeader
                     title="Review Bulk Upload"
                     description={`${folderFiles.length} image${folderFiles.length !== 1 ? 's' : ''} found for ${destinationLabel}.`}
                 />
                 <DialogContent>
                     <div className="space-y-4">
-                        <div className="rounded border border-(--c-border) bg-(--c-bg) px-3 py-2 text-sm text-(--c-text-muted)">
+                        <div
+                            className="rounded border border-(--c-border) bg-(--c-bg) px-3 py-2 text-sm text-(--c-text-muted)">
                             Destination:{' '}
-                            <span className="font-medium text-(--c-text)">{destinationLabel}</span>
+                            <span className="font-medium text-(--c-text)">
+                                {destinationLabel}
+                            </span>
                         </div>
-                        <div className="grid grid-cols-2 gap-2 text-xs bg-(--c-bg) p-3 rounded border border-(--c-border) max-h-60 overflow-y-auto">
+                        <div
+                            className="grid grid-cols-2 gap-2 text-xs bg-(--c-bg) p-3 rounded border border-(--c-border) max-h-60 overflow-y-auto">
                             {folderFiles.map((file, idx) => (
                                 <div key={idx} className="truncate text-(--c-text-muted)">
                                     📄 {file.name}
@@ -308,7 +327,7 @@ export function BulkUploadDialog({ open, onClose }: BulkUploadDialogProps) {
                                 <div className="h-2 w-full rounded-full bg-(--c-border)">
                                     <div
                                         className="h-2 rounded-full bg-(--c-accent) transition-all"
-                                        style={{ width: `${progressPercent}%` }}
+                                        style={{width: `${progressPercent}%`}}
                                     />
                                 </div>
                             </div>
@@ -319,7 +338,10 @@ export function BulkUploadDialog({ open, onClose }: BulkUploadDialogProps) {
                     <Button
                         type="button"
                         variant="outline"
-                        onClick={() => { setReviewOpen(false); setFolderFiles([]) }}
+                        onClick={() => {
+                            setReviewOpen(false);
+                            setFolderFiles([])
+                        }}
                         disabled={isUploading}
                     >
                         Cancel
@@ -330,9 +352,7 @@ export function BulkUploadDialog({ open, onClose }: BulkUploadDialogProps) {
                         onClick={handleFolderUpload}
                         disabled={isUploading}
                     >
-                        {isUploading
-                            ? `Uploading batch ${progress?.currentBatch ?? 1} of ${progress?.totalBatches ?? 1}…`
-                            : 'Confirm & Start Upload'}
+                        {isUploading ? `Uploading batch ${progress?.currentBatch ?? 1} of ${progress?.totalBatches ?? 1}…` : 'Confirm & Start Upload'}
                     </Button>
                 </DialogFooter>
             </Dialog>
