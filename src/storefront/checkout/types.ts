@@ -14,6 +14,12 @@ export interface CheckoutSession {
     vatAmount: number
     shippingEstimate: number
     grandTotal: number
+    /**
+     * The order capability token (guest-order-authorization) — required on every
+     * order-scoped request as the `X-Order-Token` header. Lives on the session
+     * (not beside it) so it cannot outlive the session it belongs to.
+     */
+    orderToken: string
 }
 
 export interface ShippingMethod {
@@ -21,6 +27,12 @@ export interface ShippingMethod {
     name: string
     baseFee: number
     estimatedDays: string | null
+    /**
+     * Whether choosing this method needs a delivery address. Stated by the method, not
+     * inferred from its fee or lead time — a free same-day collection looks exactly
+     * like a free same-day delivery from those two alone.
+     */
+    requiresAddress: boolean
 }
 
 export interface HtmlFormField {

@@ -1,12 +1,12 @@
 import * as React from 'react'
-import { ProductStatus, ProductStatusOptions } from '@/shared/types/enums'
-import { StatusBadge } from './StatusBadge'
+import {ProductStatus, ProductStatusOptions} from '@/shared/types/enums'
+import {StatusBadge} from './StatusBadge'
 
 export interface ProductStatusDisplayProps {
-  status: ProductStatus | string
+    status: ProductStatus | string
 }
 
-export const ProductStatusDisplay: React.FC<ProductStatusDisplayProps> = ({ status }) => {
-  const option = ProductStatusOptions[status as ProductStatus]
-  return <StatusBadge label={option?.label ?? status} color={option?.color ?? 'gray'} />
+export const ProductStatusDisplay: React.FC<ProductStatusDisplayProps> = ({status}) => {
+    const option = ProductStatusOptions[status as ProductStatus]
+    return <StatusBadge label={option?.label ?? status} color={option?.color ?? 'gray'}/>
 }

@@ -9,8 +9,18 @@ import { MemoryRouter } from 'react-router-dom'
  * For any status filter change, the DataTable pageIndex SHALL reset to 0
  * before the refetch is triggered, regardless of the previous pageIndex.
  *
- * **Validates: Requirements 3.3, 7.2**
+ * ## Run counts and timeout
+ * Each run mounts the whole ProductListPage and drives a real listbox per filter
+ * change, so a run is expensive — this file is the slowest in the suite and used to
+ * time out under full-suite parallelism while passing comfortably on its own.
+ *
+ * The counts below are sized to the property's actual input space rather than left at
+ * a round number: the alphabet is four statuses, and the second property has exactly
+ * twelve distinct ordered pairs, so fifty runs re-tested the same behaviour several
+ * times over. The timeout is generous on purpose — it absorbs contention from other
+ * workers instead of encoding how fast an idle machine happens to be.
  */
+const PROPERTY_TIMEOUT_MS = 45_000
 
 const mockUseAdminProductList = vi.fn((..._args: unknown[]) => ({
   data: { content: [], totalElements: 0, totalPages: 0 },
@@ -29,6 +39,9 @@ vi.mock('@/admin/hooks/products/useDeleteProductGql', () => ({
 vi.mock('@/admin/hooks/products/useUpdateProductStatusGql', () => ({
   useUpdateProductStatusGql: vi.fn(() => ({ mutate: vi.fn(), isPending: false })),
 }))
+vi.mock('@/admin/hooks/products/useZeroProductStock', () => ({
+  useZeroProductStock: vi.fn(() => ({ mutate: vi.fn(), isPending: false })),
+}))
 
 vi.mock('@/admin/hooks/products/useProductStats', () => ({
   useProductStats: vi.fn(() => ({
@@ -46,10 +59,6 @@ vi.mock('@/admin/hooks/products/useBrands', () => ({
   useBrands: vi.fn(() => ({ data: [], isLoading: false })),
 }))
 
-vi.mock('@/shared/utils/authorizationHelper', () => ({
-  canManageCatalog: vi.fn(() => true),
-  hasRequiredAuthority: vi.fn(() => true),
-}))
 
 vi.mock('react-router-dom', async () => {
   const actual = await vi.importActual('react-router-dom')
@@ -59,8 +68,25 @@ vi.mock('react-router-dom', async () => {
   }
 })
 
-// Status filter option values on the <select> element
+// Status filter option values on the shared Select component
+import { useAdminAuthStore } from '@/shared/auth/adminAuthStore'
+
+useAdminAuthStore.setState({ role: 'SUPER_ADMIN' })
+
 const STATUS_FILTER_VALUES = ['ALL', 'ACTIVE', 'PENDING', 'DISABLED'] as const
+const STATUS_VALUE_TO_LABEL: Record<(typeof STATUS_FILTER_VALUES)[number], string> = {
+  ALL: 'All',
+  ACTIVE: 'Active',
+  PENDING: 'Pending',
+  DISABLED: 'Disabled',
+}
+
+// The status filter is the shared Select component (a button that opens a
+// listbox), not a native <select> — each change requires opening it fresh.
+function selectStatusFilter(value: (typeof STATUS_FILTER_VALUES)[number]) {
+  fireEvent.click(screen.getByRole('button', { name: 'Filter by status' }))
+  fireEvent.click(screen.getByRole('option', { name: STATUS_VALUE_TO_LABEL[value] }))
+}
 
 describe('DataTable pagination reset on filter change — Property Tests', () => {
   beforeEach(() => {
@@ -89,10 +115,8 @@ describe('DataTable pagination reset on filter change — Property Tests', () =>
           </MemoryRouter>,
         )
 
-        // The status filter is a <select>; change it through the sequence
-        const statusSelect = screen.getByDisplayValue('All')
         for (const value of filterSequence) {
-          fireEvent.change(statusSelect, { target: { value } })
+          selectStatusFilter(value)
         }
 
         // After each filter change, useAdminProductList should be called with pageIndex=0
@@ -103,9 +127,11 @@ describe('DataTable pagination reset on filter change — Property Tests', () =>
 
         unmount()
       }),
-      { numRuns: 50 },
+      // 20 sequences of 2-6 draws over a 4-status alphabet covers the reset behaviour
+      // many times over; the property is about state, not about rare inputs.
+      { numRuns: 20 },
     )
-  }, 15000)
+  }, PROPERTY_TIMEOUT_MS)
 
   it('pageIndex resets to 0 regardless of the specific filter transition', async () => {
     const { ProductListPage } = await import('../ProductListPage')
@@ -127,11 +153,9 @@ describe('DataTable pagination reset on filter change — Property Tests', () =>
           </MemoryRouter>,
         )
 
-        const statusSelect = screen.getByDisplayValue('All')
-
-        fireEvent.change(statusSelect, { target: { value: firstValue } })
+        selectStatusFilter(firstValue)
         mockUseAdminProductList.mockClear()
-        fireEvent.change(statusSelect, { target: { value: secondValue } })
+        selectStatusFilter(secondValue)
 
         const lastCall = mockUseAdminProductList.mock.calls[mockUseAdminProductList.mock.calls.length - 1]
         const params = lastCall[0] as { pageIndex: number; pageSize: number; status: string }
@@ -140,7 +164,9 @@ describe('DataTable pagination reset on filter change — Property Tests', () =>
 
         unmount()
       }),
-      { numRuns: 50 },
+      // There are only 12 distinct ordered pairs of differing statuses; 15 runs covers
+      // the space without re-rendering the page for pairs already seen.
+      { numRuns: 15 },
     )
-  })
+  }, PROPERTY_TIMEOUT_MS)
 })

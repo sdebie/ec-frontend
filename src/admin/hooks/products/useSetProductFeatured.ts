@@ -35,7 +35,6 @@ export function useSetProductFeatured() {
       queryClient.invalidateQueries({ queryKey: ['admin-featured-products'] })
     },
     onError: (error: Error) => {
-      console.error('[FeaturedProducts] setProductFeatured failed:', error)
       toast.error(error.message ?? 'Failed to update featured status')
     },
   })

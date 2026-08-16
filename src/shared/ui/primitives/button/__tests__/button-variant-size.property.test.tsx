@@ -11,7 +11,6 @@ import {Button} from '../Button'
  * className includes the variant-specific and size-specific CSS classes as defined by the
  * cva configuration.
  *
- * **Validates: Requirements 1.2, 1.3**
  */
 
 const variants = ['solid', 'secondary', 'outline', 'ghost', 'plain'] as const

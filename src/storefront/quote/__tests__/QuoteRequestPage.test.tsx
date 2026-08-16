@@ -58,22 +58,28 @@ describe('QuoteRequestPage', () => {
     ).toBeInTheDocument()
   })
 
-  // Regression guard: the page shell must carry w-full — the storefront layout
-  // centres children by content width, so without it the whole page shrinks
-  // when the quote list is empty (jsdom does no layout; assert the class).
-  // The shell is a div: StorefrontLayout owns the single <main> landmark.
-  it('page shell always takes full width up to its max-width cap', () => {
+  // Regression guard: this page must render the SHARED `Section` frame rather
+  // than a container of its own, which is what keeps its left edge on the same
+  // line as every other page. The shell is a div — StorefrontLayout owns the
+  // single <main> landmark.
+  //
+  // The frame carries no `w-full`, and does not need one: its outer element is
+  // a block div inside `<main class="flex flex-1 flex-col">`, whose default
+  // align-items:stretch fills the width. jsdom does no layout, so that the page
+  // does not collapse to its content width on an empty quote list is verified
+  // in a browser, not here.
+  it('renders the shared storefront page frame at the default width', () => {
     const { container } = render(<QuoteRequestPage />, { wrapper: createWrapper() })
 
     expect(container.querySelector('main')).not.toBeInTheDocument()
     const shell = container.firstElementChild
-    expect(shell?.className).toContain('w-full')
-    expect(shell?.className).toContain('max-w-5xl')
+    expect(shell).toHaveClass('py-12', 'px-6', 'sm:px-8')
+    expect(shell?.firstElementChild).toHaveClass('mx-auto', 'max-w-6xl')
   })
 
   // Regression guard: the REAL QuoteProductSearch must be mounted and always
-  // visible — a placeholder once shipped past the suite because nothing
-  // asserted this, and the toggle button was later removed as friction.
+  // visible. Without this assertion a placeholder satisfies the suite, and
+  // there is no toggle button to reveal it.
   it('always shows the real product search above the list', () => {
     render(<QuoteRequestPage />, { wrapper: createWrapper() })
 

@@ -20,7 +20,7 @@ export function PageContentDocument({data}: { data: PublicPageContent }) {
     )
 
     return (
-        <Section as="div" width="wide">
+        <Section as="div">
             <article
                 className="rounded-2xl border border-(--sf-border) bg-(--sf-panel) px-6 py-10 shadow-(--sf-shadow-sm) sm:px-10 sm:py-12 lg:px-14">
                 <header>

@@ -3,6 +3,11 @@ import { Link, Navigate, useNavigate, useSearchParams } from 'react-router-dom'
 import { useCustomerAuthStore } from '@/shared/auth/customerAuthStore'
 import { isRelativePath } from '@/storefront/customer/auth/utils/urlValidation'
 import { CustomerLoginForm } from '@/storefront/customer/auth/components/CustomerLoginForm'
+import {
+  AUTH_LINK_CLASS,
+  AuthHeading,
+  AuthPageShell,
+} from '@/storefront/customer/auth/components/AuthPageShell'
 
 export function AccountLoginPage() {
   const [searchParams] = useSearchParams()
@@ -24,28 +29,15 @@ export function AccountLoginPage() {
   }
 
   return (
-    <div className="flex min-h-screen items-center justify-center px-4">
-      <div className="w-full max-w-md space-y-8">
-        <div className="text-center">
-          <h1 className="text-2xl font-bold tracking-tight text-(--sf-text)">
-            Sign in to your account
-          </h1>
-          <p className="mt-2 text-sm text-(--sf-muted-text)">
-            Don't have an account?{' '}
-            <Link
-              to="/account/register"
-              className="font-medium text-(--sf-accent) hover:opacity-80"
-            >
-              Create one
-            </Link>
-          </p>
-        </div>
+    <AuthPageShell>
+      <AuthHeading title="Sign in to your account">
+        <p>Don't have an account?</p>
+        <Link to="/account/register" className={`mt-1 inline-block ${AUTH_LINK_CLASS}`}>
+          Create one
+        </Link>
+      </AuthHeading>
 
-        <CustomerLoginForm
-          onSuccess={handleSuccess}
-          onForgotPassword={handleForgotPassword}
-        />
-      </div>
-    </div>
+      <CustomerLoginForm onSuccess={handleSuccess} onForgotPassword={handleForgotPassword} />
+    </AuthPageShell>
   )
 }

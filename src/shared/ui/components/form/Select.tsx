@@ -3,6 +3,7 @@ import * as React from 'react'
 import * as ReactDOM from 'react-dom'
 import {Label} from './Label'
 import {cn} from '@/shared/utils/cn'
+import {CONTROL_SIZE_CLASSES, type ControlSize} from '@/shared/ui/primitives/controlSize'
 
 export interface SelectOption {
     value: string
@@ -22,9 +23,13 @@ export interface SelectProps {
     required?: boolean
     className?: string
     fullWidth?: boolean
+    /** Matches Input's size scale so a Select can sit flush with a same-size Input. */
+    size?: ControlSize
     /** Accessible name for the trigger button when no visible `label` is rendered
      *  (e.g. toolbar/inline usage where a stacked Label breaks the layout). */
     ariaLabel?: string
+    /** Applied to the visible trigger button itself, not the outer wrapper `className` targets. */
+    triggerClassName?: string
 }
 
 export const Select = React.forwardRef<HTMLDivElement, SelectProps>(
@@ -41,7 +46,9 @@ export const Select = React.forwardRef<HTMLDivElement, SelectProps>(
             required,
             className,
             fullWidth = true,
+            size = 'md',
             ariaLabel,
+            triggerClassName,
             ...props
         },
         ref
@@ -139,11 +146,13 @@ export const Select = React.forwardRef<HTMLDivElement, SelectProps>(
                         disabled={disabled}
                         onClick={() => !disabled && setIsOpen((prev) => !prev)}
                         className={cn(
-                            'flex h-10 w-full items-center justify-between rounded-md border-2 border-(--c-border) bg-(--c-panel) px-3 py-2 text-sm text-(--c-text) transition-colors',
-                            'focus:outline-none focus:ring-2 focus:ring-(--c-ring) focus:border-transparent focus:ring-offset-1 focus:ring-offset-(--c-bg)',
-                            'disabled:cursor-not-allowed disabled:opacity-50 disabled:bg-(--c-bg)',
-                            hasError && 'border-(--c-error) focus:ring-(--c-error)',
-                            !selectedOption && 'text-(--c-text-muted)'
+                            'flex w-full items-center justify-between rounded-(--c-radius) border border-(--c-border) bg-(--c-input-bg) text-(--c-text) transition-colors',
+                            CONTROL_SIZE_CLASSES[size],
+                            'focus-visible:outline-none',
+                            'disabled:cursor-not-allowed disabled:opacity-50',
+                            hasError ? 'border-(--c-error)' : 'focus-visible:border-(--c-accent)',
+                            !selectedOption && 'text-(--c-text-muted)',
+                            triggerClassName
                         )}
                         aria-haspopup="listbox"
                         aria-expanded={isOpen}
@@ -166,7 +175,11 @@ export const Select = React.forwardRef<HTMLDivElement, SelectProps>(
                             style={dropdownStyle}
                             data-surface={dropdownTheme.surface}
                             data-theme={dropdownTheme.theme}
-                            className="max-h-60 overflow-auto rounded-md border border-(--c-border) bg-(--c-panel) py-1 shadow-lg text-sm"
+                            // No vertical padding: it read as a gap above the first option
+                            // rather than as breathing room, and the options already carry
+                            // their own py-2. `overflow-auto` both scrolls past max-h-60
+                            // and clips the first and last rows to the rounded corners.
+                            className="max-h-60 overflow-auto rounded-md border border-(--c-border) bg-(--c-panel) shadow-lg text-sm"
                         >
                             <ul role="listbox" className="outline-none">
                                 {options.map((option) => (

@@ -9,7 +9,6 @@ import {useCustomerAuthStore} from '@/shared/auth/customerAuthStore'
 import {storefrontHttpClient} from '@/shared/api/http/storefrontHttpClient'
 import {mergeWishlistOnSignIn} from '../mergeWishlistOnSignIn'
 
-// Mock storefrontHttpClient
 vi.mock('@/shared/api/http/storefrontHttpClient', () => ({
     storefrontHttpClient: {
         post: vi.fn(),
@@ -21,8 +20,6 @@ function createMockQueryClient() {
 }
 
 /**
- * Validates: Requirements 6.1
- *
  * Property 3: Merge is a union — for any local set and server set, after merge
  * the server contains the union (mock the POST calls, verify all local IDs were submitted).
  */
@@ -61,7 +58,6 @@ describe('Property 3: Merge is a union', () => {
                     const postCalls = postMock.mock.calls
                     const submittedIds = postCalls.map((call) => {
                         const url = call[0] as string
-                        // URL format: /storefront/wishlist/{id}
                         return url.replace('/storefront/wishlist/', '')
                     })
 
@@ -81,8 +77,6 @@ describe('Property 3: Merge is a union', () => {
 })
 
 /**
- * Validates: Requirements 6.2
- *
  * Property 4: Merge clears local store on full success — for any successful merge,
  * the local wishlist is empty after.
  */
@@ -132,8 +126,6 @@ describe('Property 4: Merge clears local store on full success', () => {
 })
 
 /**
- * Validates: Requirements 6.5
- *
  * Property 7: Sign-out does not copy server wishlist to local — for any non-empty
  * server wishlist, after sign-out the local wishlist is empty.
  */

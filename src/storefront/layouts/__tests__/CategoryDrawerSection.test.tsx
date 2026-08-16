@@ -42,7 +42,6 @@ describe('CategoryDrawerSection', () => {
       expect(screen.queryByText('Laptops')).not.toBeInTheDocument()
       expect(screen.queryByText('Phones')).not.toBeInTheDocument()
 
-      // Click expand button
       const expandBtn = screen.getByRole('button', { name: 'Expand Electronics' })
       fireEvent.click(expandBtn)
 

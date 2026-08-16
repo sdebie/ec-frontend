@@ -105,11 +105,10 @@ describe('useUpdateProfile', () => {
     expect(mockedPatch).toHaveBeenCalledTimes(1)
   })
 
-  it('logs error with console.error on failure', async () => {
+  it('surfaces a failed profile update as an error state', async () => {
     const error = new Error('Network error')
     mockedPatch.mockRejectedValueOnce(error)
 
-    const consoleErrorSpy = vi.spyOn(console, 'error').mockImplementation(() => {})
 
     const { result } = renderHook(() => useUpdateProfile(), {
       wrapper: createWrapper(),
@@ -123,11 +122,6 @@ describe('useUpdateProfile', () => {
 
     await waitFor(() => expect(result.current.isError).toBe(true))
 
-    expect(consoleErrorSpy).toHaveBeenCalledWith(
-      '[Profile] action failed:',
-      expect.anything(),
-    )
 
-    consoleErrorSpy.mockRestore()
   })
 })

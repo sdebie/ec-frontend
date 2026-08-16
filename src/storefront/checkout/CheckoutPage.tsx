@@ -1,5 +1,5 @@
-import {useEffect} from 'react'
-import {Link, useSearchParams} from 'react-router-dom'
+import {useEffect, useMemo} from 'react'
+import {Link} from 'react-router-dom'
 import {ChevronLeft} from 'lucide-react'
 import {FormProvider, useForm} from 'react-hook-form'
 import {zodResolver} from '@hookform/resolvers/zod'
@@ -10,12 +10,15 @@ import {ContactSection} from './components/ContactSection'
 import {ShippingSection} from './components/ShippingSection'
 import {PaymentSection} from './components/PaymentSection'
 import {useCheckoutSubmit} from './hooks/useCheckoutSubmit'
+import {useFormDraft} from '@/shared/ui/components/form/useFormDraft'
+import {CHECKOUT_DRAFT_KEY} from './draftKey'
 import {useShippingMethods} from './hooks/useShippingMethods'
 import {usePaymentMethods} from './hooks/usePaymentMethods'
 import {useCheckoutSessionStore} from './store/checkoutSessionStore'
 import {useCustomerAuthStore} from '@/shared/auth/customerAuthStore'
 import {checkoutFormSchema, type CheckoutFormValues} from './checkoutFormSchema'
-import {isDeliveryMethod} from './utils/isDeliveryMethod'
+import {requiresDeliveryAddress} from './utils/requiresDeliveryAddress'
+import {availablePaymentMethods} from './utils/availablePaymentMethods'
 import {ACCENT_BUTTON_HOVER, SF_FOCUS_RING_PAGE} from '@/storefront/sections/shared'
 
 /**
@@ -28,16 +31,19 @@ import {ACCENT_BUTTON_HOVER, SF_FOCUS_RING_PAGE} from '@/storefront/sections/sha
  * is the single place form state is mutated.
  */
 export function CheckoutPage() {
-    const [searchParams] = useSearchParams()
-    const orderId = searchParams.get('orderId') ?? ''
-
     const session = useCheckoutSessionStore((state) => state.session)
     const {isSignedIn, email, firstName, lastName} = useCustomerAuthStore()
 
     const {data: shippingMethods} = useShippingMethods()
     const {data: paymentMethods} = usePaymentMethods()
 
-    const {placeOrder, isSubmitting, error: submitError} = useCheckoutSubmit(orderId)
+    // Requirement 3.5/3.6: the order under checkout comes only from the store now —
+    // no ?orderId= query string to read, and so no second source that could disagree
+    // with it. Guarded by `if (!session)` below before either is dereferenced.
+    const {placeOrder, isSubmitting, error: submitError} = useCheckoutSubmit(
+        session?.orderId ?? '',
+        session?.orderToken ?? '',
+    )
 
     const methods = useForm<CheckoutFormValues>({
         resolver: zodResolver(checkoutFormSchema),
@@ -59,7 +65,13 @@ export function CheckoutPage() {
 
     const selectedMethodId = watch('shippingMethodId')
     const selectedMethod = shippingMethods?.find((m) => m.id === selectedMethodId) ?? null
-    const requiresAddress = selectedMethod ? isDeliveryMethod(selectedMethod) : false
+    const requiresAddress = requiresDeliveryAddress(selectedMethod)
+
+    const selectedPaymentMethod = watch('paymentMethod')
+    const offeredPaymentMethods = useMemo(
+        () => availablePaymentMethods(paymentMethods ?? [], requiresAddress),
+        [paymentMethods, requiresAddress],
+    )
 
     // Pre-fill from the signed-in profile
     useEffect(() => {
@@ -74,20 +86,49 @@ export function CheckoutPage() {
     // that collects — a collection order must not carry a stale address. Both
     // are form writes, so they live here rather than inside the section.
     useEffect(() => {
+        // Whether a method collects or delivers is unknowable until the methods
+        // have loaded: `selectedMethod` is undefined until then, which reads as
+        // "collects" and would wipe the address. Harmless while the form starts
+        // empty, but a restored draft arrives WITH a method and an address, and
+        // this effect would clear the address before the list resolved.
+        if (!shippingMethods) return
+
         setValue('requiresAddress', requiresAddress, {shouldValidate: false})
         if (requiresAddress) return
         setValue('streetAddress', '', {shouldValidate: false})
         setValue('city', '', {shouldValidate: false})
         setValue('province', '', {shouldValidate: false})
         setValue('postalCode', '', {shouldValidate: false})
-    }, [requiresAddress, setValue])
+    }, [requiresAddress, setValue, shippingMethods])
 
-    // A lone payment method is the decision — select it rather than asking.
+    // The delivery choice can invalidate the payment choice, so both cases are
+    // reconciled together: drop a selection the shopper may no longer make after
+    // switching to a couriered method, and take the decision for them when only
+    // one option is left. Waits for the methods to load — an empty list before
+    // then is not the same as no options.
     useEffect(() => {
-        if (paymentMethods?.length === 1) {
-            setValue('paymentMethod', paymentMethods[0], {shouldValidate: false})
+        if (!paymentMethods) return
+
+        if (selectedPaymentMethod && !offeredPaymentMethods.includes(selectedPaymentMethod)) {
+            setValue('paymentMethod', '', {shouldValidate: false})
+            return
         }
-    }, [paymentMethods, setValue])
+        if (!selectedPaymentMethod && offeredPaymentMethods.length === 1) {
+            setValue('paymentMethod', offeredPaymentMethods[0], {shouldValidate: false})
+        }
+    }, [offeredPaymentMethods, paymentMethods, selectedPaymentMethod, setValue])
+
+    /*
+      Declared AFTER the prefill effects on purpose: effects run in hook order, so
+      restoring last means what the shopper actually typed wins over the values
+      derived from their profile. The draft is cleared on the success page, not
+      here — see draftKey.ts.
+    */
+    useFormDraft({
+        storageKey: CHECKOUT_DRAFT_KEY,
+        watch,
+        reset: methods.reset,
+    })
 
     if (!session) {
         return (
@@ -141,7 +182,7 @@ export function CheckoutPage() {
 
                             <ShippingSection control={control} errors={errors}/>
 
-                            <PaymentSection control={control} paymentMethods={paymentMethods ?? []}/>
+                            <PaymentSection control={control} paymentMethods={offeredPaymentMethods}/>
 
                             {submitError && (
                                 <p className="text-sm text-(--sf-error)" role="alert">
@@ -152,7 +193,7 @@ export function CheckoutPage() {
                             <div className="space-y-2">
                                 <button
                                     type="submit"
-                                    disabled={isSubmitting || paymentMethods?.length === 0}
+                                    disabled={isSubmitting || offeredPaymentMethods.length === 0}
                                     className={`min-h-11 w-full cursor-pointer rounded-lg bg-(--sf-accent) px-6 py-3 text-sm font-medium text-(--sf-accent-text) transition-colors ${ACCENT_BUTTON_HOVER} ${SF_FOCUS_RING_PAGE} disabled:cursor-not-allowed disabled:opacity-50`}
                                 >
                                     {isSubmitting ? 'Processing…' : 'Place order'}

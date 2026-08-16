@@ -17,7 +17,6 @@ import {useCheckout} from '../hooks/useCheckout'
  * unit price, an estimated line total, and a remove button. No field SHALL be omitted
  * regardless of the input values.
  *
- * **Validates: Requirements 4.2**
  */
 
 // Mock useCartVariants to return controlled price data

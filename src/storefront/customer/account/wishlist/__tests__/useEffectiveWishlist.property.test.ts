@@ -6,8 +6,6 @@ import * as fc from 'fast-check'
 import {useEffectiveWishlist} from '../hooks/useEffectiveWishlist'
 
 /**
- * Validates: Requirements 1.3, 1.4, 2.1, 4.4
- *
  * Property 5: Effective wishlist reflects auth state — for any auth state,
  * `useEffectiveWishlist` returns local store IDs when signed out, and the
  * union of the server wishlist and any not-yet-merged local IDs when signed

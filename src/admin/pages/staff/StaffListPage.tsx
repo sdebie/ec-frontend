@@ -1,22 +1,18 @@
 import { useState, useEffect, useMemo } from 'react'
 import { useNavigate } from 'react-router-dom'
 import type { PaginationState } from '@tanstack/react-table'
+import { Search } from 'lucide-react'
 
 import { DataTable, StatusBadge } from '@/shared/ui/components'
 import type { ColumnDef } from '@/shared/ui/components'
 import { Button, Input } from '@/shared/ui/primitives'
-import { useAdminAuthStore } from '@/shared/auth/adminAuthStore'
-import { deriveCanMutate } from '@/admin/hooks/imports/utils'
+import { useCan } from '@/shared/auth/adminPermissions'
 import { useStaff } from '@/admin/hooks/staff'
 import type { StaffMember } from '@/admin/hooks/staff'
+import { useTableSort } from '@/admin/hooks/useTableSort'
 import { StaffActionsMenu } from './StaffActionsMenu'
+import { StaffRoleLabels } from '@/shared/types/enums/StaffRoles'
 
-const ROLE_LABELS: Record<StaffMember['role'], string> = {
-  SUPER_ADMIN: 'Super Admin',
-  CATALOG_MANAGER: 'Catalog Manager',
-  ORDER_MANAGER: 'Order Manager',
-  VIEWER: 'Viewer',
-}
 
 const ROLE_COLORS: Record<StaffMember['role'], string> = {
   SUPER_ADMIN: 'blue',
@@ -27,7 +23,7 @@ const ROLE_COLORS: Record<StaffMember['role'], string> = {
 
 export function StaffListPage() {
   const navigate = useNavigate()
-  const canMutate = deriveCanMutate(useAdminAuthStore((s) => s.role))
+  const canMutate = useCan('staff:manage')
 
   const [searchInput, setSearchInput] = useState('')
   const [search, setSearch] = useState('')
@@ -45,10 +41,13 @@ export function StaffListPage() {
     return () => clearTimeout(t)
   }, [searchInput])
 
+  const { sorting, onSortingChange, sort } = useTableSort()
+
   const { data, isLoading } = useStaff({
     pageIndex: pagination.pageIndex,
     pageSize: pagination.pageSize,
     search,
+    sort,
   })
 
   const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -71,14 +70,19 @@ export function StaffListPage() {
         header: 'Role',
         cell: ({ row }) => (
           <StatusBadge
-            label={ROLE_LABELS[row.original.role]}
+            label={StaffRoleLabels[row.original.role]}
             color={ROLE_COLORS[row.original.role]}
           />
         ),
       },
       {
+        // Not sortable: this column has no accessorKey (its id, 'active', is a display
+        // name only) and the underlying entity field is boolean isActive — whether that
+        // resolves in JPQL as `isActive` or `active` needs checking against the entity
+        // before this could be wired to a real sort key.
         id: 'active',
         header: 'Active',
+        enableSorting: false,
         cell: ({ row }) => (
           <StatusBadge
             label={row.original.active ? 'Active' : 'Inactive'}
@@ -91,6 +95,7 @@ export function StaffListPage() {
             {
               id: 'actions',
               header: 'Actions',
+              enableSorting: false,
               cell: ({ row }: { row: { original: StaffMember } }) => (
                 <StaffActionsMenu staff={row.original} />
               ),
@@ -115,16 +120,17 @@ export function StaffListPage() {
       </div>
 
       {/* Search filter bar */}
-      <div className="flex items-center gap-4">
+      <div className="relative max-w-sm">
+        <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-(--c-text-muted)" />
         <Input
           type="text"
           placeholder="Search by name or email..."
           value={searchInput}
           onChange={handleSearchChange}
+          className="pl-9"
         />
       </div>
 
-      {/* Data Table */}
       <DataTable
         columns={columns}
         data={data?.data ?? []}
@@ -132,8 +138,12 @@ export function StaffListPage() {
         showSearch={false}
         manualPagination
         pageCount={pageCount}
+        totalRowCount={data?.total ?? 0}
         pagination={pagination}
         onPaginationChange={setPagination}
+        manualSorting
+        sorting={sorting}
+        onSortingChange={onSortingChange}
       />
     </div>
   )

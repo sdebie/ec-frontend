@@ -36,13 +36,13 @@ describe('useSaveShippingMethod', () => {
 
   it('calls adminGraphqlClient.request on mutate', async () => {
     vi.mocked(adminGraphqlClient.request).mockResolvedValue({
-      saveShippingMethod: { id: '1', name: 'Standard', active: true, baseFee: 50, estimatedDays: '3-5 days' },
+      saveShippingMethod: { id: '1', name: 'Standard', active: true, baseFee: 50, estimatedDays: '3-5 days', requiresAddress: true },
     })
 
     const { result } = renderHook(() => useSaveShippingMethod(), { wrapper: createWrapper() })
 
     act(() => {
-      result.current.mutate({ id: '1', name: 'Standard', active: true, baseFee: 50, estimatedDays: '3-5 days' })
+      result.current.mutate({ id: '1', name: 'Standard', active: true, baseFee: 50, estimatedDays: '3-5 days', requiresAddress: true })
     })
 
     await waitFor(() => expect(result.current.isPending).toBe(false))
@@ -52,14 +52,14 @@ describe('useSaveShippingMethod', () => {
 
   it('invalidates admin-shipping-methods cache on success', async () => {
     vi.mocked(adminGraphqlClient.request).mockResolvedValue({
-      saveShippingMethod: { id: '1', name: 'Standard', active: true, baseFee: 50, estimatedDays: '3-5 days' },
+      saveShippingMethod: { id: '1', name: 'Standard', active: true, baseFee: 50, estimatedDays: '3-5 days', requiresAddress: true },
     })
 
     const queryClient = new QueryClient({
       defaultOptions: { queries: { retry: false }, mutations: { retry: false } },
     })
 
-    queryClient.setQueryData(['admin-shipping-methods'], [{ id: '1', name: 'Old', active: true, baseFee: 10, estimatedDays: '1-2 days' }])
+    queryClient.setQueryData(['admin-shipping-methods'], [{ id: '1', name: 'Old', active: true, baseFee: 10, estimatedDays: '1-2 days', requiresAddress: true }])
 
     const wrapper = ({ children }: { children: React.ReactNode }) =>
       createElement(QueryClientProvider, { client: queryClient }, children)
@@ -67,7 +67,7 @@ describe('useSaveShippingMethod', () => {
     const { result } = renderHook(() => useSaveShippingMethod(), { wrapper })
 
     act(() => {
-      result.current.mutate({ id: '1', name: 'Standard', active: true, baseFee: 50, estimatedDays: '3-5 days' })
+      result.current.mutate({ id: '1', name: 'Standard', active: true, baseFee: 50, estimatedDays: '3-5 days', requiresAddress: true })
     })
 
     await waitFor(() => expect(result.current.isSuccess).toBe(true))
@@ -86,7 +86,7 @@ describe('useSaveShippingMethod', () => {
     const { result } = renderHook(() => useSaveShippingMethod(), { wrapper: createWrapper() })
 
     act(() => {
-      result.current.mutate({ id: null, name: 'Express', active: true, baseFee: 100, estimatedDays: '1-2 days' })
+      result.current.mutate({ id: null, name: 'Express', active: true, baseFee: 100, estimatedDays: '1-2 days', requiresAddress: true })
     })
 
     await waitFor(() => expect(result.current.isPending).toBe(false))
@@ -100,7 +100,7 @@ describe('useSaveShippingMethod', () => {
     const { result } = renderHook(() => useSaveShippingMethod(), { wrapper: createWrapper() })
 
     act(() => {
-      result.current.mutate({ id: null, name: 'Express', active: true, baseFee: 100, estimatedDays: '1-2 days' })
+      result.current.mutate({ id: null, name: 'Express', active: true, baseFee: 100, estimatedDays: '1-2 days', requiresAddress: true })
     })
 
     await waitFor(() => expect(result.current.isPending).toBe(false))

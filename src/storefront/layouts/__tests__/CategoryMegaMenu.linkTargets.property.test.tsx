@@ -56,8 +56,6 @@ function collectVisibleSlugs(tree: CategoryNode[]): string[] {
 
 describe('Feature: category-navigation, Property 4: Category link targets are correct', () => {
   /**
-   * **Validates: Requirements 2.2, 3.3**
-   *
    * For any category node (root or child) rendered in the mega-menu,
    * the navigation target SHALL contain `/products?category={slug}` for that
    * category's slug as the filter parameter.

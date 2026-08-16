@@ -51,9 +51,8 @@ describe('useUploadCsv', () => {
     expect(config).toEqual({ timeout: 0 })
   })
 
-  it('logs upload failures for diagnosis', async () => {
+  it('propagates an upload failure to the caller rather than swallowing it', async () => {
     const error = new Error('Network Error')
-    const consoleError = vi.spyOn(console, 'error').mockImplementation(() => undefined)
     mockPost.mockRejectedValueOnce(error)
     const { result } = renderHook(() => useUploadCsv(), { wrapper: createWrapper() })
 
@@ -61,8 +60,5 @@ describe('useUploadCsv', () => {
       file: new File([''], 'products.csv', { type: 'text/csv' }),
       endpoint: '/admin/products/upload-csv',
     })).rejects.toThrow(error)
-
-    expect(consoleError).toHaveBeenCalledWith('[ProductImport] CSV upload failed:', error)
-    consoleError.mockRestore()
   })
 })

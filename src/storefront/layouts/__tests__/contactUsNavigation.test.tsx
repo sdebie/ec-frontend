@@ -1,8 +1,6 @@
 /**
  * Verifies that existing config-driven /contact-us links (in nav and footer)
  * navigate via React Router <Link>/<NavLink> rather than a full-page reload <a>.
- *
- * Validates: Requirements 5.1
  */
 import { describe, it, expect } from 'vitest'
 import { render, screen, within } from '@testing-library/react'

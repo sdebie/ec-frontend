@@ -20,11 +20,13 @@ import {
   DialogFooter,
   DialogHeader,
   PageLayout,
+  RowActionButton,
   StatusBadge,
+  Textarea,
 } from '@/shared/ui/components'
 import { ConfirmationDialog } from '@/shared/ui/components/dialog/ConfirmationDialog'
 import { Button, Input } from '@/shared/ui/primitives'
-import { hasRequiredAuthority } from '@/shared/utils/authorizationHelper'
+import { useCan } from '@/shared/auth/adminPermissions'
 
 function truncateQuote(quote: string, maxLength = 80): string {
   if (quote.length <= maxLength) return quote
@@ -32,7 +34,7 @@ function truncateQuote(quote: string, maxLength = 80): string {
 }
 
 export function TestimonialsPage() {
-  const isSuperAdmin = hasRequiredAuthority(['SUPER_ADMIN'])
+  const canEdit = useCan('testimonial:write')
 
   const { data: testimonials = [], isLoading } = useAdminTestimonials()
   const createTestimonial = useCreateTestimonial()
@@ -144,28 +146,25 @@ export function TestimonialsPage() {
       },
     ]
 
-    if (isSuperAdmin) {
+    if (canEdit) {
       cols.push({
         id: 'actions',
         header: 'Actions',
         cell: ({ row }) => (
           <div className="flex items-center gap-1">
-            <button
-              type="button"
+            <RowActionButton
               onClick={() => openEditForm(row.original)}
-              className="inline-flex items-center justify-center p-1.5 rounded-lg hover:bg-(--c-surface-hover) text-(--c-text-muted) hover:text-(--c-text) transition-colors"
               aria-label={`Edit testimonial by ${row.original.authorName}`}
             >
               <Pencil className="h-4 w-4" />
-            </button>
-            <button
-              type="button"
+            </RowActionButton>
+            <RowActionButton
+              variant="danger"
               onClick={() => setDeletingId(row.original.id)}
-              className="inline-flex items-center justify-center p-1.5 rounded-lg hover:bg-(--c-surface-hover) text-(--c-text-muted) hover:text-red-500 transition-colors"
               aria-label={`Delete testimonial by ${row.original.authorName}`}
             >
               <Trash2 className="h-4 w-4" />
-            </button>
+            </RowActionButton>
           </div>
         ),
         enableSorting: false,
@@ -173,9 +172,9 @@ export function TestimonialsPage() {
     }
 
     return cols
-  }, [isSuperAdmin, openEditForm])
+  }, [canEdit, openEditForm])
 
-  const headerAction = isSuperAdmin ? (
+  const headerAction = canEdit ? (
     <Button variant="solid" onClick={openCreateForm} leftIcon={<Plus className="h-4 w-4" />}>
       Add Testimonial
     </Button>
@@ -194,7 +193,6 @@ export function TestimonialsPage() {
         emptyMessage="No testimonials yet. Add your first testimonial to display on the storefront."
       />
 
-      {/* Create/Edit Dialog */}
       <Dialog open={isFormOpen} onClose={closeForm} size="md">
         <DialogHeader
           title={editingTestimonial ? 'Edit Testimonial' : 'Add Testimonial'}
@@ -209,23 +207,23 @@ export function TestimonialsPage() {
             <div className="space-y-4">
               <div>
                 <label htmlFor="quote" className="block text-sm font-medium text-(--c-text) mb-1">
-                  Quote <span className="text-red-500">*</span>
+                  Quote <span className="text-(--c-error)">*</span>
                 </label>
-                <textarea
+                <Textarea
                   id="quote"
                   rows={4}
-                  className="w-full rounded-md border border-(--c-border) bg-(--c-panel) px-3 py-2 text-sm text-(--c-text) placeholder:text-(--c-text-muted) focus:outline-none focus:ring-2 focus:ring-(--c-ring) resize-y"
+                  className="resize-y"
                   placeholder="Enter the customer testimonial..."
                   {...form.register('quote')}
                 />
                 {form.formState.errors.quote && (
-                  <p className="mt-1 text-xs text-red-500">{form.formState.errors.quote.message}</p>
+                  <p className="mt-1 text-xs text-(--c-error)">{form.formState.errors.quote.message}</p>
                 )}
               </div>
 
               <div>
                 <label htmlFor="authorName" className="block text-sm font-medium text-(--c-text) mb-1">
-                  Author Name <span className="text-red-500">*</span>
+                  Author Name <span className="text-(--c-error)">*</span>
                 </label>
                 <Input
                   id="authorName"
@@ -233,7 +231,7 @@ export function TestimonialsPage() {
                   {...form.register('authorName')}
                 />
                 {form.formState.errors.authorName && (
-                  <p className="mt-1 text-xs text-red-500">{form.formState.errors.authorName.message}</p>
+                  <p className="mt-1 text-xs text-(--c-error)">{form.formState.errors.authorName.message}</p>
                 )}
               </div>
 
@@ -259,7 +257,7 @@ export function TestimonialsPage() {
                   {...form.register('sortOrder', { valueAsNumber: true })}
                 />
                 {form.formState.errors.sortOrder && (
-                  <p className="mt-1 text-xs text-red-500">{form.formState.errors.sortOrder.message}</p>
+                  <p className="mt-1 text-xs text-(--c-error)">{form.formState.errors.sortOrder.message}</p>
                 )}
               </div>
 

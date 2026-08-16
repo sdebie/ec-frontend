@@ -1,6 +1,6 @@
 import { describe, it, expect, beforeEach } from 'vitest'
 import { useAdminAuthStore } from '@/shared/auth/adminAuthStore'
-import { hasRequiredAuthority, canManageCatalog } from './authorizationHelper'
+import { hasRequiredAuthority } from './authorizationHelper'
 
 describe('hasRequiredAuthority', () => {
   beforeEach(() => {
@@ -50,34 +50,3 @@ describe('hasRequiredAuthority', () => {
   })
 })
 
-
-describe('canManageCatalog', () => {
-  beforeEach(() => {
-    useAdminAuthStore.setState({ authority: [] })
-  })
-
-  it('returns true for SUPER_ADMIN', () => {
-    useAdminAuthStore.setState({ authority: ['SUPER_ADMIN'] })
-    expect(canManageCatalog()).toBe(true)
-  })
-
-  it('returns true for CATALOG_MANAGER', () => {
-    useAdminAuthStore.setState({ authority: ['CATALOG_MANAGER'] })
-    expect(canManageCatalog()).toBe(true)
-  })
-
-  it('returns false for ORDER_MANAGER', () => {
-    useAdminAuthStore.setState({ authority: ['ORDER_MANAGER'] })
-    expect(canManageCatalog()).toBe(false)
-  })
-
-  it('returns false for VIEWER', () => {
-    useAdminAuthStore.setState({ authority: ['VIEWER'] })
-    expect(canManageCatalog()).toBe(false)
-  })
-
-  it('returns false when authority is empty', () => {
-    useAdminAuthStore.setState({ authority: [] })
-    expect(canManageCatalog()).toBe(false)
-  })
-})

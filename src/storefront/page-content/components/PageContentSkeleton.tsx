@@ -2,7 +2,7 @@ import {Section} from '@/storefront/sections/shared'
 
 export function PageContentSkeleton() {
     return (
-        <Section as="div" width="wide">
+        <Section as="div">
             <div
                 className="animate-pulse rounded-2xl border border-(--sf-border) bg-(--sf-panel) px-6 py-10 sm:px-10 sm:py-12"
                 aria-busy="true"

@@ -8,7 +8,7 @@ import {
 } from '@/admin/hooks/quotes'
 import { QuoteRequestStatusOptions } from '@/shared/types/enums'
 import type { QuoteRequestStatus } from '@/shared/types/enums'
-import { hasRequiredAuthority } from '@/shared/utils/authorizationHelper'
+import { useCan } from '@/shared/auth/adminPermissions'
 
 function formatTimestamp(dateString: string): string {
   return new Intl.DateTimeFormat(undefined, {
@@ -33,7 +33,7 @@ export function QuoteRequestDetailPage() {
   const { data, isLoading, isError } = useQuoteRequestDetail(quoteRequestId!)
   const statusAction = useQuoteRequestStatusAction()
 
-  const canMutate = hasRequiredAuthority(['SUPER_ADMIN', 'ORDER_MANAGER'])
+  const canMutate = useCan('quote:write')
 
   if (isLoading) {
     return <PageLoadingSpinner />
@@ -211,7 +211,6 @@ export function QuoteRequestDetailPage() {
         </div>
       </section>
 
-      {/* Message */}
       {quoteRequest.message && (
         <section className="flex flex-col gap-2">
           <h2 className="text-lg font-semibold text-(--c-text)">Message</h2>

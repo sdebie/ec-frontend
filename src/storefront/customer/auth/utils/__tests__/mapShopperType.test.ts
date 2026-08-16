@@ -34,8 +34,6 @@ describe('mapShopperType', () => {
 
     describe('property-based tests', () => {
         /**
-         * **Validates: Requirements 3.1, 3.2, 3.3, 3.4**
-         *
          * Property 1: mapShopperType always returns one of 'WHOLESALE', 'RETAIL', or 'GUEST'
          * for any input.
          */
@@ -62,8 +60,6 @@ describe('mapShopperType', () => {
         })
 
         /**
-         * **Validates: Requirements 3.4**
-         *
          * Property 2: Any string that is NOT 'WHOLESALER' or 'RETAILER'
          * (including null, undefined, empty string) returns 'GUEST'.
          */

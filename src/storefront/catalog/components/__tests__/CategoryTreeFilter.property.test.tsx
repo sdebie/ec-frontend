@@ -12,7 +12,6 @@ import type { CategoryNode } from '@/storefront/catalog/hooks/useCategoryTree'
  * up to the depth-3 indent cap; at or beyond the cap, indentation SHALL be
  * non-decreasing.
  *
- * **Validates: Requirements 4.1**
  */
 
 const mockUseCategoryTree = vi.fn<() => { tree: CategoryNode[]; isLoading: boolean; isError: boolean }>()

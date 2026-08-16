@@ -10,11 +10,10 @@ import { join } from 'path'
  * Allowed:   arrowPlacement={resolvedHint}   { arrowPlacement: hint }
  * Forbidden: arrowPlacement="overlay"        { arrowPlacement: 'overlay' }
  *
- * BOTH forms are checked. An earlier revision excluded the object-spread form
- * on the grounds that it is "computed from the hint variable" — that was false
- * for `{ arrowPlacement: 'overlay' as const }`, a hardcoded literal that the
- * gate was consequently written around. A treatment must come from the resolved
- * hint whichever syntax carries it, so the gate now covers both.
+ * BOTH forms are checked. Excluding the object-spread form on the grounds that
+ * it is "computed from the hint variable" is not safe — it is false for
+ * `{ arrowPlacement: 'overlay' as const }`, a hardcoded literal. A treatment
+ * must come from the resolved hint whichever syntax carries it.
  */
 describe('Carousel hint grep gate (design C14)', () => {
     /**

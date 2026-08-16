@@ -8,7 +8,6 @@ export { useApproveBatch } from './useApproveBatch'
 export { useBatchStatusPolling } from './useBatchStatusPolling'
 export { useRefreshBatchStatus } from './useRefreshBatchStatus'
 
-// Types
 export type * from './types'
 
 // Utilities
@@ -17,6 +16,5 @@ export {
   getValidationStatusColor,
   deriveChangeType,
   derivePriceChangeIndicator,
-  deriveCanMutate,
   computeProductReviewSummary,
 } from './utils'

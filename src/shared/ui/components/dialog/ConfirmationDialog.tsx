@@ -36,6 +36,12 @@ export interface ConfirmationDialogProps {
    * @default false
    */
   isLoading?: boolean
+  /**
+   * Extra content below the description, for a confirmation that needs an answer
+   * rather than only an acknowledgement. Aligned under the description so the icon
+   * keeps its column.
+   */
+  children?: React.ReactNode
 }
 
 type VariantConfig = {
@@ -71,6 +77,7 @@ export function ConfirmationDialog({
   cancelLabel = 'Cancel',
   variant = 'default',
   isLoading = false,
+  children,
 }: ConfirmationDialogProps) {
   const { DefaultIcon, iconClass, badgeClass, confirmClass } = VARIANT_CONFIG[variant]
 
@@ -90,11 +97,12 @@ export function ConfirmationDialog({
             <DefaultIcon className={cn('h-5 w-5', iconClass)} aria-hidden="true" />
           </div>
 
-          {description != null && (
-            <p className="text-sm text-(--c-text-muted) leading-relaxed self-center">
-              {description}
-            </p>
-          )}
+          <div className="flex flex-col gap-3 self-center">
+            {description != null && (
+              <p className="text-sm text-(--c-text-muted) leading-relaxed">{description}</p>
+            )}
+            {children}
+          </div>
         </div>
       </DialogContent>
 

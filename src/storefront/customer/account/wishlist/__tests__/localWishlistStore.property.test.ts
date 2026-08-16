@@ -9,8 +9,6 @@ const STORAGE_KEY = 'ec_local_wishlist'
 const UUID_V4_REGEX = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i
 
 /**
- * Validates: Requirements 5.1
- *
  * Property 1: Local wishlist toggle round-trip — for any valid UUID,
  * adding to the store and reading back from localStorage produces a set containing that ID.
  */
@@ -27,7 +25,6 @@ describe('Property 1: Local wishlist toggle round-trip', () => {
                 localStorage.clear()
                 useLocalWishlistStore.setState({variantIds: new Set(), count: 0})
 
-                // Add the UUID to the store
                 useLocalWishlistStore.getState().add(uuid)
 
                 // Read the raw localStorage value and parse it through the store's getItem logic
@@ -50,8 +47,6 @@ describe('Property 1: Local wishlist toggle round-trip', () => {
 })
 
 /**
- * Validates: Requirements 5.2
- *
  * Property 2: Malformed localStorage entries are discarded — for any string NOT matching UUID v4,
  * if placed in the persisted array, reading the store produces a set without it.
  */

@@ -5,7 +5,7 @@ import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 import { useAdminAuthStore } from '@/shared/auth/adminAuthStore'
 import { BrandCreatePage } from '../BrandCreatePage'
 
-vi.mock('@/admin/hooks/brands', () => ({
+vi.mock('@/admin/pages/brands/hooks/useCreateBrand', () => ({
   useCreateBrand: vi.fn(() => ({ mutate: vi.fn(), isPending: false })),
 }))
 
@@ -63,6 +63,15 @@ describe('BrandCreatePage', () => {
     renderBrandCreatePage()
 
     expect(screen.queryByText('Brands List Page')).not.toBeInTheDocument()
-    expect(screen.getByRole('heading', { name: 'Create Brand' })).toBeInTheDocument()
+    expect(screen.getByRole('button', { name: 'Create Brand' })).toBeInTheDocument()
+  })
+
+  it('renders create form for CATALOG_MANAGER (brand:write admits it)', () => {
+    useAdminAuthStore.setState({ role: 'CATALOG_MANAGER' })
+
+    renderBrandCreatePage()
+
+    expect(screen.queryByText('Brands List Page')).not.toBeInTheDocument()
+    expect(screen.getByRole('button', { name: 'Create Brand' })).toBeInTheDocument()
   })
 })

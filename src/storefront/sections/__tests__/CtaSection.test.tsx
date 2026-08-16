@@ -79,10 +79,10 @@ describe('CtaSection', () => {
         expect(eyebrowEl).toBeInTheDocument()
         expect(eyebrowEl).toHaveClass('uppercase', 'tracking-widest')
 
-        // The band now renders the SHARED SectionEyebrow rather than its own
-        // markup, so the colour is a token class instead of an inline style, and
-        // the accent rule comes with it. On the accent band both parts use
-        // accent-text — an accent-coloured rule would be invisible on accent.
+        // The band renders the SHARED SectionEyebrow, so the colour is a token
+        // class rather than an inline style and the accent rule comes with it.
+        // On the accent band both parts use accent-text — an accent-coloured
+        // rule would be invisible on accent.
         expect(eyebrowEl).toHaveClass('text-(--sf-accent-text)')
         expect(eyebrowEl.hasAttribute('data-eyebrow')).toBe(true)
         const rule = eyebrowEl.querySelector('span[aria-hidden="true"]')
@@ -119,8 +119,9 @@ describe('CtaSection', () => {
 
         // Secondary button has outlined styling (border-2, bg-transparent)
         expect(secondaryLink).toHaveClass('border-2', 'bg-transparent')
-        // Secondary button uses --sf-accent-text token for color
-        expect(secondaryLink).toHaveStyle({color: 'var(--sf-accent-text)'})
+        // The accent-text token arrives as a CLASS, not an inline style: an
+        // inline style outranks the hover rules this button depends on.
+        expect(secondaryLink).toHaveClass('text-(--sf-accent-text)')
     })
 
     it('secondaryCta links to correct path', () => {
@@ -161,10 +162,41 @@ describe('CtaSection', () => {
         )
 
         const sectionEl = container.querySelector('section')!
-        // Accent variant uses --sf-accent for background
         expect(sectionEl).toHaveStyle({background: 'var(--sf-accent)'})
         // Title uses --sf-accent-text
         expect(screen.getByText('Styled Section')).toHaveStyle({color: 'var(--sf-accent-text)'})
+    })
+
+    it('accent band buttons carry their colours as classes, so hover rules can reach them', () => {
+        const accentSection: CtaSectionConfig = {
+            id: 'cta-accent-buttons',
+            type: 'cta',
+            props: {
+                title: 'Styled Section',
+                cta: {label: 'Primary Action', to: '/primary'},
+                secondaryCta: {label: 'Secondary Action', to: '/secondary'},
+                variant: 'accent',
+            },
+        }
+
+        render(
+            <MemoryRouter>
+                <CtaSection section={accentSection}/>
+            </MemoryRouter>,
+        )
+
+        // An inline style outranks every hover rule, so a hover class on an
+        // element whose colour is set inline applies and paints nothing. jsdom
+        // cannot see the missing paint, but it CAN see the inline style that
+        // would suppress it — which is the whole reason this is checkable here.
+        for (const label of ['Primary Action', 'Secondary Action']) {
+            const button = screen.getByText(label)
+            expect(button.style.background, `${label} background`).toBe('')
+            expect(button.style.backgroundColor, `${label} backgroundColor`).toBe('')
+            expect(button.style.color, `${label} color`).toBe('')
+            expect(button.style.borderColor, `${label} borderColor`).toBe('')
+            expect(button.className, `${label} hover`).toMatch(/hover:/)
+        }
     })
 
     it('omits eyebrow and secondaryCta cleanly when absent', () => {

@@ -5,6 +5,12 @@ import { describe, it, expect, vi, beforeEach } from 'vitest'
 import { AdminSidebar } from './AdminSidebar'
 import { useAdminAuthStore } from '@/shared/auth/adminAuthStore'
 
+// The brand block reads the client name via react-query; mock it so the
+// sidebar renders without a QueryClientProvider.
+vi.mock('@/admin/hooks/useClientName', () => ({
+  useClientName: () => 'Test Client',
+}))
+
 vi.mock('@/admin/routes/adminMenuRoutes.config', () => ({
   adminMenuRoutes: [
     {
@@ -47,6 +53,15 @@ function renderSidebar(props: { isOpen?: boolean; onClose?: () => void } = {}) {
 }
 
 describe('AdminSidebar', () => {
+  describe('brand block', () => {
+    it('renders the client name and console tagline at the top of the sidebar', () => {
+      renderSidebar()
+
+      expect(screen.getByText('Test Client')).toBeInTheDocument()
+      expect(screen.getByText('Management Console')).toBeInTheDocument()
+    })
+  })
+
   beforeEach(() => {
     useAdminAuthStore.setState({ authority: [] })
   })

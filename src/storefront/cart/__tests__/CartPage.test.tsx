@@ -104,14 +104,16 @@ describe('CartPage', () => {
             expect(screen.queryByText('Estimated subtotal')).not.toBeInTheDocument()
         })
 
-        it('uses the shared storefront page shell at the wide width', () => {
+        it('uses the shared storefront page frame at the default width', () => {
             const {container} = renderCartPage()
 
             // StorefrontLayout owns the <main> landmark, so the page shell is a div
             const shell = container.firstElementChild
             expect(shell?.tagName).toBe('DIV')
             expect(shell).toHaveClass('py-12', 'px-6', 'sm:px-8')
-            expect(shell?.firstElementChild).toHaveClass('mx-auto', 'max-w-7xl')
+            // Default width, not `wide`: one page width across the site, so the
+            // cart starts on the same left edge as the marketing sections.
+            expect(shell?.firstElementChild).toHaveClass('mx-auto', 'max-w-6xl')
         })
     })
 
@@ -203,13 +205,15 @@ describe('CartPage', () => {
             expect(screen.getByText('Your Cart')).toBeInTheDocument()
         })
 
-        it('uses the shared storefront page shell at the wide width', () => {
+        it('uses the shared storefront page frame at the default width', () => {
             const {container} = renderCartPage()
 
             const shell = container.firstElementChild
             expect(shell?.tagName).toBe('DIV')
             expect(shell).toHaveClass('py-12', 'px-6', 'sm:px-8')
-            expect(shell?.firstElementChild).toHaveClass('mx-auto', 'max-w-7xl')
+            // Default width, not `wide`: one page width across the site, so the
+            // cart starts on the same left edge as the marketing sections.
+            expect(shell?.firstElementChild).toHaveClass('mx-auto', 'max-w-6xl')
         })
     })
 
@@ -250,7 +254,6 @@ describe('CartPage', () => {
 
             fireEvent.click(screen.getByRole('button', {name: /increase quantity/i}))
 
-            // 3 × 199.99
             expect(screen.getByTestId('cart-line-total')).toHaveTextContent(money(199.99 * 3))
             expect(screen.getByTestId('cart-subtotal')).toHaveTextContent(money(199.99 * 3))
         })

@@ -40,7 +40,6 @@ export const wholesaleApplicationSchema = z.object({
     // PO
     purchaseOrderRequired: z.boolean().default(false),
 
-    // Notes
     notes: z.string().max(1000, 'Notes must be 1000 characters or fewer').optional(),
 }).superRefine((values, ctx) => {
     // Delivery address is only entered when it does not mirror the company

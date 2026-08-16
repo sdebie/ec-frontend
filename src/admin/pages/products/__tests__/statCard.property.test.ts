@@ -11,7 +11,6 @@ import { getStatCardSubtitle } from '../ProductListPage'
  * SHALL equal Math.round((cardCount / total) * 100) appended with "% of total"
  * — and the Total card SHALL display "View all products" instead.
  *
- * **Validates: Requirements 2.2**
  */
 
 describe('Stat card percentage calculation — Property Tests', () => {

@@ -1,4 +1,4 @@
-import {useState} from 'react'
+import {useState, type CSSProperties, type ReactNode} from 'react'
 import {Link} from 'react-router-dom'
 import type {CategoryShowcaseSectionConfig} from '@/shared/types/StorefrontConfig'
 import {resolveImageUrl} from '@/shared/utils/imageUrl'
@@ -20,6 +20,52 @@ function resolveThemeColor(raw: string): string {
         return `#${stripped}`
     }
     return DEFAULT_THEME_COLOR
+}
+
+/**
+ * Resolves the band's background. Depends only on props, so it is available
+ * before the data arrives — which is what lets the skeleton paint the same
+ * band as the loaded state instead of a transparent one.
+ *
+ * Prefer the DB-provided full gradient (from section.props.gradient) when set,
+ * so each row's multi-stop brand gradient is authored in the seed rather than
+ * derived in code. Fall back to a themeColor-based gradient for backward
+ * compatibility with clients that only supply a single hex.
+ */
+function resolveGradientStyle(gradient: string | undefined, themeColor: string): CSSProperties {
+    if (gradient && gradient.trim().length > 0) {
+        return {background: gradient}
+    }
+    const validColor = resolveThemeColor(themeColor)
+    return {background: `linear-gradient(135deg, ${validColor}22 0%, ${validColor}08 100%)`}
+}
+
+/**
+ * The band's frame — ONE definition, rendered by both the skeleton and the
+ * loaded state so the two cannot drift.
+ *
+ * Gutter and container width are deliberately the shared `Section` frame's, and
+ * the split across two elements is the load-bearing part: the gutter goes on the
+ * OUTER element, the width on the INNER one. Put both on one element and the
+ * content starts a full gutter further in than every section above it. The
+ * gradient still runs full-bleed, but the heading and deck start on the same
+ * left edge as the rest of the page — a band that keeps its own container reads
+ * as misaligned no matter how good it looks alone. The width is read from
+ * SECTION_WIDTH_CLASS rather than copied as a literal so a change to the shared
+ * frame carries here automatically. Only the vertical rhythm stays tighter than
+ * Section's py-12.
+ *
+ * Both branches render this rather than each writing its own container, so the
+ * band cannot jump sideways when its products arrive.
+ */
+function ShowcaseBand({style, children}: { style: CSSProperties; children: ReactNode }) {
+    return (
+        <section className="px-6 sm:px-8" style={style}>
+            <div className={`mx-auto ${SECTION_WIDTH_CLASS.default} py-6`}>
+                {children}
+            </div>
+        </section>
+    )
 }
 
 export function CategoryShowcaseSection({section}: { section: CategoryShowcaseSectionConfig }) {
@@ -51,21 +97,24 @@ export function CategoryShowcaseSection({section}: { section: CategoryShowcaseSe
     const effectiveLimit = limit ?? 8
     const displayProducts = products.slice(0, effectiveLimit)
 
-    // Loading state: skeleton row — no spinner
+    // Prop-derived, so the skeleton below can paint the real band rather than a
+    // transparent placeholder that pops into colour on load.
+    const gradientStyle = resolveGradientStyle(gradient, themeColor)
+
+    // Loading state: skeleton row — no spinner. Same frame as the loaded band,
+    // so nothing shifts when the products arrive.
     if (categoriesLoading || (resolvedId && productsLoading)) {
         return (
-            <section className="py-10">
-                <div className="max-w-7xl mx-auto px-4">
-                    <div className="animate-pulse flex gap-4 overflow-hidden">
-                        {Array.from({length: 4}).map((_, i) => (
-                            <div
-                                key={i}
-                                className="min-w-[200px] h-[280px] bg-(--sf-surface-muted) rounded-lg shrink-0"
-                            />
-                        ))}
-                    </div>
+            <ShowcaseBand style={gradientStyle}>
+                <div className="animate-pulse flex gap-4 overflow-hidden">
+                    {Array.from({length: 4}).map((_, i) => (
+                        <div
+                            key={i}
+                            className="min-w-[200px] h-[280px] bg-(--sf-surface-muted) rounded-lg shrink-0"
+                        />
+                    ))}
                 </div>
-            </section>
+            </ShowcaseBand>
         )
     }
 
@@ -79,17 +128,6 @@ export function CategoryShowcaseSection({section}: { section: CategoryShowcaseSe
         return null
     }
 
-    // Prefer the DB-provided full gradient (from section.props.gradient) when set,
-    // so each row's multi-stop brand gradient is authored in the seed rather than
-    // derived in code. Fall back to a themeColor-based gradient for backward
-    // compatibility with clients that only supply a single hex.
-    const validColor = resolveThemeColor(themeColor)
-    const gradientStyle = {
-        background: gradient && gradient.trim().length > 0
-            ? gradient
-            : `linear-gradient(135deg, ${validColor}22 0%, ${validColor}08 100%)`,
-    }
-
     const resolvedImageSrc = resolveImageUrl(imageUrl ?? null)
     const showImage = !!resolvedImageSrc && !imageFailed
 
@@ -97,14 +135,9 @@ export function CategoryShowcaseSection({section}: { section: CategoryShowcaseSe
     // the contract ProductListPage reads.
     const categoryHref = `/products?category=${encodeURIComponent(categorySlug)}`
 
-    // ONE graphic at every breakpoint, sized against the heading beside it.
-    // It used to be two: a small inline icon on phones plus a 256px side rail on
-    // desktop. The rail is gone (owner directive 2026-08-03) — it consumed a
-    // quarter of the row, held the deck to three cards, and left the artwork
-    // visibly smaller than a product card, which read as unfinished rather than
-    // deliberate. Scaled against the heading it is unambiguously chrome, and the
-    // deck gets the full container: five cards at the same width as every other
-    // deck on the page.
+    // One graphic at every breakpoint, sized against the heading beside it so it
+    // reads as chrome. Anything larger becomes a side rail that eats a quarter of
+    // the row and holds the deck to three cards.
     const categoryIcon = showImage ? (
         <Link
             to={categoryHref}
@@ -122,11 +155,8 @@ export function CategoryShowcaseSection({section}: { section: CategoryShowcaseSe
     ) : null
 
     // Heading + graphic as one block. In carousel layout this becomes the
-    // Carousel's header node so the prev/next buttons share its row — that is
-    // what gets the arrows off the product cards. The deck now spans the full
-    // container, so nothing insets this block and the earlier reason for keeping
-    // the heading outside the Carousel (it would have started inset by the rail's
-    // width) no longer applies.
+    // Carousel's header node so the prev/next buttons share its row instead of
+    // overlaying the product cards.
     const headingBlock = (
         <div className="flex items-center gap-3">
             {categoryIcon}
@@ -135,57 +165,47 @@ export function CategoryShowcaseSection({section}: { section: CategoryShowcaseSe
     )
 
     return (
-        // Gutter + container width are deliberately the shared `Section` frame's
-        // (`px-6 sm:px-8` around the exported default width), NOT this band's
-        // own. The gradient still runs full-bleed, but the heading and deck start
-        // on the same left edge as every other home section — a band that keeps
-        // its own container reads as misaligned no matter how good it looks
-        // alone. The width comes from SECTION_WIDTH_CLASS rather than a copied
-        // literal so a change to the shared frame carries here automatically.
-        // Only the vertical rhythm stays tighter than Section's py-12.
-        <section className="px-6 sm:px-8" style={gradientStyle}>
-            <div className={`mx-auto ${SECTION_WIDTH_CLASS.default} py-6`}>
-                {layout === 'carousel' ? (
-                    <>
-                        {/* Under the non-header hints the Carousel has no header row,
-                            so the heading needs its own above the deck. */}
-                        {hint !== 'header' && <div className="mb-2">{headingBlock}</div>}
-                        <Carousel
-                            ariaLabel={title}
-                            perView={columns}
-                            perViewMobile={2}
-                            tone="onAccent"
-                            // 'header' puts the heading in the Carousel's header slot so
-                            // the prev/next buttons sit BESIDE it instead of overlaying
-                            // the first and last product cards — and that row costs
-                            // nothing, because the heading had to occupy a row anyway.
-                            {...(hint === 'header'
-                                ? {header: headingBlock}
-                                : {arrowPlacement: hint})}
-                            // Stated rather than inherited from `header`: the dotted
-                            // mobile treatment is a deliberate choice for this band and
-                            // must survive any later change to how the controls sit.
-                            mobileControls="dots"
-                        >
-                            {displayProducts.map((product) => (
-                                <ProductCard key={product.id} product={product} variantId={product.variantId}
-                                             imageAspect="landscape" borderWeight="thick"/>
-                            ))}
-                        </Carousel>
-                    </>
-                ) : (
-                    <>
-                        <div className="mb-4">{headingBlock}</div>
-                        <div className="flex items-stretch gap-4 overflow-x-auto py-2">
-                            {displayProducts.map((product) => (
-                                <div key={product.id} className="w-56 shrink-0">
-                                    <ProductCard product={product} variantId={product.variantId} imageAspect="landscape" borderWeight="thick"/>
-                                </div>
-                            ))}
-                        </div>
-                    </>
-                )}
-            </div>
-        </section>
+        <ShowcaseBand style={gradientStyle}>
+            {layout === 'carousel' ? (
+                <>
+                    {/* Under the non-header hints the Carousel has no header row,
+                        so the heading needs its own above the deck. */}
+                    {hint !== 'header' && <div className="mb-2">{headingBlock}</div>}
+                    <Carousel
+                        ariaLabel={title}
+                        perView={columns}
+                        perViewMobile={2}
+                        tone="onAccent"
+                        // 'header' puts the heading in the Carousel's header slot so
+                        // the prev/next buttons sit BESIDE it instead of overlaying
+                        // the first and last product cards — and that row costs
+                        // nothing, because the heading had to occupy a row anyway.
+                        {...(hint === 'header'
+                            ? {header: headingBlock}
+                            : {arrowPlacement: hint})}
+                        // Stated rather than inherited from `header`: the dotted
+                        // mobile treatment is a deliberate choice for this band and
+                        // must survive any later change to how the controls sit.
+                        mobileControls="dots"
+                    >
+                        {displayProducts.map((product) => (
+                            <ProductCard key={product.id} product={product} variantId={product.variantId}
+                                         imageAspect="landscape" borderWeight="thick"/>
+                        ))}
+                    </Carousel>
+                </>
+            ) : (
+                <>
+                    <div className="mb-4">{headingBlock}</div>
+                    <div className="flex items-stretch gap-4 overflow-x-auto py-2">
+                        {displayProducts.map((product) => (
+                            <div key={product.id} className="w-56 shrink-0">
+                                <ProductCard product={product} variantId={product.variantId} imageAspect="landscape" borderWeight="thick"/>
+                            </div>
+                        ))}
+                    </div>
+                </>
+            )}
+        </ShowcaseBand>
     )
 }

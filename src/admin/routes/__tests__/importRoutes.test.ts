@@ -1,11 +1,11 @@
 import { describe, it, expect } from 'vitest'
 import { adminMenuRoutes } from '../adminMenuRoutes.config'
 import { adminRoutingRoutes } from '../adminPageRoutes.config'
+import { rolesFor } from '@/shared/auth/adminPermissions'
 
 /**
  * Unit tests for import route configuration
  *
- * Validates: Requirements 1.1, 1.2, 1.3, 1.4
  */
 
 describe('Import route configuration', () => {
@@ -33,14 +33,14 @@ describe('Import route configuration', () => {
       expect(actualPaths).toEqual(expectedPaths)
     })
 
-    it('import upload children have authority ["SUPER_ADMIN", "VIEWER"]', () => {
-      const expectedAuthority = ['SUPER_ADMIN', 'VIEWER']
-
+    it('import children mirror the backend import/image role sets (no VIEWER — the batch reads deny it)', () => {
       importsEntry!.subMenu!
         .filter((child) => child.key !== 'admin.images')
         .forEach((child) => {
-          expect(child.authority).toEqual(expectedAuthority)
+          expect(child.authority).toEqual(rolesFor('import:manage'))
         })
+      const imagesChild = importsEntry!.subMenu!.find((child) => child.key === 'admin.images')
+      expect(imagesChild!.authority).toEqual(rolesFor('image:write'))
     })
   })
 
@@ -57,13 +57,11 @@ describe('Import route configuration', () => {
       expect(route).toBeDefined()
     })
 
-    it('all 4 page-only routes have authority ["SUPER_ADMIN", "VIEWER"]', () => {
-      const expectedAuthority = ['SUPER_ADMIN', 'VIEWER']
-
+    it('all 4 page-only routes carry the import:manage role set', () => {
       pageOnlyPaths.forEach((path) => {
         const route = adminRoutingRoutes.find((r) => r.path === path)
         expect(route).toBeDefined()
-        expect(route!.authority).toEqual(expectedAuthority)
+        expect(route!.authority).toEqual(rolesFor('import:manage'))
       })
     })
   })

@@ -1,7 +1,7 @@
 import { storefrontFeaturedProductsFixture } from './storefrontCatalog.fixture.js'
 
-// Legacy REST mock retained for compatibility. The storefront itself uses the
-// GraphQL fixture in devApiPlugin, whose shape mirrors ProductShoppingListItemDto.
+// REST-shaped mock. The storefront itself reads the GraphQL fixture in
+// devApiPlugin, whose shape mirrors ProductShoppingListItemDto.
 export const featuredProductsFixture = storefrontFeaturedProductsFixture.map((product) => ({
   id: product.id,
   name: product.name,

@@ -212,7 +212,7 @@ describe('NavDrawer', () => {
         expect(screen.getByRole('link', {name: /my account/i})).toBeInTheDocument()
     })
 
-    it('does not render the category tree (owner directive 2026-08-02)', () => {
+    it('does not render the category tree', () => {
         renderNavDrawer()
         // Removed until a better mobile treatment exists — ~20 root categories
         // turned the drawer into a wall of links and buried the account action.

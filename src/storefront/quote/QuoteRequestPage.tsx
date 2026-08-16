@@ -5,7 +5,7 @@ import {QuoteDetailsForm} from './components/QuoteDetailsForm'
 import {QuoteProductSearch} from './components/QuoteProductSearch'
 import {QuoteReassurancePanel} from './components/QuoteReassurancePanel'
 import {useStorefrontConfig} from '@/shared/config/storefrontConfig.context'
-import {PageDivider, SectionHeading} from '@/storefront/sections/shared'
+import {PageDivider, Section, SectionHeading} from '@/storefront/sections/shared'
 
 /**
  * QuoteRequestPage — public page shell for the quote request funnel.
@@ -39,7 +39,7 @@ export function QuoteRequestPage() {
             : "Thank you! We've received your quote request and will be in touch soon."
 
         return (
-            <div className="mx-auto w-full max-w-5xl px-4 py-12 sm:py-16">
+            <Section as="div">
                 <div className="flex flex-col items-center justify-center py-16 text-center">
                     <div className="rounded-full bg-(--sf-accent)/10 p-3">
                         <svg
@@ -70,12 +70,14 @@ export function QuoteRequestPage() {
                         Submit another quote request
                     </button>
                 </div>
-            </div>
+            </Section>
         )
     }
 
     return (
-        <div className="mx-auto w-full max-w-5xl px-4 py-12 sm:py-16">
+        // The shared `Section` frame, not a container of this page's own — that
+        // is what keeps its left edge on the same line as every other page.
+        <Section as="div">
             {/* The shared page-title composition — accent rule from SectionHeading,
                 then the divider — so this page carries the same heading treatment
                 as the catalogue, product detail and wholesale pages. */}
@@ -144,6 +146,6 @@ export function QuoteRequestPage() {
                     </div>
                 </section>
             </div>
-        </div>
+        </Section>
     )
 }

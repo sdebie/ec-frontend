@@ -3,8 +3,7 @@ import { useBreadcrumb } from '@/admin/context/BreadcrumbContext'
 import { ImageIcon, Search } from 'lucide-react'
 
 import { useImageList } from '@/admin/hooks/images'
-import { useAdminAuthStore } from '@/shared/auth/adminAuthStore'
-import { deriveCanMutate } from '@/admin/hooks/imports/utils'
+import { useCan } from '@/shared/auth/adminPermissions'
 import { thumbnailUrl } from '@/shared/utils/imageUrl'
 import { PageLayout } from '@/shared/ui/components'
 import { Button, Input } from '@/shared/ui/primitives'
@@ -15,7 +14,7 @@ import { BulkUploadDialog } from './BulkUploadDialog'
 const PAGE_SIZE = 80
 
 export function ImageGalleryPage() {
-  const canMutate = deriveCanMutate(useAdminAuthStore((s) => s.role))
+  const canMutate = useCan('image:write')
 
   const [searchInput, setSearchInput] = useState('')
   const [debouncedSearch, setDebouncedSearch] = useState('')
@@ -61,7 +60,6 @@ export function ImageGalleryPage() {
   return (
     <PageLayout title="Images" subtitle="Browse and manage store images" action={headerAction}>
       <div className="space-y-4">
-        {/* Search */}
         <div className="relative max-w-md">
           <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-(--c-text-muted)" />
           <Input

@@ -33,8 +33,7 @@ export function useUploadCsv() {
         queryClient.invalidateQueries({ queryKey: ['admin-product-upload-batches'] })
       }
     },
-    onError: (error) => {
-      console.error('[ProductImport] CSV upload failed:', error)
+    onError: () => {
     },
   })
 

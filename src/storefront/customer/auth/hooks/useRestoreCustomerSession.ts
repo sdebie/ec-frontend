@@ -12,25 +12,21 @@ import type {StorefrontMeResponse} from '../types'
 /**
  * Restores the signed-in customer's session from the persisted bearer token.
  *
- * `customerAuthStore` persists only the token, so after any reload the tier
- * (`customerType`) is unknown and defaults to RETAIL. Every price surface
- * selects its tier from that value, so until this resolves a wholesale
- * customer would be shown retail prices — hence `isRestoring`, which callers
- * use to withhold price-bearing UI rather than paint a figure that is wrong.
+ * `customerAuthStore` persists only the token, so after a reload the tier
+ * (`customerType`) defaults to RETAIL until this resolves. Callers use
+ * `isRestoring` to withhold price-bearing UI rather than paint a wrong figure.
  *
  * `customerType` is deliberately NOT persisted: a stored tier survives a
- * server-side upgrade or downgrade, and the tier must come from the server.
+ * server-side upgrade or downgrade, so it must come from the server.
  *
- * Mounted once at the storefront root so it covers the whole storefront, not
- * just the guarded account routes.
+ * Mount once at the storefront root — it covers the whole storefront, not just
+ * the guarded account routes.
  *
- * Deliberately fetches directly rather than through `useCustomerProfile`: this
- * runs before anything renders and its failure means "sign the visitor out",
- * whereas that hook's failure means "show an error on a page". Sharing one
- * query would fuse those two meanings and their retry policies. What IS shared
- * is the endpoint definition and the cache entry — the response is written to
- * `CUSTOMER_PROFILE_QUERY_KEY` so a subsequent account page reads it from cache
- * instead of issuing a second identical request.
+ * Fetches directly rather than through `useCustomerProfile`: failure here means
+ * "sign the visitor out", failure there means "show an error on a page", and
+ * one query cannot carry both meanings or both retry policies. The response is
+ * still written to `CUSTOMER_PROFILE_QUERY_KEY`, so a later account page reads
+ * cache instead of repeating the request.
  */
 export function useRestoreCustomerSession(): { isRestoring: boolean } {
     const token = useCustomerAuthStore((s) => s.token)

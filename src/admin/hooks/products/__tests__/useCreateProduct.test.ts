@@ -4,7 +4,6 @@
  * Mocks only adminGraphqlClient.request so the toProductInformationInput mapping
  * actually executes (if someone breaks the mapping, this test fails).
  *
- * Validates: Requirements 2.5, 8.2
  */
 import { describe, it, expect, vi, beforeEach } from 'vitest'
 import { renderHook, act, waitFor } from '@testing-library/react'
@@ -54,9 +53,9 @@ describe('useCreateProduct — real mapping', () => {
       shortDescription: 'Short',
       description: 'Long',
       status: 'PENDING' as ProductPayload['status'],
-      categoryId: 'cat-1',
+      categoryIds: ['cat-1'],
       images: [],
-      variants: [{ sku: 'SKU-1', price: '19.99', stock: 5 }],
+      variants: [{ sku: 'SKU-1', price: '19.99', stock: 5, attributes: [] }],
     }
 
     await act(async () => {
@@ -88,11 +87,11 @@ describe('useCreateProduct — real mapping', () => {
       shortDescription: 'A short desc',
       description: 'Full description',
       status: 'ACTIVE' as ProductPayload['status'],
-      categoryId: 'cat-99',
-      images: ['hero.jpg', 'detail.jpg'],
+      categoryIds: ['cat-99'],
+      images: [{ url: 'hero.jpg', altText: 'Hero shot' }, { url: 'detail.jpg', altText: '' }],
       variants: [
-        { sku: 'M-001', price: '49.99', stock: 10 },
-        { sku: 'M-002', price: '79.99', stock: 3 },
+        { sku: 'M-001', price: '49.99', stock: 10, attributes: [{ key: 'Colour', value: 'Navy' }, { key: 'Size', value: 'L' }] },
+        { sku: 'M-002', price: '79.99', stock: 3, attributes: [] },
       ],
     }
 
@@ -110,6 +109,7 @@ describe('useCreateProduct — real mapping', () => {
       variants: Array<{
         sku: string
         stockQuantity: number
+        attributesJson: string
         prices: Array<{ priceType: string; price: string }>
         images?: Array<{ imageUrl: string; featured: boolean; sortOrder: number }>
       }>
@@ -122,17 +122,21 @@ describe('useCreateProduct — real mapping', () => {
     // Variant 0: stock → stockQuantity, price → RETAIL_PRICE entry, images on index 0
     expect(input.variants[0].sku).toBe('M-001')
     expect(input.variants[0].stockQuantity).toBe(10)
+    expect(input.variants[0].attributesJson).toBe('{"Colour":"Navy","Size":"L"}')
     expect(input.variants[0].prices).toEqual([
       { priceType: 'RETAIL_PRICE', price: '49.99' },
     ])
     expect(input.variants[0].images).toEqual([
-      { imageUrl: 'hero.jpg', featured: true, sortOrder: 0 },
-      { imageUrl: 'detail.jpg', featured: false, sortOrder: 1 },
+      { imageUrl: 'hero.jpg', featured: true, sortOrder: 0, altText: 'Hero shot' },
+      // Blank alt text is sent as null, matching images that never had one
+      { imageUrl: 'detail.jpg', featured: false, sortOrder: 1, altText: null },
     ])
 
-    // Variant 1: same mapping, no images (images only on index 0)
+    // Variant 1: same mapping, no images (images only on index 0), no attributes
+    // still serialises to a valid (empty) JSON object — never omitted, never null.
     expect(input.variants[1].sku).toBe('M-002')
     expect(input.variants[1].stockQuantity).toBe(3)
+    expect(input.variants[1].attributesJson).toBe('{}')
     expect(input.variants[1].prices).toEqual([
       { priceType: 'RETAIL_PRICE', price: '79.99' },
     ])
@@ -156,9 +160,9 @@ describe('useCreateProduct — real mapping', () => {
         shortDescription: '',
         description: '',
         status: 'PENDING' as ProductPayload['status'],
-        categoryId: 'cat-1',
+        categoryIds: ['cat-1'],
         images: [],
-        variants: [{ sku: 'NI-001', price: '9.99', stock: 1 }],
+        variants: [{ sku: 'NI-001', price: '9.99', stock: 1, attributes: [] }],
       })
     })
 
@@ -188,9 +192,9 @@ describe('useCreateProduct — real mapping', () => {
         shortDescription: '',
         description: '',
         status: 'ACTIVE' as ProductPayload['status'],
-        categoryId: 'cat-1',
+        categoryIds: ['cat-1'],
         images: [],
-        variants: [{ id: 'existing-var-id', sku: 'EX-001', price: '15.00', stock: 2 }],
+        variants: [{ id: 'existing-var-id', sku: 'EX-001', price: '15.00', stock: 2, attributes: [] }],
       })
     })
 
@@ -201,5 +205,41 @@ describe('useCreateProduct — real mapping', () => {
     const [, variables] = vi.mocked(adminGraphqlClient.request).mock.calls[0] as unknown as [unknown, Record<string, unknown>]
     const input = (variables as { input: { variants: Array<{ id?: string }> } }).input
     expect(input.variants[0].id).toBe('existing-var-id')
+  })
+
+  it('invalidates the product list and stats caches on success', async () => {
+    vi.mocked(adminGraphqlClient.request).mockResolvedValue({
+      addProductInformation: {
+        product: { id: 'new-1', name: 'Test', slug: 'test', status: 'PENDING' },
+        variants: [],
+      },
+    })
+
+    const queryClient = new QueryClient({
+      defaultOptions: { mutations: { retry: false } },
+    })
+    const invalidateSpy = vi.spyOn(queryClient, 'invalidateQueries')
+    const wrapper = ({ children }: { children: React.ReactNode }) =>
+      createElement(QueryClientProvider, { client: queryClient }, children)
+
+    const { result } = renderHook(() => useCreateProduct(), { wrapper })
+
+    await act(async () => {
+      result.current.mutate({
+        name: 'Test',
+        slug: 'test',
+        shortDescription: '',
+        description: '',
+        status: 'PENDING' as ProductPayload['status'],
+        categoryIds: ['cat-1'],
+        images: [],
+        variants: [{ sku: 'SKU-1', price: '19.99', stock: 5, attributes: [] }],
+      })
+    })
+
+    await waitFor(() => {
+      expect(invalidateSpy).toHaveBeenCalledWith({ queryKey: ['admin-products-list'] })
+    })
+    expect(invalidateSpy).toHaveBeenCalledWith({ queryKey: ['admin-product-stats'] })
   })
 })

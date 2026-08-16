@@ -9,14 +9,13 @@ import { useUpdateProductStatusGql } from '@/admin/hooks/products/useUpdateProdu
 import { useProductStats } from '@/admin/hooks/products/useProductStats'
 import { useCategories } from '@/admin/hooks/products/useCategories'
 import { useBrands } from '@/admin/hooks/products/useBrands'
-import * as authorizationHelper from '@/shared/utils/authorizationHelper'
+import { useAdminAuthStore } from '@/shared/auth/adminAuthStore'
 
 /**
  * Unit tests for table column rendering and order.
- * Validates: Requirement 4.1
  *
  * The product table SHALL have columns in this order:
- * checkbox (select), Product, SKU, Category, Price, Status, Stock, Actions
+ * checkbox (select), Product (thumbnail + name/category merged), SKU, Price, Stock, Status, Actions
  */
 
 vi.mock('@/admin/hooks/products/useAdminProductList', () => ({
@@ -28,6 +27,9 @@ vi.mock('@/admin/hooks/products/useDeleteProductGql', () => ({
 vi.mock('@/admin/hooks/products/useUpdateProductStatusGql', () => ({
   useUpdateProductStatusGql: vi.fn(),
 }))
+vi.mock('@/admin/hooks/products/useZeroProductStock', () => ({
+  useZeroProductStock: vi.fn(() => ({ mutate: vi.fn(), isPending: false })),
+}))
 vi.mock('@/admin/hooks/products/useProductStats', () => ({
   useProductStats: vi.fn(),
 }))
@@ -36,10 +38,6 @@ vi.mock('@/admin/hooks/products/useCategories', () => ({
 }))
 vi.mock('@/admin/hooks/products/useBrands', () => ({
   useBrands: vi.fn(),
-}))
-vi.mock('@/shared/utils/authorizationHelper', () => ({
-  canManageCatalog: vi.fn(),
-  hasRequiredAuthority: vi.fn(),
 }))
 
 const mockNavigate = vi.fn()
@@ -99,10 +97,7 @@ function setupMocks() {
     isLoading: false,
   })
 
-  vi.mocked(authorizationHelper.canManageCatalog).mockReturnValue(true)
-  vi.mocked(authorizationHelper.hasRequiredAuthority).mockImplementation((roles) =>
-    roles.includes('SUPER_ADMIN'),
-  )
+  useAdminAuthStore.setState({ role: 'SUPER_ADMIN' })
 }
 
 function renderPage() {
@@ -125,9 +120,9 @@ describe('Product table columns', () => {
     // Get all th elements from the table
     const headerCells = screen.getAllByRole('columnheader')
 
-    // Expected column order: checkbox, Icon, Product, SKU, Price, Status, Stock, Actions
+    // Expected column order: checkbox, Product (icon+name merged), SKU, Price, Stock, Status, Actions
     // The checkbox column has a checkbox input instead of text
-    const expectedHeaders = ['Icon', 'Product', 'SKU', 'Price', 'Status', 'Stock', 'Actions']
+    const expectedHeaders = ['Product', 'SKU', 'Price', 'Stock', 'Status', 'Actions']
 
     // First column is checkbox (no text header, has a checkbox input)
     const firstHeader = headerCells[0]
@@ -138,11 +133,11 @@ describe('Product table columns', () => {
     expect(textHeaders).toEqual(expectedHeaders)
   })
 
-  it('renders exactly 8 columns', () => {
+  it('renders exactly 7 columns', () => {
     renderPage()
 
     const headerCells = screen.getAllByRole('columnheader')
-    expect(headerCells).toHaveLength(8)
+    expect(headerCells).toHaveLength(7)
   })
 
   it('renders product data in the correct columns', () => {
@@ -163,9 +158,8 @@ describe('Product table columns', () => {
     const activeTexts = screen.getAllByText('Active')
     expect(activeTexts.length).toBeGreaterThanOrEqual(1)
 
-    // Stock column: derives In Stock from stockCount=25
-    expect(screen.getByText('In Stock')).toBeInTheDocument()
-    expect(screen.getByText('25')).toBeInTheDocument() // 25 is unique to this product's stock
+    // Stock column: one line combining level + count, derived from stockCount=25
+    expect(screen.getByText('25 in stock')).toBeInTheDocument()
   })
 
   it('renders Price column with formatted amount', () => {
@@ -180,27 +174,40 @@ describe('Product table columns', () => {
     expect(priceCell).toBeTruthy()
   })
 
-  it('renders Actions column with view, edit, and menu for SUPER_ADMIN', () => {
+  it('renders Actions column with all inline actions for SUPER_ADMIN', () => {
     renderPage()
 
-    // View button
-    expect(screen.getByTestId('action-view')).toBeInTheDocument()
-    // Edit button (inline icon)
-    expect(screen.getByTestId('action-edit')).toBeInTheDocument()
-    // Actions menu (three-dot)
-    expect(screen.getByTestId('actions-menu')).toBeInTheDocument()
+    // View and Edit are merged into one action
+    expect(screen.getByTestId('action-view-edit')).toBeInTheDocument()
+    expect(screen.getByTestId('action-out-of-stock')).toBeInTheDocument()
+    expect(screen.getByTestId('action-disable')).toBeInTheDocument()
+    expect(screen.getByTestId('action-delete')).toBeInTheDocument()
   })
 
-  it('renders Actions column with only view button for VIEWER role', () => {
-    vi.mocked(authorizationHelper.canManageCatalog).mockReturnValue(false)
+  it('renders Actions column with only the view/edit button for VIEWER role', () => {
+    useAdminAuthStore.setState({ role: 'VIEWER' })
 
     renderPage()
 
-    // View button should still be present
-    expect(screen.getByTestId('action-view')).toBeInTheDocument()
-    // Edit button and actions menu should not be rendered
-    expect(screen.queryByTestId('action-edit')).not.toBeInTheDocument()
-    expect(screen.queryByTestId('actions-menu')).not.toBeInTheDocument()
+    // The merged view/edit action should still be present
+    expect(screen.getByTestId('action-view-edit')).toBeInTheDocument()
+    // Mutating actions should not be rendered for read-only roles
+    expect(screen.queryByTestId('action-out-of-stock')).not.toBeInTheDocument()
+    expect(screen.queryByTestId('action-disable')).not.toBeInTheDocument()
+    expect(screen.queryByTestId('action-delete')).not.toBeInTheDocument()
+  })
+
+  it('splits the two capabilities for CATALOG_MANAGER: write actions render, lifecycle actions do not', () => {
+    // CM is in product:write but not product:lifecycle — this pin fails if the
+    // page ever reads one capability where it means the other.
+    useAdminAuthStore.setState({ role: 'CATALOG_MANAGER' })
+
+    renderPage()
+
+    expect(screen.getByTestId('action-view-edit')).toBeInTheDocument()
+    expect(screen.getByTestId('action-out-of-stock')).toBeInTheDocument()
+    expect(screen.queryByTestId('action-disable')).not.toBeInTheDocument()
+    expect(screen.queryByTestId('action-delete')).not.toBeInTheDocument()
   })
 
   it('renders Stock column with LOW_STOCK styling for count between 1-10', () => {
@@ -222,9 +229,8 @@ describe('Product table columns', () => {
 
     renderPage()
 
-    expect(screen.getByText('Low Stock')).toBeInTheDocument()
     // stockCount 7 is unique — doesn't collide with stat card numbers
-    expect(screen.getByText('7')).toBeInTheDocument()
+    expect(screen.getByText('7 left')).toBeInTheDocument()
   })
 
   it('renders Stock column with OUT_OF_STOCK styling for count 0', () => {
@@ -246,7 +252,7 @@ describe('Product table columns', () => {
 
     renderPage()
 
-    expect(screen.getByText('Out of Stock')).toBeInTheDocument()
-    expect(screen.getByText('0')).toBeInTheDocument()
+    // Zero-stock copy omits the redundant count
+    expect(screen.getByText('Out of stock')).toBeInTheDocument()
   })
 })

@@ -1,5 +1,5 @@
 import { Phone, MessageCircle } from 'lucide-react'
-import { SF_FOCUS_RING_PAGE } from '@/storefront/sections/shared'
+import { ACCENT_LINK_HOVER, SF_FOCUS_RING_PAGE } from '@/storefront/sections/shared'
 import { waMeUrl } from '@/shared/utils/waMeUrl'
 import type { QuoteConfig, ContactConfig } from '@/shared/types/StorefrontConfig'
 
@@ -62,7 +62,7 @@ export function QuoteReassurancePanel({ quote, contact }: QuoteReassurancePanelP
             {phone && (
               <a
                 href={`tel:${phone}`}
-                className={`inline-flex items-center gap-1.5 rounded-md text-sm font-medium text-(--sf-accent) transition-colors hover:text-[color-mix(in_srgb,var(--sf-accent)_80%,black)] ${SF_FOCUS_RING_PAGE}`}
+                className={`inline-flex items-center gap-1.5 rounded-md text-sm font-medium text-(--sf-accent) transition-colors ${ACCENT_LINK_HOVER} ${SF_FOCUS_RING_PAGE}`}
               >
                 <Phone className="h-4 w-4" aria-hidden="true" />
                 Call us
@@ -73,7 +73,7 @@ export function QuoteReassurancePanel({ quote, contact }: QuoteReassurancePanelP
                 href={waMeUrl(whatsapp)}
                 target="_blank"
                 rel="noopener noreferrer"
-                className={`inline-flex items-center gap-1.5 rounded-md text-sm font-medium text-(--sf-accent) transition-colors hover:text-[color-mix(in_srgb,var(--sf-accent)_80%,black)] ${SF_FOCUS_RING_PAGE}`}
+                className={`inline-flex items-center gap-1.5 rounded-md text-sm font-medium text-(--sf-accent) transition-colors ${ACCENT_LINK_HOVER} ${SF_FOCUS_RING_PAGE}`}
               >
                 <MessageCircle className="h-4 w-4" aria-hidden="true" />
                 WhatsApp

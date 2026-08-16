@@ -110,7 +110,6 @@ describe('QuickViewModal', () => {
       const last = focusable[focusable.length - 1]
       const first = focusable[0]
 
-      // Focus the last element
       last.focus()
       expect(document.activeElement).toBe(last)
 
@@ -130,7 +129,6 @@ describe('QuickViewModal', () => {
       const first = focusable[0]
       const last = focusable[focusable.length - 1]
 
-      // Focus the first element
       first.focus()
       expect(document.activeElement).toBe(first)
 

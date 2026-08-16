@@ -5,7 +5,7 @@ import { render, cleanup } from '@testing-library/react'
 import { OrderActionsMenu } from '@/admin/pages/orders/components/OrderActionsMenu'
 import { getAvailableTransitions } from '@/admin/pages/orders/utils/getAvailableTransitions'
 import { OrderStatus } from '@/shared/types/enums/OrderStatus'
-import type { AdminOrderSummary } from '@/admin/hooks/orders'
+import type { AdminOrderSummary } from '@/admin/pages/orders/types'
 
 /**
  * Feature: admin-order-management
@@ -16,7 +16,6 @@ import type { AdminOrderSummary } from '@/admin/hooks/orders'
  * getAvailableTransitions(status).length > 0. In all other cases, the menu
  * SHALL not be rendered.
  *
- * **Validates: Requirements 1.6, 1.7, 4.2**
  */
 
 const orderStatusArb = fc.constantFrom(...Object.values(OrderStatus))
@@ -49,16 +48,13 @@ describe('Actions menu visibility — Property Tests', () => {
           const { container } = render(
             <OrderActionsMenu
               order={order}
-              onShip={noop}
-              onDeliver={noop}
-              onCancel={noop}
-              onRefund={noop}
+              onSelect={noop}
               canMutate={canMutate}
             />,
           )
 
           const menuElement = container.querySelector('[data-testid="order-actions-menu"]')
-          const shouldRender = canMutate === true && getAvailableTransitions(status).length > 0
+          const shouldRender = canMutate && getAvailableTransitions(status).length > 0
 
           if (shouldRender) {
             expect(menuElement).not.toBeNull()

@@ -109,8 +109,7 @@ export function NavigationEditorPage() {
       toast.success('Navigation saved successfully')
       queryClient.invalidateQueries({ queryKey: ['admin', 'storeSettings'] })
     },
-    onError: (error) => {
-      console.error('[Navigation] save navigation failed:', error)
+    onError: () => {
       toast.error('Failed to save navigation', { duration: 0 })
     },
   })

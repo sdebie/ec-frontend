@@ -4,7 +4,7 @@ import { LayoutGrid, Menu, User } from 'lucide-react'
 import { useStorefrontConfig } from '@/shared/config/storefrontConfig.context'
 import { resolveImageUrl } from '@/shared/utils/imageUrl'
 import { useCustomerAuthStore } from '@/shared/auth/customerAuthStore'
-import { NAV_ICON_HOVER, NAV_ICON_PILL, SF_FOCUS_RING } from '@/storefront/sections/shared/focusRing'
+import { ACCENT_BUTTON_HOVER, NAV_ICON_HOVER, NAV_ICON_PILL, SF_FOCUS_RING } from '@/storefront/sections/shared/focusRing'
 import { SearchBar } from './SearchBar'
 import { StorefrontNavLink } from './StorefrontNavLink'
 import { NavDrawer } from './NavDrawer'
@@ -101,9 +101,8 @@ export function StorefrontHeader() {
           {/* Cart icon — visible on both desktop and mobile */}
           <CartIcon />
 
-          {/* Account / sign-in — after the cart (owner directive 2026-08-02).
-              Hidden below `md`: on a phone it lives in the nav drawer, so the
-              header keeps only the icons and the burger. */}
+          {/* Account / sign-in. Hidden below `md`: on a phone it lives in the
+              nav drawer, so the header keeps only the icons and the burger. */}
           <div className="hidden md:contents">
           {isSignedIn ? (
             <div ref={accountMenuRef} className="relative">
@@ -177,7 +176,6 @@ export function StorefrontHeader() {
             </Link>
           )}
 
-
           </div>
 
           {/* Burger button — mobile only */}
@@ -204,7 +202,7 @@ export function StorefrontHeader() {
           <SearchBar tone="nav" className="min-w-0 flex-1" />
           <Link
             to="/products"
-            className={`flex shrink-0 items-center gap-1.5 rounded-md bg-(--sf-accent) px-3 py-2.5 text-sm font-semibold text-(--sf-accent-text) ${SF_FOCUS_RING.nav}`}
+            className={`flex shrink-0 items-center gap-1.5 rounded-md bg-(--sf-accent) px-3 py-2.5 text-sm font-semibold text-(--sf-accent-text) transition-colors ${ACCENT_BUTTON_HOVER} ${SF_FOCUS_RING.nav}`}
           >
             <LayoutGrid className="h-4 w-4" aria-hidden="true" />
             Shop
@@ -212,7 +210,6 @@ export function StorefrontHeader() {
         </div>
       )}
 
-      {/* Mobile nav drawer */}
       {navItems.length > 0 && (
         <NavDrawer
           open={drawerOpen}

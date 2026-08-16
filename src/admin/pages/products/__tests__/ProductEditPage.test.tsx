@@ -4,7 +4,6 @@
  * form population from useProductDetail, and validation blocking.
  * Mocks adminGraphqlClient.request (not the hooks) so the mapping code executes.
  *
- * Validates: Requirements 1.3, 2.5, 8.2
  */
 import { describe, it, expect, vi, beforeEach } from 'vitest'
 import { render, screen, waitFor } from '@testing-library/react'
@@ -75,7 +74,7 @@ const mockGraphqlResponse = {
       shortDescription: 'A test widget',
       description: 'Detailed description',
       status: 'ACTIVE',
-      category: { id: 'cat-1', name: 'Electronics' },
+      categories: [{ id: 'cat-1', name: 'Electronics' }],
     },
     variants: [
       {
@@ -83,7 +82,7 @@ const mockGraphqlResponse = {
         sku: 'WDG-001',
         stockQuantity: 10,
         status: 'ACTIVE',
-        prices: [{ id: 'price-1', price: '49.99', priceType: 'RETAIL_PRICE' }],
+        prices: [{ id: 'price-1', price: 49.99, priceType: 'RETAIL_PRICE' }],
         images: [{ id: 'img-1', imageUrl: 'widget.jpg', featured: true, sortOrder: 0 }],
       },
     ],
@@ -138,7 +137,9 @@ describe('ProductEditPage', () => {
         expect(screen.getByPlaceholderText('Product name')).toHaveValue('Test Widget')
       })
 
-      // Clear the SKU field
+      // Server-hydrated rows start read-only — open the row for editing first
+      await user.click(screen.getByRole('tab', { name: /variants/i }))
+      await user.click(screen.getByTestId('edit-variant-0'))
       const skuInput = screen.getByDisplayValue('WDG-001')
       await user.clear(skuInput)
 
@@ -167,7 +168,9 @@ describe('ProductEditPage', () => {
         expect(screen.getByPlaceholderText('Product name')).toHaveValue('Test Widget')
       })
 
-      // Change price to 0
+      // Change price to 0 (open the read-only row for editing first)
+      await user.click(screen.getByRole('tab', { name: /variants/i }))
+      await user.click(screen.getByTestId('edit-variant-0'))
       const priceInput = screen.getByDisplayValue('49.99')
       await user.clear(priceInput)
       await user.type(priceInput, '0')
@@ -198,7 +201,7 @@ describe('ProductEditPage', () => {
               sku: 'WDG-001',
               stockQuantity: 10,
               status: 'ACTIVE',
-              prices: [{ id: 'p1', price: '49.99', priceType: 'RETAIL_PRICE' }],
+              prices: [{ id: 'p1', price: 49.99, priceType: 'RETAIL_PRICE' }],
               images: [],
             },
             {
@@ -206,7 +209,7 @@ describe('ProductEditPage', () => {
               sku: 'WDG-002',
               stockQuantity: 5,
               status: 'ACTIVE',
-              prices: [{ id: 'p2', price: '29.99', priceType: 'RETAIL_PRICE' }],
+              prices: [{ id: 'p2', price: 29.99, priceType: 'RETAIL_PRICE' }],
               images: [],
             },
           ],
@@ -217,11 +220,14 @@ describe('ProductEditPage', () => {
 
       renderPage()
 
+      // Read-only rows render the SKU as text, not an input
       await waitFor(() => {
-        expect(screen.getByDisplayValue('WDG-001')).toBeInTheDocument()
+        expect(screen.getByText('WDG-001')).toBeInTheDocument()
       })
 
-      // Change second variant SKU to match first
+      // Change second variant SKU to match first (open its row for editing first)
+      await user.click(screen.getByRole('tab', { name: /variants/i }))
+      await user.click(screen.getByTestId('edit-variant-1'))
       const secondSku = screen.getByDisplayValue('WDG-002')
       await user.clear(secondSku)
       await user.type(secondSku, 'WDG-001')

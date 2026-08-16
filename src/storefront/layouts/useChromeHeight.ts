@@ -5,19 +5,17 @@ import { useLayoutEffect, useRef } from 'react'
  * header) as `--sf-chrome-h` on the layout root, so a section can size itself
  * against the space actually left below the fold.
  *
- * Measured rather than hardcoded because the chrome height is client-driven and
- * responsive: the announcement bar collapses below `md` when it carries no
- * message, the header wraps in a mobile search row, and a client that seeds no
- * nav renders neither. A fixed offset would be wrong for most of those.
+ * Measured, not hardcoded: chrome height is client-driven and responsive — the
+ * announcement bar collapses below `md` without a message, the header wraps a
+ * mobile search row, and a client seeding no nav renders neither.
  *
- * The chrome is measured as the gap between the layout root and `<main>` rather
- * than by wrapping the bar and header in a container — the header is
- * `sticky top-0` when the client enables `stickyHeader`, and a wrapper only as
- * tall as the chrome would confine the sticky to it and unstick the header on
- * the first scroll.
+ * Measured as the gap between the layout root and `<main>` rather than by
+ * wrapping the bar and header: the header is `sticky top-0` under
+ * `stickyHeader`, and a wrapper only as tall as the chrome would confine the
+ * sticky to it and unstick the header on first scroll.
  *
- * Attach `rootRef` to the layout root and `mainRef` to `<main>`; consumers read
- * `var(--sf-chrome-h, 0px)`, so the fallback covers the pre-measure frame.
+ * Attach `rootRef` to the layout root and `mainRef` to `<main>`. Consumers read
+ * `var(--sf-chrome-h, 0px)`; the fallback covers the pre-measure frame.
  */
 export function useChromeHeight() {
   const rootRef = useRef<HTMLDivElement>(null)

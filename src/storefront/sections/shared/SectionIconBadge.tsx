@@ -6,30 +6,40 @@ interface SectionIconBadgeProps {
     /** Resolved registry icon — callers pass the component, never a name. */
     icon: ComponentType<SVGProps<SVGSVGElement>>
     /**
-     * 'soft' (default): a faint accent wash carrying the icon in the accent
-     * itself — the quiet treatment for a tile among many tiles.
-     * 'solid': a muted accent tile carrying the icon in accent-text, for a
-     * section that wants its icons to read as a deliberate accent block.
+     * A strength scale, quietest first.
      *
-     * Both tones are pure token arithmetic on --sf-accent, so every client gets
-     * its own brand colour with no per-client code. `solid` is safe for any
-     * accent because --sf-accent-text is by definition the readable foreground
-     * for --sf-accent, and mixing at 85% barely moves the pair apart: UVH's
-     * #7a0019 keeps ~13:1 with white on the dark band and ~8:1 on the light one.
+     * 'soft' (default): a faint accent wash carrying the icon in the accent
+     * itself — the quiet treatment for a tile among many tiles, on a LIGHT band.
+     * 'muted': the same quiet weight for a DARK band. `soft` cannot be used
+     * there — an accent icon on an accent wash over near-black measures ~1.6:1
+     * and vanishes — so the tile carries a little more accent and the icon flips
+     * to accent-text. At 55% it recedes into a dark band by almost exactly as
+     * much as `soft` recedes into a light one (~1.2:1 either way), which is what
+     * makes the two read as the same treatment across surfaces.
+     * 'solid': a strong accent tile, for a section that wants its icons to read
+     * as a deliberate accent block rather than a quiet marker.
+     *
+     * Every tone is pure token arithmetic on --sf-accent, so each client gets its
+     * own brand colour with no per-client code, and the accent-text tones are
+     * safe for any accent because --sf-accent-text is by definition the readable
+     * foreground for --sf-accent. On UVH's #7a0019 the icon holds ~8:1 (`soft`),
+     * ~16:1 (`muted`) and ~13:1 (`solid`).
      */
-    tone?: 'soft' | 'solid'
+    tone?: 'soft' | 'muted' | 'solid'
     /** Layout-only adjustments from the consumer — never colours. */
     className?: string
 }
 
 // Complete literal class strings — Tailwind scans source text, so an
 // interpolated tone reference would emit no CSS.
-const TILE_TONE: Record<'soft' | 'solid', string> = {
+const TILE_TONE: Record<'soft' | 'muted' | 'solid', string> = {
     soft: 'bg-[color-mix(in_srgb,var(--sf-accent)_10%,transparent)]',
+    muted: 'bg-[color-mix(in_srgb,var(--sf-accent)_55%,transparent)]',
     solid: 'bg-[color-mix(in_srgb,var(--sf-accent)_85%,transparent)]',
 }
-const ICON_TONE: Record<'soft' | 'solid', string> = {
+const ICON_TONE: Record<'soft' | 'muted' | 'solid', string> = {
     soft: 'text-(--sf-accent)',
+    muted: 'text-(--sf-accent-text)',
     solid: 'text-(--sf-accent-text)',
 }
 

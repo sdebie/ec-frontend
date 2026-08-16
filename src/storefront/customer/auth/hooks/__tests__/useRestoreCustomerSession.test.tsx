@@ -88,9 +88,9 @@ describe('useRestoreCustomerSession', () => {
   })
 
   it("restores a wholesale customer's tier, not the RETAIL default", async () => {
-    // The regression this hook exists for: customerAuthStore persists only the
-    // token, so before restore a reloaded wholesale customer reads as RETAIL
-    // and every price surface would select retail figures.
+    // customerAuthStore persists only the token, so before restore a reloaded
+    // wholesale customer reads as RETAIL and every price surface selects
+    // retail figures.
     useCustomerAuthStore.setState({ token: 'valid-token', isSignedIn: false })
     expect(useCustomerAuthStore.getState().customerType).toBe('RETAIL')
 

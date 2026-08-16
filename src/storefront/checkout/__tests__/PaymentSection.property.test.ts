@@ -27,7 +27,6 @@ const paymentMethodArb = fc.oneof(knownMethodArb, unknownMethodArb)
 const paymentMethodsArrayArb = fc.array(paymentMethodArb, {minLength: 1, maxLength: 10})
 
 describe('PaymentSection - Property Tests', () => {
-    // **Validates: Requirements 5.2**
     it('Property 6: Each payment method renders with correct label; unknown keys use raw key as fallback', () => {
         fc.assert(
             fc.property(paymentMethodsArrayArb, (methods) => {
@@ -48,7 +47,6 @@ describe('PaymentSection - Property Tests', () => {
         )
     })
 
-    // **Validates: Requirements 5.2**
     it('Property 6: Known keys always map to their defined labels', () => {
         fc.assert(
             fc.property(knownMethodArb, (method) => {
@@ -60,7 +58,6 @@ describe('PaymentSection - Property Tests', () => {
         )
     })
 
-    // **Validates: Requirements 5.2**
     it('Property 6: Unknown keys always return the raw key as label', () => {
         fc.assert(
             fc.property(unknownMethodArb, (method) => {

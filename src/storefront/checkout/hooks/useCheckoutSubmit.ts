@@ -3,6 +3,7 @@ import {useNavigate} from 'react-router-dom'
 import {useCheckoutSessionStore} from '../store/checkoutSessionStore'
 import {applyServerTotals, toContactPayload} from '../mappers'
 import {submitPayFastForm} from '../utils/submitPayFastForm'
+import {useConfirmInStorePayment} from './useConfirmInStorePayment'
 import {useInitiatePayment} from './useInitiatePayment'
 import {useSubmitContact} from './useSubmitContact'
 import type {CheckoutFormValues} from '../checkoutFormSchema'
@@ -17,10 +18,17 @@ import type {CheckoutFormValues} from '../checkoutFormSchema'
  * a method is chosen; the contact response carries the real ones, and applying
  * them means the amount the shopper last saw is the amount the gateway charges.
  */
-export function useCheckoutSubmit(orderId: string) {
+/**
+ * `token` is the order capability token (guest-order-authorization) — required on
+ * every request this hook makes. Taken as a parameter, not read from the store
+ * internally, so the capability the call needs is visible in the hook's own
+ * signature (law 14's capability-scoped-props argument).
+ */
+export function useCheckoutSubmit(orderId: string, token: string) {
     const navigate = useNavigate()
-    const submitContact = useSubmitContact(orderId)
+    const submitContact = useSubmitContact(orderId, token)
     const initiatePayment = useInitiatePayment()
+    const confirmInStorePayment = useConfirmInStorePayment()
 
     const [error, setError] = useState<string | null>(null)
     const [isSubmitting, setIsSubmitting] = useState(false)
@@ -46,10 +54,7 @@ export function useCheckoutSubmit(orderId: string) {
 
         if (values.paymentMethod === 'PAYFAST') {
             try {
-                const response = await initiatePayment.mutateAsync({
-                    orderId,
-                    email: values.email,
-                })
+                const response = await initiatePayment.mutateAsync({orderId, token})
                 submitPayFastForm(response.gatewayUrl, response.fields)
             } catch {
                 setError('Could not start the payment. Please try again.')
@@ -58,7 +63,22 @@ export function useCheckoutSubmit(orderId: string) {
             return
         }
 
-        navigate(`/checkout/success?sessionId=${session?.sessionId ?? ''}`)
+        // Pay-at-collection needs confirming on the server before the shopper
+        // leaves, exactly as PayFast needs its handoff. Navigating without it
+        // strands the order at CREATED, where the stock-recovery sweep treats it
+        // as an abandoned cart and cancels it.
+        try {
+            await confirmInStorePayment.mutateAsync({orderId, token})
+        } catch {
+            setError('Could not place your order. Please try again.')
+            setIsSubmitting(false)
+            return
+        }
+
+        // No identifier in the URL (Requirement 3.5) — the success page reads the
+        // order from checkoutSessionStore, which survives the navigation in the
+        // same tab.
+        navigate('/checkout/success')
     }
 
     return {placeOrder, isSubmitting, error}

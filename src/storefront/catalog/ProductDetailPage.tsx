@@ -9,8 +9,8 @@ import {formatAmount} from '@/shared/utils/formatAmount'
 import {getDisplayPrice} from './utils/pricing'
 import {parseAttributes} from './utils/variantAttributes'
 import {resolveImageUrl} from '@/shared/utils/imageUrl'
-import {ChevronDown} from 'lucide-react'
 import {ImageGallery} from './components/ImageGallery'
+import {PanelDisclosure} from './components/PanelDisclosure'
 import {VariantSelector} from './components/VariantSelector'
 import {ProductDetailSkeleton} from './components/ProductDetailSkeleton'
 import {WishlistButton} from '@/storefront/customer/account/wishlist/components/WishlistButton'
@@ -80,7 +80,6 @@ export function ProductDetailPage() {
 
     const [selectedAttrs, setSelectedAttrs] = useState<Record<string, string>>({})
     const [showConfirmation, setShowConfirmation] = useState(false)
-    const [descriptionOpen, setDescriptionOpen] = useState(true)
     const [brandLogoFailed, setBrandLogoFailed] = useState(false)
     const confirmationTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null)
 
@@ -146,19 +145,15 @@ export function ProductDetailPage() {
         null
 
     return (
-        <Section as="div" width="wide" className="pt-6">
-            {/* Page heading — the product name, with the accent rule every other
-                storefront page title carries (owner directive 2026-08-02, which
-                supersedes the 2026-07-26 exemption that kept this a plain h1). */}
+        <Section as="div" className="pt-6">
+            {/* Page title with the accent rule every storefront page carries. */}
             <SectionHeading as="h1" title="Product Detail" className="mb-4"/>
 
-            {/* Divider — same rhythm as the catalogue's toolbar rule */}
             <PageDivider/>
 
-            {/* Breadcrumb — desktop only (owner directive 2026-08-02). At 375px the
-                trail wrapped into a ragged three-line block, and the page heading
-                plus the panel already name the product; the header's back paths
-                serve navigation on a phone. */}
+            {/* Breadcrumb — desktop only. At 375px the trail wraps into a ragged
+                three-line block, and the heading plus the panel already name the
+                product; the header's back paths serve navigation on a phone. */}
             <nav aria-label="Breadcrumb" className="mb-4 hidden sm:block">
                 <ol className="flex items-center gap-2 text-sm text-(--sf-muted-text)">
                     <li>
@@ -177,7 +172,6 @@ export function ProductDetailPage() {
                 </ol>
             </nav>
 
-
             {/* ONE container holding both columns, split by a vertical rule at
                 md+ — two separate boxes left a dead gutter between the image and
                 the information. Below md the rule becomes horizontal, so the
@@ -187,7 +181,6 @@ export function ProductDetailPage() {
                     so it can be inset from the container's edges — a border runs
                     the full height and cannot carry margins. */}
                 <div className="grid grid-cols-1 md:grid-cols-[1fr_1px_1fr]">
-                    {/* Left: Image gallery */}
                     <div className="p-5 lg:p-6">
                         <ImageGallery images={product.images} productName={product.name}/>
                     </div>
@@ -232,7 +225,7 @@ export function ProductDetailPage() {
                                             src={brandLogo}
                                             alt={product.brand.name}
                                             onError={() => setBrandLogoFailed(true)}
-                                            className="h-7 max-h-7 w-auto max-w-24 object-contain object-right"
+                                            className="h-9 max-h-9 w-auto max-w-32 object-contain object-right"
                                         />
                                     ) : (
                                         <span className="text-base font-semibold text-(--sf-text)">
@@ -243,46 +236,23 @@ export function ProductDetailPage() {
                             </div>
                         </div>
 
-                        {/* Description, with the SKU tucked bottom-right of the same
-                            block — it identifies the selected variant rather than
-                            competing with the product's own copy. */}
+                        {/* The SKU rides INSIDE the collapse with the copy it
+                            belongs to: it identifies the selected variant, so it is
+                            detail about this product rather than a standing label,
+                            and it should fold away with the rest of the detail. */}
                         {(panelDescription || selectedVariant?.sku) && (
-                            <div className="border-t border-(--sf-border) pt-4">
-                                {panelDescription ? (
-                                    <>
-                                        <button
-                                            type="button"
-                                            onClick={() => setDescriptionOpen((v) => !v)}
-                                            aria-expanded={descriptionOpen}
-                                            aria-controls="product-description-body"
-                                            className={`flex w-full items-center justify-between gap-2 rounded-sm text-left text-sm font-semibold text-(--sf-text) ${SF_FOCUS_RING_PAGE}`}
-                                        >
-                                            Description
-                                            <ChevronDown
-                                                aria-hidden="true"
-                                                className={`h-4 w-4 shrink-0 text-(--sf-muted-text) transition-transform ${
-                                                    descriptionOpen ? 'rotate-180' : ''
-                                                }`}
-                                            />
-                                        </button>
-                                        {descriptionOpen && (
-                                            <p
-                                                id="product-description-body"
-                                                className="mt-2 whitespace-pre-line text-sm leading-relaxed text-(--sf-muted-text)"
-                                            >
-                                                {panelDescription}
-                                            </p>
-                                        )}
-                                    </>
-                                ) : (
-                                    <h3 className="text-sm font-semibold text-(--sf-text)">Description</h3>
+                            <PanelDisclosure title="Description">
+                                {panelDescription && (
+                                    <p className="mt-2 whitespace-pre-line text-sm leading-relaxed text-(--sf-muted-text)">
+                                        {panelDescription}
+                                    </p>
                                 )}
                                 {selectedVariant?.sku && (
                                     <p className="mt-3 text-right text-xs text-(--sf-muted-text)">
                                         SKU: <span className="font-medium text-(--sf-text)">{selectedVariant.sku}</span>
                                     </p>
                                 )}
-                            </div>
+                            </PanelDisclosure>
                         )}
 
                         <div className="border-t border-(--sf-border) pt-4">
@@ -294,27 +264,28 @@ export function ProductDetailPage() {
                         </div>
 
                         {categories.length > 0 && (
-                            <div className="border-t border-(--sf-border) pt-4">
-                                <h3 className="text-sm font-semibold text-(--sf-text)">
-                                    {categories.length > 1 ? 'Categories' : 'Category'}
-                                </h3>
-                                {/* Badges, not links (owner directive 2026-08-04).
+                            <PanelDisclosure title={categories.length > 1 ? 'Categories' : 'Category'}>
+                                {/* Badges, not links.
                                     They label what this product IS; navigating away
                                     to a filtered catalogue mid-purchase is not what a
-                                    shopper reading the panel wants. The hover
-                                    treatment is kept — it is what makes the pills
-                                    read as a set rather than as flat text. */}
+                                    shopper reading the panel wants.
+
+                                    They therefore carry NO hover. A pointer response
+                                    on a `span` advertises a click that does not
+                                    exist. The accent border, tint and label are
+                                    painted at rest instead, which is what makes the
+                                    pills read as a set rather than as flat text. */}
                                 <div className="mt-2 flex flex-wrap gap-2">
                                     {categories.map((category) => (
                                         <span
                                             key={category.id}
-                                            className="inline-flex items-center rounded-full border border-(--sf-border) px-3 py-1 text-sm font-medium text-(--sf-text) transition-colors hover:border-(--sf-accent) hover:bg-[color-mix(in_srgb,var(--sf-accent)_8%,var(--sf-panel))]"
+                                            className="inline-flex items-center rounded-full border border-(--sf-accent) bg-[color-mix(in_srgb,var(--sf-accent)_8%,var(--sf-panel))] px-3 py-1 text-sm font-medium text-(--sf-accent)"
                                         >
                                             {category.name}
                                         </span>
                                     ))}
                                 </div>
-                            </div>
+                            </PanelDisclosure>
                         )}
 
                         <div className="space-y-3 border-t border-(--sf-border) pt-4">

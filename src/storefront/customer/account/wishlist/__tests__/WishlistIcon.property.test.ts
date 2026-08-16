@@ -9,8 +9,6 @@ import {MemoryRouter} from 'react-router-dom'
 import {WishlistIcon} from '../components/WishlistIcon'
 
 /**
- * Validates: Requirements 4.2
- *
  * Property 8: Header badge count equals effective wishlist size — for any
  * effective wishlist set, the badge count equals the set size; when size is 0,
  * no badge is rendered.

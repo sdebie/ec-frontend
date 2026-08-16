@@ -1,7 +1,8 @@
-import { useBrandList, type BrandListItem } from '@/admin/hooks/brands/useBrandList'
+import { useBrandList } from '@/admin/pages/brands/hooks/useBrandList'
+import type { BrandListItem } from '@/admin/pages/brands/types'
 
-/** @deprecated Use {@link BrandListItem}. Retained for callers that only read id/name. */
-export type Brand = Pick<BrandListItem, 'id' | 'name'>
+/** Narrow {id, name} shape this hook hands to dropdown/filter consumers. */
+type Brand = Pick<BrandListItem, 'id' | 'name'>
 
 /**
  * Lightweight brand list for dropdowns/filters ({id, name}). Delegates to the

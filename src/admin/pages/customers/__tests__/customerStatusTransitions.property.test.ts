@@ -1,6 +1,6 @@
 import { describe, it, expect } from 'vitest'
 import * as fc from 'fast-check'
-import { getAvailableActions, type CustomerStatus } from '@/admin/hooks/customers/types'
+import { getAvailableActions, type CustomerStatus } from '@/admin/pages/customers/types'
 
 /**
  * Feature: admin-customer-management
@@ -11,7 +11,6 @@ import { getAvailableActions, type CustomerStatus } from '@/admin/hooks/customer
  * ACTIVE yields ['suspend'], DISABLED yields ['activate'] — and no status SHALL
  * ever yield both 'activate' and 'suspend' simultaneously.
  *
- * **Validates: Requirements 3.1**
  */
 
 // Arbitrary that generates valid CustomerStatus values

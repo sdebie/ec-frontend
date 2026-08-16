@@ -58,8 +58,7 @@ describe('BrandsSection', () => {
 
             const sectionEl = container.querySelector('section')
             expect(sectionEl).toBeInTheDocument()
-            // Brands overrides the standard py-12 rhythm with a slimmer band —
-            // py-6 originally, relaxed to py-10 (owner call 2026-08-02).
+            // Brands overrides the standard py-12 rhythm with a slimmer band.
             expect(sectionEl).toHaveClass('py-10', 'px-6', 'sm:px-8')
         })
 

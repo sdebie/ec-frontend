@@ -1,15 +1,18 @@
+import type { ReactNode } from 'react'
 import { Link } from 'react-router-dom'
 import { StatusBadge } from '@/shared/ui/components'
 import { formatAmount } from '@/shared/utils/formatAmount'
 import { OrderStatusOptions } from '@/shared/types/enums/OrderStatus'
 import type { OrderStatus } from '@/shared/types/enums/OrderStatus'
-import type { AdminOrderRef } from '@/admin/hooks/customers/types'
+import type { AdminOrderRef } from '@/admin/pages/customers/types'
 
 interface RecentOrdersTableProps {
   orders: AdminOrderRef[]
-  /** Heading shown above the table. */
+  /** Heading shown above the table. Omit when an ancestor already renders one. */
   title?: string
   emptyMessage?: string
+  /** Replaces the plain-text empty message with richer markup (icon, muted copy) when provided. */
+  emptyState?: ReactNode
 }
 
 function formatDate(dateString: string): string {
@@ -22,18 +25,19 @@ function formatDate(dateString: string): string {
 
 /**
  * Shared read-only order-history table for the customer and wholesale-customer
- * detail pages. Previously duplicated verbatim in both (architectural law #4).
+ * detail pages — one implementation, per architectural law #4.
  */
 export function RecentOrdersTable({
   orders,
-  title = 'Order History',
+  title,
   emptyMessage = 'No orders yet.',
+  emptyState,
 }: RecentOrdersTableProps) {
   return (
     <section className="flex flex-col gap-2">
-      <h2 className="text-lg font-semibold text-(--c-text)">{title}</h2>
+      {title && <h2 className="text-lg font-semibold text-(--c-text)">{title}</h2>}
       {orders.length === 0 ? (
-        <p className="text-sm text-(--c-text-muted)">{emptyMessage}</p>
+        emptyState ?? <p className="text-sm text-(--c-text-muted)">{emptyMessage}</p>
       ) : (
         <div className="overflow-x-auto rounded-lg border border-(--c-border) bg-(--c-panel)">
           <table className="w-full text-sm">

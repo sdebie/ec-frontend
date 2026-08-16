@@ -14,7 +14,6 @@ import type { ProductComparisonDto, ValidationStatus } from '../types'
  * - 'Update' when hasChanges is true (and neither new flag is true)
  * - 'No Change' otherwise
  *
- * **Validates: Requirements 4.2**
  */
 
 const validationStatusArb: fc.Arbitrary<ValidationStatus> = fc.constantFrom('VALID' as const, 'INVALID' as const)

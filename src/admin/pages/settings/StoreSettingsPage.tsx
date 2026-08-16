@@ -2,14 +2,13 @@ import { useState } from 'react'
 import { Pencil } from 'lucide-react'
 
 import { PageLoadingSpinner } from '@/shared/ui/components'
-import { useAdminAuthStore } from '@/shared/auth/adminAuthStore'
-import { deriveCanMutate } from '@/admin/hooks/imports/utils'
+import { useCan } from '@/shared/auth/adminPermissions'
 import { useStoreSettings } from '@/admin/hooks/settings'
 import type { StoreSetting } from '@/admin/hooks/settings'
 import { StoreSettingEditDialog } from './StoreSettingEditDialog'
 
 export function StoreSettingsPage() {
-  const canMutate = deriveCanMutate(useAdminAuthStore((s) => s.role))
+  const canMutate = useCan('settings:write')
 
   const { data: settings, isLoading, isError, refetch } = useStoreSettings()
 

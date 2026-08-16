@@ -159,7 +159,6 @@ describe('ProductListPage integration', () => {
             expect(screen.getByText('Category: Electronics')).toBeInTheDocument()
             expect(screen.getByText('Brand: Nike')).toBeInTheDocument()
 
-            // Click "Clear all filters"
             const clearButton = screen.getByRole('button', {name: /clear all filters/i})
             await user.click(clearButton)
 

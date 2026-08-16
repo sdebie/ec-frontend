@@ -2,7 +2,6 @@ import { describe, it, expect } from 'vitest'
 import fc from 'fast-check'
 
 /**
- * **Validates: Requirements 5.2, 5.3, 5.4**
  *
  * Property test: isActive toggle idempotency.
  * Toggling `isActive: true → false → true` leaves the record `isActive: true` (the final value).

@@ -52,8 +52,6 @@ describe('Wishlist hooks — property-based tests', () => {
     })
 
     /**
-     * **Validates: Requirements 8.2, 8.3**
-     *
      * Property 11: Wishlist toggle correctness
      *
      * For any variantId and its current wishlist membership state, clicking the
@@ -186,8 +184,6 @@ describe('Wishlist hooks — property-based tests', () => {
     })
 
     /**
-     * **Validates: Requirements 8.4**
-     *
      * Property 12: Wishlist toggle failure rollback
      *
      * For any wishlist toggle mutation that results in a network error, the heart
@@ -343,8 +339,6 @@ describe('Wishlist hooks — property-based tests', () => {
     })
 
     /**
-     * **Validates: Requirements 8.9**
-     *
      * Property 13: Wishlist state initialization from API
      *
      * For any array of variantIds returned by GET /api/storefront/wishlist, the

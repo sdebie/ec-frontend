@@ -15,7 +15,6 @@ import {storefrontHttpClient} from '@/shared/api/http/storefrontHttpClient'
  * { items: [{ variantId, quantity }] }. No price, total, VAT, customerType, or
  * other monetary/identity field SHALL appear in the request payload.
  *
- * **Validates: Requirements 5.1**
  */
 
 const mockNavigate = vi.fn()

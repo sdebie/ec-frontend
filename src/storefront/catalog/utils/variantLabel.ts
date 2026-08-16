@@ -1,6 +1,6 @@
 /**
  * Parses a variant label from JSON attributes string into a readable label.
- * e.g. '{"Size":"Large","Color":"Red"}' → "Size: Large, Color: Red"
+ * e.g. '{"Size":"Large","Colour":"Red"}' → "Size: Large, Colour: Red"
  * Falls back to the raw string if parsing fails or the JSON is not a plain object.
  */
 export function parseVariantLabel(label: string): string {

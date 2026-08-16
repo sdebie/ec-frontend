@@ -12,9 +12,6 @@ vi.mock('@/storefront/catalog/components/ProductCard', () => ({ProductCard: () =
 const mockedUseCategories = vi.mocked(useCategories)
 const mockedUseProducts = vi.mocked(useProducts)
 
-/**
- * Validates: Requirements 1.1, 1.2, 2.3
- */
 describe('CategoryShowcaseSection configuration property', () => {
     // Generator for hex colour strings (#rrggbb format)
     const hexCharArb = fc.constantFrom(

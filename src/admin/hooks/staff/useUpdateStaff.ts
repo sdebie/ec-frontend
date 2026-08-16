@@ -1,5 +1,4 @@
 import { useMutation, useQueryClient } from '@tanstack/react-query'
-import { ClientError } from 'graphql-request'
 import { toast } from '@/shared/ui/components/toast'
 
 import { adminGraphqlClient } from '@/shared/api/graphql/adminGraphqlClient'
@@ -35,8 +34,7 @@ export function useUpdateStaff() {
       queryClient.invalidateQueries({ queryKey: ['admin', 'staff'] })
       queryClient.invalidateQueries({ queryKey: ['admin', 'staff', id] })
     },
-    onError: (error) => {
-      console.error(error instanceof ClientError ? error.response.errors?.[0]?.message : error)
+    onError: () => {
       toast.error('Failed to update staff member', { duration: 0 })
     },
   })

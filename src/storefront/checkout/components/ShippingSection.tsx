@@ -4,15 +4,15 @@ import {useShippingMethods} from '../hooks/useShippingMethods'
 import {useStorefrontConfig} from '@/shared/config/storefrontConfig.context'
 import {formatAmount} from '@/shared/utils/formatAmount'
 import type {CheckoutFormValues} from '../checkoutFormSchema'
-import {isDeliveryMethod} from '../utils/isDeliveryMethod'
+import {requiresDeliveryAddress} from '../utils/requiresDeliveryAddress'
 import {InputField} from '@/shared/ui/components/form/InputField'
 import {CheckoutSection} from './CheckoutSection'
 
 /**
  * Capabilities only (law 14): `control` to bind fields and `errors` to report
- * them. It used to take `watch` and `setValue` as well — powers no reviewer
- * could see it needed. The selected method is read with `useWatch`, and clearing
- * the address on a switch to collection belongs to the page, which owns the form.
+ * them — not `watch` or `setValue`, powers no reviewer could see it needed. The
+ * selected method is read with `useWatch`, and clearing the address on a switch
+ * to collection belongs to the page, which owns the form.
  */
 interface ShippingSectionProps {
     control: Control<CheckoutFormValues>
@@ -32,7 +32,7 @@ export function ShippingSection({control, errors}: ShippingSectionProps) {
 
     const selectedMethodId = useWatch({control, name: 'shippingMethodId'})
     const selectedMethod = shippingMethods?.find((m) => m.id === selectedMethodId)
-    const showAddressForm = selectedMethod ? isDeliveryMethod(selectedMethod) : false
+    const showAddressForm = requiresDeliveryAddress(selectedMethod)
 
     if (isLoading) {
         return (

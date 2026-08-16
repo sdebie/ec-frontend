@@ -4,7 +4,6 @@ import * as fc from 'fast-check'
 import { Input } from '../Input'
 
 /**
- * **Validates: Requirements 1.7**
  *
  * Property 2: Input size maps to token height
  * For any valid Input size (`sm | md | lg`), rendering the Input component

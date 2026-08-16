@@ -12,6 +12,7 @@ const SHIPPING_METHODS = gql`
       active
       baseFee
       estimatedDays
+      requiresAddress
     }
   }
 `

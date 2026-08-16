@@ -3,6 +3,7 @@ import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { gql } from 'graphql-request'
 import { toast } from '@/shared/ui/components/toast'
 import { adminGraphqlClient } from '@/shared/api/graphql/adminGraphqlClient'
+import { Input } from '@/shared/ui/primitives'
 
 interface AnnouncementFormValues {
   enabled: boolean
@@ -105,8 +106,7 @@ export function AnnouncementEditorPage() {
       toast.success('Announcement settings saved')
       queryClient.invalidateQueries({ queryKey: ['admin', 'store-settings'] })
     },
-    onError: (error) => {
-      console.error(error)
+    onError: () => {
       toast.error('Failed to save announcement settings', { duration: 0 })
     },
   })
@@ -173,13 +173,12 @@ export function AnnouncementEditorPage() {
         <label htmlFor="announcement-text" className="text-sm font-medium text-(--c-text)">
           Announcement Text
         </label>
-        <input
+        <Input
           id="announcement-text"
           type="text"
           value={form.text}
           onChange={(e) => setForm((prev) => ({ ...prev, text: e.target.value }))}
           placeholder="e.g. Free shipping on orders over R500!"
-          className="w-full rounded border border-(--c-border) bg-(--c-panel) px-3 py-2 text-sm text-(--c-text) focus:border-(--c-accent) focus:outline-none focus:ring-1 focus:ring-(--c-ring)"
         />
       </div>
 

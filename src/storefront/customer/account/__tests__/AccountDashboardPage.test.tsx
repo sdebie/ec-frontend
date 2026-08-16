@@ -7,6 +7,7 @@ import {useMyOrders} from '../hooks/useMyOrders'
 import {useCustomerProfile} from '../hooks/useCustomerProfile'
 import {useWishlist} from '../wishlist/hooks/useWishlist'
 import {AccountDashboardPage} from '../AccountDashboardPage'
+import { OrderStatus } from '@/shared/types/enums/OrderStatus'
 
 vi.mock('../hooks/useMyOrders')
 vi.mock('../hooks/useCustomerProfile')
@@ -16,21 +17,18 @@ const mockedUseMyOrders = vi.mocked(useMyOrders)
 const mockedUseCustomerProfile = vi.mocked(useCustomerProfile)
 const mockedUseWishlist = vi.mocked(useWishlist)
 
-/** Arbitrary for a valid order status */
-const orderStatusArb = fc.constantFrom(
-    'CREATED' as const,
-    'PAID' as const,
-    'SHIPPED' as const,
-    'DELIVERED' as const,
-    'CANCELLED' as const,
-)
+/**
+ * Drawn from the OrderStatus vocabulary itself. Hand-listing the statuses is how
+ * `SHIPPED` — which the enum has never contained — survived here while the six real
+ * statuses it omitted went untested.
+ */
+const orderStatusArb = fc.constantFrom(...Object.values(OrderStatus))
 
 /** Arbitrary for a valid ISO date string (within a reasonable range) */
 const orderDateArb = fc
     .integer({min: new Date('2020-01-01').getTime(), max: new Date('2030-12-31').getTime()})
     .map((ts) => new Date(ts).toISOString())
 
-/** Arbitrary for a single MyOrder */
 const myOrderArb: fc.Arbitrary<MyOrder> = fc.record({
     id: fc.uuid(),
     orderDate: orderDateArb,
@@ -73,8 +71,6 @@ describe('AccountDashboardPage — property-based tests', () => {
     })
 
     /**
-     * **Validates: Requirements 3.2**
-     *
      * Property 2: Dashboard recent orders limit
      *
      * For any list of orders of length N, the dashboard should display exactly

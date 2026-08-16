@@ -152,7 +152,6 @@ describe('AnnouncementEditorPage', () => {
       const toggle = screen.getByRole('switch')
       await user.click(toggle)
 
-      // Type announcement text
       const textInput = screen.getByLabelText('Announcement Text')
       await user.type(textInput, 'Big sale!')
 

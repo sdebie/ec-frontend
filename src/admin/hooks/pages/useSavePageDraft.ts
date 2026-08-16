@@ -22,8 +22,7 @@ export function useSavePageDraft() {
         toast.success('Draft saved')
       }
     },
-    onError: (error) => {
-      console.error('[PageContent] save draft failed:', error)
+    onError: () => {
       toast.error('Failed to save draft')
     },
   })

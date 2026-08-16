@@ -182,7 +182,6 @@ export function RichTextEditor({value, onChange, disabled = false}: RichTextEdit
                 </ToolbarButton>
             </div>
 
-            {/* Editor Content */}
             <EditorContent
                 editor={editor}
                 className="px-4 py-3 text-admin-text text-sm min-h-[200px] max-h-[70vh] overflow-y-auto focus-within:outline-none [&_.tiptap]:outline-none [&_.tiptap]:min-h-[200px]"

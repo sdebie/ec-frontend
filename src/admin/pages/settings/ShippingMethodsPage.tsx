@@ -2,18 +2,17 @@ import { useState, useMemo } from 'react'
 
 import { Pencil } from 'lucide-react'
 
-import { DataTable, StatusBadge } from '@/shared/ui/components'
+import { DataTable, RowActionButton, StatusBadge } from '@/shared/ui/components'
 import type { ColumnDef } from '@/shared/ui/components'
 import { Button } from '@/shared/ui/primitives'
-import { useAdminAuthStore } from '@/shared/auth/adminAuthStore'
-import { deriveCanMutate } from '@/admin/hooks/imports/utils'
+import { useCan } from '@/shared/auth/adminPermissions'
 import { useShippingMethods } from '@/admin/hooks/settings'
 import type { ShippingMethod } from '@/admin/hooks/settings'
 import { formatAmount } from '@/shared/utils/formatAmount'
 import { ShippingMethodDialog } from './ShippingMethodDialog'
 
 export function ShippingMethodsPage() {
-  const canMutate = deriveCanMutate(useAdminAuthStore((s) => s.role))
+  const canMutate = useCan('settings:write')
 
   const { data, isLoading, isError, refetch } = useShippingMethods()
 
@@ -72,14 +71,12 @@ export function ShippingMethodsPage() {
               header: 'Actions',
               cell: ({ row }: { row: { original: ShippingMethod } }) => (
                 <div className="flex items-center gap-1">
-                  <button
-                    type="button"
+                  <RowActionButton
                     onClick={() => handleEdit(row.original)}
-                    className="inline-flex items-center justify-center p-1 rounded-lg hover:bg-(--c-surface-hover)"
                     aria-label={`Edit ${row.original.name}`}
                   >
-                    <Pencil className="h-4 w-4 text-(--c-text-muted)" />
-                  </button>
+                    <Pencil className="h-4 w-4" />
+                  </RowActionButton>
                 </div>
               ),
             } as ColumnDef<ShippingMethod, unknown>,

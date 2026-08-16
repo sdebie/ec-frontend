@@ -52,7 +52,6 @@ const statusEventArb = fc.record({
     timestamp: orderDateArb,
 })
 
-/** Arbitrary for a full OrderDetail */
 const orderDetailArb: fc.Arbitrary<OrderDetail> = fc
     .record({
         id: fc.uuid(),
@@ -86,8 +85,6 @@ describe('OrderDetailPage — property-based tests', () => {
     })
 
     /**
-     * **Validates: Requirements 5.1**
-     *
      * Property 5: Order detail renders all required fields
      *
      * For any order with varying line items (name, variant, quantity, unit price),
@@ -145,8 +142,6 @@ describe('OrderDetailPage — property-based tests', () => {
     })
 
     /**
-     * **Validates: Requirements 5.2**
-     *
      * Property 6: Status history chronological order
      *
      * For any order with a status history containing two or more events, the

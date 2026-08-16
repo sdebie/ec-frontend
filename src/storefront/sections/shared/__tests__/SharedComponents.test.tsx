@@ -4,8 +4,6 @@ import { Section } from '../Section'
 import { SectionHeading } from '../SectionHeading'
 import { Carousel } from '../Carousel'
 
-// ─── Section ────────────────────────────────────────────────────────────────
-
 describe('Section', () => {
   it('renders a <section> with rhythm classes py-12 px-6 sm:px-8', () => {
     const { container } = render(<Section>Content</Section>)
@@ -62,8 +60,6 @@ describe('Section', () => {
   })
 })
 
-// ─── SectionHeading ─────────────────────────────────────────────────────────
-
 describe('SectionHeading', () => {
   it('renders <h2> with title text', () => {
     render(<SectionHeading title="Hello World" />)
@@ -77,7 +73,6 @@ describe('SectionHeading', () => {
     expect(eyebrowEl).toBeInTheDocument()
     expect(eyebrowEl.textContent).toContain('Featured')
     expect(eyebrowEl.className).toContain('uppercase')
-    // Accent dash span
     const dash = eyebrowEl.querySelector('span')!
     expect(dash).toBeInTheDocument()
     expect(dash.className).toContain('bg-(--sf-accent)')
@@ -138,8 +133,6 @@ describe('SectionHeading', () => {
     expect(eyebrow.className).not.toContain('in-data-[variant=dark]:text-')
   })
 })
-
-// ─── Carousel ───────────────────────────────────────────────────────────────
 
 describe('Carousel', () => {
   let resizeObserverCallback: ResizeObserverCallback

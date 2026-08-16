@@ -19,27 +19,28 @@ interface FilterGroup {
   operator: 'OR' | 'AND'
 }
 
-interface SortItem {
+export interface SortItem {
   field: string
   direction: 'ASC' | 'DESC'
 }
 
 /**
- * Builds a FilterRequestInput for searching by name with ILIKE.
- * Wraps the trimmed search term in `%` wildcards.
+ * Builds a FilterRequestInput for searching by name with ILIKE, optionally
+ * combined with a sort. Wraps the trimmed search term in `%` wildcards.
  *
- * Returns undefined if the search string is empty or whitespace-only.
+ * Returns undefined only when there's neither a search term nor a sort —
+ * sort must still come through even when the search box is empty.
  */
-export function buildSearchFilterRequest(search: string): FilterRequestInput | undefined {
+export function buildSearchFilterRequest(search: string, sort?: SortItem[]): FilterRequestInput | undefined {
   const trimmed = search.trim()
+  const hasSort = !!sort && sort.length > 0
 
-  if (!trimmed) {
+  if (!trimmed && !hasSort) {
     return undefined
   }
 
   return {
-    filters: [
-      { key: 'name', operator: 'ILIKE', value: `%${trimmed}%` },
-    ],
+    ...(trimmed ? { filters: [{ key: 'name', operator: 'ILIKE' as const, value: `%${trimmed}%` }] } : {}),
+    ...(hasSort ? { sort } : {}),
   }
 }

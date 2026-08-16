@@ -56,8 +56,8 @@ describe('CatalogToolbar', () => {
     })
   })
 
-  // The sort control is the shared form-layer Select (owner standardisation
-  // 2026-08-01): a button that opens a portal listbox, not a native <select>.
+  // The sort control is the shared form-layer Select: a button that opens a
+  // portal listbox, not a native <select>.
   describe('sort select', () => {
     it('renders with "Name A–Z" selected by default', () => {
       renderToolbar({ sort: 'name' })

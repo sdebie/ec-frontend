@@ -8,10 +8,9 @@ import {
     useDeleteTestimonial,
     useUpdateTestimonial,
 } from '@/admin/hooks/testimonials'
-import {hasRequiredAuthority} from '@/shared/utils/authorizationHelper'
+import {useAdminAuthStore} from '@/shared/auth/adminAuthStore'
 import {TestimonialsPage} from '../TestimonialsPage'
 
-// Mock hooks
 vi.mock('@/admin/hooks/testimonials', async () => {
     const actual = await vi.importActual<typeof import('@/admin/hooks/testimonials')>(
         '@/admin/hooks/testimonials',
@@ -25,9 +24,6 @@ vi.mock('@/admin/hooks/testimonials', async () => {
     }
 })
 
-vi.mock('@/shared/utils/authorizationHelper', () => ({
-    hasRequiredAuthority: vi.fn(),
-}))
 
 const mockTestimonials = [
     {
@@ -79,7 +75,7 @@ describe('TestimonialsPage', () => {
         vi.mocked(useCreateTestimonial).mockReturnValue(defaultMutation as any)
         vi.mocked(useUpdateTestimonial).mockReturnValue(defaultMutation as any)
         vi.mocked(useDeleteTestimonial).mockReturnValue(defaultMutation as any)
-        vi.mocked(hasRequiredAuthority).mockReturnValue(true) // Default: SUPER_ADMIN
+        useAdminAuthStore.setState({role: 'SUPER_ADMIN'})
     })
 
     it('renders all testimonials (published and unpublished) in the table', () => {
@@ -111,7 +107,7 @@ describe('TestimonialsPage', () => {
 
     describe('SUPER_ADMIN role', () => {
         beforeEach(() => {
-            vi.mocked(hasRequiredAuthority).mockReturnValue(true)
+            useAdminAuthStore.setState({role: 'SUPER_ADMIN'})
         })
 
         it('shows "Add Testimonial" button', () => {
@@ -136,7 +132,7 @@ describe('TestimonialsPage', () => {
 
     describe('VIEWER role (read-only)', () => {
         beforeEach(() => {
-            vi.mocked(hasRequiredAuthority).mockReturnValue(false)
+            useAdminAuthStore.setState({role: 'VIEWER'})
         })
 
         it('does not show "Add Testimonial" button', () => {

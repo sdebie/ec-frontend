@@ -12,7 +12,6 @@ import type { ProductFormValues } from '../ProductForm'
  * the remove button SHALL have disabled={true} and SHALL NOT
  * call remove() when clicked.
  *
- * **Validates: Requirements 2.7**
  */
 
 // Arbitrary for a single variant row with random values
@@ -34,7 +33,7 @@ function SingleVariantWrapper({
     defaultValues: {
       status: 'DRAFT',
       name: '',
-      categoryId: '',
+      categoryIds: [],
       images: [],
       slug: '',
       imageIds: {},

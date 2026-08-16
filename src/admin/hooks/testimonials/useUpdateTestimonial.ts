@@ -16,8 +16,7 @@ export function useUpdateTestimonial() {
       queryClient.invalidateQueries({ queryKey: ['admin', 'testimonials'] })
       toast.success('Testimonial updated')
     },
-    onError: (error) => {
-      console.error('[Testimonials] action failed:', error)
+    onError: () => {
       toast.error('Failed to update testimonial', { duration: 0 })
     },
   })

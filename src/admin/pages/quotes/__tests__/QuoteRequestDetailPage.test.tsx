@@ -18,13 +18,9 @@ vi.mock('@/admin/hooks/quotes', () => ({
   })),
 }))
 
-vi.mock('@/shared/utils/authorizationHelper', () => ({
-  hasRequiredAuthority: vi.fn(),
-}))
-
 // Import after vi.mock so the mock is in place
 import { useQuoteRequestDetail } from '@/admin/hooks/quotes'
-import { hasRequiredAuthority } from '@/shared/utils/authorizationHelper'
+import { useAdminAuthStore } from '@/shared/auth/adminAuthStore'
 
 // --- Test Data ---
 
@@ -88,8 +84,8 @@ function renderDetailPage(quoteRequestId = 'qr-123') {
 describe('QuoteRequestDetailPage', () => {
   beforeEach(() => {
     vi.clearAllMocks()
-    // Default: mutating role
-    vi.mocked(hasRequiredAuthority).mockReturnValue(true)
+    // Default: mutating role (quote:write admits SUPER_ADMIN and ORDER_MANAGER)
+    useAdminAuthStore.setState({ role: 'SUPER_ADMIN' })
   })
 
   describe('contact fields rendering', () => {
@@ -183,8 +179,8 @@ describe('QuoteRequestDetailPage', () => {
   })
 
   describe('role-gated action visibility', () => {
-    it('shows status actions for SUPER_ADMIN/ORDER_MANAGER', () => {
-      vi.mocked(hasRequiredAuthority).mockReturnValue(true)
+    it('shows status actions for ORDER_MANAGER', () => {
+      useAdminAuthStore.setState({ role: 'ORDER_MANAGER' })
       const quoteRequest = createMockQuoteRequest({ status: 'NEW' })
       vi.mocked(useQuoteRequestDetail).mockReturnValue({
         data: quoteRequest,
@@ -204,7 +200,7 @@ describe('QuoteRequestDetailPage', () => {
     })
 
     it('hides status actions for VIEWER', () => {
-      vi.mocked(hasRequiredAuthority).mockReturnValue(false)
+      useAdminAuthStore.setState({ role: 'VIEWER' })
       const quoteRequest = createMockQuoteRequest({ status: 'NEW' })
       vi.mocked(useQuoteRequestDetail).mockReturnValue({
         data: quoteRequest,
@@ -221,7 +217,6 @@ describe('QuoteRequestDetailPage', () => {
     })
 
     it('does not show status actions when status is CLOSED', () => {
-      vi.mocked(hasRequiredAuthority).mockReturnValue(true)
       const quoteRequest = createMockQuoteRequest({ status: 'CLOSED' })
       vi.mocked(useQuoteRequestDetail).mockReturnValue({
         data: quoteRequest,
@@ -237,7 +232,6 @@ describe('QuoteRequestDetailPage', () => {
 
   describe('status action triggers mutation', () => {
     it('clicking "Start Processing" triggers mutation with IN_PROGRESS', () => {
-      vi.mocked(hasRequiredAuthority).mockReturnValue(true)
       const quoteRequest = createMockQuoteRequest({ status: 'NEW' })
       vi.mocked(useQuoteRequestDetail).mockReturnValue({
         data: quoteRequest,
@@ -256,7 +250,6 @@ describe('QuoteRequestDetailPage', () => {
     })
 
     it('clicking "Close" triggers mutation with CLOSED', () => {
-      vi.mocked(hasRequiredAuthority).mockReturnValue(true)
       const quoteRequest = createMockQuoteRequest({ status: 'NEW' })
       vi.mocked(useQuoteRequestDetail).mockReturnValue({
         data: quoteRequest,
@@ -275,7 +268,6 @@ describe('QuoteRequestDetailPage', () => {
     })
 
     it('shows Close button for IN_PROGRESS status', () => {
-      vi.mocked(hasRequiredAuthority).mockReturnValue(true)
       const quoteRequest = createMockQuoteRequest({ status: 'IN_PROGRESS' })
       vi.mocked(useQuoteRequestDetail).mockReturnValue({
         data: quoteRequest,
@@ -313,7 +305,6 @@ describe('QuoteRequestDetailPage', () => {
     })
 
     it('page triggers mutate on status action click', () => {
-      vi.mocked(hasRequiredAuthority).mockReturnValue(true)
       const quoteRequest = createMockQuoteRequest({ status: 'NEW' })
       vi.mocked(useQuoteRequestDetail).mockReturnValue({
         data: quoteRequest,

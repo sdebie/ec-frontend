@@ -27,8 +27,6 @@ export function useCreateStaff() {
           ? error.response.errors?.[0]?.message
           : undefined
 
-      console.error(message ?? error)
-
       if (message && /duplicate.key/i.test(message)) {
         toast.error('A staff member with this email already exists', { duration: 0 })
       } else {

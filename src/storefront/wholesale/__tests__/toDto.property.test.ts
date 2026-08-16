@@ -33,8 +33,6 @@ const formValuesWithSameAsPhysicalArb: fc.Arbitrary<WholesaleApplicationFormValu
 })
 
 /**
- * **Validates: Requirements 5.3**
- *
  * Property 1: Same-as-physical copies address fields
  *
  * For ANY valid form values where sameAsPhysical is true,

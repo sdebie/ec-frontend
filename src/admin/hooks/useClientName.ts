@@ -1,6 +1,6 @@
-import { useQuery } from '@tanstack/react-query'
-import { storefrontHttpClient } from '@/shared/api/http/storefrontHttpClient'
-import type { StorefrontConfig } from '@/shared/types/StorefrontConfig'
+import {useQuery} from '@tanstack/react-query'
+import {storefrontHttpClient} from '@/shared/api/http/storefrontHttpClient'
+import type {StorefrontConfig} from '@/shared/types/StorefrontConfig'
 
 /**
  * The admin shell lives outside StorefrontConfigProvider, but client identity
@@ -10,14 +10,14 @@ import type { StorefrontConfig } from '@/shared/types/StorefrontConfig'
  * storefront provider when both are mounted.
  */
 export function useClientName(): string {
-  const { data } = useQuery({
-    queryKey: ['storefront-config'],
-    queryFn: async () => {
-      const { data } = await storefrontHttpClient.get<StorefrontConfig>('/storefront/config')
-      return data
-    },
-    staleTime: Infinity,
-  })
+    const {data} = useQuery({
+        queryKey: ['storefront-config'],
+        queryFn: async () => {
+            const {data} = await storefrontHttpClient.get<StorefrontConfig>('/storefront/config')
+            return data
+        },
+        staleTime: Infinity,
+    })
 
-  return data?.clientName ?? 'Admin Portal'
+    return data?.clientName ?? 'Admin Portal'
 }

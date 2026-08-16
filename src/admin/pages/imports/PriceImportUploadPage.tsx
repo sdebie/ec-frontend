@@ -4,16 +4,15 @@ import { Navigate, useNavigate } from 'react-router-dom'
 import { PageLayout, Upload, toast } from '@/shared/ui/components'
 import { useBreadcrumb } from '@/admin/context/BreadcrumbContext'
 import { Button } from '@/shared/ui/primitives'
-import { useAdminAuthStore } from '@/shared/auth/adminAuthStore'
+import { useCan } from '@/shared/auth/adminPermissions'
 import { useUploadCsv } from '@/admin/hooks/imports/useUploadCsv'
-import { deriveCanMutate } from '@/admin/hooks/imports/utils'
 
 export default function PriceImportUploadPage() {
   const navigate = useNavigate()
   const { mutateAsync, isPending } = useUploadCsv()
   const [file, setFile] = useState<File | null>(null)
 
-  const canMutate = deriveCanMutate(useAdminAuthStore((s) => s.role))
+  const canMutate = useCan('import:manage')
 
   useBreadcrumb([
     { label: 'Home', href: '/admin' },

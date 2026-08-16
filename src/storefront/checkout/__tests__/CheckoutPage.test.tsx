@@ -16,7 +16,6 @@ vi.mock('react-router-dom', async () => {
     return {
         ...actual,
         useNavigate: () => mockNavigate,
-        useSearchParams: () => [new URLSearchParams('orderId=order-123')],
     }
 })
 
@@ -34,11 +33,30 @@ vi.mock('../hooks/useInitiatePayment', () => ({
     }),
 }))
 
+const mockConfirmInStorePaymentMutateAsync = vi.fn()
+vi.mock('../hooks/useConfirmInStorePayment', () => ({
+    useConfirmInStorePayment: () => ({
+        mutateAsync: mockConfirmInStorePaymentMutateAsync,
+    }),
+}))
+
 vi.mock('../hooks/useShippingMethods', () => ({
     useShippingMethods: () => ({
         data: [
-            {id: 'sm-collection-01', name: 'In-store Collection', baseFee: 0, estimatedDays: null},
-            {id: 'sm-delivery-01', name: 'Standard Delivery', baseFee: 89, estimatedDays: '3-5'},
+            {
+                id: 'sm-collection-01',
+                name: 'In-store Collection',
+                baseFee: 0,
+                estimatedDays: null,
+                requiresAddress: false,
+            },
+            {
+                id: 'sm-delivery-01',
+                name: 'Standard Delivery',
+                baseFee: 89,
+                estimatedDays: '3-5',
+                requiresAddress: true,
+            },
         ],
         isLoading: false,
         isError: false,
@@ -82,6 +100,7 @@ const mockSession: CheckoutSession = {
     vatAmount: 30,
     shippingEstimate: 89,
     grandTotal: 319,
+    orderToken: 'token-abc',
 }
 
 const mockStorefrontConfig: StorefrontConfig = {
@@ -113,7 +132,7 @@ function renderCheckoutPage(CheckoutPage: React.ComponentType) {
     return render(
         <QueryClientProvider client={queryClient}>
             <StorefrontConfigContext.Provider value={mockStorefrontConfig}>
-                <MemoryRouter initialEntries={['/checkout?orderId=order-123']}>
+                <MemoryRouter initialEntries={['/checkout']}>
                     <CheckoutPage/>
                 </MemoryRouter>
             </StorefrontConfigContext.Provider>
@@ -257,37 +276,83 @@ describe('CheckoutPage', () => {
     })
 
     describe('In-store flow', () => {
-        it('navigates to success page with sessionId after PATCH succeeds', async () => {
-            const user = userEvent.setup()
-            useCheckoutSessionStore.setState({session: mockSession})
-
-            mockSubmitContactMutateAsync.mockResolvedValueOnce({orderId: 'order-123'})
-
-            renderCheckoutPage(CheckoutPage)
-
-            // Fill in required form fields
+        async function fillInStoreCheckout(user: ReturnType<typeof userEvent.setup>) {
             await user.type(screen.getByLabelText(/email address/i), 'test@example.com')
             await user.type(screen.getByLabelText(/first name/i), 'Jane')
             await user.type(screen.getByLabelText(/last name/i), 'Doe')
 
-            // Select collection shipping (no address required)
-            const collectionRadio = screen.getByRole('radio', {name: /in-store collection/i})
-            await user.click(collectionRadio)
-
-            // Select in-store payment
-            const instoreRadio = screen.getByRole('radio', {name: /pay in store/i})
-            await user.click(instoreRadio)
-
-            // Submit the form
+            await user.click(screen.getByRole('radio', {name: /in-store collection/i}))
+            await user.click(screen.getByRole('radio', {name: /pay in store/i}))
             await user.click(screen.getByRole('button', {name: /place order/i}))
+        }
 
-            await waitFor(() => {
-                expect(mockNavigate).toHaveBeenCalledWith(
-                    '/checkout/success?sessionId=session-abc'
-                )
+        it('confirms the order server-side before navigating to the success page', async () => {
+            const user = userEvent.setup()
+            useCheckoutSessionStore.setState({session: mockSession})
+
+            mockSubmitContactMutateAsync.mockResolvedValueOnce({orderId: 'order-123'})
+            mockConfirmInStorePaymentMutateAsync.mockResolvedValueOnce({
+                orderId: 'order-123',
+                status: 'IN_STORE_PAYMENT',
             })
 
+            renderCheckoutPage(CheckoutPage)
+            await fillInStoreCheckout(user)
+
+            await waitFor(() => {
+                // No identifier in the URL (Requirement 3.5) — the success page reads
+                // the order from checkoutSessionStore.
+                expect(mockNavigate).toHaveBeenCalledWith('/checkout/success')
+            })
+
+            expect(mockConfirmInStorePaymentMutateAsync).toHaveBeenCalledWith({
+                orderId: 'order-123',
+                token: 'token-abc',
+            })
             expect(mockInitiatePaymentMutateAsync).not.toHaveBeenCalled()
+        })
+
+        /**
+         * The order would otherwise sit at CREATED, where the stock-recovery sweep
+         * cancels it as an abandoned cart — so a shopper sent to the success page
+         * without this call has been told their order was placed when it is about
+         * to be cancelled.
+         */
+        it('does not navigate when the confirmation fails, and says so', async () => {
+            const user = userEvent.setup()
+            useCheckoutSessionStore.setState({session: mockSession})
+
+            mockSubmitContactMutateAsync.mockResolvedValueOnce({orderId: 'order-123'})
+            mockConfirmInStorePaymentMutateAsync.mockRejectedValueOnce(new Error('boom'))
+
+            renderCheckoutPage(CheckoutPage)
+            await fillInStoreCheckout(user)
+
+            await waitFor(() => {
+                expect(screen.getByText(/could not place your order/i)).toBeInTheDocument()
+            })
+
+            expect(mockNavigate).not.toHaveBeenCalled()
+        })
+
+        /**
+         * Nobody is at the counter to take money for an order being couriered, and
+         * the server rejects the combination — so it must never be offered.
+         */
+        it('withdraws the pay-in-store option when a delivery method is chosen', async () => {
+            const user = userEvent.setup()
+            useCheckoutSessionStore.setState({session: mockSession})
+
+            renderCheckoutPage(CheckoutPage)
+
+            await user.click(screen.getByRole('radio', {name: /in-store collection/i}))
+            expect(screen.getByRole('radio', {name: /pay in store/i})).toBeInTheDocument()
+
+            await user.click(screen.getByRole('radio', {name: /standard delivery/i}))
+
+            await waitFor(() => {
+                expect(screen.queryByRole('radio', {name: /pay in store/i})).toBeNull()
+            })
         })
     })
 })

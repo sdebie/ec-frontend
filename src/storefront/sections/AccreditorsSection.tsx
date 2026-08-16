@@ -1,7 +1,7 @@
 import {useState} from 'react'
 import type {AccreditorsSectionConfig} from '@/shared/types/StorefrontConfig'
 import {resolveImageUrl} from '@/shared/utils/imageUrl'
-import {SECTION_WIDTH_CLASS, Section, SectionHeading} from './shared'
+import {Section, SECTION_WIDTH_CLASS, SectionHeading} from './shared'
 
 interface AccreditorTileProps {
     name: string
@@ -9,30 +9,28 @@ interface AccreditorTileProps {
     url?: string
 }
 
-// Tiles fill their GRID CELL rather than carrying a fixed width, which is what
-// stops the logos being small: previously each tile was pinned to w-52/w-64/w-72
-// no matter how much room the row had, so the artwork inside could never grow.
+// Tiles fill their GRID CELL rather than carrying a fixed width, so the artwork
+// inside can grow with the room the row has.
 //
 // The height comes from an ASPECT RATIO, not a fixed value, so a tile keeps its
 // proportions at every width and the logos scale with the viewport.
 //
-// UVH's artwork is now pre-normalised to a single 1200×400 canvas (3:1), so all
-// three logos are width-bound by `object-contain` and therefore already paint at
-// identical sizes. The ratio still earns its place as a guard: mismatched
-// artwork — the earlier 403×281 / 1301×605 / 1140×570 set — would otherwise have
-// some logos height-bound and some width-bound, which is what made them look
-// different sizes. Keeping the tile wider than any logo it holds keeps them
-// consistent whatever a client uploads.
+// The ratio is a guard against mismatched uploads: with artwork of differing
+// shapes, `object-contain` leaves some logos height-bound and some width-bound,
+// which makes them look like different sizes. A tile wider than any logo it
+// holds keeps them consistent whatever a client uploads.
 //
-// The `max-w` cap is what makes a phone logo SMALLER than a desktop one
-// (owner directive 2026-08-03). Without it a single-column phone tile is the
-// full 327px content width — wider than a desktop tile's third-of-the-row — so
-// the logos rendered *larger* on mobile than on desktop, which is backwards.
+// The `max-w` cap keeps a phone tile narrower than a desktop one, which is a
+// third of the row (368px at the standard page width). It is NOT there to leave
+// a gutter: a single-column tile should very nearly fill the phone's content
+// column, or the logos read as small with dead space either side. 320px lands
+// within a few px of full width on a 375px phone and still sits under the
+// desktop tile, so the cap only bites on large phones.
 //
 // The class goes on the OUTER element, not the bordered box: when a tile is
 // wrapped in its link, a percentage width on the inner div would resolve against
 // a shrink-to-fit anchor and collapse.
-const TILE_SIZE_CLASS = 'mx-auto w-full max-w-[240px] aspect-[5/2] sm:max-w-none'
+const TILE_SIZE_CLASS = 'mx-auto w-full max-w-[420px] aspect-[5/2] sm:max-w-none'
 
 function AccreditorTile({name, logoUrl, url}: AccreditorTileProps) {
     const [imgFailed, setImgFailed] = useState(false)
@@ -83,7 +81,7 @@ export function AccreditorsSection({section}: { section: AccreditorsSectionConfi
 
     return (
         <Section variant={variant}>
-            {title && <SectionHeading title={title} eyebrow={eyebrow} />}
+            {title && <SectionHeading title={title} eyebrow={eyebrow}/>}
             {/* A real grid, not a wrapping flex row: every tile then gets an
                 equal share of the width and the logos scale with the viewport.
                 One column on a phone so they flow under each other at full

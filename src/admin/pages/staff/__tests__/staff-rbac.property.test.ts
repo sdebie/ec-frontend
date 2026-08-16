@@ -2,7 +2,6 @@ import { describe, it, expect } from 'vitest'
 import fc from 'fast-check'
 
 /**
- * **Validates: Requirements 2.4, 3.6, 6.4**
  *
  * Property test: for every role value in ['CATALOG_MANAGER', 'ORDER_MANAGER', 'VIEWER'],
  * the route authority guard for `/admin/staff/new` and `/admin/staff/:id/edit` should
@@ -49,7 +48,7 @@ describe('staff RBAC — route authority guard', () => {
           const userAuthority = [role]
           const canAccess = hasRequiredAuthority(staffCreateRoute.authority, userAuthority)
           expect(canAccess).toBe(false)
-          return canAccess === false
+          return !canAccess
         },
       ),
       { numRuns: 100 },
@@ -64,7 +63,7 @@ describe('staff RBAC — route authority guard', () => {
           const userAuthority = [role]
           const canAccess = hasRequiredAuthority(staffEditRoute.authority, userAuthority)
           expect(canAccess).toBe(false)
-          return canAccess === false
+          return !canAccess
         },
       ),
       { numRuns: 100 },
@@ -86,7 +85,7 @@ describe('staff RBAC — route authority guard', () => {
           const userAuthority = [...roles]
           const canAccessCreate = hasRequiredAuthority(staffCreateRoute.authority, userAuthority)
           const canAccessEdit = hasRequiredAuthority(staffEditRoute.authority, userAuthority)
-          return canAccessCreate === false && canAccessEdit === false
+          return !canAccessCreate && !canAccessEdit
         },
       ),
       { numRuns: 100 },

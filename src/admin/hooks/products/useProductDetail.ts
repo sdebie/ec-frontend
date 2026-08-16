@@ -3,13 +3,12 @@ import { gql } from 'graphql-request'
 
 import { adminGraphqlClient } from '@/shared/api/graphql/adminGraphqlClient'
 import type { ProductStatus } from '@/shared/types/enums'
+import { parseAttributesJson } from './mappers'
+import type { AdminProductVariant } from './types'
 
-export interface AdminProductVariant {
-  id: string
-  priceId?: string
-  sku: string
-  price: string
-  stock: number
+export interface AdminProductImage {
+  url: string
+  altText: string
 }
 
 export interface AdminProductDetail {
@@ -19,15 +18,16 @@ export interface AdminProductDetail {
   shortDescription: string
   description: string
   status: ProductStatus
-  category: { id: string; name: string }
-  images: string[]
+  categories: Array<{ id: string; name: string }>
+  images: AdminProductImage[]
   imageIds: Record<string, string>
   variants: AdminProductVariant[]
 }
 
 interface VariantPriceResponse {
   id: string
-  price: string
+  // BigDecimal in the SDL — arrives as a JSON NUMBER, not a string
+  price: number | string
   priceType: string
 }
 
@@ -36,6 +36,7 @@ interface ProductImageResponse {
   imageUrl: string
   featured: boolean
   sortOrder: number | null
+  altText: string | null
 }
 
 interface VariantResponse {
@@ -43,6 +44,7 @@ interface VariantResponse {
   sku: string
   stockQuantity: number
   status: string
+  attributesJson: string | null
   prices: VariantPriceResponse[]
   images: ProductImageResponse[]
 }
@@ -54,17 +56,17 @@ interface ProductResponse {
   shortDescription: string
   description: string
   status: string
-  category: { id: string; name: string } | null
+  categories: Array<{ id: string; name: string }> | null
 }
 
-interface GetProductInformationResponse {
+export interface GetProductInformationResponse {
   getProductInformation: {
     product: ProductResponse
     variants: VariantResponse[]
   } | null
 }
 
-const GET_PRODUCT_INFORMATION = gql`
+export const GET_PRODUCT_INFORMATION = gql`
   query GetProductInformation($productId: String) {
     getProductInformation(productId: $productId) {
       product {
@@ -74,7 +76,7 @@ const GET_PRODUCT_INFORMATION = gql`
         shortDescription
         description
         status
-        category {
+        categories {
           id
           name
         }
@@ -84,6 +86,7 @@ const GET_PRODUCT_INFORMATION = gql`
         sku
         stockQuantity
         status
+        attributesJson
         prices {
           id
           price
@@ -94,6 +97,7 @@ const GET_PRODUCT_INFORMATION = gql`
           imageUrl
           featured
           sortOrder
+          altText
         }
       }
     }
@@ -105,7 +109,7 @@ const GET_PRODUCT_INFORMATION = gql`
  * Filters to active variants only, extracts the RETAIL_PRICE, and flattens
  * the image manifest from all variants into a single product-level list.
  */
-function mapToAdminProductDetail(
+export function mapToAdminProductDetail(
   data: NonNullable<GetProductInformationResponse['getProductInformation']>,
 ): AdminProductDetail {
   const { product, variants } = data
@@ -115,12 +119,18 @@ function mapToAdminProductDetail(
 
   const mappedVariants: AdminProductVariant[] = activeVariants.map((v) => {
     const retailPrice = v.prices.find((p) => p.priceType === 'RETAIL_PRICE')
+    const wholesalePrice = v.prices.find((p) => p.priceType === 'WHOLESALE_PRICE')
     return {
       id: v.id,
       ...(retailPrice?.id ? { priceId: retailPrice.id } : {}),
       sku: v.sku,
-      price: retailPrice?.price ?? '0',
+      // The form's price fields are strings; the wire values are BigDecimal
+      // numbers — coerce here or zod rejects every server-loaded variant.
+      price: retailPrice?.price != null ? String(retailPrice.price) : '0',
+      ...(wholesalePrice?.id ? { wholesalePriceId: wholesalePrice.id } : {}),
+      ...(wholesalePrice?.price != null ? { wholesalePrice: String(wholesalePrice.price) } : {}),
       stock: v.stockQuantity ?? 0,
+      attributes: parseAttributesJson(v.attributesJson),
     }
   })
 
@@ -130,12 +140,12 @@ function mapToAdminProductDetail(
     .flatMap((v) => v.images)
     .sort((a, b) => (a.sortOrder ?? 0) - (b.sortOrder ?? 0))
   const seenUrls = new Set<string>()
-  const images: string[] = []
+  const images: AdminProductImage[] = []
   const imageIds: Record<string, string> = {}
   for (const img of allImages) {
     if (img.imageUrl && !seenUrls.has(img.imageUrl)) {
       seenUrls.add(img.imageUrl)
-      images.push(img.imageUrl)
+      images.push({ url: img.imageUrl, altText: img.altText ?? '' })
       imageIds[img.imageUrl] = img.id
     }
   }
@@ -147,7 +157,7 @@ function mapToAdminProductDetail(
     shortDescription: product.shortDescription ?? '',
     description: product.description ?? '',
     status: product.status as ProductStatus,
-    category: product.category ?? { id: '', name: '' },
+    categories: product.categories ?? [],
     images,
     imageIds,
     variants: mappedVariants,

@@ -1,252 +1,94 @@
-import { useState, useMemo, useCallback } from 'react'
-import { Link } from 'react-router-dom'
-import type { PaginationState } from '@tanstack/react-table'
+import {useCallback, useState} from 'react'
+import type {PaginationState} from '@tanstack/react-table'
 
-import {
-  DataTable,
-  Segment,
-  ConfirmationDialog,
-  OrderStatusDisplay,
-} from '@/shared/ui/components'
-import type { ColumnDef } from '@/shared/ui/components'
-import { useAdminAuthStore } from '@/shared/auth/adminAuthStore'
-import { formatAmount } from '@/shared/utils/formatAmount'
-import { OrderStatus } from '@/shared/types/enums/OrderStatus'
-import { useOrders, useUpdateOrderStatus } from '@/admin/hooks/orders'
-import type { AdminOrderSummary } from '@/admin/hooks/orders'
-import { OrderActionsMenu } from './components/OrderActionsMenu'
-import { getAvailableTransitions } from './utils/getAvailableTransitions'
+import {DateRangePreset, PageLayout, resolveDateRange} from '@/shared/ui/components'
+import {useCan} from '@/shared/auth/adminPermissions'
+import {useTableSort} from '@/admin/hooks/useTableSort'
+import {useOrders} from './hooks/useOrders'
+import type {OrderListFilters} from './components/OrderListToolbar'
+import {OrderListToolbar} from './components/OrderListToolbar'
+import {OrderTable} from './components/OrderTable'
 
-const STATUS_FILTER_OPTIONS = [
-  { value: 'ALL', label: 'All' },
-  { value: 'PENDING', label: 'Pending' },
-  { value: 'PAID', label: 'Paid' },
-  { value: 'IN_STORE_PAYMENT', label: 'In-store Payment' },
-  { value: 'IN_TRANSIT', label: 'In Transit' },
-  { value: 'DELIVERED', label: 'Delivered' },
-  { value: 'CANCELLED', label: 'Cancelled' },
-  { value: 'REFUNDED', label: 'Refunded' },
-]
-
-function formatDate(dateString: string): string {
-  return new Date(dateString).toLocaleDateString(undefined, {
-    day: 'numeric',
-    month: 'short',
-    year: 'numeric',
-  })
+const NO_FILTERS: OrderListFilters = {
+    paymentState: 'ALL',
+    fulfilmentState: 'ALL',
+    datePreset: DateRangePreset.ALL,
 }
 
+/** `'ALL'` is the UI's "no filter" sentinel — it must never reach the backend. */
+const asArgument = (value: string) => (value === 'ALL' ? undefined : value)
+
 export function OrderListPage() {
-  const canMutate = useAdminAuthStore((s) => s.role) === 'SUPER_ADMIN'
+    const canMutate = useCan('order:write')
 
-  const [statusFilter, setStatusFilter] = useState('ALL')
-  const [fromDate, setFromDate] = useState('')
-  const [toDate, setToDate] = useState('')
-  const [pagination, setPagination] = useState<PaginationState>({
-    pageIndex: 0,
-    pageSize: 10,
-  })
+    const [filters, setFilters] = useState<OrderListFilters>(NO_FILTERS)
+    const [pagination, setPagination] = useState<PaginationState>({
+        pageIndex: 0,
+        pageSize: 10,
+    })
 
-  // Confirmation dialog state
-  const [confirmDialog, setConfirmDialog] = useState<{
-    open: boolean
-    type: 'cancel' | 'refund'
-    orderId: string
-  }>({ open: false, type: 'cancel', orderId: '' })
+    const {sorting, onSortingChange: onSortingChangeUrl, sort} = useTableSort()
 
-  const { mutate: updateOrderStatus, isPending: isUpdatingStatus } = useUpdateOrderStatus()
-
-  const { data, isLoading } = useOrders({
-    page: pagination.pageIndex + 1,
-    pageSize: pagination.pageSize,
-    status: statusFilter === 'ALL' ? undefined : statusFilter,
-    fromDate: fromDate || undefined,
-    toDate: toDate || undefined,
-  })
-
-  const handleStatusFilterChange = (value: string) => {
-    setStatusFilter(value)
-    setPagination((prev) => ({ ...prev, pageIndex: 0 }))
-  }
-
-  const handleFromDateChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setFromDate(e.target.value)
-    setPagination((prev) => ({ ...prev, pageIndex: 0 }))
-  }
-
-  const handleToDateChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setToDate(e.target.value)
-    setPagination((prev) => ({ ...prev, pageIndex: 0 }))
-  }
-
-  const handleShip = useCallback((orderId: string) => {
-    updateOrderStatus({ orderId, payload: { status: OrderStatus.IN_TRANSIT } })
-  }, [updateOrderStatus])
-
-  const handleDeliver = useCallback((orderId: string) => {
-    updateOrderStatus({ orderId, payload: { status: OrderStatus.DELIVERED } })
-  }, [updateOrderStatus])
-
-  const handleCancel = useCallback((orderId: string) => {
-    setConfirmDialog({ open: true, type: 'cancel', orderId })
-  }, [])
-
-  const handleRefund = useCallback((orderId: string) => {
-    setConfirmDialog({ open: true, type: 'refund', orderId })
-  }, [])
-
-  const handleConfirmAction = () => {
-    const { type, orderId } = confirmDialog
-    const status =
-      type === 'cancel' ? OrderStatus.CANCELLED : OrderStatus.REFUNDED
-    updateOrderStatus(
-      { orderId, payload: { status } },
-      { onSettled: () => setConfirmDialog((prev) => ({ ...prev, open: false })) },
+    /*
+      useTableSort resets `page` in the URL on a sort change, which is a no-op here — this
+      page's pagination is local component state, not URL-driven, unlike Brands/Categories.
+      The reset has to happen the same way a filter change resets it: explicitly, alongside
+      the URL write.
+    */
+    const onSortingChange: typeof onSortingChangeUrl = useCallback(
+        (updater) => {
+            onSortingChangeUrl(updater)
+            setPagination((prev) => ({...prev, pageIndex: 0}))
+        },
+        [onSortingChangeUrl],
     )
-  }
 
-  const handleCloseDialog = () => {
-    setConfirmDialog((prev) => ({ ...prev, open: false }))
-  }
+    /**
+     * Narrowing the list invalidates the page along with it: page 3 of the old result set
+     * is not page 3 of the new one, and staying there strands the reader on a page that
+     * may no longer exist.
+     */
+    const handleFiltersChange = useCallback((patch: Partial<OrderListFilters>) => {
+        setFilters((prev) => ({...prev, ...patch}))
+        setPagination((prev) => ({...prev, pageIndex: 0}))
+    }, [])
 
-  const columns = useMemo<ColumnDef<AdminOrderSummary, unknown>[]>(
-    () => [
-      {
-        accessorKey: 'reference',
-        header: 'Reference',
-        cell: ({ row }) => (
-          <Link
-            to={`/admin/orders/${row.original.id}`}
-            className="font-mono uppercase text-(--c-accent) hover:underline"
-          >
-            {row.original.reference}
-          </Link>
-        ),
-      },
-      {
-        accessorKey: 'customerName',
-        header: 'Customer',
-      },
-      {
-        accessorKey: 'placedAt',
-        header: 'Order Date',
-        cell: ({ row }) => formatDate(row.original.placedAt),
-      },
-      {
-        accessorKey: 'itemCount',
-        header: 'Items',
-      },
-      {
-        accessorKey: 'total',
-        header: 'Total',
-        cell: ({ row }) => formatAmount(row.original.total),
-      },
-      {
-        accessorKey: 'status',
-        header: 'Status',
-        cell: ({ row }) => <OrderStatusDisplay status={row.original.status} />,
-      },
-      ...(canMutate
-        ? [
-            {
-              id: 'actions',
-              header: 'Actions',
-              cell: ({ row }: { row: { original: AdminOrderSummary } }) => {
-                const order = row.original
-                const transitions = getAvailableTransitions(order.status)
-                if (transitions.length === 0) return null
-                return (
-                  <OrderActionsMenu
-                    order={order}
+    /*
+      Resolved on every render rather than stored, so "Today" still means today on a page
+      left open overnight. The result is date-granular, so it is the same value all day and
+      the query key stays stable until it genuinely should change.
+    */
+    const {fromDate, toDate} = resolveDateRange(filters.datePreset)
+
+    const {data, isLoading} = useOrders({
+        page: pagination.pageIndex + 1,
+        pageSize: pagination.pageSize,
+        paymentState: asArgument(filters.paymentState),
+        fulfilmentState: asArgument(filters.fulfilmentState),
+        fromDate,
+        toDate,
+        sort,
+    })
+
+    const pageCount = data ? Math.ceil(data.total / pagination.pageSize) : 0
+
+    return (
+        <PageLayout title="Orders">
+            <div className="flex flex-col gap-6">
+                <OrderListToolbar filters={filters} onChange={handleFiltersChange}/>
+
+                <OrderTable
+                    data={data?.data ?? []}
+                    isLoading={isLoading}
                     canMutate={canMutate}
-                    onShip={() => handleShip(order.id)}
-                    onDeliver={() => handleDeliver(order.id)}
-                    onCancel={() => handleCancel(order.id)}
-                    onRefund={() => handleRefund(order.id)}
-                  />
-                )
-              },
-            } as ColumnDef<AdminOrderSummary, unknown>,
-          ]
-        : []),
-    ],
-    [canMutate, handleCancel, handleDeliver, handleRefund, handleShip],
-  )
-
-  const pageCount = data ? Math.ceil(data.total / pagination.pageSize) : 0
-
-  return (
-    <div className="flex flex-col gap-6">
-      <h1 className="text-2xl font-semibold text-(--c-text)">Orders</h1>
-
-      {/* Filters */}
-      <div className="flex flex-col gap-4">
-        <Segment
-          options={STATUS_FILTER_OPTIONS}
-          value={statusFilter}
-          onChange={handleStatusFilterChange}
-        />
-
-        <div className="flex items-center gap-4">
-          <div className="flex items-center gap-2">
-            <label
-              htmlFor="from-date"
-              className="text-sm text-(--c-text-muted)"
-            >
-              From
-            </label>
-            <input
-              id="from-date"
-              type="date"
-              value={fromDate}
-              onChange={handleFromDateChange}
-              className="rounded-md border border-(--c-border) bg-(--c-panel) px-3 py-2 text-sm text-(--c-text)"
-            />
-          </div>
-          <div className="flex items-center gap-2">
-            <label
-              htmlFor="to-date"
-              className="text-sm text-(--c-text-muted)"
-            >
-              To
-            </label>
-            <input
-              id="to-date"
-              type="date"
-              value={toDate}
-              onChange={handleToDateChange}
-              className="rounded-md border border-(--c-border) bg-(--c-panel) px-3 py-2 text-sm text-(--c-text)"
-            />
-          </div>
-        </div>
-      </div>
-
-      {/* Data Table */}
-      <DataTable
-        columns={columns}
-        data={data?.data ?? []}
-        isLoading={isLoading}
-        manualPagination
-        pageCount={pageCount}
-        pagination={pagination}
-        onPaginationChange={setPagination}
-      />
-
-      {/* Confirmation Dialog */}
-      <ConfirmationDialog
-        open={confirmDialog.open}
-        onClose={handleCloseDialog}
-        onConfirm={handleConfirmAction}
-        title={confirmDialog.type === 'cancel' ? 'Cancel Order' : 'Refund Order'}
-        description={
-          confirmDialog.type === 'cancel'
-            ? 'Are you sure you want to cancel this order?'
-            : 'Are you sure you want to refund this order?'
-        }
-        variant="danger"
-        confirmLabel={confirmDialog.type === 'cancel' ? 'Cancel Order' : 'Refund Order'}
-        isLoading={isUpdatingStatus}
-      />
-    </div>
-  )
+                    pageCount={pageCount}
+                    totalRowCount={data?.total ?? 0}
+                    pagination={pagination}
+                    onPaginationChange={setPagination}
+                    sorting={sorting}
+                    onSortingChange={onSortingChange}
+                />
+            </div>
+        </PageLayout>
+    )
 }

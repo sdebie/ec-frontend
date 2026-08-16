@@ -66,10 +66,9 @@ export function NavDrawer({ open, onClose, items, isSignedIn, accountName, onSig
         <div className="px-4 pb-4">
           <SearchBar className="w-full" />
         </div>
-        {/* Scroll container. The category tree was removed from here (owner
-            directive 2026-08-02, to be revisited post-launch): ~20 root
-            categories buried the account action and made the drawer a wall of
-            links. Categories remain reachable from the header's mega menu. */}
+        {/* No category tree here: ~20 root categories bury the account action
+            and turn the drawer into a wall of links. Categories are reachable
+            from the header's mega menu. */}
         <div className="flex-1 overflow-y-auto pb-4">
           <nav aria-label="Main navigation" className="flex flex-col gap-2 px-4">
             {items.map(item => (

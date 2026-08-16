@@ -28,9 +28,12 @@ export function Thumbnail({logoUrl, name, size = 'md', className}: ThumbnailProp
             <img
                 src={resolvedUrl}
                 alt={`${name} logo`}
+                // Fixed white backing, not a theme token: most uploaded logos are dark
+                // artwork on a transparent background, drawn for a light page — on
+                // --c-bg in dark mode they'd blend in and disappear entirely.
                 className={cn(
                     sizeClasses[size],
-                    'rounded-md object-contain bg-(--c-bg) border border-(--c-border)',
+                    'rounded-md object-contain bg-white border border-(--c-border)',
                     className
                 )}
                 onError={() => setImgError(true)}
@@ -40,9 +43,12 @@ export function Thumbnail({logoUrl, name, size = 'md', className}: ThumbnailProp
 
     return (
         <div
-            className={cn(
-                sizeClasses[size],
-                'rounded-md bg-(--c-bg) border border-(--c-border) flex items-center justify-center font-semibold text-(--c-text-muted) select-none',
+            // The secondary surface, not the page background: this sits inside a panel
+            // or a table row, so painting it the page colour leaves it with almost no
+            // presence against white. Text is the secondary tone rather than muted —
+            // initials are the content here, not a caption.
+            className={cn(sizeClasses[size],
+                'rounded-md bg-(--c-panel-secondary) border border-(--c-border) flex items-center justify-center font-semibold text-(--c-text-secondary) select-none',
                 className
             )}
         >

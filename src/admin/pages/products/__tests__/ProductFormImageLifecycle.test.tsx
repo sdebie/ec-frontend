@@ -3,8 +3,6 @@
  * Integration test — ProductForm image lifecycle: no optimistic deletion,
  * abandoned-upload cleanup on cancel.
  *
- * Validates: Requirements 2.6, 3.7, 5.2
- *
  * These tests exercise that:
  * - Image removal in the form only changes local state (no file/association deletion)
  * - On cancel, every session upload is cleaned up because none has been saved
@@ -58,14 +56,15 @@ describe('ProductForm — image lifecycle (no optimistic deletion + cleanup)', (
     renderForm({
       name: 'Test Product',
       slug: 'test-product',
-      categoryId: 'cat-1',
-      images: ['existing-saved-image.jpg'],
-      variants: [{ sku: 'SKU-001', price: '10.00', stock: 5 }],
+      categoryIds: ['cat-1'],
+      images: [{ url: 'existing-saved-image.jpg', altText: '' }],
+      variants: [{ sku: 'SKU-001', price: '10.00', stock: 5, attributes: [] }],
     })
 
-    // Find and click the remove button on the image
-    const removeButton = screen.getByRole('button', { name: /remove image/i })
     const user = userEvent.setup()
+    await user.click(screen.getByRole('tab', { name: /images/i }))
+
+    const removeButton = screen.getByRole('button', { name: /remove image/i })
     await user.click(removeButton)
 
     // onCleanup must NOT be called — removal only changes local form state
@@ -80,12 +79,13 @@ describe('ProductForm — image lifecycle (no optimistic deletion + cleanup)', (
     renderForm({
       name: 'Cancel Test',
       slug: 'cancel-test',
-      categoryId: 'cat-1',
+      categoryIds: ['cat-1'],
       images: [],
-      variants: [{ sku: 'SKU-002', price: '15.00', stock: 3 }],
+      variants: [{ sku: 'SKU-002', price: '15.00', stock: 3, attributes: [] }],
     })
 
     const user = userEvent.setup()
+    await user.click(screen.getByRole('tab', { name: /images/i }))
 
     // Upload a file via the hidden file input
     const fileInput = screen.getByLabelText(/upload image file/i) as HTMLInputElement
@@ -120,14 +120,14 @@ describe('ProductForm — image lifecycle (no optimistic deletion + cleanup)', (
     renderForm({
       name: 'Keep Test',
       slug: 'keep-test',
-      categoryId: 'cat-1',
+      categoryIds: ['cat-1'],
       images: [],
-      variants: [{ sku: 'SKU-003', price: '20.00', stock: 2 }],
+      variants: [{ sku: 'SKU-003', price: '20.00', stock: 2, attributes: [] }],
     })
 
     const user = userEvent.setup()
+    await user.click(screen.getByRole('tab', { name: /images/i }))
 
-    // Upload a file
     const fileInput = screen.getByLabelText(/upload image file/i) as HTMLInputElement
     const file = new File(['px'], 'keep.jpg', { type: 'image/jpeg' })
     await user.upload(fileInput, file)
@@ -154,14 +154,14 @@ describe('ProductForm — image lifecycle (no optimistic deletion + cleanup)', (
     renderForm({
       name: 'Submit Test',
       slug: 'submit-test',
-      categoryId: 'cat-1',
+      categoryIds: ['cat-1'],
       images: [],
-      variants: [{ sku: 'SKU-004', price: '25.00', stock: 1 }],
+      variants: [{ sku: 'SKU-004', price: '25.00', stock: 1, attributes: [] }],
     })
 
     const user = userEvent.setup()
+    await user.click(screen.getByRole('tab', { name: /images/i }))
 
-    // Upload a file
     const fileInput = screen.getByLabelText(/upload image file/i) as HTMLInputElement
     const file = new File(['px'], 'submit.jpg', { type: 'image/jpeg' })
     await user.upload(fileInput, file)

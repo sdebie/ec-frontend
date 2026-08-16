@@ -25,7 +25,8 @@ export function isValidHttpsUrl(url: string): boolean {
     return false
   }
 
-  // Must be https protocol
+  // Protocol allowlist, not a blocklist: this value is seeded per client and
+  // ends up in an iframe src, so `javascript:` and `data:` must never reach it.
   if (parsed.protocol !== 'https:') return false
 
   // Reject user-info attacks (e.g. https://www.google.com@evil.com/maps/embed)

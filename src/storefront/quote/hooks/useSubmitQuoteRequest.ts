@@ -17,7 +17,8 @@ export interface QuoteRequestPayload {
  * useSubmitQuoteRequest — REST POST hook following useSubmitEnquiry pattern.
  * POSTs to /api/storefront/quote-requests.
  * On success: returns success state + clears the quoteStore.
- * On error: console.error + toast.
+ * On error: toast. Logging belongs to the global handler in `queryClient.ts`, which
+ * already sees every mutation error — logging here as well prints it twice.
  */
 export function useSubmitQuoteRequest() {
   return useMutation({
@@ -32,7 +33,6 @@ export function useSubmitQuoteRequest() {
       useQuoteStore.getState().clear()
     },
     onError: (error) => {
-      console.error('[QuoteRequest] submit failed:', error)
       const axiosError = error as { response?: { status?: number } }
       if (axiosError.response?.status === 429) {
         toast.error('Too many attempts. Please try again later.')

@@ -7,7 +7,6 @@ import { adminMenuRoutes } from '../adminMenuRoutes.config'
  * Asserts that SUPER_ADMIN and CATALOG_MANAGER have write access to product
  * create/edit routes, while ORDER_MANAGER and VIEWER are excluded.
  *
- * Validates: Requirements 6.2, 6.4, 8.3
  */
 describe('Product route authority (role-matrix)', () => {
   const productCreateRoute = adminRoutingRoutes.find((r) => r.key === 'admin.products.new')

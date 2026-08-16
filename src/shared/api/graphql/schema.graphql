@@ -22,12 +22,66 @@ type AdminCustomerListItemDto {
   wholesaleApplicationStatus: String
 }
 
+type AdminOrderAddressDto {
+  city: String
+  postalCode: String
+  province: String
+  street: String
+}
+
+type AdminOrderDetailDto {
+  customerEmail: String
+  customerName: String
+  grandTotal: BigDecimal
+  id: String
+  itemCount: Int!
+  lineItems: [AdminOrderLineItemDto]
+  placedAt: String
+  reference: String
+  shippingAddress: AdminOrderAddressDto
+  shippingCost: BigDecimal
+  status: String
+  statusHistory: [AdminOrderStatusHistoryDto]
+  subtotal: BigDecimal
+  total: BigDecimal
+  trackingCarrier: String
+  trackingNumber: String
+  vatAmount: BigDecimal
+}
+
+type AdminOrderLineItemDto {
+  id: String
+  lineTotal: BigDecimal
+  productName: String
+  quantity: Int!
+  thumbnailUrl: String
+  unitPrice: BigDecimal
+  variantSku: String
+}
+
+type AdminOrderListItemDto {
+  customerName: String
+  id: String
+  itemCount: Int!
+  placedAt: String
+  reference: String
+  status: String
+  total: BigDecimal
+}
+
 type AdminOrderRefDto {
   id: String
   placedAt: String
   reference: String
   status: String
   total: Float!
+}
+
+type AdminOrderStatusHistoryDto {
+  comment: String
+  staffName: String
+  status: String
+  timestamp: String
 }
 
 type AdminProductListItemDto {
@@ -115,8 +169,8 @@ type Mutation {
   "Update an existing category"
   updateCategory(categoryDto: CategoryDtoInput, id: String): Void
   updateCustomerStatus(id: String, status: String): AdminCustomerListItemDto
-  "Update the status of the latest order for a given sessionId"
-  updateOrderStatus(sessionId: String, status: String): OrderResponseDto
+  "Move one order to a new status. Staff JWT required."
+  updateOrderStatus(orderId: String, status: String, trackingCarrier: String, trackingNumber: String): OrderResponseDto
   "Update an existing product with variants, images, and multiple categories. When updating categories, all previous category assignments are replaced with the new ones provided."
   updateProductInformation(input: ProductInformationDtoInput, productId: String): ProductInformationDto
   "Update a product's status. SUPER_ADMIN only."
@@ -134,7 +188,6 @@ type OrderDetailRespDto {
   customerEntity: CustomerDto
   id: String
   items: [OrderItemDetailDto]
-  sessionId: String
   shippingAddressLine1: String
   shippingAddressLine2: String
   shippingCity: String
@@ -165,12 +218,19 @@ type OrderResponseDto {
 }
 
 type OrderStatusHistoryDetailRespDto {
-  changedBy: String
   comment: String
   "ISO-8601"
   createdAt: DateTime
   id: String
   status: OrderStatusEn
+}
+
+type OrderStatusRespDto {
+  "ISO-8601"
+  createdAt: DateTime
+  id: String
+  status: OrderStatusEn
+  totalAmount: BigDecimal
 }
 
 type OrderSummaryDto {
@@ -179,6 +239,14 @@ type OrderSummaryDto {
   orderDate: String
   status: String
   totalAmount: Float!
+}
+
+type PageResponse_AdminOrderListItemDto {
+  content: [AdminOrderListItemDto]
+  pageIndex: Int!
+  pageSize: Int!
+  totalElements: BigInteger!
+  totalPages: Int!
 }
 
 type PageResponse_AdminProductListItemDto {
@@ -272,6 +340,8 @@ type ProductDto {
 }
 
 type ProductImageDto {
+  "Alt text for accessibility and image search"
+  altText: String
   "Whether this image is featured"
   featured: Boolean!
   "Image ID (UUID as string)"
@@ -379,6 +449,10 @@ type ProductVariantDto {
 "Query root"
 type Query {
   adminCustomer(id: String): AdminCustomerDetailDto
+  "Admin order detail: lines, address, money breakdown and status timeline. Staff JWT required."
+  adminOrder(id: String): AdminOrderDetailDto
+  "Admin paginated order list with customer, item count and total. Staff JWT required."
+  adminOrderList(fromDate: String, fulfilmentState: String, pageIndex: Int = 0, pageSize: Int = 10, paymentState: String, sortBy: String, sortDir: String, toDate: String): PageResponse_AdminOrderListItemDto
   "Admin paginated product list with SKU, stock, and price. Staff JWT required."
   adminProductList(brandId: String, categoryId: String, pageIndex: Int = 0, pageSize: Int = 10, search: String, status: String): PageResponse_AdminProductListItemDto
   "Product count breakdown by status. Staff JWT required."
@@ -390,7 +464,7 @@ type Query {
   "Get all orders with paging, newest created orders first by default"
   allOrders(filterRequest: FilterRequestInput, pageRequest: PageRequestInput): [OrderResponseDto]
   allQuoteRequests(filterRequest: FilterRequestInput, pageRequest: PageRequestInput): [QuoteRequestListItemDto]
-  allWholesaleApplications(filterRequest: FilterRequestInput, pageRequest: PageRequestInput): [WholesaleApplicationListItemDto]
+  allWholesaleApplications(filterRequest: FilterRequestInput, fromDate: String, pageRequest: PageRequestInput, toDate: String): [WholesaleApplicationListItemDto]
   brand(id: String): BrandDto
   brandCount(filterRequest: FilterRequestInput): BigInteger!
   "Get a category by ID"
@@ -419,8 +493,8 @@ type Query {
   myOrders: [OrderSummaryDto]
   "Update an order and return"
   orderById(id: String): OrderResponseDto
-  "Get the latest order for a given sessionId"
-  orderBySessionId(sessionId: String): OrderResponseDto
+  "Poll one order's status by id — the guest checkout success page"
+  orderStatus(orderId: String): OrderStatusRespDto
   "Returns the total number of products matching the given filter, optionally scoped to a category (including subcategories) and/or a brand."
   productCount(
     "Optional brand UUID. Restricts count to products linked to this brand."
@@ -440,7 +514,7 @@ type Query {
     "When true, skips the default ACTIVE product and variant status restriction."
     ignoreStatus: Boolean = false,
     pageRequest: PageRequestInput
-  ): [ProductShoppingListItemDto]
+  ): PageResponse_ProductShoppingListItemDto
   "Get all settings including store settings and shipping methods"
   settings: SettingsDto
   "Get all available shipping options"
@@ -452,9 +526,9 @@ type Query {
     "Optional main category UUID. If omitted or ALL, returns products across all categories."
     categoryId: String,
     filterRequest: FilterRequestInput,
+    inStockOnly: Boolean = false,
     "When true, includes products linked to the selected category and all descendant categories. When false, only products linked directly to the selected category are returned."
     includeSubCategories: Boolean = true,
-    inStockOnly: Boolean = false,
     onSale: Boolean = false,
     pageIndex: Int = 0,
     pageSize: Int = 20,
@@ -474,7 +548,7 @@ type Query {
   "Fetch product variants by a list of ids, including product relation and prices for the selected category"
   variantsByIds(ids: [String]): [ProductVariantDto]
   wholesaleApplication(id: String): WholesaleApplicationDetailsDto
-  wholesaleApplicationCount(filterRequest: FilterRequestInput): BigInteger!
+  wholesaleApplicationCount(filterRequest: FilterRequestInput, fromDate: String, toDate: String): BigInteger!
 }
 
 type QuoteRequestDetailsDto {
@@ -521,6 +595,7 @@ type ShippingMethodDto {
   estimatedDays: String
   id: String
   name: String
+  requiresAddress: Boolean!
 }
 
 type StaffDto {
@@ -670,15 +745,27 @@ enum LogicalOperator {
 }
 
 enum OrderStatusEn {
+  ADMIN_CANCELED
   CANCELLED
+  COLLECTED
   CREATED
   DELIVERED
+  DELIVERY_FAILED
   FAILED
   IN_STORE_PAYMENT
   IN_TRANSIT
   PAID
+  PARTIALLY_REFUNDED
+  PAYMENT_FAILED
   PENDING
+  PENDING_PAYMENT
+  PROCESSING
+  READY_FOR_COLLECTION
+  READY_TO_SHIP
+  REFUNDED
+  RETURNED_TO_ORIGIN
   SYSTEM_CANCELED
+  USER_CANCELED
 }
 
 enum PriceBasisEn {
@@ -794,6 +881,8 @@ input ProductDtoInput {
 }
 
 input ProductImageDtoInput {
+  "Alt text for accessibility and image search"
+  altText: String
   "Whether this image is featured"
   featured: Boolean!
   "Image ID (UUID as string)"
@@ -834,6 +923,7 @@ input ShippingMethodDtoInput {
   estimatedDays: String
   id: String
   name: String
+  requiresAddress: Boolean!
 }
 
 input SortRequestInput {

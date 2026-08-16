@@ -5,9 +5,6 @@ import * as fc from 'fast-check'
 import { computeProductReviewSummary } from '../utils'
 import type { ProductComparisonDto, ValidationStatus } from '../types'
 
-/**
- * Validates: Requirements 4.5
- */
 describe('computeProductReviewSummary — Property Tests', () => {
   const productComparisonArbitrary: fc.Arbitrary<ProductComparisonDto> = fc.record({
     stagedId: fc.uuid(),

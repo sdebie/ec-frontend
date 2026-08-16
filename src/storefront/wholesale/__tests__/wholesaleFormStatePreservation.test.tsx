@@ -3,8 +3,6 @@
  * after a rate-limit error (mutation onSuccess never fires), including across
  * wizard steps — earlier steps' fields are unmounted while later steps show,
  * so this also proves react-hook-form retains values through unmount/remount.
- *
- * Validates: Requirements 8.3
  */
 import { describe, it, expect, vi, beforeEach } from 'vitest'
 import { render, screen, waitFor } from '@testing-library/react'

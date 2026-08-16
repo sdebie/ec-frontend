@@ -8,12 +8,7 @@ import {cn} from '@/shared/utils/cn'
  * is themed, not client-specific: the line is `--sf-border`, so each client's
  * seeded palette draws its own.
  *
- * Extracted from `ProductDetailPage`, which held the only copy while
- * `/products` got the same rhythm from its toolbar's bottom border. The
- * Wholesale Application and Request a Quote pages had neither, which is what
- * made them look unfinished beside every other page.
- *
- * `className` is for spacing only (the enclosing page owns its rhythm).
+ * `className` is for spacing only — the enclosing page owns its rhythm.
  */
 export function PageDivider({className}: { className?: string }) {
     return <div aria-hidden="true" className={cn('mb-3 border-t border-(--sf-border)', className)}/>

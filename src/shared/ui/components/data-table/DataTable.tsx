@@ -25,8 +25,21 @@ export interface DataTableProps<TData> {
     toolbarAction?: React.ReactNode
     manualPagination?: boolean
     pageCount?: number
+    /**
+     * The true row count across every page, for the "Showing X to Y of Z" summary.
+     * `data` under manualPagination is only the current page's rows, so without this the
+     * summary's Z falls back to that page's length instead of the real total.
+     */
+    totalRowCount?: number
     pagination?: PaginationState
     onPaginationChange?: OnChangeFn<PaginationState>
+    /** Server-driven sorting: the caller owns sorting state and refetches on change,
+     * instead of DataTable re-sorting the current page's rows client-side. Only
+     * meaningful alongside manualPagination — sorting one fetched page client-side
+     * on a server-paginated table wouldn't sort the full result set. */
+    manualSorting?: boolean
+    sorting?: SortingState
+    onSortingChange?: OnChangeFn<SortingState>
     /** Placeholder text for the global search input */
     globalSearchPlaceholder?: string
     /** Set to true to enable the built-in toolbar search input (only correct for fully client-side tables with no server pagination) */
@@ -37,6 +50,12 @@ export interface DataTableProps<TData> {
     className?: string
     /** Initial page size for client-side pagination */
     initialPageSize?: number
+    /**
+     * Fires on double-clicking a row, with that row's data. Double-clicks that
+     * land on an interactive element within the row (a button, link, checkbox)
+     * are ignored, so an in-row action can't also trigger this.
+     */
+    onRowDoubleClick?: (row: TData) => void
 }
 
 const DEFAULT_PAGE_SIZE = 10
@@ -48,17 +67,49 @@ export function DataTable<TData>({
                                      toolbarAction,
                                      manualPagination = false,
                                      pageCount,
+                                     totalRowCount,
                                      pagination: controlledPagination,
                                      onPaginationChange,
+                                     manualSorting = false,
+                                     sorting: controlledSorting,
+                                     onSortingChange: onSortingChangeProp,
                                      globalSearchPlaceholder = 'Search...',
                                      showSearch = false,
                                      emptyMessage = 'No results found',
                                      className,
                                      initialPageSize = DEFAULT_PAGE_SIZE,
+                                     onRowDoubleClick,
                                  }: DataTableProps<TData>) {
-    const [sorting, setSorting] = React.useState<SortingState>([])
+    const [internalSorting, setInternalSorting] = React.useState<SortingState>([])
     const [columnFilters, setColumnFilters] = React.useState<ColumnFiltersState>([])
     const [globalFilter, setGlobalFilter] = React.useState('')
+
+    const sorting = manualSorting && controlledSorting ? controlledSorting : internalSorting
+    const handleSortingChange = manualSorting && onSortingChangeProp ? onSortingChangeProp : setInternalSorting
+
+    /*
+      A server-paginated table holds one page of a larger result set, not the full thing.
+      Sorting it locally can only reorder the rows already fetched, which answers a
+      different question than "sort every matching row" — and because the sort state
+      outlives that page, it goes on silently reordering every later fetch too. A table in
+      this shape has no way to sort correctly, so every header must render as unsortable
+      rather than offer a click nothing can honour. `manualSorting` is the caller stating it
+      has wired up a real server sort (see `useTableSort`) instead of leaving this unset by
+      omission.
+    */
+    const sortingDisabledByGuard = manualPagination && !manualSorting
+    if (sortingDisabledByGuard && import.meta.env.DEV) {
+        const stillSortable = columns.some((column) => column.enableSorting !== false)
+        if (stillSortable) {
+            console.warn(
+                '[DataTable] manualPagination is set without manualSorting — every column is ' +
+                'being rendered unsortable rather than sorting the current page locally, which ' +
+                "would only reorder the rows already fetched. Wire up server-side sorting with " +
+                'useTableSort (sorting + onSortingChange + manualSorting) if these columns should ' +
+                'be sortable.',
+            )
+        }
+    }
 
     const table = useReactTable({
         data,
@@ -69,13 +120,15 @@ export function DataTable<TData>({
             globalFilter,
             ...(manualPagination && controlledPagination ? {pagination: controlledPagination} : {}),
         },
-        onSortingChange: setSorting,
+        onSortingChange: handleSortingChange,
         onColumnFiltersChange: setColumnFilters,
         onGlobalFilterChange: setGlobalFilter,
         getCoreRowModel: getCoreRowModel(),
         getSortedRowModel: getSortedRowModel(),
         getFilteredRowModel: getFilteredRowModel(),
         getPaginationRowModel: getPaginationRowModel(),
+        enableSorting: !sortingDisabledByGuard,
+        ...(manualSorting ? {manualSorting: true} : {}),
         ...(manualPagination
             ? {
                 manualPagination: true,
@@ -103,10 +156,10 @@ export function DataTable<TData>({
         ? (pageCount ?? 1)
         : table.getPageCount()
     const totalRows = manualPagination
-        ? data.length
+        ? (totalRowCount ?? data.length)
         : table.getFilteredRowModel().rows.length
 
-    const startItem = totalRows === 0 ? 0 : (currentPage - 1) * currentPageSize + 1
+    const startItem = totalRows === 0 ? 0 : Math.min((currentPage - 1) * currentPageSize + 1, totalRows)
     const endItem = Math.min(currentPage * currentPageSize, totalRows)
 
     const getPageNumbers = () => {
@@ -141,10 +194,10 @@ export function DataTable<TData>({
     return (
         <div className={cn('w-full flex-1 flex flex-col', className)}>
             <div
-                className="rounded-xl border border-(--c-border) overflow-hidden bg-(--c-table-header-bg) shadow-[0_1px_3px_rgba(0,0,0,0.12),0_4px_16px_rgba(0,0,0,0.08)]">
+                className="rounded-xl border border-(--c-border) overflow-hidden bg-(--c-table-row-bg) shadow-[0_1px_3px_rgba(0,0,0,0.12),0_4px_16px_rgba(0,0,0,0.08)]">
                 {/* Toolbar — hidden when showSearch=false and no toolbarAction */}
                 {(showSearch || toolbarAction) && (
-                    <div className="p-4 border-b border-(--c-border) bg-(--c-table-row-bg)">
+                    <div className="p-4 border-b border-(--c-border) bg-(--c-table-header-bg)">
                         <div className="flex flex-col gap-6 sm:flex-row sm:items-center sm:justify-between">
                             {toolbarAction && (
                                 <div className="order-1 sm:order-2 w-full shrink-0 sm:w-auto *:w-full sm:*:w-auto">
@@ -167,9 +220,9 @@ export function DataTable<TData>({
 
                 {/* Table */}
                 <div className="overflow-x-auto">
-                    <table className="w-full text-xs text-left text-(--c-text)">
+                    <table className="w-full text-sm text-left text-(--c-text)">
                         <thead
-                            className="text-xs font-semibold text-(--c-text-muted) bg-(--c-table-row-bg) border-b border-(--c-border) shadow-sm">
+                            className="text-xs font-semibold text-(--c-text-muted) bg-(--c-table-header-bg) border-b border-(--c-border) shadow-sm">
                         {table.getHeaderGroups().map((headerGroup) => (
                             <tr key={headerGroup.id}>
                                 {headerGroup.headers.map((header) => {
@@ -219,7 +272,7 @@ export function DataTable<TData>({
                         {isLoading ? (
                             Array.from({length: 6}).map((_, i) => (
                                 <tr key={i}
-                                    className="border-b border-(--c-border) last:border-0 bg-(--c-table-header-bg)">
+                                    className="border-b border-(--c-border) last:border-0 bg-(--c-table-row-bg)">
                                     {columns.map((_, j) => (
                                         <td key={j} className="px-4 py-3">
                                             <div className="h-4 rounded bg-(--c-border) animate-pulse"/>
@@ -231,7 +284,7 @@ export function DataTable<TData>({
                             <tr>
                                 <td
                                     colSpan={columns.length}
-                                    className="h-36 text-center text-(--c-text-muted) bg-(--c-table-header-bg)"
+                                    className="h-36 text-center text-(--c-text-muted) bg-(--c-table-row-bg)"
                                 >
                                     {emptyMessage}
                                 </td>
@@ -240,7 +293,16 @@ export function DataTable<TData>({
                             table.getRowModel().rows.map((row) => (
                                 <tr
                                     key={row.id}
-                                    className="border-b border-(--c-border) last:border-0 bg-(--c-table-header-bg) hover:bg-(--c-table-row-hover) transition-colors duration-100"
+                                    onDoubleClick={onRowDoubleClick ? (e) => {
+                                        // A double click that lands on a button/link/input
+                                        // inside the row is that element's own action, not
+                                        // a row-level one — e.g., don't navigate away while
+                                        // the user is double-clicking a Delete icon.
+                                        const target = e.target as HTMLElement
+                                        if (target.closest('button, a, input, [role="button"]')) return
+                                        onRowDoubleClick(row.original)
+                                    } : undefined}
+                                    className="border-b border-(--c-border) last:border-0 bg-(--c-table-row-bg) hover:bg-(--c-table-row-hover) transition-colors duration-100"
                                 >
                                     {row.getVisibleCells().map((cell) => (
                                         <td key={cell.id} className="px-4 py-3 whitespace-nowrap">
@@ -263,7 +325,7 @@ export function DataTable<TData>({
                 {/* Pagination footer */}
                 {!isLoading && (
                     <div
-                        className="flex flex-col sm:flex-row items-center justify-between px-4 py-3 border-t border-(--c-border) bg-(--c-table-row-bg) gap-4">
+                        className="flex flex-col sm:flex-row items-center justify-between px-4 py-3 border-t border-(--c-border) bg-(--c-table-header-bg) gap-4">
                         <div className="text-sm text-(--c-text-muted)">
                             Showing{' '}
                             <span className="font-medium text-(--c-text)">{startItem}</span> to{' '}

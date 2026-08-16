@@ -5,12 +5,15 @@ import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 import { useAdminAuthStore } from '@/shared/auth/adminAuthStore'
 import { BrandEditPage } from '../BrandEditPage'
 
-vi.mock('@/admin/hooks/brands', () => ({
+vi.mock('@/admin/pages/brands/hooks/useBrandDetail', () => ({
   useBrandDetail: vi.fn(),
+}))
+
+vi.mock('@/admin/pages/brands/hooks/useUpdateBrand', () => ({
   useUpdateBrand: vi.fn(() => ({ mutate: vi.fn(), isPending: false })),
 }))
 
-import { useBrandDetail } from '@/admin/hooks/brands'
+import { useBrandDetail } from '@/admin/pages/brands/hooks/useBrandDetail'
 
 const mockedUseBrandDetail = vi.mocked(useBrandDetail)
 
@@ -107,5 +110,19 @@ describe('BrandEditPage', () => {
     renderBrandEditPage()
 
     expect(screen.getByText('Brands List Page')).toBeInTheDocument()
+  })
+
+  it('renders the edit form for CATALOG_MANAGER (brand:write admits it)', () => {
+    useAdminAuthStore.setState({ role: 'CATALOG_MANAGER' })
+
+    mockedUseBrandDetail.mockReturnValue({
+      data: { id: '1', name: 'Nike', slug: 'nike', description: null, logoUrl: null },
+      isLoading: false,
+      error: null,
+    })
+
+    renderBrandEditPage()
+
+    expect(screen.queryByText('Brands List Page')).not.toBeInTheDocument()
   })
 })

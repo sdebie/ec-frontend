@@ -105,7 +105,10 @@ export const Upload: React.FC<UploadProps> = ({
                     onChange={handleChange}
                     disabled={disabled}
                     className="sr-only"
-                    {...(directory ? { webkitdirectory: '', directory: '' } as React.InputHTMLAttributes<HTMLInputElement> : {})}
+                    {...(directory ? {
+                        webkitdirectory: '',
+                        directory: ''
+                    } as React.InputHTMLAttributes<HTMLInputElement> : {})}
                 />
                 <UploadIcon className="w-10 h-10 text-(--c-text-muted) mb-3"/>
                 <p className="text-sm text-(--c-text) mb-1">
@@ -120,14 +123,18 @@ export const Upload: React.FC<UploadProps> = ({
             {selectedFiles.length > 0 && (
                 <div className="space-y-2">
                     {directory ? (
-                        <div className="flex items-center justify-between rounded-md border border-(--c-border) bg-(--c-panel) px-3 py-2">
+                        <div
+                            className="flex items-center justify-between rounded-md border border-(--c-border) bg-(--c-panel) px-3 py-2">
                             <div className="flex items-center gap-2 min-w-0">
                                 <UploadIcon className="w-4 h-4 text-(--c-text-muted) shrink-0"/>
                                 <div className="min-w-0">
                                     <p className="text-sm text-(--c-text) truncate">
-                                        {(selectedFiles[0] as File & { webkitRelativePath?: string }).webkitRelativePath?.split('/')[0] ?? 'Folder'}
+                                        {(selectedFiles[0] as File & {
+                                            webkitRelativePath?: string
+                                        }).webkitRelativePath?.split('/')[0] ?? 'Folder'}
                                     </p>
-                                    <p className="text-xs text-(--c-text-muted)">{selectedFiles.length} file(s) selected</p>
+                                    <p className="text-xs text-(--c-text-muted)">{selectedFiles.length} file(s)
+                                        selected</p>
                                 </div>
                             </div>
                             {!disabled && (

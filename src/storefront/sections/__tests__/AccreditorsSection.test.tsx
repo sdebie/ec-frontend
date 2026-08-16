@@ -188,17 +188,23 @@ describe('AccreditorsSection — invariants', () => {
         expect(tiles.length).toBeGreaterThan(0)
 
         // An ASPECT RATIO, not a fixed height — that is what keeps every logo
-        // height-bound under object-contain, and therefore the same size.
-        // An ASPECT RATIO plus a mobile-only width cap. The cap is what keeps a
-        // phone logo smaller than a desktop one: a full-width single-column tile
-        // is wider than a desktop third-of-a-row, so without it the logos render
-        // LARGER on mobile than on desktop.
-        const expectedClasses = ['w-full', 'aspect-[5/2]', 'max-w-[240px]', 'sm:max-w-none']
+        // height-bound under object-contain, and therefore the same size — plus a
+        // mobile-only width cap that is lifted once the grid goes multi-column.
+        //
+        // The cap's VALUE is a design dial. Pinning it here just makes the test
+        // chase every adjustment; the invariant worth guarding is that a cap
+        // exists, is lifted at `sm`, and is the SAME on every tile — a tile with
+        // a different cap would render its logo at a different size.
+        const expectedClasses = ['w-full', 'aspect-[5/2]', 'sm:max-w-none']
         tiles.forEach((tile) => {
             expectedClasses.forEach((cls) => {
                 expect(tile).toHaveClass(cls)
             })
+            expect(tile.className, 'mobile width cap').toMatch(/max-w-\[\d+px\]/)
         })
+
+        const caps = new Set(tiles.map((t) => t.className.match(/max-w-\[\d+px\]/)![0]))
+        expect(caps, 'every tile shares one cap').toHaveProperty('size', 1)
     })
 
     it('Invariant 2: all images have object-contain and h-full w-full', () => {

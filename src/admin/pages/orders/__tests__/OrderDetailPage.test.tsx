@@ -1,19 +1,19 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest'
-import { render, screen } from '@testing-library/react'
+import { render, screen, cleanup } from '@testing-library/react'
 import { MemoryRouter } from 'react-router-dom'
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 
-import { useOrderDetail } from '@/admin/hooks/orders/useOrderDetail'
-import { useUpdateOrderStatus } from '@/admin/hooks/orders/useUpdateOrderStatus'
+import { useOrderDetail } from '@/admin/pages/orders/hooks/useOrderDetail'
+import { useUpdateOrderStatus } from '@/admin/pages/orders/hooks/useUpdateOrderStatus'
 import { useAdminAuthStore } from '@/shared/auth/adminAuthStore'
 import { OrderStatus } from '@/shared/types/enums/OrderStatus'
-import type { AdminOrderDetail } from '@/admin/hooks/orders/types'
+import type { AdminOrderDetail } from '@/admin/pages/orders/types'
 import { OrderDetailPage } from '../OrderDetailPage'
 
-vi.mock('@/admin/hooks/orders/useOrderDetail', () => ({
+vi.mock('@/admin/pages/orders/hooks/useOrderDetail', () => ({
   useOrderDetail: vi.fn(),
 }))
-vi.mock('@/admin/hooks/orders/useUpdateOrderStatus', () => ({
+vi.mock('@/admin/pages/orders/hooks/useUpdateOrderStatus', () => ({
   useUpdateOrderStatus: vi.fn(),
 }))
 vi.mock('@/shared/auth/adminAuthStore', () => ({
@@ -43,7 +43,6 @@ const mockOrder: AdminOrderDetail = {
     city: 'Cape Town',
     province: 'Western Cape',
     postalCode: '8001',
-    country: 'South Africa',
   },
   lineItems: [
     {
@@ -69,6 +68,8 @@ const mockOrder: AdminOrderDetail = {
   shippingCost: 1500,
   vatAmount: 3750,
   grandTotal: 30250,
+  trackingNumber: null,
+  trackingCarrier: null,
   statusHistory: [
     {
       status: OrderStatus.CREATED,
@@ -179,14 +180,26 @@ describe('OrderDetailPage', () => {
       expect(screen.getByTestId('order-action-buttons')).toBeInTheDocument()
     })
 
-    it('renders correct action buttons for PAID status (Ship, Cancel, Refund)', () => {
+    it('renders the actions a PAID order allows, and none it does not', () => {
       setupMocks({ role: 'SUPER_ADMIN', data: mockOrder })
 
       renderPage()
 
-      expect(screen.getByRole('button', { name: 'Ship' })).toBeInTheDocument()
-      expect(screen.getByRole('button', { name: 'Cancel' })).toBeInTheDocument()
-      expect(screen.getByRole('button', { name: 'Refund' })).toBeInTheDocument()
+      // A paid order is processed next; the cancellations stay available because its
+      // goods have not left. Refunding needs the goods delivered or collected first.
+      expect(screen.getByRole('button', { name: 'Start Processing' })).toBeInTheDocument()
+      expect(screen.getByRole('button', { name: 'Cancel — Store' })).toBeInTheDocument()
+      expect(screen.getByRole('button', { name: 'Cancel — Customer' })).toBeInTheDocument()
+      expect(screen.queryByRole('button', { name: 'Ship' })).toBeNull()
+      expect(screen.queryByRole('button', { name: 'Refund' })).toBeNull()
+    })
+
+    it('renders action buttons for ORDER_MANAGER (order:write mirrors updateOrderStatus)', () => {
+      setupMocks({ role: 'ORDER_MANAGER', data: mockOrder })
+
+      renderPage()
+
+      expect(screen.getByTestId('order-action-buttons')).toBeInTheDocument()
     })
 
     it('does not render action buttons for VIEWER role', () => {
@@ -216,7 +229,8 @@ describe('OrderDetailPage', () => {
     })
 
     it('renders order reference in uppercase monospace', () => {
-      const reference = screen.getByText('ORD-00123')
+      // Rendered with a leading # — the reference itself is unchanged.
+      const reference = screen.getByText('#ORD-00123')
       expect(reference).toBeInTheDocument()
       expect(reference).toHaveClass('uppercase')
       expect(reference.className).toMatch(/mono/)
@@ -238,8 +252,30 @@ describe('OrderDetailPage', () => {
       expect(screen.getByText('Cape Town, Western Cape, 8001')).toBeInTheDocument()
     })
 
-    it('renders shipping address country', () => {
-      expect(screen.getByText('South Africa')).toBeInTheDocument()
+    it('omits blank address parts rather than rendering stray separators', () => {
+      cleanup()
+      setupMocks({
+        data: {
+          ...mockOrder,
+          shippingAddress: { street: null, city: 'Cape Town', province: null, postalCode: '8001' },
+        },
+      })
+      renderPage()
+
+      expect(screen.getByText('Cape Town, 8001')).toBeInTheDocument()
+    })
+
+    it('says so when an order carries no address at all', () => {
+      cleanup()
+      setupMocks({
+        data: {
+          ...mockOrder,
+          shippingAddress: { street: null, city: null, province: null, postalCode: null },
+        },
+      })
+      renderPage()
+
+      expect(screen.getByText('No address captured')).toBeInTheDocument()
     })
 
     it('renders order summary values using formatAmount', () => {
@@ -249,20 +285,19 @@ describe('OrderDetailPage', () => {
       expect(summarySection).toBeInTheDocument()
 
       // Check labels are present
-      expect(screen.getByText('Subtotal')).toBeInTheDocument()
+      expect(screen.getByText('Sub-Total')).toBeInTheDocument()
       expect(screen.getByText('Shipping')).toBeInTheDocument()
       expect(screen.getByText('VAT')).toBeInTheDocument()
-      expect(screen.getByText('Grand Total')).toBeInTheDocument()
+      expect(screen.getByText('Total')).toBeInTheDocument()
     })
 
     it('renders line items section', () => {
-      expect(screen.getByText('Line Items')).toBeInTheDocument()
       expect(screen.getByText('Premium Widget')).toBeInTheDocument()
       expect(screen.getByText('Basic Gadget')).toBeInTheDocument()
     })
 
     it('renders status history section', () => {
-      expect(screen.getByText('Status History')).toBeInTheDocument()
+      expect(screen.getByText('Order Tracking')).toBeInTheDocument()
     })
   })
 })

@@ -64,7 +64,7 @@ export function AdminGuard({ children }: Props) {
 function AdminLoadingIndicator() {
   return (
     <div className="flex min-h-screen items-center justify-center">
-      <span className="text-sm text-gray-500">Loading…</span>
+      <span className="text-sm text-(--c-text-muted)">Loading…</span>
     </div>
   )
 }

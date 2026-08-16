@@ -125,9 +125,8 @@ describe('StorefrontHeader', () => {
     it('names the customer on the account control without printing the label', () => {
       renderHeader()
 
-      // Icon-only control (owner directive 2026-08-03): the visible text label
-      // is gone, so the name has to survive as the accessible name — otherwise
-      // the control announces as an unlabelled button.
+      // The control is icon-only, so the customer's name has to survive as the
+      // accessible name — otherwise it announces as an unlabelled button.
       expect(screen.getByRole('button', { name: 'Account menu for Jane' })).toBeInTheDocument()
       expect(screen.queryByText('Jane')).not.toBeInTheDocument()
     })
@@ -323,7 +322,6 @@ describe('StorefrontHeader', () => {
       // Drawer should not be visible initially
       expect(screen.queryByRole('dialog', { name: /navigation menu/i })).not.toBeInTheDocument()
 
-      // Click the burger button
       await user.click(screen.getByRole('button', { name: /open navigation/i }))
 
       // Drawer should now be visible
@@ -499,7 +497,6 @@ describe('StorefrontHeader', () => {
         await user.click(screen.getByRole('button', { name: /sign in/i }))
         expect(screen.getByTestId('customer-login-modal')).toBeInTheDocument()
 
-        // Trigger forgot password
         await user.click(screen.getByTestId('modal-forgot-password'))
 
         // Login modal should be closed, forgot password modal should be open
@@ -518,7 +515,6 @@ describe('StorefrontHeader', () => {
         // Verify forgot modal is open
         expect(screen.getByTestId('forgot-password-modal')).toBeInTheDocument()
 
-        // Trigger back to login
         await user.click(screen.getByTestId('forgot-back-to-login'))
 
         // Forgot modal should be closed, login modal should be open again

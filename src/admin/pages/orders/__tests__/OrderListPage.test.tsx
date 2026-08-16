@@ -2,19 +2,19 @@ import { describe, it, expect, vi, beforeEach } from 'vitest'
 import { render, screen, fireEvent } from '@testing-library/react'
 import { MemoryRouter } from 'react-router-dom'
 
-import { useOrders } from '@/admin/hooks/orders/useOrders'
-import { useUpdateOrderStatus } from '@/admin/hooks/orders/useUpdateOrderStatus'
+import { useOrders } from '@/admin/pages/orders/hooks/useOrders'
+import { useUpdateOrderStatus } from '@/admin/pages/orders/hooks/useUpdateOrderStatus'
 import { useAdminAuthStore } from '@/shared/auth/adminAuthStore'
 import { OrderStatus } from '@/shared/types/enums/OrderStatus'
-import type { AdminOrderSummary, OrdersPage } from '@/admin/hooks/orders/types'
+import type { AdminOrderSummary, OrdersPage } from '@/admin/pages/orders/types'
 import { OrderListPage } from '../OrderListPage'
 
 const mockNavigate = vi.fn()
 
-vi.mock('@/admin/hooks/orders/useOrders', () => ({
+vi.mock('@/admin/pages/orders/hooks/useOrders', () => ({
   useOrders: vi.fn(),
 }))
-vi.mock('@/admin/hooks/orders/useUpdateOrderStatus', () => ({
+vi.mock('@/admin/pages/orders/hooks/useUpdateOrderStatus', () => ({
   useUpdateOrderStatus: vi.fn(),
 }))
 vi.mock('@/shared/auth/adminAuthStore', () => ({
@@ -103,45 +103,124 @@ describe('OrderListPage', () => {
     })
   })
 
+  /**
+   * One status answers two questions staff ask separately — has the money arrived, and
+   * where are the goods — so the filter is two dropdowns over two derived facets rather
+   * than one list of every status.
+   */
+  describe('payment and fulfilment filters', () => {
+    // `Select` is a custom listbox rather than a native <select>, so each change means
+    // opening the trigger and then picking the option.
+    function choose(control: string, label: string) {
+      fireEvent.click(screen.getByRole('button', { name: control }))
+      fireEvent.click(screen.getByRole('option', { name: label }))
+    }
+
+    it('offers a dropdown per facet, not a tab strip', () => {
+      setupDefaultMocks()
+      renderPage()
+
+      expect(screen.getByRole('button', { name: 'Filter by payment status' })).toBeInTheDocument()
+      expect(screen.getByRole('button', { name: 'Filter by fulfilment status' })).toBeInTheDocument()
+    })
+
+    it('passes the chosen payment state through to the query', () => {
+      setupDefaultMocks()
+      renderPage()
+
+      choose('Filter by payment status', 'Paid')
+
+      expect(vi.mocked(useOrders).mock.calls.at(-1)?.[0]).toMatchObject({ paymentState: 'PAID' })
+    })
+
+    it('passes the chosen fulfilment state through to the query', () => {
+      setupDefaultMocks()
+      renderPage()
+
+      choose('Filter by fulfilment status', 'Not started')
+
+      expect(vi.mocked(useOrders).mock.calls.at(-1)?.[0]).toMatchObject({
+        fulfilmentState: 'NOT_STARTED',
+      })
+    })
+
+    /** The point of two facets: "paid but nobody has picked it" is one question. */
+    it('combines both facets in a single query', () => {
+      setupDefaultMocks()
+      renderPage()
+
+      choose('Filter by payment status', 'Paid')
+      choose('Filter by fulfilment status', 'Not started')
+
+      expect(vi.mocked(useOrders).mock.calls.at(-1)?.[0]).toMatchObject({
+        paymentState: 'PAID',
+        fulfilmentState: 'NOT_STARTED',
+      })
+    })
+
+    it('sends no filter at all when a facet is cleared', () => {
+      setupDefaultMocks()
+      renderPage()
+
+      choose('Filter by payment status', 'Paid')
+      choose('Filter by payment status', 'Any payment')
+
+      expect(vi.mocked(useOrders).mock.calls.at(-1)?.[0]).toMatchObject({ paymentState: undefined })
+    })
+  })
+
   describe('filter interactions reset pagination', () => {
-    it('resets pagination to page 1 when status filter changes', () => {
+    it('resets pagination to page 1 when a status filter changes', () => {
       setupDefaultMocks()
 
       renderPage()
 
-      // Click a status filter option (e.g., "Pending")
-      const pendingButton = screen.getByRole('button', { name: 'Pending' })
-      fireEvent.click(pendingButton)
+      fireEvent.click(screen.getByRole('button', { name: 'Filter by fulfilment status' }))
+      fireEvent.click(screen.getByRole('option', { name: 'Processing' }))
 
       // Verify useOrders was called with page: 1
       const lastCall = vi.mocked(useOrders).mock.calls.at(-1)
       expect(lastCall?.[0]).toMatchObject({ page: 1 })
     })
 
-    it('resets pagination to page 1 when from-date filter changes', () => {
+    it('resets pagination to page 1 when the date filter changes', () => {
       setupDefaultMocks()
 
       renderPage()
 
-      const fromDateInput = screen.getByLabelText('From')
-      fireEvent.change(fromDateInput, { target: { value: '2025-01-01' } })
+      fireEvent.click(screen.getByRole('button', { name: 'Filter by order date' }))
+      fireEvent.click(screen.getByRole('option', { name: 'This Month' }))
 
       // Verify useOrders was called with page: 1
       const lastCall = vi.mocked(useOrders).mock.calls.at(-1)
       expect(lastCall?.[0]).toMatchObject({ page: 1 })
     })
+  })
 
-    it('resets pagination to page 1 when to-date filter changes', () => {
+  describe('date filter', () => {
+    it('sends no date bounds until a range is chosen', () => {
       setupDefaultMocks()
 
       renderPage()
 
-      const toDateInput = screen.getByLabelText('To')
-      fireEvent.change(toDateInput, { target: { value: '2025-12-31' } })
-
-      // Verify useOrders was called with page: 1
       const lastCall = vi.mocked(useOrders).mock.calls.at(-1)
-      expect(lastCall?.[0]).toMatchObject({ page: 1 })
+      expect(lastCall?.[0].fromDate).toBeUndefined()
+      expect(lastCall?.[0].toDate).toBeUndefined()
+    })
+
+    it('resolves the chosen range into inclusive yyyy-MM-dd bounds', () => {
+      setupDefaultMocks()
+
+      renderPage()
+
+      fireEvent.click(screen.getByRole('button', { name: 'Filter by order date' }))
+      fireEvent.click(screen.getByRole('option', { name: 'Today' }))
+
+      // Asserted against a shape rather than a fixed date: the page resolves the preset
+      // against the real clock on purpose, so that "Today" keeps meaning today.
+      const lastCall = vi.mocked(useOrders).mock.calls.at(-1)
+      expect(lastCall?.[0].fromDate).toMatch(/^\d{4}-\d{2}-\d{2}$/)
+      expect(lastCall?.[0].fromDate).toBe(lastCall?.[0].toDate)
     })
   })
 
@@ -157,10 +236,66 @@ describe('OrderListPage', () => {
     })
   })
 
+  /**
+   * Viewing is not mutating, so the view action is gated differently from the rest of the
+   * row actions: a VIEWER can reach every order's detail but must still be offered no way
+   * to change one. Pinned in both directions, because collapsing the two gates would be
+   * invisible — the page would simply look slightly wrong to one role.
+   */
+  describe('view action', () => {
+    it('links to the order detail page', () => {
+      setupDefaultMocks()
+
+      renderPage()
+
+      const view = screen.getByRole('link', { name: /view order ORD-00001/i })
+      expect(view).toHaveAttribute('href', '/admin/orders/order-1')
+    })
+
+    it('is offered to a VIEWER, who cannot mutate anything', () => {
+      setupDefaultMocks({ role: 'VIEWER' })
+
+      renderPage()
+
+      expect(screen.getByRole('link', { name: /view order ORD-00001/i })).toBeInTheDocument()
+      expect(screen.queryByTestId('order-actions-menu')).not.toBeInTheDocument()
+    })
+
+    /**
+     * A terminal order has no transitions, so its kebab menu is gone — but it is exactly
+     * the kind of order somebody needs to open and read.
+     */
+    it('survives on an order with no available transitions', () => {
+      setupDefaultMocks({
+        ordersData: createMockOrdersPage({
+          data: [createMockOrder({ status: OrderStatus.REFUNDED })],
+        }),
+      })
+
+      renderPage()
+
+      expect(screen.getByRole('link', { name: /view order ORD-00001/i })).toBeInTheDocument()
+      expect(screen.queryByTestId('order-actions-menu')).not.toBeInTheDocument()
+    })
+  })
+
   describe('actions menu visibility', () => {
     it('renders actions menu for SUPER_ADMIN with eligible orders (status PAID)', () => {
       setupDefaultMocks({
         role: 'SUPER_ADMIN',
+        ordersData: createMockOrdersPage({
+          data: [createMockOrder({ status: OrderStatus.PAID })],
+        }),
+      })
+
+      renderPage()
+
+      expect(screen.getByTestId('order-actions-menu')).toBeInTheDocument()
+    })
+
+    it('renders actions menu for ORDER_MANAGER (order:write mirrors updateOrderStatus)', () => {
+      setupDefaultMocks({
+        role: 'ORDER_MANAGER',
         ordersData: createMockOrdersPage({
           data: [createMockOrder({ status: OrderStatus.PAID })],
         }),

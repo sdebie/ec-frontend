@@ -29,7 +29,6 @@ export function useCustomerRegister() {
       mergeWishlistOnSignIn(queryClient)
     },
     onError(error) {
-      console.error('[Registration] action failed:', error)
       if (error instanceof AxiosError && error.response?.status === 409) {
         // Account already exists — user should sign in instead
         throw new Error('An account with this email already exists. Please sign in.')

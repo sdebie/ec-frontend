@@ -3,7 +3,7 @@
 import {describe, expect, it} from 'vitest'
 import * as fc from 'fast-check'
 import {checkoutFormSchema} from '../checkoutFormSchema'
-import {isDeliveryMethod} from '../utils/isDeliveryMethod'
+import {requiresDeliveryAddress} from '../utils/requiresDeliveryAddress'
 
 // Valid base form data — all other required fields are valid so only email affects the result
 const validBaseData = {
@@ -43,7 +43,6 @@ const invalidEmailArb = fc.oneof(
 )
 
 describe('checkoutFormSchema - Property Tests', () => {
-    // **Validates: Requirements 3.1**
     it('Property 3: invalid emails produce validation error', () => {
         fc.assert(
             fc.property(invalidEmailArb, (invalidEmail) => {
@@ -64,7 +63,6 @@ describe('checkoutFormSchema - Property Tests', () => {
         )
     })
 
-    // **Validates: Requirements 3.1**
     it('Property 3: valid emails pass validation', () => {
         fc.assert(
             fc.property(validEmailArb, (validEmail) => {
@@ -81,10 +79,10 @@ describe('checkoutFormSchema - Property Tests', () => {
 })
 
 
-// Address validation now lives in the schema (superRefine), so these properties
-// drive the REAL schema and the REAL delivery predicate. They previously called a
-// local re-implementation of the page's submit handler, which meant they could
-// pass while production behaved differently.
+// Address validation lives in the schema (superRefine), so these properties
+// drive the REAL schema and the REAL delivery predicate. A local
+// re-implementation of the page's submit handler would let them pass while
+// production behaved differently.
 
 const ADDRESS_FIELDS = ['streetAddress', 'city', 'province', 'postalCode'] as const
 
@@ -97,27 +95,32 @@ function addressIssues(values: Record<string, unknown>): string[] {
         .filter((field) => (ADDRESS_FIELDS as readonly string[]).includes(field))
 }
 
-// Delivery methods: baseFee > 0 OR estimatedDays non-null and not "0"
-const deliveryMethodArb = fc.oneof(
-    fc.record({
-        id: fc.constant('m1'),
-        name: fc.constant('Courier'),
-        baseFee: fc.float({min: Math.fround(0.01), max: Math.fround(1000), noNaN: true}).filter((n) => n > 0),
-        estimatedDays: fc.oneof(fc.constant(null), fc.string({minLength: 1, maxLength: 5})),
-    }),
-    fc.record({
-        id: fc.constant('m2'),
-        name: fc.constant('Courier'),
-        baseFee: fc.constant(0),
-        estimatedDays: fc.string({minLength: 1, maxLength: 5}).filter((s) => s !== '0'),
-    })
-)
+// Fee and lead time vary freely on BOTH arbitraries: whether an address is needed is
+// stated by the method, so neither may influence it. These previously encoded the old
+// inference (a fee, or a lead time other than '0', meant delivery) — which is exactly
+// what classified free same-day In-Store Pickup as a delivery and blocked collection.
+const anyFeeAndLeadTime = {
+    baseFee: fc.float({min: 0, max: Math.fround(1000), noNaN: true}),
+    estimatedDays: fc.oneof(
+        fc.constant(null),
+        fc.constant('0'),
+        fc.constant('Same Day'),
+        fc.string({minLength: 1, maxLength: 5}),
+    ),
+}
+
+const deliveryMethodArb = fc.record({
+    id: fc.constant('m1'),
+    name: fc.constant('Courier'),
+    ...anyFeeAndLeadTime,
+    requiresAddress: fc.constant(true),
+})
 
 const collectionMethodArb = fc.record({
     id: fc.constant('m3'),
     name: fc.constant('Collection'),
-    baseFee: fc.constant(0),
-    estimatedDays: fc.oneof(fc.constant(null), fc.constant('0')),
+    ...anyFeeAndLeadTime,
+    requiresAddress: fc.constant(false),
 })
 
 const addressFieldArb = fc.oneof(
@@ -136,23 +139,21 @@ const partialAddressArb = fc
     .filter((addr) => !addr.streetAddress || !addr.city || !addr.province || !addr.postalCode)
 
 describe('checkoutFormSchema - Delivery Address Validation Property Tests', () => {
-    // **Validates: Requirements 4.5**
-    it('Property 5: the delivery predicate decides whether the address is required', () => {
+    it('Property 5: the method decides whether the address is required, not its fee or speed', () => {
         fc.assert(
             fc.property(deliveryMethodArb, (method) => {
-                expect(isDeliveryMethod(method)).toBe(true)
+                expect(requiresDeliveryAddress(method)).toBe(true)
             }),
             {numRuns: 100}
         )
         fc.assert(
             fc.property(collectionMethodArb, (method) => {
-                expect(isDeliveryMethod(method)).toBe(false)
+                expect(requiresDeliveryAddress(method)).toBe(false)
             }),
             {numRuns: 100}
         )
     })
 
-    // **Validates: Requirements 4.5**
     it('Property 5: delivery address validation catches exactly the missing fields', () => {
         fc.assert(
             fc.property(partialAddressArb, (address) => {
@@ -169,7 +170,6 @@ describe('checkoutFormSchema - Delivery Address Validation Property Tests', () =
         )
     })
 
-    // **Validates: Requirements 4.5**
     it('Property 5: complete address with delivery method produces no errors', () => {
         const completeAddressArb = fc.record({
             streetAddress: fc.string({minLength: 1, maxLength: 50}).filter((s) => s.trim().length > 0),
@@ -186,7 +186,6 @@ describe('checkoutFormSchema - Delivery Address Validation Property Tests', () =
         )
     })
 
-    // **Validates: Requirements 4.5**
     it('Property 5: collection method never produces address errors regardless of address state', () => {
         const anyAddressArb = fc.record({
             streetAddress: addressFieldArb,

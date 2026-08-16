@@ -12,7 +12,7 @@ vi.mock('@/admin/hooks/images', () => ({
   useImageDirectories: vi.fn(),
   useUploadImage: vi.fn(),
   useImageList: vi.fn(),
-  useUploadBrandLogo: vi.fn(),
+  useUploadImageAsset: vi.fn(),
 }))
 
 // --- Helpers ---

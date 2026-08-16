@@ -29,7 +29,6 @@ const phoneArb = fc.constantFrom(
     '+44 7700 900000',
 )
 
-/** Arbitrary for a valid AddressDto */
 const addressDtoArb: fc.Arbitrary<AddressDto> = fc.record({
     line1: nonEmptyStringArb,
     line2: fc.option(nonEmptyStringArb, {nil: null}),
@@ -103,8 +102,6 @@ describe('ProfilePage — property-based tests', () => {
     })
 
     /**
-     * **Validates: Requirements 6.2**
-     *
      * Property 7: Profile form pre-population
      *
      * For any valid StorefrontMeResponse with firstName, lastName, phone, and address fields,
@@ -217,8 +214,6 @@ describe('ProfilePage — property-based tests', () => {
     })
 
     /**
-     * **Validates: Requirements 6.4**
-     *
      * Property 8: Postal address same-as-physical copies all fields
      *
      * For any physical address (line1, line2, suburb, city, province, postalCode),
@@ -292,8 +287,6 @@ describe('ProfilePage — property-based tests', () => {
     })
 
     /**
-     * **Validates: Requirements 7.2**
-     *
      * Property 9: Password mismatch validation
      *
      * For any two non-equal strings entered as "new password" and "confirm password",
@@ -371,8 +364,6 @@ describe('ProfilePage — property-based tests', () => {
     })
 
     /**
-     * **Validates: Requirements 7.3**
-     *
      * Property 10: Short password validation
      *
      * For any string with length fewer than 8 characters entered as the new password,

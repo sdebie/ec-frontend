@@ -74,9 +74,8 @@ function buildContractSchema(sdl: string): GraphQLSchema {
 }
 
 /**
- * Operations that DO NOT currently match the backend schema — pre-existing drift
- * surfaced when this guard was introduced, each tracked by its own task. Keyed by
- * GraphQL operation name.
+ * Operations that DO NOT currently match the backend schema. Keyed by GraphQL
+ * operation name.
  *
  * This is self-policing: an allowlisted operation is asserted to STILL be invalid.
  * When the corresponding fix lands, its `validate()` returns no errors and the

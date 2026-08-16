@@ -1,210 +1,107 @@
-import { useState, useMemo, useEffect } from 'react'
-import { useNavigate } from 'react-router-dom'
-import { useBreadcrumb } from '@/admin/context/BreadcrumbContext'
-import { Search, Pencil, Trash2 } from 'lucide-react'
+import {useCallback, useEffect, useMemo, useRef, useState} from 'react'
+import {useNavigate, useSearchParams} from 'react-router-dom'
+import {useBreadcrumb} from '@/admin/context/BreadcrumbContext'
+import type {PaginationState, Updater} from '@tanstack/react-table'
 
-import { useCategoryList, useDeleteCategory } from '@/admin/hooks/categories'
-import type { CategoryListItem } from '@/admin/hooks/categories'
-import {
-  DataTable,
-  ConfirmationDialog,
-  PageLayout,
-  Thumbnail,
-  toast,
-} from '@/shared/ui/components'
-import type { ColumnDef } from '@/shared/ui/components'
-import { Button, Input } from '@/shared/ui/primitives'
-import { useAdminAuthStore } from '@/shared/auth/adminAuthStore'
+import {useCategoryList} from './hooks/useCategoryList'
+import {PageLayout, toast} from '@/shared/ui/components'
+import {useCan} from '@/shared/auth/adminPermissions'
+import {CategoryToolbar} from './components/CategoryToolbar'
+import {CategoryTable} from './components/CategoryTable'
+
+const DEFAULT_PAGE_SIZE = 10
 
 export function CategoryListPage() {
-  const navigate = useNavigate()
-  const canMutate = useAdminAuthStore((s) => s.role) === 'SUPER_ADMIN'
 
-  const [pagination, setPagination] = useState({ pageIndex: 0, pageSize: 10 })
-  const [searchInput, setSearchInput] = useState('')
-  const [debouncedSearch, setDebouncedSearch] = useState('')
-  const [deletingCategory, setDeletingCategory] = useState<CategoryListItem | null>(null)
+    const navigate = useNavigate()
+    const canMutate = useCan('category:write')
+    const [searchParams, setSearchParams] = useSearchParams()
+    const pageIndex = Number(searchParams.get('page') ?? '0')
+    const pageSize = Number(searchParams.get('pageSize') ?? String(DEFAULT_PAGE_SIZE))
+    const urlSearch = searchParams.get('q') ?? ''
+    const pagination = useMemo<PaginationState>(() => ({pageIndex, pageSize}), [pageIndex, pageSize])
+    const [searchInput, setSearchInput] = useState(urlSearch)
+    const [debouncedSearch, setDebouncedSearch] = useState(urlSearch)
 
-  // 300ms debounce for search input
-  useEffect(() => {
-    const timer = setTimeout(() => {
-      setDebouncedSearch(searchInput)
-      setPagination((prev) => ({ ...prev, pageIndex: 0 }))
-    }, 300)
-    return () => clearTimeout(timer)
-  }, [searchInput])
+    const hasMountedRef = useRef(false)
+    useEffect(() => {
+        const id = setTimeout(() => {
+            hasMountedRef.current = true
+        }, 0)
+        return () => clearTimeout(id)
+    }, [])
 
-  const { data, isLoading, error } = useCategoryList({
-    pageIndex: pagination.pageIndex,
-    pageSize: pagination.pageSize,
-    search: debouncedSearch,
-  })
+    const handlePaginationChange = useCallback((updater: Updater<PaginationState>) => {
+        if (!hasMountedRef.current) return
+        const next = typeof updater === 'function' ? updater(pagination) : updater
+        setSearchParams((prev) => {
+            const params = new URLSearchParams(prev)
+            params.set('page', String(next.pageIndex))
+            params.set('pageSize', String(next.pageSize))
+            return params
+        })
+    }, [pagination, setSearchParams])
 
-  const deleteCategory = useDeleteCategory()
+    useEffect(() => {
+        if (searchInput === debouncedSearch) return
+        const timer = setTimeout(() => {
+            setDebouncedSearch(searchInput)
+            setSearchParams((prev) => {
+                const params = new URLSearchParams(prev)
+                if (searchInput.trim()) params.set('q', searchInput)
+                else params.delete('q')
+                params.set('page', '0')
+                return params
+            })
+        }, 300)
+        return () => clearTimeout(timer)
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [searchInput])
 
-  // Show toast on query error
-  useEffect(() => {
-    if (error) {
-      console.error(error)
-      toast.error('Failed to load categories', { duration: 0 })
-    }
-  }, [error])
+    const {data, isLoading, error, sorting, onSortingChange} = useCategoryList({
+        pageIndex,
+        pageSize,
+        search: debouncedSearch,
+    })
 
-  const pageCount = data?.totalPages ?? 0
+    // Show toast on query error
+    useEffect(() => {
+        if (error) {
+            console.error(error)
+            toast.error('Failed to load categories', {duration: 0})
+        }
+    }, [error])
 
-  const handleDeleteConfirm = () => {
-    if (!deletingCategory) return
+    const pageCount = data?.totalPages ?? 0
 
-    deleteCategory.mutate(
-      { id: deletingCategory.id },
-      {
-        onSuccess: () => {
-          toast.success('Category deleted successfully')
-          setDeletingCategory(null)
-        },
-        onError: (err) => {
-          console.error(err)
-          toast.error('Failed to delete category', { duration: 0 })
-          setDeletingCategory(null)
-        },
-      },
-    )
-  }
+    useBreadcrumb([
+        {label: 'Home', href: '/admin'},
+        {label: 'Brands & Categories', href: '/admin/products/brands'},
+        {label: 'Categories'},
+    ])
 
-  const columns: ColumnDef<CategoryListItem, unknown>[] = useMemo(
-    () => [
-      {
-        id: 'thumbnail',
-        header: 'Icon',
-        cell: ({ row }) => (
-          <Thumbnail logoUrl={row.original.imageUrl} name={row.original.name} size="md" className="h-10 w-10 rounded-md" />
-        ),
-        enableSorting: false,
-      },
-      {
-        accessorKey: 'name',
-        header: 'Name',
-        cell: ({ row }) => (
-          <span className="font-medium text-(--c-text)">{row.original.name}</span>
-        ),
-        enableSorting: false,
-      },
-      {
-        accessorKey: 'slug',
-        header: 'Slug',
-        cell: ({ row }) => (
-          <span className="text-sm text-(--c-text-muted)">{row.original.slug}</span>
-        ),
-        enableSorting: false,
-      },
-      {
-        id: 'parent',
-        header: 'Parent',
-        cell: ({ row }) => {
-          const parent = row.original.parent
-          return (
-            <span className="text-sm text-(--c-text-muted)">
-              {parent ? parent.name : '—'}
-            </span>
-          )
-        },
-        enableSorting: false,
-      },
-      {
-        id: 'description',
-        header: 'Description',
-        cell: ({ row }) => {
-          const desc = row.original.description
-          if (!desc) return <span className="text-sm text-(--c-text-muted)">—</span>
-          const truncated = desc.length > 60 ? `${desc.slice(0, 60)}…` : desc
-          return <span className="text-sm text-(--c-text-muted)">{truncated}</span>
-        },
-        enableSorting: false,
-      },
-      {
-        id: 'actions',
-        header: 'Actions',
-        cell: ({ row }) => {
-          if (!canMutate) return null
-          return (
-            <div className="flex items-center gap-1">
-              <button
-                type="button"
-                onClick={() => navigate(`/admin/products/categories/${row.original.id}/edit`)}
-                className="inline-flex items-center justify-center p-1 rounded-lg hover:bg-(--c-surface-hover)"
-                aria-label={`Edit ${row.original.name}`}
-                data-testid="action-edit"
-              >
-                <Pencil className="h-4 w-4 text-(--c-text-muted)" />
-              </button>
-              <button
-                type="button"
-                onClick={() => setDeletingCategory(row.original)}
-                className="inline-flex items-center justify-center p-1 rounded-lg hover:bg-(--c-surface-hover)"
-                aria-label={`Delete ${row.original.name}`}
-                data-testid="action-delete"
-              >
-                <Trash2 className="h-4 w-4 text-(--c-text-muted)" />
-              </button>
+    return (
+        <PageLayout title="Categories">
+            <div className="space-y-4">
+                <CategoryToolbar
+                    searchValue={searchInput}
+                    onSearchChange={setSearchInput}
+                    canMutate={canMutate}
+                    onCreateCategory={() => navigate('/admin/products/categories/new')}
+                />
+
+                <CategoryTable
+                    data={data?.content ?? []}
+                    isLoading={isLoading}
+                    canMutate={canMutate}
+                    pageCount={pageCount}
+                    totalRowCount={data?.totalElements ?? 0}
+                    pagination={pagination}
+                    onPaginationChange={handlePaginationChange}
+                    sorting={sorting}
+                    onSortingChange={onSortingChange}
+                />
             </div>
-          )
-        },
-        enableSorting: false,
-      },
-    ],
-    [canMutate, navigate],
-  )
-
-  useBreadcrumb([
-    { label: 'Home', href: '/admin' },
-    { label: 'Products', href: '/admin/products' },
-    { label: 'Categories' },
-  ])
-
-  const headerAction = canMutate ? (
-    <Button variant="solid" onClick={() => navigate('/admin/products/categories/new')}>
-      + New Category
-    </Button>
-  ) : undefined
-
-  return (
-    <PageLayout title="Categories" action={headerAction}>
-      <div className="space-y-4">
-        {/* Search Bar */}
-        <div className="flex flex-wrap items-center gap-3">
-          <div className="relative flex-1 min-w-[200px]">
-            <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-(--c-text-muted)" />
-            <Input
-              placeholder="Search categories by name..."
-              value={searchInput}
-              onChange={(e) => setSearchInput(e.target.value)}
-              className="pl-9"
-            />
-          </div>
-        </div>
-
-        <DataTable
-          columns={columns}
-          data={data?.content ?? []}
-          isLoading={isLoading}
-          manualPagination
-          pageCount={pageCount}
-          pagination={pagination}
-          onPaginationChange={setPagination}
-          emptyMessage="No categories found"
-        />
-      </div>
-
-      <ConfirmationDialog
-        open={deletingCategory !== null}
-        onClose={() => setDeletingCategory(null)}
-        onConfirm={handleDeleteConfirm}
-        title="Delete Category"
-        description={`Are you sure you want to delete "${deletingCategory?.name}"? This action cannot be undone.`}
-        confirmLabel="Delete"
-        variant="danger"
-        isLoading={deleteCategory.isPending}
-      />
-    </PageLayout>
-  )
+        </PageLayout>
+    )
 }

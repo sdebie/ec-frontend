@@ -47,7 +47,6 @@ describe('Dialog', () => {
         <div>Content</div>
       </Dialog>
     )
-    // The backdrop is the div with aria-hidden="true"
     const backdrop = document.querySelector('[aria-hidden="true"]')!
     fireEvent.click(backdrop)
     expect(onClose).toHaveBeenCalledTimes(1)
@@ -195,7 +194,7 @@ describe('DialogFooter', () => {
   })
 })
 
-describe('portal rendering (2026-08-02)', () => {
+describe('portal rendering', () => {
   /** The overlay is the fixed element carrying the backdrop colour. */
   function overlayOf() {
     return document.body.querySelector('.fixed.inset-0') as HTMLElement

@@ -5,12 +5,14 @@ import { Eye } from 'lucide-react'
 
 import {
   DataTable,
+  RowActionButton,
   Segment,
   StatusBadge,
 } from '@/shared/ui/components'
 import type { ColumnDef } from '@/shared/ui/components'
 import { useQuoteRequests } from '@/admin/hooks/quotes'
 import type { QuoteRequestListItem } from '@/admin/hooks/quotes'
+import { useTableSort } from '@/admin/hooks/useTableSort'
 import {
   QuoteRequestStatusOptions,
   type QuoteRequestStatus,
@@ -40,10 +42,13 @@ export function QuoteRequestQueuePage() {
     pageSize: 10,
   })
 
+  const { sorting, onSortingChange, sort } = useTableSort()
+
   const { data, total, isLoading } = useQuoteRequests({
     page: pagination.pageIndex + 1,
     pageSize: pagination.pageSize,
     status: statusFilter,
+    sort,
   })
 
   const handleStatusFilterChange = (value: string) => {
@@ -63,8 +68,11 @@ export function QuoteRequestQueuePage() {
         cell: ({ row }) => row.original.company ?? '—',
       },
       {
+        // Not sortable: itemCount is a mapper-computed count of the request's line items,
+        // not a column on QuoteRequestEntity — there is no server field for it to sort by.
         accessorKey: 'itemCount',
         header: 'Items',
+        enableSorting: false,
       },
       {
         accessorKey: 'createdAt',
@@ -87,16 +95,15 @@ export function QuoteRequestQueuePage() {
       {
         id: 'actions',
         header: 'Actions',
+        enableSorting: false,
         cell: ({ row }) => (
-          <button
-            type="button"
+          <RowActionButton
             onClick={() => navigate(`/admin/quotes/${row.original.id}`)}
-            className="inline-flex items-center justify-center p-1 rounded-lg hover:bg-(--c-surface-hover)"
             aria-label="View quote request"
             data-testid="action-view"
           >
-            <Eye className="h-4 w-4 text-(--c-text-muted)" />
-          </button>
+            <Eye className="h-4 w-4" />
+          </RowActionButton>
         ),
       },
     ],
@@ -118,15 +125,18 @@ export function QuoteRequestQueuePage() {
         />
       </div>
 
-      {/* Data Table */}
       <DataTable
         columns={columns}
         data={data ?? []}
         isLoading={isLoading}
         manualPagination
         pageCount={pageCount}
+        totalRowCount={total ?? 0}
         pagination={pagination}
         onPaginationChange={setPagination}
+        manualSorting
+        sorting={sorting}
+        onSortingChange={onSortingChange}
       />
     </div>
   )

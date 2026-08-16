@@ -46,10 +46,11 @@ function parseJsonBody(req: IncomingMessage): Promise<Record<string, unknown>> {
 }
 
 /**
- * Per-session call counter for the `orderBySessionId` GraphQL mock.
- * First call returns PENDING; subsequent calls (count >= 2) return PAID.
+ * Per-order call counter for the `orderStatus` GraphQL mock (guest-order-authorization
+ * — replaces `orderBySessionId`, keyed on orderId instead of sessionId).
+ * The first call returns PENDING; later calls (count >= 2) return PAID.
  */
-const orderBySessionIdCallCounts = new Map<string, number>()
+const orderStatusCallCounts = new Map<string, number>()
 
 /**
  * Vite dev-only plugin that intercepts API calls and returns fixture data.
@@ -99,7 +100,7 @@ export function devApiPlugin(): Plugin {
                         if (email === 'taken@example.com') {
                             res.statusCode = 409
                             res.setHeader('Content-Type', 'application/json')
-                            res.end(JSON.stringify({ message: 'Account already exists' }))
+                            res.end(JSON.stringify({message: 'Account already exists'}))
                             return
                         }
                         res.setHeader('Content-Type', 'application/json')
@@ -115,7 +116,6 @@ export function devApiPlugin(): Plugin {
                     return
                 }
 
-                // Customer profile: PATCH /api/customers/profile
                 if (url === '/customers/profile' && req.method === 'PATCH') {
                     parseJsonBody(req).then((body) => {
                         res.setHeader('Content-Type', 'application/json')
@@ -152,7 +152,6 @@ export function devApiPlugin(): Plugin {
                     return
                 }
 
-                // GET /api/storefront/wishlist
                 if (url === '/storefront/wishlist' && req.method === 'GET') {
                     res.setHeader('Content-Type', 'application/json')
                     res.end(JSON.stringify({variantIds: []}))
@@ -187,29 +186,33 @@ export function devApiPlugin(): Plugin {
                     return
                 }
 
-                // POST /api/storefront/wishlist/:variantId
                 if (url.startsWith('/storefront/wishlist/') && req.method === 'POST') {
                     res.statusCode = 204
                     res.end()
                     return
                 }
 
-                // DELETE /api/storefront/wishlist/:variantId
                 if (url.startsWith('/storefront/wishlist/') && req.method === 'DELETE') {
                     res.statusCode = 204
                     res.end()
                     return
                 }
 
-                // PATCH /api/customers/password
                 if (url === '/customers/password' && req.method === 'PATCH') {
                     res.statusCode = 204
                     res.end()
                     return
                 }
 
-                // PATCH /api/orders/:orderId/contact
                 if (/^\/orders\/[^/]+\/contact$/.test(url) && req.method === 'PATCH') {
+                    // guest-order-authorization: mocks require X-Order-Token so dev
+                    // exercises the real contract, not a lenient stand-in for it.
+                    if (!req.headers['x-order-token']) {
+                        res.statusCode = 404
+                        res.setHeader('Content-Type', 'application/json')
+                        res.end(JSON.stringify({error: 'Order not found'}))
+                        return
+                    }
                     const orderId = url.split('/')[2]
                     parseJsonBody(req).then((body) => {
                         res.setHeader('Content-Type', 'application/json')
@@ -221,7 +224,6 @@ export function devApiPlugin(): Plugin {
                     return
                 }
 
-                // GET /api/storefront/shipping-methods
                 if (url === '/storefront/shipping-methods' && req.method === 'GET') {
                     res.setHeader('Content-Type', 'application/json')
                     res.end(JSON.stringify([
@@ -241,15 +243,23 @@ export function devApiPlugin(): Plugin {
                     return
                 }
 
-                // GET /api/storefront/payment-methods
                 if (url === '/storefront/payment-methods' && req.method === 'GET') {
                     res.setHeader('Content-Type', 'application/json')
                     res.end(JSON.stringify(['PAYFAST', 'IN_STORE']))
                     return
                 }
 
-                // POST /api/payments/checkout
                 if (url === '/payments/checkout' && req.method === 'POST') {
+                    // guest-order-authorization: mocks require X-Order-Token so dev
+                    // exercises the real contract. The email form param no longer
+                    // exists on the real contract either (Requirement 8) — this mock
+                    // never read it, so there is nothing to remove here.
+                    if (!req.headers['x-order-token']) {
+                        res.statusCode = 404
+                        res.setHeader('Content-Type', 'application/json')
+                        res.end(JSON.stringify({error: 'Order not found'}))
+                        return
+                    }
                     res.statusCode = 202
                     res.setHeader('Content-Type', 'application/json')
                     res.end(JSON.stringify({
@@ -295,6 +305,9 @@ export function devApiPlugin(): Plugin {
                         res.end(JSON.stringify({
                             orderId: 'mock-order-uuid',
                             sessionId: 'mock-session-uuid',
+                            // guest-order-authorization — required by every
+                            // order-scoped request from here on.
+                            orderToken: 'mock-order-token',
                             lines,
                             subtotal,
                             vatAmount,
@@ -339,13 +352,17 @@ export function devApiPlugin(): Plugin {
                         const pageIndex = typeof variables.pageIndex === 'number' ? variables.pageIndex : 0
                         const content = filtered.slice(pageIndex * pageSize, (pageIndex + 1) * pageSize)
                         res.setHeader('Content-Type', 'application/json')
-                        res.end(JSON.stringify({data: {shoppingProductList: {
-                            content,
-                            totalElements: filtered.length,
-                            totalPages: Math.max(1, Math.ceil(filtered.length / pageSize)),
-                            pageSize,
-                            pageIndex,
-                        }}}))
+                        res.end(JSON.stringify({
+                            data: {
+                                shoppingProductList: {
+                                    content,
+                                    totalElements: filtered.length,
+                                    totalPages: Math.max(1, Math.ceil(filtered.length / pageSize)),
+                                    pageSize,
+                                    pageIndex,
+                                }
+                            }
+                        }))
                         return
                     }
 
@@ -378,31 +395,44 @@ export function devApiPlugin(): Plugin {
 
                     if (query.includes('getCategories')) {
                         res.setHeader('Content-Type', 'application/json')
-                        res.end(JSON.stringify({data: {getCategories: {
-                            content: storefrontCategoriesFixture,
-                            totalElements: storefrontCategoriesFixture.length,
-                        }}}))
+                        res.end(JSON.stringify({
+                            data: {
+                                getCategories: {
+                                    content: storefrontCategoriesFixture,
+                                    totalElements: storefrontCategoriesFixture.length,
+                                }
+                            }
+                        }))
                         return
                     }
 
                     if (query.includes('getBrands')) {
                         res.setHeader('Content-Type', 'application/json')
-                        res.end(JSON.stringify({data: {getBrands: {
-                            content: storefrontBrandsFixture,
-                            totalElements: storefrontBrandsFixture.length,
-                        }}}))
+                        res.end(JSON.stringify({
+                            data: {
+                                getBrands: {
+                                    content: storefrontBrandsFixture,
+                                    totalElements: storefrontBrandsFixture.length,
+                                }
+                            }
+                        }))
                         return
                     }
 
-                    // myOrders query
                     if (query.includes('myOrders')) {
                         res.setHeader('Content-Type', 'application/json')
                         res.end(JSON.stringify({data: {myOrders: myOrdersFixture}}))
                         return
                     }
 
-                    // getOrderDetail query
                     if (query.includes('getOrderDetail')) {
+                        // guest-order-authorization: mocks require X-Order-Token so
+                        // dev exercises the real contract.
+                        if (!req.headers['x-order-token']) {
+                            res.setHeader('Content-Type', 'application/json')
+                            res.end(JSON.stringify({errors: [{message: 'Order not found'}], data: null}))
+                            return
+                        }
                         const id = variables.id as string | undefined
                         // Return the fixture with the requested ID (or default fixture)
                         const detail = id ? {...orderDetailFixture, id} : orderDetailFixture
@@ -411,19 +441,27 @@ export function devApiPlugin(): Plugin {
                         return
                     }
 
-                    // orderBySessionId query — per-session call counter
-                    if (query.includes('orderBySessionId')) {
-                        const sessionId = (variables.sessionId as string) ?? 'unknown'
-                        const currentCount = (orderBySessionIdCallCounts.get(sessionId) ?? 0) + 1
-                        orderBySessionIdCallCounts.set(sessionId, currentCount)
+                    // orderStatus query (S2′, guest-order-authorization) — replaces
+                    // orderBySessionId, keyed on orderId and requiring X-Order-Token.
+                    // The call counter is preserved so the success-page poll still
+                    // flips PENDING -> PAID on the second call in dev.
+                    if (query.includes('orderStatus')) {
+                        if (!req.headers['x-order-token']) {
+                            res.setHeader('Content-Type', 'application/json')
+                            res.end(JSON.stringify({errors: [{message: 'Order not found'}], data: null}))
+                            return
+                        }
+                        const orderId = (variables.orderId as string) ?? 'unknown'
+                        const currentCount = (orderStatusCallCounts.get(orderId) ?? 0) + 1
+                        orderStatusCallCounts.set(orderId, currentCount)
 
                         const status = currentCount >= 2 ? 'PAID' : 'PENDING'
 
                         res.setHeader('Content-Type', 'application/json')
                         res.end(JSON.stringify({
                             data: {
-                                orderBySessionId: {
-                                    id: 'order-123',
+                                orderStatus: {
+                                    id: orderId,
                                     status,
                                     totalAmount: 1000,
                                     createdAt: new Date().toISOString(),

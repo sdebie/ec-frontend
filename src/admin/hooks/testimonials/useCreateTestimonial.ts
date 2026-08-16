@@ -16,8 +16,7 @@ export function useCreateTestimonial() {
       queryClient.invalidateQueries({ queryKey: ['admin', 'testimonials'] })
       toast.success('Testimonial created')
     },
-    onError: (error) => {
-      console.error('[Testimonials] action failed:', error)
+    onError: () => {
       toast.error('Failed to create testimonial', { duration: 0 })
     },
   })

@@ -26,12 +26,10 @@ interface CarouselProps {
      * 'dots' renders pagination dots + a "Swipe to browse" hint under the deck;
      * 'arrows' keeps the floating edge arrows on phones too.
      *
-     * Defaults to whatever the header slot implies ('dots' with a header,
-     * 'arrows' without), which is exactly how the two were coupled before this
-     * prop existed — so every caller that omits it is unchanged. Pass it
-     * explicitly when a section wants one without the other, e.g. a band that
-     * renders its own heading (so it needs no header row) but still wants the
-     * quieter dotted treatment on phones.
+     * Defaults to what the header slot implies: 'dots' with a header, 'arrows'
+     * without. Pass it explicitly when a section wants one without the other —
+     * e.g. a band that renders its own heading, so needs no header row, but
+     * still wants the quieter dotted treatment on phones.
      */
     mobileControls?: 'dots' | 'arrows'
     /**
@@ -51,10 +49,9 @@ interface CarouselProps {
 // literal class string — Tailwind scans source text, so an interpolated
 // fraction would emit no CSS.
 //
-// ⚠️ These subtract (cards − 1) × the DESKTOP gap. The gap is `md:gap-4` = 1rem
-// (tightened from gap-6 on 2026-08-03: at five cards a 24px channel read as a
-// hole between them). Change the gap class and every fraction below must change
-// with it, or the deck shows a sliver of the next card instead of whole ones.
+// ⚠️ These subtract (cards − 1) × the DESKTOP gap, which is `md:gap-4` = 1rem.
+// Change the gap class and every fraction below must change with it, or the
+// deck shows a sliver of the next card instead of whole ones.
 const CELL_BASIS: Record<2 | 3 | 4 | 5, string> = {
     2: 'md:w-[calc((100%-1rem)/2)]',
     3: 'md:w-[calc((100%-1rem)/2)] lg:w-[calc((100%-2rem)/3)]',
@@ -100,8 +97,6 @@ function gapOf(el: HTMLElement): number {
 
 export function Carousel({ariaLabel, perView = 3, perViewMobile = 1, tone = 'default', arrowPlacement = 'gutter', mobileControls, header, children}: CarouselProps) {
     const headerControls = header != null
-    // Mobile treatment defaults to the header slot's old implication, so
-    // omitting `mobileControls` reproduces the previous coupling exactly.
     const usesDots = (mobileControls ?? (headerControls ? 'dots' : 'arrows')) === 'dots'
     const scrollRef = useRef<HTMLDivElement>(null)
     const [showButtons, setShowButtons] = useState(false)
@@ -146,8 +141,8 @@ export function Carousel({ariaLabel, perView = 3, perViewMobile = 1, tone = 'def
         if (!el) return
         // A dotted deck pages by a whole view (perView cards): one page stride is
         // perView * (cell + gap) = clientWidth + gap, so a page lands on a cell
-        // edge and the active dot stays truthful. Legacy arrow decks keep their
-        // partial advance so the edge arrows behave as they always have.
+        // edge and the active dot stays truthful. Arrow decks advance partially,
+        // so the next card peeks into view.
         const amount = usesDots ? el.clientWidth + gapOf(el) : el.clientWidth * 0.8
         el.scrollBy({left: direction * amount, behavior: 'smooth'})
     }

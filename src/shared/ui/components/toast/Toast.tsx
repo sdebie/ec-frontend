@@ -117,7 +117,6 @@ export function Toast({ id, variant, title, message, duration, slideFrom = 'bott
 
       {/* Inner content */}
       <div className="flex items-start gap-3 px-4 py-3.5 pl-5 w-full min-w-0">
-        {/* Variant icon */}
         <div className={cn('mt-0.5 shrink-0', iconClass)} aria-hidden="true">
           <Icon className="h-5 w-5" />
         </div>

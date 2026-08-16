@@ -24,8 +24,7 @@ export function useUploadImage() {
       queryClient.invalidateQueries({ queryKey: ['admin-images'] })
       toast.success('Image uploaded successfully')
     },
-    onError: (error) => {
-      console.error('Image upload failed:', error)
+    onError: () => {
       toast.error('Failed to upload image', { duration: 0 })
     },
   })

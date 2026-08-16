@@ -23,11 +23,10 @@ export function useToggleWishlist() {
             })
             return {prev}
         },
-        onError: (error, _vars, ctx) => {
+        onError: (_error, _vars, ctx) => {
             if (ctx?.prev) {
                 queryClient.setQueryData(['customer', 'wishlist'], ctx.prev)
             }
-            console.error('[Wishlist] toggle failed:', error)
             toast.error('Could not update your wishlist. Please try again.')
         },
         onSettled: () => {

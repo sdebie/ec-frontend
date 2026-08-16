@@ -15,7 +15,6 @@ import { ProductStatus } from '@/shared/types/enums'
  * For any AdminProductListItem record where category.name is non-empty,
  * the Product column subtitle SHALL never be empty.
  *
- * **Validates: Requirements 4.2**
  */
 describe('Property 3: Product column subtitle fallback', () => {
   const statusArb = fc.constantFrom(
@@ -73,7 +72,6 @@ describe('Property 3: Product column subtitle fallback', () => {
  * For any AdminProductListItem with a retailPrice value, the Price column SHALL
  * display only formatAmount(parseFloat(retailPrice)) — never a range string.
  *
- * **Validates: Requirements 4.5**
  */
 describe('Property 4: Price column displays minimum price only', () => {
   const validPriceArb = fc

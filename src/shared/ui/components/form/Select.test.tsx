@@ -1,4 +1,4 @@
-import { render, screen, fireEvent } from '@testing-library/react'
+import { render, screen, fireEvent, waitFor } from '@testing-library/react'
 import { describe, it, expect, vi } from 'vitest'
 import { Select } from './Select'
 import { SearchableSelect } from './SearchableSelect'
@@ -50,6 +50,14 @@ describe('Select', () => {
     fireEvent.click(screen.getByRole('button'))
     fireEvent.click(screen.getByText('Disabled'))
     expect(onChange).not.toHaveBeenCalled()
+  })
+
+  it('applies triggerClassName to the visible trigger button, not the outer wrapper', () => {
+    render(<Select options={options} className="outer-class" triggerClassName="bg-(--c-input-bg)" />)
+    const trigger = screen.getByRole('button')
+    expect(trigger.className).toContain('bg-(--c-input-bg)')
+    expect(trigger.className).not.toContain('outer-class')
+    expect(trigger.parentElement?.className).toContain('outer-class')
   })
 })
 
@@ -109,6 +117,31 @@ describe('SearchableSelect', () => {
     fireEvent.change(searchInput, { target: { value: 'xyz' } })
     expect(screen.getByText('Nothing found')).toBeInTheDocument()
   })
+
+  it('applies id to the trigger button so a Label htmlFor (e.g. FormItem) can target it', () => {
+    render(<SearchableSelect options={options} id="field-1" />)
+    expect(screen.getByRole('button')).toHaveAttribute('id', 'field-1')
+  })
+
+  it('highlights the selected option in the menu, distinct from unselected options', () => {
+    render(<SearchableSelect options={options} value="b" usePortal={false} />)
+    fireEvent.click(screen.getByRole('button', { name: 'Option B' }))
+
+    const selected = screen.getByRole('option', { name: /Option B/ })
+    const unselected = screen.getByRole('option', { name: /Option A/ })
+    expect(selected.className).toMatch(/bg-\(--c-accent\)\/10/)
+    expect(selected.className).toMatch(/text-\(--c-accent\)/)
+    expect(unselected.className).not.toMatch(/bg-\(--c-accent\)\/10/)
+  })
+
+  it('offers the clear affordance only for a non-empty value', () => {
+    const withNone = [{ value: '', label: 'None' }, ...options]
+    const { rerender } = render(<SearchableSelect options={withNone} value="" />)
+    expect(screen.queryByRole('button', { name: 'Clear selection' })).not.toBeInTheDocument()
+
+    rerender(<SearchableSelect options={withNone} value="a" />)
+    expect(screen.getByRole('button', { name: 'Clear selection' })).toBeInTheDocument()
+  })
 })
 
 describe('MultiSelect', () => {
@@ -163,5 +196,131 @@ describe('MultiSelect', () => {
       <MultiSelect options={options} error="Required field" />
     )
     expect(screen.getByText('Required field')).toBeInTheDocument()
+  })
+
+  it('removes a tag via the chip remove control without opening the dropdown', () => {
+    const onChange = vi.fn()
+    render(
+      <MultiSelect options={options} value={['a', 'b']} onChange={onChange} />
+    )
+    const removeA = screen.getByRole('button', { name: 'Remove Option A' })
+    fireEvent.click(removeA)
+    expect(onChange).toHaveBeenCalledWith(['b'])
+    expect(screen.queryByRole('listbox')).not.toBeInTheDocument()
+  })
+
+  it('removes a tag via the chip remove control on Enter key', () => {
+    const onChange = vi.fn()
+    render(<MultiSelect options={options} value={['a']} onChange={onChange} />)
+    const removeA = screen.getByRole('button', { name: 'Remove Option A' })
+    fireEvent.keyDown(removeA, { key: 'Enter' })
+    expect(onChange).toHaveBeenCalledWith([])
+  })
+
+  it('does not render a nested button inside the trigger button', () => {
+    render(<MultiSelect options={options} value={['a', 'b']} />)
+    const trigger = screen.getByRole('button', { expanded: false })
+    expect(trigger.tagName).toBe('BUTTON')
+    expect(trigger.querySelector('button')).toBeNull()
+  })
+
+  it('applies triggerClassName to the trigger button, not the outer wrapper', () => {
+    render(
+      <MultiSelect
+        options={options}
+        className="outer-class"
+        triggerClassName="bg-(--c-input-bg)"
+      />
+    )
+    const trigger = screen.getByRole('button', { expanded: false })
+    expect(trigger.className).toContain('bg-(--c-input-bg)')
+    expect(trigger.className).not.toContain('outer-class')
+    expect(trigger.parentElement?.className).toContain('outer-class')
+  })
+
+  it('filters the option list as the user types', () => {
+    render(<MultiSelect options={options} />)
+    const trigger = screen.getByRole('button', { expanded: false })
+    fireEvent.click(trigger)
+
+    const search = screen.getByPlaceholderText('Search...')
+    fireEvent.change(search, { target: { value: 'b' } })
+
+    expect(screen.getByRole('option', { name: 'Option B' })).toBeInTheDocument()
+    expect(screen.queryByRole('option', { name: 'Option A' })).not.toBeInTheDocument()
+    expect(screen.queryByRole('option', { name: 'Option C' })).not.toBeInTheDocument()
+  })
+
+  it('auto-focuses the search input when the panel opens', () => {
+    render(<MultiSelect options={options} />)
+    const trigger = screen.getByRole('button', { expanded: false })
+    fireEvent.click(trigger)
+
+    expect(screen.getByPlaceholderText('Search...')).toHaveFocus()
+  })
+
+  it('shows a distinct empty state when the search matches nothing', () => {
+    render(<MultiSelect options={options} />)
+    const trigger = screen.getByRole('button', { expanded: false })
+    fireEvent.click(trigger)
+
+    const search = screen.getByPlaceholderText('Search...')
+    fireEvent.change(search, { target: { value: 'zzz' } })
+
+    expect(screen.getByText('No options match your search')).toBeInTheDocument()
+  })
+
+  it('selects a filtered option by clicking it', () => {
+    const onChange = vi.fn()
+    render(<MultiSelect options={options} value={['a']} onChange={onChange} />)
+    const trigger = screen.getByRole('button', { expanded: false })
+    fireEvent.click(trigger)
+
+    const search = screen.getByPlaceholderText('Search...')
+    fireEvent.change(search, { target: { value: 'Option B' } })
+    fireEvent.click(screen.getByRole('option', { name: 'Option B' }))
+
+    expect(onChange).toHaveBeenCalledWith(['a', 'b'])
+  })
+
+  it('selects the highlighted option on Enter after arrowing down', () => {
+    const onChange = vi.fn()
+    render(<MultiSelect options={options} onChange={onChange} />)
+    const trigger = screen.getByRole('button', { expanded: false })
+    fireEvent.click(trigger)
+
+    const search = screen.getByPlaceholderText('Search...')
+    fireEvent.keyDown(search, { key: 'ArrowDown' })
+    fireEvent.keyDown(search, { key: 'Enter' })
+
+    expect(onChange).toHaveBeenCalledWith(['b'])
+  })
+
+  it('selects the first option on Enter with no prior arrow key press', () => {
+    const onChange = vi.fn()
+    render(<MultiSelect options={options} onChange={onChange} />)
+    const trigger = screen.getByRole('button', { expanded: false })
+    fireEvent.click(trigger)
+
+    const search = screen.getByPlaceholderText('Search...')
+    fireEvent.keyDown(search, { key: 'Enter' })
+
+    expect(onChange).toHaveBeenCalledWith(['a'])
+  })
+
+  it('clears the search query and closes on Escape, restoring focus to the trigger', async () => {
+    render(<MultiSelect options={options} />)
+    const trigger = screen.getByRole('button', { expanded: false })
+    fireEvent.click(trigger)
+
+    const search = screen.getByPlaceholderText('Search...')
+    fireEvent.change(search, { target: { value: 'b' } })
+    fireEvent.keyDown(search, { key: 'Escape' })
+
+    expect(screen.queryByRole('listbox')).not.toBeInTheDocument()
+    // Focus restoration is deferred a frame (requestAnimationFrame), so it
+    // lands after fireEvent's synchronous act() flush — poll for it rather
+    // than asserting immediately.
+    await waitFor(() => expect(trigger).toHaveFocus())
   })
 })
