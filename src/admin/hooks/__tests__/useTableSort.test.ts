@@ -60,6 +60,45 @@ describe('useTableSort', () => {
         expect(result.current.sort).toEqual([{field: 'slug', direction: 'ASC'}])
     })
 
+    it('defaultSort applies when the URL carries no sort at all', () => {
+        const {Wrapper} = createWrapper(['/admin/wholesale'])
+        const {result} = renderHook(() => useTableSort({field: 'createdAt', desc: true}), {wrapper: Wrapper})
+
+        expect(result.current.sorting).toEqual([{id: 'createdAt', desc: true}])
+        expect(result.current.sort).toEqual([{field: 'createdAt', direction: 'DESC'}])
+    })
+
+    it('an explicit sortBy in the URL wins outright over defaultSort, even for a different column', () => {
+        const {Wrapper} = createWrapper(['/admin/wholesale?sortBy=firstName&sortDir=asc'])
+        const {result} = renderHook(() => useTableSort({field: 'createdAt', desc: true}), {wrapper: Wrapper})
+
+        expect(result.current.sorting).toEqual([{id: 'firstName', desc: false}])
+        expect(result.current.sort).toEqual([{field: 'firstName', direction: 'ASC'}])
+    })
+
+    it('defaultSort direction never leaks onto an explicit sortBy with no sortDir', () => {
+        // An explicit sortBy always means ascending when sortDir is absent — never the
+        // default's direction, even when it happens to be the same field.
+        const {Wrapper} = createWrapper(['/admin/wholesale?sortBy=createdAt'])
+        const {result} = renderHook(() => useTableSort({field: 'createdAt', desc: true}), {wrapper: Wrapper})
+
+        expect(result.current.sorting).toEqual([{id: 'createdAt', desc: false}])
+    })
+
+    it('sorting away from the default column writes an explicit URL state, superseding the default', async () => {
+        const {Wrapper, location} = createWrapper(['/admin/wholesale'])
+        const {result} = renderHook(() => useTableSort({field: 'createdAt', desc: true}), {wrapper: Wrapper})
+
+        await flushMountGuard()
+
+        act(() => {
+            result.current.onSortingChange([{id: 'firstName', desc: false}])
+        })
+
+        expect(location.search).toContain('sortBy=firstName')
+        expect(location.search).toContain('sortDir=asc')
+    })
+
     it('the column id in the URL is passed straight through as the sort field, unmodified', () => {
         // This is the whole contract: whatever id a caller's ColumnDef exposes (its
         // accessorKey, i.e. the DTO's own field name) becomes the server's sort key. No

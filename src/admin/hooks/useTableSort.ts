@@ -32,11 +32,17 @@ export interface UseTableSortResult {
  * Only one column sorts at a time: `sorting` is at most one entry, matching what a single
  * `sortBy`/`sortDir` pair in the URL can express. Multi-column sort would need its own URL
  * encoding and is not something any admin table has asked for.
+ *
+ * `defaultSort` only applies while the URL carries no `sortBy` at all — the moment a caller
+ * sorts by anything (including re-sorting the default column, e.g. toggling it to ascending),
+ * that becomes an explicit URL state and wins outright. It never merges with the URL: a
+ * `sortBy` with no `sortDir` still means ascending, not "fall back to the default's direction".
  */
-export function useTableSort(): UseTableSortResult {
+export function useTableSort(defaultSort?: { field: string; desc: boolean }): UseTableSortResult {
     const [searchParams, setSearchParams] = useSearchParams()
-    const sortField = searchParams.get('sortBy')
-    const sortDesc = searchParams.get('sortDir') === 'desc'
+    const urlSortField = searchParams.get('sortBy')
+    const sortField = urlSortField ?? defaultSort?.field ?? null
+    const sortDesc = urlSortField ? searchParams.get('sortDir') === 'desc' : (defaultSort?.desc ?? false)
 
     const sorting = useMemo<SortingState>(
         () => (sortField ? [{id: sortField, desc: sortDesc}] : []),

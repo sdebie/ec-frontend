@@ -4,8 +4,18 @@ import {adminGraphqlClient} from '@/shared/api/graphql/adminGraphqlClient'
 import type {UseWholesaleApplicationsParams, WholesaleApplicationListItem} from '../types'
 
 const ALL_WHOLESALE_APPLICATIONS = gql`
-    query AllWholesaleApplications($pageRequest: PageRequestInput!, $filterRequest: FilterRequestInput) {
-        allWholesaleApplications(pageRequest: $pageRequest, filterRequest: $filterRequest) {
+    query AllWholesaleApplications(
+        $pageRequest: PageRequestInput!
+        $filterRequest: FilterRequestInput
+        $fromDate: String
+        $toDate: String
+    ) {
+        allWholesaleApplications(
+            pageRequest: $pageRequest
+            filterRequest: $filterRequest
+            fromDate: $fromDate
+            toDate: $toDate
+        ) {
             id
             firstName
             lastName
@@ -17,8 +27,8 @@ const ALL_WHOLESALE_APPLICATIONS = gql`
 `
 
 const WHOLESALE_APPLICATION_COUNT = gql`
-    query WholesaleApplicationCount($filterRequest: FilterRequestInput) {
-        wholesaleApplicationCount(filterRequest: $filterRequest)
+    query WholesaleApplicationCount($filterRequest: FilterRequestInput, $fromDate: String, $toDate: String) {
+        wholesaleApplicationCount(filterRequest: $filterRequest, fromDate: $fromDate, toDate: $toDate)
     }
 `
 
@@ -51,15 +61,19 @@ export function useWholesaleApplications(params: UseWholesaleApplicationsParams)
             adminGraphqlClient.request<AllWholesaleApplicationsResponse>(ALL_WHOLESALE_APPLICATIONS, {
                 pageRequest,
                 filterRequest: {filters, ...(sort ? {sort} : {})},
+                fromDate: params.fromDate,
+                toDate: params.toDate,
             }),
     })
 
     const countFilterRequest = {filters}
     const countQuery = useQuery({
-        queryKey: ['admin', 'wholesale-applications', 'count', countFilterRequest],
+        queryKey: ['admin', 'wholesale-applications', 'count', countFilterRequest, params.fromDate, params.toDate],
         queryFn: () =>
             adminGraphqlClient.request<WholesaleApplicationCountResponse>(WHOLESALE_APPLICATION_COUNT, {
                 filterRequest: countFilterRequest,
+                fromDate: params.fromDate,
+                toDate: params.toDate,
             }),
     })
 

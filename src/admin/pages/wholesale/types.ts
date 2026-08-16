@@ -22,6 +22,8 @@ export interface UseWholesaleApplicationsParams {
     page: number
     pageSize: number
     status?: WholesaleStatus | 'ALL'
+    fromDate?: string
+    toDate?: string
     sort?: SortItem[]
 }
 

@@ -458,7 +458,7 @@ type Query {
   "Get all orders with paging, newest created orders first by default"
   allOrders(filterRequest: FilterRequestInput, pageRequest: PageRequestInput): [OrderResponseDto]
   allQuoteRequests(filterRequest: FilterRequestInput, pageRequest: PageRequestInput): [QuoteRequestListItemDto]
-  allWholesaleApplications(filterRequest: FilterRequestInput, pageRequest: PageRequestInput): [WholesaleApplicationListItemDto]
+  allWholesaleApplications(filterRequest: FilterRequestInput, fromDate: String, pageRequest: PageRequestInput, toDate: String): [WholesaleApplicationListItemDto]
   brand(id: String): BrandDto
   brandCount(filterRequest: FilterRequestInput): BigInteger!
   "Get a category by ID"
@@ -542,7 +542,7 @@ type Query {
   "Fetch product variants by a list of ids, including product relation and prices for the selected category"
   variantsByIds(ids: [String]): [ProductVariantDto]
   wholesaleApplication(id: String): WholesaleApplicationDetailsDto
-  wholesaleApplicationCount(filterRequest: FilterRequestInput): BigInteger!
+  wholesaleApplicationCount(filterRequest: FilterRequestInput, fromDate: String, toDate: String): BigInteger!
 }
 
 type QuoteRequestDetailsDto {

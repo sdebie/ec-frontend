@@ -76,8 +76,8 @@ describe('WholesaleApplicationQueuePage', () => {
 
       renderPage()
 
-      const approvedButton = screen.getByRole('button', { name: 'Approved' })
-      fireEvent.click(approvedButton)
+      fireEvent.click(screen.getByRole('button', { name: 'Filter by status' }))
+      fireEvent.click(screen.getByRole('option', { name: 'Approved' }))
 
       const lastCall = vi.mocked(useWholesaleApplications).mock.calls.at(-1)
       expect(lastCall?.[0]).toMatchObject({ status: 'APPROVED', page: 1 })
@@ -88,11 +88,50 @@ describe('WholesaleApplicationQueuePage', () => {
 
       renderPage()
 
-      const allButton = screen.getByRole('button', { name: 'All' })
-      fireEvent.click(allButton)
+      fireEvent.click(screen.getByRole('button', { name: 'Filter by status' }))
+      fireEvent.click(screen.getByRole('option', { name: 'All' }))
 
       const lastCall = vi.mocked(useWholesaleApplications).mock.calls.at(-1)
       expect(lastCall?.[0]).toMatchObject({ page: 1 })
+    })
+
+    it('resets pagination to page 1 when the date filter changes', () => {
+      setupDefaultMocks()
+
+      renderPage()
+
+      fireEvent.click(screen.getByRole('button', { name: 'Filter by submitted date' }))
+      fireEvent.click(screen.getByRole('option', { name: 'This Month' }))
+
+      const lastCall = vi.mocked(useWholesaleApplications).mock.calls.at(-1)
+      expect(lastCall?.[0]).toMatchObject({ page: 1 })
+    })
+  })
+
+  describe('date filter', () => {
+    it('sends no date bounds until a range is chosen', () => {
+      setupDefaultMocks()
+
+      renderPage()
+
+      const lastCall = vi.mocked(useWholesaleApplications).mock.calls.at(-1)
+      expect(lastCall?.[0].fromDate).toBeUndefined()
+      expect(lastCall?.[0].toDate).toBeUndefined()
+    })
+
+    it('resolves the chosen range into inclusive yyyy-MM-dd bounds', () => {
+      setupDefaultMocks()
+
+      renderPage()
+
+      fireEvent.click(screen.getByRole('button', { name: 'Filter by submitted date' }))
+      fireEvent.click(screen.getByRole('option', { name: 'Today' }))
+
+      // Asserted against a shape rather than a fixed date: the page resolves the preset
+      // against the real clock on purpose, so that "Today" keeps meaning today.
+      const lastCall = vi.mocked(useWholesaleApplications).mock.calls.at(-1)
+      expect(lastCall?.[0].fromDate).toMatch(/^\d{4}-\d{2}-\d{2}$/)
+      expect(lastCall?.[0].fromDate).toBe(lastCall?.[0].toDate)
     })
   })
 
@@ -103,6 +142,44 @@ describe('WholesaleApplicationQueuePage', () => {
       renderPage()
 
       expect(screen.getByText('Jane Doe')).toBeInTheDocument()
+    })
+  })
+
+  describe('email is masked, never shown in full', () => {
+    it('does not render the raw email address', () => {
+      setupDefaultMocks({
+        applications: [createMockApplication({ email: 'jane@example.com' })],
+      })
+
+      renderPage()
+
+      expect(screen.queryByText('jane@example.com')).not.toBeInTheDocument()
+      expect(screen.getByText('ja***@example.com')).toBeInTheDocument()
+    })
+  })
+
+  describe('submitted date is formatted yyyy-mm-dd hh:mm', () => {
+    it('renders the createdAt timestamp in the shared date-time format', () => {
+      setupDefaultMocks({
+        applications: [createMockApplication({ createdAt: '2025-06-15T10:32:00' })],
+      })
+
+      renderPage()
+
+      expect(screen.getByText('2025-06-15 10:32')).toBeInTheDocument()
+    })
+  })
+
+  describe('status badge uses the shared WholesaleApplicationStatusDisplay labels', () => {
+    it('renders "Pending Review", not the raw "PENDING" enum value', () => {
+      setupDefaultMocks({
+        applications: [createMockApplication({ status: 'PENDING' })],
+      })
+
+      renderPage()
+
+      expect(screen.getByText('Pending Review')).toBeInTheDocument()
+      expect(screen.queryByText('PENDING')).not.toBeInTheDocument()
     })
   })
 
@@ -146,6 +223,18 @@ describe('WholesaleApplicationQueuePage', () => {
 
       const viewButton = screen.getByTestId('action-view')
       fireEvent.click(viewButton)
+
+      expect(mockNavigate).toHaveBeenCalledWith('/admin/wholesale/applications/app-42')
+    })
+
+    it('navigates to the detail route when a row is double-clicked', () => {
+      setupDefaultMocks({
+        applications: [createMockApplication({ id: 'app-42', status: 'PENDING' })],
+      })
+
+      renderPage()
+
+      fireEvent.doubleClick(screen.getByText('Jane Doe'))
 
       expect(mockNavigate).toHaveBeenCalledWith('/admin/wholesale/applications/app-42')
     })

@@ -8,6 +8,12 @@ import { useAdminAuthStore } from '@/shared/auth/adminAuthStore'
 import type { WholesaleCustomerListItem } from '../types'
 import { WholesaleCustomerListPage } from '../WholesaleCustomerListPage'
 
+const mockNavigate = vi.fn()
+vi.mock('react-router-dom', async () => {
+  const actual = await vi.importActual('react-router-dom')
+  return { ...actual, useNavigate: () => mockNavigate }
+})
+
 vi.mock('../hooks/useWholesaleCustomers', () => ({
   useWholesaleCustomers: vi.fn(),
 }))
@@ -112,8 +118,8 @@ describe('WholesaleCustomerListPage', () => {
 
       renderPage()
 
-      const pendingButton = screen.getByRole('button', { name: 'Pending' })
-      fireEvent.click(pendingButton)
+      fireEvent.click(screen.getByRole('button', { name: 'Filter by status' }))
+      fireEvent.click(screen.getByRole('option', { name: 'Pending' }))
 
       const lastCall = vi.mocked(useWholesaleCustomers).mock.calls.at(-1)
       expect(lastCall?.[0]).toMatchObject({ page: 1 })
@@ -130,16 +136,46 @@ describe('WholesaleCustomerListPage', () => {
       expect(link).toBeInTheDocument()
       expect(link).toHaveAttribute('href', '/admin/wholesale/customers/customer-1')
     })
+
+    it('navigates to the detail route when a row is double-clicked', () => {
+      setupDefaultMocks()
+
+      renderPage()
+
+      fireEvent.doubleClick(screen.getByText('ja***@wholesale.com'))
+
+      expect(mockNavigate).toHaveBeenCalledWith('/admin/wholesale/customers/customer-1')
+    })
   })
 
-  // Row actions live inside a DropdownMenu behind an unnamed ellipsis
-  // trigger button — open it before asserting on the menu items.
+  describe('email is masked, never shown in full', () => {
+    it('does not render the raw email address', () => {
+      setupDefaultMocks({
+        customersData: [createMockCustomer({ email: 'jane@wholesale.com' })],
+      })
+
+      renderPage()
+
+      expect(screen.queryByText('jane@wholesale.com')).not.toBeInTheDocument()
+      expect(screen.getByText('ja***@wholesale.com')).toBeInTheDocument()
+    })
+  })
+
+  describe('registered date is formatted yyyy-mm-dd hh:mm', () => {
+    it('renders the registeredAt timestamp in the shared date-time format', () => {
+      setupDefaultMocks({
+        customersData: [createMockCustomer({ registeredAt: '2025-01-15T10:30:00' })],
+      })
+
+      renderPage()
+
+      expect(screen.getByText('2025-01-15 10:30')).toBeInTheDocument()
+    })
+  })
+
+  // Row actions live inside a DropdownMenu behind the "Customer actions" ellipsis trigger.
   function openRowActionsMenu() {
-    const trigger = screen
-      .getAllByRole('button')
-      .find((button) => button.querySelector('svg') !== null)
-    expect(trigger).toBeDefined()
-    fireEvent.click(trigger!)
+    fireEvent.click(screen.getByRole('button', { name: 'Customer actions' }))
   }
 
   describe('actions menu visibility', () => {
