@@ -90,6 +90,28 @@ describe('DataTable', () => {
 
       expect(screen.getByText(/Showing/)).toHaveTextContent('Showing 1 to 5 of 5 results')
     })
+
+    it('clamps the "Showing X" start figure when pageIndex is stale relative to a shrunk total', () => {
+      // pageIndex is caller-owned local state that survives a total shrinking out from
+      // under it (e.g. another admin action reduced matching rows while page 2 stayed
+      // selected). The server has nothing left to return for this page, but the stale
+      // pageIndex still drives the summary math: (2-1)*10+1 = 11, which must not be
+      // allowed to exceed a totalRows of 10.
+      const data: TestRow[] = []
+      render(
+        <DataTable
+          columns={columns}
+          data={data}
+          manualPagination
+          pageCount={1}
+          totalRowCount={10}
+          pagination={{ pageIndex: 1, pageSize: 10 }}
+          onPaginationChange={vi.fn()}
+        />
+      )
+
+      expect(screen.getByText(/Showing/)).toHaveTextContent('Showing 10 to 10 of 10 results')
+    })
   })
 
   describe('sorting (client-side, default)', () => {

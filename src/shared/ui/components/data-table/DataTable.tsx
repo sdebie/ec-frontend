@@ -159,7 +159,7 @@ export function DataTable<TData>({
         ? (totalRowCount ?? data.length)
         : table.getFilteredRowModel().rows.length
 
-    const startItem = totalRows === 0 ? 0 : (currentPage - 1) * currentPageSize + 1
+    const startItem = totalRows === 0 ? 0 : Math.min((currentPage - 1) * currentPageSize + 1, totalRows)
     const endItem = Math.min(currentPage * currentPageSize, totalRows)
 
     const getPageNumbers = () => {

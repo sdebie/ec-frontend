@@ -12,7 +12,7 @@ import {
   useCustomerDetail,
   useUpdateCustomerStatus,
 } from '@/admin/hooks/customers'
-import { useWholesaleApplicationAction } from '@/admin/hooks/wholesale'
+import { useWholesaleApplicationAction } from '@/admin/pages/wholesale/hooks'
 import { RecentOrdersTable } from '@/admin/components/RecentOrdersTable'
 import { RejectApplicationDialog } from '@/admin/components/RejectApplicationDialog'
 import {

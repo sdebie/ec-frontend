@@ -3,20 +3,20 @@ import { render, screen, fireEvent } from '@testing-library/react'
 import { MemoryRouter } from 'react-router-dom'
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 
-import { useWholesaleCustomerDetail } from '@/admin/hooks/wholesale/useWholesaleCustomerDetail'
-import { useWholesaleApplicationAction } from '@/admin/hooks/wholesale/useWholesaleApplicationAction'
-import { useWholesaleCustomerStatusAction } from '@/admin/hooks/wholesale/useWholesaleCustomerStatusAction'
+import { useWholesaleCustomerDetail } from '../hooks/useWholesaleCustomerDetail'
+import { useWholesaleApplicationAction } from '../hooks/useWholesaleApplicationAction'
+import { useWholesaleCustomerStatusAction } from '../hooks/useWholesaleCustomerStatusAction'
 import { useAdminAuthStore } from '@/shared/auth/adminAuthStore'
-import type { WholesaleCustomerDetail } from '@/admin/hooks/wholesale/types'
+import type { WholesaleCustomerDetail } from '../types'
 import { WholesaleCustomerDetailPage } from '../WholesaleCustomerDetailPage'
 
-vi.mock('@/admin/hooks/wholesale/useWholesaleCustomerDetail', () => ({
+vi.mock('../hooks/useWholesaleCustomerDetail', () => ({
   useWholesaleCustomerDetail: vi.fn(),
 }))
-vi.mock('@/admin/hooks/wholesale/useWholesaleApplicationAction', () => ({
+vi.mock('../hooks/useWholesaleApplicationAction', () => ({
   useWholesaleApplicationAction: vi.fn(),
 }))
-vi.mock('@/admin/hooks/wholesale/useWholesaleCustomerStatusAction', () => ({
+vi.mock('../hooks/useWholesaleCustomerStatusAction', () => ({
   useWholesaleCustomerStatusAction: vi.fn(),
 }))
 vi.mock('@/shared/auth/adminAuthStore', () => ({

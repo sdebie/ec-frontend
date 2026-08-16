@@ -1,5 +1,5 @@
-import { useCustomers } from '@/admin/hooks/customers/useCustomers'
-import type { UseWholesaleCustomersParams, WholesaleCustomerListItem } from './types'
+import {useCustomers} from '@/admin/hooks/customers/useCustomers'
+import type {UseWholesaleCustomersParams, WholesaleCustomerListItem} from '../types'
 
 /**
  * Wholesale customers are the customer list scoped to `shopperType = WHOLESALER`
@@ -15,16 +15,14 @@ import type { UseWholesaleCustomersParams, WholesaleCustomerListItem } from './t
  * If this ever needs to diverge, change the *arguments*, never the key family.
  */
 export function useWholesaleCustomers(params: UseWholesaleCustomersParams) {
-  const { data, isLoading } = useCustomers({
-    ...params,
-    shopperType: 'WHOLESALER',
-  })
+    const {data, isLoading} = useCustomers({
+        ...params,
+        shopperType: 'WHOLESALER',
+    })
 
-  return {
-    // The list shape is a subset of AdminCustomerSummary; the extra fields the
-    // shared query selects are simply unread here.
-    data: data?.data as WholesaleCustomerListItem[] | undefined,
-    total: data?.total ?? 0,
-    isLoading,
-  }
+    return {
+        data: data?.data as WholesaleCustomerListItem[] | undefined,
+        total: data?.total ?? 0,
+        isLoading,
+    }
 }

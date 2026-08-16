@@ -3,14 +3,14 @@ import { render, screen } from '@testing-library/react'
 import { MemoryRouter, Route, Routes } from 'react-router-dom'
 
 import { WholesaleApplicationDetailPage } from '../WholesaleApplicationDetailPage'
-import type { WholesaleApplicationDetail } from '@/admin/hooks/wholesale/useWholesaleApplicationDetail'
+import type { WholesaleApplicationDetail } from '../hooks/useWholesaleApplicationDetail'
 import { useAdminAuthStore } from '@/shared/auth/adminAuthStore'
 
 // --- Mocks ---
 
 const mockMutate = vi.fn()
 
-vi.mock('@/admin/hooks/wholesale', () => ({
+vi.mock('../hooks', () => ({
   useWholesaleApplicationDetail: vi.fn(),
   useWholesaleApplicationAction: vi.fn(() => ({
     mutate: mockMutate,
@@ -19,7 +19,7 @@ vi.mock('@/admin/hooks/wholesale', () => ({
 }))
 
 // Import after vi.mock so the mock is in place
-import { useWholesaleApplicationDetail } from '@/admin/hooks/wholesale'
+import { useWholesaleApplicationDetail } from '../hooks'
 
 // --- Test Data ---
 

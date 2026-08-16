@@ -1,4 +1,4 @@
-import { useUpdateCustomerStatus } from '@/admin/hooks/customers/useUpdateCustomerStatus'
+import {useUpdateCustomerStatus} from '@/admin/hooks/customers/useUpdateCustomerStatus'
 
 /**
  * Wholesale customer status changes go through the same `updateCustomerStatus`

@@ -2,8 +2,8 @@ import { describe, it, expect, vi, beforeEach } from 'vitest'
 import { render, screen, fireEvent } from '@testing-library/react'
 import { MemoryRouter } from 'react-router-dom'
 
-import { useWholesaleApplications } from '@/admin/hooks/wholesale/useWholesaleApplications'
-import type { WholesaleApplicationListItem } from '@/admin/hooks/wholesale/types'
+import { useWholesaleApplications } from '../hooks/useWholesaleApplications'
+import type { WholesaleApplicationListItem } from '../types'
 import { WholesaleApplicationQueuePage } from '../WholesaleApplicationQueuePage'
 
 const mockNavigate = vi.fn()
@@ -12,7 +12,7 @@ vi.mock('react-router-dom', async () => {
   return { ...actual, useNavigate: () => mockNavigate }
 })
 
-vi.mock('@/admin/hooks/wholesale/useWholesaleApplications', () => ({
+vi.mock('../hooks/useWholesaleApplications', () => ({
   useWholesaleApplications: vi.fn(),
 }))
 

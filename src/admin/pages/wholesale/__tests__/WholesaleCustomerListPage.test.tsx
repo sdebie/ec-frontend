@@ -2,16 +2,16 @@ import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest'
 import { render, screen, fireEvent, act } from '@testing-library/react'
 import { MemoryRouter } from 'react-router-dom'
 
-import { useWholesaleCustomers } from '@/admin/hooks/wholesale/useWholesaleCustomers'
-import { useWholesaleCustomerStatusAction } from '@/admin/hooks/wholesale/useWholesaleCustomerStatusAction'
+import { useWholesaleCustomers } from '../hooks/useWholesaleCustomers'
+import { useWholesaleCustomerStatusAction } from '../hooks/useWholesaleCustomerStatusAction'
 import { useAdminAuthStore } from '@/shared/auth/adminAuthStore'
-import type { WholesaleCustomerListItem } from '@/admin/hooks/wholesale/types'
+import type { WholesaleCustomerListItem } from '../types'
 import { WholesaleCustomerListPage } from '../WholesaleCustomerListPage'
 
-vi.mock('@/admin/hooks/wholesale/useWholesaleCustomers', () => ({
+vi.mock('../hooks/useWholesaleCustomers', () => ({
   useWholesaleCustomers: vi.fn(),
 }))
-vi.mock('@/admin/hooks/wholesale/useWholesaleCustomerStatusAction', () => ({
+vi.mock('../hooks/useWholesaleCustomerStatusAction', () => ({
   useWholesaleCustomerStatusAction: vi.fn(),
 }))
 vi.mock('@/shared/auth/adminAuthStore', () => ({
