@@ -1,5 +1,5 @@
 import {useEffect, useMemo} from 'react'
-import {Link, useSearchParams} from 'react-router-dom'
+import {Link} from 'react-router-dom'
 import {ChevronLeft} from 'lucide-react'
 import {FormProvider, useForm} from 'react-hook-form'
 import {zodResolver} from '@hookform/resolvers/zod'
@@ -31,16 +31,19 @@ import {ACCENT_BUTTON_HOVER, SF_FOCUS_RING_PAGE} from '@/storefront/sections/sha
  * is the single place form state is mutated.
  */
 export function CheckoutPage() {
-    const [searchParams] = useSearchParams()
-    const orderId = searchParams.get('orderId') ?? ''
-
     const session = useCheckoutSessionStore((state) => state.session)
     const {isSignedIn, email, firstName, lastName} = useCustomerAuthStore()
 
     const {data: shippingMethods} = useShippingMethods()
     const {data: paymentMethods} = usePaymentMethods()
 
-    const {placeOrder, isSubmitting, error: submitError} = useCheckoutSubmit(orderId)
+    // Requirement 3.5/3.6: the order under checkout comes only from the store now —
+    // no ?orderId= query string to read, and so no second source that could disagree
+    // with it. Guarded by `if (!session)` below before either is dereferenced.
+    const {placeOrder, isSubmitting, error: submitError} = useCheckoutSubmit(
+        session?.orderId ?? '',
+        session?.orderToken ?? '',
+    )
 
     const methods = useForm<CheckoutFormValues>({
         resolver: zodResolver(checkoutFormSchema),

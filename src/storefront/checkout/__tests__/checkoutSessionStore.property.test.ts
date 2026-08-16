@@ -21,6 +21,7 @@ const checkoutSessionArb: fc.Arbitrary<CheckoutSession> = fc.record({
     vatAmount: fc.float({min: 0, noNaN: true}),
     shippingEstimate: fc.float({min: 0, noNaN: true}),
     grandTotal: fc.float({min: 0, noNaN: true}),
+    orderToken: fc.string({minLength: 1}),
 })
 
 describe('checkoutSessionStore - Property Tests', () => {
@@ -37,6 +38,46 @@ describe('checkoutSessionStore - Property Tests', () => {
                 expect(stored).toEqual(session)
             }),
             {numRuns: 100}
+        )
+    })
+})
+
+describe('checkoutSessionStore — clearSession / clearOrder split (guest-order-authorization)', () => {
+    beforeEach(() => {
+        useCheckoutSessionStore.setState({session: null, idempotencyKey: null, idempotencyKeyCartSignature: null})
+    })
+
+    it('clearSession() clears the idempotency key but keeps the session (orderId/orderToken survive a refresh)', () => {
+        fc.assert(
+            fc.property(checkoutSessionArb, (session) => {
+                useCheckoutSessionStore.getState().setSession(session)
+                useCheckoutSessionStore.setState({idempotencyKey: 'some-key', idempotencyKeyCartSignature: 'sig'})
+
+                useCheckoutSessionStore.getState().clearSession()
+
+                const state = useCheckoutSessionStore.getState()
+                expect(state.session).toEqual(session)
+                expect(state.idempotencyKey).toBeNull()
+                expect(state.idempotencyKeyCartSignature).toBeNull()
+            }),
+            {numRuns: 20}
+        )
+    })
+
+    it('clearOrder() clears everything, including the session', () => {
+        fc.assert(
+            fc.property(checkoutSessionArb, (session) => {
+                useCheckoutSessionStore.getState().setSession(session)
+                useCheckoutSessionStore.setState({idempotencyKey: 'some-key', idempotencyKeyCartSignature: 'sig'})
+
+                useCheckoutSessionStore.getState().clearOrder()
+
+                const state = useCheckoutSessionStore.getState()
+                expect(state.session).toBeNull()
+                expect(state.idempotencyKey).toBeNull()
+                expect(state.idempotencyKeyCartSignature).toBeNull()
+            }),
+            {numRuns: 20}
         )
     })
 })

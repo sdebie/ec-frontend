@@ -8,6 +8,12 @@ import { useAdminAuthStore } from '@/shared/auth/adminAuthStore'
 import type { AdminCustomerSummary, CustomersPage } from '@/admin/hooks/customers/types'
 import { CustomerListPage } from '../CustomerListPage'
 
+const mockNavigate = vi.fn()
+vi.mock('react-router-dom', async () => {
+  const actual = await vi.importActual('react-router-dom')
+  return { ...actual, useNavigate: () => mockNavigate }
+})
+
 vi.mock('@/admin/hooks/customers/useCustomers', () => ({
   useCustomers: vi.fn(),
 }))
@@ -97,14 +103,37 @@ describe('CustomerListPage', () => {
     })
   })
 
+  describe('registered column is first and formatted yyyy-mm-dd hh:mm', () => {
+    it('renders Registered as the first column header', () => {
+      setupDefaultMocks()
+
+      renderPage()
+
+      const headers = screen.getAllByRole('columnheader')
+      expect(headers[0]).toHaveTextContent('Registered')
+    })
+
+    it('renders the registeredAt timestamp in the shared date-time format', () => {
+      setupDefaultMocks({
+        customersData: createMockCustomersPage({
+          data: [createMockCustomer({ registeredAt: '2025-01-15T10:30:00' })],
+        }),
+      })
+
+      renderPage()
+
+      expect(screen.getByText('2025-01-15 10:30')).toBeInTheDocument()
+    })
+  })
+
   describe('filter interactions reset pagination', () => {
     it('resets pagination to page 1 when status filter changes', () => {
       setupDefaultMocks()
 
       renderPage()
 
-      const pendingButton = screen.getByRole('button', { name: 'Pending' })
-      fireEvent.click(pendingButton)
+      fireEvent.click(screen.getByRole('button', { name: 'Filter by status' }))
+      fireEvent.click(screen.getByRole('option', { name: 'Pending' }))
 
       const lastCall = vi.mocked(useCustomers).mock.calls.at(-1)
       expect(lastCall?.[0]).toMatchObject({ page: 1 })
@@ -142,8 +171,8 @@ describe('CustomerListPage', () => {
     })
   })
 
-  describe('actions menu visibility', () => {
-    it('renders actions menu for SUPER_ADMIN with ACTIVE customer', () => {
+  describe('actions visibility', () => {
+    it('renders a Suspend icon button for SUPER_ADMIN with ACTIVE customer (has suspend transition)', () => {
       setupDefaultMocks({
         role: 'SUPER_ADMIN',
         customersData: createMockCustomersPage({
@@ -153,10 +182,10 @@ describe('CustomerListPage', () => {
 
       renderPage()
 
-      expect(screen.getByTestId('customer-actions-menu')).toBeInTheDocument()
+      expect(screen.getByRole('button', { name: 'Suspend customer' })).toBeInTheDocument()
     })
 
-    it('does not render actions menu for VIEWER role', () => {
+    it('renders the View action for every role, including VIEWER', () => {
       setupDefaultMocks({
         role: 'VIEWER',
         customersData: createMockCustomersPage({
@@ -166,7 +195,21 @@ describe('CustomerListPage', () => {
 
       renderPage()
 
-      expect(screen.queryByTestId('customer-actions-menu')).not.toBeInTheDocument()
+      expect(screen.getByRole('button', { name: 'View customer' })).toBeInTheDocument()
+    })
+
+    it('does not render Suspend/Activate for VIEWER role', () => {
+      setupDefaultMocks({
+        role: 'VIEWER',
+        customersData: createMockCustomersPage({
+          data: [createMockCustomer({ status: 'ACTIVE' })],
+        }),
+      })
+
+      renderPage()
+
+      expect(screen.queryByRole('button', { name: 'Suspend customer' })).not.toBeInTheDocument()
+      expect(screen.queryByRole('button', { name: 'Activate customer' })).not.toBeInTheDocument()
     })
   })
 
@@ -181,18 +224,13 @@ describe('CustomerListPage', () => {
 
       renderPage()
 
-      // Open dropdown menu
-      const actionsMenu = screen.getByTestId('customer-actions-menu')
-      const triggerButton = actionsMenu.querySelector('button')!
-      fireEvent.click(triggerButton)
-
-      // Click "Suspend" action
-      const suspendButton = screen.getByRole('menuitem', { name: 'Suspend' })
-      fireEvent.click(suspendButton)
+      fireEvent.click(screen.getByRole('button', { name: 'Suspend customer' }))
 
       // ConfirmationDialog should now be open
       expect(screen.getByRole('dialog')).toBeInTheDocument()
-      expect(screen.getByText('Are you sure you want to suspend this customer?', { exact: false })).toBeInTheDocument()
+      expect(
+        screen.getByText('Are you sure you want to suspend this customer?', { exact: false }),
+      ).toBeInTheDocument()
 
       // mutate should NOT have been called yet
       expect(mockMutate).not.toHaveBeenCalled()
@@ -208,20 +246,35 @@ describe('CustomerListPage', () => {
 
       renderPage()
 
-      // Open dropdown menu
-      const actionsMenu = screen.getByTestId('customer-actions-menu')
-      const triggerButton = actionsMenu.querySelector('button')!
-      fireEvent.click(triggerButton)
-
-      // Click "Activate" action
-      const activateButton = screen.getByRole('menuitem', { name: 'Activate' })
-      fireEvent.click(activateButton)
+      fireEvent.click(screen.getByRole('button', { name: 'Activate customer' }))
 
       // mutate should be called directly with ACTIVE status
       expect(mockMutate).toHaveBeenCalledWith({ customerId: 'customer-1', status: 'ACTIVE' })
 
       // No dialog should appear
       expect(screen.queryByRole('dialog')).not.toBeInTheDocument()
+    })
+  })
+
+  describe('row navigation', () => {
+    it('navigates to the detail route when the View action is clicked', () => {
+      setupDefaultMocks()
+
+      renderPage()
+
+      fireEvent.click(screen.getByRole('button', { name: 'View customer' }))
+
+      expect(mockNavigate).toHaveBeenCalledWith('/admin/customers/customer-1')
+    })
+
+    it('navigates to the detail route when a row is double-clicked', () => {
+      setupDefaultMocks()
+
+      renderPage()
+
+      fireEvent.doubleClick(screen.getByText('jane@example.com'))
+
+      expect(mockNavigate).toHaveBeenCalledWith('/admin/customers/customer-1')
     })
   })
 })

@@ -1,21 +1,18 @@
 import { useCallback, useMemo, useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import type { OnChangeFn, PaginationState, SortingState } from '@tanstack/react-table'
-import { EllipsisVertical } from 'lucide-react'
+import { CircleCheck, Eye, OctagonPause } from 'lucide-react'
 
 import type { ColumnDef } from '@/shared/ui/components'
 import {
     ConfirmationDialog,
     DataTable,
-    DropdownItem,
-    DropdownMenu,
     RowActionButton,
-    WholesaleApplicationStatusDisplay,
     WholesaleCustomerStatusDisplay,
 } from '@/shared/ui/components'
 import { formatDateTime } from '@/shared/utils/formatDateTime'
 import { maskEmail } from '@/shared/utils/maskEmail'
-import { getAvailableActions, type WholesaleStatus } from '@/admin/hooks/customers/types'
+import { getAvailableActions } from '@/admin/hooks/customers/types'
 import type { WholesaleCustomerListItem } from '../hooks'
 import { useWholesaleCustomerStatusAction } from '../hooks'
 
@@ -119,60 +116,46 @@ export function WholesaleCustomerListTable({
                 cell: ({row}) => <WholesaleCustomerStatusDisplay status={row.original.status}/>,
             },
             {
-                // Not sortable: resolved per row from a separate WholesaleApplicationEntity
-                // lookup (CustomerAdminService.wholesaleApplicationFor), not a JPQL property on
-                // CustomerEntity — there is no column here to sort by.
-                id: 'wholesaleApplicationStatus',
-                header: 'Application Status',
+                id: 'actions',
+                header: 'Actions',
                 enableSorting: false,
                 cell: ({row}) => {
-                    const appStatus = row.original.wholesaleApplicationStatus
-                    if (!appStatus) return '—'
-                    return <WholesaleApplicationStatusDisplay status={appStatus as WholesaleStatus}/>
-                },
-            },
-            ...(canMutate
-                ? [
-                    {
-                        id: 'actions',
-                        header: 'Actions',
-                        enableSorting: false,
-                        cell: ({row}: { row: { original: WholesaleCustomerListItem } }) => {
-                            const customer = row.original
-                            const actions = getAvailableActions(customer.status)
-                            if (actions.length === 0) return null
-                            return (
-                                <DropdownMenu
-                                    trigger={
-                                        <RowActionButton
-                                            as="span"
-                                            aria-label="Customer actions"
-                                            className={isUpdatingStatus ? 'opacity-50 pointer-events-none' : undefined}
-                                        >
-                                            <EllipsisVertical className="h-5 w-5"/>
-                                        </RowActionButton>
-                                    }
+                    const customer = row.original
+                    const actions = canMutate ? getAvailableActions(customer.status) : []
+                    return (
+                        <div className="flex items-center gap-1">
+                            <RowActionButton
+                                onClick={() => navigate(`/admin/wholesale/customers/${customer.id}`)}
+                                aria-label="View customer"
+                                data-testid="action-view"
+                            >
+                                <Eye className="h-4 w-4"/>
+                            </RowActionButton>
+                            {actions.includes('suspend') && (
+                                <RowActionButton
+                                    onClick={() => handleSuspend(customer.id)}
+                                    variant="danger"
+                                    aria-label="Suspend customer"
+                                    disabled={isUpdatingStatus}
                                 >
-                                    {actions.map((action) =>
-                                        action === 'activate' ? (
-                                            <DropdownItem key={action} onClick={() => handleActivate(customer.id)}>
-                                                Activate
-                                            </DropdownItem>
-                                        ) : (
-                                            <DropdownItem key={action} onClick={() => handleSuspend(customer.id)}
-                                                          destructive>
-                                                Suspend
-                                            </DropdownItem>
-                                        ),
-                                    )}
-                                </DropdownMenu>
-                            )
-                        },
-                    } as ColumnDef<WholesaleCustomerListItem, unknown>,
-                ]
-                : []),
+                                    <OctagonPause className="h-4 w-4"/>
+                                </RowActionButton>
+                            )}
+                            {actions.includes('activate') && (
+                                <RowActionButton
+                                    onClick={() => handleActivate(customer.id)}
+                                    aria-label="Activate customer"
+                                    disabled={isUpdatingStatus}
+                                >
+                                    <CircleCheck className="h-4 w-4"/>
+                                </RowActionButton>
+                            )}
+                        </div>
+                    )
+                },
+            } as ColumnDef<WholesaleCustomerListItem, unknown>,
         ],
-        [canMutate, handleActivate, handleSuspend, isUpdatingStatus],
+        [canMutate, handleActivate, handleSuspend, isUpdatingStatus, navigate],
     )
 
     return (

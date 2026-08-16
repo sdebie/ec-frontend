@@ -14,6 +14,12 @@ export interface CheckoutSession {
     vatAmount: number
     shippingEstimate: number
     grandTotal: number
+    /**
+     * The order capability token (guest-order-authorization) — required on every
+     * order-scoped request as the `X-Order-Token` header. Lives on the session
+     * (not beside it) so it cannot outlive the session it belongs to.
+     */
+    orderToken: string
 }
 
 export interface ShippingMethod {

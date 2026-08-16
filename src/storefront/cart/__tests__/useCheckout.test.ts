@@ -38,7 +38,10 @@ describe('useCheckout', () => {
         // (e.g. an auto-retry that isn't wired yet) leaks its leftover response
         // into the next test's first call.
         vi.resetAllMocks()
-        useCheckoutSessionStore.getState().clearSession()
+        // clearOrder(), not clearSession(): guest-order-authorization narrowed
+        // clearSession() to the idempotency key alone, so it no longer resets
+        // `session` between tests — this suite needs the full reset for isolation.
+        useCheckoutSessionStore.getState().clearOrder()
         useCartStore.setState({
             items: [
                 {
@@ -112,7 +115,9 @@ describe('useCheckout', () => {
         })
 
         await waitFor(() => {
-            expect(mockNavigate).toHaveBeenCalledWith('/checkout?orderId=order-abc')
+            // No identifier in the URL (Requirement 3.5) — /checkout reads the order
+            // from checkoutSessionStore.
+            expect(mockNavigate).toHaveBeenCalledWith('/checkout')
         })
 
         // Cart is cleared by CheckoutSuccessPage after payment confirmed — not here
@@ -308,7 +313,7 @@ describe('useCheckout', () => {
             await act(async () => result.current.checkout())
 
             // Recoverable and invisible to the shopper: no click needed, and it lands on success.
-            await waitFor(() => expect(mockNavigate).toHaveBeenCalledWith('/checkout?orderId=o1'))
+            await waitFor(() => expect(mockNavigate).toHaveBeenCalledWith('/checkout'))
             expect(mockPost).toHaveBeenCalledTimes(2)
             expect(keyHeaderOf(0)).not.toBe(keyHeaderOf(1))
         }

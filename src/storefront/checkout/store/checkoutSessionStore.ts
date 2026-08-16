@@ -14,12 +14,23 @@ export interface CheckoutSessionState {
     idempotencyKeyCartSignature: string | null
     setSession: (session: CheckoutSession) => void
     /**
-     * Ends the checkout intent unconditionally — used when a checkout
-     * completes. Deliberately clears the key too, not just the session: a
-     * shopper immediately placing an identical second order must not have it
-     * silently merged into the one just finished by reusing its key.
+     * Ends the checkout INTENT — the actual idempotency-replay hazard
+     * (guest-order-authorization): "a shopper immediately placing an identical second
+     * order must not have it silently merged into the one just finished by reusing
+     * its key." That reasoning is about the idempotency key, not the order id or its
+     * token, so this clears only `idempotencyKey`/`idempotencyKeyCartSignature` —
+     * deliberately NOT `session`. The order id and token must survive a refresh of
+     * the success page, and the cart/form draft are cleared by their own stores at
+     * the same call sites, not here.
+     * <p>
+     * Narrowed rather than replaced so both existing callers — CheckoutSuccessPage's
+     * terminal-status effect and useExpireStaleCheckoutSession's cart-divergence
+     * watcher — inherit the fix without changing which method they call. See
+     * {@link clearOrder} for the full reset.
      */
     clearSession: () => void
+    /** The full reset — for any caller that genuinely wants the order forgotten. */
+    clearOrder: () => void
     /**
      * Returns the key for the given cart signature, minting a fresh one if
      * none is held or if the cart has diverged from what the held key was
@@ -43,7 +54,8 @@ export const useCheckoutSessionStore = create<CheckoutSessionState>()(
             idempotencyKey: null,
             idempotencyKeyCartSignature: null,
             setSession: (session) => set({session}),
-            clearSession: () => set({session: null, idempotencyKey: null, idempotencyKeyCartSignature: null}),
+            clearSession: () => set({idempotencyKey: null, idempotencyKeyCartSignature: null}),
+            clearOrder: () => set({session: null, idempotencyKey: null, idempotencyKeyCartSignature: null}),
             ensureIdempotencyKey: (cartSignature) => {
                 const state = get()
                 if (state.idempotencyKey && state.idempotencyKeyCartSignature === cartSignature) {

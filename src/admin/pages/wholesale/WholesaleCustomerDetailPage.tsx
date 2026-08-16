@@ -1,36 +1,20 @@
-import {useState} from 'react'
 import {useParams} from 'react-router-dom'
-import {ConfirmationDialog, FormPageLayout, FormPageNotFound, PageLoadingSpinner, StatusBadge,} from '@/shared/ui/components'
-import {Button, Card} from '@/shared/ui/primitives'
-import {useCan} from '@/shared/auth/adminPermissions'
-import {useWholesaleApplicationAction, useWholesaleCustomerDetail, useWholesaleCustomerStatusAction,} from './hooks'
-import {RecentOrdersTable} from '@/admin/components/RecentOrdersTable'
-import {RejectApplicationDialog} from '@/admin/components/RejectApplicationDialog'
-import {getAvailableActions, getCustomerStatusColor, getWholesaleStatusColor,} from '@/admin/hooks/customers/types'
-
-function formatTimestamp(dateString: string): string {
-    return new Intl.DateTimeFormat(undefined, {
-        day: 'numeric',
-        month: 'short',
-        year: 'numeric',
-        hour: '2-digit',
-        minute: '2-digit',
-    }).format(new Date(dateString))
-}
+import {FormPageLayout, FormPageNotFound, PageLoadingSpinner} from '@/shared/ui/components'
+import {Card} from '@/shared/ui/primitives'
+import {useWholesaleCustomerDetail} from './hooks'
+import {CustomerIdentityPanel} from './components/CustomerIdentityPanel'
+import {WholesaleAccountPanel} from './components/WholesaleAccountPanel'
+import {RecentOrdersCard} from './components/RecentOrdersCard'
 
 export function WholesaleCustomerDetailPage() {
     const {customerId} = useParams<{ customerId: string }>()
     const {data, isLoading} = useWholesaleCustomerDetail(customerId!)
-    const canMutate = useCan('wholesale-customer:write')
-    const canDecideApplication = useCan('wholesale-application:decide')
-    const statusAction = useWholesaleCustomerStatusAction()
-    const applicationAction = useWholesaleApplicationAction()
 
-    const [suspendDialogOpen, setSuspendDialogOpen] = useState(false)
-    const [rejectDialogOpen, setRejectDialogOpen] = useState(false)
+    if (isLoading) {
+        return <PageLoadingSpinner/>
+    }
 
-    // 404 guard
-    if (!isLoading && !data) {
+    if (!data) {
         return (
             <FormPageNotFound
                 entityName="Customer"
@@ -40,244 +24,19 @@ export function WholesaleCustomerDetailPage() {
         )
     }
 
-    // Loading state
-    if (isLoading) {
-        return <PageLoadingSpinner/>
-    }
-
-    // At this point data is defined
-    const customer = data!
-
-    const availableActions = getAvailableActions(customer.status)
-
-    const handleActivate = () => {
-        statusAction.mutate({customerId: customer.id, status: 'ACTIVE'})
-    }
-
-    const handleSuspend = () => {
-        setSuspendDialogOpen(true)
-    }
-
-    const handleConfirmSuspend = () => {
-        statusAction.mutate(
-            {customerId: customer.id, status: 'DISABLED'},
-            {onSettled: () => setSuspendDialogOpen(false)},
-        )
-    }
-
-    const handleApprove = () => {
-        if (!customer.wholesaleApplication) return
-        applicationAction.mutate({
-            applicationId: customer.wholesaleApplication.id,
-            action: 'approve',
-        })
-    }
-
-    const handleReject = () => {
-        setRejectDialogOpen(true)
-    }
-
-    const handleConfirmReject = (reason: string) => {
-        if (!customer.wholesaleApplication) return
-        applicationAction.mutate(
-            {
-                applicationId: customer.wholesaleApplication.id,
-                customerId: customer.id,
-                action: 'reject',
-                reason,
-            },
-            {onSettled: () => setRejectDialogOpen(false)},
-        )
-    }
+    const customer = data
 
     return (
         <FormPageLayout title="Customer Details">
             <div className="flex flex-col gap-6">
                 <Card as="article" elevation="sm" padded={false}>
                     <Card.Body className="flex flex-col gap-6 p-5">
-                        <Card as="section" elevation="none" padded={false}>
-                            <Card.Header className="m-0 px-5 py-4">
-                                Customer Information
-                            </Card.Header>
-                            <Card.Body className="flex flex-col gap-4 p-5">
-                                <div className="flex flex-wrap items-center justify-between gap-4">
-                                    <h2 className="text-xl font-semibold text-(--c-text)">
-                                        {customer.firstName} {customer.lastName}
-                                    </h2>
-                                    <StatusBadge
-                                        label={customer.status}
-                                        color={getCustomerStatusColor(customer.status)}
-                                    />
-                                </div>
-                                <div className="flex flex-col gap-1 text-sm text-(--c-text-muted)">
-                                    <p>{customer.email}</p>
-                                    {customer.phone && <p>{customer.phone}</p>}
-                                    <p>Registered: {formatTimestamp(customer.registeredAt)}</p>
-                                </div>
-
-                                {/* Account action buttons (SUPER_ADMIN only) */}
-                                {canMutate && availableActions.length > 0 && (
-                                    <div className="flex flex-wrap gap-3" data-testid="account-action-buttons">
-                                        {availableActions.includes('activate') && (
-                                            <Button
-                                                variant="solid"
-                                                size="sm"
-                                                onClick={handleActivate}
-                                                disabled={statusAction.isPending}
-                                            >
-                                                Activate
-                                            </Button>
-                                        )}
-                                        {availableActions.includes('suspend') && (
-                                            <Button
-                                                variant="outline"
-                                                size="sm"
-                                                onClick={handleSuspend}
-                                                disabled={statusAction.isPending}
-                                            >
-                                                Suspend
-                                            </Button>
-                                        )}
-                                    </div>
-                                )}
-                            </Card.Body>
-                        </Card>
-
-                        {/* Wholesale application card */}
-                        <Card as="section" elevation="none" padded={false}>
-                            <Card.Header className="m-0 px-5 py-4">
-                                Wholesale Application
-                            </Card.Header>
-                            <Card.Body className="flex flex-col gap-3 p-5">
-                                {customer.wholesaleApplication !== null ? (
-                                    <>
-                                        <div className="flex flex-wrap items-center gap-3">
-                                            <StatusBadge
-                                                label={customer.wholesaleApplication.status}
-                                                color={getWholesaleStatusColor(
-                                                    customer.wholesaleApplication.status,
-                                                )}
-                                            />
-                                        </div>
-                                        <p className="text-sm text-(--c-text)">
-                                            <span className="font-medium">Company Name:</span>{' '}
-                                            {customer.wholesaleApplication.companyName}
-                                        </p>
-                                        <p className="text-sm text-(--c-text)">
-                                            <span className="font-medium">Trading Name:</span>{' '}
-                                            {customer.wholesaleApplication.tradingName || '-'}
-                                        </p>
-                                        {customer.wholesaleApplication.vatNumber && (
-                                            <p className="text-sm text-(--c-text)">
-                                                <span className="font-medium">VAT Number:</span>{' '}
-                                                {customer.wholesaleApplication.vatNumber}
-                                            </p>
-                                        )}
-                                        {customer.wholesaleApplication.regNumber && (
-                                            <p className="text-sm text-(--c-text)">
-                                                <span className="font-medium">Registration Number:</span>{' '}
-                                                {customer.wholesaleApplication.regNumber}
-                                            </p>
-                                        )}
-                                        <p className="text-sm text-(--c-text)">
-                                            <span className="font-medium">Applicant Email:</span>{' '}
-                                            {customer.wholesaleApplication.applicantEmail}
-                                        </p>
-                                        <p className="text-sm text-(--c-text)">
-                                            <span className="font-medium">Account Email:</span>{' '}
-                                            {customer.wholesaleApplication.accountEmail || '-'}
-                                        </p>
-                                        <p className="text-sm text-(--c-text)">
-                                            <span className="font-medium">Company Phone:</span>{' '}
-                                            {customer.wholesaleApplication.companyPhone || '-'}
-                                        </p>
-                                        <p className="text-sm text-(--c-text)">
-                                            <span className="font-medium">Company Email:</span>{' '}
-                                            {customer.wholesaleApplication.companyEmail || '-'}
-                                        </p>
-
-                                        {/* Finance Contact */}
-                                        <div className="border-t border-(--c-border) pt-3 mt-1">
-                                            <p className="text-xs font-semibold uppercase tracking-wide text-(--c-text-muted) mb-2">
-                                                Finance Contact
-                                            </p>
-                                            <div className="flex flex-col gap-2">
-                                                <p className="text-sm text-(--c-text)">
-                                                    <span className="font-medium">Name:</span>{' '}
-                                                    {customer.wholesaleApplication.financeContactName || '-'}
-                                                </p>
-                                                <p className="text-sm text-(--c-text)">
-                                                    <span className="font-medium">Email:</span>{' '}
-                                                    {customer.wholesaleApplication.financeContactEmail || '-'}
-                                                </p>
-                                                <p className="text-sm text-(--c-text)">
-                                                    <span className="font-medium">Phone:</span>{' '}
-                                                    {customer.wholesaleApplication.financeContactPhone || '-'}
-                                                </p>
-                                            </div>
-                                        </div>
-
-                                        {/* Purchase Order Required */}
-                                        <p className="text-sm text-(--c-text)">
-                                            <span className="font-medium">Purchase Order Required:</span>{' '}
-                                            {customer.wholesaleApplication.purchaseOrderRequired ? 'Yes' : 'No'}
-                                        </p>
-
-                                        <p className="text-sm text-(--c-text-muted)">
-                                            Submitted: {formatTimestamp(customer.wholesaleApplication.submittedAt)}
-                                        </p>
-                                        {canDecideApplication &&
-                                            customer.wholesaleApplication.status === 'PENDING' && (
-                                                <div className="flex flex-wrap gap-3">
-                                                    <Button
-                                                        variant="solid"
-                                                        size="sm"
-                                                        onClick={handleApprove}
-                                                        disabled={applicationAction.isPending}
-                                                    >
-                                                        Approve
-                                                    </Button>
-                                                    <Button
-                                                        variant="outline"
-                                                        size="sm"
-                                                        onClick={handleReject}
-                                                        disabled={applicationAction.isPending}
-                                                    >
-                                                        Reject
-                                                    </Button>
-                                                </div>
-                                            )}
-                                    </>
-                                ) : (
-                                    <p className="text-sm text-(--c-text-muted)">
-                                        No wholesale application exists for this customer.
-                                    </p>
-                                )}
-                            </Card.Body>
-                        </Card>
+                        <CustomerIdentityPanel customer={customer}/>
+                        <WholesaleAccountPanel customer={customer}/>
                     </Card.Body>
                 </Card>
 
-                <RecentOrdersTable orders={customer.recentOrders} title="Recent Orders"/>
-
-                <ConfirmationDialog
-                    open={suspendDialogOpen}
-                    onClose={() => setSuspendDialogOpen(false)}
-                    onConfirm={handleConfirmSuspend}
-                    title="Suspend Customer"
-                    description="Are you sure you want to suspend this customer? They will no longer be able to access the storefront."
-                    variant="danger"
-                    confirmLabel="Suspend"
-                    isLoading={statusAction.isPending}
-                />
-
-                {/* Reject Wholesale Application Confirmation Dialog */}
-                <RejectApplicationDialog
-                    open={rejectDialogOpen}
-                    onClose={() => setRejectDialogOpen(false)}
-                    onConfirm={handleConfirmReject}
-                    isLoading={applicationAction.isPending}
-                />
+                <RecentOrdersCard orders={customer.recentOrders}/>
             </div>
         </FormPageLayout>
     )

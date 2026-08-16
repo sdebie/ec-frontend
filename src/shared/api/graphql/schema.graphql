@@ -188,7 +188,6 @@ type OrderDetailRespDto {
   customerEntity: CustomerDto
   id: String
   items: [OrderItemDetailDto]
-  sessionId: String
   shippingAddressLine1: String
   shippingAddressLine2: String
   shippingCity: String
@@ -219,12 +218,19 @@ type OrderResponseDto {
 }
 
 type OrderStatusHistoryDetailRespDto {
-  changedBy: String
   comment: String
   "ISO-8601"
   createdAt: DateTime
   id: String
   status: OrderStatusEn
+}
+
+type OrderStatusRespDto {
+  "ISO-8601"
+  createdAt: DateTime
+  id: String
+  status: OrderStatusEn
+  totalAmount: BigDecimal
 }
 
 type OrderSummaryDto {
@@ -487,8 +493,8 @@ type Query {
   myOrders: [OrderSummaryDto]
   "Update an order and return"
   orderById(id: String): OrderResponseDto
-  "Get the latest order for a given sessionId"
-  orderBySessionId(sessionId: String): OrderResponseDto
+  "Poll one order's status by id — the guest checkout success page"
+  orderStatus(orderId: String): OrderStatusRespDto
   "Returns the total number of products matching the given filter, optionally scoped to a category (including subcategories) and/or a brand."
   productCount(
     "Optional brand UUID. Restricts count to products linked to this brand."

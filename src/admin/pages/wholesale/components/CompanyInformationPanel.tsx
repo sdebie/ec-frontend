@@ -17,13 +17,13 @@ export function CompanyInformationPanel({application}: CompanyInformationPanelPr
                 <div className="grid grid-cols-1 gap-x-8 sm:grid-cols-2">
                     <div>
                         <InfoRow label="Company Name" value={application.companyName}/>
-                        <InfoRow label="Trading Name" value={application.tradingName || '-'}/>
-                        <InfoRow label="Company Phone" value={application.companyPhone || '-'}/>
-                        <InfoRow label="Company Email" value={application.companyEmail || '-'}/>
+                        <InfoRow label="Trading Name" value={application.tradingName || '—'}/>
+                        <InfoRow label="Company Phone" value={application.companyPhone || '—'}/>
+                        <InfoRow label="Company Email" value={application.companyEmail || '—'}/>
                     </div>
                     <div className="sm:border-l sm:border-(--c-border) sm:pl-6">
-                        <InfoRow label="Registration Number" value={application.regNumber || '-'}/>
-                        <InfoRow label="VAT Number" value={application.vatNumber || '-'}/>
+                        <InfoRow label="Registration Number" value={application.regNumber || '—'}/>
+                        <InfoRow label="VAT Number" value={application.vatNumber || '—'}/>
                         <InfoRow
                             label="Purchase Order Required"
                             value={

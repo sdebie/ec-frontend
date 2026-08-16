@@ -16,7 +16,6 @@ vi.mock('react-router-dom', async () => {
     return {
         ...actual,
         useNavigate: () => mockNavigate,
-        useSearchParams: () => [new URLSearchParams('orderId=order-123')],
     }
 })
 
@@ -101,6 +100,7 @@ const mockSession: CheckoutSession = {
     vatAmount: 30,
     shippingEstimate: 89,
     grandTotal: 319,
+    orderToken: 'token-abc',
 }
 
 const mockStorefrontConfig: StorefrontConfig = {
@@ -132,7 +132,7 @@ function renderCheckoutPage(CheckoutPage: React.ComponentType) {
     return render(
         <QueryClientProvider client={queryClient}>
             <StorefrontConfigContext.Provider value={mockStorefrontConfig}>
-                <MemoryRouter initialEntries={['/checkout?orderId=order-123']}>
+                <MemoryRouter initialEntries={['/checkout']}>
                     <CheckoutPage/>
                 </MemoryRouter>
             </StorefrontConfigContext.Provider>
@@ -300,12 +300,15 @@ describe('CheckoutPage', () => {
             await fillInStoreCheckout(user)
 
             await waitFor(() => {
-                expect(mockNavigate).toHaveBeenCalledWith(
-                    '/checkout/success?sessionId=session-abc'
-                )
+                // No identifier in the URL (Requirement 3.5) — the success page reads
+                // the order from checkoutSessionStore.
+                expect(mockNavigate).toHaveBeenCalledWith('/checkout/success')
             })
 
-            expect(mockConfirmInStorePaymentMutateAsync).toHaveBeenCalledWith('order-123')
+            expect(mockConfirmInStorePaymentMutateAsync).toHaveBeenCalledWith({
+                orderId: 'order-123',
+                token: 'token-abc',
+            })
             expect(mockInitiatePaymentMutateAsync).not.toHaveBeenCalled()
         })
 

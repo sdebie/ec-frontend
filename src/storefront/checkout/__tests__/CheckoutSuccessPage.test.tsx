@@ -7,10 +7,16 @@ import type {StorefrontConfig} from '@/shared/types/StorefrontConfig'
 
 // --- Mocks ---
 
+interface MockSessionState {
+    session: { orderId: string; orderToken: string } | null
+    clearSession: () => void
+}
+
 const mockClearSession = vi.fn()
+let mockSessionState: MockSessionState = {session: null, clearSession: mockClearSession}
+
 vi.mock('../store/checkoutSessionStore', () => ({
-    useCheckoutSessionStore: (selector: (state: { clearSession: () => void }) => unknown) =>
-        selector({clearSession: mockClearSession}),
+    useCheckoutSessionStore: (selector: (state: MockSessionState) => unknown) => selector(mockSessionState),
 }))
 
 const mockClearCart = vi.fn()
@@ -19,24 +25,19 @@ vi.mock('@/storefront/cart/store/cartStore', () => ({
         selector({clearCart: mockClearCart}),
 }))
 
-let mockSearchParams = new URLSearchParams()
-vi.mock('react-router-dom', async () => {
-    const actual = await vi.importActual('react-router-dom')
-    return {
-        ...actual,
-        useSearchParams: () => [mockSearchParams],
-    }
-})
-
 let mockPollResult: {
     data: { id: string; status: string; totalAmount: number; createdAt: string } | undefined
     isTerminal: boolean
     isTimedOut: boolean
 } = {data: undefined, isTerminal: false, isTimedOut: false}
 
-vi.mock('../hooks/usePollOrderStatus', () => ({
-    usePollOrderStatus: () => mockPollResult,
-}))
+vi.mock('../hooks/usePollOrderStatus', async () => {
+    const actual = await vi.importActual<typeof import('../hooks/usePollOrderStatus')>('../hooks/usePollOrderStatus')
+    return {
+        ...actual,
+        usePollOrderStatus: () => mockPollResult,
+    }
+})
 
 vi.mock('@/shared/utils/formatAmount', () => ({
     formatAmount: (amount: number, currency: string) => `${currency} ${amount.toFixed(2)}`,
@@ -82,12 +83,17 @@ function renderCheckoutSuccessPage(Component: React.ComponentType) {
 
 // --- Tests ---
 
+/**
+ * guest-order-authorization: this page now reads orderId/orderToken from
+ * checkoutSessionStore, never a URL query string (Requirement 3.5) — the withdrawn
+ * ?sessionId= was itself a bearer credential (Requirement 4).
+ */
 describe('CheckoutSuccessPage', () => {
     let CheckoutSuccessPage: React.ComponentType
 
     beforeEach(async () => {
         vi.clearAllMocks()
-        mockSearchParams = new URLSearchParams()
+        mockSessionState = {session: null, clearSession: mockClearSession}
         mockPollResult = {data: undefined, isTerminal: false, isTimedOut: false}
         CheckoutSuccessPage = await importCheckoutSuccessPage()
     })
@@ -96,9 +102,9 @@ describe('CheckoutSuccessPage', () => {
         vi.restoreAllMocks()
     })
 
-    describe('missing sessionId', () => {
-        it('renders invalid link fallback when sessionId param is absent', () => {
-            mockSearchParams = new URLSearchParams()
+    describe('missing session', () => {
+        it('renders invalid link fallback when there is no order in the store', () => {
+            mockSessionState = {session: null, clearSession: mockClearSession}
             renderCheckoutSuccessPage(CheckoutSuccessPage)
 
             expect(screen.getByText(/this link isn't valid/i)).toBeInTheDocument()
@@ -111,7 +117,10 @@ describe('CheckoutSuccessPage', () => {
 
     describe('PAID status', () => {
         it('shows payment confirmed message with orderId and total, clearSession called', () => {
-            mockSearchParams = new URLSearchParams('sessionId=session-abc')
+            mockSessionState = {
+                session: {orderId: 'order-456', orderToken: 'token-456'},
+                clearSession: mockClearSession,
+            }
             mockPollResult = {
                 data: {id: 'order-456', status: 'PAID', totalAmount: 319, createdAt: '2024-01-01'},
                 isTerminal: true,
@@ -130,7 +139,10 @@ describe('CheckoutSuccessPage', () => {
 
     describe('IN_STORE_PAYMENT status', () => {
         it('shows collection message when status is IN_STORE_PAYMENT', () => {
-            mockSearchParams = new URLSearchParams('sessionId=session-abc')
+            mockSessionState = {
+                session: {orderId: 'order-789', orderToken: 'token-789'},
+                clearSession: mockClearSession,
+            }
             mockPollResult = {
                 data: {id: 'order-789', status: 'IN_STORE_PAYMENT', totalAmount: 200, createdAt: '2024-01-01'},
                 isTerminal: true,
@@ -144,9 +156,33 @@ describe('CheckoutSuccessPage', () => {
         })
     })
 
+    describe('cancelled status', () => {
+        it.each(['USER_CANCELED', 'ADMIN_CANCELED', 'SYSTEM_CANCELED', 'FAILED'])(
+            'shows a cancelled message for %s rather than hanging on "Confirming your payment…"',
+            (status) => {
+                mockSessionState = {
+                    session: {orderId: 'order-999', orderToken: 'token-999'},
+                    clearSession: mockClearSession,
+                }
+                mockPollResult = {
+                    data: {id: 'order-999', status, totalAmount: 100, createdAt: '2024-01-01'},
+                    isTerminal: false,
+                    isTimedOut: false,
+                }
+
+                renderCheckoutSuccessPage(CheckoutSuccessPage)
+
+                expect(screen.getByText(/this order was cancelled/i)).toBeInTheDocument()
+            }
+        )
+    })
+
     describe('timeout', () => {
         it('shows timeout message when isTimedOut is true', () => {
-            mockSearchParams = new URLSearchParams('sessionId=session-abc')
+            mockSessionState = {
+                session: {orderId: 'order-abc', orderToken: 'token-abc'},
+                clearSession: mockClearSession,
+            }
             mockPollResult = {
                 data: undefined,
                 isTerminal: false,

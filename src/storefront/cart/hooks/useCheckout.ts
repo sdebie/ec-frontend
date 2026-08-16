@@ -25,6 +25,8 @@ interface CheckoutResponse {
     vatAmount: number
     shippingEstimate: number
     grandTotal: number
+    /** guest-order-authorization — required by every order-scoped request from here on. */
+    orderToken: string
 }
 
 interface CheckoutError422 {
@@ -95,7 +97,9 @@ export function useCheckout() {
             setUnavailableVariantIds([])
             setError(null)
             useCheckoutSessionStore.getState().setSession(data)
-            navigate(`/checkout?orderId=${data.orderId}`)
+            // No identifier in the URL (Requirement 3.5) — /checkout reads the order
+            // from checkoutSessionStore, the only source now.
+            navigate('/checkout')
         },
         onError: (err) => {
             const status = err.response?.status

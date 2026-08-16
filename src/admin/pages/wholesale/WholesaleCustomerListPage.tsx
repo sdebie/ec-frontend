@@ -1,13 +1,12 @@
-import { useCallback, useEffect, useState } from 'react'
-import type { PaginationState } from '@tanstack/react-table'
-
-import { PageLayout } from '@/shared/ui/components'
-import { useCan } from '@/shared/auth/adminPermissions'
-import { useTableSort } from '@/admin/hooks/useTableSort'
-import type { CustomerStatus } from '@/admin/hooks/customers/types'
-import { useWholesaleCustomers } from './hooks'
-import { WholesaleCustomerListToolbar } from './components/WholesaleCustomerListToolbar'
-import { WholesaleCustomerListTable } from './components/WholesaleCustomerListTable'
+import {useCallback, useEffect, useState} from 'react'
+import type {PaginationState} from '@tanstack/react-table'
+import {PageLayout} from '@/shared/ui/components'
+import {useCan} from '@/shared/auth/adminPermissions'
+import {useTableSort} from '@/admin/hooks/useTableSort'
+import type {CustomerStatus} from '@/admin/hooks/customers/types'
+import {useWholesaleCustomers} from './hooks'
+import {WholesaleCustomerListToolbar} from './components/WholesaleCustomerListToolbar'
+import {WholesaleCustomerListTable} from './components/WholesaleCustomerListTable'
 
 export function WholesaleCustomerListPage() {
     const canMutate = useCan('wholesale-customer:write')

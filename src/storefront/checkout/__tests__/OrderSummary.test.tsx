@@ -38,6 +38,7 @@ const mockSession: CheckoutSession = {
     vatAmount: 155.33,
     shippingEstimate: 89,
     grandTotal: 1279.83,
+    orderToken: 'token-001',
 }
 
 function renderOrderSummary(

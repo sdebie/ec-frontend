@@ -1,13 +1,15 @@
 import { useState, useEffect, useMemo, useCallback } from 'react'
-import { Link } from 'react-router-dom'
+import { Link, useNavigate } from 'react-router-dom'
 import type { PaginationState } from '@tanstack/react-table'
-import { Search } from 'lucide-react'
+import { CircleCheck, Eye, OctagonPause, Search } from 'lucide-react'
 
 import {
   DataTable,
   PageLayout,
-  Segment,
+  Label,
+  Select,
   ConfirmationDialog,
+  RowActionButton,
   StatusBadge,
 } from '@/shared/ui/components'
 import type { ColumnDef } from '@/shared/ui/components'
@@ -17,7 +19,7 @@ import { useTableSort } from '@/admin/hooks/useTableSort'
 import { useCustomers, useUpdateCustomerStatus } from '@/admin/hooks/customers'
 import type { AdminCustomerSummary } from '@/admin/hooks/customers'
 import { getAvailableActions, getCustomerStatusColor } from '@/admin/hooks/customers'
-import { CustomerActionsMenu } from './components/CustomerActionsMenu'
+import { formatDateTime } from '@/shared/utils/formatDateTime'
 
 const STATUS_FILTER_OPTIONS = [
   { value: 'ALL', label: 'All' },
@@ -26,15 +28,8 @@ const STATUS_FILTER_OPTIONS = [
   { value: 'DISABLED', label: 'Disabled' },
 ]
 
-function formatDate(dateString: string): string {
-  return new Date(dateString).toLocaleDateString(undefined, {
-    day: 'numeric',
-    month: 'short',
-    year: 'numeric',
-  })
-}
-
 export function CustomerListPage() {
+  const navigate = useNavigate()
   const canMutate = useCan('customer:write')
 
   const [statusFilter, setStatusFilter] = useState('ALL')
@@ -115,6 +110,16 @@ export function CustomerListPage() {
   const columns = useMemo<ColumnDef<AdminCustomerSummary, unknown>[]>(
     () => [
       {
+        // Same accessorKey/id split as email: registeredAt is customer.user.createdAt,
+        // one hop through the same join.
+        accessorKey: 'registeredAt',
+        id: 'user.createdAt',
+        header: 'Registered',
+        cell: ({ row }) => (
+          <span className="whitespace-nowrap">{formatDateTime(row.original.registeredAt)}</span>
+        ),
+      },
+      {
         // Not sortable: concatenates firstName + lastName, and there is no single
         // backend field a "full name" sort could map to.
         id: 'name',
@@ -153,36 +158,46 @@ export function CustomerListPage() {
         ),
       },
       {
-        // Same accessorKey/id split as email: registeredAt is customer.user.createdAt,
-        // one hop through the same join.
-        accessorKey: 'registeredAt',
-        id: 'user.createdAt',
-        header: 'Registered',
-        cell: ({ row }) => formatDate(row.original.registeredAt),
-      },
-      ...(canMutate
-        ? [
-            {
-              id: 'actions',
-              header: 'Actions',
-              enableSorting: false,
-              cell: ({ row }: { row: { original: AdminCustomerSummary } }) => {
-                const customer = row.original
-                const actions = getAvailableActions(customer.status)
-                if (actions.length === 0) return null
-                return (
-                  <CustomerActionsMenu
-                    customer={customer}
-                    onActivate={() => handleActivate(customer.id)}
-                    onSuspend={() => handleSuspend(customer.id)}
-                  />
-                )
-              },
-            } as ColumnDef<AdminCustomerSummary, unknown>,
-          ]
-        : []),
+        id: 'actions',
+        header: 'Actions',
+        enableSorting: false,
+        cell: ({ row }) => {
+          const customer = row.original
+          const actions = canMutate ? getAvailableActions(customer.status) : []
+          return (
+            <div className="flex items-center gap-1">
+              <RowActionButton
+                onClick={() => navigate(`/admin/customers/${customer.id}`)}
+                aria-label="View customer"
+                data-testid="action-view"
+              >
+                <Eye className="h-4 w-4" />
+              </RowActionButton>
+              {actions.includes('suspend') && (
+                <RowActionButton
+                  onClick={() => handleSuspend(customer.id)}
+                  variant="danger"
+                  aria-label="Suspend customer"
+                  disabled={isUpdatingStatus}
+                >
+                  <OctagonPause className="h-4 w-4" />
+                </RowActionButton>
+              )}
+              {actions.includes('activate') && (
+                <RowActionButton
+                  onClick={() => handleActivate(customer.id)}
+                  aria-label="Activate customer"
+                  disabled={isUpdatingStatus}
+                >
+                  <CircleCheck className="h-4 w-4" />
+                </RowActionButton>
+              )}
+            </div>
+          )
+        },
+      } as ColumnDef<AdminCustomerSummary, unknown>,
     ],
-    [canMutate, handleActivate, handleSuspend],
+    [canMutate, handleActivate, handleSuspend, isUpdatingStatus, navigate],
   )
 
   const pageCount = data ? Math.ceil(data.total / pagination.pageSize) : 0
@@ -192,12 +207,6 @@ export function CustomerListPage() {
       <div className="flex flex-col gap-6">
         {/* Filters */}
         <div className="flex flex-col gap-4 sm:flex-row sm:items-center">
-          <Segment
-            options={STATUS_FILTER_OPTIONS}
-            value={statusFilter}
-            onChange={handleStatusFilterChange}
-          />
-
           <div className="relative max-w-sm">
             <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-(--c-text-muted)" />
             <Input
@@ -206,6 +215,17 @@ export function CustomerListPage() {
               value={searchInput}
               onChange={handleSearchChange}
               className="pl-9"
+            />
+          </div>
+
+          <div className="flex items-center gap-2">
+            <Label className="mb-0">Status</Label>
+            <Select
+              options={STATUS_FILTER_OPTIONS}
+              value={statusFilter}
+              onChange={handleStatusFilterChange}
+              ariaLabel="Filter by status"
+              className="min-w-48"
             />
           </div>
         </div>
@@ -222,6 +242,7 @@ export function CustomerListPage() {
           manualSorting
           sorting={sorting}
           onSortingChange={onSortingChange}
+          onRowDoubleClick={(row) => navigate(`/admin/customers/${row.id}`)}
         />
 
         {/* Confirmation Dialog for Suspend */}

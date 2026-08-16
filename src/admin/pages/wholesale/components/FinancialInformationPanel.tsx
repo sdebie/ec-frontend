@@ -13,9 +13,9 @@ export function FinancialInformationPanel({application}: FinancialInformationPan
         <Card as="section" elevation="none" padded={false}>
             <WholesaleApplicationDetailHeader icon={HandCoins} title="Financial Information"/>
             <Card.Body className="p-5">
-                <InfoRow label="Contact Name" value={application.financeContactName || '-'}/>
-                <InfoRow label="Contact Email" value={application.financeContactEmail || '-'}/>
-                <InfoRow label="Contact Phone" value={application.financeContactPhone || '-'}/>
+                <InfoRow label="Contact Name" value={application.financeContactName || '—'}/>
+                <InfoRow label="Contact Email" value={application.financeContactEmail || '—'}/>
+                <InfoRow label="Contact Phone" value={application.financeContactPhone || '—'}/>
             </Card.Body>
         </Card>
     )

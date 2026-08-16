@@ -133,8 +133,8 @@ describe('WholesaleCustomerDetailPage', () => {
       expect(screen.getByText('+27821234567')).toBeInTheDocument()
     })
 
-    it('renders registration date', () => {
-      expect(screen.getByText(/Registered:/)).toBeInTheDocument()
+    it('renders "Customer since" with the registration date', () => {
+      expect(screen.getByText(/Customer since/)).toBeInTheDocument()
     })
   })
 
@@ -144,28 +144,16 @@ describe('WholesaleCustomerDetailPage', () => {
       renderPage()
     })
 
-    it('renders Wholesale Application heading', () => {
-      expect(screen.getByText('Wholesale Application')).toBeInTheDocument()
+    it('renders Wholesale Account heading', () => {
+      expect(screen.getByText('Wholesale Account')).toBeInTheDocument()
     })
 
     it('renders company name', () => {
       expect(screen.getByText('Smith Trading Co')).toBeInTheDocument()
     })
 
-    it('renders VAT number', () => {
-      expect(screen.getByText('VAT123456')).toBeInTheDocument()
-    })
-
-    it('renders registration number', () => {
-      expect(screen.getByText('REG789')).toBeInTheDocument()
-    })
-
-    it('renders application status badge', () => {
-      expect(screen.getByText('PENDING')).toBeInTheDocument()
-    })
-
-    it('renders submitted date', () => {
-      expect(screen.getByText(/Submitted:/)).toBeInTheDocument()
+    it('renders submitted date as card metadata', () => {
+      expect(screen.getByText(/Application submitted/)).toBeInTheDocument()
     })
 
     it('renders applicant email', () => {
@@ -200,8 +188,13 @@ describe('WholesaleCustomerDetailPage', () => {
       expect(screen.getByText('+27119876543')).toBeInTheDocument()
     })
 
-    it('renders purchase order required as Yes when true', () => {
+    it('renders purchase order required as a Yes badge when true', () => {
       expect(screen.getByText('Yes')).toBeInTheDocument()
+    })
+
+    it('does not render VAT Number or Registration Number, which are not part of this summary', () => {
+      expect(screen.queryByText('VAT123456')).not.toBeInTheDocument()
+      expect(screen.queryByText('REG789')).not.toBeInTheDocument()
     })
   })
 
@@ -234,64 +227,40 @@ describe('WholesaleCustomerDetailPage', () => {
     })
 
     it('renders without error when optional fields are null', () => {
-      expect(screen.getByText('Wholesale Application')).toBeInTheDocument()
+      expect(screen.getByText('Wholesale Account')).toBeInTheDocument()
       expect(screen.getByText('Smith Trading Co')).toBeInTheDocument()
     })
 
-    it('renders account email as dash when null', () => {
-      const accountEmailLine = screen.getByText('Account Email:').closest('p')
-      expect(accountEmailLine).toHaveTextContent('Account Email: -')
+    it('renders account email as an em dash when null', () => {
+      expect(screen.getByText('Account Email').nextElementSibling).toHaveTextContent('—')
     })
 
-    it('renders trading name as dash when null', () => {
-      const tradingNameLine = screen.getByText('Trading Name:').closest('p')
-      expect(tradingNameLine).toHaveTextContent('Trading Name: -')
+    it('renders trading name as an em dash when null', () => {
+      expect(screen.getByText('Trading Name').nextElementSibling).toHaveTextContent('—')
     })
 
-    it('renders company phone as dash when null', () => {
-      const companyPhoneLine = screen.getByText('Company Phone:').closest('p')
-      expect(companyPhoneLine).toHaveTextContent('Company Phone: -')
+    it('renders company phone as an em dash when null', () => {
+      expect(screen.getByText('Company Phone').nextElementSibling).toHaveTextContent('—')
     })
 
-    it('renders company email as dash when null', () => {
-      const companyEmailLine = screen.getByText('Company Email:').closest('p')
-      expect(companyEmailLine).toHaveTextContent('Company Email: -')
+    it('renders company email as an em dash when null', () => {
+      expect(screen.getByText('Company Email').nextElementSibling).toHaveTextContent('—')
     })
 
-    it('renders finance contact name as dash when null', () => {
-      const nameLine = screen.getByText((content, element) => {
-        return element?.tagName === 'SPAN' && content === 'Name:' &&
-          element.closest('[class*="border-t"]') !== null
-      })?.closest('p')
-      expect(nameLine).toHaveTextContent('Name: -')
+    it('renders finance contact name as an em dash when null', () => {
+      expect(screen.getByText('Name').nextElementSibling).toHaveTextContent('—')
     })
 
-    it('renders finance contact email as dash when null', () => {
-      const emailLine = screen.getByText((content, element) => {
-        return element?.tagName === 'SPAN' && content === 'Email:' &&
-          element.closest('[class*="border-t"]') !== null
-      })?.closest('p')
-      expect(emailLine).toHaveTextContent('Email: -')
+    it('renders finance contact email as an em dash when null', () => {
+      expect(screen.getByText('Email').nextElementSibling).toHaveTextContent('—')
     })
 
-    it('renders finance contact phone as dash when null', () => {
-      const phoneLine = screen.getByText((content, element) => {
-        return element?.tagName === 'SPAN' && content === 'Phone:' &&
-          element.closest('[class*="border-t"]') !== null
-      })?.closest('p')
-      expect(phoneLine).toHaveTextContent('Phone: -')
+    it('renders finance contact phone as an em dash when null', () => {
+      expect(screen.getByText('Phone').nextElementSibling).toHaveTextContent('—')
     })
 
-    it('renders purchase order required as No when null/false', () => {
+    it('renders purchase order required as a No badge when null', () => {
       expect(screen.getByText('No')).toBeInTheDocument()
-    })
-
-    it('does not render VAT number when null', () => {
-      expect(screen.queryByText('VAT Number:')).not.toBeInTheDocument()
-    })
-
-    it('does not render registration number when null', () => {
-      expect(screen.queryByText('Registration Number:')).not.toBeInTheDocument()
     })
   })
 
@@ -415,6 +384,23 @@ describe('WholesaleCustomerDetailPage', () => {
       expect(screen.queryByRole('button', { name: 'Approve' })).not.toBeInTheDocument()
       expect(screen.queryByRole('button', { name: 'Reject' })).not.toBeInTheDocument()
     })
+
+    it('renders an Approved status badge instead of decision buttons when application is APPROVED', () => {
+      setupMocks({
+        role: 'SUPER_ADMIN',
+        data: {
+          ...mockCustomer,
+          wholesaleApplication: {
+            ...mockCustomer.wholesaleApplication!,
+            status: 'APPROVED',
+          },
+        },
+      })
+
+      renderPage()
+
+      expect(screen.getByText('Approved')).toBeInTheDocument()
+    })
   })
 
   describe('reject opens RejectApplicationDialog and requires a reason', () => {
@@ -497,14 +483,30 @@ describe('WholesaleCustomerDetailPage', () => {
 
     it('renders formatted order amounts', () => {
       // formatAmount(15000) with en-ZA locale and ZAR currency
-      expect(screen.getByText(/15[\s\u00a0]?000/)).toBeInTheDocument()
-      expect(screen.getByText(/8[\s\u00a0]?000/)).toBeInTheDocument()
+      expect(screen.getByText(/15[\s ]?000/)).toBeInTheDocument()
+      expect(screen.getByText(/8[\s ]?000/)).toBeInTheDocument()
     })
 
     it('renders order status badges', () => {
       // RecentOrdersTable maps raw status → friendly label via OrderStatusOptions.
       expect(screen.getByText('Paid')).toBeInTheDocument()
       expect(screen.getByText('Delivered')).toBeInTheDocument()
+    })
+  })
+
+  describe('empty orders state', () => {
+    it('renders a richer empty state instead of a plain message', () => {
+      setupMocks({
+        role: 'SUPER_ADMIN',
+        data: { ...mockCustomer, recentOrders: [] },
+      })
+
+      renderPage()
+
+      expect(screen.getByText('No orders yet')).toBeInTheDocument()
+      expect(
+        screen.getByText('Orders placed by this customer will appear here.'),
+      ).toBeInTheDocument()
     })
   })
 })

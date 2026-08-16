@@ -173,25 +173,19 @@ describe('WholesaleCustomerListPage', () => {
     })
   })
 
-  // Row actions live inside a DropdownMenu behind the "Customer actions" ellipsis trigger.
-  function openRowActionsMenu() {
-    fireEvent.click(screen.getByRole('button', { name: 'Customer actions' }))
-  }
-
-  describe('actions menu visibility', () => {
-    it('renders Suspend menu item for SUPER_ADMIN with ACTIVE customer (has suspend transition)', () => {
+  describe('actions visibility', () => {
+    it('renders a Suspend icon button for SUPER_ADMIN with ACTIVE customer (has suspend transition)', () => {
       setupDefaultMocks({
         role: 'SUPER_ADMIN',
         customersData: [createMockCustomer({ status: 'ACTIVE' })],
       })
 
       renderPage()
-      openRowActionsMenu()
 
-      expect(screen.getByRole('menuitem', { name: 'Suspend' })).toBeInTheDocument()
+      expect(screen.getByRole('button', { name: 'Suspend customer' })).toBeInTheDocument()
     })
 
-    it('does not render action buttons for VIEWER role', () => {
+    it('renders the View action for every role, including VIEWER', () => {
       setupDefaultMocks({
         role: 'VIEWER',
         customersData: [createMockCustomer({ status: 'ACTIVE' })],
@@ -199,8 +193,19 @@ describe('WholesaleCustomerListPage', () => {
 
       renderPage()
 
-      expect(screen.queryByRole('button', { name: 'Suspend' })).not.toBeInTheDocument()
-      expect(screen.queryByRole('button', { name: 'Activate' })).not.toBeInTheDocument()
+      expect(screen.getByRole('button', { name: 'View customer' })).toBeInTheDocument()
+    })
+
+    it('does not render Suspend/Activate for VIEWER role', () => {
+      setupDefaultMocks({
+        role: 'VIEWER',
+        customersData: [createMockCustomer({ status: 'ACTIVE' })],
+      })
+
+      renderPage()
+
+      expect(screen.queryByRole('button', { name: 'Suspend customer' })).not.toBeInTheDocument()
+      expect(screen.queryByRole('button', { name: 'Activate customer' })).not.toBeInTheDocument()
     })
   })
 
@@ -212,11 +217,8 @@ describe('WholesaleCustomerListPage', () => {
       })
 
       renderPage()
-      openRowActionsMenu()
 
-      // Click "Suspend" menu item
-      const suspendButton = screen.getByRole('menuitem', { name: 'Suspend' })
-      fireEvent.click(suspendButton)
+      fireEvent.click(screen.getByRole('button', { name: 'Suspend customer' }))
 
       // ConfirmationDialog should now be open
       expect(screen.getByRole('dialog')).toBeInTheDocument()
@@ -235,17 +237,24 @@ describe('WholesaleCustomerListPage', () => {
       })
 
       renderPage()
-      openRowActionsMenu()
 
-      // Click "Activate" menu item
-      const activateButton = screen.getByRole('menuitem', { name: 'Activate' })
-      fireEvent.click(activateButton)
+      fireEvent.click(screen.getByRole('button', { name: 'Activate customer' }))
 
       // mutate should be called directly with ACTIVE status
       expect(mockMutate).toHaveBeenCalledWith({ customerId: 'customer-1', status: 'ACTIVE' })
 
       // No dialog should appear
       expect(screen.queryByRole('dialog')).not.toBeInTheDocument()
+    })
+  })
+
+  describe('Application Status column removed', () => {
+    it('does not render an Application Status column header', () => {
+      setupDefaultMocks()
+
+      renderPage()
+
+      expect(screen.queryByText('Application Status')).not.toBeInTheDocument()
     })
   })
 })

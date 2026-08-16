@@ -1,5 +1,5 @@
 import {useState} from 'react'
-import {Calendar, Check, FileUser, Mail, Phone, X} from 'lucide-react'
+import {Calendar, FileUser, FileX, Mail, Phone} from 'lucide-react'
 import {ConfirmationDialog} from '@/shared/ui/components'
 import {Button, Card} from '@/shared/ui/primitives'
 import {useCan} from '@/shared/auth/adminPermissions'
@@ -57,18 +57,15 @@ export function ApplicantInformationPanel({application}: ApplicantInformationPan
                             <div className="flex items-center gap-3" data-testid="decision-actions">
                                 <Button
                                     variant="outline"
-                                    size="sm"
-                                    leftIcon={<X className="h-4 w-4"/>}
+                                    size="lg"
                                     onClick={() => setRejectDialogOpen(true)}
                                     disabled={applicationAction.isPending}
-                                    className="border-(--c-status-red-border) text-(--c-status-red-text) hover:border-(--c-status-red-text) hover:bg-(--c-status-red-bg) hover:text-(--c-status-red-text)"
                                 >
                                     Reject
                                 </Button>
                                 <Button
                                     variant="solid"
-                                    size="sm"
-                                    leftIcon={<Check className="h-4 w-4"/>}
+                                    size="lg"
                                     onClick={() => setApproveDialogOpen(true)}
                                     disabled={applicationAction.isPending}
                                 >
@@ -123,9 +120,10 @@ export function ApplicantInformationPanel({application}: ApplicantInformationPan
                                 {!isPending && (application.processedAt || application.rejectionReason) && (
                                     <div className="mt-1 flex flex-col gap-1 text-sm text-(--c-text-muted)">
                                         {application.processedAt && (
-                                            <p>
+                                            <span className={"flex items-center gap-2"}>
+                                                <FileX className="h-4 w-4 shrink-0"/>
                                                 Processed: {formatDateTime(application.processedAt)}
-                                            </p>
+                                            </span>
                                         )}
                                         {application.rejectionReason && (
                                             <p className="text-(--c-text)">

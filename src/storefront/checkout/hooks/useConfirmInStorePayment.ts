@@ -18,9 +18,11 @@ interface InStorePaymentResponse {
  */
 export function useConfirmInStorePayment() {
     return useMutation({
-        mutationFn: async (orderId: string) => {
+        mutationFn: async ({orderId, token}: { orderId: string; token: string }) => {
             const {data} = await storefrontHttpClient.post<InStorePaymentResponse>(
                 `/orders/${orderId}/in-store-payment`,
+                undefined,
+                {headers: {'X-Order-Token': token}}
             )
             return data
         },
