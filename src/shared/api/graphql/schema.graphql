@@ -147,8 +147,6 @@ type Mutation {
   "Creates a new staff user"
   addStaffUser(staffDto: StaffDtoInput): Void
   approveWholesaleApplication(id: String): WholesaleApplicationDetailsDto
-  "Completes a customer password reset using a valid token."
-  completeCustomerPasswordReset(newPassword: String, token: String): String
   createBrand(brandDto: BrandDtoInput): Void
   "Create a new category"
   createCategory(categoryDto: CategoryDtoInput): Void
@@ -158,8 +156,6 @@ type Mutation {
   deleteCategory(id: String): Void
   "Delete a product and all its variants. SUPER_ADMIN only."
   deleteProduct(id: String): Void
-  "Initiates a customer password reset. Always returns a generic message."
-  initiateCustomerPasswordReset(email: String): String
   rejectWholesaleApplication(id: String, reason: String): WholesaleApplicationDetailsDto
   saveShippingMethod(methodDto: ShippingMethodDtoInput): ShippingMethodDto
   saveStoreSettings(storeSettingsDto: [StoreSettingsDtoInput]): [StoreSettingsDto]
@@ -491,8 +487,6 @@ type Query {
   importRows(batchId: String): [ProductComparisonDto]
   "Get authenticated customer's order history"
   myOrders: [OrderSummaryDto]
-  "Update an order and return"
-  orderById(id: String): OrderResponseDto
   "Poll one order's status by id — the guest checkout success page"
   orderStatus(orderId: String): OrderStatusRespDto
   "Returns the total number of products matching the given filter, optionally scoped to a category (including subcategories) and/or a brand."
