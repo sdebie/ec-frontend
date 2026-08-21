@@ -107,11 +107,11 @@ describe('cartStore', () => {
         })
     })
 
-    describe('clearCart', () => {
+    describe('clear', () => {
         it('clears all items from the cart', () => {
             useCartStore.getState().addItem(makeItem({variantId: 'variant-1'}))
             useCartStore.getState().addItem(makeItem({variantId: 'variant-2', productName: 'Other'}))
-            useCartStore.getState().clearCart()
+            useCartStore.getState().clear()
 
             const {items, itemCount} = useCartStore.getState()
             expect(items).toHaveLength(0)
@@ -119,7 +119,7 @@ describe('cartStore', () => {
         })
 
         it('does not throw when clearing an already empty cart', () => {
-            expect(() => useCartStore.getState().clearCart()).not.toThrow()
+            expect(() => useCartStore.getState().clear()).not.toThrow()
 
             const {items, itemCount} = useCartStore.getState()
             expect(items).toHaveLength(0)

@@ -21,8 +21,8 @@ vi.mock('../store/checkoutSessionStore', () => ({
 
 const mockClearCart = vi.fn()
 vi.mock('@/storefront/cart/store/cartStore', () => ({
-    useCartStore: (selector: (state: { clearCart: () => void }) => unknown) =>
-        selector({clearCart: mockClearCart}),
+    useCartStore: (selector: (state: { clear: () => void }) => unknown) =>
+        selector({clear: mockClearCart}),
 }))
 
 let mockPollResult: {

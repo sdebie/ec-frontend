@@ -26,7 +26,7 @@ export function CheckoutSuccessPage() {
     const token = useCheckoutSessionStore((state) => state.session?.orderToken ?? null)
 
     const clearSession = useCheckoutSessionStore((state) => state.clearSession)
-    const clearCart = useCartStore((state) => state.clearCart)
+    const clearCart = useCartStore((state) => state.clear)
     const config = useStorefrontConfig()
 
     const {data, isTerminal, isTimedOut} = usePollOrderStatus(orderId, token)

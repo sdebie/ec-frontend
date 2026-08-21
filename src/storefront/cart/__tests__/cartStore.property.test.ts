@@ -285,7 +285,7 @@ function createCartStoreWithStorage(storage: Storage) {
                         const items = state.items.filter((i) => i.variantId !== variantId)
                         return {items, itemCount: computeItemCount(items)}
                     }),
-                clearCart: () => set({items: [], itemCount: 0}),
+                clear: () => set({items: [], itemCount: 0}),
             }),
             {
                 name: 'ec_cart_items',
@@ -300,7 +300,7 @@ type CartMutation =
     | { type: 'add'; item: CartLineItem }
     | { type: 'updateQty'; variantId: string; quantity: number }
     | { type: 'remove'; variantId: string }
-    | { type: 'clearCart' }
+    | { type: 'clear' }
 
 // Generator for a mutation sequence
 const cartMutationArb: fc.Arbitrary<CartMutation> = fc.oneof(
@@ -314,7 +314,7 @@ const cartMutationArb: fc.Arbitrary<CartMutation> = fc.oneof(
         type: fc.constant('remove' as const),
         variantId: fc.string({minLength: 1, maxLength: 20}).filter((s) => s.trim().length > 0),
     }),
-    fc.constant({type: 'clearCart' as const}),
+    fc.constant({type: 'clear' as const}),
 )
 
 const mutationSequenceArb = fc.array(cartMutationArb, {minLength: 1, maxLength: 15})
@@ -330,8 +330,8 @@ function applyMutation(store: ReturnType<typeof createCartStoreWithStorage>, mut
         case 'remove':
             store.getState().remove(mutation.variantId)
             break
-        case 'clearCart':
-            store.getState().clearCart()
+        case 'clear':
+            store.getState().clear()
             break
     }
 }
@@ -392,7 +392,7 @@ describe('cartStore — Property 4: Cart persistence round-trip', () => {
         )
     })
 
-    it('clearCart results in empty items in both storage and memory', () => {
+    it('clear results in empty items in both storage and memory', () => {
         fc.assert(
             fc.property(
                 fc.array(cartLineItemArb, {minLength: 1, maxLength: 10}),
@@ -404,7 +404,7 @@ describe('cartStore — Property 4: Cart persistence round-trip', () => {
                     for (const item of items) {
                         store.getState().addItem(item)
                     }
-                    store.getState().clearCart()
+                    store.getState().clear()
 
                     // In-memory state should be empty
                     expect(store.getState().items).toEqual([])
