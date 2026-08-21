@@ -102,7 +102,6 @@ export function OrderDetailPage() {
                                         {canMutate && (
                                             <OrderActionsPanel
                                                 status={order.status}
-                                                onMove={(status) => updateStatus.mutate({orderId: order.id, status})}
                                                 onConfirm={(action: ConfirmedAction) =>
                                                     confirmation.ask(action, order.id, order.status)
                                                 }

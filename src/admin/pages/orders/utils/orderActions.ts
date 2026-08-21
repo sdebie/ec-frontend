@@ -2,29 +2,30 @@ import {UserRoundX, PackageX, type LucideIcon} from 'lucide-react'
 import {OrderStatus} from '@/shared/types/enums/OrderStatus'
 import type {ConfirmedAction} from './confirmedActions'
 
-export interface TransitionMeta {
+export interface OrderAction {
   target: OrderStatus
   label: string
   destructive: boolean
-  /** Prompt type for moves requiring confirmation. */
-  prompt?: ConfirmedAction | 'ship'
-  /** Icon + description for the OrderActionsPanel expanded list — set only where the extra
+  /** Every transition confirms before it runs — required so a new status cannot compile
+   *  without answering how it confirms. */
+  prompt: ConfirmedAction | 'ship'
+  /** Icon and description for the OrderActionsPanel expanded list — set only where the extra
    *  detail earns its place (currently just the two cancel reasons); other transitions render
    *  as plain label-only rows. */
   icon?: LucideIcon
   description?: string
 }
 
-export const TRANSITION_META: TransitionMeta[] = [
+export const ORDER_ACTIONS: OrderAction[] = [
   { target: OrderStatus.IN_STORE_PAYMENT, label: 'Await In-Store Payment', destructive: false, prompt: 'await-in-store-payment' },
-  { target: OrderStatus.PAID, label: 'Mark Paid', destructive: false },
-  { target: OrderStatus.PROCESSING, label: 'Start Processing', destructive: false },
-  { target: OrderStatus.READY_TO_SHIP, label: 'Ready to Ship', destructive: false },
-  { target: OrderStatus.READY_FOR_COLLECTION, label: 'Ready for Collection', destructive: false },
+  { target: OrderStatus.PAID, label: 'Mark Paid', destructive: false, prompt: 'mark-paid' },
+  { target: OrderStatus.PROCESSING, label: 'Start Processing', destructive: false, prompt: 'start-processing' },
+  { target: OrderStatus.READY_TO_SHIP, label: 'Ready to Ship', destructive: false, prompt: 'ready-to-ship' },
+  { target: OrderStatus.READY_FOR_COLLECTION, label: 'Ready for Collection', destructive: false, prompt: 'ready-for-collection' },
   { target: OrderStatus.IN_TRANSIT, label: 'Ship', destructive: false, prompt: 'ship' },
-  { target: OrderStatus.DELIVERED, label: 'Deliver', destructive: false },
-  { target: OrderStatus.COLLECTED, label: 'Mark Collected', destructive: false },
-  { target: OrderStatus.DELIVERY_FAILED, label: 'Delivery Failed', destructive: false },
+  { target: OrderStatus.DELIVERED, label: 'Deliver', destructive: false, prompt: 'deliver' },
+  { target: OrderStatus.COLLECTED, label: 'Mark Collected', destructive: false, prompt: 'mark-collected' },
+  { target: OrderStatus.DELIVERY_FAILED, label: 'Delivery Failed', destructive: false, prompt: 'delivery-failed' },
   { target: OrderStatus.RETURNED_TO_ORIGIN, label: 'Returned to Store', destructive: false, prompt: 'return-to-origin' },
   {
     target: OrderStatus.USER_CANCELED,

@@ -4,30 +4,29 @@ import {DropdownItem, DropdownMenu} from '@/shared/ui/components'
 import {OrderStatus} from '@/shared/types/enums/OrderStatus'
 import type {ConfirmedAction} from '../utils/confirmedActions'
 import {getAvailableTransitions} from '../utils/getAvailableTransitions'
-import {TRANSITION_META, type TransitionMeta} from '../utils/transitionMetadata'
+import {ORDER_ACTIONS, type OrderAction} from '../utils/orderActions'
 
 export interface OrderActionsPanelProps {
   status: OrderStatus
-  onMove: (status: OrderStatus) => void
   onConfirm: (action: ConfirmedAction) => void
   onShip: () => void
 }
 
-export function OrderActionsPanel({status, onMove, onConfirm, onShip}: OrderActionsPanelProps) {
+export function OrderActionsPanel({status, onConfirm, onShip}: OrderActionsPanelProps) {
   const available = getAvailableTransitions(status)
-  const transitions = TRANSITION_META.filter((m) => available.includes(m.target))
+  const transitions = ORDER_ACTIONS.filter((m) => available.includes(m.target))
 
   if (transitions.length === 0) {
     return null
   }
 
-  const handleTransition = (meta: TransitionMeta) => {
+  // Every transition confirms before it runs (OrderAction.prompt is required) — this is
+  // just the ship/generic-confirm fork, never a direct unconfirmed move.
+  const handleTransition = (meta: OrderAction) => {
     if (meta.prompt === 'ship') {
       onShip()
-    } else if (meta.prompt) {
-      onConfirm(meta.prompt)
     } else {
-      onMove(meta.target)
+      onConfirm(meta.prompt)
     }
   }
 

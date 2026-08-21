@@ -6,10 +6,6 @@ import {OrderStatus} from '@/shared/types/enums/OrderStatus'
 import type {AdminOrderSummary} from '../../types'
 import {OrderTable} from '../OrderTable'
 
-vi.mock('../../hooks/useUpdateOrderStatus', () => ({
-    useUpdateOrderStatus: () => ({mutate: vi.fn(), isPending: false}),
-}))
-
 /**
  * The server pages the orders and returns them in the order it was asked for — that makes
  * row order part of the answer, not a local presentation choice, and a table that re-sorts
@@ -48,7 +44,6 @@ const renderTable = (data: AdminOrderSummary[]) =>
             <OrderTable
                 data={data}
                 isLoading={false}
-                canMutate={false}
                 pageCount={1}
                 totalRowCount={data.length}
                 pagination={{pageIndex: 0, pageSize: 10}}
@@ -96,8 +91,7 @@ describe('OrderTable preserves the order the server returned', () => {
                 <OrderTable
                     data={filtered}
                     isLoading={false}
-                    canMutate={false}
-                    pageCount={1}
+                        pageCount={1}
                     totalRowCount={filtered.length}
                     pagination={{pageIndex: 0, pageSize: 10}}
                     onPaginationChange={vi.fn()}
@@ -117,8 +111,7 @@ describe('OrderTable preserves the order the server returned', () => {
                 <OrderTable
                     data={NEWEST_FIRST}
                     isLoading={false}
-                    canMutate={false}
-                    pageCount={1}
+                        pageCount={1}
                     totalRowCount={NEWEST_FIRST.length}
                     pagination={{pageIndex: 0, pageSize: 10}}
                     onPaginationChange={vi.fn()}

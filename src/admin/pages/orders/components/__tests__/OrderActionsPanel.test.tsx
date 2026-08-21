@@ -2,7 +2,7 @@ import {describe, expect, it, vi} from 'vitest'
 import {render, screen, fireEvent} from '@testing-library/react'
 import {OrderActionsPanel} from '../OrderActionsPanel'
 import {OrderStatus} from '@/shared/types/enums/OrderStatus'
-import {TRANSITION_META} from '../../utils/transitionMetadata'
+import {ORDER_ACTIONS} from '../../utils/orderActions'
 
 vi.mock('../../utils/getAvailableTransitions', () => ({
   getAvailableTransitions: vi.fn(),
@@ -15,7 +15,7 @@ const mockedGetAvailableTransitions = vi.mocked(getAvailableTransitions)
 const noop = () => {}
 
 function metaFor(target: OrderStatus) {
-  return TRANSITION_META.find((m) => m.target === target)!
+  return ORDER_ACTIONS.find((m) => m.target === target)!
 }
 
 function openMoreActions() {
@@ -26,14 +26,7 @@ describe('OrderActionsPanel', () => {
   it('renders inside a bordered/panel Card with an "Order Actions" heading', () => {
     mockedGetAvailableTransitions.mockReturnValue([OrderStatus.PROCESSING])
 
-    render(
-      <OrderActionsPanel
-        status={OrderStatus.PAID}
-        onMove={noop}
-        onConfirm={noop}
-        onShip={noop}
-      />,
-    )
+    render(<OrderActionsPanel status={OrderStatus.PAID} onConfirm={noop} onShip={noop} />)
 
     const heading = screen.getByText('Order Actions')
     expect(heading).toBeInTheDocument()
@@ -45,14 +38,7 @@ describe('OrderActionsPanel', () => {
   it('returns null when getAvailableTransitions returns empty', () => {
     mockedGetAvailableTransitions.mockReturnValue([])
 
-    const {container} = render(
-      <OrderActionsPanel
-        status={OrderStatus.REFUNDED}
-        onMove={noop}
-        onConfirm={noop}
-        onShip={noop}
-      />,
-    )
+    const {container} = render(<OrderActionsPanel status={OrderStatus.REFUNDED} onConfirm={noop} onShip={noop} />)
 
     expect(container.innerHTML).toBe('')
   })
@@ -64,14 +50,7 @@ describe('OrderActionsPanel', () => {
       OrderStatus.ADMIN_CANCELED,
     ])
 
-    render(
-      <OrderActionsPanel
-        status={OrderStatus.PAID}
-        onMove={noop}
-        onConfirm={noop}
-        onShip={noop}
-      />,
-    )
+    render(<OrderActionsPanel status={OrderStatus.PAID} onConfirm={noop} onShip={noop} />)
 
     const processingMeta = metaFor(OrderStatus.PROCESSING)
     expect(screen.getByRole('button', {name: processingMeta.label})).toBeInTheDocument()
@@ -80,14 +59,7 @@ describe('OrderActionsPanel', () => {
   it('does not render "More actions" or the "or" divider when only one transition is available', () => {
     mockedGetAvailableTransitions.mockReturnValue([OrderStatus.REFUNDED])
 
-    render(
-      <OrderActionsPanel
-        status={OrderStatus.PARTIALLY_REFUNDED}
-        onMove={noop}
-        onConfirm={noop}
-        onShip={noop}
-      />,
-    )
+    render(<OrderActionsPanel status={OrderStatus.PARTIALLY_REFUNDED} onConfirm={noop} onShip={noop} />)
 
     expect(screen.queryByText('More actions')).not.toBeInTheDocument()
     expect(screen.queryByText('or')).not.toBeInTheDocument()
@@ -100,14 +72,7 @@ describe('OrderActionsPanel', () => {
       OrderStatus.ADMIN_CANCELED,
     ])
 
-    render(
-      <OrderActionsPanel
-        status={OrderStatus.PAID}
-        onMove={noop}
-        onConfirm={noop}
-        onShip={noop}
-      />,
-    )
+    render(<OrderActionsPanel status={OrderStatus.PAID} onConfirm={noop} onShip={noop} />)
 
     expect(screen.queryByText(metaFor(OrderStatus.USER_CANCELED).label)).not.toBeInTheDocument()
 
@@ -126,14 +91,7 @@ describe('OrderActionsPanel', () => {
       OrderStatus.ADMIN_CANCELED,
     ])
 
-    render(
-      <OrderActionsPanel
-        status={OrderStatus.PAID}
-        onMove={noop}
-        onConfirm={noop}
-        onShip={noop}
-      />,
-    )
+    render(<OrderActionsPanel status={OrderStatus.PAID} onConfirm={noop} onShip={noop} />)
 
     openMoreActions()
 
@@ -142,18 +100,11 @@ describe('OrderActionsPanel', () => {
   })
 
   it('applies destructive text styling to a non-cancel destructive transition (no icon badge)', () => {
-    // TRANSITION_META's declaration order (not the array passed here) decides primary vs. rest —
+    // ORDER_ACTIONS's declaration order (not the array passed here) decides primary vs. rest —
     // PARTIALLY_REFUNDED is declared before REFUNDED, so REFUNDED is what lands in "rest" here.
     mockedGetAvailableTransitions.mockReturnValue([OrderStatus.REFUNDED, OrderStatus.PARTIALLY_REFUNDED])
 
-    render(
-      <OrderActionsPanel
-        status={OrderStatus.DELIVERED}
-        onMove={noop}
-        onConfirm={noop}
-        onShip={noop}
-      />,
-    )
+    render(<OrderActionsPanel status={OrderStatus.DELIVERED} onConfirm={noop} onShip={noop} />)
 
     openMoreActions()
 
@@ -165,14 +116,7 @@ describe('OrderActionsPanel', () => {
   it('renders the primary button without a checkmark icon when the only available transition is destructive', () => {
     mockedGetAvailableTransitions.mockReturnValue([OrderStatus.REFUNDED])
 
-    render(
-      <OrderActionsPanel
-        status={OrderStatus.DELIVERED}
-        onMove={noop}
-        onConfirm={noop}
-        onShip={noop}
-      />,
-    )
+    render(<OrderActionsPanel status={OrderStatus.DELIVERED} onConfirm={noop} onShip={noop} />)
 
     const refundMeta = metaFor(OrderStatus.REFUNDED)
     const primaryButton = screen.getByRole('button', {name: refundMeta.label})
@@ -181,72 +125,24 @@ describe('OrderActionsPanel', () => {
     expect(primaryButton.querySelectorAll('svg').length).toBe(1) // chevron only, no leading checkmark
   })
 
-  it('calls onMove for direct transitions (no prompt)', () => {
-    mockedGetAvailableTransitions.mockReturnValue([OrderStatus.PROCESSING])
-
-    const onMove = vi.fn()
-    render(
-      <OrderActionsPanel
-        status={OrderStatus.PAID}
-        onMove={onMove}
-        onConfirm={noop}
-        onShip={noop}
-      />,
-    )
-
-    fireEvent.click(screen.getByRole('button', {name: metaFor(OrderStatus.PROCESSING).label}))
-
-    expect(onMove).toHaveBeenCalledWith(OrderStatus.PROCESSING)
-  })
-
-  it('calls onConfirm for transitions with a prompt (non-ship)', () => {
-    mockedGetAvailableTransitions.mockReturnValue([OrderStatus.USER_CANCELED])
-
-    const onConfirm = vi.fn()
-    render(
-      <OrderActionsPanel
-        status={OrderStatus.PAID}
-        onMove={noop}
-        onConfirm={onConfirm}
-        onShip={noop}
-      />,
-    )
-
-    fireEvent.click(screen.getByRole('button', {name: metaFor(OrderStatus.USER_CANCELED).label}))
-
-    expect(onConfirm).toHaveBeenCalledWith('cancel-customer')
-  })
-
-  it('calls onShip for the ship transition', () => {
+  it('calls onShip for the ship transition (the one special case that bypasses onConfirm)', () => {
     mockedGetAvailableTransitions.mockReturnValue([OrderStatus.IN_TRANSIT])
 
     const onShip = vi.fn()
-    render(
-      <OrderActionsPanel
-        status={OrderStatus.READY_TO_SHIP}
-        onMove={noop}
-        onConfirm={noop}
-        onShip={onShip}
-      />,
-    )
+    const onConfirm = vi.fn()
+    render(<OrderActionsPanel status={OrderStatus.READY_TO_SHIP} onConfirm={onConfirm} onShip={onShip} />)
 
     fireEvent.click(screen.getByRole('button', {name: metaFor(OrderStatus.IN_TRANSIT).label}))
 
     expect(onShip).toHaveBeenCalled()
+    expect(onConfirm).not.toHaveBeenCalled()
   })
 
-  it('calls onConfirm via a dropdown cancel item for prompted transitions', () => {
+  it('calls onConfirm via a dropdown cancel item, never mutating directly', () => {
     mockedGetAvailableTransitions.mockReturnValue([OrderStatus.PAID, OrderStatus.USER_CANCELED])
 
     const onConfirm = vi.fn()
-    render(
-      <OrderActionsPanel
-        status={OrderStatus.IN_STORE_PAYMENT}
-        onMove={noop}
-        onConfirm={onConfirm}
-        onShip={noop}
-      />,
-    )
+    render(<OrderActionsPanel status={OrderStatus.IN_STORE_PAYMENT} onConfirm={onConfirm} onShip={noop} />)
 
     openMoreActions()
 
@@ -255,4 +151,28 @@ describe('OrderActionsPanel', () => {
 
     expect(onConfirm).toHaveBeenCalledWith('cancel-customer')
   })
+
+  it.each([
+    [OrderStatus.PAID, 'mark-paid'],
+    [OrderStatus.PROCESSING, 'start-processing'],
+    [OrderStatus.READY_TO_SHIP, 'ready-to-ship'],
+    [OrderStatus.READY_FOR_COLLECTION, 'ready-for-collection'],
+    [OrderStatus.DELIVERED, 'deliver'],
+    [OrderStatus.COLLECTED, 'mark-collected'],
+    [OrderStatus.DELIVERY_FAILED, 'delivery-failed'],
+  ])(
+    'requires confirmation for %s instead of moving immediately (the previously-unconfirmed forward-fulfilment steps)',
+    (target, expectedPrompt) => {
+      mockedGetAvailableTransitions.mockReturnValue([target])
+
+      const onConfirm = vi.fn()
+      render(<OrderActionsPanel status={OrderStatus.PAID} onConfirm={onConfirm} onShip={noop} />)
+
+      fireEvent.click(screen.getByRole('button', {name: metaFor(target).label}))
+
+      // The old behavior was calling a prop that mutated immediately with zero confirmation.
+      // Now every one of these routes through onConfirm, same as cancel/refund always did.
+      expect(onConfirm).toHaveBeenCalledWith(expectedPrompt)
+    },
+  )
 })
