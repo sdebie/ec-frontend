@@ -1,6 +1,7 @@
 import {useQuery} from '@tanstack/react-query'
 import {gql} from 'graphql-request'
 import {adminGraphqlClient} from '@/shared/api/graphql/adminGraphqlClient'
+import type {AddressDto} from '@/shared/types/AddressDto'
 
 const WHOLESALE_APPLICATION_DETAIL = gql`
     query WholesaleApplicationDetail($id: String!) {
@@ -24,18 +25,22 @@ const WHOLESALE_APPLICATION_DETAIL = gql`
             financeContactEmail
             financeContactPhone
             purchaseOrderRequired
-            physicalAddressLine1
-            physicalAddressLine2
-            physicalSuburb
-            physicalCity
-            physicalProvince
-            physicalPostalCode
-            postalAddressLine1
-            postalAddressLine2
-            postalSuburb
-            postalCity
-            postalProvince
-            postalPostalCode
+            physicalAddress {
+                line1
+                line2
+                suburb
+                city
+                province
+                postalCode
+            }
+            postalAddress {
+                line1
+                line2
+                suburb
+                city
+                province
+                postalCode
+            }
             createdAt
             processedAt
             rejectionReason
@@ -63,18 +68,8 @@ export interface WholesaleApplicationDetail {
     financeContactEmail: string | null
     financeContactPhone: string | null
     purchaseOrderRequired: boolean | null
-    physicalAddressLine1: string | null
-    physicalAddressLine2: string | null
-    physicalSuburb: string | null
-    physicalCity: string | null
-    physicalProvince: string | null
-    physicalPostalCode: string | null
-    postalAddressLine1: string | null
-    postalAddressLine2: string | null
-    postalSuburb: string | null
-    postalCity: string | null
-    postalProvince: string | null
-    postalPostalCode: string | null
+    physicalAddress: AddressDto | null
+    postalAddress: AddressDto | null
     createdAt: string
     processedAt: string | null
     rejectionReason: string | null

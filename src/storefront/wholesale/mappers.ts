@@ -7,22 +7,24 @@ function emptyToNull(value: string | undefined): string | null {
 }
 
 export function toDto(values: WholesaleApplicationFormValues): WholesaleCustomerDtoInput {
-    const postal = values.sameAsPhysical
-        ? {
-            postalAddressLine1: values.physicalAddressLine1,
-            postalAddressLine2: values.physicalAddressLine2 ?? '',
-            postalSuburb: values.physicalSuburb ?? '',
-            postalCity: values.physicalCity,
-            postalProvince: values.physicalProvince,
-            postalPostalCode: values.physicalPostalCode,
-        }
+    const physicalAddress = {
+        line1: values.physicalAddressLine1,
+        line2: values.physicalAddressLine2 ?? '',
+        suburb: values.physicalSuburb ?? '',
+        city: values.physicalCity,
+        province: values.physicalProvince,
+        postalCode: values.physicalPostalCode,
+    }
+
+    const postalAddress = values.sameAsPhysical
+        ? physicalAddress
         : {
-            postalAddressLine1: values.postalAddressLine1 ?? '',
-            postalAddressLine2: values.postalAddressLine2 ?? '',
-            postalSuburb: values.postalSuburb ?? '',
-            postalCity: values.postalCity ?? '',
-            postalProvince: values.postalProvince ?? '',
-            postalPostalCode: values.postalPostalCode ?? '',
+            line1: values.postalAddressLine1 ?? '',
+            line2: values.postalAddressLine2 ?? '',
+            suburb: values.postalSuburb ?? '',
+            city: values.postalCity ?? '',
+            province: values.postalProvince ?? '',
+            postalCode: values.postalPostalCode ?? '',
         }
 
     return {
@@ -43,12 +45,7 @@ export function toDto(values: WholesaleApplicationFormValues): WholesaleCustomer
         purchaseOrderRequired: values.purchaseOrderRequired,
         notes: values.notes ?? '',
         status: 'PENDING',
-        physicalAddressLine1: values.physicalAddressLine1,
-        physicalAddressLine2: values.physicalAddressLine2 ?? '',
-        physicalSuburb: values.physicalSuburb ?? '',
-        physicalCity: values.physicalCity,
-        physicalProvince: values.physicalProvince,
-        physicalPostalCode: values.physicalPostalCode,
-        ...postal,
+        physicalAddress,
+        postalAddress,
     }
 }

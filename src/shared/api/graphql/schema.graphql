@@ -1,3 +1,12 @@
+type AddressDto {
+  city: String
+  line1: String
+  line2: String
+  postalCode: String
+  province: String
+  suburb: String
+}
+
 type AdminCustomerDetailDto {
   email: String
   firstName: String
@@ -644,18 +653,8 @@ type WholesaleApplicationDetailsDto {
   lastName: String
   notes: String
   phone: String
-  physicalAddressLine1: String
-  physicalAddressLine2: String
-  physicalCity: String
-  physicalPostalCode: String
-  physicalProvince: String
-  physicalSuburb: String
-  postalAddressLine1: String
-  postalAddressLine2: String
-  postalCity: String
-  postalPostalCode: String
-  postalProvince: String
-  postalSuburb: String
+  physicalAddress: AddressDto
+  postalAddress: AddressDto
   "ISO-8601"
   processedAt: DateTime
   purchaseOrderRequired: Boolean
@@ -690,18 +689,8 @@ type WholesaleCustomerDto {
   lastName: String
   notes: String
   phone: String
-  physicalAddressLine1: String
-  physicalAddressLine2: String
-  physicalCity: String
-  physicalPostalCode: String
-  physicalProvince: String
-  physicalSuburb: String
-  postalAddressLine1: String
-  postalAddressLine2: String
-  postalCity: String
-  postalPostalCode: String
-  postalProvince: String
-  postalSuburb: String
+  physicalAddress: AddressDto
+  postalAddress: AddressDto
   purchaseOrderRequired: Boolean
   regNumber: String
   status: WholesaleCustomerStatusEn
@@ -804,6 +793,15 @@ enum WholesaleCustomerStatusEn {
   DISABLED
   PENDING
   REJECTED
+}
+
+input AddressDtoInput {
+  city: String
+  line1: String
+  line2: String
+  postalCode: String
+  province: String
+  suburb: String
 }
 
 input BrandDtoInput {
@@ -974,18 +972,8 @@ input WholesaleCustomerDtoInput {
   lastName: String
   notes: String
   phone: String
-  physicalAddressLine1: String
-  physicalAddressLine2: String
-  physicalCity: String
-  physicalPostalCode: String
-  physicalProvince: String
-  physicalSuburb: String
-  postalAddressLine1: String
-  postalAddressLine2: String
-  postalCity: String
-  postalPostalCode: String
-  postalProvince: String
-  postalSuburb: String
+  physicalAddress: AddressDtoInput
+  postalAddress: AddressDtoInput
   purchaseOrderRequired: Boolean
   regNumber: String
   status: WholesaleCustomerStatusEn

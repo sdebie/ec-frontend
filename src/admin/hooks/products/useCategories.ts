@@ -1,41 +1,19 @@
-import { useQuery } from '@tanstack/react-query'
-import { gql } from 'graphql-request'
+import { useCategoryList } from '@/admin/pages/categories/hooks/useCategoryList'
+import type { CategoryListItem } from '@/admin/pages/categories/types'
 
-import { adminGraphqlClient } from '@/shared/api/graphql/adminGraphqlClient'
+type Category = Pick<CategoryListItem, 'id' | 'name'>
 
-export interface Category {
-  id: string
-  name: string
-}
-
-interface GetCategoriesResponse {
-  getCategories: {
-    content: Category[]
-  }
-}
-
-const GET_CATEGORIES = gql`
-  query GetCategories($pageSize: Int) {
-    getCategories(pageSize: $pageSize) {
-      content {
-        id
-        name
-      }
-    }
-  }
-`
-
+/**
+ * Lightweight category list for dropdowns/filters ({id, name}). Delegates to
+ * the single `GetCategories` query in {@link useCategoryList} rather than
+ * defining a second one — the extra fields for a bounded (<=500) category set
+ * are negligible.
+ */
 export function useCategories() {
-  const { data, isLoading } = useQuery({
-    queryKey: ['admin-categories'],
-    queryFn: () =>
-      adminGraphqlClient.request<GetCategoriesResponse>(GET_CATEGORIES, {
-        pageSize: 500,
-      }),
-  })
+  const { data, isLoading } = useCategoryList({ pageIndex: 0, pageSize: 500 })
 
   return {
-    data: data?.getCategories.content,
+    data: data?.content.map(({ id, name }): Category => ({ id, name })),
     isLoading,
   }
 }

@@ -8,6 +8,9 @@ interface AddressInformationPanelProps {
 }
 
 export function AddressInformationPanel({application}: AddressInformationPanelProps) {
+    const physical = application.physicalAddress
+    const postal = application.postalAddress
+
     return (
         <Card as="section" variant="bordered">
             <WholesaleApplicationDetailHeader icon={MapPinHouse} title="Address Information"/>
@@ -18,18 +21,18 @@ export function AddressInformationPanel({application}: AddressInformationPanelPr
                             Physical Address
                         </p>
                         <div className="flex flex-col gap-1 text-sm text-(--c-text)">
-                            {application.physicalAddressLine1 && <p>{application.physicalAddressLine1}</p>}
-                            {application.physicalAddressLine2 && <p>{application.physicalAddressLine2}</p>}
-                            {application.physicalSuburb && <p>{application.physicalSuburb}</p>}
-                            {(application.physicalCity || application.physicalProvince) && (
+                            {physical?.line1 && <p>{physical.line1}</p>}
+                            {physical?.line2 && <p>{physical.line2}</p>}
+                            {physical?.suburb && <p>{physical.suburb}</p>}
+                            {(physical?.city || physical?.province) && (
                                 <p>
-                                    {[application.physicalCity, application.physicalProvince]
+                                    {[physical?.city, physical?.province]
                                         .filter(Boolean)
                                         .join(', ')}
                                 </p>
                             )}
-                            {application.physicalPostalCode && <p>{application.physicalPostalCode}</p>}
-                            {!application.physicalAddressLine1 && (
+                            {physical?.postalCode && <p>{physical.postalCode}</p>}
+                            {!physical?.line1 && (
                                 <p className="text-(--c-text-muted)">No physical address provided</p>
                             )}
                         </div>
@@ -39,18 +42,18 @@ export function AddressInformationPanel({application}: AddressInformationPanelPr
                             Postal Address
                         </p>
                         <div className="flex flex-col gap-1 text-sm text-(--c-text)">
-                            {application.postalAddressLine1 && <p>{application.postalAddressLine1}</p>}
-                            {application.postalAddressLine2 && <p>{application.postalAddressLine2}</p>}
-                            {application.postalSuburb && <p>{application.postalSuburb}</p>}
-                            {(application.postalCity || application.postalProvince) && (
+                            {postal?.line1 && <p>{postal.line1}</p>}
+                            {postal?.line2 && <p>{postal.line2}</p>}
+                            {postal?.suburb && <p>{postal.suburb}</p>}
+                            {(postal?.city || postal?.province) && (
                                 <p>
-                                    {[application.postalCity, application.postalProvince]
+                                    {[postal?.city, postal?.province]
                                         .filter(Boolean)
                                         .join(', ')}
                                 </p>
                             )}
-                            {application.postalPostalCode && <p>{application.postalPostalCode}</p>}
-                            {!application.postalAddressLine1 && (
+                            {postal?.postalCode && <p>{postal.postalCode}</p>}
+                            {!postal?.line1 && (
                                 <p className="text-(--c-text-muted)">No postal address provided</p>
                             )}
                         </div>

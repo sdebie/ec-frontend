@@ -82,9 +82,6 @@ export type { StepperProps, StepperStep } from './stepper/Stepper'
 export { StatCard } from './stat-card/StatCard'
 export type { StatCardProps } from './stat-card/StatCard'
 
-export { CategoryCard } from './category-card/CategoryCard'
-export type { CategoryCardProps } from './category-card/CategoryCard'
-
 export { StatusBadge } from './status-display/StatusBadge'
 export type { StatusBadgeProps } from './status-display/StatusBadge'
 export { OrderStatusDisplay } from './status-display/OrderStatusDisplay'

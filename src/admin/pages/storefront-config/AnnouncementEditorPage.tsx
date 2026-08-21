@@ -1,8 +1,8 @@
 import { useState } from 'react'
-import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
-import { gql } from 'graphql-request'
 import { toast } from '@/shared/ui/components/toast'
-import { adminGraphqlClient } from '@/shared/api/graphql/adminGraphqlClient'
+import { useStoreSettings } from '@/admin/hooks/settings/useStoreSettings'
+import { useUpdateSetting } from '@/admin/hooks/settings/useUpdateSetting'
+import type { StoreSetting } from '@/admin/hooks/settings/types'
 import { Input } from '@/shared/ui/primitives'
 
 interface AnnouncementFormValues {
@@ -11,32 +11,6 @@ interface AnnouncementFormValues {
   backgroundColor: string
   textColor: string
 }
-
-interface StoreSetting {
-  key: string
-  value: string
-  description: string | null
-}
-
-const STORE_SETTINGS_QUERY = gql`
-  query StoreSettings {
-    storeSettings {
-      key
-      value
-      description
-    }
-  }
-`
-
-const UPDATE_SETTING_MUTATION = gql`
-  mutation UpdateSetting($key: String!, $value: String!) {
-    updateSetting(key: $key, value: $value) {
-      key
-      value
-      description
-    }
-  }
-`
 
 const SETTING_KEY = 'storefront.header'
 
@@ -68,51 +42,32 @@ function parseHeaderSetting(settings: StoreSetting[]): AnnouncementFormValues {
 }
 
 export function AnnouncementEditorPage() {
-  const queryClient = useQueryClient()
+  const { data: settings, isLoading, isError } = useStoreSettings()
+  const updateSetting = useUpdateSetting()
 
-  const { data: settings, isLoading, isError } = useQuery<{ storeSettings: StoreSetting[] }>({
-    queryKey: ['admin', 'store-settings'],
-    queryFn: () => adminGraphqlClient.request(STORE_SETTINGS_QUERY),
-  })
-
-  const initialValues = settings?.storeSettings
-    ? parseHeaderSetting(settings.storeSettings)
-    : DEFAULT_VALUES
+  const initialValues = settings ? parseHeaderSetting(settings) : DEFAULT_VALUES
 
   const [form, setForm] = useState<AnnouncementFormValues>(DEFAULT_VALUES)
   const [initialized, setInitialized] = useState(false)
 
-  if (settings?.storeSettings && !initialized) {
+  if (settings && !initialized) {
     setForm(initialValues)
     setInitialized(true)
   }
 
-  const mutation = useMutation({
-    mutationFn: (values: AnnouncementFormValues) => {
-      const payload = JSON.stringify({
-        announcement: {
-          enabled: values.enabled,
-          text: values.text,
-          backgroundColor: values.backgroundColor,
-          textColor: values.textColor,
-        },
-      })
-      return adminGraphqlClient.request<{ updateSetting: StoreSetting }>(
-        UPDATE_SETTING_MUTATION,
-        { key: SETTING_KEY, value: payload }
-      )
-    },
-    onSuccess: () => {
-      toast.success('Announcement settings saved')
-      queryClient.invalidateQueries({ queryKey: ['admin', 'store-settings'] })
-    },
-    onError: () => {
-      toast.error('Failed to save announcement settings', { duration: 0 })
-    },
-  })
-
   function handleSave() {
-    mutation.mutate(form)
+    const payload = JSON.stringify({
+      announcement: {
+        enabled: form.enabled,
+        text: form.text,
+        backgroundColor: form.backgroundColor,
+        textColor: form.textColor,
+      },
+    })
+    updateSetting.mutate(
+      { key: SETTING_KEY, value: payload },
+      { onSuccess: () => toast.success('Announcement settings saved') },
+    )
   }
 
   if (isLoading) {
@@ -222,10 +177,10 @@ export function AnnouncementEditorPage() {
         <button
           type="button"
           onClick={handleSave}
-          disabled={mutation.isPending}
+          disabled={updateSetting.isPending}
           className="rounded bg-(--c-accent) px-4 py-2 text-sm font-medium text-(--c-accent-text) hover:bg-(--c-accent-hover) disabled:opacity-50"
         >
-          {mutation.isPending ? 'Saving…' : 'Save Changes'}
+          {updateSetting.isPending ? 'Saving…' : 'Save Changes'}
         </button>
       </div>
     </div>

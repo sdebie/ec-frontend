@@ -21,16 +21,20 @@ export interface WholesaleCustomerDtoInput {
     purchaseOrderRequired: boolean
     notes: string
     status: string
-    physicalAddressLine1: string
-    physicalAddressLine2: string
-    physicalSuburb: string
-    physicalCity: string
-    physicalProvince: string
-    physicalPostalCode: string
-    postalAddressLine1: string
-    postalAddressLine2: string
-    postalSuburb: string
-    postalCity: string
-    postalProvince: string
-    postalPostalCode: string
+    physicalAddress: {
+        line1: string
+        line2: string
+        suburb: string
+        city: string
+        province: string
+        postalCode: string
+    }
+    postalAddress: {
+        line1: string
+        line2: string
+        suburb: string
+        city: string
+        province: string
+        postalCode: string
+    }
 }
