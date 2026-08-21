@@ -205,7 +205,7 @@ export function NavigationEditorPage() {
               render={({ field: externalField }) => (
                 <Checkbox
                   label="Open in new tab (external link)"
-                  checked={!!externalField.value}
+                  checked={externalField.value}
                   onChange={externalField.onChange}
                 />
               )}

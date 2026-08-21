@@ -245,8 +245,6 @@ describe('useCheckout', () => {
         })
     })
 
-    // ── Idempotency key (.kiro/specs/checkout-idempotency, task 7.1) ───────
-
     function keyHeaderOf(callIndex: number): string {
         const [, , config] = mockPost.mock.calls[callIndex]
         return config?.headers?.['Idempotency-Key']
@@ -254,7 +252,15 @@ describe('useCheckout', () => {
 
     it('sends an Idempotency-Key header', async () => {
         mockPost.mockResolvedValueOnce({
-            data: {orderId: 'o1', sessionId: 's1', lines: [], subtotal: 0, vatAmount: 0, shippingEstimate: 0, grandTotal: 0},
+            data: {
+                orderId: 'o1',
+                sessionId: 's1',
+                lines: [],
+                subtotal: 0,
+                vatAmount: 0,
+                shippingEstimate: 0,
+                grandTotal: 0
+            },
         })
 
         const {result} = renderHook(() => useCheckout(), {wrapper: createWrapper()})
@@ -267,7 +273,15 @@ describe('useCheckout', () => {
     it('sends the same key on a retry of one intent (cart unchanged)', async () => {
         mockPost.mockRejectedValueOnce({isAxiosError: true, response: {status: 500, data: {}}})
         mockPost.mockResolvedValueOnce({
-            data: {orderId: 'o1', sessionId: 's1', lines: [], subtotal: 0, vatAmount: 0, shippingEstimate: 0, grandTotal: 0},
+            data: {
+                orderId: 'o1',
+                sessionId: 's1',
+                lines: [],
+                subtotal: 0,
+                vatAmount: 0,
+                shippingEstimate: 0,
+                grandTotal: 0
+            },
         })
 
         const {result} = renderHook(() => useCheckout(), {wrapper: createWrapper()})
@@ -283,7 +297,15 @@ describe('useCheckout', () => {
     it('sends a different key after the cart changes', async () => {
         mockPost.mockRejectedValueOnce({isAxiosError: true, response: {status: 500, data: {}}})
         mockPost.mockResolvedValueOnce({
-            data: {orderId: 'o1', sessionId: 's1', lines: [], subtotal: 0, vatAmount: 0, shippingEstimate: 0, grandTotal: 0},
+            data: {
+                orderId: 'o1',
+                sessionId: 's1',
+                lines: [],
+                subtotal: 0,
+                vatAmount: 0,
+                shippingEstimate: 0,
+                grandTotal: 0
+            },
         })
 
         const {result} = renderHook(() => useCheckout(), {wrapper: createWrapper()})
@@ -306,7 +328,15 @@ describe('useCheckout', () => {
         async (code) => {
             mockPost.mockRejectedValueOnce({isAxiosError: true, response: {status: 409, data: {code}}})
             mockPost.mockResolvedValueOnce({
-                data: {orderId: 'o1', sessionId: 's1', lines: [], subtotal: 0, vatAmount: 0, shippingEstimate: 0, grandTotal: 0},
+                data: {
+                    orderId: 'o1',
+                    sessionId: 's1',
+                    lines: [],
+                    subtotal: 0,
+                    vatAmount: 0,
+                    shippingEstimate: 0,
+                    grandTotal: 0
+                },
             })
 
             const {result} = renderHook(() => useCheckout(), {wrapper: createWrapper()})
@@ -352,7 +382,10 @@ describe('useCheckout', () => {
     })
 
     it('a 400 says to refresh, not to try again', async () => {
-        mockPost.mockRejectedValueOnce({isAxiosError: true, response: {status: 400, data: 'Idempotency-Key header is required'}})
+        mockPost.mockRejectedValueOnce({
+            isAxiosError: true,
+            response: {status: 400, data: 'Idempotency-Key header is required'}
+        })
 
         const {result} = renderHook(() => useCheckout(), {wrapper: createWrapper()})
         await act(async () => result.current.checkout())
