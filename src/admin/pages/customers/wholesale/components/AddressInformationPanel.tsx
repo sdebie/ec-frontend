@@ -9,7 +9,7 @@ interface AddressInformationPanelProps {
 
 export function AddressInformationPanel({application}: AddressInformationPanelProps) {
     return (
-        <Card as="section" elevation="none" padded={false}>
+        <Card as="section" variant="bordered">
             <WholesaleApplicationDetailHeader icon={MapPinHouse} title="Address Information"/>
             <Card.Body className="p-5">
                 <div className="grid grid-cols-1 gap-x-8 gap-y-4 sm:grid-cols-2">

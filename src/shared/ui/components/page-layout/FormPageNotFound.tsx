@@ -18,7 +18,7 @@ export interface FormPageNotFoundProps {
 export function FormPageNotFound({entityName, backHref, backLabel}: FormPageNotFoundProps) {
     return (
         <div className="flex min-h-[60vh] items-center justify-center p-8">
-            <Card className="w-full max-w-md p-8 text-center">
+            <Card variant="bordered" className="w-full max-w-md p-8 text-center">
                 <h2 className="mb-2 text-xl font-semibold text-(--c-text)">
                     Not Found
                 </h2>

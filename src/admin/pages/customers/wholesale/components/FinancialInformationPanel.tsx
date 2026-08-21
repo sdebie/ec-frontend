@@ -10,7 +10,7 @@ interface FinancialInformationPanelProps {
 
 export function FinancialInformationPanel({application}: FinancialInformationPanelProps) {
     return (
-        <Card as="section" elevation="none" padded={false}>
+        <Card as="section" variant="bordered">
             <WholesaleApplicationDetailHeader icon={HandCoins} title="Financial Information"/>
             <Card.Body className="p-5">
                 <InfoRow label="Contact Name" value={application.financeContactName || '—'}/>

@@ -1,7 +1,7 @@
 import {useState} from 'react'
 import {ImageIcon} from 'lucide-react'
 import {thumbnailUrl} from '@/shared/utils/imageUrl'
-import {Button} from '@/shared/ui/primitives'
+import {Button, Skeleton} from '@/shared/ui/primitives'
 
 interface ImageGridProps {
     images: string[]
@@ -18,9 +18,9 @@ export function ImageGrid({images, isLoading, hasNextPage, isFetchingNextPage, o
             <div className="grid grid-cols-2 sm:grid-cols-4 md:grid-cols-6 lg:grid-cols-8 gap-3">
                 {Array.from({length: 16})
                     .map((_, i) => (
-                        <div key={i} className="animate-pulse">
-                            <div className="aspect-square bg-(--c-border) rounded-lg"/>
-                            <div className="mt-1.5 h-3 w-3/4 bg-(--c-border) rounded"/>
+                        <div key={i}>
+                            <Skeleton.Rect className="aspect-square" />
+                            <Skeleton.Bar height="h-3" width="w-3/4" className="mt-1.5" />
                         </div>
                     ))}
             </div>

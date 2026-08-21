@@ -3,7 +3,7 @@
  *
  * Fills the available container and centres the spinner vertically
  * and horizontally. Works inside both storefront and admin surfaces
- * because --c-border and --c-accent are defined by SurfaceProvider.
+ * because --c-border and --c-accent are defined by the [data-surface] CSS layer.
  * Falls back to neutral grays when rendered outside any surface context.
  */
 export function PageLoadingSpinner() {

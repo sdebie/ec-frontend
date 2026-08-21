@@ -97,7 +97,9 @@ describe('OrderDetailPage — status actions', () => {
     const user = userEvent.setup()
     setup(OrderStatus.DELIVERED)
 
-    await user.click(screen.getByRole('button', { name: 'Refund' }))
+    // Refund is in the "More actions" dropdown for DELIVERED orders (Partial Refund is primary)
+    await user.click(screen.getByText('More actions'))
+    await user.click(screen.getByRole('menuitem', { name: 'Refund' }))
     await user.click(screen.getByRole('button', { name: 'Refund Order' }))
 
     const [payload] = mutate.mock.calls[0]
@@ -108,6 +110,7 @@ describe('OrderDetailPage — status actions', () => {
     const user = userEvent.setup()
     setup(OrderStatus.DELIVERED)
 
+    // Partial Refund is the primary button for DELIVERED orders
     await user.click(screen.getByRole('button', { name: 'Partial Refund' }))
     await user.click(screen.getByRole('button', { name: 'Partially Refund' }))
 
@@ -123,7 +126,9 @@ describe('OrderDetailPage — status actions', () => {
     const user = userEvent.setup()
     setup(OrderStatus.PAID)
 
-    await user.click(screen.getByRole('button', { name: 'Cancel — Store' }))
+    // Cancel — Store is in the "More actions" dropdown for PAID orders
+    await user.click(screen.getByText('More actions'))
+    await user.click(screen.getByRole('menuitem', { name: 'Cancel — Store' }))
     await user.click(screen.getByRole('button', { name: 'Cancel Order' }))
 
     expect(mutate.mock.calls[0][0].status).toBe(OrderStatus.ADMIN_CANCELED)
@@ -133,7 +138,9 @@ describe('OrderDetailPage — status actions', () => {
     const user = userEvent.setup()
     setup(OrderStatus.PAID)
 
-    await user.click(screen.getByRole('button', { name: 'Cancel — Customer' }))
+    // Cancel — Customer is in the "More actions" dropdown for PAID orders
+    await user.click(screen.getByText('More actions'))
+    await user.click(screen.getByRole('menuitem', { name: 'Cancel — Customer' }))
     await user.click(screen.getByRole('button', { name: 'Cancel Order' }))
 
     expect(mutate.mock.calls[0][0].status).toBe(OrderStatus.USER_CANCELED)
@@ -143,7 +150,9 @@ describe('OrderDetailPage — status actions', () => {
     const user = userEvent.setup()
     setup(OrderStatus.DELIVERED)
 
-    await user.click(screen.getByRole('button', { name: 'Refund' }))
+    // Refund is in the dropdown for DELIVERED orders
+    await user.click(screen.getByText('More actions'))
+    await user.click(screen.getByRole('menuitem', { name: 'Refund' }))
 
     expect(screen.queryByTestId('refund-restock-choice')).toBeNull()
     expect(screen.queryByRole('checkbox')).toBeNull()
@@ -157,7 +166,9 @@ describe('OrderDetailPage — status actions', () => {
     const user = userEvent.setup()
     setup(OrderStatus.DELIVERED, 'ORDER_MANAGER')
 
-    await user.click(screen.getByRole('button', { name: 'Refund' }))
+    // Refund is in the dropdown for DELIVERED orders
+    await user.click(screen.getByText('More actions'))
+    await user.click(screen.getByRole('menuitem', { name: 'Refund' }))
     await user.click(screen.getByRole('button', { name: 'Refund Order' }))
 
     expect(mutate.mock.calls[0][0].status).toBe(OrderStatus.REFUNDED)

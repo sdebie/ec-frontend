@@ -11,7 +11,7 @@ interface RecentOrdersCardProps {
 /** Card chrome around the shared RecentOrdersTable, matching this page's other section cards. */
 export function RecentOrdersCard({orders}: RecentOrdersCardProps) {
     return (
-        <Card as="section" elevation="none" padded={false}>
+        <Card as="section" variant="bordered">
             <WholesaleApplicationDetailHeader icon={ShoppingCart} title="Recent Orders"/>
             <Card.Body className="p-5">
                 <RecentOrdersTable

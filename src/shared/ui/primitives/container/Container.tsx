@@ -2,13 +2,13 @@ import * as React from 'react'
 import { cva, type VariantProps } from 'class-variance-authority'
 import { cn } from '@/shared/utils/cn'
 
-const containerVariants = cva('w-full bg-(--c-bg) text-(--c-text)', {
+const containerVariants = cva('w-full', {
   variants: {
     size: {
       sm: 'max-w-3xl',
       md: 'max-w-5xl',
       lg: 'max-w-7xl',
-      xl: 'max-w-9xl',
+      xl: 'max-w-[100rem]',
     },
     padded: {
       true: '',

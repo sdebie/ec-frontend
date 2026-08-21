@@ -11,7 +11,7 @@ export function ApplicationNotesPanel({application}: ApplicationNotesPanelProps)
     if (!application.notes) return null
 
     return (
-        <Card as="section" elevation="none" padded={false}>
+        <Card as="section" variant="bordered">
             <WholesaleApplicationDetailHeader title="Notes"/>
             <Card.Body className="p-5">
                 <p className="text-sm text-(--c-text) whitespace-pre-wrap">

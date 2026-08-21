@@ -1,5 +1,7 @@
 import type {ReactNode} from 'react'
 import {cn} from '@/shared/utils/cn'
+import {Container, type ContainerProps} from '@/shared/ui/primitives'
+import {PageBackButton} from './PageBackButton'
 
 export interface PageLayoutProps {
     /** Page title rendered as a h1 */
@@ -12,6 +14,10 @@ export interface PageLayoutProps {
     children: ReactNode
     /** Additional CSS classes */
     className?: string
+    /** When provided, renders a PageBackButton beside the title */
+    onBack?: () => void
+    /** Width cap for the content Container. Defaults to 'xl' for wide, table-heavy pages. */
+    size?: ContainerProps['size']
 }
 
 export function PageLayout({
@@ -20,29 +26,30 @@ export function PageLayout({
                                action,
                                children,
                                className,
+                               onBack,
+                               size = 'xl',
                            }: PageLayoutProps) {
     return (
         <div className={cn('space-y-3 mt-3', className)}>
-            <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-                <div>
-                    <h1 className="text-2xl font-bold tracking-tight" style={{color: 'var(--c-text)'}}>
-                        {title}
-                    </h1>
-                    {subtitle && (
-                        <p className="mt-1 text-sm text-(--c-text-muted)">
-                            {subtitle}
-                        </p>
-                    )}
-                </div>
-                {action &&
+            <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
+                <div className="flex items-start gap-3">
+                    {onBack && <PageBackButton onClick={onBack} className="mt-1" />}
                     <div>
-                        {action}
+                        <h1 className="text-2xl font-bold tracking-tight text-(--c-text)">
+                            {title}
+                        </h1>
+                        {subtitle && (
+                            <p className="mt-1 text-sm text-(--c-text-muted)">
+                                {subtitle}
+                            </p>
+                        )}
                     </div>
-                }
+                </div>
+                {action && <div className="shrink-0">{action}</div>}
             </div>
-            <div>
+            <Container size={size} padded={false}>
                 {children}
-            </div>
+            </Container>
         </div>
     )
 }

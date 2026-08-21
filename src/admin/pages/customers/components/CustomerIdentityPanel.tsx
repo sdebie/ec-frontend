@@ -1,6 +1,6 @@
 import {useState} from 'react'
 import {Calendar, Mail, Phone, User} from 'lucide-react'
-import {ConfirmationDialog} from '@/shared/ui/components'
+import {ConfirmationDialog, IconText} from '@/shared/ui/components'
 import {Button, Card} from '@/shared/ui/primitives'
 import type {AdminCapability} from '@/shared/auth/adminPermissions'
 import {useCan} from '@/shared/auth/adminPermissions'
@@ -59,7 +59,7 @@ export function CustomerIdentityPanel({
 
     return (
         <>
-            <Card as="section" elevation="none" padded={false}>
+            <Card as="section" variant="bordered">
                 <WholesaleApplicationDetailHeader
                     icon={User}
                     title="Customer Information"
@@ -106,20 +106,17 @@ export function CustomerIdentityPanel({
                                 )}
                             </div>
                             <div className="mt-2 flex flex-col gap-1.5 text-sm text-(--c-text-muted)">
-                                <span className="flex items-center gap-2">
-                                    <Mail className="h-4 w-4 shrink-0"/>
+                                <IconText icon={<Mail className="h-4 w-4"/>}>
                                     <span>{customer.email}</span>
-                                </span>
+                                </IconText>
                                 {customer.phone && (
-                                    <span className="flex items-center gap-2">
-                                        <Phone className="h-4 w-4 shrink-0"/>
+                                    <IconText icon={<Phone className="h-4 w-4"/>}>
                                         <span>{customer.phone}</span>
-                                    </span>
+                                    </IconText>
                                 )}
-                                <span className="flex items-center gap-2">
-                                    <Calendar className="h-4 w-4 shrink-0"/>
+                                <IconText icon={<Calendar className="h-4 w-4"/>}>
                                     <span>Customer since {formatDateTime(customer.registeredAt)}</span>
-                                </span>
+                                </IconText>
                             </div>
                         </div>
 
@@ -130,12 +127,11 @@ export function CustomerIdentityPanel({
                                 <p className="text-xs font-bold uppercase tracking-wide text-(--c-text-muted)">
                                     Account Status
                                 </p>
-                                <div className="flex items-center gap-2">
-                                    <StatusIcon className={`h-5 w-5 ${statusAccentClass}`}/>
+                                <IconText icon={<StatusIcon className={`h-5 w-5 ${statusAccentClass}`}/>} as="div">
                                     <span className={`text-base font-semibold ${statusAccentClass}`}>
                                         {statusConfig.label}
                                     </span>
-                                </div>
+                                </IconText>
                                 <p className="text-sm text-(--c-text-muted)">{statusConfig.description}</p>
                             </div>
                         </div>

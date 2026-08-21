@@ -207,58 +207,6 @@ export function ProductListPage() {
     const columns: ColumnDef<AdminProductListItem, unknown>[] = useMemo(
         () => [
             {
-                id: 'checkbox',
-                header: () => (
-                    <label className="group inline-flex items-center justify-center cursor-pointer">
-                        <input
-                            type="checkbox"
-                            className="sr-only"
-                            checked={selectedRows.size > 0 && selectedRows.size === (data?.content?.length ?? 0)}
-                            onChange={(e) => {
-                                if (e.target.checked) {
-                                    setSelectedRows(new Set((data?.content ?? []).map((p) => p.id)))
-                                } else {
-                                    setSelectedRows(new Set())
-                                }
-                            }}
-                            aria-label="Select all rows"
-                        />
-                        <span className="w-[18px] h-[18px] rounded-[4px] border-2 border-(--c-text-muted) bg-(--c-panel) group-has-[:checked]:bg-(--c-accent) group-has-[:checked]:border-(--c-accent) flex items-center justify-center transition-colors duration-150">
-                            <svg className="w-3 h-3 text-transparent group-has-[:checked]:text-(--c-accent-text) pointer-events-none" viewBox="0 0 10 8" fill="none">
-                                <path d="M1 4l2.5 2.5L9 1" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"/>
-                            </svg>
-                        </span>
-                    </label>
-                ),
-                cell: ({row}) => (
-                    <label className="group inline-flex items-center justify-center cursor-pointer">
-                        <input
-                            type="checkbox"
-                            className="sr-only"
-                            checked={selectedRows.has(row.original.id)}
-                            onChange={(e) => {
-                                setSelectedRows((prev) => {
-                                    const next = new Set(prev)
-                                    if (e.target.checked) {
-                                        next.add(row.original.id)
-                                    } else {
-                                        next.delete(row.original.id)
-                                    }
-                                    return next
-                                })
-                            }}
-                            aria-label={`Select ${row.original.name}`}
-                        />
-                        <span className="w-[18px] h-[18px] rounded-[4px] border-2 border-(--c-text-muted) bg-(--c-panel) group-has-[:checked]:bg-(--c-accent) group-has-[:checked]:border-(--c-accent) flex items-center justify-center transition-colors duration-150">
-                            <svg className="w-3 h-3 text-transparent group-has-[:checked]:text-(--c-accent-text) pointer-events-none" viewBox="0 0 10 8" fill="none">
-                                <path d="M1 4l2.5 2.5L9 1" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"/>
-                            </svg>
-                        </span>
-                    </label>
-                ),
-                enableSorting: false,
-            },
-            {
                 id: 'product',
                 header: 'Product',
                 cell: ({row}) => (
@@ -405,7 +353,7 @@ export function ProductListPage() {
                 enableSorting: false,
             },
         ],
-        [canMutate, canManageLifecycle, navigate, handleToggleStatus, selectedRows, data?.content],
+        [canMutate, canManageLifecycle, navigate, handleToggleStatus],
     )
 
     useBreadcrumb([
@@ -508,6 +456,10 @@ export function ProductListPage() {
                     onPaginationChange={setPagination}
                     onRowDoubleClick={(product) => navigate(`/admin/products/${product.id}/edit`)}
                     emptyMessage="No products found"
+                    enableRowSelection
+                    selectedRowIds={selectedRows}
+                    onRowSelectionChange={setSelectedRows}
+                    getRowId={(row) => row.id}
                 />
 
             </div>

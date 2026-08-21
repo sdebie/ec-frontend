@@ -1,5 +1,5 @@
 import {Navigate, useNavigate, useParams} from 'react-router-dom'
-import {FormPageLayout, FormPageNotFound, PageLoadingSpinner, toast} from '@/shared/ui/components'
+import {PageLayout, FormPageNotFound, PageLoadingSpinner, toast} from '@/shared/ui/components'
 import {useBreadcrumb} from '@/admin/context/BreadcrumbContext'
 import {useCan} from '@/shared/auth/adminPermissions'
 import {mutationErrorMessage} from '@/admin/utils'
@@ -63,13 +63,13 @@ export function CategoryEditPage() {
     }
 
     return (
-        <FormPageLayout title="Edit Category">
+        <PageLayout title="Edit Category" onBack={() => navigate(-1)}>
             <CategoryForm
                 defaultValues={defaultValues}
                 onSubmit={handleSubmit}
                 isSubmitting={mutation.isPending}
                 editingCategoryId={categoryId}
             />
-        </FormPageLayout>
+        </PageLayout>
     )
 }

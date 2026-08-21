@@ -1,7 +1,7 @@
 import {useState} from 'react'
 import {CalendarDays, Package, Wallet} from 'lucide-react'
-import {useParams} from 'react-router-dom'
-import {FormPageLayout, FormPageNotFound, OrderStatusDisplay, PageLoadingSpinner} from '@/shared/ui/components'
+import {useNavigate, useParams} from 'react-router-dom'
+import {PageLayout, FormPageNotFound, OrderStatusDisplay, PageLoadingSpinner} from '@/shared/ui/components'
 import {Card} from '@/shared/ui/primitives'
 import {useCan} from '@/shared/auth/adminPermissions'
 import {formatAmount} from '@/shared/utils/formatAmount'
@@ -17,10 +17,11 @@ import {OrderStatTile} from './components/OrderStatTile'
 import {OrderStatusConfirmationDialog} from './components/OrderStatusConfirmationDialog'
 import {OrderStatusHistory} from './components/OrderStatusHistory'
 import {OrderSummaryPanel} from './components/OrderSummaryPanel'
-import {OrderTransitionActions} from './components/OrderTransitionActions'
+import {OrderActionsPanel} from './components/OrderActionsPanel'
 import {ShipOrderDialog} from './components/ShipOrderDialog'
 
 export function OrderDetailPage() {
+    const navigate = useNavigate()
     const {orderId} = useParams<{ orderId: string }>()
     const {data, isLoading} = useOrderDetail(orderId!)
     const canMutate = useCan('order:write')
@@ -51,11 +52,11 @@ export function OrderDetailPage() {
     }
 
     return (
-        <FormPageLayout title="Order Details">
+        <PageLayout title="Order Details" onBack={() => navigate(-1)}>
             <div className="flex flex-col gap-6">
-                <Card as="article" elevation="sm" padded={false}>
+                <Card as="article" variant="panel">
                     <Card.Body className="flex flex-col gap-6 p-5">
-                        <Card as="section" elevation="none" padded={false}>
+                        <Card as="section" variant="bordered">
                             <Card.Header className="m-0 px-5 py-4">
                                 Order Information
                             </Card.Header>
@@ -85,29 +86,30 @@ export function OrderDetailPage() {
                                     />
                                 </div>
 
-                                {canMutate && (
-                                    <OrderTransitionActions
-                                        status={order.status}
-                                        onMove={(status) => updateStatus.mutate({orderId: order.id, status})}
-                                        onConfirm={(action: ConfirmedAction) =>
-                                            confirmation.ask(action, order.id, order.status)
-                                        }
-                                        onShip={() => setShipOpen(true)}
-                                    />
-                                )}
-
                                 {/* Lines and money side by side on a wide screen, stacked on a narrow one. */}
                                 <div className="grid gap-6 lg:grid-cols-[minmax(0,1fr)_20rem]">
                                     <div className="min-w-0">
                                         <OrderLineItemsTable lineItems={order.lineItems}/>
                                     </div>
 
-                                    <OrderSummaryPanel
-                                        subtotal={order.subtotal}
-                                        shippingCost={order.shippingCost}
-                                        vatAmount={order.vatAmount}
-                                        grandTotal={order.grandTotal}
-                                    />
+                                    <div className="space-y-4">
+                                        <OrderSummaryPanel
+                                            subtotal={order.subtotal}
+                                            shippingCost={order.shippingCost}
+                                            vatAmount={order.vatAmount}
+                                            grandTotal={order.grandTotal}
+                                        />
+                                        {canMutate && (
+                                            <OrderActionsPanel
+                                                status={order.status}
+                                                onMove={(status) => updateStatus.mutate({orderId: order.id, status})}
+                                                onConfirm={(action: ConfirmedAction) =>
+                                                    confirmation.ask(action, order.id, order.status)
+                                                }
+                                                onShip={() => setShipOpen(true)}
+                                            />
+                                        )}
+                                    </div>
                                 </div>
                             </Card.Body>
                         </Card>
@@ -120,7 +122,7 @@ export function OrderDetailPage() {
                             trackingCarrier={order.trackingCarrier}
                         />
 
-                        <Card as="section" elevation="none" padded={false}>
+                        <Card as="section" variant="bordered">
                             <Card.Header className="m-0 px-5 py-4">Order Tracking</Card.Header>
                             <Card.Body className="p-5">
                                 <OrderStatusHistory history={order.statusHistory}/>
@@ -143,6 +145,6 @@ export function OrderDetailPage() {
                     isLoading={updateStatus.isPending}
                 />
             </div>
-        </FormPageLayout>
+        </PageLayout>
     )
 }

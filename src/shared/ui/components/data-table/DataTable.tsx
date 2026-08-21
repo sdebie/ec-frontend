@@ -8,12 +8,13 @@ import {
     getSortedRowModel,
     type OnChangeFn,
     type PaginationState,
+    type RowSelectionState,
     type SortingState,
     useReactTable,
 } from '@tanstack/react-table'
 import {ArrowDown, ArrowUp, ArrowUpDown, ChevronLeft, ChevronRight} from 'lucide-react'
 import * as React from 'react'
-import {Input} from '@/shared/ui/primitives'
+import {Input, Skeleton} from '@/shared/ui/primitives'
 import {cn} from '@/shared/utils/cn'
 
 export type {ColumnDef} from '@tanstack/react-table'
@@ -56,9 +57,59 @@ export interface DataTableProps<TData> {
      * are ignored, so an in-row action can't also trigger this.
      */
     onRowDoubleClick?: (row: TData) => void
+    /** Enable built-in row selection with checkboxes. Default: false */
+    enableRowSelection?: boolean
+    /** Set of currently-selected row ids (controlled selection state) */
+    selectedRowIds?: Set<string>
+    /** Callback fired when selection changes, providing the updated set of selected ids */
+    onRowSelectionChange?: (selectedIds: Set<string>) => void
+    /** Accessor function to get the unique row id. Default: (row) => (row as any).id */
+    getRowId?: (row: TData) => string
 }
 
 const DEFAULT_PAGE_SIZE = 10
+
+/** Checkbox that supports the native indeterminate state via a ref + useEffect. */
+function SelectionCheckbox({
+    checked,
+    indeterminate,
+    onChange,
+    'aria-label': ariaLabel,
+}: {
+    checked: boolean
+    indeterminate: boolean
+    onChange: (e: React.ChangeEvent<HTMLInputElement>) => void
+    'aria-label'?: string
+}) {
+    const ref = React.useRef<HTMLInputElement>(null)
+
+    React.useEffect(() => {
+        if (ref.current) {
+            ref.current.indeterminate = indeterminate
+        }
+    }, [indeterminate])
+
+    return (
+        <label className="group inline-flex items-center justify-center cursor-pointer">
+            <input
+                ref={ref}
+                type="checkbox"
+                className="sr-only"
+                checked={checked}
+                onChange={onChange}
+                aria-label={ariaLabel}
+            />
+            <span className="w-[18px] h-[18px] rounded-[4px] border-2 border-(--c-text-muted) bg-(--c-panel) group-has-[:checked]:bg-(--c-accent) group-has-[:checked]:border-(--c-accent) group-has-[:indeterminate]:bg-(--c-accent) group-has-[:indeterminate]:border-(--c-accent) flex items-center justify-center transition-colors duration-150">
+                <svg className="w-3 h-3 text-transparent group-has-[:checked]:text-(--c-accent-text) pointer-events-none group-has-[:indeterminate]:hidden" viewBox="0 0 10 8" fill="none">
+                    <path d="M1 4l2.5 2.5L9 1" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"/>
+                </svg>
+                <svg className="w-3 h-3 text-transparent group-has-[:indeterminate]:text-(--c-accent-text) pointer-events-none hidden group-has-[:indeterminate]:block" viewBox="0 0 10 2" fill="none">
+                    <path d="M1 1h8" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round"/>
+                </svg>
+            </span>
+        </label>
+    )
+}
 
 export function DataTable<TData>({
                                      columns,
@@ -79,6 +130,10 @@ export function DataTable<TData>({
                                      className,
                                      initialPageSize = DEFAULT_PAGE_SIZE,
                                      onRowDoubleClick,
+                                     enableRowSelection = false,
+                                     selectedRowIds,
+                                     onRowSelectionChange,
+                                     getRowId: getRowIdProp,
                                  }: DataTableProps<TData>) {
     const [internalSorting, setInternalSorting] = React.useState<SortingState>([])
     const [columnFilters, setColumnFilters] = React.useState<ColumnFiltersState>([])
@@ -86,6 +141,67 @@ export function DataTable<TData>({
 
     const sorting = manualSorting && controlledSorting ? controlledSorting : internalSorting
     const handleSortingChange = manualSorting && onSortingChangeProp ? onSortingChangeProp : setInternalSorting
+
+    // --- Row selection ---
+    const getRowId = React.useCallback(
+        (row: TData) => getRowIdProp ? getRowIdProp(row) : (row as Record<string, unknown>).id as string,
+        [getRowIdProp],
+    )
+
+    // Convert external Set<string> → tanstack-table's Record<string, boolean>
+    const rowSelectionState: RowSelectionState = React.useMemo(() => {
+        if (!enableRowSelection || !selectedRowIds) return {}
+        const state: RowSelectionState = {}
+        selectedRowIds.forEach((id) => { state[id] = true })
+        return state
+    }, [enableRowSelection, selectedRowIds])
+
+    // Convert tanstack-table's internal format back to Set<string> on change
+    const handleRowSelectionChange: OnChangeFn<RowSelectionState> = React.useCallback(
+        (updaterOrValue) => {
+            if (!onRowSelectionChange) return
+            const next = typeof updaterOrValue === 'function'
+                ? updaterOrValue(rowSelectionState)
+                : updaterOrValue
+            const ids = new Set<string>(Object.keys(next).filter((k) => next[k]))
+            onRowSelectionChange(ids)
+        },
+        [onRowSelectionChange, rowSelectionState],
+    )
+
+    // Build the checkbox column injected as first column when selection is enabled
+    const selectionColumn: ColumnDef<TData, unknown> = React.useMemo(
+        () => ({
+            id: 'selection',
+            header: ({table: tbl}) => {
+                const allSelected = tbl.getIsAllPageRowsSelected()
+                const someSelected = tbl.getIsSomePageRowsSelected()
+                return (
+                    <SelectionCheckbox
+                        checked={allSelected}
+                        indeterminate={someSelected}
+                        onChange={tbl.getToggleAllPageRowsSelectedHandler()}
+                        aria-label="Select all rows"
+                    />
+                )
+            },
+            cell: ({row}) => (
+                <SelectionCheckbox
+                    checked={row.getIsSelected()}
+                    indeterminate={false}
+                    onChange={row.getToggleSelectedHandler()}
+                    aria-label={`Select row`}
+                />
+            ),
+            enableSorting: false,
+        }),
+        [],
+    )
+
+    const effectiveColumns = React.useMemo(
+        () => enableRowSelection ? [selectionColumn, ...columns] : columns,
+        [enableRowSelection, selectionColumn, columns],
+    )
 
     /*
       A server-paginated table holds one page of a larger result set, not the full thing.
@@ -113,16 +229,22 @@ export function DataTable<TData>({
 
     const table = useReactTable({
         data,
-        columns,
+        columns: effectiveColumns,
+        getRowId: enableRowSelection ? (row) => getRowId(row) : undefined,
         state: {
             sorting,
             columnFilters,
             globalFilter,
             ...(manualPagination && controlledPagination ? {pagination: controlledPagination} : {}),
+            ...(enableRowSelection ? {rowSelection: rowSelectionState} : {}),
         },
         onSortingChange: handleSortingChange,
         onColumnFiltersChange: setColumnFilters,
         onGlobalFilterChange: setGlobalFilter,
+        ...(enableRowSelection ? {
+            enableRowSelection: true,
+            onRowSelectionChange: handleRowSelectionChange,
+        } : {}),
         getCoreRowModel: getCoreRowModel(),
         getSortedRowModel: getSortedRowModel(),
         getFilteredRowModel: getFilteredRowModel(),
@@ -229,7 +351,7 @@ export function DataTable<TData>({
                                     const canSort = header.column.getCanSort()
                                     const sorted = header.column.getIsSorted()
                                     const isActionsColumn = header.column.id === 'actions'
-                                    const isCheckboxColumn = header.column.id === 'checkbox'
+                                    const isCheckboxColumn = header.column.id === 'checkbox' || header.column.id === 'selection'
                                     const isThumbnailColumn = header.column.id === 'thumbnail'
 
                                     return (
@@ -273,9 +395,9 @@ export function DataTable<TData>({
                             Array.from({length: 6}).map((_, i) => (
                                 <tr key={i}
                                     className="border-b border-(--c-border) last:border-0 bg-(--c-table-row-bg)">
-                                    {columns.map((_, j) => (
+                                    {effectiveColumns.map((_, j) => (
                                         <td key={j} className="px-4 py-3">
-                                            <div className="h-4 rounded bg-(--c-border) animate-pulse"/>
+                                            <Skeleton.Bar />
                                         </td>
                                     ))}
                                 </tr>
@@ -283,7 +405,7 @@ export function DataTable<TData>({
                         ) : table.getRowModel().rows.length === 0 ? (
                             <tr>
                                 <td
-                                    colSpan={columns.length}
+                                    colSpan={effectiveColumns.length}
                                     className="h-36 text-center text-(--c-text-muted) bg-(--c-table-row-bg)"
                                 >
                                     {emptyMessage}
@@ -306,7 +428,7 @@ export function DataTable<TData>({
                                 >
                                     {row.getVisibleCells().map((cell) => (
                                         <td key={cell.id} className="px-4 py-3 whitespace-nowrap">
-                                            {cell.column.id === 'actions' || cell.column.id === 'checkbox' || cell.column.id === 'thumbnail' ? (
+                                            {cell.column.id === 'actions' || cell.column.id === 'checkbox' || cell.column.id === 'selection' || cell.column.id === 'thumbnail' ? (
                                                 <div className="flex items-center justify-center w-full">
                                                     {flexRender(cell.column.columnDef.cell, cell.getContext())}
                                                 </div>

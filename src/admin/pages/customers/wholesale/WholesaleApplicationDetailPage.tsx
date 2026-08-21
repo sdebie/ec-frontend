@@ -1,5 +1,5 @@
-import {useParams} from 'react-router-dom'
-import {Alert, FormPageLayout, FormPageNotFound, PageLoadingSpinner, StatusBadge} from '@/shared/ui/components'
+import {useNavigate, useParams} from 'react-router-dom'
+import {Alert, PageLayout, FormPageNotFound, PageLoadingSpinner, StatusBadge} from '@/shared/ui/components'
 import {Card} from '@/shared/ui/primitives'
 import {useWholesaleApplicationDetail} from './hooks/useWholesaleApplicationDetail'
 import {resolveApplicationStatusConfig} from '../components/applicationStatus.ts'
@@ -10,6 +10,7 @@ import {FinancialInformationPanel} from './components/FinancialInformationPanel.
 import {ApplicationNotesPanel} from './components/ApplicationNotesPanel.tsx'
 
 export function WholesaleApplicationDetailPage() {
+    const navigate = useNavigate()
     const {applicationId} = useParams<{ applicationId: string }>()
     const {data, isLoading} = useWholesaleApplicationDetail(applicationId!)
 
@@ -31,8 +32,9 @@ export function WholesaleApplicationDetailPage() {
     const statusConfig = resolveApplicationStatusConfig(application.status)
 
     return (
-        <FormPageLayout
+        <PageLayout
             title="Application Details"
+            onBack={() => navigate(-1)}
             action={<StatusBadge label={statusConfig.label} color={statusConfig.color}/>}
         >
             <div className="flex flex-col gap-6">
@@ -41,7 +43,7 @@ export function WholesaleApplicationDetailPage() {
                     description="Please verify all the information below before approving or rejecting this application."
                 />
 
-                <Card as="article" elevation="sm" padded={false}>
+                <Card as="article" variant="panel">
                     <Card.Body className="flex flex-col gap-6 p-5">
                         <ApplicantInformationPanel
                             application={application}
@@ -61,6 +63,6 @@ export function WholesaleApplicationDetailPage() {
                     </Card.Body>
                 </Card>
             </div>
-        </FormPageLayout>
+        </PageLayout>
     )
 }

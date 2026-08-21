@@ -282,7 +282,7 @@ describe('ImageGalleryPage', () => {
 
       expect(screen.queryByTestId('bulk-delete-images')).not.toBeInTheDocument()
 
-      fireEvent.click(screen.getByRole('checkbox', { name: 'Select a.jpg' }))
+      fireEvent.click(screen.getAllByRole('checkbox', { name: 'Select row' })[0])
 
       await waitFor(() => {
         expect(screen.getByText('1 selected')).toBeInTheDocument()

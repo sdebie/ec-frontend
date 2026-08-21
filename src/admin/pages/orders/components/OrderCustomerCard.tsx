@@ -32,7 +32,7 @@ export function OrderCustomerCard({
     const tracking = [trackingNumber, trackingCarrier].filter((line): line is string => !!line)
 
     return (
-        <Card as="section" elevation="none" padded={false}>
+        <Card as="section" variant="bordered">
             <Card.Header className="m-0 px-5 py-4">Customer Information</Card.Header>
             <Card.Body className="flex flex-col gap-1 p-5">
 

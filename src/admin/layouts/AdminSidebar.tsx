@@ -1,11 +1,10 @@
 import {useEffect, useMemo} from 'react'
 import {matchPath, useLocation} from 'react-router-dom'
-import {ChevronsLeft, ChevronsRight} from 'lucide-react'
 import {cn} from '@/shared/utils/cn'
 import {hasRequiredAuthority} from '@/shared/utils/authorizationHelper'
 import {adminMenuRoutes} from '@/admin/routes/adminMenuRoutes.config'
 import {useClientName} from '@/admin/hooks/useClientName'
-import {SidebarItem, SidebarSection} from '@/admin/components/sidebar'
+import {NavToggle, SidebarItem, SidebarSection} from '@/admin/components/sidebar'
 import type {AdminRouteConfig} from '@/admin/types/routes'
 
 // Generic admin-console chrome, not client data — safe as a constant.
@@ -111,7 +110,8 @@ export function AdminSidebar({isOpen, onClose, isCollapsed, onToggleCollapsed, o
             >
                 {/* Brand block — h-[60px] matches the fixed header's height (py-3 +
             36px content, header has no border) so the two rows line up. */}
-                <div className={cn('flex h-15 shrink-0 items-center', isCollapsed ? 'md:justify-center md:px-2' : '', 'px-4',)}>
+                <div
+                    className={cn('flex h-15 shrink-0 items-center', isCollapsed ? 'md:justify-center md:px-2' : '', 'px-4',)}>
                     <div
                         className="flex h-9 w-9 shrink-0 items-center justify-center rounded-(--c-radius) bg-primary-subtle text-sm font-bold text-primary">
                         {clientName ? clientName.charAt(0).toUpperCase() : 'S'}
@@ -146,13 +146,7 @@ export function AdminSidebar({isOpen, onClose, isCollapsed, onToggleCollapsed, o
 
                 {/* Desktop collapse toggle */}
                 <div className="hidden md:flex items-center justify-center border-t border-admin-sidebar-border p-2">
-                    <button
-                        type="button"
-                        onClick={onToggleCollapsed}
-                        className="p-2 rounded-(--c-radius) text-admin-text-muted hover:bg-admin-sidebar-hover hover:text-admin-text transition-colors"
-                        title={isCollapsed ? 'Expand sidebar' : 'Collapse sidebar'}>
-                        {isCollapsed ? <ChevronsRight size={18}/> : <ChevronsLeft size={18}/>}
-                    </button>
+                    <NavToggle toggled={isCollapsed} onToggle={onToggleCollapsed}/>
                 </div>
             </aside>
         </>

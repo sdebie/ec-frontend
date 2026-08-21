@@ -32,7 +32,7 @@ export function WholesaleAccountPanel({customer}: WholesaleAccountPanelProps) {
 
     if (!application) {
         return (
-            <Card as="section" elevation="none" padded={false}>
+            <Card as="section" variant="bordered">
                 <WholesaleApplicationDetailHeader icon={Building2} title="Wholesale Account"/>
                 <Card.Body className="p-5">
                     <p className="text-sm text-(--c-text-muted)">
@@ -59,7 +59,7 @@ export function WholesaleAccountPanel({customer}: WholesaleAccountPanelProps) {
 
     return (
         <>
-            <Card as="section" elevation="none" padded={false}>
+            <Card as="section" variant="bordered">
                 <WholesaleApplicationDetailHeader
                     icon={Building2}
                     title="Wholesale Account"

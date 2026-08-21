@@ -1,6 +1,9 @@
 export { Alert } from './alert/Alert'
 export type { AlertProps } from './alert/Alert'
 
+export { AuthorityCheck } from './authority-check/AuthorityCheck'
+export type { AuthorityCheckProps } from './authority-check/AuthorityCheck'
+
 export { DataTable } from './data-table/DataTable'
 export type { DataTableProps, ColumnDef } from './data-table/DataTable'
 
@@ -101,8 +104,6 @@ export type { PageLayoutProps } from './page-layout/PageLayout'
 export { PageLoadingSpinner } from './page-layout/PageLoadingSpinner'
 export { PageBackButton } from './page-layout/PageBackButton'
 export type { PageBackButtonProps } from './page-layout/PageBackButton'
-export { FormPageLayout } from './page-layout/FormPageLayout'
-export type { FormPageLayoutProps } from './page-layout/FormPageLayout'
 export { FormPageNotFound } from './page-layout/FormPageNotFound'
 export type { FormPageNotFoundProps } from './page-layout/FormPageNotFound'
 export { DateFilter } from './date-filter/DateFilter'
@@ -111,3 +112,6 @@ export { DATE_RANGE_OPTIONS, DateRangePreset, resolveDateRange } from './date-fi
 export type { DateRange } from './date-filter/dateRangePresets'
 export { RouteErrorBoundary } from './page-layout/RouteErrorBoundary'
 export type { RouteErrorBoundaryProps } from './page-layout/RouteErrorBoundary'
+
+export { IconText } from './icon-text/IconText'
+export type { IconTextProps } from './icon-text/IconText'
