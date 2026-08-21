@@ -14,6 +14,14 @@ const mockedGetAvailableTransitions = vi.mocked(getAvailableTransitions)
 
 const noop = () => {}
 
+function metaFor(target: OrderStatus) {
+  return TRANSITION_META.find((m) => m.target === target)!
+}
+
+function openMoreActions() {
+  fireEvent.click(screen.getByRole('button', {name: /More actions/}))
+}
+
 describe('OrderActionsPanel', () => {
   it('renders inside a bordered/panel Card with an "Order Actions" heading', () => {
     mockedGetAvailableTransitions.mockReturnValue([OrderStatus.PROCESSING])
@@ -65,45 +73,11 @@ describe('OrderActionsPanel', () => {
       />,
     )
 
-    const processingMeta = TRANSITION_META.find((m) => m.target === OrderStatus.PROCESSING)!
-    const primaryButton = screen.getByRole('button', {name: processingMeta.label})
-    expect(primaryButton).toBeInTheDocument()
+    const processingMeta = metaFor(OrderStatus.PROCESSING)
+    expect(screen.getByRole('button', {name: processingMeta.label})).toBeInTheDocument()
   })
 
-  it('renders dropdown with remaining transitions when more than one is available', () => {
-    mockedGetAvailableTransitions.mockReturnValue([
-      OrderStatus.PROCESSING,
-      OrderStatus.USER_CANCELED,
-      OrderStatus.ADMIN_CANCELED,
-    ])
-
-    const {container} = render(
-      <OrderActionsPanel
-        status={OrderStatus.PAID}
-        onMove={noop}
-        onConfirm={noop}
-        onShip={noop}
-      />,
-    )
-
-    // The "More actions" trigger should be rendered
-    expect(screen.getByText('More actions')).toBeInTheDocument()
-
-    // Open the dropdown
-    const triggerButton = container.querySelector('button[type="button"]:last-of-type')!
-    fireEvent.click(triggerButton)
-
-    // Dropdown menu items should be visible
-    const menuItems = document.body.querySelectorAll('[role="menuitem"]')
-    const cancelCustomerMeta = TRANSITION_META.find((m) => m.target === OrderStatus.USER_CANCELED)!
-    const cancelStaffMeta = TRANSITION_META.find((m) => m.target === OrderStatus.ADMIN_CANCELED)!
-
-    const labels = Array.from(menuItems).map((item) => item.textContent)
-    expect(labels).toContain(cancelCustomerMeta.label)
-    expect(labels).toContain(cancelStaffMeta.label)
-  })
-
-  it('does not render dropdown when only one transition is available', () => {
+  it('does not render "More actions" or the "or" divider when only one transition is available', () => {
     mockedGetAvailableTransitions.mockReturnValue([OrderStatus.REFUNDED])
 
     render(
@@ -116,16 +90,17 @@ describe('OrderActionsPanel', () => {
     )
 
     expect(screen.queryByText('More actions')).not.toBeInTheDocument()
+    expect(screen.queryByText('or')).not.toBeInTheDocument()
   })
 
-  it('applies destructive styling to destructive transitions in the dropdown', () => {
+  it('opens a floating dropdown menu (portaled, role="menu") to show remaining transitions when "More actions" is clicked', () => {
     mockedGetAvailableTransitions.mockReturnValue([
       OrderStatus.PROCESSING,
       OrderStatus.USER_CANCELED,
       OrderStatus.ADMIN_CANCELED,
     ])
 
-    const {container} = render(
+    render(
       <OrderActionsPanel
         status={OrderStatus.PAID}
         onMove={noop}
@@ -134,15 +109,76 @@ describe('OrderActionsPanel', () => {
       />,
     )
 
-    // Open the dropdown
-    const triggerButton = container.querySelector('button[type="button"]:last-of-type')!
-    fireEvent.click(triggerButton)
+    expect(screen.queryByText(metaFor(OrderStatus.USER_CANCELED).label)).not.toBeInTheDocument()
 
-    const menuItems = document.body.querySelectorAll('[role="menuitem"]')
-    // Both cancel items are destructive — they should have the error color class
-    for (const item of menuItems) {
-      expect(item.className).toContain('text-(--c-error)')
-    }
+    openMoreActions()
+
+    // Reuses the shared DropdownMenu component (portaled to document.body) — not an inline expand.
+    expect(document.querySelector('[role="menu"]')).not.toBeNull()
+    expect(screen.getByText(metaFor(OrderStatus.USER_CANCELED).label)).toBeInTheDocument()
+    expect(screen.getByText(metaFor(OrderStatus.ADMIN_CANCELED).label)).toBeInTheDocument()
+  })
+
+  it('renders cancel transitions with an icon badge and their description in the dropdown', () => {
+    mockedGetAvailableTransitions.mockReturnValue([
+      OrderStatus.PROCESSING,
+      OrderStatus.USER_CANCELED,
+      OrderStatus.ADMIN_CANCELED,
+    ])
+
+    render(
+      <OrderActionsPanel
+        status={OrderStatus.PAID}
+        onMove={noop}
+        onConfirm={noop}
+        onShip={noop}
+      />,
+    )
+
+    openMoreActions()
+
+    expect(screen.getByText('Customer requested cancellation')).toBeInTheDocument()
+    expect(screen.getByText('Cancelled by store')).toBeInTheDocument()
+  })
+
+  it('applies destructive text styling to a non-cancel destructive transition (no icon badge)', () => {
+    // TRANSITION_META's declaration order (not the array passed here) decides primary vs. rest —
+    // PARTIALLY_REFUNDED is declared before REFUNDED, so REFUNDED is what lands in "rest" here.
+    mockedGetAvailableTransitions.mockReturnValue([OrderStatus.REFUNDED, OrderStatus.PARTIALLY_REFUNDED])
+
+    render(
+      <OrderActionsPanel
+        status={OrderStatus.DELIVERED}
+        onMove={noop}
+        onConfirm={noop}
+        onShip={noop}
+      />,
+    )
+
+    openMoreActions()
+
+    const refundMeta = metaFor(OrderStatus.REFUNDED)
+    const item = screen.getByText(refundMeta.label).closest('button')!
+    expect(item.className).toContain('text-(--c-error)')
+  })
+
+  it('renders the primary button without a checkmark icon when the only available transition is destructive', () => {
+    mockedGetAvailableTransitions.mockReturnValue([OrderStatus.REFUNDED])
+
+    render(
+      <OrderActionsPanel
+        status={OrderStatus.DELIVERED}
+        onMove={noop}
+        onConfirm={noop}
+        onShip={noop}
+      />,
+    )
+
+    const refundMeta = metaFor(OrderStatus.REFUNDED)
+    const primaryButton = screen.getByRole('button', {name: refundMeta.label})
+    // outline variant (no solid accent background) — reflects that this primary action is destructive
+    expect(primaryButton.className).not.toContain('bg-(--c-accent)')
+    expect(primaryButton.querySelectorAll('svg').length).toBe(1) // chevron only, no leading checkmark
   })
 
   it('calls onMove for direct transitions (no prompt)', () => {
@@ -158,8 +194,7 @@ describe('OrderActionsPanel', () => {
       />,
     )
 
-    const processingMeta = TRANSITION_META.find((m) => m.target === OrderStatus.PROCESSING)!
-    fireEvent.click(screen.getByRole('button', {name: processingMeta.label}))
+    fireEvent.click(screen.getByRole('button', {name: metaFor(OrderStatus.PROCESSING).label}))
 
     expect(onMove).toHaveBeenCalledWith(OrderStatus.PROCESSING)
   })
@@ -177,8 +212,7 @@ describe('OrderActionsPanel', () => {
       />,
     )
 
-    const cancelMeta = TRANSITION_META.find((m) => m.target === OrderStatus.USER_CANCELED)!
-    fireEvent.click(screen.getByRole('button', {name: cancelMeta.label}))
+    fireEvent.click(screen.getByRole('button', {name: metaFor(OrderStatus.USER_CANCELED).label}))
 
     expect(onConfirm).toHaveBeenCalledWith('cancel-customer')
   })
@@ -196,20 +230,16 @@ describe('OrderActionsPanel', () => {
       />,
     )
 
-    const shipMeta = TRANSITION_META.find((m) => m.target === OrderStatus.IN_TRANSIT)!
-    fireEvent.click(screen.getByRole('button', {name: shipMeta.label}))
+    fireEvent.click(screen.getByRole('button', {name: metaFor(OrderStatus.IN_TRANSIT).label}))
 
     expect(onShip).toHaveBeenCalled()
   })
 
-  it('calls onConfirm via dropdown item for prompted transitions in the menu', () => {
-    mockedGetAvailableTransitions.mockReturnValue([
-      OrderStatus.PAID,
-      OrderStatus.USER_CANCELED,
-    ])
+  it('calls onConfirm via a dropdown cancel item for prompted transitions', () => {
+    mockedGetAvailableTransitions.mockReturnValue([OrderStatus.PAID, OrderStatus.USER_CANCELED])
 
     const onConfirm = vi.fn()
-    const {container} = render(
+    render(
       <OrderActionsPanel
         status={OrderStatus.IN_STORE_PAYMENT}
         onMove={noop}
@@ -218,15 +248,10 @@ describe('OrderActionsPanel', () => {
       />,
     )
 
-    // Open the dropdown
-    const triggerButton = container.querySelector('button[type="button"]:last-of-type')!
-    fireEvent.click(triggerButton)
+    openMoreActions()
 
-    // Click the cancel item in the dropdown
-    const cancelMeta = TRANSITION_META.find((m) => m.target === OrderStatus.USER_CANCELED)!
-    const menuItems = document.body.querySelectorAll('[role="menuitem"]')
-    const cancelItem = Array.from(menuItems).find((item) => item.textContent === cancelMeta.label)!
-    fireEvent.click(cancelItem)
+    const cancelMeta = metaFor(OrderStatus.USER_CANCELED)
+    fireEvent.click(screen.getByText(cancelMeta.label).closest('button')!)
 
     expect(onConfirm).toHaveBeenCalledWith('cancel-customer')
   })

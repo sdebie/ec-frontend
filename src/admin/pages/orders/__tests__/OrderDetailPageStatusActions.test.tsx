@@ -128,7 +128,7 @@ describe('OrderDetailPage — status actions', () => {
 
     // Cancel — Store is in the "More actions" dropdown for PAID orders
     await user.click(screen.getByText('More actions'))
-    await user.click(screen.getByRole('menuitem', { name: 'Cancel — Store' }))
+    await user.click(screen.getByText('Cancel — Store').closest('button')!)
     await user.click(screen.getByRole('button', { name: 'Cancel Order' }))
 
     expect(mutate.mock.calls[0][0].status).toBe(OrderStatus.ADMIN_CANCELED)
@@ -140,7 +140,7 @@ describe('OrderDetailPage — status actions', () => {
 
     // Cancel — Customer is in the "More actions" dropdown for PAID orders
     await user.click(screen.getByText('More actions'))
-    await user.click(screen.getByRole('menuitem', { name: 'Cancel — Customer' }))
+    await user.click(screen.getByText('Cancel — Customer').closest('button')!)
     await user.click(screen.getByRole('button', { name: 'Cancel Order' }))
 
     expect(mutate.mock.calls[0][0].status).toBe(OrderStatus.USER_CANCELED)
