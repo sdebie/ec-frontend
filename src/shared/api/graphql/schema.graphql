@@ -44,6 +44,7 @@ type AdminOrderDetailDto {
   grandTotal: BigDecimal
   id: String
   itemCount: Int!
+  latestPayment: AdminOrderPaymentDto
   lineItems: [AdminOrderLineItemDto]
   placedAt: String
   reference: String
@@ -76,6 +77,14 @@ type AdminOrderListItemDto {
   reference: String
   status: String
   total: BigDecimal
+}
+
+type AdminOrderPaymentDto {
+  amountGross: BigDecimal
+  externalReference: String
+  gateway: String
+  receivedAt: String
+  status: String
 }
 
 type AdminOrderRefDto {
@@ -454,7 +463,7 @@ type ProductVariantDto {
 "Query root"
 type Query {
   adminCustomer(id: String): AdminCustomerDetailDto
-  "Admin order detail: lines, address, money breakdown and status timeline. Staff JWT required."
+  "Admin order detail: lines, address, money breakdown, status timeline and latest payment. Staff JWT required."
   adminOrder(id: String): AdminOrderDetailDto
   "Admin paginated order list with customer, item count and total. Staff JWT required."
   adminOrderList(fromDate: String, fulfilmentState: String, pageIndex: Int = 0, pageSize: Int = 10, paymentState: String, sortBy: String, sortDir: String, toDate: String): PageResponse_AdminOrderListItemDto
