@@ -13,11 +13,6 @@ interface BulkUploadDialogProps {
 
 type UploadMode = 'files' | 'folder'
 
-// Matches the original ec-frontend filter: broad MIME check + extension fallback
-function isFolderImageFile(file: File): boolean {
-    return file.type.startsWith('image/') || /\.(jpg|jpeg|png|webp)$/i.test(file.name)
-}
-
 export function BulkUploadDialog({open, onClose}: BulkUploadDialogProps) {
 
     const [mode, setMode] = useState<UploadMode>('files')
@@ -75,7 +70,7 @@ export function BulkUploadDialog({open, onClose}: BulkUploadDialogProps) {
 
     const handleFolderInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         const all = Array.from(e.target.files ?? [])
-        const images = all.filter(isFolderImageFile)
+        const images = all.filter(isImageFile)
         setFolderFiles(images)
         // Reset input so the same folder can be re-selected
         if (folderInputRef.current) folderInputRef.current.value = ''

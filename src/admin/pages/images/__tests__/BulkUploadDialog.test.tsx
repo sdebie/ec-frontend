@@ -43,6 +43,12 @@ function getFileInput(): HTMLInputElement {
   return input as HTMLInputElement
 }
 
+function getFolderInput(): HTMLInputElement {
+  const input = document.querySelector('input[type="file"][webkitdirectory]')
+  expect(input).not.toBeNull()
+  return input as HTMLInputElement
+}
+
 describe('BulkUploadDialog', () => {
   beforeEach(() => {
     vi.clearAllMocks()
@@ -86,5 +92,21 @@ describe('BulkUploadDialog', () => {
     renderDialog()
 
     expect(screen.getByRole('button', { name: 'Upload' })).toBeDisabled()
+  })
+
+  it('folder mode rejects non-allowlisted image types the same way files mode does', () => {
+    setupMocks()
+    renderDialog()
+
+    fireEvent.click(screen.getByRole('button', { name: 'Select Folder' }))
+
+    const files = [
+      new File([''], 'sku-1.jpg', { type: 'image/jpeg' }),
+      new File([''], 'sku-2.gif', { type: 'image/gif' }),
+    ]
+    fireEvent.change(getFolderInput(), { target: { files } })
+
+    expect(screen.getByText('1 image found for Storage root.')).toBeInTheDocument()
+    expect(screen.queryByText(/sku-2\.gif/)).not.toBeInTheDocument()
   })
 })
