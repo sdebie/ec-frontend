@@ -48,13 +48,17 @@ function cartOf(items: Array<{ variantId: string; quantity: number }>) {
  * See design.md §5.2a: "the split must change the store's semantics, not one call
  * site."
  * <p>
- * The accepted trade-off: a genuinely abandoned, diverged checkout (the shopper
- * goes back to the cart mid-flow and changes it, then somehow returns to /checkout
- * without going through useCheckout() again) no longer nulls session — its stale
- * total could be briefly redisplayed. It cannot be silently over-charged, because
- * ensureIdempotencyKey() re-keys off the current cart signature independently of
- * this hook, and useCheckout() always overwrites session with a fresh one on the
- * one real path back to /checkout (clicking checkout from the cart).
+ * This hook deliberately leaves `session` itself alone on divergence — see above.
+ * That used to mean a genuinely abandoned, diverged checkout (the shopper goes
+ * back to the cart mid-flow and changes it, then somehow returns to /checkout
+ * without going through useCheckout() again — browser forward, a restored tab)
+ * could briefly redisplay and resubmit the stale total. CheckoutPage now closes
+ * that gap itself: it runs the identical staleness check
+ * (isCheckoutSessionStale, shared via utils/cartSignature) against the live cart
+ * on every render and refuses to show or submit a diverged session, clearing it
+ * outright rather than leaving it inert. This hook's narrow scope is still
+ * correct — the guest-order-authorization/CheckoutSuccessPage ordering hazard
+ * this file documents above is unchanged — the resubmit risk is what moved.
  */
 describe('useExpireStaleCheckoutSession', () => {
     beforeEach(() => {

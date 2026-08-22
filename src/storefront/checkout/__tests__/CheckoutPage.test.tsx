@@ -6,6 +6,7 @@ import {QueryClient, QueryClientProvider} from '@tanstack/react-query'
 import {StorefrontConfigContext} from '@/shared/config/storefrontConfig.context'
 import type {StorefrontConfig} from '@/shared/types/StorefrontConfig'
 import {useCheckoutSessionStore} from '../store/checkoutSessionStore'
+import {useCartStore} from '@/storefront/cart/store/cartStore'
 import type {CheckoutSession} from '../types'
 
 // --- Mocks ---
@@ -103,6 +104,13 @@ const mockSession: CheckoutSession = {
     orderToken: 'token-abc',
 }
 
+// Matches mockSession.lines — CheckoutPage now refuses to render a session the
+// live cart has diverged from, so every test exercising the form must seed a
+// cart that still agrees with it.
+const mockCartItems = [
+    {variantId: 'v1', productName: 'Widget', variantLabel: '', quantity: 2},
+]
+
 const mockStorefrontConfig: StorefrontConfig = {
     clientId: 'test-client',
     clientName: 'Test Store',
@@ -147,7 +155,8 @@ describe('CheckoutPage', () => {
 
     beforeEach(async () => {
         vi.clearAllMocks()
-        useCheckoutSessionStore.setState({session: null})
+        useCheckoutSessionStore.setState({session: null, idempotencyKey: null, idempotencyKeyCartSignature: null})
+        useCartStore.setState({items: mockCartItems, itemCount: 2})
         CheckoutPage = await importCheckoutPage()
     })
 
@@ -194,6 +203,40 @@ describe('CheckoutPage', () => {
             const toolbar = container.querySelector('.border-b')
             expect(toolbar).toBeTruthy()
             expect(toolbar).toHaveTextContent(/items? in this order/i)
+        })
+    })
+
+    describe('cart divergence', () => {
+        it('renders expired-session fallback when the live cart no longer matches what the session was priced for', () => {
+            useCheckoutSessionStore.setState({session: mockSession})
+            useCartStore.setState({
+                items: [{variantId: 'v1', productName: 'Widget', variantLabel: '', quantity: 3}],
+                itemCount: 3,
+            })
+
+            renderCheckoutPage(CheckoutPage)
+
+            expect(screen.getByText(/your checkout session has expired/i)).toBeInTheDocument()
+            expect(screen.queryByRole('button', {name: /place order/i})).not.toBeInTheDocument()
+        })
+
+        it('clears the stale session rather than leaving it to be coincidentally revived by a later matching cart', async () => {
+            useCheckoutSessionStore.setState({
+                session: mockSession,
+                idempotencyKey: 'key-1',
+                idempotencyKeyCartSignature: 'sig-1',
+            })
+            useCartStore.setState({
+                items: [{variantId: 'v1', productName: 'Widget', variantLabel: '', quantity: 3}],
+                itemCount: 3,
+            })
+
+            renderCheckoutPage(CheckoutPage)
+
+            await waitFor(() => {
+                expect(useCheckoutSessionStore.getState().session).toBeNull()
+            })
+            expect(useCheckoutSessionStore.getState().idempotencyKey).toBeNull()
         })
     })
 
