@@ -192,9 +192,17 @@ export function ProductListPage() {
         if (!deleteTarget) return
 
         deleteProduct.mutate({id: deleteTarget.id}, {
-            onSuccess: () => {
+            // Order history is the only bar to physical deletion (see the dialog's
+            // own description below) — the server may archive instead of delete,
+            // and the toast has to say which actually happened rather than
+            // claiming "deleted" either way.
+            onSuccess: ({deleteProduct: outcome}) => {
                 refetch()
-                toast.success('Product deleted successfully')
+                toast.success(
+                    outcome === 'ARCHIVED'
+                        ? 'Product archived instead of deleted, to preserve order history'
+                        : 'Product deleted permanently',
+                )
                 setDeleteTarget(null)
             },
             onError: () => {

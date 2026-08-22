@@ -9,6 +9,7 @@ import {useProductStats} from '@/admin/hooks/products/useProductStats'
 import {useCategories} from '@/admin/hooks/products/useCategories'
 import {useBrands} from '@/admin/hooks/products/useBrands'
 import {useAdminAuthStore} from '@/shared/auth/adminAuthStore'
+import {toast} from '@/shared/ui/components/toast'
 import {ProductListPage} from '../ProductListPage'
 
 const mockRefetch = vi.fn()
@@ -42,6 +43,9 @@ vi.mock('react-router-dom', async () => {
     const actual = await vi.importActual('react-router-dom')
     return {...actual, useNavigate: () => mockNavigate}
 })
+vi.mock('@/shared/ui/components/toast', () => ({
+    toast: {success: vi.fn(), error: vi.fn()},
+}))
 
 const mockProducts = {
     content: [
@@ -183,6 +187,52 @@ describe('ProductListPage', () => {
             expect(
                 screen.getByText(/Delete "Test Product"\?/),
             ).toBeInTheDocument()
+        })
+    })
+
+    /**
+     * The dialog already tells staff, before they confirm, that a delete might
+     * archive instead (see the description assertion above). The gap this
+     * closes is what happens AFTER: deleteProduct used to return void, so the
+     * success toast said "Product deleted successfully" unconditionally,
+     * whichever actually happened. It now reads the outcome the mutation
+     * resolves with and shows the matching message.
+     */
+    describe('delete outcome messaging', () => {
+        async function confirmDelete() {
+            const user = userEvent.setup()
+            renderPage()
+
+            await user.click(screen.getByTestId('action-delete'))
+            await user.click(screen.getByRole('button', {name: 'Delete'}))
+
+            expect(mockDeleteMutate).toHaveBeenCalledTimes(1)
+            const [, callbacks] = mockDeleteMutate.mock.calls[0] as [
+                unknown,
+                {onSuccess: (data: {deleteProduct: 'DELETED' | 'ARCHIVED'}) => void},
+            ]
+            return callbacks
+        }
+
+        it('reports a permanent deletion when the server hard-deletes', async () => {
+            setupDefaultMocks()
+
+            const {onSuccess} = await confirmDelete()
+            onSuccess({deleteProduct: 'DELETED'})
+
+            expect(toast.success).toHaveBeenCalledWith('Product deleted permanently')
+        })
+
+        it('reports an archive, not a deletion, when the server archives instead', async () => {
+            setupDefaultMocks()
+
+            const {onSuccess} = await confirmDelete()
+            onSuccess({deleteProduct: 'ARCHIVED'})
+
+            expect(toast.success).toHaveBeenCalledWith(
+                'Product archived instead of deleted, to preserve order history',
+            )
+            expect(toast.success).not.toHaveBeenCalledWith(expect.stringContaining('deleted permanently'))
         })
     })
 

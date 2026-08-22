@@ -27,7 +27,7 @@ describe('useDeleteProductGql', () => {
 
   it('calls GraphQL deleteProduct mutation via adminGraphqlClient (not REST DELETE)', async () => {
     vi.mocked(adminGraphqlClient.request).mockResolvedValue({
-      deleteProduct: null,
+      deleteProduct: 'DELETED',
     })
 
     const { result } = renderHook(() => useDeleteProductGql(), {
@@ -50,5 +50,31 @@ describe('useDeleteProductGql', () => {
 
     // Verify the correct variables are passed
     expect(variables).toEqual({ id: 'product-456' })
+  })
+
+  /**
+   * The whole reason this mutation stopped returning void: a caller reading
+   * nothing back cannot tell a hard delete from an archive. This pins that the
+   * hook actually surfaces whichever outcome the server reports, not just
+   * whether the call succeeded.
+   */
+  it('resolves with whichever outcome the server reports — ARCHIVED as well as DELETED', async () => {
+    vi.mocked(adminGraphqlClient.request).mockResolvedValue({
+      deleteProduct: 'ARCHIVED',
+    })
+
+    const { result } = renderHook(() => useDeleteProductGql(), {
+      wrapper: createWrapper(),
+    })
+
+    await act(async () => {
+      result.current.mutate({ id: 'product-789' })
+    })
+
+    await waitFor(() => {
+      expect(result.current.isSuccess).toBe(true)
+    })
+
+    expect(result.current.data).toEqual({ deleteProduct: 'ARCHIVED' })
   })
 })

@@ -163,8 +163,8 @@ type Mutation {
   deleteBrand(id: String): Void
   "Delete a category"
   deleteCategory(id: String): Void
-  "Delete a product and all its variants. SUPER_ADMIN only."
-  deleteProduct(id: String): Void
+  "Delete a product and all its variants. If any variant has order history, the product and its variants are archived (status DISABLED) instead, to preserve order records — check the returned outcome to tell which happened. SUPER_ADMIN only."
+  deleteProduct(id: String): ProductDeletionOutcome
   rejectWholesaleApplication(id: String, reason: String): WholesaleApplicationDetailsDto
   saveShippingMethod(methodDto: ShippingMethodDtoInput): ShippingMethodDto
   saveStoreSettings(storeSettingsDto: [StoreSettingsDtoInput]): [StoreSettingsDto]
@@ -754,6 +754,11 @@ enum OrderStatusEn {
 enum PriceBasisEn {
   RETAIL
   WHOLESALE
+}
+
+enum ProductDeletionOutcome {
+  ARCHIVED
+  DELETED
 }
 
 enum ProductImportValidationStatusEn {
