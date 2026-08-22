@@ -42,18 +42,18 @@ describe('checkoutSessionStore - Property Tests', () => {
     })
 })
 
-describe('checkoutSessionStore — clearSession / clearOrder split (guest-order-authorization)', () => {
+describe('checkoutSessionStore — clearCheckoutIntent / clearOrder split (guest-order-authorization)', () => {
     beforeEach(() => {
         useCheckoutSessionStore.setState({session: null, idempotencyKey: null, idempotencyKeyCartSignature: null})
     })
 
-    it('clearSession() clears the idempotency key but keeps the session (orderId/orderToken survive a refresh)', () => {
+    it('clearCheckoutIntent() clears the idempotency key but keeps the session (orderId/orderToken survive a refresh)', () => {
         fc.assert(
             fc.property(checkoutSessionArb, (session) => {
                 useCheckoutSessionStore.getState().setSession(session)
                 useCheckoutSessionStore.setState({idempotencyKey: 'some-key', idempotencyKeyCartSignature: 'sig'})
 
-                useCheckoutSessionStore.getState().clearSession()
+                useCheckoutSessionStore.getState().clearCheckoutIntent()
 
                 const state = useCheckoutSessionStore.getState()
                 expect(state.session).toEqual(session)

@@ -29,13 +29,19 @@ const ORDER_STATUS_QUERY = gql`
 const POLL_INTERVAL = 3000
 const TIMEOUT_MS = 120_000
 
-/** Statuses that stop the poll — a definite outcome, good or bad. */
+/**
+ * Statuses that stop the poll. Not all are permanent on the backend —
+ * PAYMENT_FAILED can still move on its own (a retried payment, or the
+ * abandoned-order sweep after its default 30-minute hold) — but neither happens
+ * inside this poll's 120s window, so there is nothing left here worth waiting for.
+ */
 const TERMINAL_STATUSES = new Set([
     'PAID',
     'IN_STORE_PAYMENT',
     'USER_CANCELED',
     'ADMIN_CANCELED',
     'SYSTEM_CANCELED',
+    'PAYMENT_FAILED',
     'FAILED',
     'REFUNDED',
 ])

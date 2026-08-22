@@ -38,9 +38,10 @@ describe('useCheckout', () => {
         // (e.g. an auto-retry that isn't wired yet) leaks its leftover response
         // into the next test's first call.
         vi.resetAllMocks()
-        // clearOrder(), not clearSession(): guest-order-authorization narrowed
-        // clearSession() to the idempotency key alone, so it no longer resets
-        // `session` between tests — this suite needs the full reset for isolation.
+        // clearOrder(), not clearCheckoutIntent(): guest-order-authorization
+        // narrowed clearCheckoutIntent() to the idempotency key alone, so it no
+        // longer resets `session` between tests — this suite needs the full reset
+        // for isolation.
         useCheckoutSessionStore.getState().clearOrder()
         useCartStore.setState({
             items: [

@@ -38,14 +38,15 @@ function cartOf(items: Array<{ variantId: string; quantity: number }>) {
 
 /**
  * guest-order-authorization narrowed what "expiring" a stale session means. The
- * store's own clearSession() split (checkoutSessionStore.ts) is what this hook
- * calls, and its new job is clearing the idempotency-replay hazard — not the order
- * id or token, which must survive a refresh of the success page. This hook keeps
- * calling clearSession() (not the new clearOrder()) so that CheckoutSuccessPage's
- * clearCart()-then-clearSession() sequence — which fires this exact subscription,
- * since an emptied cart no longer matches the just-placed order's lines — does not
- * wipe the confirmation it is about to show. See design.md §5.2a: "the split must
- * change the store's semantics, not one call site."
+ * store's own clearCheckoutIntent() / clearOrder() split (checkoutSessionStore.ts)
+ * is what this hook calls, and its job is clearing the idempotency-replay hazard —
+ * not the order id or token, which must survive a refresh of the success page.
+ * This hook calls clearCheckoutIntent() (not clearOrder()) so that
+ * CheckoutSuccessPage's clearCart()-then-clearCheckoutIntent() sequence — which
+ * fires this exact subscription, since an emptied cart no longer matches the
+ * just-placed order's lines — does not wipe the confirmation it is about to show.
+ * See design.md §5.2a: "the split must change the store's semantics, not one call
+ * site."
  * <p>
  * The accepted trade-off: a genuinely abandoned, diverged checkout (the shopper
  * goes back to the cart mid-flow and changes it, then somehow returns to /checkout

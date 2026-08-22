@@ -37,8 +37,8 @@ function sessionSignature(session: CheckoutSession): string {
 }
 
 function expireIfStale(items: CartLineItem[]): void {
-    const { session, clearSession } = useCheckoutSessionStore.getState()
+    const { session, clearCheckoutIntent } = useCheckoutSessionStore.getState()
     if (!session) return
     if (cartSignature(items) === sessionSignature(session)) return
-    clearSession()
+    clearCheckoutIntent()
 }
