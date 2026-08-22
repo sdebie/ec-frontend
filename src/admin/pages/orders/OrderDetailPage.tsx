@@ -15,6 +15,7 @@ import {OrderCustomerCard} from './components/OrderCustomerCard'
 import {OrderLineItemsTable} from './components/OrderLineItemsTable'
 import {OrderStatTile} from './components/OrderStatTile'
 import {OrderStatusConfirmationDialog} from './components/OrderStatusConfirmationDialog'
+import {OrderPaymentPanel} from './components/OrderPaymentPanel'
 import {OrderStatusHistory} from './components/OrderStatusHistory'
 import {OrderSummaryPanel} from './components/OrderSummaryPanel'
 import {OrderActionsPanel} from './components/OrderActionsPanel'
@@ -99,6 +100,9 @@ export function OrderDetailPage() {
                                             vatAmount={order.vatAmount}
                                             grandTotal={order.grandTotal}
                                         />
+                                        {order.latestPayment && (
+                                            <OrderPaymentPanel payment={order.latestPayment}/>
+                                        )}
                                         {canMutate && (
                                             <OrderActionsPanel
                                                 status={order.status}

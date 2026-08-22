@@ -81,6 +81,7 @@ const mockOrder: AdminOrderDetail = {
       staffName: 'Admin User',
     },
   ],
+  latestPayment: null,
 }
 
 // --- Setup Helpers ---
@@ -297,6 +298,36 @@ describe('OrderDetailPage', () => {
 
     it('renders status history section', () => {
       expect(screen.getByText('Order Tracking')).toBeInTheDocument()
+    })
+  })
+
+  describe('latest payment', () => {
+    it('renders nothing when no payment has been recorded yet', () => {
+      setupMocks({ data: mockOrder })
+      renderPage()
+
+      expect(screen.queryByText('Latest Payment')).not.toBeInTheDocument()
+    })
+
+    it('renders gateway, reference, amount and status when a payment is linked', () => {
+      setupMocks({
+        data: {
+          ...mockOrder,
+          latestPayment: {
+            gateway: 'PAYFAST',
+            externalReference: 'pf-77001',
+            amountGross: 30250,
+            status: 'COMPLETE',
+            receivedAt: '2025-06-15T10:32:00',
+          },
+        },
+      })
+      renderPage()
+
+      expect(screen.getByText('Latest Payment')).toBeInTheDocument()
+      expect(screen.getByText('PAYFAST')).toBeInTheDocument()
+      expect(screen.getByText('pf-77001')).toBeInTheDocument()
+      expect(screen.getByText('COMPLETE')).toBeInTheDocument()
     })
   })
 })

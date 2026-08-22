@@ -63,7 +63,10 @@ export interface DataTableProps<TData> {
     selectedRowIds?: Set<string>
     /** Callback fired when selection changes, providing the updated set of selected ids */
     onRowSelectionChange?: (selectedIds: Set<string>) => void
-    /** Accessor function to get the unique row id. Default: (row) => (row as any).id */
+    /**
+     * Accessor function to get the unique row id. Default: reads a string `row.id`,
+     * falling back to the row's index (with a dev warning) when TData has none.
+     */
     getRowId?: (row: TData) => string
 }
 
@@ -144,7 +147,19 @@ export function DataTable<TData>({
 
     // --- Row selection ---
     const getRowId = React.useCallback(
-        (row: TData) => getRowIdProp ? getRowIdProp(row) : (row as Record<string, unknown>).id as string,
+        (row: TData, index: number) => {
+            if (getRowIdProp) return getRowIdProp(row)
+            const id = (row as Record<string, unknown> | null)?.id
+            if (typeof id === 'string') return id
+            if (import.meta.env.DEV) {
+                console.warn(
+                    '[DataTable] enableRowSelection is set but a row has no string `id` field — ' +
+                    'pass getRowId to derive a stable id. Falling back to the row index, which is ' +
+                    'not stable across sorting, filtering, or pagination.',
+                )
+            }
+            return String(index)
+        },
         [getRowIdProp],
     )
 
@@ -230,7 +245,7 @@ export function DataTable<TData>({
     const table = useReactTable({
         data,
         columns: effectiveColumns,
-        getRowId: enableRowSelection ? (row) => getRowId(row) : undefined,
+        getRowId: enableRowSelection ? (row, index) => getRowId(row, index) : undefined,
         state: {
             sorting,
             columnFilters,
