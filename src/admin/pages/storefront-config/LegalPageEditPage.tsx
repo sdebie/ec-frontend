@@ -1,7 +1,7 @@
 import { useState } from 'react'
-import { useParams, Link, useNavigate } from 'react-router-dom'
+import { useParams, useNavigate } from 'react-router-dom'
 
-import { PageLoadingSpinner, ConfirmationDialog } from '@/shared/ui/components'
+import { FormPageNotFound, PageLoadingSpinner, ConfirmationDialog } from '@/shared/ui/components'
 import { Button } from '@/shared/ui/primitives'
 import { useCan } from '@/shared/auth/adminPermissions'
 import { useBreadcrumb } from '@/admin/context/BreadcrumbContext'
@@ -43,41 +43,7 @@ export function LegalPageEditPage() {
 
   // Not found state — only after fetch completes
   if (isFetched && !data) {
-    return (
-      <div className="flex min-h-[60vh] items-center justify-center p-8">
-        <div
-          className="w-full max-w-md rounded-xl p-8 text-center"
-          style={{
-            background: 'var(--c-panel, #ffffff)',
-            border: '1px solid var(--c-border, #e5e7eb)',
-            boxShadow: 'var(--c-shadow-sm, 0 1px 2px rgba(0,0,0,0.05))',
-          }}
-        >
-          <h2
-            className="mb-2 text-xl font-semibold"
-            style={{ color: 'var(--c-text, #111827)' }}
-          >
-            Not Found
-          </h2>
-          <p
-            className="mb-6 text-sm leading-relaxed"
-            style={{ color: 'var(--c-text-muted, #6b7280)' }}
-          >
-            The page you are looking for does not exist.
-          </p>
-          <Link
-            to="/admin/storefront/legal"
-            className="inline-block rounded-lg px-5 py-2.5 text-sm font-medium transition-opacity hover:opacity-80"
-            style={{
-              background: 'var(--c-accent, #2563eb)',
-              color: 'var(--c-accent-text, #ffffff)',
-            }}
-          >
-            Back to Legal Pages
-          </Link>
-        </div>
-      </div>
-    )
+    return <FormPageNotFound entityName="Page" backHref="/admin/storefront/legal" backLabel="Back to Legal Pages" />
   }
 
   const page = data!
