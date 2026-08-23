@@ -14,17 +14,7 @@ import {useApproveBatch} from '@/admin/hooks/imports/useApproveBatch'
 import {derivePriceChangeIndicator, getValidationStatusColor,} from '@/admin/hooks/imports/utils'
 import type {BatchStatusResponse, ProductPriceComparisonDto} from '@/admin/hooks/imports/types'
 import {formatAmount} from '@/shared/utils/formatAmount'
-
-function formatUploadDate(dateStr: string): string {
-    return new Date(dateStr).toLocaleString('en-GB', {
-        day: '2-digit',
-        month: 'short',
-        year: 'numeric',
-        hour: '2-digit',
-        minute: '2-digit',
-        hour12: false,
-    })
-}
+import {formatDateTime} from '@/shared/utils/formatDateTime'
 
 interface BatchMetaItemProps {
     icon: React.ReactNode
@@ -251,7 +241,7 @@ export default function PriceImportReviewPage() {
                 <BatchMetaItem
                     icon={<Calendar className="h-4 w-4"/>}
                     label="Uploaded On"
-                    value={batch?.createdAt ? formatUploadDate(batch.createdAt) : '—'}
+                    value={batch?.createdAt ? formatDateTime(batch.createdAt) : '—'}
                 />
                 <BatchMetaItem
                     icon={<Hash className="h-4 w-4"/>}
