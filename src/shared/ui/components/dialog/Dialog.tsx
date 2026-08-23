@@ -19,6 +19,14 @@ import { cn } from '@/shared/utils/cn'
  */
 const THEME_ATTRS = ['data-surface', 'data-theme', 'data-preset', 'data-density'] as const
 
+function getFocusableElements(container: HTMLElement): HTMLElement[] {
+  return Array.from(
+    container.querySelectorAll<HTMLElement>(
+      'a[href], button:not([disabled]), textarea:not([disabled]), input:not([disabled]), select:not([disabled]), [tabindex]:not([tabindex="-1"])'
+    )
+  )
+}
+
 interface DialogContextValue {
   onClose: () => void
 }
@@ -37,14 +45,35 @@ export interface DialogProps {
   children: React.ReactNode
   size?: 'sm' | 'md' | 'lg' | 'xl' | 'full'
   className?: string
+  /**
+   * Focus moves here when the dialog closes. Falls back to whatever element
+   * had focus at the moment the dialog opened (the WAI-ARIA APG default for
+   * the Dialog (Modal) pattern) when omitted — a click that never actually
+   * focused its trigger (Safari's own buttons) still restores correctly
+   * because it's tracked explicitly, not inferred after the fact.
+   */
+  restoreFocusRef?: React.RefObject<HTMLElement | null>
+  'aria-label'?: string
+  'aria-labelledby'?: string
 }
 
-export function Dialog({ open, onClose, children, size = 'md', className }: DialogProps) {
+export function Dialog({
+  open,
+  onClose,
+  children,
+  size = 'md',
+  className,
+  restoreFocusRef,
+  'aria-label': ariaLabel,
+  'aria-labelledby': ariaLabelledBy,
+}: DialogProps) {
   // An anchor rendered at the dialog's ORIGINAL position in the caller's tree.
   // The portalled content cannot see that tree, so the anchor is what tells us
   // which surface/density the dialog was opened from — a global lookup would
   // guess wrong for one of the two portals (admin vs storefront).
   const anchorRef = React.useRef<HTMLSpanElement>(null)
+  const panelRef = React.useRef<HTMLDivElement>(null)
+  const previousActiveElementRef = React.useRef<HTMLElement | null>(null)
   const [themeAttrs, setThemeAttrs] = React.useState<Record<string, string>>({})
 
   // useLayoutEffect, not useEffect: this runs before paint, so the portal is
@@ -63,9 +92,54 @@ export function Dialog({ open, onClose, children, size = 'md', className }: Dial
     setThemeAttrs(resolved)
   }, [open])
 
+  // Initial focus + restore-on-close, the other half of a modal's a11y
+  // contract. Layout, not passive: runs before paint, same as the theme-attr
+  // resolution above, so there's no flash of focus landing somewhere wrong.
+  React.useLayoutEffect(() => {
+    if (!open) return
+
+    previousActiveElementRef.current =
+      document.activeElement instanceof HTMLElement ? document.activeElement : null
+
+    const focusable = panelRef.current ? getFocusableElements(panelRef.current) : []
+    focusable[0]?.focus()
+
+    // Captured now, not read from the ref inside the cleanup: what to restore
+    // to is decided by who triggered the dialog OPEN, not by whatever the ref
+    // happens to point at whenever it eventually closes.
+    const explicitRestoreTarget = restoreFocusRef?.current
+    return () => {
+      const restoreTo = explicitRestoreTarget ?? previousActiveElementRef.current
+      restoreTo?.focus()
+    }
+  }, [open, restoreFocusRef])
+
   React.useEffect(() => {
     function handleKeyDown(e: KeyboardEvent) {
-      if (e.key === 'Escape') onClose()
+      if (e.key === 'Escape') {
+        onClose()
+        return
+      }
+
+      if (e.key === 'Tab' && panelRef.current) {
+        const focusable = getFocusableElements(panelRef.current)
+        if (focusable.length === 0) return
+
+        const first = focusable[0]
+        const last = focusable[focusable.length - 1]
+
+        if (e.shiftKey) {
+          if (document.activeElement === first) {
+            e.preventDefault()
+            last.focus()
+          }
+        } else {
+          if (document.activeElement === last) {
+            e.preventDefault()
+            first.focus()
+          }
+        }
+      }
     }
 
     if (open) {
@@ -132,8 +206,11 @@ export function Dialog({ open, onClose, children, size = 'md', className }: Dial
           {/* Container */}
           <div className="fixed inset-0 z-100 flex items-center justify-center p-4 pointer-events-none">
             <div
+              ref={panelRef}
               role="dialog"
               aria-modal="true"
+              aria-label={ariaLabel}
+              aria-labelledby={ariaLabelledBy}
               className={cn(
                 'flex flex-col w-full bg-(--c-panel) border border-(--c-border) rounded-xl shadow-2xl pointer-events-auto overflow-hidden animate-in fade-in zoom-in-95 duration-200 max-h-[calc(100vh-6rem)]',
                 sizes[size],

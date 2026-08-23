@@ -18,6 +18,7 @@ import {
 import type { ColumnDef } from '@/shared/ui/components'
 import { Button } from '@/shared/ui/primitives'
 import { useCan } from '@/shared/auth/adminPermissions'
+import { formatDate } from '@/shared/utils/formatDateTime'
 import { useProductUploadBatches } from '@/admin/hooks/imports/useProductUploadBatches'
 import { useRefreshBatchStatus } from '@/admin/hooks/imports/useRefreshBatchStatus'
 import { useUploadCsv } from '@/admin/hooks/imports/useUploadCsv'
@@ -95,7 +96,7 @@ export default function ProductImportListPage() {
         header: 'Date',
         cell: ({ row }) => (
           <span className="text-sm text-(--c-text)">
-            {new Date(row.original.createdAt).toLocaleDateString()}
+            {formatDate(row.original.createdAt)}
           </span>
         ),
         enableSorting: false,

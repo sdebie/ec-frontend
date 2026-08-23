@@ -2,6 +2,7 @@ import type { ReactNode } from 'react'
 import { Link } from 'react-router-dom'
 import { StatusBadge } from '@/shared/ui/components'
 import { formatAmount } from '@/shared/utils/formatAmount'
+import { formatDate } from '@/shared/utils/formatDateTime'
 import { OrderStatusOptions } from '@/shared/types/enums/OrderStatus'
 import type { OrderStatus } from '@/shared/types/enums/OrderStatus'
 import type { AdminOrderRef } from '@/admin/pages/customers/types'
@@ -13,14 +14,6 @@ interface RecentOrdersTableProps {
   emptyMessage?: string
   /** Replaces the plain-text empty message with richer markup (icon, muted copy) when provided. */
   emptyState?: ReactNode
-}
-
-function formatDate(dateString: string): string {
-  return new Date(dateString).toLocaleDateString('en-ZA', {
-    year: 'numeric',
-    month: 'short',
-    day: 'numeric',
-  })
 }
 
 /**

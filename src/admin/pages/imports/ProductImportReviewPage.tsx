@@ -16,17 +16,7 @@ import {
   deriveChangeType,
 } from '@/admin/hooks/imports/utils'
 import type { ProductComparisonDto, BatchStatusResponse } from '@/admin/hooks/imports/types'
-
-function formatUploadDate(dateStr: string): string {
-  return new Date(dateStr).toLocaleString('en-GB', {
-    day: '2-digit',
-    month: 'short',
-    year: 'numeric',
-    hour: '2-digit',
-    minute: '2-digit',
-    hour12: false,
-  })
-}
+import { formatDateTime } from '@/shared/utils/formatDateTime'
 
 interface BatchMetaItemProps {
   icon: React.ReactNode
@@ -202,7 +192,7 @@ export default function ProductImportReviewPage() {
         <BatchMetaItem
           icon={<Calendar className="h-4 w-4" />}
           label="Uploaded On"
-          value={batch?.createdAt ? formatUploadDate(batch.createdAt) : '—'}
+          value={batch?.createdAt ? formatDateTime(batch.createdAt) : '—'}
         />
         <BatchMetaItem
           icon={<Hash className="h-4 w-4" />}

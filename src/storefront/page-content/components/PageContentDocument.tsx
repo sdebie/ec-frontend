@@ -3,15 +3,7 @@ import {useMemo} from 'react'
 import {parseDocument} from '../utils/parseDocument'
 import DOMPurify from 'dompurify'
 import {Section, SectionHeading} from '@/storefront/sections/shared'
-
-function formatDate(iso: string): string {
-    const date = new Date(iso)
-    return date.toLocaleDateString('en-GB', {
-        day: '2-digit',
-        month: 'short',
-        year: 'numeric',
-    })
-}
+import {formatDisplayDate} from '@/shared/utils/formatDateTime'
 
 export function PageContentDocument({data}: { data: PublicPageContent }) {
     const {introHtml, sections} = useMemo(
@@ -28,7 +20,7 @@ export function PageContentDocument({data}: { data: PublicPageContent }) {
                         as="h1"
                         eyebrow="Important Information"
                         title={data.title}
-                        subtitle={`Last updated: ${formatDate(data.publishedAt)}`}
+                        subtitle={`Last updated: ${formatDisplayDate(data.publishedAt)}`}
                         className="mb-0"
                     />
                     {sections.length > 0 && introHtml && (

@@ -9,16 +9,7 @@ import {
 import { QuoteRequestStatusOptions } from '@/shared/types/enums'
 import type { QuoteRequestStatus } from '@/shared/types/enums'
 import { useCan } from '@/shared/auth/adminPermissions'
-
-function formatTimestamp(dateString: string): string {
-  return new Intl.DateTimeFormat(undefined, {
-    day: 'numeric',
-    month: 'short',
-    year: 'numeric',
-    hour: '2-digit',
-    minute: '2-digit',
-  }).format(new Date(dateString))
-}
+import { formatDateTime } from '@/shared/utils/formatDateTime'
 
 function getStatusColor(status: QuoteRequestStatus): string {
   return QuoteRequestStatusOptions[status]?.color ?? 'blue'
@@ -143,9 +134,9 @@ export function QuoteRequestDetailPage() {
           />
         </div>
         <p className="text-sm text-(--c-text-muted)">
-          Submitted: {formatTimestamp(quoteRequest.createdAt)}
+          Submitted: {formatDateTime(quoteRequest.createdAt)}
           {quoteRequest.statusChangedAt && (
-            <> &middot; Last updated: {formatTimestamp(quoteRequest.statusChangedAt)}</>
+            <> &middot; Last updated: {formatDateTime(quoteRequest.statusChangedAt)}</>
           )}
         </p>
       </div>

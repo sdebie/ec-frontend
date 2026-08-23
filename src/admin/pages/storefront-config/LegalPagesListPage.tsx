@@ -5,14 +5,7 @@ import { StatusBadge } from '@/shared/ui/components'
 import { Card } from '@/shared/ui/primitives'
 import { useCan } from '@/shared/auth/adminPermissions'
 import { useLegalPages } from '@/admin/hooks/pages'
-
-function formatPublishedDate(dateString: string): string {
-  return new Intl.DateTimeFormat('en-GB', {
-    day: '2-digit',
-    month: 'short',
-    year: 'numeric',
-  }).format(new Date(dateString))
-}
+import { formatDate } from '@/shared/utils/formatDateTime'
 
 export function LegalPagesListPage() {
   const { data: pages, isLoading, error } = useLegalPages()
@@ -49,7 +42,7 @@ export function LegalPagesListPage() {
 
               <p className="mt-2 text-sm text-(--c-text-muted)">
                 {page.publishedAt
-                  ? `Last published: ${formatPublishedDate(page.publishedAt)}`
+                  ? `Last published: ${formatDate(page.publishedAt)}`
                   : 'Never published'}
               </p>
 

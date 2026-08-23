@@ -1,26 +1,9 @@
 import { Link, useParams } from 'react-router-dom'
 import { useOrderDetail } from '../hooks/useOrderDetail'
 import { formatAmount } from '@/shared/utils/formatAmount'
+import { formatDisplayDate, formatDisplayDateTime } from '@/shared/utils/formatDateTime'
 import type { OrderStatusEvent } from '../hooks/useOrderDetail'
 import { orderStatusBadgeClasses } from '../orderStatusBadge'
-
-function formatDate(dateString: string): string {
-  return new Date(dateString).toLocaleDateString('en-ZA', {
-    year: 'numeric',
-    month: 'short',
-    day: 'numeric',
-  })
-}
-
-function formatTimestamp(timestamp: string): string {
-  return new Date(timestamp).toLocaleString('en-ZA', {
-    year: 'numeric',
-    month: 'short',
-    day: 'numeric',
-    hour: '2-digit',
-    minute: '2-digit',
-  })
-}
 
 function sortTimelineAscending(events: OrderStatusEvent[]): OrderStatusEvent[] {
   return [...events].sort(
@@ -94,7 +77,7 @@ export function OrderDetailPage() {
       <div className="grid gap-6 sm:grid-cols-2">
         <div>
           <h2 className="text-sm font-medium text-(--sf-muted-text)">Order Date</h2>
-          <p className="mt-1 text-sm text-(--sf-text)">{formatDate(orderDate)}</p>
+          <p className="mt-1 text-sm text-(--sf-text)">{formatDisplayDate(orderDate)}</p>
         </div>
         <div>
           <h2 className="text-sm font-medium text-(--sf-muted-text)">Shipping Address</h2>
@@ -171,7 +154,7 @@ export function OrderDetailPage() {
                     {event.status}
                   </p>
                   <p className="text-xs text-(--sf-muted-text)">
-                    {formatTimestamp(event.timestamp)}
+                    {formatDisplayDateTime(event.timestamp)}
                   </p>
                 </div>
               </li>

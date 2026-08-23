@@ -13,6 +13,7 @@ import type { ColumnDef } from '@/shared/ui/components'
 import { useQuoteRequests } from '@/admin/hooks/quotes'
 import type { QuoteRequestListItem } from '@/admin/hooks/quotes'
 import { useTableSort } from '@/admin/hooks/useTableSort'
+import { formatDate } from '@/shared/utils/formatDateTime'
 import {
   QuoteRequestStatusOptions,
   type QuoteRequestStatus,
@@ -24,14 +25,6 @@ const STATUS_FILTER_OPTIONS = [
   { value: 'IN_PROGRESS', label: 'In Progress' },
   { value: 'CLOSED', label: 'Closed' },
 ]
-
-function formatDate(dateString: string): string {
-  return new Date(dateString).toLocaleDateString(undefined, {
-    day: 'numeric',
-    month: 'short',
-    year: 'numeric',
-  })
-}
 
 export function QuoteRequestQueuePage() {
   const navigate = useNavigate()

@@ -1,5 +1,3 @@
-import {useCallback, useEffect, useRef} from 'react'
-import {createPortal} from 'react-dom'
 import {Link} from 'react-router-dom'
 import {X} from 'lucide-react'
 import {useStorefrontConfig} from '@/shared/config/storefrontConfig.context'
@@ -7,6 +5,7 @@ import {useCustomerAuthStore} from '@/shared/auth/customerAuthStore'
 import {formatAmount} from '@/shared/utils/formatAmount'
 import {getDisplayPrice} from '../utils/pricing'
 import {pickFeaturedImage} from '@/storefront/catalog'
+import {Dialog, DialogContent} from '@/shared/ui/components/dialog/Dialog'
 import {CardActions} from './CardActions'
 import {ProductImagePlaceholder} from './ProductImageStage'
 
@@ -34,18 +33,7 @@ export interface QuickViewModalProps {
     onClose: () => void
 }
 
-/**
- * Collects all focusable elements within a container.
- */
-function getFocusableElements(container: HTMLElement): HTMLElement[] {
-    const elements = container.querySelectorAll<HTMLElement>(
-        'a[href], button:not([disabled]), textarea, input, select, [tabindex]:not([tabindex="-1"])',
-    )
-    return Array.from(elements)
-}
-
 export function QuickViewModal({product, variantId, triggerRef, onClose}: QuickViewModalProps) {
-    const dialogRef = useRef<HTMLDivElement>(null)
     const {currency, locale} = useStorefrontConfig()
     const customerType = useCustomerAuthStore((state) => state.customerType)
 
@@ -64,89 +52,17 @@ export function QuickViewModal({product, variantId, triggerRef, onClose}: QuickV
     // Determine if we show CardActions or "View full details"
     const isSimpleInStock = variantId != null && product.inStock === true && price != null
 
-    // Focus trap: keydown handler
-    const handleKeyDown = useCallback(
-        (e: KeyboardEvent) => {
-            if (e.key === 'Escape') {
-                onClose()
-                return
-            }
-
-            if (e.key === 'Tab' && dialogRef.current) {
-                const focusable = getFocusableElements(dialogRef.current)
-                if (focusable.length === 0) return
-
-                const first = focusable[0]
-                const last = focusable[focusable.length - 1]
-
-                if (e.shiftKey) {
-                    if (document.activeElement === first) {
-                        e.preventDefault()
-                        last.focus()
-                    }
-                } else {
-                    if (document.activeElement === last) {
-                        e.preventDefault()
-                        first.focus()
-                    }
-                }
-            }
-        },
-        [onClose],
-    )
-
-    // On mount: move focus into the dialog, add keydown listener
-    useEffect(() => {
-        const triggerElement = triggerRef.current
-        document.addEventListener('keydown', handleKeyDown)
-
-        // Focus the first focusable element inside the dialog
-        if (dialogRef.current) {
-            const focusable = getFocusableElements(dialogRef.current)
-            if (focusable.length > 0) {
-                focusable[0].focus()
-            }
-        }
-
-        return () => {
-            document.removeEventListener('keydown', handleKeyDown)
-            // Restore focus on unmount
-            triggerElement?.focus()
-        }
-    }, [handleKeyDown, triggerRef])
-
-    // Read portal attributes from the document root (standing rule — no getComputedStyle)
-    const root = document.documentElement
-    const dataSurface = root.getAttribute('data-surface') ?? 'storefront'
-    const dataTheme = root.getAttribute('data-theme') ?? undefined
-    const dataDensity = root.getAttribute('data-density') ?? 'comfortable'
-
     const headingId = `quick-view-heading-${product.id}`
 
-    const modalContent = (
-        <div
-            data-surface={dataSurface}
-            data-theme={dataTheme}
-            data-density={dataDensity}
-            className="fixed inset-0 z-50 flex items-center justify-center"
-            data-testid="quick-view-portal"
+    return (
+        <Dialog
+            open
+            onClose={onClose}
+            className="max-w-2xl"
+            restoreFocusRef={triggerRef}
+            aria-labelledby={headingId}
         >
-            {/* Backdrop */}
-            <div
-                className="absolute inset-0 bg-black/50"
-                onClick={onClose}
-                aria-hidden="true"
-                data-testid="quick-view-backdrop"
-            />
-
-            {/* Dialog */}
-            <div
-                ref={dialogRef}
-                role="dialog"
-                aria-modal="true"
-                aria-labelledby={headingId}
-                className="relative z-10 mx-4 w-full max-w-2xl overflow-y-auto rounded-lg bg-(--sf-panel) p-6 shadow-xl max-h-[90vh]"
-            >
+            <DialogContent className="relative p-6">
                 {/* Close button */}
                 <button
                     type="button"
@@ -245,9 +161,7 @@ export function QuickViewModal({product, variantId, triggerRef, onClose}: QuickV
                         </div>
                     </div>
                 </div>
-            </div>
-        </div>
+            </DialogContent>
+        </Dialog>
     )
-
-    return createPortal(modalContent, document.body)
 }
