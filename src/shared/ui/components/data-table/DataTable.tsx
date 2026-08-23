@@ -16,6 +16,7 @@ import {ArrowDown, ArrowUp, ArrowUpDown, ChevronLeft, ChevronRight} from 'lucide
 import * as React from 'react'
 import {Input, Skeleton} from '@/shared/ui/primitives'
 import {cn} from '@/shared/utils/cn'
+import {clampItemRange} from '@/shared/utils/pagination'
 
 export type {ColumnDef} from '@tanstack/react-table'
 
@@ -296,8 +297,7 @@ export function DataTable<TData>({
         ? (totalRowCount ?? data.length)
         : table.getFilteredRowModel().rows.length
 
-    const startItem = totalRows === 0 ? 0 : Math.min((currentPage - 1) * currentPageSize + 1, totalRows)
-    const endItem = Math.min(currentPage * currentPageSize, totalRows)
+    const {start: startItem, end: endItem} = clampItemRange(currentPage, currentPageSize, totalRows)
 
     const getPageNumbers = () => {
         const maxPagesToShow = 5
