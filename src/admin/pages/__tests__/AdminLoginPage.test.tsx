@@ -29,6 +29,7 @@ function renderAdminLoginPage() {
         <Routes>
           <Route path="/admin/login" element={<AdminLoginPage />} />
           <Route path="/admin/dashboard" element={<div>Dashboard</div>} />
+          <Route path="/admin/forgot-password" element={<div>Forgot password screen</div>} />
         </Routes>
       </MemoryRouter>
     </QueryClientProvider>,
@@ -116,6 +117,15 @@ describe('AdminLoginPage', () => {
     await waitFor(() => {
       expect(screen.getByText('Invalid email or password.')).toBeInTheDocument()
     })
+  })
+
+  it('shows a "Forgot password?" link that navigates to /admin/forgot-password (Requirement 5.1/5.2)', async () => {
+    const user = userEvent.setup()
+    renderAdminLoginPage()
+
+    await user.click(screen.getByRole('link', { name: 'Forgot password?' }))
+
+    expect(screen.getByText('Forgot password screen')).toBeInTheDocument()
   })
 
   it('tells the user they are rate limited rather than that their password was wrong', async () => {

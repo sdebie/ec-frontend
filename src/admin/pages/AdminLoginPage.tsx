@@ -1,6 +1,6 @@
 import {useState} from 'react'
 import {useForm} from 'react-hook-form'
-import {Navigate, useNavigate} from 'react-router-dom'
+import {Link, Navigate, useNavigate} from 'react-router-dom'
 import {useAdminAuthStore} from '@/shared/auth/adminAuthStore'
 import {useAdminLogin} from '@/admin/hooks/auth/useAdminLogin'
 import {InputField, PasswordField} from '@/shared/ui/components'
@@ -96,6 +96,12 @@ export function AdminLoginPage() {
                             error={errors.password?.message}
                             {...register('password', {required: 'Password is required'})}
                         />
+                    </div>
+
+                    <div className="text-right">
+                        <Link to="/admin/forgot-password" className="text-sm" style={{color: 'var(--c-accent)'}}>
+                            Forgot password?
+                        </Link>
                     </div>
 
                     {/* Server error */}
