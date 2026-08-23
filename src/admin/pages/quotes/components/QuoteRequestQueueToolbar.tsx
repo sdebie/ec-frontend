@@ -1,4 +1,4 @@
-import {Segment} from '@/shared/ui/components'
+import {Label, Select} from '@/shared/ui/components'
 
 const STATUS_FILTER_OPTIONS = [
     {value: 'ALL', label: 'All'},
@@ -14,11 +14,16 @@ export interface QuoteRequestQueueToolbarProps {
 
 export function QuoteRequestQueueToolbar({status, onStatusChange}: QuoteRequestQueueToolbarProps) {
     return (
-        <div className="flex flex-col gap-4">
-            <Segment
+        <div className="flex items-center gap-2">
+            <Label className="mb-0">
+                Status
+            </Label>
+            <Select
                 options={STATUS_FILTER_OPTIONS}
                 value={status}
                 onChange={onStatusChange}
+                ariaLabel="Filter by status"
+                className="min-w-48"
             />
         </div>
     )

@@ -75,7 +75,8 @@ describe('QuoteRequestQueuePage', () => {
             expect(screen.getByText('Company')).toBeInTheDocument()
             expect(screen.getByText('Items')).toBeInTheDocument()
             expect(screen.getByText('Submitted Date')).toBeInTheDocument()
-            expect(screen.getByText('Status')).toBeInTheDocument()
+            // "Status" also labels the toolbar's filter dropdown, so more than one match is expected.
+            expect(screen.getAllByText('Status').length).toBeGreaterThanOrEqual(2)
         })
     })
 
@@ -156,6 +157,18 @@ describe('QuoteRequestQueuePage', () => {
 
             const viewButton = screen.getByTestId('action-view')
             fireEvent.click(viewButton)
+
+            expect(mockNavigate).toHaveBeenCalledWith('/admin/quotes/qr-42')
+        })
+
+        it('navigates to detail route when a row is double-clicked', () => {
+            setupDefaultMocks({
+                data: [createMockQuoteRequest({id: 'qr-42', name: 'Jane Doe'})],
+            })
+            renderPage()
+
+            const row = screen.getByText('Jane Doe').closest('tr')
+            fireEvent.doubleClick(row!)
 
             expect(mockNavigate).toHaveBeenCalledWith('/admin/quotes/qr-42')
         })

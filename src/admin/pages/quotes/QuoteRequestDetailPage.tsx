@@ -5,21 +5,13 @@ import {Card} from '@/shared/ui/primitives'
 import {useQuoteRequestDetail} from './hooks/useQuoteRequestDetail'
 import {useQuoteRequestStatusAction} from './hooks/useQuoteRequestStatusAction'
 import {QuoteContactPanel} from './components/QuoteContactPanel'
+import {QuoteSummaryCard} from './components/QuoteSummaryCard'
+import {QuoteActionsCard} from './components/QuoteActionsCard'
 import {QuoteMessagePanel} from './components/QuoteMessagePanel'
 import {QuoteLineItemsTable} from './components/QuoteLineItemsTable'
-import {QuoteStatusActions} from './components/QuoteStatusActions'
 import type {QuoteRequestStatus} from '@/shared/types/enums'
-import {QuoteRequestStatusOptions} from '@/shared/types/enums'
 import {useCan} from '@/shared/auth/adminPermissions'
-import {formatDateTime} from '@/shared/utils/formatDateTime'
-
-function getStatusColor(status: QuoteRequestStatus): string {
-    return QuoteRequestStatusOptions[status]?.color ?? 'blue'
-}
-
-function getStatusLabel(status: QuoteRequestStatus): string {
-    return QuoteRequestStatusOptions[status]?.label ?? status
-}
+import {getQuoteStatusColor, getQuoteStatusLabel} from './utils/quoteStatusDisplay'
 
 export function QuoteRequestDetailPage() {
     const navigate = useNavigate()
@@ -55,8 +47,13 @@ export function QuoteRequestDetailPage() {
     }
 
     if (!data) {
-        return <FormPageNotFound entityName="Quote request" backHref="/admin/quotes"
-                                 backLabel="Back to Quote Requests"/>
+        return (
+            <FormPageNotFound
+                entityName="Quote request"
+                backHref="/admin/quotes"
+                backLabel="Back to Quote Requests"
+            />
+        )
     }
 
     const quoteRequest = data
@@ -65,48 +62,44 @@ export function QuoteRequestDetailPage() {
         statusAction.mutate({id: quoteRequestId!, status: newStatus})
     }
 
-    const subtitle = quoteRequest.statusChangedAt
-        ? `Submitted: ${formatDateTime(quoteRequest.createdAt)} · Last updated: ${formatDateTime(quoteRequest.statusChangedAt)}`
-        : `Submitted: ${formatDateTime(quoteRequest.createdAt)}`
+    const totalQuantity = quoteRequest.items.reduce((sum, item) => sum + item.quantity, 0)
 
     return (
         <PageLayout
-            title={`Quote Request from ${quoteRequest.name}`}
-            subtitle={subtitle}
+            title="Quote Detail"
             onBack={() => navigate(-1)}
+            backLabel="Back to Quote Requests"
             action={
                 <StatusBadge
-                    label={getStatusLabel(quoteRequest.status)}
-                    color={getStatusColor(quoteRequest.status)}
+                    label={getQuoteStatusLabel(quoteRequest.status)}
+                    color={getQuoteStatusColor(quoteRequest.status)}
                 />
             }
         >
             <div className="flex flex-col gap-6">
-                {/* Status Actions — only visible for SUPER_ADMIN and ORDER_MANAGER */}
-                {canMutate && quoteRequest.status !== 'CLOSED' && (
-                    <QuoteStatusActions
+                <div className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3">
+                    <QuoteContactPanel name={quoteRequest.name} email={quoteRequest.email}/>
+                    <QuoteSummaryCard
+                        id={quoteRequest.id}
+                        createdAt={quoteRequest.createdAt}
+                        statusChangedAt={quoteRequest.statusChangedAt}
+                        itemCount={quoteRequest.items.length}
+                        totalQuantity={totalQuantity}
                         status={quoteRequest.status}
+                    />
+                    <QuoteActionsCard
+                        status={quoteRequest.status}
+                        canMutate={canMutate}
                         onStatusChange={handleStatusChange}
                         isPending={statusAction.isPending}
                     />
+                </div>
+
+                {quoteRequest.message && (
+                    <QuoteMessagePanel message={quoteRequest.message}/>
                 )}
 
-                <Card as="article" variant="panel">
-                    <Card.Body className="flex flex-col gap-6 p-5">
-                        <QuoteContactPanel
-                            name={quoteRequest.name}
-                            email={quoteRequest.email}
-                            phone={quoteRequest.phone}
-                            company={quoteRequest.company}
-                        />
-
-                        {quoteRequest.message && (
-                            <QuoteMessagePanel message={quoteRequest.message}/>
-                        )}
-
-                        <QuoteLineItemsTable items={quoteRequest.items}/>
-                    </Card.Body>
-                </Card>
+                <QuoteLineItemsTable items={quoteRequest.items}/>
             </div>
         </PageLayout>
     )

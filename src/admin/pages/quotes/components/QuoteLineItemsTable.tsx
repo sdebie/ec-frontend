@@ -33,7 +33,8 @@ export function QuoteLineItemsTable({items}: QuoteLineItemsTableProps) {
             },
             {
                 accessorKey: 'quantity',
-                header: 'Quantity',
+                header: () => <div className="text-right">Quantity</div>,
+                cell: ({row}) => <div className="text-right">{row.original.quantity}</div>,
             },
         ],
         [],
@@ -41,15 +42,18 @@ export function QuoteLineItemsTable({items}: QuoteLineItemsTableProps) {
 
     return (
         <Card as="section" variant="bordered">
-            <Card.Header className="m-0 px-5 py-4">
-                Requested Items ({items.length})
+            <Card.Header className="m-0 flex items-center justify-between px-5 py-4">
+                <span>Requested Items</span>
+                <span className="text-sm font-normal text-(--c-text-muted)">
+                    {items.length} {items.length === 1 ? 'item' : 'items'}
+                </span>
             </Card.Header>
             <Card.Body className="p-5">
                 <DataTable
                     columns={columns}
                     data={items}
                     showSearch
-                    globalSearchPlaceholder="Search items..."
+                    globalSearchPlaceholder="Search requested items..."
                     emptyMessage="No items in this request"
                 />
             </Card.Body>

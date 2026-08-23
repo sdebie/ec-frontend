@@ -16,6 +16,8 @@ export interface PageLayoutProps {
     className?: string
     /** When provided, renders a PageBackButton beside the title */
     onBack?: () => void
+    /** Custom label for the back button. Defaults to PageBackButton's own 'Back'. */
+    backLabel?: string
     /** Width cap for the content Container. Defaults to 'xl' for wide, table-heavy pages. */
     size?: ContainerProps['size']
 }
@@ -27,13 +29,14 @@ export function PageLayout({
                                children,
                                className,
                                onBack,
+                               backLabel,
                                size = 'xl',
                            }: PageLayoutProps) {
     return (
         <div className={cn('space-y-3 mt-3', className)}>
             <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
                 <div className="flex items-start gap-3">
-                    {onBack && <PageBackButton onClick={onBack} className="mt-1" />}
+                    {onBack && <PageBackButton onClick={onBack} label={backLabel} className="mt-1" />}
                     <div>
                         <h1 className="text-2xl font-bold tracking-tight text-(--c-text)">
                             {title}

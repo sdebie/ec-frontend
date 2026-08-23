@@ -1,33 +1,22 @@
 import {Card} from '@/shared/ui/primitives'
+import {InfoRow} from '@/admin/pages/customers/components/InfoRow'
 
 interface QuoteContactPanelProps {
     name: string
     email: string
-    phone: string | null
-    company: string | null
 }
 
-export function QuoteContactPanel({name, email, phone, company}: QuoteContactPanelProps) {
+/**
+ * Read-only identity of who submitted the quote request — no edit affordance,
+ * since contact details for a submitted request aren't editable from here.
+ */
+export function QuoteContactPanel({name, email}: QuoteContactPanelProps) {
     return (
-        <Card as="section" variant="bordered">
+        <Card as="section" variant="bordered" className="flex h-full flex-col">
             <Card.Header className="m-0 px-5 py-4">Contact Information</Card.Header>
-            <Card.Body className="flex flex-col gap-3 p-5">
-                <p className="text-sm text-(--c-text)">
-                    <span className="font-medium">Name:</span> {name}
-                </p>
-                <p className="text-sm text-(--c-text)">
-                    <span className="font-medium">Email:</span> {email}
-                </p>
-                {phone && (
-                    <p className="text-sm text-(--c-text)">
-                        <span className="font-medium">Phone:</span> {phone}
-                    </p>
-                )}
-                {company && (
-                    <p className="text-sm text-(--c-text)">
-                        <span className="font-medium">Company:</span> {company}
-                    </p>
-                )}
+            <Card.Body className="divide-y divide-(--c-border) px-5 py-1">
+                <InfoRow label="Name" value={name}/>
+                <InfoRow label="Email" value={email}/>
             </Card.Body>
         </Card>
     )

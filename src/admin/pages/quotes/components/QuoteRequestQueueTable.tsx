@@ -35,6 +35,11 @@ export function QuoteRequestQueueTable({
     const columns = useMemo<ColumnDef<QuoteRequestListItem, unknown>[]>(
         () => [
             {
+                accessorKey: 'createdAt',
+                header: 'Submitted Date',
+                cell: ({row}) => formatDate(row.original.createdAt),
+            },
+            {
                 accessorKey: 'name',
                 header: 'Name',
             },
@@ -49,11 +54,6 @@ export function QuoteRequestQueueTable({
                 accessorKey: 'itemCount',
                 header: 'Items',
                 enableSorting: false,
-            },
-            {
-                accessorKey: 'createdAt',
-                header: 'Submitted Date',
-                cell: ({row}) => formatDate(row.original.createdAt),
             },
             {
                 accessorKey: 'status',
@@ -99,6 +99,7 @@ export function QuoteRequestQueueTable({
             manualSorting
             sorting={sorting}
             onSortingChange={onSortingChange}
+            onRowDoubleClick={(row) => navigate(`/admin/quotes/${row.id}`)}
         />
     )
 }
