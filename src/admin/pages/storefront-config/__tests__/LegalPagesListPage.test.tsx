@@ -13,6 +13,10 @@ vi.mock('@/shared/auth/adminAuthStore', () => ({
   useAdminAuthStore: vi.fn(),
 }))
 
+vi.mock('@/admin/context/BreadcrumbContext', () => ({
+  useBreadcrumb: vi.fn(),
+}))
+
 import { useLegalPages } from '@/admin/hooks/pages'
 import { useAdminAuthStore } from '@/shared/auth/adminAuthStore'
 

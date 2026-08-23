@@ -209,7 +209,7 @@ function ToolbarButton({onClick, isActive, title, disabled, children}: ToolbarBu
                 'flex items-center justify-center rounded-(--c-radius-sm) p-1.5 transition-colors',
                 'text-(--c-text-muted) hover:bg-(--c-surface-hover) hover:text-(--c-text)',
                 'disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:bg-transparent',
-                isActive && 'bg-primary-subtle text-[var(--primary)]'
+                isActive && 'bg-primary-subtle text-primary'
             )}
         >
             {children}

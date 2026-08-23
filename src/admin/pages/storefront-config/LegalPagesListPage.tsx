@@ -1,9 +1,10 @@
 import {Link} from 'react-router-dom'
 import {Pencil} from 'lucide-react'
 
-import {StatusBadge} from '@/shared/ui/components'
+import {PageLayout, PageLoadingSpinner, StatusBadge} from '@/shared/ui/components'
 import {buttonVariants, Card} from '@/shared/ui/primitives'
 import {useCan} from '@/shared/auth/adminPermissions'
+import {useBreadcrumb} from '@/admin/context/BreadcrumbContext'
 import {useLegalPages} from '@/admin/hooks/pages'
 import {formatDate} from '@/shared/utils/formatDateTime'
 import {cn} from '@/shared/utils/cn'
@@ -12,8 +13,13 @@ export function LegalPagesListPage() {
     const {data: pages, isLoading, error} = useLegalPages()
     const canEdit = useCan('legal:write')
 
+    useBreadcrumb([
+        {label: 'Home', href: '/admin'},
+        {label: 'Legal'},
+    ])
+
     if (isLoading) {
-        return <div className="p-8 text-sm text-(--c-text-muted)">Loading legal pages…</div>
+        return <PageLoadingSpinner/>
     }
 
     if (error) {
@@ -22,14 +28,10 @@ export function LegalPagesListPage() {
     }
 
     return (
-        <div className="space-y-6 p-8">
-            <div>
-                <h1 className="text-2xl font-semibold text-(--c-text)">Legal Pages</h1>
-                <p className="mt-1 text-sm text-(--c-text-muted)">
-                    Manage your legal policy pages — Terms &amp; Conditions, Privacy Policy, and Delivery &amp; Returns.
-                </p>
-            </div>
-
+        <PageLayout
+            title="Legal Pages"
+            subtitle="Manage your legal policy pages — Terms & Conditions, Privacy Policy, and Delivery & Returns."
+        >
             <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
                 {pages?.map((page) => (
                     <Card key={page.id} as="article" variant="bordered" className="flex flex-col justify-between">
@@ -43,9 +45,7 @@ export function LegalPagesListPage() {
                             </div>
 
                             <p className="mt-2 text-sm text-(--c-text-muted)">
-                                {page.publishedAt
-                                    ? `Last published: ${formatDate(page.publishedAt)}`
-                                    : 'Never published'}
+                                {page.publishedAt ? `Last published: ${formatDate(page.publishedAt)}` : 'Never published'}
                             </p>
 
                             {page.hasUnpublishedChanges && (
@@ -68,6 +68,6 @@ export function LegalPagesListPage() {
                     </Card>
                 ))}
             </div>
-        </div>
+        </PageLayout>
     )
 }
