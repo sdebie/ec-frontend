@@ -1,136 +1,54 @@
-import { useState, useMemo } from 'react'
-import { useNavigate } from 'react-router-dom'
-import type { PaginationState } from '@tanstack/react-table'
-import { Eye } from 'lucide-react'
-
-import {
-  DataTable,
-  RowActionButton,
-  Segment,
-  StatusBadge,
-} from '@/shared/ui/components'
-import type { ColumnDef } from '@/shared/ui/components'
-import { useQuoteRequests } from '@/admin/hooks/quotes'
-import type { QuoteRequestListItem } from '@/admin/hooks/quotes'
-import { useTableSort } from '@/admin/hooks/useTableSort'
-import { formatDate } from '@/shared/utils/formatDateTime'
-import {
-  QuoteRequestStatusOptions,
-  type QuoteRequestStatus,
-} from '@/shared/types/enums'
-
-const STATUS_FILTER_OPTIONS = [
-  { value: 'ALL', label: 'All' },
-  { value: 'NEW', label: 'New' },
-  { value: 'IN_PROGRESS', label: 'In Progress' },
-  { value: 'CLOSED', label: 'Closed' },
-]
+import {useState} from 'react'
+import type {PaginationState} from '@tanstack/react-table'
+import {PageLayout} from '@/shared/ui/components'
+import {useQuoteRequests} from './hooks/useQuoteRequests'
+import {useTableSort} from '@/admin/hooks/useTableSort'
+import {QuoteRequestQueueToolbar} from './components/QuoteRequestQueueToolbar'
+import {QuoteRequestQueueTable} from './components/QuoteRequestQueueTable'
+import type {QuoteRequestStatus} from '@/shared/types/enums'
 
 export function QuoteRequestQueuePage() {
-  const navigate = useNavigate()
+    const [statusFilter, setStatusFilter] = useState<QuoteRequestStatus | 'ALL'>('ALL')
+    const [pagination, setPagination] = useState<PaginationState>({
+        pageIndex: 0,
+        pageSize: 10,
+    })
 
-  const [statusFilter, setStatusFilter] = useState<QuoteRequestStatus | 'ALL'>('ALL')
-  const [pagination, setPagination] = useState<PaginationState>({
-    pageIndex: 0,
-    pageSize: 10,
-  })
+    const {sorting, onSortingChange, sort} = useTableSort()
 
-  const { sorting, onSortingChange, sort } = useTableSort()
+    const {data, total, isLoading} = useQuoteRequests({
+        page: pagination.pageIndex + 1,
+        pageSize: pagination.pageSize,
+        status: statusFilter,
+        sort,
+    })
 
-  const { data, total, isLoading } = useQuoteRequests({
-    page: pagination.pageIndex + 1,
-    pageSize: pagination.pageSize,
-    status: statusFilter,
-    sort,
-  })
+    const handleStatusFilterChange = (value: string) => {
+        setStatusFilter(value as QuoteRequestStatus | 'ALL')
+        setPagination((prev) => ({...prev, pageIndex: 0}))
+    }
 
-  const handleStatusFilterChange = (value: string) => {
-    setStatusFilter(value as QuoteRequestStatus | 'ALL')
-    setPagination((prev) => ({ ...prev, pageIndex: 0 }))
-  }
+    const pageCount = total ? Math.ceil(total / pagination.pageSize) : 0
 
-  const columns = useMemo<ColumnDef<QuoteRequestListItem, unknown>[]>(
-    () => [
-      {
-        accessorKey: 'name',
-        header: 'Name',
-      },
-      {
-        accessorKey: 'company',
-        header: 'Company',
-        cell: ({ row }) => row.original.company ?? '—',
-      },
-      {
-        // Not sortable: itemCount is a mapper-computed count of the request's line items,
-        // not a column on QuoteRequestEntity — there is no server field for it to sort by.
-        accessorKey: 'itemCount',
-        header: 'Items',
-        enableSorting: false,
-      },
-      {
-        accessorKey: 'createdAt',
-        header: 'Submitted Date',
-        cell: ({ row }) => formatDate(row.original.createdAt),
-      },
-      {
-        accessorKey: 'status',
-        header: 'Status',
-        cell: ({ row }) => {
-          const statusOption = QuoteRequestStatusOptions[row.original.status]
-          return (
-            <StatusBadge
-              label={statusOption.label}
-              color={statusOption.color}
-            />
-          )
-        },
-      },
-      {
-        id: 'actions',
-        header: 'Actions',
-        enableSorting: false,
-        cell: ({ row }) => (
-          <RowActionButton
-            onClick={() => navigate(`/admin/quotes/${row.original.id}`)}
-            aria-label="View quote request"
-            data-testid="action-view"
-          >
-            <Eye className="h-4 w-4" />
-          </RowActionButton>
-        ),
-      },
-    ],
-    [navigate],
-  )
+    return (
+        <PageLayout title="Quote Requests">
+            <div className="flex flex-col gap-6">
+                <QuoteRequestQueueToolbar
+                    status={statusFilter}
+                    onStatusChange={handleStatusFilterChange}
+                />
 
-  const pageCount = total ? Math.ceil(total / pagination.pageSize) : 0
-
-  return (
-    <div className="flex flex-col gap-6">
-      <h1 className="text-2xl font-semibold text-(--c-text)">Quote Requests</h1>
-
-      {/* Filters */}
-      <div className="flex flex-col gap-4">
-        <Segment
-          options={STATUS_FILTER_OPTIONS}
-          value={statusFilter}
-          onChange={handleStatusFilterChange}
-        />
-      </div>
-
-      <DataTable
-        columns={columns}
-        data={data ?? []}
-        isLoading={isLoading}
-        manualPagination
-        pageCount={pageCount}
-        totalRowCount={total ?? 0}
-        pagination={pagination}
-        onPaginationChange={setPagination}
-        manualSorting
-        sorting={sorting}
-        onSortingChange={onSortingChange}
-      />
-    </div>
-  )
+                <QuoteRequestQueueTable
+                    data={data ?? []}
+                    isLoading={isLoading}
+                    pageCount={pageCount}
+                    totalRowCount={total ?? 0}
+                    pagination={pagination}
+                    onPaginationChange={setPagination}
+                    sorting={sorting}
+                    onSortingChange={onSortingChange}
+                />
+            </div>
+        </PageLayout>
+    )
 }

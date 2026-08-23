@@ -1,6 +1,5 @@
 import {Link} from 'react-router-dom'
 import {Pencil} from 'lucide-react'
-
 import {PageLayout, PageLoadingSpinner, StatusBadge} from '@/shared/ui/components'
 import {buttonVariants, Card} from '@/shared/ui/primitives'
 import {useCan} from '@/shared/auth/adminPermissions'
@@ -23,8 +22,11 @@ export function LegalPagesListPage() {
     }
 
     if (error) {
-        return <div className="p-8 text-sm text-(--c-status-red-text)">Failed to load legal pages. Please try
-            again.</div>
+        return (
+            <div className="p-8 text-sm text-(--c-status-red-text)">
+                Failed to load legal pages. Please try again.
+            </div>
+        )
     }
 
     return (
