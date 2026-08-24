@@ -2,24 +2,24 @@ import {beforeEach, describe, expect, it, vi} from 'vitest'
 import {render, screen, waitFor} from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import {QueryClient, QueryClientProvider} from '@tanstack/react-query'
-import {useAdminTestimonials} from '../testimonials/hooks/useAdminTestimonials'
-import {useCreateTestimonial} from '../testimonials/hooks/useCreateTestimonial'
-import {useUpdateTestimonial} from '../testimonials/hooks/useUpdateTestimonial'
-import {useDeleteTestimonial} from '../testimonials/hooks/useDeleteTestimonial'
+import {useAdminTestimonials} from '../hooks/useAdminTestimonials'
+import {useCreateTestimonial} from '../hooks/useCreateTestimonial'
+import {useUpdateTestimonial} from '../hooks/useUpdateTestimonial'
+import {useDeleteTestimonial} from '../hooks/useDeleteTestimonial'
 import {formatDateTime} from '@/shared/utils/formatDateTime'
 import {useAdminAuthStore} from '@/shared/auth/adminAuthStore'
 import {TestimonialsPage} from '../TestimonialsPage'
 
-vi.mock('../testimonials/hooks/useAdminTestimonials', () => ({
+vi.mock('../hooks/useAdminTestimonials', () => ({
     useAdminTestimonials: vi.fn(),
 }))
-vi.mock('../testimonials/hooks/useCreateTestimonial', () => ({
+vi.mock('../hooks/useCreateTestimonial', () => ({
     useCreateTestimonial: vi.fn(),
 }))
-vi.mock('../testimonials/hooks/useUpdateTestimonial', () => ({
+vi.mock('../hooks/useUpdateTestimonial', () => ({
     useUpdateTestimonial: vi.fn(),
 }))
-vi.mock('../testimonials/hooks/useDeleteTestimonial', () => ({
+vi.mock('../hooks/useDeleteTestimonial', () => ({
     useDeleteTestimonial: vi.fn(),
 }))
 
@@ -147,6 +147,34 @@ describe('TestimonialsPage', () => {
         })
     })
 
+    describe('publish action', () => {
+        it('shows a Publish action only for unpublished testimonials', () => {
+            renderPage()
+            // Jane Doe is a draft (published: false)
+            expect(screen.getByLabelText(/publish testimonial by jane doe/i)).toBeInTheDocument()
+            // John Smith is already published
+            expect(screen.queryByLabelText(/publish testimonial by john smith/i)).not.toBeInTheDocument()
+        })
+
+        it('clicking publish shows a confirmation dialog, and confirming publishes the testimonial', async () => {
+            renderPage()
+            const user = userEvent.setup()
+
+            await user.click(screen.getByLabelText(/publish testimonial by jane doe/i))
+            expect(screen.getByText('Publish Testimonial')).toBeInTheDocument()
+
+            await user.click(screen.getByRole('button', {name: /^publish$/i}))
+
+            expect(mockMutate).toHaveBeenCalledWith(
+                {
+                    id: '2',
+                    payload: expect.objectContaining({authorName: 'Jane Doe', published: true}),
+                },
+                expect.anything(),
+            )
+        })
+    })
+
     describe('VIEWER role (read-only)', () => {
         beforeEach(() => {
             useAdminAuthStore.setState({role: 'VIEWER'})
@@ -157,9 +185,10 @@ describe('TestimonialsPage', () => {
             expect(screen.queryByRole('button', {name: /add testimonial/i})).not.toBeInTheDocument()
         })
 
-        it('does not show edit or delete action buttons', () => {
+        it('does not show edit, publish, or delete action buttons', () => {
             renderPage()
             expect(screen.queryByLabelText(/edit testimonial/i)).not.toBeInTheDocument()
+            expect(screen.queryByLabelText(/publish testimonial/i)).not.toBeInTheDocument()
             expect(screen.queryByLabelText(/delete testimonial/i)).not.toBeInTheDocument()
         })
     })

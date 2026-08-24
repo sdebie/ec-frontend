@@ -405,7 +405,7 @@ export const adminMenuRoutes: AdminRouteList = [
         key: 'admin.storefront.testimonials',
         path: '/admin/storefront/testimonials',
         component: lazy(() =>
-            import('@/admin/pages/storefront-config/TestimonialsPage').then((m) => ({default: m.TestimonialsPage}))
+            import('@/admin/pages/storefront-config/testimonials/TestimonialsPage').then((m) => ({default: m.TestimonialsPage}))
         ),
         authority: ['SUPER_ADMIN', 'VIEWER'],
         meta: {

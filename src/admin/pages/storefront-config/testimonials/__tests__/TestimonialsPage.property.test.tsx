@@ -2,23 +2,22 @@ import {describe, expect, it, vi} from 'vitest'
 import {render} from '@testing-library/react'
 import * as fc from 'fast-check'
 import {QueryClient, QueryClientProvider} from '@tanstack/react-query'
-import {useAdminTestimonials} from '../testimonials/hooks/useAdminTestimonials'
+import {useAdminTestimonials} from '../hooks/useAdminTestimonials'
 import {useAdminAuthStore} from '@/shared/auth/adminAuthStore'
 import {TestimonialsPage} from '../TestimonialsPage'
 
-vi.mock('../testimonials/hooks/useAdminTestimonials', () => ({
+vi.mock('../hooks/useAdminTestimonials', () => ({
     useAdminTestimonials: vi.fn(),
 }))
-vi.mock('../testimonials/hooks/useCreateTestimonial', () => ({
+vi.mock('../hooks/useCreateTestimonial', () => ({
     useCreateTestimonial: vi.fn(() => ({mutate: vi.fn(), isPending: false})),
 }))
-vi.mock('../testimonials/hooks/useUpdateTestimonial', () => ({
+vi.mock('../hooks/useUpdateTestimonial', () => ({
     useUpdateTestimonial: vi.fn(() => ({mutate: vi.fn(), isPending: false})),
 }))
-vi.mock('../testimonials/hooks/useDeleteTestimonial', () => ({
+vi.mock('../hooks/useDeleteTestimonial', () => ({
     useDeleteTestimonial: vi.fn(() => ({mutate: vi.fn(), isPending: false})),
 }))
-
 
 useAdminAuthStore.setState({role: 'SUPER_ADMIN'})
 
