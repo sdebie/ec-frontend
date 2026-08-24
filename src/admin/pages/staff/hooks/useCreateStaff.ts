@@ -2,8 +2,8 @@ import {useMutation, useQueryClient} from '@tanstack/react-query'
 import {ClientError} from 'graphql-request'
 import {toast} from '@/shared/ui/components/toast'
 import {adminGraphqlClient} from '@/shared/api/graphql/adminGraphqlClient'
-import {ADD_STAFF_USER} from './queries'
-import type {StaffFormValues} from './types'
+import {ADD_STAFF_USER} from '../queries'
+import type {StaffFormValues} from '../types'
 
 export function useCreateStaff() {
     const queryClient = useQueryClient()

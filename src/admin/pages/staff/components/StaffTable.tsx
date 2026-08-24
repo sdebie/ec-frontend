@@ -7,7 +7,7 @@ import {ConfirmationDialog, DataTable, RowActionButton, StatusBadge} from '@/sha
 import {useAdminAuthStore} from '@/shared/auth/adminAuthStore'
 import {StaffRoleLabels} from '@/shared/types/enums/StaffRoles'
 import {useUpdateStaff} from '../hooks/useUpdateStaff'
-import type {StaffMember} from '../hooks/types'
+import type {StaffMember} from '../types'
 
 const ROLE_COLORS: Record<StaffMember['role'], string> = {
     SUPER_ADMIN: 'blue',

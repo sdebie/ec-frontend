@@ -2,7 +2,7 @@ import { describe, it, expect, vi, beforeEach } from 'vitest'
 import { render, screen, fireEvent } from '@testing-library/react'
 import { MemoryRouter } from 'react-router-dom'
 import { useAdminAuthStore } from '@/shared/auth/adminAuthStore'
-import type { StaffMember } from '../hooks/types'
+import type { StaffMember } from '../types'
 
 const mockStaffData: StaffMember[] = [
   {

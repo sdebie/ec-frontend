@@ -1,8 +1,8 @@
 import {useMutation, useQueryClient} from '@tanstack/react-query'
 import {toast} from '@/shared/ui/components/toast'
 import {adminGraphqlClient} from '@/shared/api/graphql/adminGraphqlClient'
-import {UPDATE_STAFF_USER} from './queries'
-import type {StaffMember} from './types'
+import {UPDATE_STAFF_USER} from '../queries'
+import type {StaffMember} from '../types'
 
 interface UpdateStaffPayload {
     id: string

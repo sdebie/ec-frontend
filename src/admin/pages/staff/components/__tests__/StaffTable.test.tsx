@@ -2,7 +2,7 @@ import { beforeEach, describe, expect, it, vi } from 'vitest'
 import { fireEvent, render, screen } from '@testing-library/react'
 import type { ComponentProps } from 'react'
 import { useAdminAuthStore } from '@/shared/auth/adminAuthStore'
-import type { StaffMember } from '../../hooks/types'
+import type { StaffMember } from '../../types'
 import { StaffTable } from '../StaffTable'
 
 const mockMutate = vi.fn()

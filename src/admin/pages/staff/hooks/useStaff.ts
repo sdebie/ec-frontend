@@ -1,8 +1,8 @@
 import {useQuery} from '@tanstack/react-query'
 import {adminGraphqlClient} from '@/shared/api/graphql/adminGraphqlClient'
 import type {SortItem} from '@/admin/utils'
-import {STAFF_COUNT, STAFF_LIST} from './queries'
-import type {StaffMember} from './types'
+import {STAFF_COUNT, STAFF_LIST} from '../queries'
+import type {StaffMember} from '../types'
 
 export interface UseStaffParams {
     pageIndex: number

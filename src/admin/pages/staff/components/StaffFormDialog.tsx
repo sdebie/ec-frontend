@@ -18,7 +18,7 @@ import {useCreateStaff} from '../hooks/useCreateStaff'
 import {useUpdateStaff} from '../hooks/useUpdateStaff'
 import type {StaffCreateFormValues} from '../staffSchema'
 import {staffCreateSchema, staffEditSchema} from '../staffSchema'
-import type {StaffMember} from '../hooks/types'
+import type {StaffMember} from '../types'
 
 export interface StaffFormDialogProps {
     open: boolean

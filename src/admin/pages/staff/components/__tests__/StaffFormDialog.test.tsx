@@ -2,7 +2,7 @@ import { describe, it, expect, vi, beforeEach } from 'vitest'
 import { render, screen, waitFor } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { useAdminAuthStore } from '@/shared/auth/adminAuthStore'
-import type { StaffMember } from '../../hooks/types'
+import type { StaffMember } from '../../types'
 
 const mockCreateMutate = vi.fn()
 const mockUpdateMutate = vi.fn()
