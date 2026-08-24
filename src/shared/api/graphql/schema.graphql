@@ -176,6 +176,7 @@ type Mutation {
   deleteProduct(id: String): ProductDeletionOutcome
   generateAndSendQuote(id: String, items: [QuoteItemPriceInputInput], notes: String): QuoteRequestDetailsDto
   rejectWholesaleApplication(id: String, reason: String): WholesaleApplicationDetailsDto
+  saveQuoteDraft(id: String, items: [QuoteItemPriceInputInput], notes: String): QuoteRequestDetailsDto
   saveShippingMethod(methodDto: ShippingMethodDtoInput): ShippingMethodDto
   saveStoreSettings(storeSettingsDto: [StoreSettingsDtoInput]): [StoreSettingsDto]
   "Toggle the featured flag on a product. SUPER_ADMIN only."
@@ -784,9 +785,11 @@ enum ProductImportValidationStatusEn {
 }
 
 enum QuoteRequestStatusEn {
+  CANCELED
   CLOSED
   IN_PROGRESS
   NEW
+  QUOTE_DRAFTED
   QUOTE_SENT
 }
 
