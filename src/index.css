@@ -126,6 +126,13 @@
     --admin-status-yellow-bg: #fffbeb;
     --admin-status-yellow-text: #92400e;
     --admin-status-yellow-border: #fde68a;
+    /* A fifth, genuinely distinct tone: red/green/yellow are semantic (error/success/
+       attention) and already spoken for, so a status that means neither of those — "sent,
+       awaiting the customer" — needs its own hue rather than borrowing one whose meaning
+       would be wrong. */
+    --admin-status-purple-bg: #f5f3ff;
+    --admin-status-purple-text: #6d28d9;
+    --admin-status-purple-border: #ddd6fe;
 
     /*
       Storefront status tokens.
@@ -263,6 +270,9 @@
     --admin-status-yellow-bg: #2a1d08;
     --admin-status-yellow-text: #fde68a;
     --admin-status-yellow-border: #854d0e;
+    --admin-status-purple-bg: #241b3d;
+    --admin-status-purple-text: #c4b5fd;
+    --admin-status-purple-border: #5b21b6;
 }
 
 [data-surface="admin"][data-preset="blue"] {

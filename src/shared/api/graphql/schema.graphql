@@ -174,6 +174,7 @@ type Mutation {
   deleteCategory(id: String): Void
   "Delete a product and all its variants. If any variant has order history, the product and its variants are archived (status DISABLED) instead, to preserve order records — check the returned outcome to tell which happened. SUPER_ADMIN only."
   deleteProduct(id: String): ProductDeletionOutcome
+  generateAndSendQuote(id: String, items: [QuoteItemPriceInputInput], notes: String): QuoteRequestDetailsDto
   rejectWholesaleApplication(id: String, reason: String): WholesaleApplicationDetailsDto
   saveShippingMethod(methodDto: ShippingMethodDtoInput): ShippingMethodDto
   saveStoreSettings(storeSettingsDto: [StoreSettingsDtoInput]): [StoreSettingsDto]
@@ -507,6 +508,7 @@ type Query {
   myOrders: [OrderSummaryDto]
   "Poll one order's status by id — the guest checkout success page"
   orderStatus(orderId: String): OrderStatusRespDto
+  previewQuoteEmail(id: String, items: [QuoteItemPriceInputInput], notes: String): String
   "Returns the total number of products matching the given filter, optionally scoped to a category (including subcategories) and/or a brand."
   productCount(
     "Optional brand UUID. Restricts count to products linked to this brand."
@@ -573,14 +575,20 @@ type QuoteRequestDetailsDto {
   message: String
   name: String
   phone: String
+  quotedAmount: BigDecimal
+  quotedByName: String
+  quotedNotes: String
   status: QuoteRequestStatusEn
   "ISO-8601"
   statusChangedAt: DateTime
 }
 
 type QuoteRequestItemDto {
+  id: String
+  lineTotal: BigDecimal
   productNameSnapshot: String
   quantity: Int!
+  unitPrice: BigDecimal
   variantId: String
   variantSkuSnapshot: String
 }
@@ -779,6 +787,7 @@ enum QuoteRequestStatusEn {
   CLOSED
   IN_PROGRESS
   NEW
+  QUOTE_SENT
 }
 
 enum SortDirection {
@@ -921,6 +930,11 @@ input ProductVariantDtoInput {
   status: String
   stockQuantity: Int
   weightKg: BigDecimal
+}
+
+input QuoteItemPriceInputInput {
+  itemId: String!
+  unitPrice: BigDecimal!
 }
 
 input ShippingMethodDtoInput {

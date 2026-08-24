@@ -46,6 +46,13 @@ export interface DataTableProps<TData> {
     globalSearchPlaceholder?: string
     /** Set to true to enable the built-in toolbar search input (only correct for fully client-side tables with no server pagination) */
     showSearch?: boolean
+    /**
+     * Controlled global filter value, for a caller that renders its own search input outside
+     * DataTable's toolbar (pass showSearch=false alongside these so DataTable doesn't also
+     * render its own box). Mirrors the sorting/onSortingChange controlled-mode pair below.
+     */
+    globalFilter?: string
+    onGlobalFilterChange?: OnChangeFn<string>
     /** Message shown when there are no rows */
     emptyMessage?: string
     /** Additional className for the root container */
@@ -130,6 +137,8 @@ export function DataTable<TData>({
                                      onSortingChange: onSortingChangeProp,
                                      globalSearchPlaceholder = 'Search...',
                                      showSearch = false,
+                                     globalFilter: globalFilterProp,
+                                     onGlobalFilterChange: onGlobalFilterChangeProp,
                                      emptyMessage = 'No results found',
                                      className,
                                      initialPageSize = DEFAULT_PAGE_SIZE,
@@ -141,10 +150,15 @@ export function DataTable<TData>({
                                  }: DataTableProps<TData>) {
     const [internalSorting, setInternalSorting] = React.useState<SortingState>([])
     const [columnFilters, setColumnFilters] = React.useState<ColumnFiltersState>([])
-    const [globalFilter, setGlobalFilter] = React.useState('')
+    const [internalGlobalFilter, setInternalGlobalFilter] = React.useState('')
 
     const sorting = manualSorting && controlledSorting ? controlledSorting : internalSorting
     const handleSortingChange = manualSorting && onSortingChangeProp ? onSortingChangeProp : setInternalSorting
+
+    const globalFilter = onGlobalFilterChangeProp && globalFilterProp !== undefined
+        ? globalFilterProp
+        : internalGlobalFilter
+    const handleGlobalFilterChange = onGlobalFilterChangeProp ?? setInternalGlobalFilter
 
     // --- Row selection ---
     const getRowId = React.useCallback(
@@ -256,7 +270,7 @@ export function DataTable<TData>({
         },
         onSortingChange: handleSortingChange,
         onColumnFiltersChange: setColumnFilters,
-        onGlobalFilterChange: setGlobalFilter,
+        onGlobalFilterChange: handleGlobalFilterChange,
         ...(enableRowSelection ? {
             enableRowSelection: true,
             onRowSelectionChange: handleRowSelectionChange,
@@ -346,7 +360,7 @@ export function DataTable<TData>({
                                 <div className="order-2 sm:order-1 flex-1 min-w-0">
                                     <Input
                                         value={globalFilter ?? ''}
-                                        onChange={(e) => setGlobalFilter(e.target.value)}
+                                        onChange={(e) => handleGlobalFilterChange(e.target.value)}
                                         placeholder={globalSearchPlaceholder}
                                     />
                                 </div>

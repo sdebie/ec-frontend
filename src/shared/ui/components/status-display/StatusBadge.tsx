@@ -7,11 +7,14 @@ import {cn} from '@/shared/utils/cn'
  * nothing here needs a `dark:` variant — hard-coding one would put a second palette
  * outside the theme layer, where it could not follow a preset.
  *
- * Only red, green and yellow surfaces exist, so the vocabulary maps onto them by meaning
- * rather than by hue name:
+ * Only red, green, yellow and purple surfaces exist, so the vocabulary maps onto them by
+ * meaning rather than by hue name:
  *   red    → cancelled or errored
  *   green  → completed, paid, succeeded
  *   yellow → pending, processing, in transit, needing attention
+ *   purple → sent onward and awaiting a response from someone else (e.g. a quote sent to
+ *            a customer) — distinct from yellow because it isn't "needs attention", it's
+ *            "the ball is in someone else's court"
  *   gray   → not started, or information carrying no state
  */
 const colorTokens: Record<string, string> = {
@@ -25,6 +28,7 @@ const colorTokens: Record<string, string> = {
     blue: 'bg-(--c-status-yellow-bg) text-(--c-status-yellow-text) border-(--c-status-yellow-border)',
     red: 'bg-(--c-status-red-bg) text-(--c-status-red-text) border-(--c-status-red-border)',
     orange: 'bg-(--c-status-yellow-bg) text-(--c-status-yellow-text) border-(--c-status-yellow-border)',
+    purple: 'bg-(--c-status-purple-bg) text-(--c-status-purple-text) border-(--c-status-purple-border)',
 }
 
 const neutralClasses = colorTokens.gray

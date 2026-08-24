@@ -109,6 +109,9 @@
   --c-status-yellow-bg:     var(--admin-status-yellow-bg);
   --c-status-yellow-text:   var(--admin-status-yellow-text);
   --c-status-yellow-border: var(--admin-status-yellow-border);
+  --c-status-purple-bg:     var(--admin-status-purple-bg);
+  --c-status-purple-text:   var(--admin-status-purple-text);
+  --c-status-purple-border: var(--admin-status-purple-border);
 }
 
 /* Storefront surface — pulls from --sf-* set by StorefrontConfigProvider (camelCase → kebab-case) */

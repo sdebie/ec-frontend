@@ -16,21 +16,30 @@ const QUOTE_REQUEST_DETAIL = gql`
             status
             createdAt
             statusChangedAt
+            quotedAmount
+            quotedNotes
+            quotedByName
             items {
+                id
                 variantId
                 productNameSnapshot
                 variantSkuSnapshot
                 quantity
+                unitPrice
+                lineTotal
             }
         }
     }
 `
 
 export interface QuoteRequestItem {
+    id: string
     variantId: string | null
     productNameSnapshot: string
     variantSkuSnapshot: string | null
     quantity: number
+    unitPrice: number | null
+    lineTotal: number | null
 }
 
 export interface QuoteRequestDetail {
@@ -43,6 +52,9 @@ export interface QuoteRequestDetail {
     status: QuoteRequestStatus
     createdAt: string
     statusChangedAt: string | null
+    quotedAmount: number | null
+    quotedNotes: string | null
+    quotedByName: string | null
     items: QuoteRequestItem[]
 }
 

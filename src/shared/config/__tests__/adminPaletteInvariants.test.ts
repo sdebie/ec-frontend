@@ -92,9 +92,14 @@ describe('admin palette invariants', () => {
     })
 
     describe('an accent surface is never the same colour as a status surface', () => {
-        it('no preset subtle collides with a status background in either theme', () => {
-            const statusLight = declared(':root', '--admin-status-red-bg')
-            const statusDark = declared('[data-surface="admin"][data-theme="dark"]', '--admin-status-red-bg')
+        // Every status colour that exists, not just red — a status badge added later
+        // (e.g. purple, chosen to sit next to a same-named "purple" preset) is exactly
+        // the shape of thing this collision already bit once for red.
+        const STATUS_COLORS = ['red', 'green', 'yellow', 'purple'] as const
+
+        it.each(STATUS_COLORS)('no preset subtle collides with the %s status background in either theme', (statusColor) => {
+            const statusLight = declared(':root', `--admin-status-${statusColor}-bg`)
+            const statusDark = declared('[data-surface="admin"][data-theme="dark"]', `--admin-status-${statusColor}-bg`)
 
             for (const preset of PRESETS) {
                 const light = declared(`[data-surface="admin"][data-preset="${preset}"]`, '--primary-subtle')

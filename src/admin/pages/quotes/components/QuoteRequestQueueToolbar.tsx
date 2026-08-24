@@ -4,6 +4,7 @@ const STATUS_FILTER_OPTIONS = [
     {value: 'ALL', label: 'All'},
     {value: 'NEW', label: 'New'},
     {value: 'IN_PROGRESS', label: 'In Progress'},
+    {value: 'QUOTE_SENT', label: 'Quote Sent'},
     {value: 'CLOSED', label: 'Closed'},
 ]
 

@@ -34,18 +34,27 @@ function createMockQuoteRequest(
         // Noon UTC so the formatted date doesn't shift across a timezone's midnight boundary.
         createdAt: '2025-07-10T12:00:00Z',
         statusChangedAt: null,
+        quotedAmount: null,
+        quotedNotes: null,
+        quotedByName: null,
         items: [
             {
+                id: 'item-1',
                 variantId: 'var-1',
                 productNameSnapshot: 'Premium Widget',
                 variantSkuSnapshot: 'PW-001',
                 quantity: 10,
+                unitPrice: null,
+                lineTotal: null,
             },
             {
+                id: 'item-2',
                 variantId: null,
                 productNameSnapshot: 'Deluxe Gadget',
                 variantSkuSnapshot: 'DG-002',
                 quantity: 5,
+                unitPrice: null,
+                lineTotal: null,
             },
         ],
         ...overrides,
@@ -115,13 +124,13 @@ describe('QuoteRequestDetailPage', () => {
 
             renderDetailPage()
 
-            // Renders in both the header and the Quote Summary card.
+            // Renders in both the header and the Quote Details panel.
             expect(screen.getAllByText('New').length).toBeGreaterThanOrEqual(2)
         })
     })
 
-    describe('Contact Information card', () => {
-        it('renders name and email as read-only information', () => {
+    describe('Contact Information panel', () => {
+        it('renders name and email as read-only information, with no edit control', () => {
             const quoteRequest = createMockQuoteRequest()
             vi.mocked(useQuoteRequestDetail).mockReturnValue({
                 data: quoteRequest,
@@ -134,9 +143,10 @@ describe('QuoteRequestDetailPage', () => {
             expect(screen.getByText('Contact Information')).toBeInTheDocument()
             expect(screen.getByText('John Smith')).toBeInTheDocument()
             expect(screen.getByText('john@example.com')).toBeInTheDocument()
+            expect(screen.queryByText(/edit contact/i)).not.toBeInTheDocument()
         })
 
-        it('does not render phone, company, or any edit control', () => {
+        it('does not render phone or company', () => {
             const quoteRequest = createMockQuoteRequest()
             vi.mocked(useQuoteRequestDetail).mockReturnValue({
                 data: quoteRequest,
@@ -148,11 +158,10 @@ describe('QuoteRequestDetailPage', () => {
 
             expect(screen.queryByText('+27 82 123 4567')).not.toBeInTheDocument()
             expect(screen.queryByText('Smith Corp')).not.toBeInTheDocument()
-            expect(screen.queryByText(/edit contact/i)).not.toBeInTheDocument()
         })
     })
 
-    describe('Quote Summary card', () => {
+    describe('Quote Summary panel', () => {
         it('renders submitted date, item count, quantity total, status, and quote id', () => {
             const quoteRequest = createMockQuoteRequest()
             vi.mocked(useQuoteRequestDetail).mockReturnValue({
@@ -164,7 +173,7 @@ describe('QuoteRequestDetailPage', () => {
             renderDetailPage()
 
             expect(screen.getByText('Quote Summary')).toBeInTheDocument()
-            expect(screen.getByText(/10 Jul 2025/)).toBeInTheDocument()
+            expect(screen.getByText(/2025-07-10/)).toBeInTheDocument()
             expect(infoRowFor('Total Items')).toHaveTextContent('2')
             // 10 + 5
             expect(infoRowFor('Total Quantity')).toHaveTextContent('15')
@@ -194,7 +203,7 @@ describe('QuoteRequestDetailPage', () => {
 
             renderDetailPage()
 
-            expect(infoRowFor('Last Updated')).toHaveTextContent('11 Aug 2025')
+            expect(infoRowFor('Last Updated')).toHaveTextContent('2025-08-11')
         })
     })
 

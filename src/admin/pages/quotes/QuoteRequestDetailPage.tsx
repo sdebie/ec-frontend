@@ -4,8 +4,8 @@ import {FormPageNotFound, PageLayout, PageLoadingSpinner, StatusBadge} from '@/s
 import {Card} from '@/shared/ui/primitives'
 import {useQuoteRequestDetail} from './hooks/useQuoteRequestDetail'
 import {useQuoteRequestStatusAction} from './hooks/useQuoteRequestStatusAction'
-import {QuoteContactPanel} from './components/QuoteContactPanel'
-import {QuoteSummaryCard} from './components/QuoteSummaryCard'
+import {QuoteContactInfoPanel} from './components/QuoteContactInfoPanel'
+import {QuoteSummaryPanel} from './components/QuoteSummaryPanel'
 import {QuoteActionsCard} from './components/QuoteActionsCard'
 import {QuoteMessagePanel} from './components/QuoteMessagePanel'
 import {QuoteLineItemsTable} from './components/QuoteLineItemsTable'
@@ -68,32 +68,40 @@ export function QuoteRequestDetailPage() {
         <PageLayout
             title="Quote Detail"
             onBack={() => navigate(-1)}
-            backLabel="Back to Quote Requests"
+            backLabel="Back"
             action={
                 <StatusBadge
                     label={getQuoteStatusLabel(quoteRequest.status)}
                     color={getQuoteStatusColor(quoteRequest.status)}
+                    className="px-3.5 py-1.5 text-sm"
                 />
             }
         >
             <div className="flex flex-col gap-6">
-                <div className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3">
-                    <QuoteContactPanel name={quoteRequest.name} email={quoteRequest.email}/>
-                    <QuoteSummaryCard
-                        id={quoteRequest.id}
-                        createdAt={quoteRequest.createdAt}
-                        statusChangedAt={quoteRequest.statusChangedAt}
-                        itemCount={quoteRequest.items.length}
-                        totalQuantity={totalQuantity}
-                        status={quoteRequest.status}
-                    />
+                <div className="grid grid-cols-1 items-stretch gap-6 lg:grid-cols-[2fr_1fr]">
+                    <QuoteContactInfoPanel name={quoteRequest.name} email={quoteRequest.email}/>
                     <QuoteActionsCard
+                        quoteRequestId={quoteRequest.id}
                         status={quoteRequest.status}
+                        items={quoteRequest.items}
+                        quotedNotes={quoteRequest.quotedNotes}
                         canMutate={canMutate}
                         onStatusChange={handleStatusChange}
                         isPending={statusAction.isPending}
                     />
                 </div>
+
+                <QuoteSummaryPanel
+                    id={quoteRequest.id}
+                    createdAt={quoteRequest.createdAt}
+                    statusChangedAt={quoteRequest.statusChangedAt}
+                    itemCount={quoteRequest.items.length}
+                    totalQuantity={totalQuantity}
+                    status={quoteRequest.status}
+                    quotedAmount={quoteRequest.quotedAmount}
+                    quotedNotes={quoteRequest.quotedNotes}
+                    quotedByName={quoteRequest.quotedByName}
+                />
 
                 {quoteRequest.message && (
                     <QuoteMessagePanel message={quoteRequest.message}/>
