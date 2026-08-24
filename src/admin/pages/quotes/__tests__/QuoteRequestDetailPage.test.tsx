@@ -309,7 +309,7 @@ describe('QuoteRequestDetailPage', () => {
     })
 
     describe('Actions card — role and status gating', () => {
-        it('shows Start Processing and Close Quote for a NEW quote when the role can mutate', () => {
+        it('shows only Start Processing for a NEW quote — Generate Quote and Close Quote are not available yet', () => {
             useAdminAuthStore.setState({role: 'ORDER_MANAGER'})
             const quoteRequest = createMockQuoteRequest({status: 'NEW'})
             vi.mocked(useQuoteRequestDetail).mockReturnValue({
@@ -322,10 +322,11 @@ describe('QuoteRequestDetailPage', () => {
 
             expect(screen.getByTestId('status-actions')).toBeInTheDocument()
             expect(screen.getByRole('button', {name: /Start Processing/})).toBeInTheDocument()
-            expect(screen.getByRole('button', {name: /Close Quote/})).toBeInTheDocument()
+            expect(screen.queryByRole('button', {name: /Generate Quote/})).not.toBeInTheDocument()
+            expect(screen.queryByRole('button', {name: /Close Quote/})).not.toBeInTheDocument()
         })
 
-        it('shows only Close Quote for an IN_PROGRESS quote', () => {
+        it('shows only Generate Quote for an IN_PROGRESS quote — processing must finish before it can be closed', () => {
             const quoteRequest = createMockQuoteRequest({status: 'IN_PROGRESS'})
             vi.mocked(useQuoteRequestDetail).mockReturnValue({
                 data: quoteRequest,
@@ -335,8 +336,40 @@ describe('QuoteRequestDetailPage', () => {
 
             renderDetailPage()
 
-            expect(screen.getByRole('button', {name: /Close Quote/})).toBeInTheDocument()
+            expect(screen.getByRole('button', {name: /Generate Quote/})).toBeInTheDocument()
             expect(screen.queryByRole('button', {name: /Start Processing/})).not.toBeInTheDocument()
+            expect(screen.queryByRole('button', {name: /Close Quote/})).not.toBeInTheDocument()
+        })
+
+        it('shows only Close Quote (plus Preview) for a QUOTE_SENT quote', () => {
+            const quoteRequest = createMockQuoteRequest({
+                status: 'QUOTE_SENT',
+                quotedAmount: 150,
+                quotedByName: 'Staff Member',
+                items: [
+                    {
+                        id: 'item-1',
+                        variantId: 'var-1',
+                        productNameSnapshot: 'Premium Widget',
+                        variantSkuSnapshot: 'PW-001',
+                        quantity: 10,
+                        unitPrice: 15,
+                        lineTotal: 150,
+                    },
+                ],
+            })
+            vi.mocked(useQuoteRequestDetail).mockReturnValue({
+                data: quoteRequest,
+                isLoading: false,
+                isError: false,
+            } as unknown as ReturnType<typeof useQuoteRequestDetail>)
+
+            renderDetailPage()
+
+            expect(screen.getByRole('button', {name: /Close Quote/})).toBeInTheDocument()
+            expect(screen.getByRole('button', {name: /Preview Quote/})).toBeInTheDocument()
+            expect(screen.queryByRole('button', {name: /Start Processing/})).not.toBeInTheDocument()
+            expect(screen.queryByRole('button', {name: /Generate Quote/})).not.toBeInTheDocument()
         })
 
         it('shows the empty state, not a Reopen button, for a CLOSED quote', () => {
@@ -392,7 +425,20 @@ describe('QuoteRequestDetailPage', () => {
         })
 
         it('clicking "Close Quote" triggers mutation with CLOSED', () => {
-            const quoteRequest = createMockQuoteRequest({status: 'NEW'})
+            const quoteRequest = createMockQuoteRequest({
+                status: 'QUOTE_SENT',
+                items: [
+                    {
+                        id: 'item-1',
+                        variantId: 'var-1',
+                        productNameSnapshot: 'Premium Widget',
+                        variantSkuSnapshot: 'PW-001',
+                        quantity: 10,
+                        unitPrice: 15,
+                        lineTotal: 150,
+                    },
+                ],
+            })
             vi.mocked(useQuoteRequestDetail).mockReturnValue({
                 data: quoteRequest,
                 isLoading: false,

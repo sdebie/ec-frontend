@@ -133,6 +133,12 @@
     --admin-status-purple-bg: #f5f3ff;
     --admin-status-purple-text: #6d28d9;
     --admin-status-purple-border: #ddd6fe;
+    /* A sixth tone, for "priced but not yet sent" — distinct from purple ("sent, awaiting
+       the customer") since a draft hasn't gone anywhere yet, and distinct from every admin
+       preset hue (blue/purple/green/orange/red) so it can never collide with an accent. */
+    --admin-status-pink-bg: #fdf2f8;
+    --admin-status-pink-text: #be185d;
+    --admin-status-pink-border: #fbcfe8;
 
     /*
       Storefront status tokens.
@@ -273,6 +279,9 @@
     --admin-status-purple-bg: #241b3d;
     --admin-status-purple-text: #c4b5fd;
     --admin-status-purple-border: #5b21b6;
+    --admin-status-pink-bg: #2a0e1c;
+    --admin-status-pink-text: #f9a8d4;
+    --admin-status-pink-border: #9d174d;
 }
 
 [data-surface="admin"][data-preset="blue"] {

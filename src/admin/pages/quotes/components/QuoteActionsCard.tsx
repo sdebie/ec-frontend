@@ -17,11 +17,12 @@ interface QuoteActionsCardProps {
 }
 
 /**
- * Only ever offers a transition the backend actually accepts:
- * NEW → IN_PROGRESS, NEW/IN_PROGRESS → QUOTE_SENT (via Generate Quote, which carries the
- * pricing data a plain status change can't), NEW/IN_PROGRESS/QUOTE_SENT → CLOSED. CLOSED is
- * terminal — see QuoteRequestService's transition map. Generate Quote disappears once a
- * quote has been sent; this codebase's quote workflow has no regenerate/resend yet.
+ * Strictly sequential — each step requires the one before it, no skips:
+ * NEW → IN_PROGRESS (Start Processing) → QUOTE_SENT (Generate Quote, which carries the
+ * pricing data a plain status change can't) → CLOSED (Close Quote, only once a quote has
+ * actually been generated). CLOSED is terminal — see QuoteRequestService's transition map,
+ * which enforces the identical chain server-side. Generate Quote disappears once a quote has
+ * been sent; this codebase's quote workflow has no regenerate/resend yet.
  * <p>
  * Preview Quote is a separate concern from the status actions above it: it's a read, not a
  * transition, so it stays available once a quote exists (hasQuote) regardless of status —
@@ -32,7 +33,8 @@ export function QuoteActionsCard({quoteRequestId, status, items, quotedNotes, ca
     const [viewOpen, setViewOpen] = useState(false)
 
     const showTransitionActions = canMutate && status !== 'CLOSED'
-    const canGenerateQuote = status === 'NEW' || status === 'IN_PROGRESS'
+    const canGenerateQuote = status === 'IN_PROGRESS'
+    const canClose = status === 'QUOTE_SENT'
     const hasQuote = items.some((item) => item.unitPrice !== null)
     const showPreview = canMutate && hasQuote
     const showEmptyState = !showTransitionActions && !showPreview
@@ -40,8 +42,10 @@ export function QuoteActionsCard({quoteRequestId, status, items, quotedNotes, ca
     return (
         <>
             <Card as="section" variant="bordered" className="flex h-full flex-col">
-                <Card.Header className="m-0 flex items-center gap-2 px-5 py-4">
-                    <Zap className="h-5 w-5 text-(--c-text-muted)"/>
+                <Card.Header className="m-0 flex items-center gap-3 px-5 py-4">
+                    <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-(--c-accent-subtle) text-(--c-accent)">
+                        <Zap className="h-4 w-4" aria-hidden="true"/>
+                    </span>
                     <span>Actions</span>
                 </Card.Header>
                 <Card.Body className="p-5">
@@ -72,16 +76,18 @@ export function QuoteActionsCard({quoteRequestId, status, items, quotedNotes, ca
                                         Generate Quote
                                     </Button>
                                 )}
-                                <Button
-                                    variant="outline"
-                                    size="sm"
-                                    onClick={() => onStatusChange('CLOSED')}
-                                    disabled={isPending}
-                                    leftIcon={<CheckCircle2 className="h-4 w-4"/>}
-                                    className="w-full"
-                                >
-                                    Close Quote
-                                </Button>
+                                {canClose && (
+                                    <Button
+                                        variant="outline"
+                                        size="sm"
+                                        onClick={() => onStatusChange('CLOSED')}
+                                        disabled={isPending}
+                                        leftIcon={<CheckCircle2 className="h-4 w-4"/>}
+                                        className="w-full"
+                                    >
+                                        Close Quote
+                                    </Button>
+                                )}
                             </div>
                         )}
                         {showPreview && (

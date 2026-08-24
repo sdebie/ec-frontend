@@ -95,7 +95,7 @@ describe('admin palette invariants', () => {
         // Every status colour that exists, not just red — a status badge added later
         // (e.g. purple, chosen to sit next to a same-named "purple" preset) is exactly
         // the shape of thing this collision already bit once for red.
-        const STATUS_COLORS = ['red', 'green', 'yellow', 'purple'] as const
+        const STATUS_COLORS = ['red', 'green', 'yellow', 'purple', 'pink'] as const
 
         it.each(STATUS_COLORS)('no preset subtle collides with the %s status background in either theme', (statusColor) => {
             const statusLight = declared(':root', `--admin-status-${statusColor}-bg`)

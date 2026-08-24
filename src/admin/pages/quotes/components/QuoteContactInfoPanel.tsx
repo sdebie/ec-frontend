@@ -10,8 +10,10 @@ interface QuoteContactInfoPanelProps {
 export function QuoteContactInfoPanel({name, email}: QuoteContactInfoPanelProps) {
     return (
         <Card as="section" variant="bordered" className="flex h-full flex-col">
-            <Card.Header className="m-0 flex items-center gap-2 px-5 py-4">
-                <UserRound className="h-5 w-5 text-(--c-text-muted)"/>
+            <Card.Header className="m-0 flex items-center gap-3 px-5 py-4">
+                <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-(--c-accent-subtle) text-(--c-accent)">
+                    <UserRound className="h-4 w-4" aria-hidden="true"/>
+                </span>
                 <span>Contact Information</span>
             </Card.Header>
             <Card.Body className="flex flex-1 items-center px-5 py-4">

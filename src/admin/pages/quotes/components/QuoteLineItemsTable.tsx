@@ -81,8 +81,10 @@ export function QuoteLineItemsTable({items}: QuoteLineItemsTableProps) {
     return (
         <Card as="section" variant="bordered">
             <Card.Header className="m-0 flex flex-col gap-3 px-5 py-4 sm:flex-row sm:items-center sm:justify-between">
-                <div className="flex items-center gap-2">
-                    <PackageOpen className="h-5 w-5 text-(--c-text-muted)"/>
+                <div className="flex items-center gap-3">
+                    <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-(--c-accent-subtle) text-(--c-accent)">
+                        <PackageOpen className="h-4 w-4" aria-hidden="true"/>
+                    </span>
                     <span>Requested Items</span>
                     <StatusBadge label={`${items.length} ${items.length === 1 ? 'item' : 'items'}`} color="gray"/>
                 </div>

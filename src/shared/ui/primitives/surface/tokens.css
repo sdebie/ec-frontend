@@ -112,6 +112,9 @@
   --c-status-purple-bg:     var(--admin-status-purple-bg);
   --c-status-purple-text:   var(--admin-status-purple-text);
   --c-status-purple-border: var(--admin-status-purple-border);
+  --c-status-pink-bg:       var(--admin-status-pink-bg);
+  --c-status-pink-text:     var(--admin-status-pink-text);
+  --c-status-pink-border:   var(--admin-status-pink-border);
 }
 
 /* Storefront surface — pulls from --sf-* set by StorefrontConfigProvider (camelCase → kebab-case) */
