@@ -2,27 +2,26 @@ import {beforeEach, describe, expect, it, vi} from 'vitest'
 import {render, screen, waitFor} from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import {QueryClient, QueryClientProvider} from '@tanstack/react-query'
-import {
-    useAdminTestimonials,
-    useCreateTestimonial,
-    useDeleteTestimonial,
-    useUpdateTestimonial,
-} from '@/admin/hooks/testimonials'
+import {useAdminTestimonials} from '../testimonials/hooks/useAdminTestimonials'
+import {useCreateTestimonial} from '../testimonials/hooks/useCreateTestimonial'
+import {useUpdateTestimonial} from '../testimonials/hooks/useUpdateTestimonial'
+import {useDeleteTestimonial} from '../testimonials/hooks/useDeleteTestimonial'
+import {formatDateTime} from '@/shared/utils/formatDateTime'
 import {useAdminAuthStore} from '@/shared/auth/adminAuthStore'
 import {TestimonialsPage} from '../TestimonialsPage'
 
-vi.mock('@/admin/hooks/testimonials', async () => {
-    const actual = await vi.importActual<typeof import('@/admin/hooks/testimonials')>(
-        '@/admin/hooks/testimonials',
-    )
-    return {
-        useAdminTestimonials: vi.fn(),
-        useCreateTestimonial: vi.fn(),
-        useUpdateTestimonial: vi.fn(),
-        useDeleteTestimonial: vi.fn(),
-        testimonialFormSchema: actual.testimonialFormSchema,
-    }
-})
+vi.mock('../testimonials/hooks/useAdminTestimonials', () => ({
+    useAdminTestimonials: vi.fn(),
+}))
+vi.mock('../testimonials/hooks/useCreateTestimonial', () => ({
+    useCreateTestimonial: vi.fn(),
+}))
+vi.mock('../testimonials/hooks/useUpdateTestimonial', () => ({
+    useUpdateTestimonial: vi.fn(),
+}))
+vi.mock('../testimonials/hooks/useDeleteTestimonial', () => ({
+    useDeleteTestimonial: vi.fn(),
+}))
 
 
 const mockTestimonials = [
@@ -35,7 +34,7 @@ const mockTestimonials = [
         published: true,
         sortOrder: 1,
         createdAt: '2024-01-01T00:00:00Z',
-        updatedAt: '2024-01-01T00:00:00Z',
+        updatedAt: '2024-01-05T09:30:00Z',
     },
     {
         id: '2',
@@ -105,6 +104,13 @@ describe('TestimonialsPage', () => {
         expect(cellTexts).toContain('2')
     })
 
+    it('shows a Last Updated column with each testimonial\'s formatted timestamp', () => {
+        renderPage()
+        expect(screen.getByText('Last Updated')).toBeInTheDocument()
+        expect(screen.getByText(formatDateTime(mockTestimonials[0].updatedAt))).toBeInTheDocument()
+        expect(screen.getByText(formatDateTime(mockTestimonials[1].updatedAt))).toBeInTheDocument()
+    })
+
     describe('SUPER_ADMIN role', () => {
         beforeEach(() => {
             useAdminAuthStore.setState({role: 'SUPER_ADMIN'})
@@ -127,6 +133,17 @@ describe('TestimonialsPage', () => {
             await user.click(screen.getByLabelText(/delete testimonial by john smith/i))
             expect(screen.getByText('Delete Testimonial')).toBeInTheDocument()
             expect(screen.getByText(/cannot be undone/i)).toBeInTheDocument()
+        })
+
+        it('double-clicking a row opens the edit form pre-filled with that testimonial\'s values', async () => {
+            renderPage()
+            const user = userEvent.setup()
+
+            await user.dblClick(screen.getByText('John Smith'))
+
+            expect(screen.getByText('Edit Testimonial')).toBeInTheDocument()
+            expect(screen.getByLabelText(/quote/i)).toHaveValue(mockTestimonials[0].quote)
+            expect(screen.getByLabelText(/author name/i)).toHaveValue('John Smith')
         })
     })
 
