@@ -2,13 +2,12 @@ import {beforeEach, describe, expect, it, vi} from 'vitest'
 import {renderHook, waitFor} from '@testing-library/react'
 import {QueryClient, QueryClientProvider} from '@tanstack/react-query'
 import {createElement} from 'react'
+import {adminGraphqlClient} from '@/shared/api/graphql/adminGraphqlClient'
+import {useStaff} from '../useStaff'
 
 vi.mock('@/shared/api/graphql/adminGraphqlClient', () => ({
     adminGraphqlClient: {request: vi.fn()},
 }))
-
-import {adminGraphqlClient} from '@/shared/api/graphql/adminGraphqlClient'
-import {useStaff} from '../useStaff'
 
 function createWrapper() {
     const queryClient = new QueryClient({defaultOptions: {queries: {retry: false}}})

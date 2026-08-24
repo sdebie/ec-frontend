@@ -229,34 +229,9 @@ const adminPageOnlyRoutes: AdminRouteList = [
             pageContainerType: 'contained',
         },
     },
-    {
-        key: 'admin.staff.new',
-        path: '/admin/staff/new',
-        component: lazy(() =>
-            import('@/admin/pages/staff/StaffCreatePage').then((m) => ({
-                default: m.StaffCreatePage,
-            }))
-        ),
-        authority: rolesFor('staff:manage'),
-        meta: {
-            pageBackgroundType: 'plain',
-            pageContainerType: 'contained',
-        },
-    },
-    {
-        key: 'admin.staff.edit',
-        path: '/admin/staff/:id/edit',
-        component: lazy(() =>
-            import('@/admin/pages/staff/StaffEditPage').then((m) => ({
-                default: m.StaffEditPage,
-            }))
-        ),
-        authority: rolesFor('staff:manage'),
-        meta: {
-            pageBackgroundType: 'plain',
-            pageContainerType: 'contained',
-        },
-    },
+    // '/admin/staff/new' and '/admin/staff/:id/edit' are intentionally absent: staff
+    // create/edit now happens in StaffFormDialog on '/admin/staff' itself, mirroring
+    // ShippingMethodsPage's dialog-based CRUD rather than routed create/edit pages.
 ]
 
 export const adminRoutingRoutes: AdminRouteList = [
