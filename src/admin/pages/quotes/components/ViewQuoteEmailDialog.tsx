@@ -1,6 +1,5 @@
 import {useEffect} from 'react'
-
-import {Dialog, DialogHeader, DialogContent, DialogFooter} from '@/shared/ui/components'
+import {Dialog, DialogContent, DialogFooter, DialogHeader} from '@/shared/ui/components'
 import {Button} from '@/shared/ui/primitives'
 import type {QuoteRequestItem} from '../hooks/useQuoteRequestDetail'
 import {usePreviewQuoteEmail} from '../hooks/usePreviewQuoteEmail'
@@ -16,7 +15,7 @@ export interface ViewQuoteEmailDialogProps {
 /**
  * Read-only: shows the email exactly as it was sent, from the prices already persisted on
  * the request — no form, no Send button. Reuses previewQuoteEmail rather than storing a
- * rendered copy of the email at send time, so this always reflects the real template, even
+ * rendered copy of the email at sent time, so this always reflects the real template, even
  * if the template changes after the quote was sent.
  */
 export function ViewQuoteEmailDialog({open, onClose, quoteRequestId, items, quotedNotes}: ViewQuoteEmailDialogProps) {

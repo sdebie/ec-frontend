@@ -82,14 +82,16 @@ export function QuoteLineItemsTable({items}: QuoteLineItemsTableProps) {
         <Card as="section" variant="bordered">
             <Card.Header className="m-0 flex flex-col gap-3 px-5 py-4 sm:flex-row sm:items-center sm:justify-between">
                 <div className="flex items-center gap-3">
-                    <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-(--c-accent-subtle) text-(--c-accent)">
+                    <span
+                        className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-(--c-accent-subtle) text-(--c-accent)">
                         <PackageOpen className="h-4 w-4" aria-hidden="true"/>
                     </span>
                     <span>Requested Items</span>
                     <StatusBadge label={`${items.length} ${items.length === 1 ? 'item' : 'items'}`} color="gray"/>
                 </div>
                 <div className="relative w-full sm:w-72">
-                    <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-(--c-text-muted)"/>
+                    <Search
+                        className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-(--c-text-muted)"/>
                     <Input
                         value={search}
                         onChange={(e) => setSearch(e.target.value)}

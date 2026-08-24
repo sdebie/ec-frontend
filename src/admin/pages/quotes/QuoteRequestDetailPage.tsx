@@ -83,6 +83,7 @@ export function QuoteRequestDetailPage() {
                     <QuoteActionsCard
                         quoteRequestId={quoteRequest.id}
                         status={quoteRequest.status}
+                        customerEmail={quoteRequest.email}
                         items={quoteRequest.items}
                         quotedNotes={quoteRequest.quotedNotes}
                         canMutate={canMutate}

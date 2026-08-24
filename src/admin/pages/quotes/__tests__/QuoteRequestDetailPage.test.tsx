@@ -322,11 +322,12 @@ describe('QuoteRequestDetailPage', () => {
 
             expect(screen.getByTestId('status-actions')).toBeInTheDocument()
             expect(screen.getByRole('button', {name: /Start Processing/})).toBeInTheDocument()
+            expect(screen.getByRole('button', {name: /Cancel Quote/})).toBeInTheDocument()
             expect(screen.queryByRole('button', {name: /Generate Quote/})).not.toBeInTheDocument()
             expect(screen.queryByRole('button', {name: /Close Quote/})).not.toBeInTheDocument()
         })
 
-        it('shows only Generate Quote for an IN_PROGRESS quote — processing must finish before it can be closed', () => {
+        it('shows only Generate Quote (plus Cancel) for an IN_PROGRESS quote — processing must finish before it can be closed', () => {
             const quoteRequest = createMockQuoteRequest({status: 'IN_PROGRESS'})
             vi.mocked(useQuoteRequestDetail).mockReturnValue({
                 data: quoteRequest,
@@ -337,11 +338,45 @@ describe('QuoteRequestDetailPage', () => {
             renderDetailPage()
 
             expect(screen.getByRole('button', {name: /Generate Quote/})).toBeInTheDocument()
+            expect(screen.getByRole('button', {name: /Cancel Quote/})).toBeInTheDocument()
             expect(screen.queryByRole('button', {name: /Start Processing/})).not.toBeInTheDocument()
             expect(screen.queryByRole('button', {name: /Close Quote/})).not.toBeInTheDocument()
         })
 
-        it('shows only Close Quote (plus Preview) for a QUOTE_SENT quote', () => {
+        it('shows Edit Quote (not Generate Quote) plus Cancel for a QUOTE_DRAFTED quote — and no Preview, since nothing has been sent yet', () => {
+            const quoteRequest = createMockQuoteRequest({
+                status: 'QUOTE_DRAFTED',
+                quotedAmount: 150,
+                quotedByName: 'Staff Member',
+                items: [
+                    {
+                        id: 'item-1',
+                        variantId: 'var-1',
+                        productNameSnapshot: 'Premium Widget',
+                        variantSkuSnapshot: 'PW-001',
+                        quantity: 10,
+                        unitPrice: 15,
+                        lineTotal: 150,
+                    },
+                ],
+            })
+            vi.mocked(useQuoteRequestDetail).mockReturnValue({
+                data: quoteRequest,
+                isLoading: false,
+                isError: false,
+            } as unknown as ReturnType<typeof useQuoteRequestDetail>)
+
+            renderDetailPage()
+
+            expect(screen.getByRole('button', {name: /Edit Quote/})).toBeInTheDocument()
+            expect(screen.getByRole('button', {name: /Cancel Quote/})).toBeInTheDocument()
+            expect(screen.queryByRole('button', {name: /^Generate Quote/})).not.toBeInTheDocument()
+            expect(screen.queryByRole('button', {name: /Start Processing/})).not.toBeInTheDocument()
+            expect(screen.queryByRole('button', {name: /Close Quote/})).not.toBeInTheDocument()
+            expect(screen.queryByRole('button', {name: /Preview Quote/})).not.toBeInTheDocument()
+        })
+
+        it('shows only Close Quote (plus Preview, no Cancel) for a QUOTE_SENT quote', () => {
             const quoteRequest = createMockQuoteRequest({
                 status: 'QUOTE_SENT',
                 quotedAmount: 150,
@@ -370,6 +405,7 @@ describe('QuoteRequestDetailPage', () => {
             expect(screen.getByRole('button', {name: /Preview Quote/})).toBeInTheDocument()
             expect(screen.queryByRole('button', {name: /Start Processing/})).not.toBeInTheDocument()
             expect(screen.queryByRole('button', {name: /Generate Quote/})).not.toBeInTheDocument()
+            expect(screen.queryByRole('button', {name: /Cancel Quote/})).not.toBeInTheDocument()
         })
 
         it('shows the empty state, not a Reopen button, for a CLOSED quote', () => {
@@ -385,6 +421,20 @@ describe('QuoteRequestDetailPage', () => {
             expect(screen.queryByTestId('status-actions')).not.toBeInTheDocument()
             expect(screen.getByText('No actions available for this quote.')).toBeInTheDocument()
             expect(screen.queryByRole('button', {name: /Reopen/})).not.toBeInTheDocument()
+        })
+
+        it('shows the empty state for a CANCELED quote', () => {
+            const quoteRequest = createMockQuoteRequest({status: 'CANCELED'})
+            vi.mocked(useQuoteRequestDetail).mockReturnValue({
+                data: quoteRequest,
+                isLoading: false,
+                isError: false,
+            } as unknown as ReturnType<typeof useQuoteRequestDetail>)
+
+            renderDetailPage()
+
+            expect(screen.queryByTestId('status-actions')).not.toBeInTheDocument()
+            expect(screen.getByText('No actions available for this quote.')).toBeInTheDocument()
         })
 
         it('shows the empty state for a VIEWER, regardless of status', () => {
@@ -421,6 +471,33 @@ describe('QuoteRequestDetailPage', () => {
             expect(mockMutate).toHaveBeenCalledWith({
                 id: 'qr-123',
                 status: 'IN_PROGRESS',
+            })
+        })
+
+        it('clicking "Cancel Quote" opens a confirmation dialog, and confirming it triggers mutation with CANCELED', () => {
+            const quoteRequest = createMockQuoteRequest({status: 'NEW'})
+            vi.mocked(useQuoteRequestDetail).mockReturnValue({
+                data: quoteRequest,
+                isLoading: false,
+                isError: false,
+            } as unknown as ReturnType<typeof useQuoteRequestDetail>)
+
+            renderDetailPage()
+
+            fireEvent.click(screen.getByRole('button', {name: /Cancel Quote/}))
+
+            // The mutation must not fire on the first click alone — only after confirming.
+            expect(mockMutate).not.toHaveBeenCalled()
+            expect(screen.getByText('Cancel this quote request?')).toBeInTheDocument()
+
+            // Both the action button and the confirmation dialog's own confirm button are
+            // labelled "Cancel Quote" — the dialog's is the one rendered last.
+            const cancelButtons = screen.getAllByRole('button', {name: 'Cancel Quote'})
+            fireEvent.click(cancelButtons[cancelButtons.length - 1])
+
+            expect(mockMutate).toHaveBeenCalledWith({
+                id: 'qr-123',
+                status: 'CANCELED',
             })
         })
 
