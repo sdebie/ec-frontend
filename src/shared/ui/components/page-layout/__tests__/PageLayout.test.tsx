@@ -86,4 +86,63 @@ describe('PageLayout', () => {
         expect(container.className).toContain('max-w-7xl')
         expect(container.className).not.toContain('max-w-[100rem]')
     })
+
+    describe('stickyFooter', () => {
+        it('renders the footer content when provided', () => {
+            renderPageLayout({stickyFooter: <button type="button">Save Changes</button>})
+
+            expect(screen.getByRole('button', {name: 'Save Changes'})).toBeInTheDocument()
+        })
+
+        it('does not render a fixed footer wrapper when omitted', () => {
+            const {container} = renderPageLayout()
+
+            expect(container.querySelector('.fixed')).not.toBeInTheDocument()
+        })
+
+        it('positions the footer with fixed/inset-x-0/bottom-0, spanning the full viewport width', () => {
+            renderPageLayout({stickyFooter: <button type="button">Save Changes</button>})
+
+            const button = screen.getByRole('button', {name: 'Save Changes'})
+            const fixedWrapper = button.closest('.fixed')!
+            expect(fixedWrapper.className).toContain('inset-x-0')
+            expect(fixedWrapper.className).toContain('bottom-0')
+        })
+
+        it('is not capped to the page Container width — the fixed bar must reach the true viewport edges, not the page\'s own max-width', () => {
+            renderPageLayout({stickyFooter: <button type="button">Save Changes</button>, size: 'lg'})
+
+            const button = screen.getByRole('button', {name: 'Save Changes'})
+            const fixedWrapper = button.closest('.fixed')!
+
+            expect(fixedWrapper.className).not.toContain('max-w')
+            expect(button.closest('.mx-auto')).not.toBeInTheDocument()
+        })
+
+        it('reserves space for the fixed footer with an invisible spacer carrying identical content, so real content is never hidden underneath it', () => {
+            const {container} = renderPageLayout({stickyFooter: <button type="button">Save Changes</button>})
+
+            // Two "Save Changes" buttons exist in the DOM (spacer + real bar)...
+            const allButtons = container.querySelectorAll('button')
+            const saveButtons = [...allButtons].filter((b) => b.textContent === 'Save Changes')
+            expect(saveButtons).toHaveLength(2)
+
+            // ...but accessibility-aware queries still find exactly one, because
+            // the spacer is `visibility:hidden`, not merely visually offset.
+            expect(screen.getByRole('button', {name: 'Save Changes'})).toBeInTheDocument()
+
+            const spacer = saveButtons.find((b) => b.closest('.invisible'))!
+            expect(spacer).toBeTruthy()
+        })
+
+        it('coexists with a header action — the two are independent slots', () => {
+            renderPageLayout({
+                action: <button type="button">Create</button>,
+                stickyFooter: <button type="button">Save Changes</button>,
+            })
+
+            expect(screen.getByRole('button', {name: 'Create'})).toBeInTheDocument()
+            expect(screen.getByRole('button', {name: 'Save Changes'})).toBeInTheDocument()
+        })
+    })
 })

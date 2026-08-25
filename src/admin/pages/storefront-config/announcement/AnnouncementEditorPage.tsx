@@ -18,17 +18,19 @@ export function AnnouncementEditorPage() {
         return <div className="p-8 text-sm text-(--c-status-red-text)">Failed to load settings. Please try again.</div>
     }
 
-    const headerAction = (
-        <Button type="button" onClick={handleSave} isLoading={isSaving} disabled={isSaving}>
-            Save Changes
-        </Button>
+    const saveFooter = (
+        <div className="flex justify-end">
+            <Button type="button" onClick={handleSave} isLoading={isSaving} disabled={isSaving}>
+                Save Changes
+            </Button>
+        </div>
     )
 
     return (
         <PageLayout
             title="Announcement Banner"
             subtitle="Configure the announcement banner displayed above the storefront header."
-            action={headerAction}
+            stickyFooter={saveFooter}
         >
             <div className="flex flex-col gap-6">
                 <AnnouncementPreviewPanel hasAnythingToPreview={hasAnythingToPreview} previewConfig={previewConfig}/>
