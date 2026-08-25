@@ -390,7 +390,7 @@ export const adminMenuRoutes: AdminRouteList = [
         key: 'admin.storefront.contact',
         path: '/admin/storefront/contact',
         component: lazy(() =>
-            import('@/admin/pages/storefront-config/ContactEditorPage').then((m) => ({default: m.ContactEditorPage}))
+            import('@/admin/pages/storefront-config/contact/ContactEditorPage').then((m) => ({default: m.ContactEditorPage}))
         ),
         authority: ['SUPER_ADMIN', 'VIEWER'],
         meta: {

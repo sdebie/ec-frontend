@@ -12,6 +12,8 @@ export {Drawer, DrawerHeader, DrawerContent, DrawerFooter} from './drawer/Drawer
 export type {DrawerProps} from './drawer/Drawer'
 export {SectionTabs} from './section-tabs/SectionTabs'
 export type {SectionTabItem, SectionTabsProps} from './section-tabs/SectionTabs'
+export {Tabs} from './tabs/Tabs'
+export type {TabsProps, TabListProps, TabNavProps, TabContentProps} from './tabs/Tabs'
 export {ToastContainer, toast} from './toast'
 export type {ToastItem, ToastVariant, ToastOptions} from './toast'
 export {Form, FormItem} from './form/Form'

@@ -40,6 +40,7 @@ const contactConfig = {
     emails: ['info@store.co.za', 'support@store.co.za'],
     phones: ['+27123456789'],
     landline: '+27219876543',
+    whatsapp: '+27827654321',
     physicalAddress: '123 Main Street\nCape Town\n8001',
     businessHours: 'Mon-Fri 08:00-17:00',
     responseSla: 'We respond within 24 hours',
@@ -87,6 +88,20 @@ function renderPage() {
     )
 }
 
+function getTabButton(name: string) {
+    return screen.getByRole('tab', {name})
+}
+
+function settingsWithEmails(emails: string[]) {
+    return [
+        {
+            key: 'storefront.contact',
+            value: JSON.stringify({...contactConfig, emails, phones: []}),
+            description: null,
+        },
+    ]
+}
+
 // --- Tests ---
 describe('ContactEditorPage', () => {
     beforeEach(() => {
@@ -94,7 +109,29 @@ describe('ContactEditorPage', () => {
     })
 
     describe('editor loads existing values', () => {
-        it('renders form fields with parsed values from the storefront.contact setting', async () => {
+        it('shows loaded emails and phones as editable table rows', async () => {
+            setupMocks()
+            renderPage()
+
+            await waitFor(() => {
+                expect(screen.getByDisplayValue('info@store.co.za')).toBeInTheDocument()
+            })
+            expect(screen.getByDisplayValue('support@store.co.za')).toBeInTheDocument()
+            expect(screen.getByDisplayValue('+27123456789')).toBeInTheDocument()
+        })
+
+        it('shows General-tab fields immediately, since General is the default tab', async () => {
+            setupMocks()
+            renderPage()
+
+            await waitFor(() => {
+                expect(screen.getByDisplayValue('+27219876543')).toBeInTheDocument()
+            })
+            expect(screen.getByDisplayValue('+27827654321')).toBeInTheDocument()
+        })
+
+        it('shows Location-tab fields once the Location tab is selected', async () => {
+            const user = userEvent.setup()
             setupMocks()
             renderPage()
 
@@ -102,13 +139,206 @@ describe('ContactEditorPage', () => {
                 expect(screen.getByDisplayValue('info@store.co.za')).toBeInTheDocument()
             })
 
-            expect(screen.getByDisplayValue('support@store.co.za')).toBeInTheDocument()
-            expect(screen.getByDisplayValue('+27123456789')).toBeInTheDocument()
-            expect(screen.getByDisplayValue('+27219876543')).toBeInTheDocument()
+            await user.click(getTabButton('Location'))
+
+            // getByDisplayValue's default matcher collapses whitespace (so a
+            // literal \n query never matches a real newline in the value) —
+            // pass an identity normalizer to compare the raw multi-line value.
+            expect(
+                screen.getByDisplayValue('123 Main Street\nCape Town\n8001', {normalizer: (s) => s}),
+            ).toBeInTheDocument()
+        })
+
+        it('shows Hours & Response tab fields once that tab is selected', async () => {
+            const user = userEvent.setup()
+            setupMocks()
+            renderPage()
+
+            await waitFor(() => {
+                expect(screen.getByDisplayValue('info@store.co.za')).toBeInTheDocument()
+            })
+
+            await user.click(getTabButton('Hours & Response'))
+
             expect(screen.getByDisplayValue('Mon-Fri 08:00-17:00')).toBeInTheDocument()
             expect(screen.getByDisplayValue('We respond within 24 hours')).toBeInTheDocument()
+        })
+
+        it('shows Maps tab fields once the Maps tab is selected', async () => {
+            const user = userEvent.setup()
+            setupMocks()
+            renderPage()
+
+            await waitFor(() => {
+                expect(screen.getByDisplayValue('info@store.co.za')).toBeInTheDocument()
+            })
+
+            await user.click(getTabButton('Maps'))
+
             expect(screen.getByDisplayValue('https://www.google.com/maps/place/Cape+Town')).toBeInTheDocument()
             expect(screen.getByDisplayValue('https://www.google.com/maps/embed?pb=abc123')).toBeInTheDocument()
+        })
+    })
+
+    describe('only the active tab is exposed to assistive tech', () => {
+        it('hides non-active tab panels (native hidden attribute) and shows only the active one', async () => {
+            const user = userEvent.setup()
+            setupMocks()
+            renderPage()
+
+            await waitFor(() => {
+                expect(screen.getByDisplayValue('info@store.co.za')).toBeInTheDocument()
+            })
+
+            const generalPanel = screen.getByText('General', {selector: 'h4'}).closest('[role="tabpanel"]')
+            const locationPanel = screen.getByText('Location', {selector: 'h4'}).closest('[role="tabpanel"]')
+
+            expect(generalPanel).toBeVisible()
+            expect(locationPanel).not.toBeVisible()
+            expect(getTabButton('General')).toHaveAttribute('aria-selected', 'true')
+            expect(getTabButton('Location')).toHaveAttribute('aria-selected', 'false')
+
+            await user.click(getTabButton('Location'))
+
+            expect(generalPanel).not.toBeVisible()
+            expect(locationPanel).toBeVisible()
+            expect(getTabButton('General')).toHaveAttribute('aria-selected', 'false')
+            expect(getTabButton('Location')).toHaveAttribute('aria-selected', 'true')
+        })
+    })
+
+    describe('email/phone table editing', () => {
+        it('renders existing values directly in editable inputs (no separate edit action needed)', async () => {
+            setupMocks()
+            renderPage()
+
+            await waitFor(() => {
+                expect(screen.getByDisplayValue('info@store.co.za')).toBeInTheDocument()
+            })
+
+            expect(screen.queryByRole('button', {name: /edit email/i})).not.toBeInTheDocument()
+        })
+
+        it('typing into an existing row updates that input directly', async () => {
+            const user = userEvent.setup()
+            setupMocks()
+            renderPage()
+
+            await waitFor(() => {
+                expect(screen.getByDisplayValue('info@store.co.za')).toBeInTheDocument()
+            })
+
+            const input = screen.getByDisplayValue('info@store.co.za')
+            await user.clear(input)
+            await user.type(input, 'updated@store.co.za')
+
+            expect(input).toHaveValue('updated@store.co.za')
+        })
+
+        it('opens a newly added email immediately, ready for typing', async () => {
+            const user = userEvent.setup()
+            setupMocks()
+            renderPage()
+
+            await waitFor(() => {
+                expect(screen.getByDisplayValue('info@store.co.za')).toBeInTheDocument()
+            })
+
+            await user.click(screen.getByRole('button', {name: 'Add email'}))
+
+            const newRowInput = screen.getByRole('textbox', {name: 'Email Addresses 3'})
+            expect(newRowInput).toBeInTheDocument()
+            await user.type(newRowInput, 'third@store.co.za')
+            expect(newRowInput).toHaveValue('third@store.co.za')
+        })
+
+        it('removes an email via the remove action on its row', async () => {
+            const user = userEvent.setup()
+            setupMocks()
+            renderPage()
+
+            await waitFor(() => {
+                expect(screen.getByDisplayValue('support@store.co.za')).toBeInTheDocument()
+            })
+
+            await user.click(screen.getByRole('button', {name: 'Remove email addresses 2'}))
+
+            expect(screen.queryByDisplayValue('support@store.co.za')).not.toBeInTheDocument()
+            expect(screen.getByDisplayValue('info@store.co.za')).toBeInTheDocument()
+        })
+
+        it('shows table column headers for Email Address and Actions', async () => {
+            setupMocks()
+            renderPage()
+
+            await waitFor(() => {
+                expect(screen.getByDisplayValue('info@store.co.za')).toBeInTheDocument()
+            })
+
+            expect(screen.getByRole('columnheader', {name: 'Email Address'})).toBeInTheDocument()
+            expect(screen.getByRole('columnheader', {name: 'Phone Number'})).toBeInTheDocument()
+            // Both tables have their own Actions column.
+            expect(screen.getAllByRole('columnheader', {name: 'Actions'})).toHaveLength(2)
+        })
+    })
+
+    describe('email/phone table pagination', () => {
+        it('shows at most 3 rows per page, with next/prev paging through the rest', async () => {
+            const user = userEvent.setup()
+            setupMocks({
+                settings: settingsWithEmails(['a@store.co.za', 'b@store.co.za', 'c@store.co.za', 'd@store.co.za']),
+            })
+            renderPage()
+
+            await waitFor(() => {
+                expect(screen.getByDisplayValue('a@store.co.za')).toBeInTheDocument()
+            })
+
+            // Page 1: only the first 3.
+            expect(screen.getByDisplayValue('a@store.co.za')).toBeInTheDocument()
+            expect(screen.getByDisplayValue('b@store.co.za')).toBeInTheDocument()
+            expect(screen.getByDisplayValue('c@store.co.za')).toBeInTheDocument()
+            expect(screen.queryByDisplayValue('d@store.co.za')).not.toBeInTheDocument()
+            expect(screen.getByText('1–3 of 4')).toBeInTheDocument()
+
+            await user.click(screen.getByRole('button', {name: 'Next page of email addresses'}))
+
+            // Page 2: just the 4th.
+            expect(screen.queryByDisplayValue('a@store.co.za')).not.toBeInTheDocument()
+            expect(screen.getByDisplayValue('d@store.co.za')).toBeInTheDocument()
+            expect(screen.getByText('4–4 of 4')).toBeInTheDocument()
+
+            await user.click(screen.getByRole('button', {name: 'Previous page of email addresses'}))
+
+            expect(screen.getByDisplayValue('a@store.co.za')).toBeInTheDocument()
+        })
+
+        it('shows no pagination controls when 3 or fewer entries exist', async () => {
+            setupMocks()
+            renderPage()
+
+            await waitFor(() => {
+                expect(screen.getByDisplayValue('info@store.co.za')).toBeInTheDocument()
+            })
+
+            expect(screen.queryByRole('button', {name: /next page of email addresses/i})).not.toBeInTheDocument()
+        })
+
+        it('jumps to the page containing a newly added row when adding past a full page', async () => {
+            const user = userEvent.setup()
+            setupMocks({
+                settings: settingsWithEmails(['a@store.co.za', 'b@store.co.za', 'c@store.co.za']),
+            })
+            renderPage()
+
+            await waitFor(() => {
+                expect(screen.getByDisplayValue('a@store.co.za')).toBeInTheDocument()
+            })
+
+            await user.click(screen.getByRole('button', {name: 'Add email'}))
+
+            expect(screen.getByRole('textbox', {name: 'Email Addresses 4'})).toBeInTheDocument()
+            expect(screen.queryByDisplayValue('a@store.co.za')).not.toBeInTheDocument()
         })
     })
 
@@ -194,6 +424,8 @@ describe('ContactEditorPage', () => {
                 expect(screen.getByText('Contact Settings')).toBeInTheDocument()
             })
 
+            await user.click(getTabButton('Maps'))
+
             // Type an invalid embed URL
             const mapEmbedInput = screen.getByPlaceholderText('https://www.google.com/maps/embed?pb=...')
             await user.type(mapEmbedInput, 'https://evil.com/embed')
@@ -209,8 +441,23 @@ describe('ContactEditorPage', () => {
         })
     })
 
-    describe('VIEWER sees disabled fields', () => {
-        it('renders all inputs as disabled when role is VIEWER', async () => {
+    describe('VIEWER sees disabled fields and no mutation controls', () => {
+        it('renders every input as disabled when role is VIEWER, including email/phone table rows', async () => {
+            setupMocks({role: 'VIEWER'})
+            renderPage()
+
+            await waitFor(() => {
+                expect(screen.getByDisplayValue('+27219876543')).toBeInTheDocument()
+            })
+
+            const inputs = screen.getAllByRole('textbox')
+            expect(inputs.length).toBeGreaterThan(0)
+            inputs.forEach((input) => {
+                expect(input).toBeDisabled()
+            })
+        })
+
+        it('shows no add/remove controls for VIEWER', async () => {
             setupMocks({role: 'VIEWER'})
             renderPage()
 
@@ -218,11 +465,10 @@ describe('ContactEditorPage', () => {
                 expect(screen.getByDisplayValue('info@store.co.za')).toBeInTheDocument()
             })
 
-            // All inputs should be disabled
-            const inputs = screen.getAllByRole('textbox')
-            inputs.forEach((input) => {
-                expect(input).toBeDisabled()
-            })
+            expect(screen.queryByRole('button', {name: 'Add email'})).not.toBeInTheDocument()
+            expect(screen.queryByRole('button', {name: 'Add phone'})).not.toBeInTheDocument()
+            expect(screen.queryByRole('button', {name: /remove email addresses/i})).not.toBeInTheDocument()
+            expect(screen.queryByRole('columnheader', {name: 'Actions'})).not.toBeInTheDocument()
         })
     })
 
@@ -232,7 +478,7 @@ describe('ContactEditorPage', () => {
             renderPage()
 
             await waitFor(() => {
-                expect(screen.getByDisplayValue('info@store.co.za')).toBeInTheDocument()
+                expect(screen.getByDisplayValue('+27219876543')).toBeInTheDocument()
             })
 
             expect(screen.queryByRole('button', {name: /save/i})).not.toBeInTheDocument()
@@ -242,7 +488,7 @@ describe('ContactEditorPage', () => {
     // --- Enquiry Email field tests (Req 5.1, 5.2, 5.3) ---
 
     describe('enquiryEmail field renders with existing value', () => {
-        it('shows the enquiryEmail from settings in the Enquiry Form fieldset', async () => {
+        it('shows the enquiryEmail from settings in the Enquiry Form panel', async () => {
             setupMocks()
             renderPage()
 
@@ -250,9 +496,7 @@ describe('ContactEditorPage', () => {
                 expect(screen.getByDisplayValue('enquiries@store.co.za')).toBeInTheDocument()
             })
 
-            // The fieldset legend should be visible
             expect(screen.getByText('Enquiry Form')).toBeInTheDocument()
-            // The label should be visible
             expect(screen.getByText('Enquiry recipient email')).toBeInTheDocument()
         })
     })
@@ -412,9 +656,10 @@ describe('ContactEditorPage', () => {
                 expect(screen.getByDisplayValue('info@store.co.za')).toBeInTheDocument()
             })
 
-            // Touch only an unrelated field — whatsapp was never interacted
-            // with, so a correct implementation carries the loaded value
-            // through untouched.
+            // Touch only an unrelated field, on a different tab — whatsapp was
+            // never interacted with, so a correct implementation carries the
+            // loaded value through untouched.
+            await user.click(getTabButton('Hours & Response'))
             const businessHoursInput = screen.getByPlaceholderText('e.g. Mon-Fri 08:00-17:00, Sat 09:00-13:00')
             await user.type(businessHoursInput, 'Mon-Fri 09:00-17:00')
 
@@ -449,6 +694,7 @@ describe('ContactEditorPage', () => {
                 expect(screen.getByText('Contact Settings')).toBeInTheDocument()
             })
 
+            // WhatsApp lives on the General tab, which is active by default.
             const whatsappInput = screen.getByLabelText('WhatsApp')
             await user.type(whatsappInput, '+27760000000')
 
