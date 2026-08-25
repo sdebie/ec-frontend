@@ -376,7 +376,7 @@ export function CategoryForm({
                 </Card.Body>
 
                 {/* Actions */}
-                <Card.Footer className="flex items-center justify-end gap-3 mt-2 pt-4">
+                <Card.Footer className="flex items-center justify-end gap-3 mt-2 p-4">
                     <Button
                         type="button"
                         variant="outline"

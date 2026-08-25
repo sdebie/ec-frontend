@@ -57,7 +57,7 @@ export function LegalPagesListPage() {
                             )}
                         </Card.Body>
 
-                        <Card.Footer className="flex items-center justify-end px-5 pb-5">
+                        <Card.Footer className="flex items-center justify-end px-5 p-5">
                             <Link
                                 to={`/admin/storefront/legal/${page.id}`}
                                 className={cn(buttonVariants({variant: 'outline', size: 'sm'}), 'gap-1.5')}
