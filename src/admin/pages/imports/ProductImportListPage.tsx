@@ -1,6 +1,7 @@
 import { useState, useMemo } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { Eye, RefreshCw } from 'lucide-react'
+import axios from 'axios'
+import { Eye, RefreshCw, Plug } from 'lucide-react'
 import { useBreadcrumb } from '@/admin/context/BreadcrumbContext'
 
 import {
@@ -24,6 +25,21 @@ import { useRefreshBatchStatus } from '@/admin/hooks/imports/useRefreshBatchStat
 import { useUploadCsv } from '@/admin/hooks/imports/useUploadCsv'
 import { getBatchStatusColor } from '@/admin/hooks/imports/utils'
 import type { ProductUploadBatchDto } from '@/admin/hooks/imports/types'
+import { useTestSageConnection } from '@/admin/hooks/sage/useTestSageConnection'
+
+function extractSageErrorMessage(err: unknown): string {
+  // The backend proxy returns its own { errors: [{ message }] } shape for 400/503
+  // responses, but forwards Sage's upstream error body as-is for everything else
+  // (e.g. Sage's own `{ "Message": "..." }`) — check both before falling back.
+  if (axios.isAxiosError(err)) {
+    const data = err.response?.data as
+      | { errors?: { message?: string }[]; Message?: string; message?: string }
+      | undefined
+    const message = data?.errors?.[0]?.message ?? data?.Message ?? data?.message
+    if (message) return message
+  }
+  return err instanceof Error ? err.message : 'Failed to reach Sage API'
+}
 
 function RefreshButton({ batchId, onSuccess }: { batchId: string; onSuccess: () => void }) {
   const { mutateAsync, isPending } = useRefreshBatchStatus()
@@ -63,6 +79,16 @@ export default function ProductImportListPage() {
   const [uploadOpen, setUploadOpen] = useState(false)
   const [file, setFile] = useState<File | null>(null)
   const { mutateAsync: uploadCsv, isPending: isUploading } = useUploadCsv()
+  const { mutateAsync: testSageConnection, isPending: isTestingSage } = useTestSageConnection()
+
+  const handleTestSageConnection = async () => {
+    try {
+      await testSageConnection()
+      toast.success('Sage connection OK')
+    } catch (err) {
+      toast.error(extractSageErrorMessage(err), { duration: 0 })
+    }
+  }
 
   const handleUpload = async () => {
     if (!file) return
@@ -172,9 +198,19 @@ export default function ProductImportListPage() {
   )
 
   const headerAction = canMutate ? (
-    <Button variant="solid" onClick={() => setUploadOpen(true)}>
-      + Upload CSV
-    </Button>
+    <div className="flex items-center gap-2">
+      <Button
+        variant="outline"
+        onClick={handleTestSageConnection}
+        isLoading={isTestingSage}
+        leftIcon={<Plug className="h-4 w-4" />}
+      >
+        Test Sage Connection
+      </Button>
+      <Button variant="solid" onClick={() => setUploadOpen(true)}>
+        + Upload CSV
+      </Button>
+    </div>
   ) : undefined
 
   return (
