@@ -2,11 +2,10 @@ import {useMemo} from 'react'
 import {useNavigate} from 'react-router-dom'
 import type {OnChangeFn, PaginationState, SortingState} from '@tanstack/react-table'
 import {Eye} from 'lucide-react'
-
 import type {ColumnDef} from '@/shared/ui/components'
 import {DataTable, RowActionButton, StatusBadge} from '@/shared/ui/components'
 import {QuoteRequestStatusOptions} from '@/shared/types/enums'
-import {formatDate} from '@/shared/utils/formatDateTime'
+import {formatDateTime} from '@/shared/utils/formatDateTime'
 import type {QuoteRequestListItem} from '../hooks/useQuoteRequests'
 
 interface QuoteRequestQueueTableProps {
@@ -37,7 +36,7 @@ export function QuoteRequestQueueTable({
             {
                 accessorKey: 'createdAt',
                 header: 'Submitted Date',
-                cell: ({row}) => formatDate(row.original.createdAt),
+                cell: ({row}) => formatDateTime(row.original.createdAt),
             },
             {
                 accessorKey: 'name',

@@ -28,22 +28,22 @@ const mockUseAdminProductList = vi.fn((..._args: unknown[]) => ({
   refetch: vi.fn(),
 }))
 
-vi.mock('@/admin/hooks/products/useAdminProductList', () => ({
+vi.mock('../hooks/useAdminProductList', () => ({
   useAdminProductList: (...args: unknown[]) => mockUseAdminProductList(...args),
 }))
 
-vi.mock('@/admin/hooks/products/useDeleteProductGql', () => ({
+vi.mock('../hooks/useDeleteProductGql', () => ({
   useDeleteProductGql: vi.fn(() => ({ mutate: vi.fn(), isPending: false })),
 }))
 
-vi.mock('@/admin/hooks/products/useUpdateProductStatusGql', () => ({
+vi.mock('../hooks/useUpdateProductStatusGql', () => ({
   useUpdateProductStatusGql: vi.fn(() => ({ mutate: vi.fn(), isPending: false })),
 }))
-vi.mock('@/admin/hooks/products/useZeroProductStock', () => ({
+vi.mock('../hooks/useZeroProductStock', () => ({
   useZeroProductStock: vi.fn(() => ({ mutate: vi.fn(), isPending: false })),
 }))
 
-vi.mock('@/admin/hooks/products/useProductStats', () => ({
+vi.mock('../hooks/useProductStats', () => ({
   useProductStats: vi.fn(() => ({
     data: { total: 10, active: 5, pending: 3, disabled: 2 },
     isLoading: false,
@@ -51,11 +51,11 @@ vi.mock('@/admin/hooks/products/useProductStats', () => ({
   })),
 }))
 
-vi.mock('@/admin/hooks/products/useCategories', () => ({
+vi.mock('../hooks/useCategories', () => ({
   useCategories: vi.fn(() => ({ data: [], isLoading: false })),
 }))
 
-vi.mock('@/admin/hooks/products/useBrands', () => ({
+vi.mock('../hooks/useBrands', () => ({
   useBrands: vi.fn(() => ({ data: [], isLoading: false })),
 }))
 

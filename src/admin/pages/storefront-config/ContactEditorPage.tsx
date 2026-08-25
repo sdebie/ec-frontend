@@ -46,6 +46,7 @@ const contactSchema = z.object({
     }),
   ),
   landline: z.string().optional(),
+  whatsapp: z.string().optional(),
   physicalAddress: z.string().optional(),
   businessHours: z.string().optional(),
   responseSla: z.string().optional(),
@@ -70,7 +71,7 @@ type ContactFormValues = z.infer<typeof contactSchema>
 // --- Helpers ---
 
 function parseContactSetting(value: string | undefined): ContactFormValues {
-  if (!value) return { enquiryEmail: '', emails: [], phones: [], landline: '', physicalAddress: '', businessHours: '', responseSla: '', mapUrl: '', mapEmbedUrl: '' }
+  if (!value) return { enquiryEmail: '', emails: [], phones: [], landline: '', whatsapp: '', physicalAddress: '', businessHours: '', responseSla: '', mapUrl: '', mapEmbedUrl: '' }
   try {
     const parsed: ContactConfig = JSON.parse(value)
     return {
@@ -78,6 +79,7 @@ function parseContactSetting(value: string | undefined): ContactFormValues {
       emails: (parsed.emails ?? []).map((e) => ({ value: e })),
       phones: (parsed.phones ?? []).map((p) => ({ value: p })),
       landline: parsed.landline ?? '',
+      whatsapp: parsed.whatsapp ?? '',
       physicalAddress: parsed.physicalAddress ?? '',
       businessHours: parsed.businessHours ?? '',
       responseSla: parsed.responseSla ?? '',
@@ -85,7 +87,7 @@ function parseContactSetting(value: string | undefined): ContactFormValues {
       mapEmbedUrl: parsed.mapEmbedUrl ?? '',
     }
   } catch {
-    return { enquiryEmail: '', emails: [], phones: [], landline: '', physicalAddress: '', businessHours: '', responseSla: '', mapUrl: '', mapEmbedUrl: '' }
+    return { enquiryEmail: '', emails: [], phones: [], landline: '', whatsapp: '', physicalAddress: '', businessHours: '', responseSla: '', mapUrl: '', mapEmbedUrl: '' }
   }
 }
 
@@ -97,6 +99,7 @@ function formToContactConfig(form: ContactFormValues): ContactConfig {
   const phones = form.phones.map((p) => p.value.trim()).filter(Boolean)
   if (phones.length) config.phones = phones
   if (form.landline?.trim()) config.landline = form.landline.trim()
+  if (form.whatsapp?.trim()) config.whatsapp = form.whatsapp.trim()
   if (form.physicalAddress?.trim()) config.physicalAddress = form.physicalAddress.trim()
   if (form.businessHours?.trim()) config.businessHours = form.businessHours.trim()
   if (form.responseSla?.trim()) config.responseSla = form.responseSla.trim()
@@ -292,6 +295,16 @@ export function ContactEditorPage() {
             placeholder="e.g. +27219876543"
             disabled={!canEdit}
             {...register('landline')}
+          />
+        </div>
+
+        {/* WhatsApp */}
+        <div className="space-y-1">
+          <InputField
+            label="WhatsApp"
+            placeholder="e.g. +27760000000"
+            disabled={!canEdit}
+            {...register('whatsapp')}
           />
         </div>
 

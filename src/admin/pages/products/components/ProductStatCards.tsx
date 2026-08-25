@@ -1,8 +1,8 @@
 import {Ban, CheckCircle, Clock, Package} from 'lucide-react'
 import * as React from 'react'
 
-import {useProductStats} from '@/admin/hooks/products/useProductStats'
-import type {ProductStats} from '@/admin/hooks/products/types'
+import {useProductStats} from '../hooks/useProductStats'
+import type {ProductStats} from '../types'
 import {Skeleton} from '@/shared/ui/primitives'
 
 export function getStatCardSubtitle(cardCount: number, total: number, isTotal: boolean): string {

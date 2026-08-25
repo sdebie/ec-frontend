@@ -4,7 +4,7 @@ import { gql } from 'graphql-request'
 import { adminGraphqlClient } from '@/shared/api/graphql/adminGraphqlClient'
 import type { ProductStatus } from '@/shared/types/enums'
 import { parseAttributesJson } from './mappers'
-import type { AdminProductVariant } from './types'
+import type { AdminProductVariant } from '../types'
 
 export interface AdminProductImage {
   url: string

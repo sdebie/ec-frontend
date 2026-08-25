@@ -2,7 +2,7 @@ import { useQuery } from '@tanstack/react-query'
 import { gql } from 'graphql-request'
 
 import { adminGraphqlClient } from '@/shared/api/graphql/adminGraphqlClient'
-import type { AdminProductListItem } from './types'
+import type { AdminProductListItem } from '../types'
 
 export interface UseAdminProductListParams {
   pageIndex: number

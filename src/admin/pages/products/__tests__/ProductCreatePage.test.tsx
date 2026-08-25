@@ -21,7 +21,7 @@ vi.mock('@/shared/api/graphql/adminGraphqlClient', () => ({
   },
 }))
 
-vi.mock('@/admin/hooks/products/useCategories', () => ({
+vi.mock('../hooks/useCategories', () => ({
   useCategories: vi.fn(() => ({
     data: [{ id: 'cat-1', name: 'Electronics' }],
     isLoading: false,

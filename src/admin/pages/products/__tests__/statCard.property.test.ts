@@ -1,6 +1,6 @@
 import { describe, it, expect } from 'vitest'
 import * as fc from 'fast-check'
-import { getStatCardSubtitle } from '../ProductListPage'
+import { getStatCardSubtitle } from '../components/ProductStatCards'
 
 // Feature: admin-product-list-redesign, Property 1: Stat card percentage calculation
 

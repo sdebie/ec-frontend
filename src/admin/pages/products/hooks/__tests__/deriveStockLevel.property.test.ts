@@ -2,7 +2,7 @@
 
 import { describe, it, expect } from 'vitest'
 import * as fc from 'fast-check'
-import { deriveStockLevel } from '../types'
+import { deriveStockLevel } from '../../types'
 
 /**
  * Property 5: StockLevel derivation from stockCount

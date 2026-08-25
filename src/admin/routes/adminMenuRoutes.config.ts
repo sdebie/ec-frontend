@@ -345,7 +345,7 @@ export const adminMenuRoutes: AdminRouteList = [
         key: 'admin.storefront.header',
         path: '/admin/storefront/header',
         component: lazy(() =>
-            import('@/admin/pages/storefront-config/AnnouncementEditorPage').then((m) => ({default: m.AnnouncementEditorPage}))
+            import('@/admin/pages/storefront-config/announcement/AnnouncementEditorPage').then((m) => ({default: m.AnnouncementEditorPage}))
         ),
         authority: ['SUPER_ADMIN'],
         meta: {

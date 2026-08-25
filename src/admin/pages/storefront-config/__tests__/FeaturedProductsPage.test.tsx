@@ -3,7 +3,7 @@ import {render, screen} from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import {MemoryRouter} from 'react-router-dom'
 import {useAdminAuthStore} from '@/shared/auth/adminAuthStore.ts'
-import {useFeaturedProducts} from '@/admin/hooks/products/useFeaturedProducts.ts'
+import {useFeaturedProducts} from '@/admin/pages/products/hooks/useFeaturedProducts'
 import {FeaturedProductsPage} from '../FeaturedProductsPage.tsx'
 
 const mockMutate = vi.fn()
@@ -32,7 +32,7 @@ const mockFeaturedProducts = [
     },
 ]
 
-vi.mock('@/admin/hooks/products/useFeaturedProducts', () => ({
+vi.mock('@/admin/pages/products/hooks/useFeaturedProducts', () => ({
     useFeaturedProducts: vi.fn(() => ({
         data: {featuredProductList: mockFeaturedProducts},
         isLoading: false,
@@ -42,14 +42,14 @@ vi.mock('@/admin/hooks/products/useFeaturedProducts', () => ({
     })),
 }))
 
-vi.mock('@/admin/hooks/products/useSetProductFeatured', () => ({
+vi.mock('@/admin/pages/products/hooks/useSetProductFeatured', () => ({
     useSetProductFeatured: vi.fn(() => ({
         mutate: mockMutate,
         isPending: false,
     })),
 }))
 
-vi.mock('@/admin/hooks/products/useAdminProductList', () => ({
+vi.mock('@/admin/pages/products/hooks/useAdminProductList', () => ({
     useAdminProductList: vi.fn(() => ({
         data: undefined,
         isLoading: false,

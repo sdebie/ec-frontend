@@ -4,7 +4,7 @@ import type {
   ProductPayload,
   ProductVariantDtoInput,
   VariantAttribute,
-} from './types'
+} from '../types'
 
 /**
  * Serializes a variant's attribute rows to the wire's `attributesJson` string.

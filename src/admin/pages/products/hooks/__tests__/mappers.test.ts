@@ -1,6 +1,6 @@
 import { describe, it, expect } from 'vitest'
 import { parseAttributesJson, serializeAttributes, toProductInformationInput } from '../mappers'
-import type { ProductPayload } from '../types'
+import type { ProductPayload } from '../../types'
 
 describe('serializeAttributes', () => {
   it('serialises ordered key/value rows to a JSON object string', () => {

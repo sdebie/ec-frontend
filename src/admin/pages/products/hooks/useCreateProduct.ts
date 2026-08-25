@@ -4,9 +4,9 @@ import { toast } from '@/shared/ui/components/toast'
 
 import { adminGraphqlClient } from '@/shared/api/graphql/adminGraphqlClient'
 import { toProductInformationInput } from './mappers'
-import type { ProductPayload } from './types'
+import type { ProductPayload } from '../types'
 
-export type { ProductPayload, AdminProductVariant, ProductImagePayload, VariantAttribute } from './types'
+export type { ProductPayload, AdminProductVariant, ProductImagePayload, VariantAttribute } from '../types'
 
 // --- Response types ---
 

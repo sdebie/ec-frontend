@@ -386,4 +386,82 @@ describe('ContactEditorPage', () => {
             expect(parsed.enquiryEmail).toBeUndefined()
         })
     })
+
+    // --- WhatsApp field tests (contacteditorpage-drops-whatsapp-on-save) ---
+
+    describe('whatsapp survives save', () => {
+        it('preserves whatsapp when only an unrelated field is touched and saved', async () => {
+            const user = userEvent.setup()
+            setupMocks({
+                settings: [
+                    {
+                        key: 'storefront.contact',
+                        value: JSON.stringify({
+                            emails: ['info@store.co.za'],
+                            phones: ['+27000000'],
+                            whatsapp: '+27827654321',
+                            landline: '+27219876543',
+                        }),
+                        description: null,
+                    },
+                ],
+            })
+            renderPage()
+
+            await waitFor(() => {
+                expect(screen.getByDisplayValue('info@store.co.za')).toBeInTheDocument()
+            })
+
+            // Touch only an unrelated field — whatsapp was never interacted
+            // with, so a correct implementation carries the loaded value
+            // through untouched.
+            const businessHoursInput = screen.getByPlaceholderText('e.g. Mon-Fri 08:00-17:00, Sat 09:00-13:00')
+            await user.type(businessHoursInput, 'Mon-Fri 09:00-17:00')
+
+            const saveButton = screen.getByRole('button', {name: /save/i})
+            await user.click(saveButton)
+
+            await waitFor(() => {
+                expect(mockMutate).toHaveBeenCalledTimes(1)
+            })
+
+            const callArgs = mockMutate.mock.calls[0]
+            const parsed = JSON.parse(callArgs[0].value)
+            expect(parsed.whatsapp).toBe('+27827654321')
+        })
+    })
+
+    describe('whatsapp field accepts and saves a new value', () => {
+        it('renders a WhatsApp input and saves a newly typed value', async () => {
+            const user = userEvent.setup()
+            setupMocks({
+                settings: [
+                    {
+                        key: 'storefront.contact',
+                        value: JSON.stringify({emails: [], phones: []}),
+                        description: null,
+                    },
+                ],
+            })
+            renderPage()
+
+            await waitFor(() => {
+                expect(screen.getByText('Contact Settings')).toBeInTheDocument()
+            })
+
+            const whatsappInput = screen.getByLabelText('WhatsApp')
+            await user.type(whatsappInput, '+27760000000')
+
+            const saveButton = screen.getByRole('button', {name: /save/i})
+            await user.click(saveButton)
+
+            await waitFor(() => {
+                expect(mockMutate).toHaveBeenCalledTimes(1)
+            })
+
+            const callArgs = mockMutate.mock.calls[0]
+            const parsed = JSON.parse(callArgs[0].value)
+            expect(parsed.whatsapp).toBe('+27760000000')
+        })
+    })
 })

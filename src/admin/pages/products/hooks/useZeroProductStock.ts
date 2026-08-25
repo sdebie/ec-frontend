@@ -8,7 +8,7 @@ import {
 } from './useProductDetail'
 import {UPDATE_PRODUCT_INFORMATION} from './useUpdateProduct'
 import {toProductInformationInput} from './mappers'
-import type {ProductPayload} from './types'
+import type {ProductPayload} from '../types'
 
 /**
  * Marks a product out of stock by zeroing every variant's stock through the

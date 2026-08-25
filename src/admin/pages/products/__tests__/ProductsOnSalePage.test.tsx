@@ -2,19 +2,19 @@ import { describe, it, expect, vi, beforeEach } from 'vitest'
 import { render, screen } from '@testing-library/react'
 import { MemoryRouter } from 'react-router-dom'
 
-import { useOnSaleProducts } from '@/admin/hooks/products/useOnSaleProducts'
-import type { OnSaleProductItem } from '@/admin/hooks/products/useOnSaleProducts'
-import { useCategories } from '@/admin/hooks/products/useCategories'
-import { useBrands } from '@/admin/hooks/products/useBrands'
+import { useOnSaleProducts } from '../hooks/useOnSaleProducts'
+import type { OnSaleProductItem } from '../hooks/useOnSaleProducts'
+import { useCategories } from '../hooks/useCategories'
+import { useBrands } from '../hooks/useBrands'
 import { ProductsOnSalePage } from '../ProductsOnSalePage'
 
-vi.mock('@/admin/hooks/products/useOnSaleProducts', () => ({
+vi.mock('../hooks/useOnSaleProducts', () => ({
   useOnSaleProducts: vi.fn(),
 }))
-vi.mock('@/admin/hooks/products/useCategories', () => ({
+vi.mock('../hooks/useCategories', () => ({
   useCategories: vi.fn(),
 }))
-vi.mock('@/admin/hooks/products/useBrands', () => ({
+vi.mock('../hooks/useBrands', () => ({
   useBrands: vi.fn(),
 }))
 

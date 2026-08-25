@@ -3,12 +3,12 @@ import { render, screen } from '@testing-library/react'
 import { MemoryRouter } from 'react-router-dom'
 
 import { ProductListPage } from '../ProductListPage'
-import { useAdminProductList } from '@/admin/hooks/products/useAdminProductList'
-import { useDeleteProductGql } from '@/admin/hooks/products/useDeleteProductGql'
-import { useUpdateProductStatusGql } from '@/admin/hooks/products/useUpdateProductStatusGql'
-import { useProductStats } from '@/admin/hooks/products/useProductStats'
-import { useCategories } from '@/admin/hooks/products/useCategories'
-import { useBrands } from '@/admin/hooks/products/useBrands'
+import { useAdminProductList } from '../hooks/useAdminProductList'
+import { useDeleteProductGql } from '../hooks/useDeleteProductGql'
+import { useUpdateProductStatusGql } from '../hooks/useUpdateProductStatusGql'
+import { useProductStats } from '../hooks/useProductStats'
+import { useCategories } from '../hooks/useCategories'
+import { useBrands } from '../hooks/useBrands'
 import { useAdminAuthStore } from '@/shared/auth/adminAuthStore'
 
 /**
@@ -18,25 +18,25 @@ import { useAdminAuthStore } from '@/shared/auth/adminAuthStore'
  * checkbox (select), Product (thumbnail + name/category merged), SKU, Price, Stock, Status, Actions
  */
 
-vi.mock('@/admin/hooks/products/useAdminProductList', () => ({
+vi.mock('../hooks/useAdminProductList', () => ({
   useAdminProductList: vi.fn(),
 }))
-vi.mock('@/admin/hooks/products/useDeleteProductGql', () => ({
+vi.mock('../hooks/useDeleteProductGql', () => ({
   useDeleteProductGql: vi.fn(),
 }))
-vi.mock('@/admin/hooks/products/useUpdateProductStatusGql', () => ({
+vi.mock('../hooks/useUpdateProductStatusGql', () => ({
   useUpdateProductStatusGql: vi.fn(),
 }))
-vi.mock('@/admin/hooks/products/useZeroProductStock', () => ({
+vi.mock('../hooks/useZeroProductStock', () => ({
   useZeroProductStock: vi.fn(() => ({ mutate: vi.fn(), isPending: false })),
 }))
-vi.mock('@/admin/hooks/products/useProductStats', () => ({
+vi.mock('../hooks/useProductStats', () => ({
   useProductStats: vi.fn(),
 }))
-vi.mock('@/admin/hooks/products/useCategories', () => ({
+vi.mock('../hooks/useCategories', () => ({
   useCategories: vi.fn(),
 }))
-vi.mock('@/admin/hooks/products/useBrands', () => ({
+vi.mock('../hooks/useBrands', () => ({
   useBrands: vi.fn(),
 }))
 

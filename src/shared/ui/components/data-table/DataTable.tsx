@@ -131,7 +131,7 @@ export function DataTable<TData>({
                                      pageCount,
                                      totalRowCount,
                                      pagination: controlledPagination,
-                                     onPaginationChange,
+                                     onPaginationChange: onPaginationChangeProp,
                                      manualSorting = false,
                                      sorting: controlledSorting,
                                      onSortingChange: onSortingChangeProp,
@@ -154,6 +154,40 @@ export function DataTable<TData>({
 
     const sorting = manualSorting && controlledSorting ? controlledSorting : internalSorting
     const handleSortingChange = manualSorting && onSortingChangeProp ? onSortingChangeProp : setInternalSorting
+
+    /*
+      TanStack Table's pagination feature calls onPaginationChange exactly once per table
+      instance — i.e. on every mount — with its own internal default, regardless of the
+      controlled `pagination` already in effect that same render. A caller that restores its
+      page number from the URL (BrandListPage, CategoryListPage) and applies this verbatim
+      would see it silently snap back to page 1 the instant the table (re)mounts, which is
+      exactly what navigate(-1) from an edit/create form does. Sorting has no equivalent
+      quirk — proven by mount/remount/StrictMode tests against a real table instance, not
+      assumed — so this guard exists for pagination only.
+
+      Detected structurally rather than by waiting out a timer: the phantom call is always
+      the first one for a given table instance, and always disagrees with the pagination we
+      already told react-table to render. A real, user-driven change either matches on the
+      first call (harmless to forward) or arrives on a later call (mount has already settled
+      by then) — either way it passes through untouched.
+    */
+    const hasHandledFirstPaginationChangeRef = React.useRef(false)
+    const handlePaginationChange: OnChangeFn<PaginationState> = React.useCallback(
+        (updater) => {
+            if (!onPaginationChangeProp) return
+            if (!hasHandledFirstPaginationChangeRef.current) {
+                hasHandledFirstPaginationChangeRef.current = true
+                if (controlledPagination) {
+                    const next = typeof updater === 'function' ? updater(controlledPagination) : updater
+                    const isMountEcho = next.pageIndex !== controlledPagination.pageIndex
+                        || next.pageSize !== controlledPagination.pageSize
+                    if (isMountEcho) return
+                }
+            }
+            onPaginationChangeProp(updater)
+        },
+        [onPaginationChangeProp, controlledPagination],
+    )
 
     const globalFilter = onGlobalFilterChangeProp && globalFilterProp !== undefined
         ? globalFilterProp
@@ -285,7 +319,7 @@ export function DataTable<TData>({
             ? {
                 manualPagination: true,
                 pageCount: pageCount ?? -1,
-                onPaginationChange: onPaginationChange,
+                onPaginationChange: handlePaginationChange,
             }
             : {
                 initialState: {pagination: {pageSize: initialPageSize}},

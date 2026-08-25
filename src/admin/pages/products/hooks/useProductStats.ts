@@ -2,7 +2,7 @@ import { useQuery } from '@tanstack/react-query'
 import { gql } from 'graphql-request'
 
 import { adminGraphqlClient } from '@/shared/api/graphql/adminGraphqlClient'
-import type { ProductStats } from './types'
+import type { ProductStats } from '../types'
 
 interface AdminProductStatsResponse {
   adminProductStats: ProductStats
