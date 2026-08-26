@@ -4,13 +4,13 @@ import { MemoryRouter, Routes, Route } from 'react-router-dom'
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 
 import { useAdminAuthStore } from '@/shared/auth/adminAuthStore'
-import { useProductUploadBatches } from '@/admin/hooks/imports/useProductUploadBatches'
+import { useProductImportBatches } from '@/admin/hooks/imports/useProductImportBatches'
 import { useRefreshBatchStatus } from '@/admin/hooks/imports/useRefreshBatchStatus'
 import { useUploadCsv } from '@/admin/hooks/imports/useUploadCsv'
 import { useProductImportRows } from '@/admin/hooks/imports/useProductImportRows'
 import { useBatchStatusPolling } from '@/admin/hooks/imports/useBatchStatusPolling'
 import { useApproveBatch } from '@/admin/hooks/imports/useApproveBatch'
-import type { ProductUploadBatchDto, ProductComparisonDto } from '@/admin/hooks/imports/types'
+import type { ProductImportBatchDto, ProductComparisonDto } from '@/admin/hooks/imports/types'
 
 import ProductImportListPage from '../ProductImportListPage'
 import ProductImportUploadPage from '../ProductImportUploadPage'
@@ -18,8 +18,8 @@ import ProductImportReviewPage from '../ProductImportReviewPage'
 
 // --- Mocks ---
 
-vi.mock('@/admin/hooks/imports/useProductUploadBatches', () => ({
-  useProductUploadBatches: vi.fn(),
+vi.mock('@/admin/hooks/imports/useProductImportBatches', () => ({
+  useProductImportBatches: vi.fn(),
 }))
 vi.mock('@/admin/hooks/imports/useRefreshBatchStatus', () => ({
   useRefreshBatchStatus: vi.fn(),
@@ -55,11 +55,12 @@ function mockRole(role: string) {
   })
 }
 
-function createMockBatch(overrides?: Partial<ProductUploadBatchDto>): ProductUploadBatchDto {
+function createMockBatch(overrides?: Partial<ProductImportBatchDto>): ProductImportBatchDto {
   return {
     id: 'batch-1',
     filename: 'products.csv',
     status: 'PENDING',
+    importSourceType: 'FILE',
     totalRows: 100,
     processedRows: 0,
     skippedRows: 0,
@@ -97,16 +98,16 @@ function createMockRow(overrides?: Partial<ProductComparisonDto>): ProductCompar
 }
 
 function setupListPageDefaults(overrides?: {
-  batches?: ProductUploadBatchDto[]
+  batches?: ProductImportBatchDto[]
   role?: string
 }) {
   const batches = overrides?.batches ?? [createMockBatch()]
 
-  vi.mocked(useProductUploadBatches).mockReturnValue({
+  vi.mocked(useProductImportBatches).mockReturnValue({
     data: batches,
     isLoading: false,
     refetch: vi.fn(),
-  } as unknown as ReturnType<typeof useProductUploadBatches>)
+  } as unknown as ReturnType<typeof useProductImportBatches>)
 
   vi.mocked(useRefreshBatchStatus).mockReturnValue({
     mutateAsync: vi.fn(),
@@ -151,7 +152,7 @@ function setupReviewPageDefaults(overrides?: {
       setTimeout(() => {
         onStatusChange({
           batchId: 'batch-1',
-          status: batchStatus as ProductUploadBatchDto['status'],
+          status: batchStatus as ProductImportBatchDto['status'],
           totalRows: 100,
           processedRows: batchStatus === 'PROCESSED' ? 100 : 0,
           skippedRows: batchStatus === 'PROCESSED' ? 5 : 0,

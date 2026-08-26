@@ -20,11 +20,11 @@ import type { ColumnDef } from '@/shared/ui/components'
 import { Button } from '@/shared/ui/primitives'
 import { useCan } from '@/shared/auth/adminPermissions'
 import { formatDate } from '@/shared/utils/formatDateTime'
-import { usePriceUploadBatches } from '@/admin/hooks/imports/usePriceUploadBatches'
+import { usePriceImportBatches } from '@/admin/hooks/imports/usePriceImportBatches'
 import { useRefreshBatchStatus } from '@/admin/hooks/imports/useRefreshBatchStatus'
 import { useUploadCsv } from '@/admin/hooks/imports/useUploadCsv'
 import { getBatchStatusColor } from '@/admin/hooks/imports/utils'
-import type { ProductUploadBatchDto } from '@/admin/hooks/imports/types'
+import type { ProductImportBatchDto } from '@/admin/hooks/imports/types'
 
 function RefreshButton({ batchId, onSuccess }: { batchId: string; onSuccess: () => void }) {
   const { mutateAsync, isPending } = useRefreshBatchStatus()
@@ -53,7 +53,7 @@ function RefreshButton({ batchId, onSuccess }: { batchId: string; onSuccess: () 
 export default function PriceImportListPage() {
   const navigate = useNavigate()
   const canMutate = useCan('import:manage')
-  const { data, isLoading, refetch } = usePriceUploadBatches()
+  const { data, isLoading, refetch } = usePriceImportBatches()
 
   useBreadcrumb([
     { label: 'Home', href: '/admin' },
@@ -90,7 +90,7 @@ export default function PriceImportListPage() {
     setFile(null)
   }
 
-  const columns: ColumnDef<ProductUploadBatchDto, unknown>[] = useMemo(
+  const columns: ColumnDef<ProductImportBatchDto, unknown>[] = useMemo(
     () => [
       {
         accessorKey: 'createdAt',
@@ -107,6 +107,14 @@ export default function PriceImportListPage() {
         header: 'Filename',
         cell: ({ row }) => (
           <span className="text-sm text-(--c-text)">{row.original.filename}</span>
+        ),
+        enableSorting: false,
+      },
+      {
+        accessorKey: 'importSourceType',
+        header: 'Source',
+        cell: ({ row }) => (
+          <span className="text-sm text-(--c-text)">{row.original.importSourceType}</span>
         ),
         enableSorting: false,
       },

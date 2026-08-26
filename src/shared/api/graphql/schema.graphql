@@ -420,7 +420,7 @@ type ProductShoppingListItemDto {
   wholesaleSalePrice: VariantPriceDto
 }
 
-type ProductUploadBatchDto {
+type ProductImportBatchDto {
   approvedByUsername: String
   "ISO-8601"
   completedAt: DateTime
@@ -428,6 +428,7 @@ type ProductUploadBatchDto {
   createdAt: DateTime
   filename: String
   id: String
+  importSourceType: String
   processedRows: Int
   skippedRows: Int
   status: String
@@ -518,10 +519,10 @@ type Query {
     categoryId: String,
     filterRequest: FilterRequestInput
   ): BigInteger!
-  "Returns the list of all product price upload batches"
-  productPriceUploadBatches: [ProductUploadBatchDto]
-  "Returns the list of all product upload batches"
-  productUploadBatches: [ProductUploadBatchDto]
+  "Returns the list of all product import batches"
+  productImportBatches: [ProductImportBatchDto]
+  "Returns the list of all product price import batches"
+  productPriceImportBatches: [ProductImportBatchDto]
   quoteRequest(id: String): QuoteRequestDetailsDto
   quoteRequestCount(filterRequest: FilterRequestInput): BigInteger!
   "Returns shopping product cards that currently have active RETAIL_SALE_PRICE or WHOLESALE_SALE_PRICE values only."

@@ -8,7 +8,7 @@ import type { ColumnDef } from '@/shared/ui/components'
 import { Button } from '@/shared/ui/primitives'
 import { useCan } from '@/shared/auth/adminPermissions'
 import { useProductImportRows } from '@/admin/hooks/imports/useProductImportRows'
-import { useProductUploadBatches } from '@/admin/hooks/imports/useProductUploadBatches'
+import { useProductImportBatches } from '@/admin/hooks/imports/useProductImportBatches'
 import { useBatchStatusPolling } from '@/admin/hooks/imports/useBatchStatusPolling'
 import { useApproveBatch } from '@/admin/hooks/imports/useApproveBatch'
 import {
@@ -49,7 +49,7 @@ export default function ProductImportReviewPage() {
     { label: 'Review Product Import' },
   ])
 
-  const { data: batches } = useProductUploadBatches()
+  const { data: batches } = useProductImportBatches()
   const batch = useMemo(
     () => batches?.find((b) => b.id === batchId) ?? null,
     [batches, batchId],

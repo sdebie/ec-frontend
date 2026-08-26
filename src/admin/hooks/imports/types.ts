@@ -2,13 +2,15 @@
 
 export type BatchStatus = 'IMPORTING' | 'PENDING' | 'PROCESSING' | 'PROCESSED' | 'FAILED'
 export type ValidationStatus = 'VALID' | 'INVALID'
+export type ImportSourceType = 'FILE' | 'SAGE'
 
 // --- Batch List DTOs ---
 
-export interface ProductUploadBatchDto {
+export interface ProductImportBatchDto {
   id: string
   filename: string
   status: BatchStatus
+  importSourceType: ImportSourceType
   totalRows: number
   processedRows: number
   skippedRows: number
