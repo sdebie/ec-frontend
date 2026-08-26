@@ -1,9 +1,10 @@
-import {Clock, Map as MapIcon, MapPin, PhoneCall} from 'lucide-react'
-import type {UseFormRegister} from 'react-hook-form'
+import {Clock, Mail, Map as MapIcon, MapPin, Phone, PhoneCall} from 'lucide-react'
+import type {FieldErrors, UseFormRegister, UseFormRegisterReturn} from 'react-hook-form'
 
 import {InputField, Tabs, Textarea} from '@/shared/ui/components'
 import {Card} from '@/shared/ui/primitives'
 import {ContactPanelHeader} from './ContactPanelHeader'
+import {ContactValueTable} from './ContactValueTable'
 import type {ContactFormValues} from '../hooks/useContactForm'
 
 const {TabList, TabNav, TabContent} = Tabs
@@ -13,20 +14,51 @@ interface ContactAdditionalInfoPanelProps {
     canEdit: boolean
     mapUrlError?: string
     mapEmbedUrlError?: string
+    emailFields: {id: string}[]
+    emailErrors: FieldErrors<ContactFormValues>['emails']
+    registerEmailValue: (index: number) => UseFormRegisterReturn
+    onAddEmail: () => void
+    onRemoveEmail: (index: number) => void
+    phoneFields: {id: string}[]
+    phoneErrors: FieldErrors<ContactFormValues>['phones']
+    registerPhoneValue: (index: number) => UseFormRegisterReturn
+    onAddPhone: () => void
+    onRemovePhone: (index: number) => void
 }
 
-/** Landline, address, hours and map details — grouped into tabs so only one topic shows at a time. */
-export function ContactAdditionalInfoPanel({register, canEdit, mapUrlError, mapEmbedUrlError}: ContactAdditionalInfoPanelProps) {
+/** Email addresses, phone numbers, landline, address, hours and map details — grouped into tabs so only one topic shows at a time. */
+export function ContactAdditionalInfoPanel({
+    register,
+    canEdit,
+    mapUrlError,
+    mapEmbedUrlError,
+    emailFields,
+    emailErrors,
+    registerEmailValue,
+    onAddEmail,
+    onRemoveEmail,
+    phoneFields,
+    phoneErrors,
+    registerPhoneValue,
+    onAddPhone,
+    onRemovePhone,
+}: ContactAdditionalInfoPanelProps) {
     return (
         <Card as="section" variant="bordered">
             <ContactPanelHeader
                 icon={<MapPin className="h-4 w-4"/>}
                 title="Additional Contact Information"
-                description="Landline, address, hours and map details for the public Contact Us page."
+                description="Email addresses, phone numbers, landline, address, hours and map details for the public Contact Us page."
             />
             <Card.Body className="px-5 py-4">
-                <Tabs defaultValue="general">
+                <Tabs defaultValue="emails">
                     <TabList>
+                        <TabNav value="emails" icon={<Mail className="h-4 w-4"/>}>
+                            Email Addresses
+                        </TabNav>
+                        <TabNav value="phones" icon={<Phone className="h-4 w-4"/>}>
+                            Phone Numbers
+                        </TabNav>
                         <TabNav value="general" icon={<PhoneCall className="h-4 w-4"/>}>
                             General
                         </TabNav>
@@ -43,8 +75,41 @@ export function ContactAdditionalInfoPanel({register, canEdit, mapUrlError, mapE
 
                     {/* max-h + overflow-y-auto so switching tabs never resizes the panel around it. */}
                     <div className="max-h-80 overflow-y-auto pt-6">
+                        <TabContent value="emails">
+                            <ContactValueTable
+                                title="Email Addresses"
+                                addLabel="Add email"
+                                columnLabel="Email Address"
+                                fields={emailFields}
+                                errors={emailErrors}
+                                registerValue={registerEmailValue}
+                                onAdd={onAddEmail}
+                                onRemove={onRemoveEmail}
+                                canEdit={canEdit}
+                                placeholder="e.g. info@store.co.za"
+                                inputType="email"
+                                emptyMessage="No email addresses configured."
+                            />
+                        </TabContent>
+
+                        <TabContent value="phones">
+                            <ContactValueTable
+                                title="Phone Numbers"
+                                addLabel="Add phone"
+                                columnLabel="Phone Number"
+                                fields={phoneFields}
+                                errors={phoneErrors}
+                                registerValue={registerPhoneValue}
+                                onAdd={onAddPhone}
+                                onRemove={onRemovePhone}
+                                canEdit={canEdit}
+                                placeholder="e.g. +27123456789"
+                                inputType="tel"
+                                emptyMessage="No phone numbers configured."
+                            />
+                        </TabContent>
+
                         <TabContent value="general">
-                            <h4 className="mb-4 text-sm font-semibold text-(--c-text)">General</h4>
                             <div className="max-w-2xl space-y-4">
                                 <InputField
                                     label="Landline"
@@ -62,7 +127,6 @@ export function ContactAdditionalInfoPanel({register, canEdit, mapUrlError, mapE
                         </TabContent>
 
                         <TabContent value="location">
-                            <h4 className="mb-4 text-sm font-semibold text-(--c-text)">Location</h4>
                             <div className="max-w-2xl">
                                 <Textarea
                                     label="Physical Address"
@@ -75,7 +139,6 @@ export function ContactAdditionalInfoPanel({register, canEdit, mapUrlError, mapE
                         </TabContent>
 
                         <TabContent value="hours">
-                            <h4 className="mb-4 text-sm font-semibold text-(--c-text)">Hours & Response</h4>
                             <div className="max-w-2xl space-y-4">
                                 <InputField
                                     label="Business Hours"
@@ -93,7 +156,6 @@ export function ContactAdditionalInfoPanel({register, canEdit, mapUrlError, mapE
                         </TabContent>
 
                         <TabContent value="maps">
-                            <h4 className="mb-4 text-sm font-semibold text-(--c-text)">Maps</h4>
                             <div className="max-w-2xl space-y-4">
                                 <InputField
                                     label="Map URL (external directions link)"

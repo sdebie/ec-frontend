@@ -1,10 +1,8 @@
-import {Mail, Phone} from 'lucide-react'
 import {PageLayout} from '@/shared/ui/components'
 import {Button} from '@/shared/ui/primitives'
 import {useBreadcrumb} from '@/admin/context/BreadcrumbContext'
 import {useContactForm} from './hooks/useContactForm'
 import {ContactEnquiryFormPanel} from './components/ContactEnquiryFormPanel'
-import {ContactValueListCard} from './components/ContactValueListCard'
 import {ContactAdditionalInfoPanel} from './components/ContactAdditionalInfoPanel'
 
 export function ContactEditorPage() {
@@ -61,46 +59,21 @@ export function ContactEditorPage() {
             <form id="contact-editor-form" onSubmit={onSubmit} className="space-y-6" noValidate>
                 <ContactEnquiryFormPanel register={register} error={errors.enquiryEmail?.message} canEdit={canEdit}/>
 
-                <div className="grid grid-cols-1 items-stretch gap-6 lg:grid-cols-2">
-                    <ContactValueListCard
-                        icon={<Mail className="h-4 w-4"/>}
-                        title="Email Addresses"
-                        description="Displayed on the public Contact Us page."
-                        addLabel="Add email"
-                        columnLabel="Email Address"
-                        fields={emailFields}
-                        errors={errors.emails}
-                        registerValue={(index) => register(`emails.${index}.value`)}
-                        onAdd={() => appendEmail({value: ''})}
-                        onRemove={removeEmail}
-                        canEdit={canEdit}
-                        placeholder="e.g. info@store.co.za"
-                        inputType="email"
-                        emptyMessage="No email addresses configured."
-                    />
-                    <ContactValueListCard
-                        icon={<Phone className="h-4 w-4"/>}
-                        title="Phone Numbers"
-                        description="Displayed on the public Contact Us page."
-                        addLabel="Add phone"
-                        columnLabel="Phone Number"
-                        fields={phoneFields}
-                        errors={errors.phones}
-                        registerValue={(index) => register(`phones.${index}.value`)}
-                        onAdd={() => appendPhone({value: ''})}
-                        onRemove={removePhone}
-                        canEdit={canEdit}
-                        placeholder="e.g. +27123456789"
-                        inputType="tel"
-                        emptyMessage="No phone numbers configured."
-                    />
-                </div>
-
                 <ContactAdditionalInfoPanel
                     register={register}
                     canEdit={canEdit}
                     mapUrlError={errors.mapUrl?.message}
                     mapEmbedUrlError={errors.mapEmbedUrl?.message}
+                    emailFields={emailFields}
+                    emailErrors={errors.emails}
+                    registerEmailValue={(index) => register(`emails.${index}.value`)}
+                    onAddEmail={() => appendEmail({value: ''})}
+                    onRemoveEmail={removeEmail}
+                    phoneFields={phoneFields}
+                    phoneErrors={errors.phones}
+                    registerPhoneValue={(index) => register(`phones.${index}.value`)}
+                    onAddPhone={() => appendPhone({value: ''})}
+                    onRemovePhone={removePhone}
                 />
             </form>
         </PageLayout>

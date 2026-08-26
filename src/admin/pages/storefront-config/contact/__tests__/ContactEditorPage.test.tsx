@@ -92,6 +92,18 @@ function getTabButton(name: string) {
     return screen.getByRole('tab', {name})
 }
 
+/**
+ * aria-hidden elements compute an empty accessible name by spec, so neither
+ * {hidden: true, name} nor a heading-text lookup can find an inactive panel
+ * (there's no per-panel heading anymore either — see "remove the double
+ * heading"). aria-controls on the tab button points at the panel's real id
+ * regardless of its hidden state, so resolve it that way instead.
+ */
+function getTabPanel(name: string) {
+    const panelId = getTabButton(name).getAttribute('aria-controls')
+    return document.getElementById(panelId!)
+}
+
 function settingsWithEmails(emails: string[]) {
     return [
         {
@@ -109,7 +121,7 @@ describe('ContactEditorPage', () => {
     })
 
     describe('editor loads existing values', () => {
-        it('shows loaded emails and phones as editable table rows', async () => {
+        it('shows loaded emails immediately, since Email Addresses is the default tab', async () => {
             setupMocks()
             renderPage()
 
@@ -117,16 +129,35 @@ describe('ContactEditorPage', () => {
                 expect(screen.getByDisplayValue('info@store.co.za')).toBeInTheDocument()
             })
             expect(screen.getByDisplayValue('support@store.co.za')).toBeInTheDocument()
-            expect(screen.getByDisplayValue('+27123456789')).toBeInTheDocument()
+            expect(getTabButton('Email Addresses')).toHaveAttribute('aria-selected', 'true')
         })
 
-        it('shows General-tab fields immediately, since General is the default tab', async () => {
+        it('shows Phone Numbers-tab fields once that tab is selected', async () => {
+            const user = userEvent.setup()
             setupMocks()
             renderPage()
 
             await waitFor(() => {
-                expect(screen.getByDisplayValue('+27219876543')).toBeInTheDocument()
+                expect(screen.getByDisplayValue('info@store.co.za')).toBeInTheDocument()
             })
+
+            await user.click(getTabButton('Phone Numbers'))
+
+            expect(screen.getByDisplayValue('+27123456789')).toBeInTheDocument()
+        })
+
+        it('shows General-tab fields once the General tab is selected', async () => {
+            const user = userEvent.setup()
+            setupMocks()
+            renderPage()
+
+            await waitFor(() => {
+                expect(screen.getByDisplayValue('info@store.co.za')).toBeInTheDocument()
+            })
+
+            await user.click(getTabButton('General'))
+
+            expect(screen.getByDisplayValue('+27219876543')).toBeInTheDocument()
             expect(screen.getByDisplayValue('+27827654321')).toBeInTheDocument()
         })
 
@@ -190,20 +221,20 @@ describe('ContactEditorPage', () => {
                 expect(screen.getByDisplayValue('info@store.co.za')).toBeInTheDocument()
             })
 
-            const generalPanel = screen.getByText('General', {selector: 'h4'}).closest('[role="tabpanel"]')
-            const locationPanel = screen.getByText('Location', {selector: 'h4'}).closest('[role="tabpanel"]')
+            const emailsPanel = getTabPanel('Email Addresses')
+            const generalPanel = getTabPanel('General')
 
-            expect(generalPanel).toBeVisible()
-            expect(locationPanel).not.toBeVisible()
-            expect(getTabButton('General')).toHaveAttribute('aria-selected', 'true')
-            expect(getTabButton('Location')).toHaveAttribute('aria-selected', 'false')
-
-            await user.click(getTabButton('Location'))
-
+            expect(emailsPanel).toBeVisible()
             expect(generalPanel).not.toBeVisible()
-            expect(locationPanel).toBeVisible()
+            expect(getTabButton('Email Addresses')).toHaveAttribute('aria-selected', 'true')
             expect(getTabButton('General')).toHaveAttribute('aria-selected', 'false')
-            expect(getTabButton('Location')).toHaveAttribute('aria-selected', 'true')
+
+            await user.click(getTabButton('General'))
+
+            expect(emailsPanel).not.toBeVisible()
+            expect(generalPanel).toBeVisible()
+            expect(getTabButton('Email Addresses')).toHaveAttribute('aria-selected', 'false')
+            expect(getTabButton('General')).toHaveAttribute('aria-selected', 'true')
         })
     })
 
@@ -267,7 +298,7 @@ describe('ContactEditorPage', () => {
             expect(screen.getByDisplayValue('info@store.co.za')).toBeInTheDocument()
         })
 
-        it('shows table column headers for Email Address and Actions', async () => {
+        it('shows table column headers for Email Address and Actions on the default tab', async () => {
             setupMocks()
             renderPage()
 
@@ -276,9 +307,23 @@ describe('ContactEditorPage', () => {
             })
 
             expect(screen.getByRole('columnheader', {name: 'Email Address'})).toBeInTheDocument()
+            expect(screen.getByRole('columnheader', {name: 'Actions'})).toBeInTheDocument()
+        })
+
+        it('shows Phone Number and Actions column headers once the Phone Numbers tab is selected', async () => {
+            const user = userEvent.setup()
+            setupMocks()
+            renderPage()
+
+            await waitFor(() => {
+                expect(screen.getByDisplayValue('info@store.co.za')).toBeInTheDocument()
+            })
+
+            await user.click(getTabButton('Phone Numbers'))
+
             expect(screen.getByRole('columnheader', {name: 'Phone Number'})).toBeInTheDocument()
-            // Both tables have their own Actions column.
-            expect(screen.getAllByRole('columnheader', {name: 'Actions'})).toHaveLength(2)
+            expect(screen.getByRole('columnheader', {name: 'Actions'})).toBeInTheDocument()
+            expect(screen.getByDisplayValue('+27123456789')).toBeInTheDocument()
         })
     })
 
@@ -447,7 +492,7 @@ describe('ContactEditorPage', () => {
             renderPage()
 
             await waitFor(() => {
-                expect(screen.getByDisplayValue('+27219876543')).toBeInTheDocument()
+                expect(screen.getByDisplayValue('info@store.co.za')).toBeInTheDocument()
             })
 
             const inputs = screen.getAllByRole('textbox')
@@ -478,7 +523,7 @@ describe('ContactEditorPage', () => {
             renderPage()
 
             await waitFor(() => {
-                expect(screen.getByDisplayValue('+27219876543')).toBeInTheDocument()
+                expect(screen.getByDisplayValue('info@store.co.za')).toBeInTheDocument()
             })
 
             expect(screen.queryByRole('button', {name: /save/i})).not.toBeInTheDocument()
@@ -694,7 +739,8 @@ describe('ContactEditorPage', () => {
                 expect(screen.getByText('Contact Settings')).toBeInTheDocument()
             })
 
-            // WhatsApp lives on the General tab, which is active by default.
+            // WhatsApp lives on the General tab, which is no longer the default (Email Addresses is).
+            await user.click(getTabButton('General'))
             const whatsappInput = screen.getByLabelText('WhatsApp')
             await user.type(whatsappInput, '+27760000000')
 
