@@ -225,13 +225,13 @@
     --admin-bg: #0b1120;
 
     /* Surfaces — each step is a deliberate elevation, not an arbitrary grey. */
-    --admin-panel: #111827;
-    --admin-panel-secondary: #172033;
-    --admin-panel-hover: #1e293b;
+    --admin-panel: #141e2f;
+    --admin-panel-secondary: #19263a;
+    --admin-panel-hover: #213047;
 
     /* Borders */
-    --admin-border: #1f2937;
-    --admin-border-strong: #374151;
+    --admin-border: #2a394f;
+    --admin-border-strong: #3b4d66;
 
     /* Typography */
     --admin-text: #f1f5f9;
@@ -239,26 +239,17 @@
     --admin-text-muted: #94a3b8;
     --admin-text-disabled: #64748b;
 
-    /* Forms — the field sits *above* the panel here, a lighter fill rather than
-       a recessed well. A fill within a few steps of the panel's own darkness
-       reads as part of the panel rather than as a distinct control; a clearly
-       lighter fill reads as an input at a glance, the way the border alone
-       can't when there's this little luminance contrast to work with. The fill
-       keeps the same ~220° hue as the page/panel/chrome, just less dark — a
-       desaturated grey fill here would read as a different palette entirely
-       next to how saturated the surrounding navy actually is. */
-    --admin-input-bg: #172033;
-    --admin-input-border: #253b6a;
-    --admin-input-hover-border: #475569;
+    /* Forms */
+    --admin-input-bg: #1b2940;
+    --admin-input-border: #3a4a61;
+    --admin-input-hover-border: #52637a;
     --admin-input-focus: var(--primary);
 
-    /* Chrome sits just under the panel, mirroring light mode where it sits just
-       off white — so sidebar and header read as the frame and the panel as the
-       content, rather than the sidebar being indistinguishable from a table. */
-    --admin-header-bg: #0f1828;
-    --admin-sidebar-bg: #0f1828;
-    --admin-sidebar-hover: #1e293b;
-    --admin-sidebar-border: #1f2937;
+    /* Chrome */
+    --admin-header-bg: #0d1524;
+    --admin-sidebar-bg: #0d1524;
+    --admin-sidebar-hover: #19263a;
+    --admin-sidebar-border: #263244;
 
     /* Tables */
     --admin-table-header-bg: #172033;
