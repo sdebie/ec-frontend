@@ -232,10 +232,12 @@ export const MultiSelect = React.forwardRef<HTMLDivElement, MultiSelectProps>(
                             }
                         }}
                         className={cn(
-                            'flex min-h-(--c-control-h-md) w-full items-center justify-between rounded-(--c-radius) border border-(--c-border) bg-(--c-input-bg) px-4 py-2 text-sm text-(--c-text) transition-colors',
-                            'focus-visible:outline-none focus-visible:border-(--c-accent)',
+                            'flex min-h-(--c-control-h-md) w-full items-center justify-between rounded-(--c-radius) border border-(--c-input-border) bg-(--c-input-bg) px-4 py-2 text-sm text-(--c-text) transition-colors',
+                            'focus-visible:outline-none',
                             'disabled:cursor-not-allowed disabled:opacity-50',
-                            hasError && 'border-(--c-error)',
+                            hasError
+                                ? 'border-(--c-error)'
+                                : 'hover:border-(--c-input-hover-border) focus-visible:border-(--c-accent)',
                             triggerClassName
                         )}
                         aria-haspopup="listbox"

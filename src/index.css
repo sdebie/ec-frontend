@@ -239,10 +239,12 @@
     --admin-text-muted: #94a3b8;
     --admin-text-disabled: #64748b;
 
-    /* Forms — the field sits *below* the panel here. Inverting the light-mode
-       relationship is deliberate: a recessed well reads as an input on dark,
-       where a raised field would compete with the panel it sits on. */
-    --admin-input-bg: #0f172a;
+    /* Forms — the field sits *above* the panel here, a lighter fill rather than
+       a recessed well. A fill within a few steps of the panel's own darkness
+       reads as part of the panel rather than as a distinct control; a clearly
+       lighter fill reads as an input at a glance, the way the border alone
+       can't when there's this little luminance contrast to work with. */
+    --admin-input-bg: #334155;
     --admin-input-border: #334155;
     --admin-input-hover-border: #475569;
     --admin-input-focus: var(--primary);

@@ -581,7 +581,7 @@ export const SearchableSelect = React.forwardRef<
           onKeyDown={handleTriggerKeyDown}
           ref={triggerRef}
           className={cn(
-            'flex w-full items-center justify-between rounded-(--c-radius) border border-(--c-border) bg-(--c-input-bg) text-(--c-text) transition-colors',
+            'flex w-full items-center justify-between rounded-(--c-radius) border border-(--c-input-border) bg-(--c-input-bg) text-(--c-text) transition-colors',
             CONTROL_SIZE_CLASSES[size],
             'focus-visible:outline-none focus-visible:border-(--c-accent)',
             isOpen &&

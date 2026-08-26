@@ -125,6 +125,11 @@
   --c-text: var(--sf-text);
   --c-text-muted: var(--sf-muted-text);
   --c-border: var(--sf-border);
+  /* No distinct input-border concept on the storefront yet — same value as
+     --c-border on both, so wiring the shared Input/Select/etc. primitives to
+     these tokens (done for the admin surface) changes nothing here. */
+  --c-input-border: var(--c-border);
+  --c-input-hover-border: var(--c-border);
   --c-surface-hover: color-mix(in srgb, var(--sf-panel, #ffffff) 92%, var(--sf-text, #000000));
   --c-surface-dark: var(--sf-surface-dark, #000000);
   --c-accent: var(--sf-accent);
