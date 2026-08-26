@@ -109,7 +109,7 @@ export function AdminSidebar({isOpen, onClose, isCollapsed, onToggleCollapsed, o
                 )}
             >
                 {/* Brand block — h-[60px] matches the fixed header's height (py-3 +
-            36px content, header has no border) so the two rows line up. */}
+            36px content) so the two rows line up. */}
                 <div
                     className={cn('flex h-15 shrink-0 items-center', isCollapsed ? 'md:justify-center md:px-2' : '', 'px-4',)}>
                     <div
