@@ -28,9 +28,9 @@ export function useUploadCsv() {
     },
     onSuccess: (_data, { endpoint }) => {
       if (endpoint.includes('price/upload-csv')) {
-        queryClient.invalidateQueries({ queryKey: ['admin-price-upload-batches'] })
+        queryClient.invalidateQueries({ queryKey: ['admin-price-import-batches'] })
       } else if (endpoint.includes('products/upload-csv')) {
-        queryClient.invalidateQueries({ queryKey: ['admin-product-upload-batches'] })
+        queryClient.invalidateQueries({ queryKey: ['admin-product-import-batches'] })
       }
     },
     onError: () => {

@@ -2,18 +2,19 @@ import { useQuery } from '@tanstack/react-query'
 import { gql } from 'graphql-request'
 
 import { adminGraphqlClient } from '@/shared/api/graphql/adminGraphqlClient'
-import type { ProductUploadBatchDto } from './types'
+import type { ProductImportBatchDto } from './types'
 
-interface PriceUploadBatchesResponse {
-  productPriceUploadBatches: ProductUploadBatchDto[]
+interface PriceImportBatchesResponse {
+  productPriceImportBatches: ProductImportBatchDto[]
 }
 
-const PRICE_UPLOAD_BATCHES = gql`
-  query PriceUploadBatches {
-    productPriceUploadBatches {
+const PRICE_IMPORT_BATCHES = gql`
+  query PriceImportBatches {
+    productPriceImportBatches {
       id
       filename
       status
+      importSourceType
       totalRows
       processedRows
       skippedRows
@@ -26,17 +27,17 @@ const PRICE_UPLOAD_BATCHES = gql`
   }
 `
 
-export function usePriceUploadBatches() {
+export function usePriceImportBatches() {
   const { data, isLoading, refetch } = useQuery({
-    queryKey: ['admin-price-upload-batches'],
+    queryKey: ['admin-price-import-batches'],
     queryFn: () =>
-      adminGraphqlClient.request<PriceUploadBatchesResponse>(
-        PRICE_UPLOAD_BATCHES,
+      adminGraphqlClient.request<PriceImportBatchesResponse>(
+        PRICE_IMPORT_BATCHES,
       ),
   })
 
   return {
-    data: data ? data.productPriceUploadBatches : undefined,
+    data: data ? data.productPriceImportBatches : undefined,
     isLoading,
     refetch,
   }

@@ -8,7 +8,7 @@ import {useBreadcrumb} from '@/admin/context/BreadcrumbContext'
 import {Button} from '@/shared/ui/primitives'
 import {useCan} from '@/shared/auth/adminPermissions'
 import {usePriceImportRows} from '@/admin/hooks/imports/usePriceImportRows'
-import {usePriceUploadBatches} from '@/admin/hooks/imports/usePriceUploadBatches'
+import {usePriceImportBatches} from '@/admin/hooks/imports/usePriceImportBatches'
 import {useBatchStatusPolling} from '@/admin/hooks/imports/useBatchStatusPolling'
 import {useApproveBatch} from '@/admin/hooks/imports/useApproveBatch'
 import {derivePriceChangeIndicator, getValidationStatusColor,} from '@/admin/hooks/imports/utils'
@@ -47,7 +47,7 @@ export default function PriceImportReviewPage() {
         {label: 'Price Import Review'},
     ])
 
-    const {data: batches} = usePriceUploadBatches()
+    const {data: batches} = usePriceImportBatches()
     const batch = useMemo(
         () => batches?.find((b) => b.id === batchId) ?? null,
         [batches, batchId],
