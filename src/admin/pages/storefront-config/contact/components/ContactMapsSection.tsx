@@ -1,7 +1,6 @@
 import {useWatch, type Control, type UseFormRegister} from 'react-hook-form'
 import {InputField} from '@/shared/ui/components'
 import {isApprovedMapEmbedUrl} from '@/shared/utils/contactMapUrls'
-import {ContactSectionHeading} from './ContactSectionHeading'
 import type {ContactFormValues} from '../hooks/useContactForm'
 
 interface ContactMapsSectionProps {
@@ -18,7 +17,6 @@ export function ContactMapsSection({register, control, mapUrlError, mapEmbedUrlE
 
     return (
         <div>
-            <ContactSectionHeading title="Maps"/>
             <div className="space-y-4">
                 <InputField
                     label="Map URL (external directions link)"

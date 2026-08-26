@@ -2,7 +2,6 @@ import {Plus} from 'lucide-react'
 import type {Control, FieldErrors, UseFormRegister} from 'react-hook-form'
 import {InputField} from '@/shared/ui/components'
 import {Button} from '@/shared/ui/primitives'
-import {ContactSectionHeading} from './ContactSectionHeading'
 import {ContactSocialLinkRow} from './ContactSocialLinkRow'
 import type {ContactFormValues} from '../hooks/useContactForm'
 
@@ -20,11 +19,6 @@ interface ContactSocialSectionProps {
 export function ContactSocialSection({register, control, fields, errors, onAdd, onRemove, canEdit}: ContactSocialSectionProps) {
     return (
         <div>
-            <ContactSectionHeading
-                title="Social"
-                description="Links to your store's social media profiles and WhatsApp number, shown across the storefront."
-            />
-
             <div className="mb-6">
                 <InputField
                     label="WhatsApp"

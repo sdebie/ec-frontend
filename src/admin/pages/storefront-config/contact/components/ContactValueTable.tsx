@@ -1,22 +1,18 @@
-import {useState, type ReactNode} from 'react'
+import {type ReactNode, useState} from 'react'
 import {ChevronLeft, ChevronRight, Plus, Trash2} from 'lucide-react'
 import type {FieldErrors, UseFormRegisterReturn} from 'react-hook-form'
 
 import {InputField, RowActionButton} from '@/shared/ui/components'
 import {Button} from '@/shared/ui/primitives'
-import {ContactSectionHeading} from './ContactSectionHeading'
 import type {ContactFormValues} from '../hooks/useContactForm'
 
 interface ContactValueTableProps {
-    /** Rendered above the table via ContactSectionHeading when provided — the section's own heading, distinct from its nav label. */
-    heading?: string
-    description?: string
-    /** Rendered between the heading and the Add button/table — e.g. Phone Numbers' Landline field, a single value that isn't itself part of the list. */
+    /** Rendered above the Add button/table — e.g. Phone Numbers' Landline field, a single value that isn't itself part of the list. The section's own heading/description come from SectionTabs, not this component. */
     children?: ReactNode
     title: string
     addLabel: string
     columnLabel: string
-    fields: {id: string}[]
+    fields: { id: string }[]
     errors: FieldErrors<ContactFormValues>['emails'] | FieldErrors<ContactFormValues>['phones']
     registerValue: (index: number) => UseFormRegisterReturn
     onAdd: () => void
@@ -41,22 +37,20 @@ const PAGE_SIZE = 3
  * chrome of its own.
  */
 export function ContactValueTable({
-    heading,
-    description,
-    children,
-    title,
-    addLabel,
-    columnLabel,
-    fields,
-    errors,
-    registerValue,
-    onAdd,
-    onRemove,
-    canEdit,
-    placeholder,
-    inputType,
-    emptyMessage,
-}: ContactValueTableProps) {
+                                      children,
+                                      title,
+                                      addLabel,
+                                      columnLabel,
+                                      fields,
+                                      errors,
+                                      registerValue,
+                                      onAdd,
+                                      onRemove,
+                                      canEdit,
+                                      placeholder,
+                                      inputType,
+                                      emptyMessage,
+                                  }: ContactValueTableProps) {
     const [page, setPage] = useState(0)
     const pageCount = Math.max(1, Math.ceil(fields.length / PAGE_SIZE))
     const current = Math.min(page, pageCount - 1)
@@ -72,13 +66,13 @@ export function ContactValueTable({
 
     return (
         <div>
-            {heading && <ContactSectionHeading title={heading} description={description}/>}
             {children && <div className="mb-6">{children}</div>}
 
             <div className="flex flex-col gap-3">
                 {canEdit && (
                     <div className="flex justify-end">
-                        <Button type="button" variant="outline" size="sm" leftIcon={<Plus className="h-4 w-4"/>} onClick={handleAdd}>
+                        <Button type="button" variant="outline" size="sm" leftIcon={<Plus className="h-4 w-4"/>}
+                                onClick={handleAdd}>
                             {addLabel}
                         </Button>
                     </div>
@@ -90,52 +84,53 @@ export function ContactValueTable({
                     <>
                         <div className="overflow-x-auto rounded-md border border-(--c-border)">
                             <table className="w-full text-sm text-left text-(--c-text)">
-                                <thead className="text-xs font-semibold text-(--c-text-muted) bg-(--c-surface-hover) border-b border-(--c-border)">
-                                    <tr>
-                                        <th className="px-4 py-3">{columnLabel}</th>
-                                        {canEdit && <th className="px-4 py-3 text-right">Actions</th>}
-                                    </tr>
+                                <thead
+                                    className="text-xs font-semibold text-(--c-text-muted) bg-(--c-surface-hover) border-b border-(--c-border)">
+                                <tr>
+                                    <th className="px-4 py-3">{columnLabel}</th>
+                                    {canEdit && <th className="px-4 py-3 text-right">Actions</th>}
+                                </tr>
                                 </thead>
                                 <tbody className="divide-y divide-(--c-border)">
-                                    {visibleFields.map((field, i) => {
-                                        const index = start + i
-                                        const error = errors?.[index]?.value?.message
+                                {visibleFields.map((field, i) => {
+                                    const index = start + i
+                                    const error = errors?.[index]?.value?.message
 
-                                        return (
-                                            <tr key={field.id}>
-                                                <td className="px-4 py-3">
-                                                    <InputField
-                                                        type={inputType}
-                                                        placeholder={placeholder}
-                                                        error={error}
-                                                        disabled={!canEdit}
-                                                        aria-label={`${title} ${index + 1}`}
-                                                        {...registerValue(index)}
-                                                    />
-                                                </td>
-                                                {canEdit && (
-                                                    <td className="px-4 py-3 text-right align-top">
-                                                        <RowActionButton
-                                                            variant="danger"
-                                                            onClick={() => onRemove(index)}
-                                                            aria-label={`Remove ${title.toLowerCase()} ${index + 1}`}
-                                                        >
-                                                            <Trash2 className="h-4 w-4"/>
-                                                        </RowActionButton>
-                                                    </td>
-                                                )}
-                                            </tr>
-                                        )
-                                    })}
-
-                                    {pageCount > 1 && Array.from({length: PAGE_SIZE - visibleFields.length}).map((_, i) => (
-                                        <tr key={`filler-${i}`} aria-hidden="true">
-                                            <td className="px-4 py-3" colSpan={canEdit ? 2 : 1}>
-                                                {/* Matches a populated row's height so every page is the same height. */}
-                                                <div className="h-9"/>
+                                    return (
+                                        <tr key={field.id}>
+                                            <td className="px-4 py-3">
+                                                <InputField
+                                                    type={inputType}
+                                                    placeholder={placeholder}
+                                                    error={error}
+                                                    disabled={!canEdit}
+                                                    aria-label={`${title} ${index + 1}`}
+                                                    {...registerValue(index)}
+                                                />
                                             </td>
+                                            {canEdit && (
+                                                <td className="px-4 py-3 text-right align-top">
+                                                    <RowActionButton
+                                                        variant="danger"
+                                                        onClick={() => onRemove(index)}
+                                                        aria-label={`Remove ${title.toLowerCase()} ${index + 1}`}
+                                                    >
+                                                        <Trash2 className="h-4 w-4"/>
+                                                    </RowActionButton>
+                                                </td>
+                                            )}
                                         </tr>
-                                    ))}
+                                    )
+                                })}
+
+                                {pageCount > 1 && Array.from({length: PAGE_SIZE - visibleFields.length}).map((_, i) => (
+                                    <tr key={`filler-${i}`} aria-hidden="true">
+                                        <td className="px-4 py-3" colSpan={canEdit ? 2 : 1}>
+                                            {/* Matches a populated row's height so every page is the same height. */}
+                                            <div className="h-9"/>
+                                        </td>
+                                    </tr>
+                                ))}
                                 </tbody>
                             </table>
                         </div>

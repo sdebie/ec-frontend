@@ -95,8 +95,12 @@ function renderPage() {
     )
 }
 
+/**
+ * SectionTabs' count badge isn't aria-hidden, so a tab with entries has an
+ * accessible name like "Email Addresses2" — match by substring, not equality.
+ */
 function getTabButton(name: string) {
-    return screen.getByRole('tab', {name})
+    return screen.getByRole('tab', {name: new RegExp(name)})
 }
 
 /**
@@ -220,7 +224,7 @@ describe('ContactEditorPage', () => {
     })
 
     describe('only the active section is exposed to assistive tech', () => {
-        it('hides non-active panels (native hidden attribute) and shows only the active one', async () => {
+        it('marks non-active panels inert + aria-hidden (SectionTabs hides via CSS visibility, which jsdom cannot observe via toBeVisible)', async () => {
             const user = userEvent.setup()
             setupMocks()
             renderPage()
@@ -229,17 +233,40 @@ describe('ContactEditorPage', () => {
             const enquiryPanel = getTabPanel('Enquiry Form')
             const locationPanel = getTabPanel('Location')
 
-            expect(enquiryPanel).toBeVisible()
-            expect(locationPanel).not.toBeVisible()
+            expect(enquiryPanel).not.toHaveAttribute('inert')
+            expect(enquiryPanel).not.toHaveAttribute('aria-hidden')
+            expect(locationPanel).toHaveAttribute('inert')
+            expect(locationPanel).toHaveAttribute('aria-hidden', 'true')
             expect(getTabButton('Enquiry Form')).toHaveAttribute('aria-selected', 'true')
             expect(getTabButton('Location')).toHaveAttribute('aria-selected', 'false')
 
             await goTo(user, 'Location')
 
-            expect(enquiryPanel).not.toBeVisible()
-            expect(locationPanel).toBeVisible()
+            expect(enquiryPanel).toHaveAttribute('inert')
+            expect(enquiryPanel).toHaveAttribute('aria-hidden', 'true')
+            expect(locationPanel).not.toHaveAttribute('inert')
+            expect(locationPanel).not.toHaveAttribute('aria-hidden')
             expect(getTabButton('Enquiry Form')).toHaveAttribute('aria-selected', 'false')
             expect(getTabButton('Location')).toHaveAttribute('aria-selected', 'true')
+        })
+    })
+
+    describe('mobile section menu', () => {
+        it('opens from the trigger, lists every section, and switches on selection', async () => {
+            const user = userEvent.setup()
+            setupMocks()
+            renderPage()
+            await waitFor(() => expect(screen.getByDisplayValue('enquiries@store.co.za')).toBeInTheDocument())
+
+            await user.click(screen.getByRole('button', {name: 'Open section menu'}))
+            const menu = screen.getByRole('dialog')
+            expect(within(menu).getByRole('button', {name: /Social/})).toBeInTheDocument()
+
+            await user.click(within(menu).getByRole('button', {name: /Social/}))
+
+            // Selecting a section closes the menu and switches the active panel.
+            expect(screen.queryByRole('dialog')).not.toBeInTheDocument()
+            expect(screen.getByDisplayValue('Facebook')).toBeInTheDocument()
         })
     })
 

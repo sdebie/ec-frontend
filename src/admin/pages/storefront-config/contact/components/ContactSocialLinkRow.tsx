@@ -1,8 +1,8 @@
 import {Trash2} from 'lucide-react'
-import {Controller, type Control, type FieldErrors, type UseFormRegisterReturn} from 'react-hook-form'
+import {type Control, Controller, type FieldErrors, type UseFormRegisterReturn} from 'react-hook-form'
 import {InputField, RowActionButton, Select} from '@/shared/ui/components'
 import type {SelectOption} from '@/shared/ui/components/form/Select'
-import {SOCIAL_LINK_ICONS, type ContactFormValues} from '../hooks/useContactForm'
+import {type ContactFormValues, SOCIAL_LINK_ICONS} from '../hooks/useContactForm'
 
 const ICON_LABELS: Record<(typeof SOCIAL_LINK_ICONS)[number], string> = {
     facebook: 'Facebook',
@@ -27,7 +27,15 @@ interface ContactSocialLinkRowProps {
     canEdit: boolean
 }
 
-export function ContactSocialLinkRow({index, control, registerLabel, registerTo, errors, onRemove, canEdit}: ContactSocialLinkRowProps) {
+export function ContactSocialLinkRow({
+                                         index,
+                                         control,
+                                         registerLabel,
+                                         registerTo,
+                                         errors,
+                                         onRemove,
+                                         canEdit
+                                     }: ContactSocialLinkRowProps) {
     return (
         <tr>
             <td className="px-4 py-3 align-top">

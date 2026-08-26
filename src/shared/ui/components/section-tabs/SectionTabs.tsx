@@ -236,7 +236,7 @@ export function SectionTabs({
                                 aria-labelledby={tabId(section.id)}
                                 aria-hidden={!isActive || undefined}
                                 inert={!isActive || undefined}
-                                className={cn('[grid-area:1/1] p-6 sm:p-8', !isActive && 'invisible')}
+                                className={cn('[grid-area:1/1] min-w-0 p-6 sm:p-8', !isActive && 'invisible')}
                             >
                                 <div className="mb-5">
                                     <h3 className="text-base font-semibold text-(--c-text)">{section.label}</h3>
