@@ -243,9 +243,12 @@
        a recessed well. A fill within a few steps of the panel's own darkness
        reads as part of the panel rather than as a distinct control; a clearly
        lighter fill reads as an input at a glance, the way the border alone
-       can't when there's this little luminance contrast to work with. */
-    --admin-input-bg: #334155;
-    --admin-input-border: #334155;
+       can't when there's this little luminance contrast to work with. The fill
+       keeps the same ~220° hue as the page/panel/chrome, just less dark — a
+       desaturated grey fill here would read as a different palette entirely
+       next to how saturated the surrounding navy actually is. */
+    --admin-input-bg: #172033;
+    --admin-input-border: #253b6a;
     --admin-input-hover-border: #475569;
     --admin-input-focus: var(--primary);
 
