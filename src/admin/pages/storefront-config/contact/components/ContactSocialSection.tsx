@@ -25,7 +25,7 @@ export function ContactSocialSection({register, control, fields, errors, onAdd, 
                 description="Links to your store's social media profiles and WhatsApp number, shown across the storefront."
             />
 
-            <div className="mb-6 max-w-2xl">
+            <div className="mb-6">
                 <InputField
                     label="WhatsApp"
                     placeholder="e.g. +27760000000"

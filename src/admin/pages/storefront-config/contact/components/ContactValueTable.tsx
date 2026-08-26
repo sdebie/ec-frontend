@@ -73,7 +73,7 @@ export function ContactValueTable({
     return (
         <div>
             {heading && <ContactSectionHeading title={heading} description={description}/>}
-            {children && <div className="mb-6 max-w-2xl">{children}</div>}
+            {children && <div className="mb-6">{children}</div>}
 
             <div className="flex flex-col gap-3">
                 {canEdit && (

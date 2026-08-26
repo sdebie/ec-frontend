@@ -12,7 +12,7 @@ export function ContactHoursSection({register, canEdit}: ContactHoursSectionProp
     return (
         <div>
             <ContactSectionHeading title="Hours & Response"/>
-            <div className="max-w-2xl space-y-4">
+            <div className="space-y-4">
                 <InputField
                     label="Business Hours"
                     placeholder="e.g. Mon-Fri 08:00-17:00, Sat 09:00-13:00"

@@ -12,7 +12,7 @@ export function ContactLocationSection({register, canEdit}: ContactLocationSecti
     return (
         <div>
             <ContactSectionHeading title="Location"/>
-            <div className="max-w-2xl">
+            <div>
                 <Textarea
                     label="Physical Address"
                     placeholder="e.g. 123 Main Street&#10;Cape Town&#10;8001"

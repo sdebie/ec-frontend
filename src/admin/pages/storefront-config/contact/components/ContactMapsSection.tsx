@@ -19,7 +19,7 @@ export function ContactMapsSection({register, control, mapUrlError, mapEmbedUrlE
     return (
         <div>
             <ContactSectionHeading title="Maps"/>
-            <div className="max-w-2xl space-y-4">
+            <div className="space-y-4">
                 <InputField
                     label="Map URL (external directions link)"
                     placeholder="https://www.google.com/maps/place/..."
@@ -38,13 +38,13 @@ export function ContactMapsSection({register, control, mapUrlError, mapEmbedUrlE
                 />
             </div>
 
-            <div className="mt-4 max-w-2xl">
+            <div className="mt-4">
                 {showPreview ? (
                     <div className="overflow-hidden rounded-(--c-radius) border border-(--c-border)">
                         <iframe
                             src={mapEmbedUrl}
                             title="Map preview"
-                            className="size-full min-h-80 border-0"
+                            className="size-full min-h-96 border-0"
                             loading="lazy"
                             referrerPolicy="no-referrer-when-downgrade"
                         />

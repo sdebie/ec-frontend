@@ -117,7 +117,7 @@ export function ContactEditorPage() {
                   the space, e.g. an admin with many social links.
                 */}
                 <Card as="article" variant="panel" ref={cardRef} style={cardHeight !== undefined ? {height: cardHeight} : undefined}>
-                    <Card.Body className="flex h-full flex-col gap-6 p-5 md:flex-row">
+                    <Card.Body className="flex h-full flex-col gap-6 p-7 pt-8 md:flex-row">
                         <ContactSectionNav
                             active={activeSection}
                             onSelect={setActiveSection}

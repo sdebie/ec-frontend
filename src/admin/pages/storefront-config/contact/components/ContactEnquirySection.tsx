@@ -1,5 +1,5 @@
 import type {UseFormRegister} from 'react-hook-form'
-import {InputField} from '@/shared/ui/components'
+import {Alert, InputField} from '@/shared/ui/components'
 import {ContactSectionHeading} from './ContactSectionHeading'
 import type {ContactFormValues} from '../hooks/useContactForm'
 
@@ -14,11 +14,14 @@ export function ContactEnquirySection({register, error, canEdit}: ContactEnquiry
     return (
         <div>
             <ContactSectionHeading title="Enquiry Form"/>
-            <div className="max-w-xl">
+            <div className="space-y-4">
+                <Alert
+                    title="The email address that receives enquiry form submissions."
+                    description="Leave empty to disable the enquiry form on the storefront."
+                />
                 <InputField
                     label="Enquiry recipient email"
                     placeholder="e.g. info@store.co.za"
-                    helperText="The email address that receives enquiry form submissions. Leave empty to disable the enquiry form on the storefront."
                     error={error}
                     disabled={!canEdit}
                     {...register('enquiryEmail')}
