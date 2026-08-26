@@ -63,55 +63,55 @@
       shift is small enough to stay neutral under any accent preset, and only
       shows as warmth against a large area.
 
-           PAGE #f4f7f6 → SIDEBAR #fbfcfc → PANEL/TABLE #ffffff
-                                          → TABLE HEADER #f2f5f4
-                                          → HOVER        #f5f9f7
+           PAGE #dde6e3 → SIDEBAR #e8edeb → PANEL/TABLE #f4f6f6
+                                          → TABLE HEADER #e2e9e7
+                                          → HOVER        #d8e1de
     */
 
     /* Page */
-    --admin-bg: #f4f7f6;
+    --admin-bg: #dde6e3;
 
     /* Surfaces */
-    --admin-panel: #ffffff;
-    --admin-panel-secondary: #f7f9f8;
-    --admin-panel-hover: #f0f4f2;
+    --admin-panel: #f4f6f6;
+    --admin-panel-secondary: #e2e9e7;
+    --admin-panel-hover: #d8e1de;
 
     /* Borders */
-    --admin-border: #dfe6e2;
-    --admin-border-strong: #cbd5cf;
+    --admin-border: #bacac4;
+    --admin-border-strong: #9db4ac;
 
     /* Typography */
-    --admin-text: #18231f;
-    --admin-text-secondary: #41534b;
-    --admin-text-muted: #6b7c74;
-    --admin-text-disabled: #9aa8a2;
+    --admin-text: #15231e;
+    --admin-text-secondary: #384d46;
+    --admin-text-muted: #526b62;
+    --admin-text-disabled: #7e958e;
 
     /* Forms — the field reads as bordered rather than filled, so its own
        background matches the panel and the border carries the affordance. */
-    --admin-input-bg: #ffffff;
-    --admin-input-border: #d4ddd8;
-    --admin-input-hover-border: #afbeb6;
+    --admin-input-bg: #f4f6f6;
+    --admin-input-border: #aec1bb;
+    --admin-input-hover-border: #86a299;
     --admin-input-focus: var(--primary);
 
-    /* Chrome — sidebar and header sit just off pure white so they read as one
-       frame around the workspace, rather than as two white slabs with a grey
-       canvas between them. */
-    --admin-sidebar-bg: #fbfcfc;
-    --admin-sidebar-hover: #f1f5f3;
+    /* Chrome — sidebar and header sit between the canvas and the panel, so
+       they read as one frame around the workspace instead of blending into
+       either. */
+    --admin-sidebar-bg: #e8edeb;
+    --admin-sidebar-hover: #d8e1de;
     --admin-sidebar-active: #eff6ff;
     --admin-sidebar-active-text: #1d4ed8;
-    --admin-sidebar-border: #e2e8e5;
-    --admin-header-bg: #fbfcfc;
+    --admin-sidebar-border: #c6d2ce;
+    --admin-header-bg: #e8edeb;
 
     /* Tables — the header is one step off the rows, enough to organise the
-       grid without announcing itself as a band. Rows stay plain white at rest
-       (no zebra striping: it makes a dense screen busier, not clearer) and
-       come to life only on hover. */
-    --admin-table-header-bg: #f2f5f4;
-    --admin-table-row-bg: #ffffff;
-    --admin-table-row-hover: #f5f9f7;
+       grid without announcing itself as a band. Rows stay a plain panel tone
+       at rest (no zebra striping: it makes a dense screen busier, not
+       clearer) and come to life only on hover. */
+    --admin-table-header-bg: #e2e9e7;
+    --admin-table-row-bg: #f4f6f6;
+    --admin-table-row-hover: #d8e1de;
     --admin-table-row-selected: var(--primary-subtle);
-    --admin-table-border: #dfe6e2;
+    --admin-table-border: #bacac4;
 
     --admin-radius-sm: 0.25rem;
     --admin-radius: 0.5rem;
@@ -225,38 +225,40 @@
     --admin-bg: #0b1120;
 
     /* Surfaces — each step is a deliberate elevation, not an arbitrary grey. */
-    --admin-panel: #141e2f;
-    --admin-panel-secondary: #19263a;
-    --admin-panel-hover: #213047;
+    --admin-panel: #151e35;
+    --admin-panel-secondary: #1c2640;
+    --admin-panel-hover: #232f4d;
 
     /* Borders */
-    --admin-border: #2a394f;
-    --admin-border-strong: #3b4d66;
+    --admin-border: #303a55;
+    --admin-border-strong: #404d6d;
 
     /* Typography */
     --admin-text: #f1f5f9;
-    --admin-text-secondary: #cbd5e1;
-    --admin-text-muted: #94a3b8;
-    --admin-text-disabled: #64748b;
+    --admin-text-secondary: #c6cfdc;
+    --admin-text-muted: #93a0b4;
+    --admin-text-disabled: #657386;
 
     /* Forms */
-    --admin-input-bg: #1b2940;
-    --admin-input-border: #3a4a61;
-    --admin-input-hover-border: #52637a;
+    --admin-input-bg: #1b253e;
+    --admin-input-border: #3c4867;
+    --admin-input-hover-border: #546183;
     --admin-input-focus: var(--primary);
 
     /* Chrome */
-    --admin-header-bg: #0d1524;
-    --admin-sidebar-bg: #0d1524;
-    --admin-sidebar-hover: #19263a;
-    --admin-sidebar-border: #263244;
+    --admin-header-bg: #0e1527;
+    --admin-sidebar-bg: #0e1527;
+    --admin-sidebar-hover: #1c2640;
+    --admin-sidebar-border: #242c42;
 
-    /* Tables */
-    --admin-table-header-bg: #172033;
-    --admin-table-row-bg: #111827;
-    --admin-table-row-hover: #1e293b;
+    /* Tables — row background matches --admin-panel and table border matches
+       --admin-border deliberately: a fainter or darker value here reads as a
+       separate, sunken plane rather than as part of the panel. */
+    --admin-table-header-bg: #1b243c;
+    --admin-table-row-bg: #151e35;
+    --admin-table-row-hover: #212b45;
     --admin-table-row-selected: var(--primary-subtle);
-    --admin-table-border: #1f2937;
+    --admin-table-border: #303a55;
 
     /* Status surfaces sit in the same elevation range as the panels rather than
        as saturated blocks, so a badge reads as tinted rather than as a hole cut
