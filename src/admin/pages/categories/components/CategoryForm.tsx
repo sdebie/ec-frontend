@@ -214,7 +214,7 @@ export function CategoryForm({
     return (
         <Form onSubmit={handleSubmit(submitWithUniquenessCheck)}>
             <Card>
-                <Card.Body className="space-y-3 px-4 pb-4 pt-2">
+                <Card.Body className="space-y-3 p-5">
                     {/* Name */}
                     <FormItem
                         label="Name"
@@ -376,7 +376,7 @@ export function CategoryForm({
                 </Card.Body>
 
                 {/* Actions */}
-                <Card.Footer className="flex items-center justify-end gap-3 mt-2 p-4">
+                <Card.Footer className="flex items-center justify-end gap-3 mt-2 p-5">
                     <Button
                         type="button"
                         variant="outline"

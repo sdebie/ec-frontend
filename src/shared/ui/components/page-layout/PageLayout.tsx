@@ -14,7 +14,7 @@ export interface PageLayoutProps {
     children: ReactNode
     /** Additional CSS classes */
     className?: string
-    /** When provided, renders a PageBackButton beside the title */
+    /** When provided, renders a PageBackButton above the title */
     onBack?: () => void
     /** Custom label for the back button. Defaults to PageBackButton's own 'Back'. */
     backLabel?: string
@@ -75,18 +75,16 @@ export function PageLayout({
     return (
         <div className={cn('space-y-3 mt-3', className)}>
             <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
-                <div className="flex items-start gap-3">
-                    {onBack && <PageBackButton onClick={onBack} label={backLabel} className="mt-1"/>}
-                    <div>
-                        <h1 className="text-2xl font-bold tracking-tight text-(--c-text)">
-                            {title}
-                        </h1>
-                        {subtitle && (
-                            <p className="mt-1 text-sm text-(--c-text-muted)">
-                                {subtitle}
-                            </p>
-                        )}
-                    </div>
+                <div>
+                    {onBack && <PageBackButton onClick={onBack} label={backLabel} className="mb-2"/>}
+                    <h1 className="text-2xl font-bold tracking-tight text-(--c-text)">
+                        {title}
+                    </h1>
+                    {subtitle && (
+                        <p className="mt-1 text-sm text-(--c-text-muted)">
+                            {subtitle}
+                        </p>
+                    )}
                 </div>
                 {action && <div className="shrink-0">{action}</div>}
             </div>
@@ -100,7 +98,7 @@ export function PageLayout({
                         {stickyFooter}
                     </div>
                     <div
-                        className="fixed inset-x-0 bottom-0 z-10 border-t border-(--c-border) bg-(--c-panel) px-4 py-6 shadow-(--c-shadow-sm) md:px-6">
+                        className="fixed inset-x-0 bottom-0 z-10 border-t border-(--c-border) bg-(--c-bg) px-4 py-6 shadow-(--c-shadow-sm) md:px-6">
                         {stickyFooter}
                     </div>
                 </>

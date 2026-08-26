@@ -144,7 +144,7 @@ export function BrandForm({defaultValues, onSubmit, isSubmitting = false}: Brand
     return (
         <Form onSubmit={handleSubmit(onSubmit)}>
             <Card>
-                <Card.Body className="space-y-3 px-4 pb-4 pt-2">
+                <Card.Body className="space-y-3 p-5">
                     {/* Name */}
                     <FormItem
                         label="Name"
@@ -283,7 +283,7 @@ export function BrandForm({defaultValues, onSubmit, isSubmitting = false}: Brand
                 </Card.Body>
 
                 {/* Actions */}
-                <Card.Footer className="flex items-center justify-end gap-3 mt-2 p-4">
+                <Card.Footer className="flex items-center justify-end gap-3 mt-2 p-5">
                     <Button
                         type="button"
                         variant="outline"
