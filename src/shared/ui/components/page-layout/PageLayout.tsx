@@ -99,7 +99,15 @@ export function PageLayout({
                     <div aria-hidden="true" className="invisible border-t px-4 py-6 md:px-6">
                         {stickyFooter}
                     </div>
+                    {/*
+                      data-sticky-footer: a bare identifier, no styling/behavior
+                      attached — lets a page measure the real gap above this bar
+                      (e.g. to size content to fill it exactly) without hardcoding
+                      its height, which drifts if this element's own padding
+                      ever changes.
+                    */}
                     <div
+                        data-sticky-footer=""
                         className="fixed inset-x-0 bottom-0 z-10 border-t border-(--c-border) bg-(--c-panel) px-4 py-6 shadow-(--c-shadow-sm) md:px-6">
                         {stickyFooter}
                     </div>

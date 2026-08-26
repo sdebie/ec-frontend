@@ -1,4 +1,4 @@
-import {useState} from 'react'
+import {useState, type ReactNode} from 'react'
 import {ChevronLeft, ChevronRight, Plus, Trash2} from 'lucide-react'
 import type {FieldErrors, UseFormRegisterReturn} from 'react-hook-form'
 
@@ -11,6 +11,8 @@ interface ContactValueTableProps {
     /** Rendered above the table via ContactSectionHeading when provided — the section's own heading, distinct from its nav label. */
     heading?: string
     description?: string
+    /** Rendered between the heading and the Add button/table — e.g. Phone Numbers' Landline field, a single value that isn't itself part of the list. */
+    children?: ReactNode
     title: string
     addLabel: string
     columnLabel: string
@@ -41,6 +43,7 @@ const PAGE_SIZE = 3
 export function ContactValueTable({
     heading,
     description,
+    children,
     title,
     addLabel,
     columnLabel,
@@ -70,6 +73,7 @@ export function ContactValueTable({
     return (
         <div>
             {heading && <ContactSectionHeading title={heading} description={description}/>}
+            {children && <div className="mb-6 max-w-2xl">{children}</div>}
 
             <div className="flex flex-col gap-3">
                 {canEdit && (

@@ -153,7 +153,7 @@ describe('ContactEditorPage', () => {
             expect(screen.getByDisplayValue('support@store.co.za')).toBeInTheDocument()
         })
 
-        it('shows Phone Numbers fields once that section is selected', async () => {
+        it('shows Phone Numbers fields, including Landline above the table, once that section is selected', async () => {
             const user = userEvent.setup()
             setupMocks()
             renderPage()
@@ -162,18 +162,7 @@ describe('ContactEditorPage', () => {
             await goTo(user, 'Phone Numbers')
 
             expect(screen.getByDisplayValue('+27123456789')).toBeInTheDocument()
-        })
-
-        it('shows General fields (Landline and WhatsApp) once that section is selected', async () => {
-            const user = userEvent.setup()
-            setupMocks()
-            renderPage()
-            await waitFor(() => expect(screen.getByDisplayValue('enquiries@store.co.za')).toBeInTheDocument())
-
-            await goTo(user, 'General')
-
             expect(screen.getByDisplayValue('+27219876543')).toBeInTheDocument()
-            expect(screen.getByDisplayValue('+27827654321')).toBeInTheDocument()
         })
 
         it('shows Location fields once that section is selected', async () => {
@@ -216,7 +205,7 @@ describe('ContactEditorPage', () => {
             expect(screen.getByDisplayValue('https://www.google.com/maps/embed?pb=abc123')).toBeInTheDocument()
         })
 
-        it('shows Social fields once that section is selected', async () => {
+        it('shows Social fields, including WhatsApp above the table, once that section is selected', async () => {
             const user = userEvent.setup()
             setupMocks()
             renderPage()
@@ -226,6 +215,7 @@ describe('ContactEditorPage', () => {
 
             expect(screen.getByDisplayValue('Facebook')).toBeInTheDocument()
             expect(screen.getByDisplayValue('https://facebook.com/store')).toBeInTheDocument()
+            expect(screen.getByDisplayValue('+27827654321')).toBeInTheDocument()
         })
     })
 
@@ -237,19 +227,19 @@ describe('ContactEditorPage', () => {
             await waitFor(() => expect(screen.getByDisplayValue('enquiries@store.co.za')).toBeInTheDocument())
 
             const enquiryPanel = getTabPanel('Enquiry Form')
-            const generalPanel = getTabPanel('General')
+            const locationPanel = getTabPanel('Location')
 
             expect(enquiryPanel).toBeVisible()
-            expect(generalPanel).not.toBeVisible()
+            expect(locationPanel).not.toBeVisible()
             expect(getTabButton('Enquiry Form')).toHaveAttribute('aria-selected', 'true')
-            expect(getTabButton('General')).toHaveAttribute('aria-selected', 'false')
+            expect(getTabButton('Location')).toHaveAttribute('aria-selected', 'false')
 
-            await goTo(user, 'General')
+            await goTo(user, 'Location')
 
             expect(enquiryPanel).not.toBeVisible()
-            expect(generalPanel).toBeVisible()
+            expect(locationPanel).toBeVisible()
             expect(getTabButton('Enquiry Form')).toHaveAttribute('aria-selected', 'false')
-            expect(getTabButton('General')).toHaveAttribute('aria-selected', 'true')
+            expect(getTabButton('Location')).toHaveAttribute('aria-selected', 'true')
         })
     })
 
@@ -815,7 +805,7 @@ describe('ContactEditorPage', () => {
         })
     })
 
-    // --- WhatsApp field tests (General section) ---
+    // --- WhatsApp field tests (Social section, above the social links table) ---
 
     describe('whatsapp survives save', () => {
         it('preserves whatsapp when only an unrelated field is touched and saved', async () => {
@@ -860,7 +850,7 @@ describe('ContactEditorPage', () => {
     })
 
     describe('whatsapp field accepts and saves a new value', () => {
-        it('renders a WhatsApp input on General and saves a newly typed value', async () => {
+        it('renders a WhatsApp input on Social and saves a newly typed value', async () => {
             const user = userEvent.setup()
             setupMocks({
                 settings: [
@@ -874,7 +864,7 @@ describe('ContactEditorPage', () => {
                 expect(screen.getByText('Contact Settings')).toBeInTheDocument()
             })
 
-            await goTo(user, 'General')
+            await goTo(user, 'Social')
             const whatsappInput = screen.getByLabelText('WhatsApp')
             await user.type(whatsappInput, '+27760000000')
 

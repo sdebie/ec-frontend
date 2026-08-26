@@ -1,5 +1,6 @@
 import {Plus} from 'lucide-react'
 import type {Control, FieldErrors, UseFormRegister} from 'react-hook-form'
+import {InputField} from '@/shared/ui/components'
 import {Button} from '@/shared/ui/primitives'
 import {ContactSectionHeading} from './ContactSectionHeading'
 import {ContactSocialLinkRow} from './ContactSocialLinkRow'
@@ -15,14 +16,24 @@ interface ContactSocialSectionProps {
     canEdit: boolean
 }
 
-/** Social media profile links shown in the storefront footer and announcement bar. */
+/** Social media profile links and WhatsApp, shown across the storefront (footer, announcement bar). */
 export function ContactSocialSection({register, control, fields, errors, onAdd, onRemove, canEdit}: ContactSocialSectionProps) {
     return (
         <div>
             <ContactSectionHeading
                 title="Social"
-                description="Links to your store's social media profiles, shown in the storefront footer."
+                description="Links to your store's social media profiles and WhatsApp number, shown across the storefront."
             />
+
+            <div className="mb-6 max-w-2xl">
+                <InputField
+                    label="WhatsApp"
+                    placeholder="e.g. +27760000000"
+                    helperText="Used for the WhatsApp contact link shown across the storefront."
+                    disabled={!canEdit}
+                    {...register('whatsapp')}
+                />
+            </div>
 
             <div className="flex flex-col gap-3">
                 {canEdit && (

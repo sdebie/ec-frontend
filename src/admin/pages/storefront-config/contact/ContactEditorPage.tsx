@@ -1,5 +1,5 @@
-import {useState} from 'react'
-import {PageLayout} from '@/shared/ui/components'
+import {useLayoutEffect, useRef, useState} from 'react'
+import {PageLayout, InputField} from '@/shared/ui/components'
 import {Button, Card} from '@/shared/ui/primitives'
 import {useBreadcrumb} from '@/admin/context/BreadcrumbContext'
 import {useContactForm} from './hooks/useContactForm'
@@ -7,11 +7,46 @@ import {ContactSectionNav, ContactSectionPanel} from './components/ContactSectio
 import type {ContactSectionKey} from './components/contactSections'
 import {ContactEnquirySection} from './components/ContactEnquirySection'
 import {ContactValueTable} from './components/ContactValueTable'
-import {ContactGeneralSection} from './components/ContactGeneralSection'
 import {ContactLocationSection} from './components/ContactLocationSection'
 import {ContactHoursSection} from './components/ContactHoursSection'
 import {ContactMapsSection} from './components/ContactMapsSection'
 import {ContactSocialSection} from './components/ContactSocialSection'
+
+/**
+ * Measures the real gap between `ref`'s element and the page's sticky footer
+ * bar (PageLayout's `[data-sticky-footer]`), so the card can fill it exactly
+ * regardless of viewport height or how tall the page's own title/subtitle
+ * block renders — a hardcoded offset was tried first and proved wrong twice
+ * on two different real screens (once too short, causing page scroll; once
+ * too tall, leaving a visible gap above the footer), because it was guessing
+ * at a title-block height that was never actually constant. Undefined below
+ * md, where the nav stacks above the content instead of beside it and a
+ * forced height would just crowd both.
+ */
+function useFillHeightAboveStickyFooter() {
+    const ref = useRef<HTMLElement>(null)
+    const [height, setHeight] = useState<number>()
+
+    useLayoutEffect(() => {
+        function recompute() {
+            if (window.innerWidth < 768) {
+                setHeight(undefined)
+                return
+            }
+            const el = ref.current
+            const footer = document.querySelector('[data-sticky-footer]')
+            if (!el || !footer) return
+            const available = footer.getBoundingClientRect().top - el.getBoundingClientRect().top
+            setHeight(Math.max(0, Math.round(available)))
+        }
+
+        recompute()
+        window.addEventListener('resize', recompute)
+        return () => window.removeEventListener('resize', recompute)
+    })
+
+    return {ref, height}
+}
 
 export function ContactEditorPage() {
     useBreadcrumb([
@@ -20,6 +55,7 @@ export function ContactEditorPage() {
     ])
 
     const [activeSection, setActiveSection] = useState<ContactSectionKey>('enquiry')
+    const {ref: cardRef, height: cardHeight} = useFillHeightAboveStickyFooter()
 
     const {
         canEdit,
@@ -74,17 +110,13 @@ export function ContactEditorPage() {
                 {/*
                   Fixed height (not min/max) on md+ so every section renders at
                   the same size instead of the card growing/shrinking as the
-                  admin switches between a one-field section and Social's table
-                  — measured, not guessed: 68px fixed AdminHeader + 88px this
-                  page's own title/subtitle block + 81px the sticky Save bar
-                  reserves = 237px of chrome outside this card at any viewport
-                  height. Below md the nav stacks above the content instead of
-                  beside it, so a fixed height would just crowd both — left
-                  auto-height there. The content column scrolls internally
-                  (not the whole page) if a section ever outgrows the space.
-                  e.g. an admin with many social links.
+                  admin switches between a one-field section and Social's table.
+                  See useFillHeightAboveStickyFooter for why this is measured
+                  rather than a hardcoded calc(). The content column scrolls
+                  internally (not the whole page) if a section ever outgrows
+                  the space, e.g. an admin with many social links.
                 */}
-                <Card as="article" variant="panel" className="md:h-[calc(100vh-285px)]">
+                <Card as="article" variant="panel" ref={cardRef} style={cardHeight !== undefined ? {height: cardHeight} : undefined}>
                     <Card.Body className="flex h-full flex-col gap-6 p-5 md:flex-row">
                         <ContactSectionNav
                             active={activeSection}
@@ -134,11 +166,15 @@ export function ContactEditorPage() {
                                     placeholder="e.g. +27123456789"
                                     inputType="tel"
                                     emptyMessage="No phone numbers configured."
-                                />
-                            </ContactSectionPanel>
-
-                            <ContactSectionPanel sectionKey="general" active={activeSection}>
-                                <ContactGeneralSection register={register} canEdit={canEdit}/>
+                                >
+                                    <InputField
+                                        label="Landline"
+                                        placeholder="e.g. +27219876543"
+                                        helperText="The direct landline number for the store."
+                                        disabled={!canEdit}
+                                        {...register('landline')}
+                                    />
+                                </ContactValueTable>
                             </ContactSectionPanel>
 
                             <ContactSectionPanel sectionKey="location" active={activeSection}>
