@@ -1,5 +1,5 @@
 import {beforeEach, describe, expect, it, vi} from 'vitest'
-import {render, screen, waitFor} from '@testing-library/react'
+import {render, screen, waitFor, within} from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import {QueryClient, QueryClientProvider} from '@tanstack/react-query'
 import {ContactEditorPage} from '../ContactEditorPage'
@@ -12,8 +12,8 @@ vi.mock('@/admin/hooks/settings/useStoreSettings', () => ({
     useStoreSettings: vi.fn(),
 }))
 
-vi.mock('@/admin/hooks/settings/useUpdateSetting', () => ({
-    useUpdateSetting: vi.fn(() => ({
+vi.mock('@/admin/hooks/settings/useSaveStoreSettings', () => ({
+    useSaveStoreSettings: vi.fn(() => ({
         mutate: mockMutate,
         isPending: false,
     })),
@@ -27,7 +27,7 @@ vi.mock('@/admin/context/BreadcrumbContext', () => ({
     useBreadcrumb: vi.fn(),
 }))
 
-vi.mock('sonner', () => ({
+vi.mock('@/shared/ui/components/toast', () => ({
     toast: {
         success: vi.fn(),
         error: vi.fn(),
@@ -48,12 +48,19 @@ const contactConfig = {
     mapEmbedUrl: 'https://www.google.com/maps/embed?pb=abc123',
 }
 
+const footerConfig = {
+    description: 'A great store',
+    footerCallout: {heading: 'Sale', body: '20% off everything'},
+    // The raw setting keys the URL `path`, not `to` — `to` is only the public
+    // shape the backend remaps this into for the storefront to read.
+    socialLinks: [
+        {id: 'sl-1', label: 'Facebook', path: 'https://facebook.com/store', icon: 'facebook', external: true},
+    ],
+}
+
 const mockSettings = [
-    {
-        key: 'storefront.contact',
-        value: JSON.stringify(contactConfig),
-        description: null,
-    },
+    {key: 'storefront.contact', value: JSON.stringify(contactConfig), description: null},
+    {key: 'storefront.footer', value: JSON.stringify(footerConfig), description: null},
 ]
 
 // --- Helpers ---
@@ -94,23 +101,23 @@ function getTabButton(name: string) {
 
 /**
  * aria-hidden elements compute an empty accessible name by spec, so neither
- * {hidden: true, name} nor a heading-text lookup can find an inactive panel
- * (there's no per-panel heading anymore either — see "remove the double
- * heading"). aria-controls on the tab button points at the panel's real id
- * regardless of its hidden state, so resolve it that way instead.
+ * {hidden: true, name} nor a heading-text lookup can find an inactive panel.
+ * aria-controls on the tab button points at the panel's real id regardless of
+ * its hidden state, so resolve it that way instead.
  */
 function getTabPanel(name: string) {
     const panelId = getTabButton(name).getAttribute('aria-controls')
     return document.getElementById(panelId!)
 }
 
+async function goTo(user: ReturnType<typeof userEvent.setup>, name: string) {
+    await user.click(getTabButton(name))
+}
+
 function settingsWithEmails(emails: string[]) {
     return [
-        {
-            key: 'storefront.contact',
-            value: JSON.stringify({...contactConfig, emails, phones: []}),
-            description: null,
-        },
+        {key: 'storefront.contact', value: JSON.stringify({...contactConfig, emails, phones: []}), description: null},
+        {key: 'storefront.footer', value: JSON.stringify(footerConfig), description: null},
     ]
 }
 
@@ -120,57 +127,62 @@ describe('ContactEditorPage', () => {
         vi.clearAllMocks()
     })
 
-    describe('editor loads existing values', () => {
-        it('shows loaded emails immediately, since Email Addresses is the default tab', async () => {
+    describe('Enquiry Form is the default section', () => {
+        it('shows the Enquiry Form fields immediately, with its nav item selected', async () => {
             setupMocks()
             renderPage()
 
             await waitFor(() => {
-                expect(screen.getByDisplayValue('info@store.co.za')).toBeInTheDocument()
+                expect(screen.getByDisplayValue('enquiries@store.co.za')).toBeInTheDocument()
             })
-            expect(screen.getByDisplayValue('support@store.co.za')).toBeInTheDocument()
-            expect(getTabButton('Email Addresses')).toHaveAttribute('aria-selected', 'true')
+            expect(getTabButton('Enquiry Form')).toHaveAttribute('aria-selected', 'true')
+            expect(getTabButton('Email Addresses')).toHaveAttribute('aria-selected', 'false')
         })
+    })
 
-        it('shows Phone Numbers-tab fields once that tab is selected', async () => {
+    describe('editor loads existing values once each section is selected', () => {
+        it('shows Email Addresses fields once that section is selected', async () => {
             const user = userEvent.setup()
             setupMocks()
             renderPage()
+            await waitFor(() => expect(screen.getByDisplayValue('enquiries@store.co.za')).toBeInTheDocument())
 
-            await waitFor(() => {
-                expect(screen.getByDisplayValue('info@store.co.za')).toBeInTheDocument()
-            })
+            await goTo(user, 'Email Addresses')
 
-            await user.click(getTabButton('Phone Numbers'))
+            expect(screen.getByDisplayValue('info@store.co.za')).toBeInTheDocument()
+            expect(screen.getByDisplayValue('support@store.co.za')).toBeInTheDocument()
+        })
+
+        it('shows Phone Numbers fields once that section is selected', async () => {
+            const user = userEvent.setup()
+            setupMocks()
+            renderPage()
+            await waitFor(() => expect(screen.getByDisplayValue('enquiries@store.co.za')).toBeInTheDocument())
+
+            await goTo(user, 'Phone Numbers')
 
             expect(screen.getByDisplayValue('+27123456789')).toBeInTheDocument()
         })
 
-        it('shows General-tab fields once the General tab is selected', async () => {
+        it('shows General fields (Landline and WhatsApp) once that section is selected', async () => {
             const user = userEvent.setup()
             setupMocks()
             renderPage()
+            await waitFor(() => expect(screen.getByDisplayValue('enquiries@store.co.za')).toBeInTheDocument())
 
-            await waitFor(() => {
-                expect(screen.getByDisplayValue('info@store.co.za')).toBeInTheDocument()
-            })
-
-            await user.click(getTabButton('General'))
+            await goTo(user, 'General')
 
             expect(screen.getByDisplayValue('+27219876543')).toBeInTheDocument()
             expect(screen.getByDisplayValue('+27827654321')).toBeInTheDocument()
         })
 
-        it('shows Location-tab fields once the Location tab is selected', async () => {
+        it('shows Location fields once that section is selected', async () => {
             const user = userEvent.setup()
             setupMocks()
             renderPage()
+            await waitFor(() => expect(screen.getByDisplayValue('enquiries@store.co.za')).toBeInTheDocument())
 
-            await waitFor(() => {
-                expect(screen.getByDisplayValue('info@store.co.za')).toBeInTheDocument()
-            })
-
-            await user.click(getTabButton('Location'))
+            await goTo(user, 'Location')
 
             // getByDisplayValue's default matcher collapses whitespace (so a
             // literal \n query never matches a real newline in the value) —
@@ -180,72 +192,101 @@ describe('ContactEditorPage', () => {
             ).toBeInTheDocument()
         })
 
-        it('shows Hours & Response tab fields once that tab is selected', async () => {
+        it('shows Hours & Response fields once that section is selected', async () => {
             const user = userEvent.setup()
             setupMocks()
             renderPage()
+            await waitFor(() => expect(screen.getByDisplayValue('enquiries@store.co.za')).toBeInTheDocument())
 
-            await waitFor(() => {
-                expect(screen.getByDisplayValue('info@store.co.za')).toBeInTheDocument()
-            })
-
-            await user.click(getTabButton('Hours & Response'))
+            await goTo(user, 'Hours & Response')
 
             expect(screen.getByDisplayValue('Mon-Fri 08:00-17:00')).toBeInTheDocument()
             expect(screen.getByDisplayValue('We respond within 24 hours')).toBeInTheDocument()
         })
 
-        it('shows Maps tab fields once the Maps tab is selected', async () => {
+        it('shows Maps fields once that section is selected', async () => {
             const user = userEvent.setup()
             setupMocks()
             renderPage()
+            await waitFor(() => expect(screen.getByDisplayValue('enquiries@store.co.za')).toBeInTheDocument())
 
-            await waitFor(() => {
-                expect(screen.getByDisplayValue('info@store.co.za')).toBeInTheDocument()
-            })
-
-            await user.click(getTabButton('Maps'))
+            await goTo(user, 'Maps')
 
             expect(screen.getByDisplayValue('https://www.google.com/maps/place/Cape+Town')).toBeInTheDocument()
             expect(screen.getByDisplayValue('https://www.google.com/maps/embed?pb=abc123')).toBeInTheDocument()
         })
-    })
 
-    describe('only the active tab is exposed to assistive tech', () => {
-        it('hides non-active tab panels (native hidden attribute) and shows only the active one', async () => {
+        it('shows Social fields once that section is selected', async () => {
             const user = userEvent.setup()
             setupMocks()
             renderPage()
+            await waitFor(() => expect(screen.getByDisplayValue('enquiries@store.co.za')).toBeInTheDocument())
 
-            await waitFor(() => {
-                expect(screen.getByDisplayValue('info@store.co.za')).toBeInTheDocument()
-            })
+            await goTo(user, 'Social')
 
-            const emailsPanel = getTabPanel('Email Addresses')
+            expect(screen.getByDisplayValue('Facebook')).toBeInTheDocument()
+            expect(screen.getByDisplayValue('https://facebook.com/store')).toBeInTheDocument()
+        })
+    })
+
+    describe('only the active section is exposed to assistive tech', () => {
+        it('hides non-active panels (native hidden attribute) and shows only the active one', async () => {
+            const user = userEvent.setup()
+            setupMocks()
+            renderPage()
+            await waitFor(() => expect(screen.getByDisplayValue('enquiries@store.co.za')).toBeInTheDocument())
+
+            const enquiryPanel = getTabPanel('Enquiry Form')
             const generalPanel = getTabPanel('General')
 
-            expect(emailsPanel).toBeVisible()
+            expect(enquiryPanel).toBeVisible()
             expect(generalPanel).not.toBeVisible()
-            expect(getTabButton('Email Addresses')).toHaveAttribute('aria-selected', 'true')
+            expect(getTabButton('Enquiry Form')).toHaveAttribute('aria-selected', 'true')
             expect(getTabButton('General')).toHaveAttribute('aria-selected', 'false')
 
-            await user.click(getTabButton('General'))
+            await goTo(user, 'General')
 
-            expect(emailsPanel).not.toBeVisible()
+            expect(enquiryPanel).not.toBeVisible()
             expect(generalPanel).toBeVisible()
-            expect(getTabButton('Email Addresses')).toHaveAttribute('aria-selected', 'false')
+            expect(getTabButton('Enquiry Form')).toHaveAttribute('aria-selected', 'false')
             expect(getTabButton('General')).toHaveAttribute('aria-selected', 'true')
+        })
+    })
+
+    describe('nav count badges', () => {
+        it('shows a count badge for Email Addresses, Phone Numbers and Social matching their entry counts', async () => {
+            setupMocks()
+            renderPage()
+            await waitFor(() => expect(screen.getByDisplayValue('enquiries@store.co.za')).toBeInTheDocument())
+
+            expect(within(getTabButton('Email Addresses')).getByText('2')).toBeInTheDocument()
+            expect(within(getTabButton('Phone Numbers')).getByText('1')).toBeInTheDocument()
+            expect(within(getTabButton('Social')).getByText('1')).toBeInTheDocument()
+        })
+
+        it('shows no badge for a section with zero entries', async () => {
+            setupMocks({
+                settings: [
+                    {key: 'storefront.contact', value: JSON.stringify({...contactConfig, phones: []}), description: null},
+                    {key: 'storefront.footer', value: JSON.stringify({}), description: null},
+                ],
+            })
+            renderPage()
+            await waitFor(() => expect(screen.getByDisplayValue('enquiries@store.co.za')).toBeInTheDocument())
+
+            expect(within(getTabButton('Phone Numbers')).queryByText('0')).not.toBeInTheDocument()
+            expect(within(getTabButton('Social')).queryByText('0')).not.toBeInTheDocument()
         })
     })
 
     describe('email/phone table editing', () => {
         it('renders existing values directly in editable inputs (no separate edit action needed)', async () => {
+            const user = userEvent.setup()
             setupMocks()
             renderPage()
+            await waitFor(() => expect(screen.getByDisplayValue('enquiries@store.co.za')).toBeInTheDocument())
 
-            await waitFor(() => {
-                expect(screen.getByDisplayValue('info@store.co.za')).toBeInTheDocument()
-            })
+            await goTo(user, 'Email Addresses')
 
             expect(screen.queryByRole('button', {name: /edit email/i})).not.toBeInTheDocument()
         })
@@ -254,10 +295,8 @@ describe('ContactEditorPage', () => {
             const user = userEvent.setup()
             setupMocks()
             renderPage()
-
-            await waitFor(() => {
-                expect(screen.getByDisplayValue('info@store.co.za')).toBeInTheDocument()
-            })
+            await waitFor(() => expect(screen.getByDisplayValue('enquiries@store.co.za')).toBeInTheDocument())
+            await goTo(user, 'Email Addresses')
 
             const input = screen.getByDisplayValue('info@store.co.za')
             await user.clear(input)
@@ -270,10 +309,8 @@ describe('ContactEditorPage', () => {
             const user = userEvent.setup()
             setupMocks()
             renderPage()
-
-            await waitFor(() => {
-                expect(screen.getByDisplayValue('info@store.co.za')).toBeInTheDocument()
-            })
+            await waitFor(() => expect(screen.getByDisplayValue('enquiries@store.co.za')).toBeInTheDocument())
+            await goTo(user, 'Email Addresses')
 
             await user.click(screen.getByRole('button', {name: 'Add email'}))
 
@@ -287,10 +324,8 @@ describe('ContactEditorPage', () => {
             const user = userEvent.setup()
             setupMocks()
             renderPage()
-
-            await waitFor(() => {
-                expect(screen.getByDisplayValue('support@store.co.za')).toBeInTheDocument()
-            })
+            await waitFor(() => expect(screen.getByDisplayValue('enquiries@store.co.za')).toBeInTheDocument())
+            await goTo(user, 'Email Addresses')
 
             await user.click(screen.getByRole('button', {name: 'Remove email addresses 2'}))
 
@@ -298,28 +333,24 @@ describe('ContactEditorPage', () => {
             expect(screen.getByDisplayValue('info@store.co.za')).toBeInTheDocument()
         })
 
-        it('shows table column headers for Email Address and Actions on the default tab', async () => {
+        it('shows table column headers for Email Address and Actions', async () => {
+            const user = userEvent.setup()
             setupMocks()
             renderPage()
-
-            await waitFor(() => {
-                expect(screen.getByDisplayValue('info@store.co.za')).toBeInTheDocument()
-            })
+            await waitFor(() => expect(screen.getByDisplayValue('enquiries@store.co.za')).toBeInTheDocument())
+            await goTo(user, 'Email Addresses')
 
             expect(screen.getByRole('columnheader', {name: 'Email Address'})).toBeInTheDocument()
             expect(screen.getByRole('columnheader', {name: 'Actions'})).toBeInTheDocument()
         })
 
-        it('shows Phone Number and Actions column headers once the Phone Numbers tab is selected', async () => {
+        it('shows Phone Number and Actions column headers once the Phone Numbers section is selected', async () => {
             const user = userEvent.setup()
             setupMocks()
             renderPage()
+            await waitFor(() => expect(screen.getByDisplayValue('enquiries@store.co.za')).toBeInTheDocument())
 
-            await waitFor(() => {
-                expect(screen.getByDisplayValue('info@store.co.za')).toBeInTheDocument()
-            })
-
-            await user.click(getTabButton('Phone Numbers'))
+            await goTo(user, 'Phone Numbers')
 
             expect(screen.getByRole('columnheader', {name: 'Phone Number'})).toBeInTheDocument()
             expect(screen.getByRole('columnheader', {name: 'Actions'})).toBeInTheDocument()
@@ -334,10 +365,8 @@ describe('ContactEditorPage', () => {
                 settings: settingsWithEmails(['a@store.co.za', 'b@store.co.za', 'c@store.co.za', 'd@store.co.za']),
             })
             renderPage()
-
-            await waitFor(() => {
-                expect(screen.getByDisplayValue('a@store.co.za')).toBeInTheDocument()
-            })
+            await waitFor(() => expect(screen.getByDisplayValue('enquiries@store.co.za')).toBeInTheDocument())
+            await goTo(user, 'Email Addresses')
 
             // Page 1: only the first 3.
             expect(screen.getByDisplayValue('a@store.co.za')).toBeInTheDocument()
@@ -359,12 +388,11 @@ describe('ContactEditorPage', () => {
         })
 
         it('shows no pagination controls when 3 or fewer entries exist', async () => {
+            const user = userEvent.setup()
             setupMocks()
             renderPage()
-
-            await waitFor(() => {
-                expect(screen.getByDisplayValue('info@store.co.za')).toBeInTheDocument()
-            })
+            await waitFor(() => expect(screen.getByDisplayValue('enquiries@store.co.za')).toBeInTheDocument())
+            await goTo(user, 'Email Addresses')
 
             expect(screen.queryByRole('button', {name: /next page of email addresses/i})).not.toBeInTheDocument()
         })
@@ -375,10 +403,8 @@ describe('ContactEditorPage', () => {
                 settings: settingsWithEmails(['a@store.co.za', 'b@store.co.za', 'c@store.co.za']),
             })
             renderPage()
-
-            await waitFor(() => {
-                expect(screen.getByDisplayValue('a@store.co.za')).toBeInTheDocument()
-            })
+            await waitFor(() => expect(screen.getByDisplayValue('enquiries@store.co.za')).toBeInTheDocument())
+            await goTo(user, 'Email Addresses')
 
             await user.click(screen.getByRole('button', {name: 'Add email'}))
 
@@ -387,38 +413,163 @@ describe('ContactEditorPage', () => {
         })
     })
 
-    describe('save sends the correct key and stringified value', () => {
-        it('calls mutate with key storefront.contact and JSON.stringify of the config', async () => {
+    describe('Maps preview', () => {
+        it('shows the live preview iframe for an approved, non-empty map embed URL', async () => {
+            const user = userEvent.setup()
+            setupMocks()
+            renderPage()
+            await waitFor(() => expect(screen.getByDisplayValue('enquiries@store.co.za')).toBeInTheDocument())
+
+            await goTo(user, 'Maps')
+
+            expect(screen.getByTitle('Map preview')).toHaveAttribute('src', contactConfig.mapEmbedUrl)
+        })
+
+        it('shows a placeholder instead of a preview when the embed URL is empty', async () => {
             const user = userEvent.setup()
             setupMocks({
                 settings: [
-                    {
-                        key: 'storefront.contact',
-                        value: JSON.stringify({emails: ['test@example.com'], phones: ['+27000000']}),
-                        description: null,
-                    },
+                    {key: 'storefront.contact', value: JSON.stringify({emails: [], phones: []}), description: null},
+                    {key: 'storefront.footer', value: JSON.stringify({}), description: null},
+                ],
+            })
+            renderPage()
+            await waitFor(() => expect(screen.getByText('Contact Settings')).toBeInTheDocument())
+
+            await goTo(user, 'Maps')
+
+            expect(screen.queryByTitle('Map preview')).not.toBeInTheDocument()
+            expect(screen.getByText('Enter an approved map embed URL to see a preview.')).toBeInTheDocument()
+        })
+
+        it('drops the preview once the embed URL is edited to an unapproved value', async () => {
+            const user = userEvent.setup()
+            setupMocks()
+            renderPage()
+            await waitFor(() => expect(screen.getByDisplayValue('enquiries@store.co.za')).toBeInTheDocument())
+            await goTo(user, 'Maps')
+
+            const embedInput = screen.getByDisplayValue(contactConfig.mapEmbedUrl)
+            await user.clear(embedInput)
+            await user.type(embedInput, 'https://evil.com/embed')
+
+            expect(screen.queryByTitle('Map preview')).not.toBeInTheDocument()
+        })
+    })
+
+    describe('Social section', () => {
+        it('shows an empty state when there are no social links', async () => {
+            const user = userEvent.setup()
+            setupMocks({
+                settings: [
+                    {key: 'storefront.contact', value: JSON.stringify({emails: [], phones: []}), description: null},
+                    {key: 'storefront.footer', value: JSON.stringify({}), description: null},
+                ],
+            })
+            renderPage()
+            await waitFor(() => expect(screen.getByText('Contact Settings')).toBeInTheDocument())
+
+            await goTo(user, 'Social')
+
+            expect(screen.getByText('No social links configured.')).toBeInTheDocument()
+        })
+
+        it('adds a new social link row, ready to fill in', async () => {
+            const user = userEvent.setup()
+            setupMocks({
+                settings: [
+                    {key: 'storefront.contact', value: JSON.stringify({emails: [], phones: []}), description: null},
+                    {key: 'storefront.footer', value: JSON.stringify({}), description: null},
+                ],
+            })
+            renderPage()
+            await waitFor(() => expect(screen.getByText('Contact Settings')).toBeInTheDocument())
+            await goTo(user, 'Social')
+
+            await user.click(screen.getByRole('button', {name: 'Add social link'}))
+
+            const labelInput = screen.getByRole('textbox', {name: 'Social link 1 label'})
+            await user.type(labelInput, 'Instagram')
+            expect(labelInput).toHaveValue('Instagram')
+        })
+
+        it('removes a social link via the remove action on its row', async () => {
+            const user = userEvent.setup()
+            setupMocks()
+            renderPage()
+            await waitFor(() => expect(screen.getByDisplayValue('enquiries@store.co.za')).toBeInTheDocument())
+            await goTo(user, 'Social')
+
+            await user.click(screen.getByRole('button', {name: 'Remove social link 1'}))
+
+            expect(screen.queryByDisplayValue('Facebook')).not.toBeInTheDocument()
+            expect(screen.getByText('No social links configured.')).toBeInTheDocument()
+        })
+
+        it('does not save when a social link has an invalid URL', async () => {
+            const user = userEvent.setup()
+            setupMocks()
+            renderPage()
+            await waitFor(() => expect(screen.getByDisplayValue('enquiries@store.co.za')).toBeInTheDocument())
+            await goTo(user, 'Social')
+
+            const urlInput = screen.getByDisplayValue('https://facebook.com/store')
+            await user.clear(urlInput)
+            await user.type(urlInput, 'not-a-url')
+
+            await user.click(screen.getByRole('button', {name: /save/i}))
+
+            // The Maps section's mapUrl field carries the identical string as
+            // static helper text and stays mounted (just hidden) while Social is
+            // active, so scope the search to the Social panel to disambiguate.
+            const socialPanel = getTabPanel('Social')!
+            await waitFor(() => {
+                expect(within(socialPanel).getByText('Must be a valid HTTPS URL')).toBeInTheDocument()
+            })
+            expect(mockMutate).not.toHaveBeenCalled()
+        })
+    })
+
+    describe('save sends both storefront.contact and storefront.footer in one call', () => {
+        it('calls mutate with an array containing both settings keys, correctly stringified', async () => {
+            const user = userEvent.setup()
+            setupMocks({
+                settings: [
+                    {key: 'storefront.contact', value: JSON.stringify({emails: ['test@example.com'], phones: ['+27000000']}), description: null},
+                    {key: 'storefront.footer', value: JSON.stringify({description: 'Kept as-is'}), description: null},
                 ],
             })
             renderPage()
 
-            // Wait for the form to load with values
             await waitFor(() => {
-                expect(screen.getByDisplayValue('test@example.com')).toBeInTheDocument()
+                expect(screen.getByText('Contact Settings')).toBeInTheDocument()
             })
 
-            // Submit the form
-            const saveButton = screen.getByRole('button', {name: /save/i})
-            await user.click(saveButton)
+            await user.click(screen.getByRole('button', {name: /save/i}))
 
             await waitFor(() => {
                 expect(mockMutate).toHaveBeenCalledTimes(1)
             })
 
-            const callArgs = mockMutate.mock.calls[0]
-            expect(callArgs[0]).toEqual({
-                key: 'storefront.contact',
-                value: JSON.stringify({emails: ['test@example.com'], phones: ['+27000000']}),
-            })
+            const [settingsToSave] = mockMutate.mock.calls[0]
+            const contactEntry = settingsToSave.find((s: {key: string}) => s.key === 'storefront.contact')
+            const footerEntry = settingsToSave.find((s: {key: string}) => s.key === 'storefront.footer')
+
+            expect(JSON.parse(contactEntry.value)).toEqual({emails: ['test@example.com'], phones: ['+27000000']})
+            expect(JSON.parse(footerEntry.value).description).toBe('Kept as-is')
+        })
+
+        it('shows a "Saved" confirmation on success', async () => {
+            const {toast} = await import('@/shared/ui/components/toast')
+            const user = userEvent.setup()
+            setupMocks()
+            mockMutate.mockImplementation((_settings, {onSuccess}: {onSuccess: () => void}) => onSuccess())
+            renderPage()
+            await waitFor(() => expect(screen.getByDisplayValue('enquiries@store.co.za')).toBeInTheDocument())
+
+            await user.click(screen.getByRole('button', {name: /save/i}))
+
+            expect(toast.success).toHaveBeenCalledWith('Saved')
         })
     })
 
@@ -427,18 +578,15 @@ describe('ContactEditorPage', () => {
             const user = userEvent.setup()
             setupMocks({
                 settings: [
-                    {
-                        key: 'storefront.contact',
-                        value: JSON.stringify({emails: ['not-an-email'], phones: []}),
-                        description: null,
-                    },
+                    {key: 'storefront.contact', value: JSON.stringify({emails: ['not-an-email'], phones: []}), description: null},
+                    {key: 'storefront.footer', value: JSON.stringify({}), description: null},
                 ],
             })
             renderPage()
+            await waitFor(() => expect(screen.getByText('Contact Settings')).toBeInTheDocument())
+            await goTo(user, 'Email Addresses')
 
-            await waitFor(() => {
-                expect(screen.getByDisplayValue('not-an-email')).toBeInTheDocument()
-            })
+            await waitFor(() => expect(screen.getByDisplayValue('not-an-email')).toBeInTheDocument())
 
             const saveButton = screen.getByRole('button', {name: /save/i})
             await user.click(saveButton)
@@ -456,11 +604,8 @@ describe('ContactEditorPage', () => {
             const user = userEvent.setup()
             setupMocks({
                 settings: [
-                    {
-                        key: 'storefront.contact',
-                        value: JSON.stringify({emails: [], phones: []}),
-                        description: null,
-                    },
+                    {key: 'storefront.contact', value: JSON.stringify({emails: [], phones: []}), description: null},
+                    {key: 'storefront.footer', value: JSON.stringify({}), description: null},
                 ],
             })
             renderPage()
@@ -469,9 +614,8 @@ describe('ContactEditorPage', () => {
                 expect(screen.getByText('Contact Settings')).toBeInTheDocument()
             })
 
-            await user.click(getTabButton('Maps'))
+            await goTo(user, 'Maps')
 
-            // Type an invalid embed URL
             const mapEmbedInput = screen.getByPlaceholderText('https://www.google.com/maps/embed?pb=...')
             await user.type(mapEmbedInput, 'https://evil.com/embed')
 
@@ -488,12 +632,11 @@ describe('ContactEditorPage', () => {
 
     describe('VIEWER sees disabled fields and no mutation controls', () => {
         it('renders every input as disabled when role is VIEWER, including email/phone table rows', async () => {
+            const user = userEvent.setup()
             setupMocks({role: 'VIEWER'})
             renderPage()
-
-            await waitFor(() => {
-                expect(screen.getByDisplayValue('info@store.co.za')).toBeInTheDocument()
-            })
+            await waitFor(() => expect(screen.getByDisplayValue('enquiries@store.co.za')).toBeInTheDocument())
+            await goTo(user, 'Email Addresses')
 
             const inputs = screen.getAllByRole('textbox')
             expect(inputs.length).toBeGreaterThan(0)
@@ -503,17 +646,19 @@ describe('ContactEditorPage', () => {
         })
 
         it('shows no add/remove controls for VIEWER', async () => {
+            const user = userEvent.setup()
             setupMocks({role: 'VIEWER'})
             renderPage()
-
-            await waitFor(() => {
-                expect(screen.getByDisplayValue('info@store.co.za')).toBeInTheDocument()
-            })
+            await waitFor(() => expect(screen.getByDisplayValue('enquiries@store.co.za')).toBeInTheDocument())
+            await goTo(user, 'Email Addresses')
 
             expect(screen.queryByRole('button', {name: 'Add email'})).not.toBeInTheDocument()
-            expect(screen.queryByRole('button', {name: 'Add phone'})).not.toBeInTheDocument()
             expect(screen.queryByRole('button', {name: /remove email addresses/i})).not.toBeInTheDocument()
             expect(screen.queryByRole('columnheader', {name: 'Actions'})).not.toBeInTheDocument()
+
+            await goTo(user, 'Social')
+            expect(screen.queryByRole('button', {name: 'Add social link'})).not.toBeInTheDocument()
+            expect(screen.queryByRole('button', {name: /remove social link/i})).not.toBeInTheDocument()
         })
     })
 
@@ -523,17 +668,17 @@ describe('ContactEditorPage', () => {
             renderPage()
 
             await waitFor(() => {
-                expect(screen.getByDisplayValue('info@store.co.za')).toBeInTheDocument()
+                expect(screen.getByDisplayValue('enquiries@store.co.za')).toBeInTheDocument()
             })
 
             expect(screen.queryByRole('button', {name: /save/i})).not.toBeInTheDocument()
         })
     })
 
-    // --- Enquiry Email field tests (Req 5.1, 5.2, 5.3) ---
+    // --- Enquiry Email field tests ---
 
     describe('enquiryEmail field renders with existing value', () => {
-        it('shows the enquiryEmail from settings in the Enquiry Form panel', async () => {
+        it('shows the enquiryEmail from settings on the Enquiry Form section', async () => {
             setupMocks()
             renderPage()
 
@@ -541,7 +686,9 @@ describe('ContactEditorPage', () => {
                 expect(screen.getByDisplayValue('enquiries@store.co.za')).toBeInTheDocument()
             })
 
-            expect(screen.getByText('Enquiry Form')).toBeInTheDocument()
+            // "Enquiry Form" also appears as the nav item's own label — scope to
+            // the heading role to target the section content specifically.
+            expect(screen.getByRole('heading', {name: 'Enquiry Form'})).toBeInTheDocument()
             expect(screen.getByText('Enquiry recipient email')).toBeInTheDocument()
         })
     })
@@ -560,6 +707,7 @@ describe('ContactEditorPage', () => {
                         }),
                         description: null,
                     },
+                    {key: 'storefront.footer', value: JSON.stringify({}), description: null},
                 ],
             })
             renderPage()
@@ -568,12 +716,10 @@ describe('ContactEditorPage', () => {
                 expect(screen.getByDisplayValue('old@store.co.za')).toBeInTheDocument()
             })
 
-            // Clear and type new enquiry email
             const enquiryInput = screen.getByDisplayValue('old@store.co.za')
             await user.clear(enquiryInput)
             await user.type(enquiryInput, 'new@store.co.za')
 
-            // Submit
             const saveButton = screen.getByRole('button', {name: /save/i})
             await user.click(saveButton)
 
@@ -581,10 +727,9 @@ describe('ContactEditorPage', () => {
                 expect(mockMutate).toHaveBeenCalledTimes(1)
             })
 
-            const callArgs = mockMutate.mock.calls[0]
-            expect(callArgs[0].key).toBe('storefront.contact')
-            const parsed = JSON.parse(callArgs[0].value)
-            expect(parsed.enquiryEmail).toBe('new@store.co.za')
+            const [settingsToSave] = mockMutate.mock.calls[0]
+            const contactEntry = settingsToSave.find((s: {key: string}) => s.key === 'storefront.contact')
+            expect(JSON.parse(contactEntry.value).enquiryEmail).toBe('new@store.co.za')
         })
     })
 
@@ -607,11 +752,8 @@ describe('ContactEditorPage', () => {
             const user = userEvent.setup()
             setupMocks({
                 settings: [
-                    {
-                        key: 'storefront.contact',
-                        value: JSON.stringify({enquiryEmail: '', emails: [], phones: []}),
-                        description: null,
-                    },
+                    {key: 'storefront.contact', value: JSON.stringify({enquiryEmail: '', emails: [], phones: []}), description: null},
+                    {key: 'storefront.footer', value: JSON.stringify({}), description: null},
                 ],
             })
             renderPage()
@@ -620,7 +762,6 @@ describe('ContactEditorPage', () => {
                 expect(screen.getByText('Contact Settings')).toBeInTheDocument()
             })
 
-            // Type an invalid email in the enquiry field
             const enquiryInput = screen.getByPlaceholderText('e.g. info@store.co.za')
             await user.type(enquiryInput, 'not-a-valid-email')
 
@@ -649,6 +790,7 @@ describe('ContactEditorPage', () => {
                         }),
                         description: null,
                     },
+                    {key: 'storefront.footer', value: JSON.stringify({}), description: null},
                 ],
             })
             renderPage()
@@ -657,11 +799,9 @@ describe('ContactEditorPage', () => {
                 expect(screen.getByDisplayValue('old@store.co.za')).toBeInTheDocument()
             })
 
-            // Clear the enquiry email to make it empty
             const enquiryInput = screen.getByDisplayValue('old@store.co.za')
             await user.clear(enquiryInput)
 
-            // Submit
             const saveButton = screen.getByRole('button', {name: /save/i})
             await user.click(saveButton)
 
@@ -669,14 +809,13 @@ describe('ContactEditorPage', () => {
                 expect(mockMutate).toHaveBeenCalledTimes(1)
             })
 
-            // enquiryEmail should not be in the persisted config (empty is omitted by formToContactConfig)
-            const callArgs = mockMutate.mock.calls[0]
-            const parsed = JSON.parse(callArgs[0].value)
-            expect(parsed.enquiryEmail).toBeUndefined()
+            const [settingsToSave] = mockMutate.mock.calls[0]
+            const contactEntry = settingsToSave.find((s: {key: string}) => s.key === 'storefront.contact')
+            expect(JSON.parse(contactEntry.value).enquiryEmail).toBeUndefined()
         })
     })
 
-    // --- WhatsApp field tests (contacteditorpage-drops-whatsapp-on-save) ---
+    // --- WhatsApp field tests (General section) ---
 
     describe('whatsapp survives save', () => {
         it('preserves whatsapp when only an unrelated field is touched and saved', async () => {
@@ -693,18 +832,17 @@ describe('ContactEditorPage', () => {
                         }),
                         description: null,
                     },
+                    {key: 'storefront.footer', value: JSON.stringify({}), description: null},
                 ],
             })
             renderPage()
 
-            await waitFor(() => {
-                expect(screen.getByDisplayValue('info@store.co.za')).toBeInTheDocument()
-            })
+            await waitFor(() => expect(screen.getByText('Contact Settings')).toBeInTheDocument())
 
-            // Touch only an unrelated field, on a different tab — whatsapp was
-            // never interacted with, so a correct implementation carries the
+            // Touch only an unrelated field, on a different section — whatsapp
+            // was never interacted with, so a correct implementation carries the
             // loaded value through untouched.
-            await user.click(getTabButton('Hours & Response'))
+            await goTo(user, 'Hours & Response')
             const businessHoursInput = screen.getByPlaceholderText('e.g. Mon-Fri 08:00-17:00, Sat 09:00-13:00')
             await user.type(businessHoursInput, 'Mon-Fri 09:00-17:00')
 
@@ -715,22 +853,19 @@ describe('ContactEditorPage', () => {
                 expect(mockMutate).toHaveBeenCalledTimes(1)
             })
 
-            const callArgs = mockMutate.mock.calls[0]
-            const parsed = JSON.parse(callArgs[0].value)
-            expect(parsed.whatsapp).toBe('+27827654321')
+            const [settingsToSave] = mockMutate.mock.calls[0]
+            const contactEntry = settingsToSave.find((s: {key: string}) => s.key === 'storefront.contact')
+            expect(JSON.parse(contactEntry.value).whatsapp).toBe('+27827654321')
         })
     })
 
     describe('whatsapp field accepts and saves a new value', () => {
-        it('renders a WhatsApp input and saves a newly typed value', async () => {
+        it('renders a WhatsApp input on General and saves a newly typed value', async () => {
             const user = userEvent.setup()
             setupMocks({
                 settings: [
-                    {
-                        key: 'storefront.contact',
-                        value: JSON.stringify({emails: [], phones: []}),
-                        description: null,
-                    },
+                    {key: 'storefront.contact', value: JSON.stringify({emails: [], phones: []}), description: null},
+                    {key: 'storefront.footer', value: JSON.stringify({}), description: null},
                 ],
             })
             renderPage()
@@ -739,8 +874,7 @@ describe('ContactEditorPage', () => {
                 expect(screen.getByText('Contact Settings')).toBeInTheDocument()
             })
 
-            // WhatsApp lives on the General tab, which is no longer the default (Email Addresses is).
-            await user.click(getTabButton('General'))
+            await goTo(user, 'General')
             const whatsappInput = screen.getByLabelText('WhatsApp')
             await user.type(whatsappInput, '+27760000000')
 
@@ -751,9 +885,9 @@ describe('ContactEditorPage', () => {
                 expect(mockMutate).toHaveBeenCalledTimes(1)
             })
 
-            const callArgs = mockMutate.mock.calls[0]
-            const parsed = JSON.parse(callArgs[0].value)
-            expect(parsed.whatsapp).toBe('+27760000000')
+            const [settingsToSave] = mockMutate.mock.calls[0]
+            const contactEntry = settingsToSave.find((s: {key: string}) => s.key === 'storefront.contact')
+            expect(JSON.parse(contactEntry.value).whatsapp).toBe('+27760000000')
         })
     })
 })
