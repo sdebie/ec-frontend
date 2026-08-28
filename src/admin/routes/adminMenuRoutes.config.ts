@@ -7,7 +7,7 @@ export const adminMenuRoutes: AdminRouteList = [
         key: 'admin.dashboard',
         path: '/admin/dashboard',
         component: lazy(() =>
-            import('@/admin/pages/AdminDashboardPage').then((m) => ({default: m.AdminDashboardPage}))
+            import('@/admin/pages/dashboard/AdminDashboardPage').then((m) => ({default: m.AdminDashboardPage}))
         ),
         authority: ['SUPER_ADMIN', 'CATALOG_MANAGER', 'ORDER_MANAGER', 'VIEWER'],
         meta: {

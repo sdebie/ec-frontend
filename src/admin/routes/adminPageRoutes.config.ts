@@ -9,7 +9,7 @@ const adminPageOnlyRoutes: AdminRouteList = [
         key: 'admin.login',
         path: '/admin/login',
         component: lazy(() =>
-            import('@/admin/pages/AdminLoginPage').then((m) => ({default: m.AdminLoginPage}))
+            import('@/admin/pages/auth/AdminLoginPage').then((m) => ({default: m.AdminLoginPage}))
         ),
         authority: [],
         meta: {

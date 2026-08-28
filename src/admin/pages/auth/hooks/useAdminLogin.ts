@@ -51,7 +51,7 @@ export function useAdminLogin() {
                 return
             }
 
-            // Fetch userId from /admin/me — required for self-edit detection
+            // userId is required for self-edit detection elsewhere in the app
             try {
                 const me = await adminHttpClient
                     .get<AdminMeResponse>('/admin/me')

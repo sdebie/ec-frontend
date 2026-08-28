@@ -2,7 +2,7 @@ import {useState} from 'react'
 import {useForm} from 'react-hook-form'
 import {Link, Navigate, useNavigate} from 'react-router-dom'
 import {useAdminAuthStore} from '@/shared/auth/adminAuthStore'
-import {useAdminLogin} from '@/admin/hooks/auth/useAdminLogin'
+import {useAdminLogin} from './hooks/useAdminLogin'
 import {InputField, PasswordField} from '@/shared/ui/components'
 
 interface LoginFormValues {
@@ -71,7 +71,6 @@ export function AdminLoginPage() {
                 </p>
 
                 <form onSubmit={handleSubmit(onSubmit)} noValidate className="flex flex-col gap-4">
-                    {/* Email */}
                     <div>
                         <InputField
                             id="email"
@@ -104,7 +103,6 @@ export function AdminLoginPage() {
                         </Link>
                     </div>
 
-                    {/* Server error */}
                     {serverError && (
                         <p className="rounded-lg px-3 py-2 text-sm"
                            style={{background: 'var(--c-status-red-bg)', color: 'var(--c-status-red-text)'}}>
