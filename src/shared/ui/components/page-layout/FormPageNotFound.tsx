@@ -4,16 +4,15 @@ import {Card} from '@/shared/ui/primitives'
 export interface FormPageNotFoundProps {
     /** What wasn't found, e.g. "Brand" — rendered as "Brand not found". */
     entityName: string
-    /** Where the back link goes. */
+    /** Where the backlink goes. */
     backHref: string
-    /** Back link label, e.g. "Back to Brands". */
+    /** Backlink label, e.g. "Back to Brands". */
     backLabel: string
 }
 
 /**
- * Shown when an id in the URL resolves to nothing — a deleted record, a
- * mistyped link, or one this staff member cannot see. It offers the way
- * back rather than leaving the reader on an empty page.
+ * Shown when an id in the URL resolves to nothing — a deleted record,
+ * a mistyped link, or one this staff member cannot see — with a way back rather than a dead end.
  */
 export function FormPageNotFound({entityName, backHref, backLabel}: FormPageNotFoundProps) {
     return (

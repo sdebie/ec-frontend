@@ -53,7 +53,7 @@ export function RichTextEditor({value, onChange, disabled = false}: RichTextEdit
         }
     }, [editor, disabled])
 
-    // Sync content only when value changes externally (e.g. loading from API).
+    // Sync content only when the value changes externally (e.g. loading from API).
     // We track whether the editor itself triggered the change to avoid resetting
     // the editor on every keystroke — which would break heading/list toggling.
     const isInternalUpdate = useRef(false)
@@ -85,10 +85,8 @@ export function RichTextEditor({value, onChange, disabled = false}: RichTextEdit
     if (!editor) return null
 
     return (
-        <div className={cn(
-            'rounded-(--c-radius) border border-(--c-border) bg-(--c-panel)',
-            disabled && 'opacity-60 pointer-events-none'
-        )}>
+        <div
+            className={cn('rounded-(--c-radius) border border-(--c-border) bg-(--c-panel)', disabled && 'opacity-60 pointer-events-none')}>
             {/* Toolbar */}
             <div className="flex flex-wrap items-center gap-0.5 border-b border-(--c-border) px-2 py-1.5">
                 <ToolbarButton
@@ -184,7 +182,7 @@ export function RichTextEditor({value, onChange, disabled = false}: RichTextEdit
 
             <EditorContent
                 editor={editor}
-                className="px-4 py-3 text-(--c-text) text-sm min-h-[200px] max-h-[70vh] overflow-y-auto focus-within:outline-none [&_.tiptap]:outline-none [&_.tiptap]:min-h-[200px]"
+                className="px-4 py-3 text-(--c-text) text-sm min-h-50 max-h-[70vh] overflow-y-auto focus-within:outline-none [&_.tiptap]:outline-none [&_.tiptap]:min-h-50"
             />
         </div>
     )

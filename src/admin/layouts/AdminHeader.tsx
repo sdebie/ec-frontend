@@ -1,7 +1,6 @@
 import {useEffect, useRef, useState} from 'react'
 import {Link, useNavigate} from 'react-router-dom'
 import {ChevronDown, ChevronUp, Menu, Monitor, Moon, Sun} from 'lucide-react'
-
 import {useAdminAuthStore} from '@/shared/auth/adminAuthStore'
 import {StaffRoleLabels, type StaffRoles} from '@/shared/types/enums/StaffRoles'
 import {type ThemeMode, type ThemePreset, useThemeStore} from '@/admin/stores/themeStore'
@@ -19,9 +18,10 @@ const presetColors: Record<ThemePreset, string> = {
 interface AdminHeaderProps {
     onMenuClick: () => void
     isCollapsed?: boolean
+    onToggleCollapsed: () => void
 }
 
-export function AdminHeader({onMenuClick, isCollapsed}: AdminHeaderProps) {
+export function AdminHeader({onMenuClick, isCollapsed, onToggleCollapsed}: AdminHeaderProps) {
     const navigate = useNavigate()
     const {userName, role, clearSession} = useAdminAuthStore()
     const breadcrumbs = useBreadcrumbItems()
@@ -29,9 +29,7 @@ export function AdminHeader({onMenuClick, isCollapsed}: AdminHeaderProps) {
     const menuRef = useRef<HTMLDivElement>(null)
     const {mode, preset, setMode, setPreset} = useThemeStore()
 
-    // Dismiss on click-away and on Escape. `mousedown` rather than `click` so the menu
-    // is gone before the pointer lands on whatever is underneath, and the listeners are
-    // only attached while open so a closed menu costs nothing.
+    // Dismiss on click-away and Escape; `mousedown` (not `click`) closes the menu before the pointer lands underneath, and listeners attach only while open so a closed menu costs nothing.
     useEffect(() => {
         if (!dropdownOpen) return
 
@@ -60,10 +58,8 @@ export function AdminHeader({onMenuClick, isCollapsed}: AdminHeaderProps) {
 
     return (
         <header className={cn(
-            'fixed top-0 right-0 z-60 bg-admin-sidebar-bg border-b border-admin-sidebar-border',
-            isCollapsed ? 'md:left-20' : 'md:left-64',
-            'left-0',
-        )}>
+            'fixed top-0 right-0 z-60 bg-admin-sidebar-bg border-b border-admin-sidebar-border transition-[left] duration-450',
+            isCollapsed ? 'md:left-20' : 'md:left-64', 'left-0',)}>
             <div className="flex px-4 py-3 justify-between items-center w-full">
                 <div className="flex items-center gap-4">
                     <button
@@ -71,7 +67,20 @@ export function AdminHeader({onMenuClick, isCollapsed}: AdminHeaderProps) {
                         onClick={onMenuClick}
                         className="md:hidden p-2 text-admin-text-muted hover:text-admin-text hover:bg-admin-sidebar-hover rounded-(--c-radius) transition-colors"
                     >
-                        <span className="sr-only">Open sidebar</span>
+                        <span className="sr-only">
+                            Open sidebar
+                        </span>
+                        <Menu className="w-6 h-6"/>
+                    </button>
+                    <button
+                        type="button"
+                        onClick={onToggleCollapsed}
+                        title={isCollapsed ? 'Expand sidebar' : 'Collapse sidebar'}
+                        className="hidden md:flex p-2 text-admin-text-muted hover:text-admin-text hover:bg-admin-sidebar-hover rounded-(--c-radius) transition-colors"
+                    >
+                        <span className="sr-only">
+                            {isCollapsed ? 'Expand sidebar' : 'Collapse sidebar'}
+                        </span>
                         <Menu className="w-6 h-6"/>
                     </button>
                     {breadcrumbs.length > 0 && (
@@ -79,13 +88,20 @@ export function AdminHeader({onMenuClick, isCollapsed}: AdminHeaderProps) {
                             <ol className="flex items-center gap-1.5 text-sm text-(--c-text-muted)">
                                 {breadcrumbs.map((item, i) => (
                                     <li key={i} className="flex items-center gap-1.5">
-                                        {i > 0 && <span aria-hidden className="select-none">›</span>}
+                                        {i > 0 &&
+                                            <span aria-hidden className="select-none">
+                                                ›
+                                            </span>
+                                        }
                                         {item.href && i < breadcrumbs.length - 1 ? (
-                                            <Link to={item.href}
-                                                  className="hover:text-(--c-text) transition-colors">{item.label}</Link>
+                                            <Link to={item.href} className="hover:text-(--c-text) transition-colors">
+                                                {item.label}
+                                            </Link>
                                         ) : (
                                             <span
-                                                className={i === breadcrumbs.length - 1 ? 'text-(--c-text) font-medium' : ''}>{item.label}</span>
+                                                className={i === breadcrumbs.length - 1 ? 'text-(--c-text) font-medium' : ''}>
+                                                {item.label}
+                                            </span>
                                         )}
                                     </li>
                                 ))}
@@ -95,14 +111,12 @@ export function AdminHeader({onMenuClick, isCollapsed}: AdminHeaderProps) {
                 </div>
 
                 <div className="flex items-center gap-4">
-                    <Link
-                        to="/"
-                        className="hidden md:flex items-center gap-2 text-sm font-medium text-admin-text hover:text-primary transition-colors"
-                    >
-            <span
-                className="bg-admin-sidebar-hover text-admin-text-muted px-2.5 py-1.5 rounded-[var(--c-radius)] border border-admin-border hover:border-primary/30 transition-colors">
-              View Store
-            </span>
+                    <Link to="/"
+                          className="hidden md:flex items-center gap-2 text-sm font-medium text-admin-text hover:text-primary transition-colors">
+                        <span
+                            className="bg-admin-sidebar-hover text-admin-text-muted px-2.5 py-1.5 rounded-(--c-radius) border border-admin-border hover:border-primary/30 transition-colors">
+                            View Store
+                        </span>
                     </Link>
 
                     <div className="relative" ref={menuRef}>
@@ -118,15 +132,18 @@ export function AdminHeader({onMenuClick, isCollapsed}: AdminHeaderProps) {
                                 className="flex items-center justify-center w-9 h-9 rounded-full bg-linear-to-tr from-primary to-primary-subtle text-(--c-accent-text) font-bold text-sm shadow-md ring-2 ring-admin-panel shrink-0">
                                 {avatarInitial}
                             </div>
-                            {/* Identity is hidden below md, where the header has no room for it —
-                  the avatar alone still opens the same menu. */}
+                            {/* Identity is hidden below md, where the header has no room for it — the avatar alone still opens the same menu. */}
                             {userName && (
                                 <span className="hidden md:flex flex-col items-start leading-tight text-left">
-                  <span className="text-xs font-semibold text-admin-text">{userName}</span>
+                                    <span className="text-xs font-semibold text-admin-text">
+                                        {userName}
+                                    </span>
                                     {roleLabel && (
-                                        <span className="text-xs font-light text-admin-text-muted">{roleLabel}</span>
+                                        <span className="text-xs font-light text-admin-text-muted">
+                                            {roleLabel}
+                                        </span>
                                     )}
-                </span>
+                                </span>
                             )}
                             {/* Points the way the menu will move, so the control reads as a toggle. */}
                             {dropdownOpen ? (
@@ -139,20 +156,27 @@ export function AdminHeader({onMenuClick, isCollapsed}: AdminHeaderProps) {
                         {dropdownOpen && (
                             <div
                                 role="menu"
-                                className="absolute right-0 mt-2 w-52 bg-admin-panel border border-admin-border rounded-[var(--c-radius-lg)] shadow-lg py-1 z-50"
+                                className="absolute right-0 mt-2 w-52 bg-admin-panel border border-admin-border rounded-(--c-radius-lg) shadow-lg py-1 z-50"
                             >
-                                {/* Repeated inside the menu for the sub-md case, where the trigger
-                    shows the avatar only. */}
+                                {/* Repeated inside the menu for the sub-md case, where the trigger shows the avatar only. */}
                                 {userName && (
                                     <div className="px-4 py-2 border-b border-admin-border md:hidden">
-                                        <p className="text-sm font-semibold text-admin-text">{userName}</p>
-                                        {roleLabel && <p className="text-xs text-admin-text-muted">{roleLabel}</p>}
+                                        <p className="text-sm font-semibold text-admin-text">
+                                            {userName}
+                                        </p>
+                                        {roleLabel &&
+                                            <p className="text-xs text-admin-text-muted">
+                                                {roleLabel}
+                                            </p>
+                                        }
                                     </div>
                                 )}
 
                                 {/* Theme mode */}
                                 <div className="px-4 py-2.5 border-b border-admin-border">
-                                    <p className="text-xs text-admin-text-muted mb-2">Theme</p>
+                                    <p className="text-xs text-admin-text-muted mb-2">
+                                        Theme
+                                    </p>
                                     <div
                                         className="flex bg-admin-sidebar-hover rounded-full p-1 border border-admin-border w-fit">
                                         {([
@@ -166,12 +190,8 @@ export function AdminHeader({onMenuClick, isCollapsed}: AdminHeaderProps) {
                                                 onClick={() => setMode(value)}
                                                 title={label}
                                                 aria-label={label}
-                                                className={`p-1.5 rounded-full transition-colors ${
-                                                    mode === value
-                                                        ? 'bg-admin-panel text-primary shadow-sm'
-                                                        : 'text-admin-text-muted hover:text-admin-text'
-                                                }`}
-                                            >
+                                                className={`p-1.5 rounded-full transition-colors 
+                                                ${mode === value ? 'bg-admin-panel text-primary shadow-sm' : 'text-admin-text-muted hover:text-admin-text'}`}>
                                                 <Icon className="w-4 h-4"/>
                                             </button>
                                         ))}
@@ -180,7 +200,9 @@ export function AdminHeader({onMenuClick, isCollapsed}: AdminHeaderProps) {
 
                                 {/* Accent colour */}
                                 <div className="px-4 py-2.5 border-b border-admin-border">
-                                    <p className="text-xs text-admin-text-muted mb-2">Accent</p>
+                                    <p className="text-xs text-admin-text-muted mb-2">
+                                        Accent
+                                    </p>
                                     <div className="flex items-center gap-2">
                                         {(Object.keys(presetColors) as ThemePreset[]).map((p) => (
                                             <button

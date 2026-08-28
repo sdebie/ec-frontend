@@ -20,28 +20,7 @@ export interface PageLayoutProps {
     backLabel?: string
     /** Width cap for the content Container. Defaults to 'xl' for wide, table-heavy pages. */
     size?: ContainerProps['size']
-    /**
-     * Optional action bar pinned to the bottom of the viewport at all times
-     * — e.g. a Save button for a settings form. Caller supplies the fully-formed
-     * content exactly as with `action`; this handles the fixed positioning and chrome.
-     *
-     * `position: fixed`, not `sticky` — sticky can only hold within its flow
-     * parent's bounds, so it can't be both flush with the true bottom and never
-     * scroll past real content at once. `fixed` sits outside document flow
-     * entirely, so it never affects `scrollHeight` while always rendering flush
-     * against the true viewport bottom.
-     *
-     * Spans the full viewport width (`inset-x-0`), including under `AdminSidebar`
-     * — deliberate: the sidebar is `fixed`/`z-50` and opaque, this renders at
-     * `z-10`, so the sidebar's own collapse/mobile-drawer handling covers the
-     * overlap for free.
-     *
-     * An invisible spacer mirroring this content reserves its space in normal
-     * flow (a fixed element leaves none), sized to match exactly rather than
-     * guessing a pixel height. `visibility:hidden`, not `display:none`, so it
-     * still occupies space — and is excluded from `getByRole` etc., which skip
-     * hidden subtrees by default.
-     */
+    /** Optional action bar pinned to the bottom of the viewport at all times — e.g. a Save button for a settings form. */
     stickyFooter?: ReactNode
 }
 
@@ -82,7 +61,7 @@ export function PageLayout({
                         {stickyFooter}
                     </div>
                     <div
-                        className="fixed inset-x-0 bottom-0 z-10 border-t border-(--c-border) bg-(--c-bg) px-4 py-6 shadow-(--c-shadow-sm) md:px-6">
+                        className="fixed inset-x-0 bottom-0 z-10 border-t border-(--c-border) bg-admin-sidebar-bg px-4 py-6 shadow-(--c-shadow-sm) md:px-6">
                         {stickyFooter}
                     </div>
                 </>
