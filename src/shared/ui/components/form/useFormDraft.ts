@@ -13,7 +13,7 @@ import type {FieldValues, UseFormReset, UseFormWatch} from 'react-hook-form'
  *
  * Contract:
  * - Takes `watch` and `reset` individually, never the whole `UseFormReturn`
- *   (law 14). Reads and restores values; never submits or validates.
+ *   (law 13). Reads and restores values; never submits or validates.
  * - Restores once on mount, before the first save. Nothing is written until
  *   then, or an empty initial render overwrites the draft being restored.
  * - A pristine form writes nothing, so visiting a page leaves no trace.

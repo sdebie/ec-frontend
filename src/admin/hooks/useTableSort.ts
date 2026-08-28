@@ -21,10 +21,10 @@ export interface UseTableSortResult {
  * server as `sort[0].field` — there is no translation table between the two. This only
  * works because the convention elsewhere in this codebase is to name a column's
  * `accessorKey` after the DTO field it displays, matching the wire shape (see
- * `useBrands`/`useAdminProductList`'s selection sets, or law 8's "mirror the working hook's
- * selection set"). A column whose accessorKey does not match a real, sortable field on the
- * backend entity will send a `sort.field` the server cannot resolve — check the entity's
- * fields, not just the DTO's, before wiring a new column to this hook.
+ * `useBrands`/`useAdminProductList`'s selection sets). A column whose accessorKey does not
+ * match a real, sortable field on the backend entity will send a `sort.field` the server
+ * cannot resolve — check the entity's fields, not just the DTO's, before wiring a new
+ * column to this hook.
  *
  * Sort state lives in the URL (`sortBy`/`sortDir`), the same as page and search — a sorted
  * column survives `navigate(-1)` from a create/edit form the same way the page number does.

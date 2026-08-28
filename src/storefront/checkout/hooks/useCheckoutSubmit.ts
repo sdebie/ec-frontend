@@ -22,7 +22,7 @@ import type {CheckoutFormValues} from '../checkoutFormSchema'
  * `token` is the order capability token (guest-order-authorization) — required on
  * every request this hook makes. Taken as a parameter, not read from the store
  * internally, so the capability the call needs is visible in the hook's own
- * signature (law 14's capability-scoped-props argument).
+ * signature (law 13's capability-scoped-props argument).
  */
 export function useCheckoutSubmit(orderId: string, token: string) {
     const navigate = useNavigate()
