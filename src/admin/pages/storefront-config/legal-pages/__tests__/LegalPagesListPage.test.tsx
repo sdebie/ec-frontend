@@ -2,11 +2,11 @@ import {beforeEach, describe, expect, it, vi} from 'vitest'
 import {render, screen} from '@testing-library/react'
 import {MemoryRouter} from 'react-router-dom'
 import {LegalPagesListPage} from '../LegalPagesListPage'
-import {useLegalPages} from '@/admin/hooks/pages'
+import {useLegalPages} from '@/admin/pages/storefront-config/legal-pages/hooks/useLegalPages'
 import {useAdminAuthStore} from '@/shared/auth/adminAuthStore'
 
 // --- Mocks ---
-vi.mock('@/admin/hooks/pages', () => ({
+vi.mock('@/admin/pages/storefront-config/legal-pages/hooks/useLegalPages', () => ({
     useLegalPages: vi.fn(),
 }))
 

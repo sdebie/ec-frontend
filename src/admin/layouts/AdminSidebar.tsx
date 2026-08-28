@@ -4,7 +4,8 @@ import {cn} from '@/shared/utils/cn'
 import {hasRequiredAuthority} from '@/shared/utils/authorizationHelper'
 import {adminMenuRoutes} from '@/admin/routes/adminMenuRoutes.config'
 import {useClientName} from '@/admin/hooks/useClientName'
-import {SidebarItem, SidebarSection} from '@/admin/components/sidebar'
+import {SidebarItem} from '@/admin/components/sidebar/SidebarItem'
+import {SidebarSection} from '@/admin/components/sidebar/SidebarSection'
 import type {AdminRouteConfig} from '@/admin/types/routes'
 
 // Generic admin-console chrome, not client data — safe as a constant.

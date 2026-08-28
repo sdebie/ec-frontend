@@ -218,7 +218,7 @@ const adminPageOnlyRoutes: AdminRouteList = [
         key: 'admin.storefront.legal.edit',
         path: '/admin/storefront/legal/:id',
         component: lazy(() =>
-            import('@/admin/pages/storefront-config/LegalPageEditPage').then((m) => ({
+            import('@/admin/pages/storefront-config/legal-pages/LegalPageEditPage').then((m) => ({
                 default: m.LegalPageEditPage,
             }))
         ),

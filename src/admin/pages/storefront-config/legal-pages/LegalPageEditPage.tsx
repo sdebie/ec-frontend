@@ -5,9 +5,9 @@ import {ConfirmationDialog, FormPageNotFound, PageLayout, PageLoadingSpinner, St
 import {Button} from '@/shared/ui/primitives'
 import {useCan} from '@/shared/auth/adminPermissions'
 import {useBreadcrumb} from '@/admin/context/BreadcrumbContext'
-import {usePageContent} from '@/admin/hooks/pages/usePageContent'
-import {useSavePageDraft} from '@/admin/hooks/pages/useSavePageDraft'
-import {usePublishPage} from '@/admin/hooks/pages/usePublishPage'
+import {usePageContent} from './hooks/usePageContent'
+import {useSavePageDraft} from './hooks/useSavePageDraft'
+import {usePublishPage} from './hooks/usePublishPage'
 import {RichTextEditor} from '@/admin/components/RichTextEditor'
 
 export function LegalPageEditPage() {
@@ -66,40 +66,39 @@ export function LegalPageEditPage() {
         })
     }
 
+    const editFooter = canEdit && (
+        <div className="flex gap-3">
+            <Button
+                variant="outline"
+                size="sm"
+                onClick={handleSave}
+                isLoading={saveDraft.isPending}
+                disabled={saveDraft.isPending || publishPage.isPending}
+            >
+                Save Draft
+            </Button>
+            <Button
+                variant="solid"
+                size="sm"
+                onClick={handlePublishClick}
+                disabled={saveDraft.isPending || publishPage.isPending}
+            >
+                Publish
+            </Button>
+        </div>
+    )
+
     return (
         <PageLayout
             title={page.title}
             onBack={() => navigate(-1)}
             action={
-                <div className="flex items-center gap-3">
-                    <StatusBadge
-                        label={page.publishedAt ? 'Published' : 'Unpublished'}
-                        color={page.publishedAt ? 'green' : 'gray'}
-                    />
-
-                    {canEdit && (
-                        <div className="flex gap-3">
-                            <Button
-                                variant="outline"
-                                size="sm"
-                                onClick={handleSave}
-                                isLoading={saveDraft.isPending}
-                                disabled={saveDraft.isPending || publishPage.isPending}
-                            >
-                                Save Draft
-                            </Button>
-                            <Button
-                                variant="solid"
-                                size="sm"
-                                onClick={handlePublishClick}
-                                disabled={saveDraft.isPending || publishPage.isPending}
-                            >
-                                Publish
-                            </Button>
-                        </div>
-                    )}
-                </div>
+                <StatusBadge
+                    label={page.publishedAt ? 'Published' : 'Unpublished'}
+                    color={page.publishedAt ? 'green' : 'gray'}
+                />
             }
+            stickyFooter={editFooter}
         >
             <RichTextEditor
                 value={content}

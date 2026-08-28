@@ -4,7 +4,7 @@ import {PageLayout, PageLoadingSpinner, StatusBadge} from '@/shared/ui/component
 import {buttonVariants, Card} from '@/shared/ui/primitives'
 import {useCan} from '@/shared/auth/adminPermissions'
 import {useBreadcrumb} from '@/admin/context/BreadcrumbContext'
-import {useLegalPages} from '@/admin/hooks/pages'
+import {useLegalPages} from './hooks/useLegalPages'
 import {formatDate} from '@/shared/utils/formatDateTime'
 import {cn} from '@/shared/utils/cn'
 
@@ -13,8 +13,13 @@ export function LegalPagesListPage() {
     const canEdit = useCan('legal:write')
 
     useBreadcrumb([
-        {label: 'Home', href: '/admin'},
-        {label: 'Legal'},
+        {
+            label: 'Home',
+            href: '/admin'
+        },
+        {
+            label: 'Legal'
+        },
     ])
 
     if (isLoading) {
@@ -39,7 +44,9 @@ export function LegalPagesListPage() {
                     <Card key={page.id} as="article" variant="bordered" className="flex flex-col justify-between">
                         <Card.Body className="p-5">
                             <div className="flex items-start justify-between gap-2">
-                                <h2 className="text-base font-semibold text-(--c-text)">{page.title}</h2>
+                                <h2 className="text-base font-semibold text-(--c-text)">
+                                    {page.title}
+                                </h2>
                                 <StatusBadge
                                     label={page.publishedAt ? 'Published' : 'Unpublished'}
                                     color={page.publishedAt ? 'green' : 'gray'}

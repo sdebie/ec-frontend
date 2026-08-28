@@ -360,7 +360,7 @@ export const adminMenuRoutes: AdminRouteList = [
         key: 'admin.storefront.legal',
         path: '/admin/storefront/legal',
         component: lazy(() =>
-            import('@/admin/pages/storefront-config/LegalPagesListPage').then((m) => ({default: m.LegalPagesListPage}))
+            import('@/admin/pages/storefront-config/legal-pages/LegalPagesListPage').then((m) => ({default: m.LegalPagesListPage}))
         ),
         authority: ['SUPER_ADMIN', 'VIEWER'],
         meta: {

@@ -3,7 +3,7 @@ import {render, screen, waitFor} from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import {MemoryRouter} from 'react-router-dom'
 import {LegalPageEditPage} from '../LegalPageEditPage'
-import {usePageContent} from '@/admin/hooks/pages/usePageContent'
+import {usePageContent} from '@/admin/pages/storefront-config/legal-pages/hooks/usePageContent'
 import {useAdminAuthStore} from '@/shared/auth/adminAuthStore'
 
 const mockSaveMutate = vi.fn()
@@ -24,11 +24,11 @@ vi.mock('@/admin/context/BreadcrumbContext', () => ({
     useBreadcrumb: vi.fn(),
 }))
 
-vi.mock('@/admin/hooks/pages/usePageContent', () => ({
+vi.mock('@/admin/pages/storefront-config/legal-pages/hooks/usePageContent', () => ({
     usePageContent: vi.fn(),
 }))
 
-vi.mock('@/admin/hooks/pages/useSavePageDraft', () => ({
+vi.mock('@/admin/pages/storefront-config/legal-pages/hooks/useSavePageDraft', () => ({
     useSavePageDraft: vi.fn(() => ({
         mutate: mockSaveMutate,
         mutateAsync: mockSaveMutateAsync,
@@ -36,7 +36,7 @@ vi.mock('@/admin/hooks/pages/useSavePageDraft', () => ({
     })),
 }))
 
-vi.mock('@/admin/hooks/pages/usePublishPage', () => ({
+vi.mock('@/admin/pages/storefront-config/legal-pages/hooks/usePublishPage', () => ({
     usePublishPage: vi.fn(() => ({
         mutate: mockPublishMutate,
         isPending: false,
@@ -189,7 +189,7 @@ describe('LegalPageEditPage', () => {
                 expect(screen.getByTestId('rich-text-editor')).toBeInTheDocument()
             })
 
-            // Click the Publish button in the header
+            // Click the Publish button in the sticky footer
             const publishButton = screen.getByRole('button', {name: /publish/i})
             await user.click(publishButton)
 
