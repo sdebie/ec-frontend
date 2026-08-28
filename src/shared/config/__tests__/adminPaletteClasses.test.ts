@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest'
 
 /**
- * Law-2 guard for the ADMIN surface.
+ * Theme-token guard for the ADMIN surface.
  *
  * The admin portal themes exclusively through `--c-*` tokens (plus the
  * `primary`/`primary-subtle` theme utilities), so a literal Tailwind palette

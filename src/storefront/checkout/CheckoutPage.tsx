@@ -29,7 +29,7 @@ import {ACCENT_BUTTON_HOVER, SF_FOCUS_RING_PAGE} from '@/storefront/sections/sha
  * `PaymentSection`, `OrderSummary`, and `CheckoutNotice` for the states that are
  * not the form. Placing the order lives in `useCheckoutSubmit`.
  *
- * The sections receive capabilities, never the form object (law 13), so the page
+ * The sections receive capabilities, never the form object, so the page
  * is the single place form state is mutated.
  */
 export function CheckoutPage() {

@@ -3,7 +3,7 @@
  *
  * Order types (e.g. OrderStatusEvent) are handwritten alongside their hooks
  * (see useOrderDetail.ts). There is no graphql-codegen step — mirror the inline
- * `gql` selection set in the hook when adding fields (see CLAUDE.md law #8).
+ * `gql` selection set in the hook when adding fields.
  */
 
 import type { AddressDto, AddressInput } from '@/shared/types/AddressDto'

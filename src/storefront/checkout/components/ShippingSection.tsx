@@ -9,7 +9,7 @@ import {InputField} from '@/shared/ui/components/form/InputField'
 import {CheckoutSection} from './CheckoutSection'
 
 /**
- * Capabilities only (law 13): `control` to bind fields and `errors` to report
+ * Capabilities only: `control` to bind fields and `errors` to report
  * them — not `watch` or `setValue`, powers no reviewer could see it needed. The
  * selected method is read with `useWatch`, and clearing the address on a switch
  * to collection belongs to the page, which owns the form.

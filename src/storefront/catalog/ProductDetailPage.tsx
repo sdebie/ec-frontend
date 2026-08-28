@@ -31,7 +31,7 @@ const ACTION_BUTTON_BASE =
 
 /**
  * Availability for the selected variant. Uses the semantic status tokens
- * (a documented law-2 exception — there is no `--sf-*` token for "in stock").
+ * (a documented exception — there is no `--sf-*` token for "in stock").
  * `null` stock is UNKNOWN, not out of stock: stock is import-derived and
  * checkout does not enforce it, so an unknown must never read as unavailable.
  */

@@ -9,27 +9,18 @@ interface AccreditorTileProps {
     url?: string
 }
 
-// Tiles fill their GRID CELL rather than carrying a fixed width, so the artwork
-// inside can grow with the room the row has.
+// Tiles fill their grid cell (not a fixed width) with a fixed ASPECT RATIO
+// (not a fixed height), so proportions hold at every width as logos scale.
+// The ratio also guards against mismatched uploads — without it, `object-contain`
+// leaves some logos height-bound and some width-bound, which reads as different
+// sizes; a tile wider than any logo it holds keeps them visually consistent.
 //
-// The height comes from an ASPECT RATIO, not a fixed value, so a tile keeps its
-// proportions at every width and the logos scale with the viewport.
+// The `max-w` cap keeps a phone tile narrower than its desktop share of the row,
+// without leaving a gutter: a single-column tile should nearly fill the phone's
+// content column, or the logos read small with dead space beside them.
 //
-// The ratio is a guard against mismatched uploads: with artwork of differing
-// shapes, `object-contain` leaves some logos height-bound and some width-bound,
-// which makes them look like different sizes. A tile wider than any logo it
-// holds keeps them consistent whatever a client uploads.
-//
-// The `max-w` cap keeps a phone tile narrower than a desktop one, which is a
-// third of the row (368px at the standard page width). It is NOT there to leave
-// a gutter: a single-column tile should very nearly fill the phone's content
-// column, or the logos read as small with dead space either side. 320px lands
-// within a few px of full width on a 375px phone and still sits under the
-// desktop tile, so the cap only bites on large phones.
-//
-// The class goes on the OUTER element, not the bordered box: when a tile is
-// wrapped in its link, a percentage width on the inner div would resolve against
-// a shrink-to-fit anchor and collapse.
+// The class goes on the OUTER element, not the bordered box: on the inner div,
+// a percentage width would resolve against a shrink-to-fit anchor and collapse.
 const TILE_SIZE_CLASS = 'mx-auto w-full max-w-[420px] aspect-[5/2] sm:max-w-none'
 
 function AccreditorTile({name, logoUrl, url}: AccreditorTileProps) {

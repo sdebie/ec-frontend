@@ -69,9 +69,9 @@ const SURFACE_BACKGROUND_STYLE: Partial<Record<HeroContentSurface, CSSProperties
 // full-viewport band. `dvh` tracks mobile chrome collapsing on scroll.
 //
 // Both keep a px floor so a short window still gets a usable band.
-// Panel skin. Both entries are `bg-black/*` — the documented theme-law overlay
-// exception. A token would be wrong: the panel darkens whatever is behind it
-// rather than carrying a client colour.
+// Panel skin. Both entries are `bg-black/*` — a documented overlay exception.
+// A token would be wrong: the panel darkens whatever is behind it rather than
+// carrying a client colour.
 //
 // Over a photo a bounded panel guarantees contrast but cuts a visible rectangle
 // out of the image; use `overlayStyle: 'gradient-left'` for the same contrast

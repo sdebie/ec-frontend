@@ -146,8 +146,7 @@
       Every other --sf-* token is written onto <html> at runtime by
       StorefrontConfigProvider from the seeded `storefront.theme` JSON. Status
       colours were never in that vocabulary, which is why the storefront had
-      hard-coded red and green scattered through it as a documented exception to
-      the theme law.
+      hard-coded red and green scattered through it as a documented exception.
 
       These are DEFAULTS, not overrides: an inline style on <html> beats a
       stylesheet rule, so the moment a client seeds `error`/`errorSurface`/
@@ -399,7 +398,7 @@
   Every palette token gets a Tailwind colour so a component can name what it
   means (`bg-admin-panel`) instead of picking a raw shade. A component that
   reaches for `bg-white dark:bg-gray-900` is bypassing the hierarchy above and
-  will drift the moment a token moves — which is what law 2 forbids.
+  will drift the moment a token moves.
 */
 @theme inline {
     --color-admin-bg: var(--admin-bg);

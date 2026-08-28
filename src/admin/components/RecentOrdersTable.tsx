@@ -18,7 +18,7 @@ interface RecentOrdersTableProps {
 
 /**
  * Shared read-only order-history table for the customer and wholesale-customer
- * detail pages — one implementation, per architectural law #4.
+ * detail pages — one implementation, not two.
  */
 export function RecentOrdersTable({
   orders,

@@ -10,26 +10,25 @@ import {ProductImageStage} from './ProductImageStage'
 import {SF_FOCUS_RING} from '@/storefront/sections/shared/focusRing'
 
 /**
- * Card edge strength. 'thick' is for decks sitting on a saturated client colour
- * band, where the default line at 60% opacity disappears into the gradient.
+ * Card edge strength. 'thick' is for decks on a saturated client colour band,
+ * where the default line at 60% opacity disappears into the gradient.
  *
- * Both weights reserve the SAME 2px, and differ only in how strongly the resting
- * line is painted. The width is constant because hover swaps the colour to the
- * accent: if hover also changed the width, the content box would narrow by a
- * pixel per side under the pointer, and a name one word short of wrapping would
- * reflow and push its whole row taller. Reserving the width means hover is a
- * pure repaint.
+ * Both weights reserve the SAME 2px and differ only in how strongly the resting
+ * line is painted — the width stays constant because hover swaps the colour to
+ * the accent, and a width change on hover would reflow a name one word short of
+ * wrapping and push its row taller.
  *
  * A real border, not an inset outline: an inset outline paints beneath the
- * card's own children, so the full-bleed image stage occludes it along the top
- * edge and that side reads thinner than the other three.
+ * card's own children, so the full-bleed image stage would occlude it along
+ * the top edge.
  *
- * It costs 2px of content width per side, which is safe only because the lines
- * that could reflow cannot: the name is `line-clamp-2` and the SKU truncates.
- * If a future line may wrap, re-check that decks still align.
+ * The 2px cost is safe only because the lines that could reflow cannot: the
+ * name is `line-clamp-2` and the SKU truncates. Re-check that decks still
+ * align if a future line may wrap.
  *
  * Each branch is a COMPLETE literal class string — Tailwind scans source text,
- * so a composed `border-${n}` would emit no CSS.
+ * so a composed `border-${n}` would emit no CSS. The same applies to every
+ * multi-branch class constant in this file.
  */
 const CARD_BORDER_CLASS: Record<'default' | 'thick', string> = {
     default: 'border-2 border-(--sf-border)/60',
@@ -38,38 +37,30 @@ const CARD_BORDER_CLASS: Record<'default' | 'thick', string> = {
 
 /**
  * Overlay placement for the card's heart; appearance belongs to the component.
- *
- * `z-10` puts it above the stretched product link (see STRETCHED_LINK) — without
- * it the link's full-card pseudo-element would swallow every heart click and
- * navigate instead of saving.
+ * `z-10` sits above the stretched product link (see STRETCHED_LINK) — without
+ * it, the link's full-card pseudo-element would swallow every heart click.
  */
 const WISHLIST_OVERLAY_CLASS = 'absolute top-2 right-2 z-10'
 
 /**
  * Turns the product-name link into the card's click target: an empty
- * pseudo-element stretched over the whole card.
+ * pseudo-element stretched over the whole card, since the whole card
+ * advertises itself as clickable (accent border, shadow, hover lift).
  *
- * The whole card advertises itself as clickable — accent border, shadow, hover
- * lift — so the whole card must navigate, not just the image and the name.
- *
- * Uses the EXISTING name link rather than a second overlay anchor: no extra tab
- * stop, no second accessible name, one definition of the destination. Anything
- * clickable in its own right — the heart, quick view, the add controls —
- * carries `z-10` to sit above it.
+ * Uses the EXISTING name link rather than a second overlay anchor — no extra
+ * tab stop, no second accessible name. Anything clickable in its own right
+ * (heart, quick view, add controls) carries `z-10` to sit above it.
  */
 const STRETCHED_LINK = 'after:absolute after:inset-0 after:content-[""]'
 
 /**
- * The row layout's image rail is a positioning context only from `sm`.
- *
- * That switch is what moves the heart. The heart is a child of the rail and
- * resolves `top-2 right-2` against the nearest positioned ancestor: below `sm`
- * the rail is `static`, so the heart falls through to the card root and lands
- * in the card's top-right corner; from `sm` the rail is `relative` and the
- * heart sits on the image, where it belongs once the rail is 160px wide.
+ * The row layout's image rail is a positioning context only from `sm`. That
+ * switch is what moves the heart: it resolves `top-2 right-2` against the
+ * nearest positioned ancestor, so below `sm` (rail `static`) it falls through
+ * to the card root, and from `sm` (rail `relative`) it sits on the image.
  *
  * Preferred over a breakpoint-specific offset on the card root, which would
- * have to restate the rail's width and could drift from `sm:w-40`. The rail's
+ * restate the rail's width and could drift from `sm:w-40` — the rail's
  * geometry stays the single source of truth.
  *
  * The rail's `overflow-hidden` does not clip the escaped heart: an absolutely
@@ -79,13 +70,9 @@ const STRETCHED_LINK = 'after:absolute after:inset-0 after:content-[""]'
 const ROW_IMAGE_RAIL_POSITION = 'static sm:relative'
 
 /**
- * Right-hand padding on the block sitting under the card's top-right corner, so
- * text cannot run beneath the overlay chip (32px chip + 8px inset). Needed only
- * below `sm`, where the heart escapes onto the card; from `sm` the identity block
- * gets its normal padding back.
- *
- * COMPLETE literal class strings — Tailwind scans source text, so a composed
- * `sm:${…}` would emit no CSS.
+ * Right-hand padding on the block under the card's top-right corner, so text
+ * cannot run beneath the overlay chip (32px chip + 8px inset). Needed only
+ * below `sm`, where the heart escapes onto the card.
  */
 const OVERLAY_LANE = 'pr-10 sm:pr-4'
 
@@ -111,15 +98,14 @@ interface TierLine {
 }
 
 /**
- * Both price tiers, each named. Both are public on every surface, so a shopper
- * can see the wholesale rate without holding a wholesale account, and a
- * wholesale customer can see what retail pays.
+ * Both price tiers, each named — both are public on every surface, so a
+ * shopper can see the wholesale rate without a wholesale account, and vice versa.
  *
- * The shopper's OWN tier leads and carries the weight — it is what checkout will
- * charge, and the backend picks it from the signed JWT regardless of what the
- * card shows. Sale pricing strikes through on whichever line it belongs to.
+ * The shopper's OWN tier leads: it is what checkout will charge, chosen by the
+ * backend from the signed JWT regardless of what the card shows. Sale pricing
+ * strikes through on whichever line it belongs to.
  *
- * Selection only: every figure comes from getDisplayPrice, never arithmetic here.
+ * Selection only — every figure comes from getDisplayPrice, never arithmetic here.
  */
 function TierPrices({lines, currency, locale}: { lines: TierLine[]; currency: string; locale: string }) {
     return (

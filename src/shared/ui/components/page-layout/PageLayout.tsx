@@ -22,41 +22,25 @@ export interface PageLayoutProps {
     size?: ContainerProps['size']
     /**
      * Optional action bar pinned to the bottom of the viewport at all times
-     * — e.g. a Save button for a settings form, so it's always reachable
-     * without scrolling. Caller supplies the fully-formed content (buttons,
-     * alignment) exactly as with `action`; this just handles the fixed
-     * positioning and chrome (full-bleed border/background/shadow).
+     * — e.g. a Save button for a settings form. Caller supplies the fully-formed
+     * content exactly as with `action`; this handles the fixed positioning and chrome.
      *
-     * `position: fixed`, not `sticky` — two earlier passes tried `sticky`
-     * and each satisfied only one of two requirements that both turned out
-     * to matter: forcing the page to at least one viewport tall (so sticky
-     * had room to reach the bottom) left a dead band of empty background
-     * between real content and the footer on short pages; leaving height
-     * natural (so the page never scrolls more than its content needs) left
-     * the footer sitting short of the bottom on those same pages, instead of
-     * flush against it. `position: fixed` resolves both at once: it sits
-     * outside normal document flow entirely, so it never affects
-     * `scrollHeight` (the page still only ever scrolls as much as its real
-     * content requires) while always rendering flush against the true
-     * bottom of the viewport regardless of content length.
+     * `position: fixed`, not `sticky` — sticky can only hold within its flow
+     * parent's bounds, so it can't be both flush with the true bottom and never
+     * scroll past real content at once. `fixed` sits outside document flow
+     * entirely, so it never affects `scrollHeight` while always rendering flush
+     * against the true viewport bottom.
      *
-     * Spans the full viewport width (`inset-x-0`), including underneath
-     * `AdminSidebar` — deliberately, not a bug: the sidebar is `fixed` with
-     * `z-50` and an opaque background (its mobile backdrop is `z-40`), and
-     * this renders at `z-10`, well under both, so the sidebar's own already-
-     * correct width/collapse/mobile-drawer handling covers the overlapping
-     * portion for free. No sidebar-width bookkeeping needed here at all.
+     * Spans the full viewport width (`inset-x-0`), including under `AdminSidebar`
+     * — deliberate: the sidebar is `fixed`/`z-50` and opaque, this renders at
+     * `z-10`, so the sidebar's own collapse/mobile-drawer handling covers the
+     * overlap for free.
      *
-     * Because a fixed element leaves no space in normal flow, an invisible
-     * spacer carrying the identical content is rendered right where the
-     * footer would otherwise sit — without it, real content would render
-     * hidden underneath the fixed bar. It mirrors `stickyFooter` itself
-     * rather than guessing a fixed pixel height, so it always matches
-     * exactly regardless of how tall the caller's own content is.
-     * `visibility:hidden`, not `display:none`, so it still occupies space —
-     * and is why the duplicated content never causes `getByRole` etc. to see
-     * two matching elements, since assistive-tech queries exclude
-     * `visibility:hidden` subtrees by default.
+     * An invisible spacer mirroring this content reserves its space in normal
+     * flow (a fixed element leaves none), sized to match exactly rather than
+     * guessing a pixel height. `visibility:hidden`, not `display:none`, so it
+     * still occupies space — and is excluded from `getByRole` etc., which skip
+     * hidden subtrees by default.
      */
     stickyFooter?: ReactNode
 }

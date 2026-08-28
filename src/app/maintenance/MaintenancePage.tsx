@@ -6,7 +6,7 @@
  * - This renders when anything below the boundary crashed — including the
  *   storefront config/theme load. `--sf-*` / `--c-*` tokens may therefore be
  *   undefined here; use plain values (same rule as StorefrontError /
- *   StorefrontLoading, the documented pre-theme exception to law 2).
+ *   StorefrontLoading, the documented pre-theme exception).
  * - Keep `data-testid="maintenance-page"` on the root element — the boundary
  *   tests assert on it and are deliberately blind to everything else inside.
  */
