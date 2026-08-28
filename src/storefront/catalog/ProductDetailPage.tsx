@@ -25,7 +25,7 @@ function textOrNull(value: string | null | undefined): string | null {
     return trimmed ? trimmed : null
 }
 
-/** Add-to-cart geometry: fills the row beside the heart, shorter than before. */
+/** Add-to-cart geometry: fills the row beside the heart. */
 const ACTION_BUTTON_BASE =
     'flex-1 rounded-lg px-6 py-2 text-sm font-medium text-center'
 
@@ -134,8 +134,8 @@ export function ProductDetailPage() {
     const longDescription = textOrNull(product.description)
     const panelDescription = shortDescription ?? longDescription
 
-    // Not every brand has artwork (25 of 28 live brands do), so the name is the
-    // fallback rather than the logo being required.
+    // Not every brand has artwork, so the name is the fallback rather than
+    // the logo being required.
     const brandLogo = !brandLogoFailed ? resolveImageUrl(product.brand?.logoUrl ?? null) : null
 
     // Best-effort category from location state or product data
@@ -151,9 +151,9 @@ export function ProductDetailPage() {
 
             <PageDivider/>
 
-            {/* Breadcrumb — desktop only. At 375px the trail wraps into a ragged
-                three-line block, and the heading plus the panel already name the
-                product; the header's back paths serve navigation on a phone. */}
+            {/* Breadcrumb — desktop only. On a narrow phone the trail wraps into a
+                ragged multi-line block, and the heading plus the panel already name
+                the product; the header's back paths serve navigation there. */}
             <nav aria-label="Breadcrumb" className="mb-4 hidden sm:block">
                 <ol className="flex items-center gap-2 text-sm text-(--sf-muted-text)">
                     <li>
@@ -173,9 +173,9 @@ export function ProductDetailPage() {
             </nav>
 
             {/* ONE container holding both columns, split by a vertical rule at
-                md+ — two separate boxes left a dead gutter between the image and
-                the information. Below md the rule becomes horizontal, so the
-                same markup reflows without a second layout. */}
+                md+ — two separate boxes would leave a dead gutter between the
+                image and the information. Below md the rule becomes horizontal,
+                so the same markup reflows without a second layout. */}
             <div className="overflow-hidden rounded-lg border border-(--sf-border) bg-(--sf-panel)">
                 {/* The rule is its own grid CELL rather than a `divide-x` border,
                     so it can be inset from the container's edges — a border runs
@@ -194,8 +194,8 @@ export function ProductDetailPage() {
                     <div aria-labelledby="product-purchase-heading" className="space-y-5 p-5 lg:p-6">
                         {/* Header: name + availability on the left, price with the
                             brand beneath it on the right. Stacks below `sm` — beside
-                            a price column the name was wrapping to four lines on a
-                            phone. */}
+                            a price column the name would wrap across several lines
+                            on a narrow phone. */}
                         <div className="flex flex-col gap-3 sm:flex-row sm:justify-between sm:gap-4">
                             <div className="min-w-0 space-y-3">
                                 <h2 id="product-purchase-heading" className="text-lg font-semibold text-(--sf-text)">

@@ -5,7 +5,7 @@ import type {PayFastCheckoutResponse} from '../types'
 /**
  * `email` is deliberately not part of this request (guest-order-authorization
  * Requirement 8) — the backend resolves the payer email from the order's own
- * contactEmail, never from a caller-supplied parameter, which used to let anyone
+ * contactEmail, never from a caller-supplied parameter, which would let anyone
  * redirect the PayFast receipt to an address of their choosing.
  */
 export function useInitiatePayment() {

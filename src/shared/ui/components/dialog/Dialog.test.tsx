@@ -363,8 +363,8 @@ describe('portal rendering', () => {
   })
 
   it('REGRESSION: the overlay is not a descendant of a space-y ancestor', () => {
-    // The original defect: `space-y-6` applied margin-block-end to the fixed
-    // overlay, shrinking it below the viewport and leaving an unblurred strip.
+    // A `space-y-*` ancestor would apply margin-block-end to the fixed overlay,
+    // shrinking it below the viewport and leaving an unblurred strip.
     // Structurally escaping that subtree is what makes it impossible.
     const { container } = render(
       <div className="space-y-6">

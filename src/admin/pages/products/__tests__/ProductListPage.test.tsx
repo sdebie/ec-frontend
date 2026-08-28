@@ -192,11 +192,10 @@ describe('ProductListPage', () => {
 
     /**
      * The dialog already tells staff, before they confirm, that a delete might
-     * archive instead (see the description assertion above). The gap this
-     * closes is what happens AFTER: deleteProduct used to return void, so the
-     * success toast said "Product deleted successfully" unconditionally,
-     * whichever actually happened. It now reads the outcome the mutation
-     * resolves with and shows the matching message.
+     * archive instead (see the description assertion above). This covers what
+     * happens AFTER: the success toast must read the outcome the mutation
+     * resolves with, not announce "Product deleted successfully" unconditionally
+     * when the product may have been archived instead.
      */
     describe('delete outcome messaging', () => {
         async function confirmDelete() {

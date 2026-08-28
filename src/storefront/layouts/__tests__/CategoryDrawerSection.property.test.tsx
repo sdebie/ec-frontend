@@ -29,9 +29,9 @@ const slugArb = fc.stringMatching(/^[a-z][a-z0-9-]{0,14}[a-z0-9]$/)
  * node has children. Uses a counter-based scheme to guarantee uniqueness
  * across the tree. Slug uniqueness is a real system invariant
  * (categories.slug is UNIQUE NOT NULL) and the assertions below locate a
- * node's link by slug — generated slug collisions made this test flake
- * (~1% of seeds; e.g. seed 309 pre-fix). Names stay duplicable: the DB has
- * no unique constraint on category name.
+ * node's link by slug — a generated slug collision would flake this test in a
+ * way a plain unconstrained arbitrary cannot guarantee against. Names stay
+ * duplicable: the DB has no unique constraint on category name.
  */
 const treeWithParents: fc.Arbitrary<CategoryNode[]> = fc
   .tuple(

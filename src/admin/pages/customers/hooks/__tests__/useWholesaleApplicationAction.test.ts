@@ -112,7 +112,7 @@ describe('useWholesaleApplicationAction', () => {
     }
   })
 
-  it('no longer references the retired wholesale-customers key family', async () => {
+  it('invalidates only the admin/customers key family, never a separate wholesale-customers one', async () => {
     // Regression guard for the consolidation: the wholesale hooks share the
     // ['admin','customers', …] family now, so invalidating a separate
     // 'wholesale-customers' family would silently refresh nothing.

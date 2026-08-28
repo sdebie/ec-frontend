@@ -11,8 +11,7 @@ interface DeleteProductVariables {
  * Order history is the only bar to physical deletion (ProductService.deleteProduct,
  * ec-backend): a product whose variants were never ordered is hard-deleted;
  * one with order references is archived instead, so orders keep their variant
- * rows. The mutation used to return void, so a caller had no way to tell which
- * happened — this type is the whole reason it doesn't anymore.
+ * rows. This type lets a caller tell which outcome actually happened.
  */
 export type ProductDeletionOutcome = 'DELETED' | 'ARCHIVED'
 

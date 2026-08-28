@@ -13,10 +13,10 @@
  * invalid, so the declaration is dropped and the element simply never changes
  * colour. Nothing in the type system, the linter, the build or jsdom can see it
  * — jsdom has no CSS engine at all, so a unit test asserting the class is
- * present passes while the paint never happens. That exact token shipped in
- * FilterGroup and was only caught by hovering the live element in a browser and
- * reading back rgb(17,17,17) both hovered and not. The same class of bug hit the
- * wishlist heart's `fill-current`.
+ * present passes while the paint never happens. This exact failure mode has
+ * already shipped, in FilterGroup and the wishlist heart's `fill-current` —
+ * both caught only by inspecting the live element in a browser, never by a
+ * test.
  */
 
 /**
@@ -31,8 +31,8 @@
  * them.
  *
  * Note what is NOT here: there is no "sf-text-hover", "sf-primary",
- * "sf-surface" or "sf-text-muted" (it is `--sf-muted-text`). Each of those has
- * been written by hand at least once on the assumption that it existed.
+ * "sf-surface" or "sf-text-muted" (it is `--sf-muted-text`) — each is a
+ * plausible-looking guess, not a real token.
  *
  * The list mirrors the seed, not current usage — `--sf-radius` is seeded and
  * referenced nowhere in `src/`, which is a capability going unused, not a defect.

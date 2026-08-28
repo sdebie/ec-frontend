@@ -206,10 +206,9 @@ export function ProductCard({product, variantId, variantLabel, badge, layout = '
     const productUrl = `/products/${product.slug}`
     const imageUrl = pickFeaturedImage(product.images)
 
-    // Grid image stage: mobileImage governs the sub-`sm` height, imageAspect the
-    // sm+ ratio. Every branch is a COMPLETE literal class string — Tailwind scans
-    // source text, so an interpolated `sm:${...}` would never emit its CSS.
-    // The two `square` branches reproduce the original markup byte-for-byte.
+    // Grid image stage: mobileImage governs the sub-`sm` height, imageAspect
+    // the sm+ ratio — each branch a complete literal class string per the
+    // note above.
     const gridImageStageClass =
         mobileImage === 'thumbnail'
             ? imageAspect === 'landscape'

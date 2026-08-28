@@ -46,9 +46,9 @@ function declared(selector: string, prop: string): string | null {
 
 describe('admin palette invariants', () => {
     describe('every preset owns its own foreground in every theme', () => {
-        // The dark presets once set only --primary/-hover/-subtle, so each inherited
-        // the LIGHT --admin-sidebar-active-text and painted e.g. #1d4ed8 on a
-        // near-black active pill.
+        // A dark preset that sets only --primary/-hover/-subtle inherits the LIGHT
+        // --admin-sidebar-active-text, painting it (e.g. #1d4ed8) on a near-black
+        // active pill.
         it.each(PRESETS)('light "%s" sets both its active background and text', (preset) => {
             const sel = `[data-surface="admin"][data-preset="${preset}"]`
             expect(declared(sel, '--admin-sidebar-active')).toBeTruthy()
@@ -67,8 +67,8 @@ describe('admin palette invariants', () => {
             for (const sel of [':root', '[data-surface="admin"][data-theme="dark"]']) {
                 const hover = declared(sel, '--admin-table-row-hover')
                 expect(hover).toBeTruthy()
-                // Accent-tinted hover put the accent on every row the pointer crossed,
-                // so an orange or red preset stopped reading as accented at all.
+                // Accent-tinted hover puts the accent on every row the pointer crosses,
+                // so an orange or red preset stops reading as accented at all.
                 expect(hover).not.toContain('--primary')
             }
         })
@@ -80,9 +80,10 @@ describe('admin palette invariants', () => {
     })
 
     describe('accent-derived tokens resolve against the preset, not :root', () => {
-        // A custom property holding var(--other) is substituted where it is DECLARED.
-        // On :root these froze to :root's blue, so the green and red presets rendered
-        // selected rows and focused inputs in blue while everything else was correct.
+        // A custom property holding var(--other) is substituted where it is DECLARED —
+        // on :root alone these tokens would freeze to :root's blue, so a green or red
+        // preset's selected rows and focused inputs would render in blue instead of
+        // the preset's own accent.
         it.each(['--admin-table-row-selected', '--admin-input-focus'])(
             '%s is declared on the element carrying data-preset',
             (token) => {
@@ -92,9 +93,8 @@ describe('admin palette invariants', () => {
     })
 
     describe('an accent surface is never the same colour as a status surface', () => {
-        // Every status colour that exists, not just red — a status badge added later
-        // (e.g. purple, chosen to sit next to a same-named "purple" preset) is exactly
-        // the shape of thing this collision already bit once for red.
+        // Every status colour that exists is checked, not just red — a status badge
+        // sharing a name with a preset (e.g. purple) risks the same collision.
         const STATUS_COLORS = ['red', 'green', 'yellow', 'purple', 'pink'] as const
 
         it.each(STATUS_COLORS)('no preset subtle collides with the %s status background in either theme', (statusColor) => {
@@ -106,7 +106,7 @@ describe('admin palette invariants', () => {
                 const dark = declared(
                     `[data-surface="admin"][data-theme="dark"][data-preset="${preset}"]`, '--primary-subtle')
                 // An error badge and a selected row sharing a colour makes one of them
-                // unreadable as what it is; red-50 and the red preset collided exactly.
+                // unreadable as what it is.
                 expect(light).not.toBe(statusLight)
                 expect(dark).not.toBe(statusDark)
             }
@@ -123,7 +123,7 @@ describe('admin palette invariants', () => {
                 declared(':root', '--admin-table-row-hover'),
             ]
             expect(values.every(Boolean)).toBe(true)
-            // Collapsing these is what made light mode read as "white or pale grey".
+            // Collapsing these would make light mode read as flat "white or pale grey".
             expect(new Set(values).size).toBe(values.length)
         })
     })

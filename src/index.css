@@ -11,9 +11,9 @@
   spacing and sizing utilities are all rem-based, so the whole storefront scales
   proportionally and every carefully-aligned deck keeps its alignment.
 
-  17px (+6.25%) deliberately, not more: it is the largest step that leaves the
-  two-up product grid and the 375px filter drawer laid out exactly as measured.
-  Bumping this further requires re-checking those at 375x667.
+  This is deliberately the largest step that keeps the two-up product grid and
+  the filter drawer laid out correctly on common phone widths — bumping it
+  further needs re-checking those layouts.
 */
 @media (max-width: 639px) {
     :root {
@@ -26,18 +26,18 @@
 
       page → panel → secondary surface → hover → selected
 
-  Two rules keep this coherent, and both were learned by breaking them:
+  Two rules keep this coherent:
 
   1. NEUTRAL MEANS "I am hovering". ACCENT MEANS "I selected something".
      Hover states are grey at every elevation. The accent is reserved for
-     genuine selection — active nav, selected row, checked filter. When
-     ordinary table hover was accent-tinted, an orange or red preset put the
-     accent on every row the pointer crossed and it stopped reading as an
-     accent at all.
+     genuine selection — active nav, selected row, checked filter. Tinting
+     ordinary table hover with the accent puts the accent on every row the
+     pointer crosses, so an orange or red preset stops reading as accented
+     at all.
 
   2. EVERY PRESET OWNS ITS OWN FOREGROUND IN EVERY THEME. A preset that sets a
-     background but not the text on it inherits the other theme's text — see
-     the dark preset block for what that produced.
+     background but not the text on it inherits the other theme's text — the
+     dark preset block below sets both explicitly for exactly this reason.
 
   Depth comes from borders and small elevation steps, not from strong
   background contrast: a light mode built on heavier greys reads as flat and
@@ -53,19 +53,15 @@
     --primary-subtle-hover: #dbeafe;
 
     /*
-      FOUR surface levels, not two. Light mode previously ran white panels on a
-      near-white page with the secondary surface and the row hover set to the
-      same value — so the whole workspace collapsed into "white or pale grey"
-      and read as washed out next to dark mode's four distinct steps.
+      FOUR surface levels, not two: collapsing the secondary surface and the row
+      hover onto the same value as the page reads as washed out next to dark
+      mode's four distinct steps ("white or pale grey" instead of a real
+      hierarchy).
 
       The neutrals are also nudged a few degrees off pure slate. Cold slate on
       every surface is what makes an admin look like an unstyled starter; the
       shift is small enough to stay neutral under any accent preset, and only
       shows as warmth against a large area.
-
-           PAGE #dde6e3 → SIDEBAR #e8edeb → PANEL/TABLE #f4f6f6
-                                          → TABLE HEADER #e2e9e7
-                                          → HOVER        #d8e1de
     */
 
     /* Page */
@@ -169,10 +165,9 @@
 
       The step is a fixed OKLCH lightness offset rather than a color-mix
       percentage because a percentage mix is MULTIPLICATIVE — its perceived step
-      shrinks as the accent darkens. Mixing 12% black moves a dark accent about
-      3.6 L*, which is at the threshold of perception, and a light accent about
-      9 L*, so a single percentage cannot read the same across clients. A fixed
-      OKLCH offset lands every accent within roughly 7.5-10.7 L*.
+      shrinks as the accent darkens, so a single percentage cannot read the same
+      across every client's accent colour. A fixed OKLCH lightness offset stays
+      visually consistent regardless of how light or dark the seeded accent is.
 
       The color-mix values here are the fallback for engines without relative
       colour syntax; the @supports rule below upgrades them. They must stay as a
@@ -200,10 +195,9 @@
   `--primary-subtle` further down cannot retroactively alter the value already
   computed at :root and inherited from it.
 
-  This hid because dark mode looked correct: its own block re-declares these on
-  this same element, where the preset IS in scope. Verified by probe — with these
-  on :root alone, the green and red presets rendered selected rows and focused
-  inputs in BLUE while every other accent surface was correctly green or red.
+  Dark mode re-declares these tokens on this same scoped element, so only a
+  light-mode preset exposes a regression here: its selected rows and focused
+  inputs render in the default blue instead of its own accent.
 
   Any future token defined as var(--primary…) belongs in this block.
 */
@@ -218,9 +212,9 @@
        black and vanish against the dark inputs. */
     color-scheme: dark;
 
-    /* Page — one step under the panel rather than near-black. The former
-       #030712 against a #111827 panel was a large enough jump that cards read
-       as separate floating rectangles instead of one surface. */
+    /* Page — one step under the panel rather than near-black: too large a jump
+       here makes cards read as separate floating rectangles instead of one
+       surface. */
     --admin-bg: #0b1120;
 
     /* Surfaces — each step is a deliberate elevation, not an arbitrary grey. */
@@ -262,8 +256,8 @@
     /* Status surfaces sit in the same elevation range as the panels rather than
        as saturated blocks, so a badge reads as tinted rather than as a hole cut
        in the page. The red surface is also deliberately distinct from the red
-       preset's --primary-subtle (#450a0a), which it used to collide with — an
-       error badge and a selected row must never be the same colour. */
+       preset's --primary-subtle (#450a0a) — an error badge and a selected row
+       must never be the same colour. */
     --admin-status-red-bg: #2a1518;
     --admin-status-red-text: #fda4af;
     --admin-status-red-border: #5f252d;
@@ -324,8 +318,8 @@
 /*
   The red preset's subtle sits in the rose family, not red-50 — red-50 (#fef2f2)
   is exactly --admin-status-red-bg, which would make a selected row and an error
-  badge the same colour under this preset. Same collision the dark status
-  surfaces were re-tuned to avoid.
+  badge the same colour under this preset. The dark status surfaces avoid the
+  same collision.
 */
 [data-surface="admin"][data-preset="red"] {
     --primary: #ef4444;
@@ -338,11 +332,10 @@
 }
 
 /*
-  Dark presets must set their OWN active foreground. Each light preset sets
-  --admin-sidebar-active-text, and the dark blocks previously set only --primary,
-  --primary-hover and --primary-subtle — so a dark preset inherited the LIGHT
-  text colour (blue's #1d4ed8) and painted it on a near-black active pill.
-  Every preset below owns the full set, background and foreground together.
+  Dark presets must set their OWN active foreground, not just background: a
+  preset that omits --admin-sidebar-active-text inherits the LIGHT text colour
+  (blue's #1d4ed8) painted on a near-black active pill. Every preset below
+  owns the full set, background and foreground together.
 */
 [data-surface="admin"][data-theme="dark"][data-preset="blue"] {
     --primary: #3b82f6;
@@ -616,11 +609,11 @@
     color: rgba(255, 255, 255, 0.82);
 }
 
-/* On a dark band the eyebrow's TEXT takes the heading's colour (owner directive
-   2026-08-03) — the accent measures ~1.6:1 on this base, which was legible in
-   theory and unappealing in practice. Its RULE stays the accent, so the brand
-   mark survives; that needs no entry here because a <span> is not matched by the
-   `p` selector above, so the component's own class wins.
+/* On a dark band the eyebrow's TEXT takes the heading's colour: the accent
+   measures ~1.6:1 on this base, technically legible but visually unappealing.
+   Its RULE stays the accent, so the brand mark survives; that needs no entry
+   here because a <span> is not matched by the `p` selector above, so the
+   component's own class wins.
 
    Matching the h1–h6 value exactly, not merely "some white": the eyebrow sits
    directly above its heading, and two near-but-not-equal whites read as a

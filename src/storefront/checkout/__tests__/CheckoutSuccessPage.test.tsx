@@ -84,9 +84,9 @@ function renderCheckoutSuccessPage(Component: React.ComponentType) {
 // --- Tests ---
 
 /**
- * guest-order-authorization: this page now reads orderId/orderToken from
- * checkoutSessionStore, never a URL query string (Requirement 3.5) — the withdrawn
- * ?sessionId= was itself a bearer credential (Requirement 4).
+ * guest-order-authorization: this page reads orderId/orderToken from
+ * checkoutSessionStore, never a URL query string (Requirement 3.5) — a token in
+ * the URL is itself a bearer credential (Requirement 4).
  */
 describe('CheckoutSuccessPage', () => {
     let CheckoutSuccessPage: React.ComponentType

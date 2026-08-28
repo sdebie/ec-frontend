@@ -6,7 +6,7 @@ import { DropdownMenu, DropdownItem } from '../DropdownMenu'
  * Bug: the floating menu is `position: fixed`, positioned once (from the trigger's
  * getBoundingClientRect) at the moment it opens. A `position: fixed` element does not move
  * with page scroll on its own, so once the trigger scrolls to a new viewport position, the
- * open menu is left behind — it visually "detaches" from the trigger, exactly as reported.
+ * open menu is left behind — it visually "detaches" from the trigger.
  *
  * Fix: recompute position on `scroll` (capture, so a nested scrollable ancestor counts too)
  * and `resize` while the menu is open, not just once on open.

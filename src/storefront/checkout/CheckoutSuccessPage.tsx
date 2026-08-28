@@ -16,7 +16,7 @@ import {CHECKOUT_DRAFT_KEY} from './draftKey'
  * <p>
  * Reads the order from checkoutSessionStore, not a URL query string (Requirement
  * 3.5) — a query string reaches browser history and any third-party Referer, and
- * the withdrawn sessionId was itself a bearer credential (Requirement 4). The
+ * a token in the URL is itself a bearer credential (Requirement 4). The
  * store survives the PayFast round trip in the same tab (owner decision 3), and
  * clearCheckoutIntent() (see the store) deliberately keeps orderId/orderToken
  * through a terminal status so this page still has something to render after a

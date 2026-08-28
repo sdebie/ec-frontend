@@ -8,17 +8,16 @@ import {OrderTable} from '../OrderTable'
 
 /**
  * The server pages the orders and returns them in the order it was asked for — that makes
- * row order part of the answer, not a local presentation choice, and a table that re-sorts
- * what it was given can only ever sort the one page it holds, silently reordering 10 rows
- * out of however many matched.
+ * row order part of the answer, not a local presentation choice. A table that re-sorts what
+ * it was given can only ever sort the one page it holds, silently reordering rows out of
+ * however many matched. Sort state must never outlive the rows it was set for: a new filter
+ * or page fetch has to arrive correctly ordered from the server, not get reordered on the
+ * way to the screen.
  *
- * The failure this originally pinned is not the click itself but what it leaves behind: the
- * sort state outlives the rows, so every later fetch — a new filter, a new page — arrives
- * correct from the server and is reordered on the way to the screen. `OrderTable` now offers
- * real server-side sorting on the three columns with a backing column, so `sorting`/
- * `onSortingChange` are controlled props here rather than left empty — the "Customer" column
- * clicked below stays unsortable on its own terms (it is a computed fallback, not a stored
- * field), which is what proves the guard still holds where sorting is genuinely absent.
+ * `OrderTable` implements real server-side sorting on the three columns with a backing
+ * field, via controlled `sorting`/`onSortingChange` props. The "Customer" column clicked
+ * below stays unsortable on its own terms — it is a computed fallback, not a stored field —
+ * which is what proves the guard still holds where sorting is genuinely absent.
  */
 
 const order = (reference: string, placedAt: string, customerName: string): AdminOrderSummary => ({

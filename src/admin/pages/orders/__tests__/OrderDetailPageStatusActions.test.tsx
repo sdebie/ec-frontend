@@ -146,7 +146,7 @@ describe('OrderDetailPage — status actions', () => {
     expect(mutate.mock.calls[0][0].status).toBe(OrderStatus.USER_CANCELED)
   })
 
-  it('no longer offers any stock decision on a refund', async () => {
+  it('offers no stock decision on a refund', async () => {
     const user = userEvent.setup()
     setup(OrderStatus.DELIVERED)
 

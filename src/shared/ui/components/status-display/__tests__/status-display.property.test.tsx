@@ -12,13 +12,11 @@ import {ProductStatus, ProductStatusOptions} from '@/shared/types/enums/ProductS
  * For any enum value from OrderStatus or ProductStatus, the corresponding StatusDisplay
  * SHALL render a badge carrying that status's label and a defined token family.
  *
- * These assertions deliberately do not restate StatusBadge's colour map. A copy of the map
- * can only detect that it changed, never that it is wrong — an earlier version of this file
- * held one, and it pinned two live defects rather than catching them: neutral statuses were
- * painted amber, and in-progress statuses shared the completed palette, so an order still in
- * transit was indistinguishable from one delivered. What is asserted instead is what a
- * reader needs to be true: every status is styled from a token, and statuses that mean
- * different things look different.
+ * These assertions deliberately do not restate StatusBadge's colour map: a copy of the map
+ * can only detect that it changed, never that it is wrong (StatusBadge.tsx documents two
+ * real defects this distinction caught). What is asserted instead is what a reader needs to
+ * be true: every status is styled from a token, and statuses that mean different things look
+ * different.
  */
 
 const orderStatusValues = Object.values(OrderStatus)

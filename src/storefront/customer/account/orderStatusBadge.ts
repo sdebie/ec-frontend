@@ -10,12 +10,11 @@ import { OrderStatus } from '@/shared/types/enums/OrderStatus'
  * classes (the documented theme-token exception); neutral states use surface
  * tokens, which are defined for every surface.
  *
- * Keyed by `OrderStatus` and typed `Record<OrderStatus, string>`, so a new status
- * fails to compile until it is given a colour. It was previously a
- * `Record<string, string>` containing `SHIPPED` — a status `OrderStatusEn` has never
- * had — which made the amber styling unreachable and dropped `IN_TRANSIT`,
- * `REFUNDED`, `IN_STORE_PAYMENT`, `FAILED`, `SYSTEM_CANCELED` and `PENDING` onto the
- * neutral fallback, so a shipped order and a refunded one looked identical.
+ * Keyed by `OrderStatus` and typed `Record<OrderStatus, string>` rather than
+ * `Record<string, string>`, so a new status fails to compile until it is given
+ * a colour here — a loosely-typed map can silently miss a status and let it
+ * fall through to the neutral badge, reading as no different from a cancelled
+ * or refunded order.
  */
 const NEUTRAL_BADGE = 'bg-(--c-surface-hover) text-(--c-text-muted)'
 

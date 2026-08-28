@@ -188,13 +188,13 @@ export function Dialog({
 
       {createPortal(
         /* Portalled to document.body so no ancestor of the call site can impose
-           layout on the modal. This is what fixes the class of bug where a page
-           utility leaked in — a `space-y-*` parent was applying a bottom margin
-           to the fixed overlay, shrinking it below the viewport and leaving an
-           unblurred strip. Escaping the tree also immunises the dialog against
-           ancestor transforms (which would re-root `position: fixed`), `overflow:
-           hidden` clipping, and stacking contexts that could trap its z-index.
-           The cost is the cascade, which `themeAttrs` restores. */
+           layout on the modal — an ancestor `space-y-*` rule, for instance, would
+           apply a bottom margin to the fixed overlay, shrinking it below the
+           viewport and leaving an unblurred strip. Escaping the tree also
+           immunises the dialog against ancestor transforms (which would re-root
+           `position: fixed`), `overflow: hidden` clipping, and stacking contexts
+           that could trap its z-index. The cost is the cascade, which `themeAttrs`
+           restores. */
         <div {...themeAttrs}>
           {/* Overlay */}
           <div

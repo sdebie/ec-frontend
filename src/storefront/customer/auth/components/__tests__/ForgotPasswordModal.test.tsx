@@ -30,10 +30,10 @@ describe('ForgotPasswordModal', () => {
   })
 
   it('leaves only a hidden anchor at the call site, which cannot take space-y margins', () => {
-    // REGRESSION: the original defect — no portal at all — meant a `space-y-*`
-    // ancestor could apply margin to the fixed overlay and shrink it below the
-    // viewport. Proving the call site is left with only a [hidden] anchor is
-    // proof that can't happen anymore.
+    // REGRESSION: a `space-y-*` ancestor can apply margin to a modal rendered
+    // inline in the tree, shrinking the fixed overlay below the viewport. Proving
+    // the call site is left with only a [hidden] anchor is proof that portalling
+    // prevents it.
     const { container } = render(
       <div className="space-y-6">
         <ForgotPasswordModal isOpen onClose={vi.fn()} onBackToLogin={vi.fn()} />

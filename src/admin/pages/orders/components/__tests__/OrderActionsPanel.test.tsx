@@ -161,7 +161,7 @@ describe('OrderActionsPanel', () => {
     [OrderStatus.COLLECTED, 'mark-collected'],
     [OrderStatus.DELIVERY_FAILED, 'delivery-failed'],
   ])(
-    'requires confirmation for %s instead of moving immediately (the previously-unconfirmed forward-fulfilment steps)',
+    'requires confirmation for %s before moving (forward-fulfilment steps)',
     (target, expectedPrompt) => {
       mockedGetAvailableTransitions.mockReturnValue([target])
 
@@ -170,8 +170,7 @@ describe('OrderActionsPanel', () => {
 
       fireEvent.click(screen.getByRole('button', {name: metaFor(target).label}))
 
-      // The old behavior was calling a prop that mutated immediately with zero confirmation.
-      // Now every one of these routes through onConfirm, same as cancel/refund always did.
+      // Every one of these routes through onConfirm, same as cancel/refund.
       expect(onConfirm).toHaveBeenCalledWith(expectedPrompt)
     },
   )

@@ -31,8 +31,8 @@ function AccreditorTile({name, logoUrl, url}: AccreditorTileProps) {
     const box = (
         <div
             // Padding trimmed to `p-2` at every size: the logo is meant to take
-            // the tile's full height and width, and a 16px inset was throwing
-            // away ~18% of the available height on a 176px tile.
+            // the tile's full height and width, and a larger inset ate too much
+            // of a small tile's available space.
             className="flex h-full w-full items-center justify-center rounded-md border border-(--sf-border) bg-(--sf-panel) p-2">
             {showImage ? (
                 <img
@@ -75,10 +75,9 @@ export function AccreditorsSection({section}: { section: AccreditorsSectionConfi
             {title && <SectionHeading title={title} eyebrow={eyebrow}/>}
             {/* A real grid, not a wrapping flex row: every tile then gets an
                 equal share of the width and the logos scale with the viewport.
-                One column on a phone so they flow under each other at full
-                width — three across a 375px screen left each logo ~98px, which
-                is smaller than the text beside it. `items-stretch` (the grid
-                default) is what lets a tile fill its cell. */}
+                One column on a phone keeps each logo legible — more columns
+                shrink it below the size of the text beside it. `items-stretch`
+                (the grid default) is what lets a tile fill its cell. */}
             <div
                 data-testid="accreditors-grid"
                 // Full content width rather than a narrower cap: the logos are

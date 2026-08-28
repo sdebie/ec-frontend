@@ -162,8 +162,7 @@ describe('useContactForm', () => {
     //
     // storefront.footer is one JSON blob also holding description/footerCallout/
     // columns/legalLinks, none of which this page renders — saving must carry
-    // them through untouched or every Contact Settings save silently wipes them,
-    // the same failure class as the (already-fixed) whatsapp-drop bug.
+    // them through untouched or every Contact Settings save silently wipes them.
 
     describe('social links', () => {
         it('starts with an empty socialLinks array before settings load', () => {

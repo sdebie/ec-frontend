@@ -95,10 +95,10 @@ function addressIssues(values: Record<string, unknown>): string[] {
         .filter((field) => (ADDRESS_FIELDS as readonly string[]).includes(field))
 }
 
-// Fee and lead time vary freely on BOTH arbitraries: whether an address is needed is
-// stated by the method, so neither may influence it. These previously encoded the old
-// inference (a fee, or a lead time other than '0', meant delivery) — which is exactly
-// what classified free same-day In-Store Pickup as a delivery and blocked collection.
+// Fee and lead time vary freely on BOTH arbitraries: whether an address is needed
+// is stated by the method, so neither may influence it. Encoding them as the
+// decision (a fee, or a lead time other than '0', meaning delivery) misclassifies
+// a free, same-day In-Store Pickup as a delivery and blocks collection.
 const anyFeeAndLeadTime = {
     baseFee: fc.float({min: 0, max: Math.fround(1000), noNaN: true}),
     estimatedDays: fc.oneof(

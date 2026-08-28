@@ -53,10 +53,9 @@ describe('useDeleteProductGql', () => {
   })
 
   /**
-   * The whole reason this mutation stopped returning void: a caller reading
-   * nothing back cannot tell a hard delete from an archive. This pins that the
-   * hook actually surfaces whichever outcome the server reports, not just
-   * whether the call succeeded.
+   * A caller reading nothing back cannot tell a hard delete from an archive.
+   * This pins that the hook actually surfaces whichever outcome the server
+   * reports, not just whether the call succeeded.
    */
   it('resolves with whichever outcome the server reports — ARCHIVED as well as DELETED', async () => {
     vi.mocked(adminGraphqlClient.request).mockResolvedValue({

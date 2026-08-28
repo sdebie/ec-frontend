@@ -5,7 +5,7 @@ import {cn} from '@/shared/utils/cn'
  *
  * Rule: **the RULE is always the accent; the TEXT takes the accent on light
  * surfaces and the heading's own colour on dark ones.** A dark accent is
- * near-invisible on a dark band — this client's measures ~1.6:1 on #121212.
+ * near-invisible on a dark band.
  *
  * - `default` — light page surface: text is the accent.
  * - `onDark` — a photo or dark chrome that is NOT a `data-variant` band, so no

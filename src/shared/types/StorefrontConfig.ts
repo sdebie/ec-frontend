@@ -96,8 +96,8 @@ export interface HeroSectionProps {
    * Whether the copy sits in its own bounded translucent panel rather than
    * directly on the band.
    *
-   * Omitted, it derives as before: a panel only when there is no photo to frame
-   * the copy. Set `true` over a photo to give the text a constant dark backing,
+   * When omitted, a panel renders only when there is no photo to frame the
+   * copy. Set `true` over a photo to give the text a constant dark backing,
    * so contrast stops depending on what happens to be in the picture behind any
    * given line — the full-bleed scrim dims the whole image equally and cannot
    * do that. When you set it, drop `overlayOpacity` too: the panel now carries

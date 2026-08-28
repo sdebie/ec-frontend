@@ -21,12 +21,12 @@ import {cn} from '@/shared/utils/cn'
  */
 const colorTokens: Record<string, string> = {
     // A neutral badge borrows the surface tokens rather than a status colour: "Created"
-    // is the absence of a state, and an amber pill said otherwise.
+    // is the absence of a state, and an amber pill would wrongly imply otherwise.
     gray: 'bg-(--c-panel-secondary) text-(--c-text-muted) border-(--c-border)',
     yellow: 'bg-(--c-status-yellow-bg) text-(--c-status-yellow-text) border-(--c-status-yellow-border)',
     green: 'bg-(--c-status-green-bg) text-(--c-status-green-text) border-(--c-status-green-border)',
-    // In-progress, not done: blue previously borrowed the green tokens, which made an
-    // order still in transit look identical to one already delivered.
+    // In-progress, not done: blue borrowing the green tokens would make an order still
+    // in transit look identical to one already delivered.
     blue: 'bg-(--c-status-yellow-bg) text-(--c-status-yellow-text) border-(--c-status-yellow-border)',
     red: 'bg-(--c-status-red-bg) text-(--c-status-red-text) border-(--c-status-red-border)',
     orange: 'bg-(--c-status-yellow-bg) text-(--c-status-yellow-text) border-(--c-status-yellow-border)',

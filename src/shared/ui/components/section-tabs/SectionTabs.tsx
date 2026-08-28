@@ -69,8 +69,8 @@ function SectionBadge({badge}: { badge: SectionTabItem['badge'] }) {
  * logic — the consuming feature keeps those and drives this component via
  * `activeSectionId` / `onActiveSectionChange`.
  *
- * Every section panel stays mounted (inactive ones carry the `hidden`
- * attribute) so consumer state living in the DOM — registered form fields,
+ * Every section panel stays mounted (inactive ones go invisible, not
+ * unmounted) so consumer state living in the DOM — registered form fields,
  * scroll positions, uncontrolled inputs — survives section switches.
  *
  * Colours use --c-* tokens only, so it themes on any surface that scopes

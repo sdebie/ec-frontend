@@ -32,14 +32,6 @@ describe('customerAuthStore — property-based tests', () => {
     localStorage.clear()
   })
 
-  /**
-   *
-   * Property 14: setSession accepts optional name fields
-   *
-   * For any valid CustomerSession payload (with or without firstName and lastName),
-   * calling setSession should store token, email, and customerType, and store
-   * firstName/lastName when provided or leave them as null when omitted.
-   */
   describe('Property 14: setSession accepts optional name fields', () => {
     it('stores token, email, customerType, firstName, and lastName when all provided', () => {
       fc.assert(
@@ -76,14 +68,6 @@ describe('customerAuthStore — property-based tests', () => {
     })
   })
 
-  /**
-   *
-   * Property 15: clearSession nulls name fields
-   *
-   * For any customerAuthStore state where firstName and lastName are non-null,
-   * calling clearSession() should result in both being null (along with all other
-   * session fields being cleared).
-   */
   describe('Property 15: clearSession nulls name fields', () => {
     it('clears firstName, lastName, and all other session fields', () => {
       fc.assert(
@@ -111,14 +95,6 @@ describe('customerAuthStore — property-based tests', () => {
     })
   })
 
-  /**
-   *
-   * Property 16: Name fields not persisted to localStorage
-   *
-   * For any setSession call that includes firstName and lastName, inspecting
-   * localStorage should reveal no firstName or lastName values — only the token
-   * is persisted.
-   */
   describe('Property 16: Name fields not persisted to localStorage', () => {
     it('persists only token to localStorage — no firstName or lastName', () => {
       fc.assert(
