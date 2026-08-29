@@ -1,5 +1,5 @@
 import {CircleCheck, CircleX, Clock, type LucideIcon} from 'lucide-react'
-import type {CustomerStatus} from '@/admin/pages/customers/types'
+import {CustomerStatus, CustomerStatusOptions} from '@/shared/types/enums'
 
 interface CustomerStatusConfig {
     label: string
@@ -9,30 +9,26 @@ interface CustomerStatusConfig {
 }
 
 /**
- * Single source of truth for how a customer account status reads across the
- * page, mirroring applicationStatus.ts's role for wholesale applications.
+ * Icon + description only — label/color come from the shared CustomerStatusOptions
+ * (@/shared/types/enums/CustomerStatus.ts), the same source CustomerStatusDisplay
+ * renders from, so this panel's status treatment can never drift from the badge's.
  */
-const CUSTOMER_STATUS_CONFIG: Record<CustomerStatus, CustomerStatusConfig> = {
-    ACTIVE: {
-        label: 'Active',
-        color: 'green',
-        icon: CircleCheck,
-        description: 'Account is active and can place orders.',
-    },
-    PENDING: {
-        label: 'Pending',
-        color: 'yellow',
-        icon: Clock,
-        description: 'Awaiting activation.',
-    },
-    DISABLED: {
-        label: 'Disabled',
-        color: 'red',
-        icon: CircleX,
-        description: 'Account is suspended and cannot place orders.',
-    },
+const CUSTOMER_STATUS_ICONS: Record<CustomerStatus, LucideIcon> = {
+    [CustomerStatus.ACTIVE]: CircleCheck,
+    [CustomerStatus.PENDING]: Clock,
+    [CustomerStatus.DISABLED]: CircleX,
+}
+
+const CUSTOMER_STATUS_DESCRIPTIONS: Record<CustomerStatus, string> = {
+    [CustomerStatus.ACTIVE]: 'Account is active and can place orders.',
+    [CustomerStatus.PENDING]: 'Awaiting activation.',
+    [CustomerStatus.DISABLED]: 'Account is suspended and cannot place orders.',
 }
 
 export function resolveCustomerStatusConfig(status: CustomerStatus): CustomerStatusConfig {
-    return CUSTOMER_STATUS_CONFIG[status]
+    return {
+        ...CustomerStatusOptions[status],
+        icon: CUSTOMER_STATUS_ICONS[status],
+        description: CUSTOMER_STATUS_DESCRIPTIONS[status],
+    }
 }

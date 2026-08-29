@@ -185,8 +185,8 @@ describe('WholesaleApplicationDetailPage', () => {
     ).toBeInTheDocument()
     // Physical address
     expect(screen.getByText('10 Main St')).toBeInTheDocument()
-    // Status renders as "Pending" (header badge + status panel), not the raw enum value
-    expect(screen.getAllByText('Pending').length).toBeGreaterThan(0)
+    // Status renders as "Pending Review" (header badge + status panel), not the raw enum value
+    expect(screen.getAllByText('Pending Review').length).toBeGreaterThan(0)
     expect(screen.queryByText('PENDING')).not.toBeInTheDocument()
   })
 

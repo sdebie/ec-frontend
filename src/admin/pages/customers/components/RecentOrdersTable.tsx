@@ -1,10 +1,8 @@
 import type {ReactNode} from 'react'
 import {Link} from 'react-router-dom'
-import {StatusBadge} from '@/shared/ui/components'
+import {OrderStatusDisplay} from '@/shared/ui/components'
 import {formatAmount} from '@/shared/utils/formatAmount'
 import {formatDate} from '@/shared/utils/formatDateTime'
-import type {OrderStatus} from '@/shared/types/enums/OrderStatus'
-import {OrderStatusOptions} from '@/shared/types/enums/OrderStatus'
 import type {AdminOrderRef} from '@/admin/pages/customers/types'
 
 interface RecentOrdersTableProps {
@@ -58,34 +56,27 @@ export function RecentOrdersTable({
                         </tr>
                         </thead>
                         <tbody>
-                        {orders.map((order) => {
-                            const statusOption = OrderStatusOptions[order.status as OrderStatus]
-                            return (
-                                <tr key={order.id} className="border-b border-(--c-border) last:border-b-0">
-                                    <td className="px-4 py-3">
-                                        <Link
-                                            to={`/admin/orders/${order.id}`}
-                                            className="font-medium text-(--c-accent) hover:underline"
-                                        >
-                                            {order.reference}
-                                        </Link>
-                                    </td>
-                                    <td className="px-4 py-3 text-(--c-text-muted)">
-                                        {formatDate(order.placedAt)}
-                                    </td>
-                                    <td className="px-4 py-3 text-(--c-text)">
-                                        {formatAmount(order.total)
-                                        }</td>
-                                    <td className="px-4 py-3">
-                                        {statusOption ? (
-                                            <StatusBadge label={statusOption.label} color={statusOption.color}/>
-                                        ) : (
-                                            <StatusBadge label={order.status} color="gray"/>
-                                        )}
-                                    </td>
-                                </tr>
-                            )
-                        })}
+                        {orders.map((order) => (
+                            <tr key={order.id} className="border-b border-(--c-border) last:border-b-0">
+                                <td className="px-4 py-3">
+                                    <Link
+                                        to={`/admin/orders/${order.id}`}
+                                        className="font-medium text-(--c-accent) hover:underline"
+                                    >
+                                        {order.reference}
+                                    </Link>
+                                </td>
+                                <td className="px-4 py-3 text-(--c-text-muted)">
+                                    {formatDate(order.placedAt)}
+                                </td>
+                                <td className="px-4 py-3 text-(--c-text)">
+                                    {formatAmount(order.total)
+                                    }</td>
+                                <td className="px-4 py-3">
+                                    <OrderStatusDisplay status={order.status}/>
+                                </td>
+                            </tr>
+                        ))}
                         </tbody>
                     </table>
                 </div>

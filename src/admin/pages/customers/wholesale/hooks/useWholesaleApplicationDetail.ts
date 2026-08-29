@@ -2,6 +2,7 @@ import {useQuery} from '@tanstack/react-query'
 import {gql} from 'graphql-request'
 import {adminGraphqlClient} from '@/shared/api/graphql/adminGraphqlClient'
 import type {AddressDto} from '@/shared/types/AddressDto'
+import type {WholesaleApplicationStatus} from '@/shared/types/enums'
 
 const WHOLESALE_APPLICATION_DETAIL = gql`
     query WholesaleApplicationDetail($id: String!) {
@@ -50,7 +51,7 @@ const WHOLESALE_APPLICATION_DETAIL = gql`
 
 export interface WholesaleApplicationDetail {
     id: string
-    status: 'PENDING' | 'APPROVED' | 'REJECTED' | 'CONVERTED'
+    status: WholesaleApplicationStatus
     firstName: string
     lastName: string
     email: string

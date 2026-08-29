@@ -10,7 +10,7 @@ export interface AddressDto {
 /**
  * Write-side counterpart: every field independently nullable, since the backend
  * treats a null field as "leave unchanged" (partial update) rather than "blank it
- * out" — never send '' for an intentionally-unset field, only null.
+ * out" — never send "" for an intentionally unset field, only null.
  */
 export interface AddressInput {
   line1?: string | null

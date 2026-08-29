@@ -11,11 +11,10 @@ import {
     UserRound,
 } from 'lucide-react'
 import {Card} from '@/shared/ui/primitives'
-import {StatusBadge} from '@/shared/ui/components'
+import {QuoteRequestStatusDisplay} from '@/shared/ui/components'
 import type {QuoteRequestStatus} from '@/shared/types/enums'
 import {formatDateTime} from '@/shared/utils/formatDateTime'
 import {formatAmount} from '@/shared/utils/formatAmount'
-import {getQuoteStatusColor, getQuoteStatusLabel} from '../utils/quoteStatusDisplay'
 
 interface QuoteSummaryPanelProps {
     id: string
@@ -85,7 +84,7 @@ export function QuoteSummaryPanel({
                     />
                     <SummaryField
                         label="Status"
-                        value={<StatusBadge label={getQuoteStatusLabel(status)} color={getQuoteStatusColor(status)}/>}
+                        value={<QuoteRequestStatusDisplay status={status}/>}
                     />
                     {quotedByName && (
                         <SummaryField icon={UserRound} label="Quoted By" value={quotedByName}/>

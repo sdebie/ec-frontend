@@ -1,6 +1,6 @@
 import {Link, useNavigate, useParams} from 'react-router-dom'
 
-import {FormPageNotFound, PageLayout, PageLoadingSpinner, StatusBadge} from '@/shared/ui/components'
+import {FormPageNotFound, PageLayout, PageLoadingSpinner, QuoteRequestStatusDisplay} from '@/shared/ui/components'
 import {Card} from '@/shared/ui/primitives'
 import {useQuoteRequestDetail} from './hooks/useQuoteRequestDetail'
 import {useQuoteRequestStatusAction} from './hooks/useQuoteRequestStatusAction'
@@ -11,7 +11,6 @@ import {QuoteMessagePanel} from './components/QuoteMessagePanel'
 import {QuoteLineItemsTable} from './components/QuoteLineItemsTable'
 import type {QuoteRequestStatus} from '@/shared/types/enums'
 import {useCan} from '@/shared/auth/adminPermissions'
-import {getQuoteStatusColor, getQuoteStatusLabel} from './utils/quoteStatusDisplay'
 
 export function QuoteRequestDetailPage() {
     const navigate = useNavigate()
@@ -70,9 +69,8 @@ export function QuoteRequestDetailPage() {
             onBack={() => navigate(-1)}
             backLabel="Back"
             action={
-                <StatusBadge
-                    label={getQuoteStatusLabel(quoteRequest.status)}
-                    color={getQuoteStatusColor(quoteRequest.status)}
+                <QuoteRequestStatusDisplay
+                    status={quoteRequest.status}
                     className="px-3.5 py-1.5 text-sm"
                 />
             }

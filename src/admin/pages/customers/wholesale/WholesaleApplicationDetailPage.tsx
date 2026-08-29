@@ -1,8 +1,13 @@
 import {useNavigate, useParams} from 'react-router-dom'
-import {Alert, PageLayout, FormPageNotFound, PageLoadingSpinner, StatusBadge} from '@/shared/ui/components'
+import {
+    Alert,
+    PageLayout,
+    FormPageNotFound,
+    PageLoadingSpinner,
+    WholesaleApplicationStatusDisplay,
+} from '@/shared/ui/components'
 import {Card} from '@/shared/ui/primitives'
 import {useWholesaleApplicationDetail} from './hooks/useWholesaleApplicationDetail'
-import {resolveApplicationStatusConfig} from '../components/applicationStatus.ts'
 import {AddressInformationPanel} from './components/AddressInformationPanel.tsx'
 import {ApplicantInformationPanel} from './components/ApplicantInformationPanel.tsx'
 import {CompanyInformationPanel} from './components/CompanyInformationPanel.tsx'
@@ -29,13 +34,12 @@ export function WholesaleApplicationDetailPage() {
     }
 
     const application = data
-    const statusConfig = resolveApplicationStatusConfig(application.status)
 
     return (
         <PageLayout
             title="Application Details"
             onBack={() => navigate(-1)}
-            action={<StatusBadge label={statusConfig.label} color={statusConfig.color}/>}
+            action={<WholesaleApplicationStatusDisplay status={application.status}/>}
         >
             <div className="flex flex-col gap-6">
                 <Alert

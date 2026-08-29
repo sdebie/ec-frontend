@@ -3,8 +3,7 @@ import {useNavigate} from 'react-router-dom'
 import type {OnChangeFn, PaginationState, SortingState} from '@tanstack/react-table'
 import {Eye} from 'lucide-react'
 import type {ColumnDef} from '@/shared/ui/components'
-import {DataTable, RowActionButton, StatusBadge} from '@/shared/ui/components'
-import {QuoteRequestStatusOptions} from '@/shared/types/enums'
+import {DataTable, QuoteRequestStatusDisplay, RowActionButton} from '@/shared/ui/components'
 import {formatDateTime} from '@/shared/utils/formatDateTime'
 import type {QuoteRequestListItem} from '../hooks/useQuoteRequests'
 
@@ -57,15 +56,7 @@ export function QuoteRequestQueueTable({
             {
                 accessorKey: 'status',
                 header: 'Status',
-                cell: ({row}) => {
-                    const statusOption = QuoteRequestStatusOptions[row.original.status]
-                    return (
-                        <StatusBadge
-                            label={statusOption.label}
-                            color={statusOption.color}
-                        />
-                    )
-                },
+                cell: ({row}) => <QuoteRequestStatusDisplay status={row.original.status}/>,
             },
             {
                 id: 'actions',

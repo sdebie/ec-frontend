@@ -4,9 +4,9 @@ import type {OnChangeFn, PaginationState, SortingState} from '@tanstack/react-ta
 import {CircleCheck, Eye, OctagonPause} from 'lucide-react'
 
 import type {ColumnDef} from '@/shared/ui/components'
-import {ConfirmationDialog, DataTable, RowActionButton, StatusBadge} from '@/shared/ui/components'
+import {ConfirmationDialog, CustomerStatusDisplay, DataTable, RowActionButton} from '@/shared/ui/components'
 import {formatDateTime} from '@/shared/utils/formatDateTime'
-import {getAvailableActions, getCustomerStatusColor} from '../../types'
+import {getAvailableActions} from '../../types'
 import type {AdminCustomerSummary} from '../../types'
 import {useUpdateCustomerStatus} from '../../hooks/useUpdateCustomerStatus'
 
@@ -111,10 +111,7 @@ export function CustomerTable({
                 accessorKey: 'status',
                 header: 'Status',
                 cell: ({row}) => (
-                    <StatusBadge
-                        label={row.original.status}
-                        color={getCustomerStatusColor(row.original.status)}
-                    />
+                    <CustomerStatusDisplay status={row.original.status}/>
                 ),
             },
             {

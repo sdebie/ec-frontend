@@ -2,9 +2,11 @@ import {afterEach, describe, expect, it} from 'vitest'
 import * as fc from 'fast-check'
 import {cleanup, render} from '@testing-library/react'
 import {OrderStatusDisplay} from '../OrderStatusDisplay'
-import {ProductStatusDisplay} from '@/shared/ui/components'
+import {CustomerStatusDisplay, ProductStatusDisplay, QuoteRequestStatusDisplay} from '@/shared/ui/components'
 import {OrderStatus, OrderStatusOptions} from '@/shared/types/enums/OrderStatus'
 import {ProductStatus, ProductStatusOptions} from '@/shared/types/enums/ProductStatus'
+import {QuoteRequestStatus, QuoteRequestStatusOptions} from '@/shared/types/enums/QuoteRequestStatus'
+import {CustomerStatus, CustomerStatusOptions} from '@/shared/types/enums/CustomerStatus'
 
 /**
  * Property 9: Status display renders the correct badge
@@ -21,9 +23,13 @@ import {ProductStatus, ProductStatusOptions} from '@/shared/types/enums/ProductS
 
 const orderStatusValues = Object.values(OrderStatus)
 const productStatusValues = Object.values(ProductStatus)
+const quoteRequestStatusValues = Object.values(QuoteRequestStatus)
+const customerStatusValues = Object.values(CustomerStatus)
 
 const orderStatusArb = fc.constantFrom(...orderStatusValues)
 const productStatusArb = fc.constantFrom(...productStatusValues)
+const quoteRequestStatusArb = fc.constantFrom(...quoteRequestStatusValues)
+const customerStatusArb = fc.constantFrom(...customerStatusValues)
 
 const badgeIn = (container: HTMLElement) => {
     const badge = container.querySelector<HTMLElement>('[data-testid="status-badge"]')
@@ -71,6 +77,38 @@ describe('Status display renders correct badge — Property Tests', () => {
                 const badge = badgeIn(container)
 
                 expect(badge.textContent).toBe(ProductStatusOptions[status].label)
+                expect(badge.className).toMatch(/bg-\(--c-[\w-]+\)/)
+                expect(badge.className).toMatch(/text-\(--c-[\w-]+\)/)
+
+                unmount()
+            }),
+            {numRuns: 100},
+        )
+    })
+
+    it('QuoteRequestStatusDisplay labels every status from the Options map and styles it from a token', () => {
+        fc.assert(
+            fc.property(quoteRequestStatusArb, (status) => {
+                const {unmount, container} = render(<QuoteRequestStatusDisplay status={status}/>)
+                const badge = badgeIn(container)
+
+                expect(badge.textContent).toBe(QuoteRequestStatusOptions[status].label)
+                expect(badge.className).toMatch(/bg-\(--c-[\w-]+\)/)
+                expect(badge.className).toMatch(/text-\(--c-[\w-]+\)/)
+
+                unmount()
+            }),
+            {numRuns: 100},
+        )
+    })
+
+    it('CustomerStatusDisplay labels every status from the Options map and styles it from a token', () => {
+        fc.assert(
+            fc.property(customerStatusArb, (status) => {
+                const {unmount, container} = render(<CustomerStatusDisplay status={status}/>)
+                const badge = badgeIn(container)
+
+                expect(badge.textContent).toBe(CustomerStatusOptions[status].label)
                 expect(badge.className).toMatch(/bg-\(--c-[\w-]+\)/)
                 expect(badge.className).toMatch(/text-\(--c-[\w-]+\)/)
 
