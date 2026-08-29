@@ -5,7 +5,7 @@ export interface RowActionButtonProps {
     children: React.ReactNode
     onClick?: () => void
     disabled?: boolean
-    /** Hover color: accent for normal actions, danger (red) for destructive ones. */
+    /** Hover colour: accent for normal actions, danger (red) for destructive ones. */
     variant?: 'default' | 'danger'
     /**
      * DropdownMenu's `trigger` prop renders inside its own <button>, so a kebab
@@ -40,8 +40,8 @@ export function RowActionButton({
     if (as === 'span') {
         return (
             <span className={classes} {...rest}>
-        {children}
-      </span>
+                {children}
+            </span>
         )
     }
 
