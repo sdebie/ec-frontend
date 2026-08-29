@@ -1,6 +1,6 @@
 import * as React from 'react'
 import {OrderStatus, OrderStatusOptions} from '@/shared/types/enums'
-import {StatusBadge} from './StatusBadge'
+import {StatusBadge} from '@/shared/ui/components/status-badge/StatusBadge'
 
 export interface OrderStatusDisplayProps {
     status: OrderStatus | string
