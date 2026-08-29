@@ -58,56 +58,59 @@
       mode's four distinct steps ("white or pale grey" instead of a real
       hierarchy).
 
-      The neutrals are also nudged a few degrees off pure slate. Cold slate on
-      every surface is what makes an admin look like an unstyled starter; the
-      shift is small enough to stay neutral under any accent preset, and only
-      shows as warmth against a large area.
+      The neutrals sit on a cool slate scale — the same hue family dark mode's
+      own text and border tokens already use — so every surface reads as
+      neutral grey rather than tinted, and the two themes share one identity.
+      The panel itself is pushed to true white so it clearly lifts off the page
+      background on contrast and border alone: elevation here is not
+      shadow-driven (--c-shadow-sm stays a 1px/5%-opacity whisper) precisely so
+      contrast and borders carry that job instead.
     */
 
     /* Page */
-    --admin-bg: #dde6e3;
+    --admin-bg: #e8ecf0;
 
     /* Surfaces */
-    --admin-panel: #f4f6f6;
-    --admin-panel-secondary: #e2e9e7;
-    --admin-panel-hover: #d8e1de;
+    --admin-panel: #ffffff;
+    --admin-panel-secondary: #eef1f4;
+    --admin-panel-hover: #e1e6eb;
 
     /* Borders */
-    --admin-border: #bacac4;
-    --admin-border-strong: #9db4ac;
+    --admin-border: #c5ccd4;
+    --admin-border-strong: #a3adb8;
 
     /* Typography */
-    --admin-text: #15231e;
-    --admin-text-secondary: #384d46;
-    --admin-text-muted: #526b62;
-    --admin-text-disabled: #7e958e;
+    --admin-text: #0f172a;
+    --admin-text-secondary: #334155;
+    --admin-text-muted: #64748b;
+    --admin-text-disabled: #94a3b8;
 
     /* Forms — the field reads as bordered rather than filled, so its own
        background matches the panel and the border carries the affordance. */
-    --admin-input-bg: #f4f6f6;
-    --admin-input-border: #aec1bb;
-    --admin-input-hover-border: #86a299;
+    --admin-input-bg: #ffffff;
+    --admin-input-border: #b8c2cf;
+    --admin-input-hover-border: #64748b;
     --admin-input-focus: var(--primary);
 
     /* Chrome — sidebar and header sit between the canvas and the panel, so
        they read as one frame around the workspace instead of blending into
        either. */
-    --admin-sidebar-bg: #e8edeb;
-    --admin-sidebar-hover: #d8e1de;
+    --admin-sidebar-bg: #f2f4f7;
+    --admin-sidebar-hover: #e1e6eb;
     --admin-sidebar-active: #eff6ff;
     --admin-sidebar-active-text: #1d4ed8;
-    --admin-sidebar-border: #c6d2ce;
-    --admin-header-bg: #e8edeb;
+    --admin-sidebar-border: #dbe1e7;
+    --admin-header-bg: #f2f4f7;
 
     /* Tables — the header is one step off the rows, enough to organise the
        grid without announcing itself as a band. Rows stay a plain panel tone
        at rest (no zebra striping: it makes a dense screen busier, not
        clearer) and come to life only on hover. */
-    --admin-table-header-bg: #e2e9e7;
-    --admin-table-row-bg: #f4f6f6;
-    --admin-table-row-hover: #d8e1de;
+    --admin-table-header-bg: #eef1f4;
+    --admin-table-row-bg: #ffffff;
+    --admin-table-row-hover: #e1e6eb;
     --admin-table-row-selected: var(--primary-subtle);
-    --admin-table-border: #bacac4;
+    --admin-table-border: #c5ccd4;
 
     --admin-radius-sm: 0.25rem;
     --admin-radius: 0.5rem;

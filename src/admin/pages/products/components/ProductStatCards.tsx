@@ -101,7 +101,7 @@ export function ProductStatCards() {
                 return (
                     <div
                         key={config.key}
-                        className="bg-(--c-panel) border border-(--c-border) p-6 rounded-xl shadow-[0_1px_3px_0_rgba(0,0,0,0.02),0_1px_2px_0_rgba(0,0,0,0.01)] hover:shadow-md transition-shadow duration-200"
+                        className="bg-(--c-panel) border border-(--c-border) p-6 rounded-xl shadow-(--c-shadow-sm)"
                     >
                         <div className="flex items-center gap-4">
                             <div className={`p-3 rounded-lg shrink-0 ${config.iconColorClass}`}>
