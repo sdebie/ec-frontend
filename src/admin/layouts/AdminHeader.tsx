@@ -5,6 +5,8 @@ import {useAdminAuthStore} from '@/shared/auth/adminAuthStore'
 import {StaffRoleLabels, type StaffRoles} from '@/shared/types/enums/StaffRoles'
 import {type ThemeMode, type ThemePreset, useThemeStore} from '@/admin/stores/themeStore'
 import {useBreadcrumbItems} from '@/admin/context/BreadcrumbContext'
+import {usePageBackActionValue} from '@/admin/context/PageBackActionContext'
+import {PageBackButton} from '@/shared/ui/components/page-layout/PageBackButton'
 import {cn} from '@/shared/utils/cn'
 
 const presetColors: Record<ThemePreset, string> = {
@@ -25,6 +27,7 @@ export function AdminHeader({onMenuClick, isCollapsed, onToggleCollapsed}: Admin
     const navigate = useNavigate()
     const {userName, role, clearSession} = useAdminAuthStore()
     const breadcrumbs = useBreadcrumbItems()
+    const backAction = usePageBackActionValue()
     const [dropdownOpen, setDropdownOpen] = useState(false)
     const menuRef = useRef<HTMLDivElement>(null)
     const {mode, preset, setMode, setPreset} = useThemeStore()
@@ -83,6 +86,9 @@ export function AdminHeader({onMenuClick, isCollapsed, onToggleCollapsed}: Admin
                         </span>
                         <Menu className="w-6 h-6"/>
                     </button>
+                    {backAction && (
+                        <PageBackButton onClick={backAction.onClick} label={backAction.label}/>
+                    )}
                     {breadcrumbs.length > 0 && (
                         <nav aria-label="Breadcrumb">
                             <ol className="flex items-center gap-1.5 text-sm text-(--c-text-muted)">

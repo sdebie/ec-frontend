@@ -27,7 +27,7 @@ export function ProductCreatePage() {
   }
 
   return (
-    <PageLayout title="Add Product">
+    <PageLayout title="Add Product" onBack={() => navigate(-1)}>
       <ProductForm
         onSubmit={handleSubmit}
         isSubmitting={isLoading}

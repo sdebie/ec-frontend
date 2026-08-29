@@ -1,6 +1,7 @@
 import {describe, expect, it, vi} from 'vitest'
 import {render, screen} from '@testing-library/react'
 import {MemoryRouter} from 'react-router-dom'
+import {PageBackActionProvider, usePageBackActionValue} from '@/admin/context/PageBackActionContext'
 import {PageLayout} from '../PageLayout'
 
 vi.mock('react-router-dom', async () => {
@@ -18,6 +19,25 @@ function renderPageLayout(props: Partial<React.ComponentProps<typeof PageLayout>
     )
 }
 
+/** Surfaces PageBackActionContext's current value as text, so a test can assert on it. */
+function BackActionProbe() {
+    const action = usePageBackActionValue()
+    return <div data-testid="back-action-probe">{action ? action.label ?? 'Back' : 'none'}</div>
+}
+
+function renderPageLayoutWithBackActionProbe(props: Partial<React.ComponentProps<typeof PageLayout>> = {}) {
+    return render(
+        <MemoryRouter>
+            <PageBackActionProvider>
+                <BackActionProbe/>
+                <PageLayout title="Products" {...props}>
+                    <div>page content</div>
+                </PageLayout>
+            </PageBackActionProvider>
+        </MemoryRouter>,
+    )
+}
+
 describe('PageLayout', () => {
     it('renders the title as an h1 with text-(--c-text) class', () => {
         renderPageLayout()
@@ -27,16 +47,22 @@ describe('PageLayout', () => {
         expect(heading.className).toContain('text-(--c-text)')
     })
 
-    it('renders PageBackButton when onBack is provided', () => {
+    it('does not render a back button itself — that moved to the admin header', () => {
         renderPageLayout({onBack: () => {}})
 
-        expect(screen.getByRole('button', {name: /back/i})).toBeInTheDocument()
+        expect(screen.queryByRole('button', {name: /back/i})).not.toBeInTheDocument()
     })
 
-    it('does not render a back button when onBack is omitted', () => {
-        renderPageLayout()
+    it('registers a back action in PageBackActionContext when onBack is provided, for AdminHeader to render', () => {
+        renderPageLayoutWithBackActionProbe({onBack: () => {}, backLabel: 'Back to products'})
 
-        expect(screen.queryByRole('button', {name: /back/i})).not.toBeInTheDocument()
+        expect(screen.getByTestId('back-action-probe')).toHaveTextContent('Back to products')
+    })
+
+    it('does not register a back action when onBack is omitted', () => {
+        renderPageLayoutWithBackActionProbe()
+
+        expect(screen.getByTestId('back-action-probe')).toHaveTextContent('none')
     })
 
     it('renders a subtitle when provided', () => {

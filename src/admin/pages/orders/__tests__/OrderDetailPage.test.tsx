@@ -237,7 +237,8 @@ describe('OrderDetailPage', () => {
     })
 
     it('renders customer name', () => {
-      expect(screen.getByText('John Smith')).toBeInTheDocument()
+      // Once in the Customer panel, once as the recipient name atop the shipping address.
+      expect(screen.getAllByText('John Smith')).toHaveLength(2)
     })
 
     it('renders customer email', () => {
@@ -278,13 +279,12 @@ describe('OrderDetailPage', () => {
       expect(screen.getByText('No address captured')).toBeInTheDocument()
     })
 
+    it('renders the items panel header with the line item count', () => {
+      expect(screen.getByText('Items · 2')).toBeInTheDocument()
+    })
+
     it('renders order summary values using formatAmount', () => {
       // formatAmount with ZAR locale returns values like "R 25 000,00"
-      // We check that the formatted values appear in the document
-      const summarySection = screen.getByText('Order Summary').closest('section')!
-      expect(summarySection).toBeInTheDocument()
-
-      // Check labels are present
       expect(screen.getByText('Sub-Total')).toBeInTheDocument()
       expect(screen.getByText('Shipping')).toBeInTheDocument()
       expect(screen.getByText('VAT')).toBeInTheDocument()
@@ -296,8 +296,16 @@ describe('OrderDetailPage', () => {
       expect(screen.getByText('Basic Gadget')).toBeInTheDocument()
     })
 
-    it('renders status history section', () => {
-      expect(screen.getByText('Order Tracking')).toBeInTheDocument()
+    it('renders the order-placed date next to the reference', () => {
+      expect(screen.getByText('Placed 15 Jun 2025')).toBeInTheDocument()
+    })
+
+    it('renders the horizontal order tracking stepper at the top', () => {
+      expect(screen.getByRole('navigation', { name: 'Order progress' })).toBeInTheDocument()
+    })
+
+    it('renders the detailed status history section, retitled to not clash with the tracker', () => {
+      expect(screen.getByText('Status History')).toBeInTheDocument()
     })
   })
 
@@ -306,7 +314,7 @@ describe('OrderDetailPage', () => {
       setupMocks({ data: mockOrder })
       renderPage()
 
-      expect(screen.queryByText('Latest Payment')).not.toBeInTheDocument()
+      expect(screen.queryByTestId('order-payment-panel')).not.toBeInTheDocument()
     })
 
     it('renders gateway, reference, amount and status when a payment is linked', () => {
@@ -324,7 +332,7 @@ describe('OrderDetailPage', () => {
       })
       renderPage()
 
-      expect(screen.getByText('Latest Payment')).toBeInTheDocument()
+      expect(screen.getByTestId('order-payment-panel')).toBeInTheDocument()
       expect(screen.getByText('PAYFAST')).toBeInTheDocument()
       expect(screen.getByText('pf-77001')).toBeInTheDocument()
       expect(screen.getByText('COMPLETE')).toBeInTheDocument()

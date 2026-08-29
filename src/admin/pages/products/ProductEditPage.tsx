@@ -52,7 +52,7 @@ export function ProductEditPage() {
     }
 
     return (
-        <PageLayout title="Edit Product">
+        <PageLayout title="Edit Product" onBack={() => navigate(-1)}>
             <ProductForm
                 defaultValues={defaultValues}
                 onSubmit={handleSubmit}

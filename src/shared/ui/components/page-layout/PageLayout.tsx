@@ -1,7 +1,7 @@
 import type {ReactNode} from 'react'
 import {cn} from '@/shared/utils/cn'
 import {Container, type ContainerProps} from '@/shared/ui/primitives'
-import {PageBackButton} from './PageBackButton'
+import {usePageBackAction} from '@/admin/context/PageBackActionContext'
 
 export interface PageLayoutProps {
     /** Page title rendered as a h1 */
@@ -14,7 +14,7 @@ export interface PageLayoutProps {
     children: ReactNode
     /** Additional CSS classes */
     className?: string
-    /** When provided, renders a PageBackButton above the title */
+    /** When provided, registers a back button in the admin header (see PageBackActionContext). */
     onBack?: () => void
     /** Custom label for the back button. Defaults to PageBackButton's own 'Back'. */
     backLabel?: string
@@ -35,11 +35,12 @@ export function PageLayout({
                                size = 'xl',
                                stickyFooter,
                            }: PageLayoutProps) {
+    usePageBackAction(onBack, backLabel)
+
     return (
         <div className={cn('space-y-3 mt-3', className)}>
             <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
                 <div>
-                    {onBack && <PageBackButton onClick={onBack} label={backLabel} className="mb-2"/>}
                     <h1 className="text-2xl font-bold tracking-tight text-(--c-text)">
                         {title}
                     </h1>

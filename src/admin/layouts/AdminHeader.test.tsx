@@ -3,6 +3,7 @@ import {render, screen} from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import {MemoryRouter} from 'react-router-dom'
 import {useAdminAuthStore} from '@/shared/auth/adminAuthStore'
+import {PageBackActionProvider, usePageBackAction} from '@/admin/context/PageBackActionContext'
 import {AdminHeader} from './AdminHeader'
 
 const mockNavigate = vi.fn()
@@ -23,6 +24,23 @@ function renderHeader(props: { onMenuClick?: () => void; onToggleCollapsed?: () 
     return render(
         <MemoryRouter>
             <AdminHeader onMenuClick={onMenuClick} onToggleCollapsed={onToggleCollapsed}/>
+        </MemoryRouter>
+    )
+}
+
+/** Stands in for PageLayout registering a back action — the real caller in production. */
+function BackActionRegistrar({onClick, label}: { onClick: () => void; label?: string }) {
+    usePageBackAction(onClick, label)
+    return null
+}
+
+function renderHeaderWithBackAction(onClick: () => void, label?: string) {
+    return render(
+        <MemoryRouter>
+            <PageBackActionProvider>
+                <BackActionRegistrar onClick={onClick} label={label}/>
+                <AdminHeader onMenuClick={vi.fn()} onToggleCollapsed={vi.fn()}/>
+            </PageBackActionProvider>
         </MemoryRouter>
     )
 }
@@ -147,6 +165,36 @@ describe('AdminHeader', () => {
 
             await user.click(trigger)
             expect(trigger).toHaveAttribute('aria-expanded', 'true')
+        })
+    })
+
+    describe('back button', () => {
+        it('does not render when no page has registered a back action', () => {
+            renderHeader()
+
+            expect(screen.queryByRole('button', {name: /back/i})).not.toBeInTheDocument()
+        })
+
+        it('renders with the registered label once a page registers a back action', () => {
+            renderHeaderWithBackAction(vi.fn(), 'Back to products')
+
+            expect(screen.getByRole('button', {name: 'Back to products'})).toBeInTheDocument()
+        })
+
+        it('falls back to the default "Back" label when the page supplies none', () => {
+            renderHeaderWithBackAction(vi.fn())
+
+            expect(screen.getByRole('button', {name: 'Back'})).toBeInTheDocument()
+        })
+
+        it('calls the registered onClick when clicked', async () => {
+            const user = userEvent.setup()
+            const onClick = vi.fn()
+            renderHeaderWithBackAction(onClick, 'Back to products')
+
+            await user.click(screen.getByRole('button', {name: 'Back to products'}))
+
+            expect(onClick).toHaveBeenCalledTimes(1)
         })
     })
 

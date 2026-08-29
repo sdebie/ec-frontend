@@ -4,6 +4,7 @@ import {AdminHeader} from './AdminHeader'
 import {AdminSidebar} from './AdminSidebar'
 import {ThemeApplier} from '@/admin/components/ThemeApplier'
 import {BreadcrumbProvider} from '@/admin/context/BreadcrumbContext'
+import {PageBackActionProvider} from '@/admin/context/PageBackActionContext'
 import {cn} from '@/shared/utils/cn'
 
 export function AdminLayout() {
@@ -37,27 +38,29 @@ export function AdminLayout() {
 
     return (
         <BreadcrumbProvider>
-            <div ref={layoutRef} data-surface="admin" data-density="compact"
-                 className="bg-admin-bg text-admin-text antialiased min-h-screen">
-                <ThemeApplier targetRef={layoutRef}/>
-                <AdminHeader
-                    onMenuClick={() => setIsSidebarOpen(prev => !prev)}
-                    isCollapsed={isSidebarCollapsed}
-                    onToggleCollapsed={() => setSidebarCollapsed(prev => !prev)}
-                />
-                <AdminSidebar
-                    isOpen={isSidebarOpen}
-                    onClose={closeSidebar}
-                    isCollapsed={isSidebarCollapsed}
-                    onSetCollapsed={setSidebarCollapsed}
-                />
-                <div
-                    className={cn('pt-15 flex-1 transition-all duration-450', isSidebarCollapsed ? 'md:ml-20' : 'md:ml-64')}>
-                    <main className="px-4 pb-4 pt-3 md:px-6 md:pb-6 md:pt-4">
-                        <Outlet/>
-                    </main>
+            <PageBackActionProvider>
+                <div ref={layoutRef} data-surface="admin" data-density="compact"
+                     className="bg-admin-bg text-admin-text antialiased min-h-screen">
+                    <ThemeApplier targetRef={layoutRef}/>
+                    <AdminHeader
+                        onMenuClick={() => setIsSidebarOpen(prev => !prev)}
+                        isCollapsed={isSidebarCollapsed}
+                        onToggleCollapsed={() => setSidebarCollapsed(prev => !prev)}
+                    />
+                    <AdminSidebar
+                        isOpen={isSidebarOpen}
+                        onClose={closeSidebar}
+                        isCollapsed={isSidebarCollapsed}
+                        onSetCollapsed={setSidebarCollapsed}
+                    />
+                    <div
+                        className={cn('pt-15 flex-1 transition-all duration-450', isSidebarCollapsed ? 'md:ml-20' : 'md:ml-64')}>
+                        <main className="px-4 pb-4 pt-3 md:px-6 md:pb-6 md:pt-4">
+                            <Outlet/>
+                        </main>
+                    </div>
                 </div>
-            </div>
+            </PageBackActionProvider>
         </BreadcrumbProvider>
     )
 }

@@ -19,7 +19,7 @@ export function OrderStatusHistory({history}: OrderStatusHistoryProps) {
                 {history.map((entry, index) => {
                     const isLast = index === history.length - 1
                     const isCurrent = index === 0
-                    // Every entry is something that already happened — only the oldest
+                    // Every entry already happened — only the oldest
                     // (isLast) reads as a distinct "origin" marker rather than a completed step.
                     const isCompleted = isCurrent || !isLast
                     return (
@@ -48,7 +48,7 @@ export function OrderStatusHistory({history}: OrderStatusHistoryProps) {
                                 <OrderStatusDisplay status={entry.status}/>
                                 {entry.staffName && (
                                     <span className="text-xs text-(--c-text-muted)">
-                                        by
+                                        by {' '}
                                         <span className="font-semibold text-(--c-text)">
                                             {entry.staffName}
                                         </span>
