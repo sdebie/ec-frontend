@@ -432,7 +432,7 @@ export const adminMenuRoutes: AdminRouteList = [
                 key: 'admin.settings.shipping',
                 path: '/admin/settings/shipping',
                 component: lazy(() =>
-                    import('@/admin/pages/settings/ShippingMethodsPage').then((m) => ({default: m.ShippingMethodsPage}))
+                    import('@/admin/pages/settings/shipping-methods/ShippingMethodsPage').then((m) => ({default: m.ShippingMethodsPage}))
                 ),
                 authority: ['SUPER_ADMIN', 'CATALOG_MANAGER', 'ORDER_MANAGER', 'VIEWER'],
                 meta: {
