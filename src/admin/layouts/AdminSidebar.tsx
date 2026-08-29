@@ -113,9 +113,9 @@ export function AdminSidebar({isOpen, onClose, isCollapsed, onSetCollapsed}: Adm
                     'w-64', isOpen ? 'translate-x-0' : '-translate-x-full md:translate-x-0',
                 )}
             >
-                {/* Brand block — h-[60px] matches the fixed header's height (py-3 + 36px content), so the two rows line up. */}
+                {/* Brand block height shares --c-header-h with the fixed header, so the two rows always line up. */}
                 <div
-                    className={cn('flex h-15 shrink-0 items-center', isCollapsed ? 'md:justify-center md:px-2' : '', 'px-4',)}>
+                    className={cn('flex h-(--c-header-h) shrink-0 items-center', isCollapsed ? 'md:justify-center md:px-2' : '', 'px-4',)}>
                     <div
                         className="flex h-9 w-9 shrink-0 items-center justify-center rounded-(--c-radius) bg-primary-subtle text-sm font-bold text-primary">
                         {clientName ? clientName.charAt(0).toUpperCase() : 'S'}

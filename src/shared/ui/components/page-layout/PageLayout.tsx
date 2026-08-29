@@ -20,7 +20,7 @@ export interface PageLayoutProps {
     backLabel?: string
     /** Width cap for the content Container. Defaults to 'xl' for wide, table-heavy pages. */
     size?: ContainerProps['size']
-    /** Optional action bar pinned to the bottom of the viewport at all times — e.g. a Save button for a settings form. */
+    /** Optional action bar pinned to the bottom of the page's own scroll region — e.g. a Save button for a settings form. */
     stickyFooter?: ReactNode
 }
 
@@ -38,7 +38,12 @@ export function PageLayout({
     usePageBackAction(onBack, backLabel)
 
     return (
-        <div className={cn('space-y-3 mt-3', className)}>
+        // pb-4/md:pb-6 only when there's no stickyFooter: `main` (the scrolling ancestor)
+        // carries none of its own, since a sticky element's `bottom:0` is inset by ITS
+        // scrolling ancestor's padding — trailing padding here, after the footer, would
+        // reproduce the same gap one level up. Pages without a footer still get the
+        // breathing room; the footer, when present, is the true last thing in the flow.
+        <div className={cn('space-y-3 mt-3', !stickyFooter && 'pb-4 md:pb-6', className)}>
             <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
                 <div>
                     <h1 className="text-2xl font-bold tracking-tight text-(--c-text)">
@@ -56,16 +61,16 @@ export function PageLayout({
                 {children}
             </Container>
             {stickyFooter && (
-                <>
-                    {/* Space reservation only — see the stickyFooter doc comment. */}
-                    <div aria-hidden="true" className="invisible border-t px-4 py-6 md:px-6">
+                // The bar cancels main's own px-4/md:px-6 with matching negative margins so
+                // its background/border-t reach the true edges of the content column (flush
+                // against the sidebar on the left, the viewport edge on the right) — not just
+                // the padded area main's own content sits in. The inner wrapper reapplies that
+                // same px-4/md:px-6 so the footer's content still lines up with page content.
+                <div className="sticky bottom-0 z-10 -mx-4 border-t border-(--c-border) bg-admin-sidebar-bg shadow-(--c-shadow-sm) md:-mx-6">
+                    <div className="px-4 py-6 md:px-6">
                         {stickyFooter}
                     </div>
-                    <div
-                        className="fixed inset-x-0 bottom-0 z-10 border-t border-(--c-border) bg-admin-sidebar-bg px-4 py-6 shadow-(--c-shadow-sm) md:px-6">
-                        {stickyFooter}
-                    </div>
-                </>
+                </div>
             )}
         </div>
     )

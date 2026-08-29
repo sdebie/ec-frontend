@@ -120,45 +120,85 @@ describe('PageLayout', () => {
             expect(screen.getByRole('button', {name: 'Save Changes'})).toBeInTheDocument()
         })
 
-        it('does not render a fixed footer wrapper when omitted', () => {
+        it('does not render a sticky footer wrapper when omitted', () => {
             const {container} = renderPageLayout()
 
-            expect(container.querySelector('.fixed')).not.toBeInTheDocument()
+            expect(container.querySelector('.sticky')).not.toBeInTheDocument()
         })
 
-        it('positions the footer with fixed/inset-x-0/bottom-0, spanning the full viewport width', () => {
+        it('positions the footer with sticky/bottom-0, so it stays pinned within the page\'s own scroll region instead of the raw viewport', () => {
             renderPageLayout({stickyFooter: <button type="button">Save Changes</button>})
 
             const button = screen.getByRole('button', {name: 'Save Changes'})
-            const fixedWrapper = button.closest('.fixed')!
-            expect(fixedWrapper.className).toContain('inset-x-0')
-            expect(fixedWrapper.className).toContain('bottom-0')
+            const stickyWrapper = button.closest('.sticky')!
+            expect(stickyWrapper.className).toContain('bottom-0')
+            // Sticky (unlike the old fixed+inset-x-0 bar) is a normal-flow box —
+            // it needs no viewport-edge positioning to span its container's width.
+            expect(stickyWrapper.className).not.toContain('inset-x-0')
+            expect(stickyWrapper.className).not.toContain('fixed')
         })
 
-        it('is not capped to the page Container width — the fixed bar must reach the true viewport edges, not the page\'s own max-width', () => {
+        it('is not capped to the page Container width — the footer spans the page\'s own layout width, not the narrower Container max-width', () => {
             renderPageLayout({stickyFooter: <button type="button">Save Changes</button>, size: 'lg'})
 
             const button = screen.getByRole('button', {name: 'Save Changes'})
-            const fixedWrapper = button.closest('.fixed')!
+            const stickyWrapper = button.closest('.sticky')!
 
-            expect(fixedWrapper.className).not.toContain('max-w')
+            expect(stickyWrapper.className).not.toContain('max-w')
             expect(button.closest('.mx-auto')).not.toBeInTheDocument()
         })
 
-        it('reserves space for the fixed footer with an invisible spacer carrying identical content, so real content is never hidden underneath it', () => {
+        it('adds its own trailing pb-4/md:pb-6 when there is no stickyFooter, so pages without one keep their bottom breathing room now that main provides none', () => {
+            const {container} = renderPageLayout()
+
+            const root = container.firstElementChild as HTMLElement
+            expect(root.className).toContain('pb-4')
+            expect(root.className).toContain('md:pb-6')
+        })
+
+        it('omits its own bottom padding when a stickyFooter is present, so the footer is the true last thing in the flow with nothing trailing after it', () => {
             const {container} = renderPageLayout({stickyFooter: <button type="button">Save Changes</button>})
 
-            // Two "Save Changes" buttons exist in the DOM (spacer + real bar)...
-            const allButtons = container.querySelectorAll('button')
-            const saveButtons = [...allButtons].filter((b) => b.textContent === 'Save Changes')
-            expect(saveButtons).toHaveLength(2)
+            const root = container.firstElementChild as HTMLElement
+            const classes = root.className.split(' ')
+            expect(classes).not.toContain('pb-4')
+            expect(classes).not.toContain('md:pb-6')
+        })
 
-            // ...but accessibility-aware queries still find exactly one, because
-            // the spacer is `visibility:hidden`, not merely visually offset.
+        it('cancels main\'s own px-4/md:px-6 with matching negative margins, so the bar reaches the true edges of the content column', () => {
+            renderPageLayout({stickyFooter: <button type="button">Save Changes</button>})
+
+            const button = screen.getByRole('button', {name: 'Save Changes'})
+            const stickyWrapper = button.closest('.sticky')!
+            const outerClasses = stickyWrapper.className.split(' ')
+
+            expect(outerClasses).toContain('-mx-4')
+            expect(outerClasses).toContain('md:-mx-6')
+            // Not just "contains px-4 somewhere" — the OUTER bar must carry none
+            // of its own, or the negative margin only partially cancels main's gutter.
+            expect(outerClasses).not.toContain('px-4')
+            expect(outerClasses).not.toContain('md:px-6')
+        })
+
+        it('reapplies px-4/md:px-6 on an inner wrapper, so footer content still aligns with where page content starts', () => {
+            renderPageLayout({stickyFooter: <button type="button">Save Changes</button>})
+
+            const button = screen.getByRole('button', {name: 'Save Changes'})
+            const stickyWrapper = button.closest('.sticky')!
+            const innerWrapper = stickyWrapper.firstElementChild as HTMLElement
+            const innerClasses = innerWrapper.className.split(' ')
+
+            expect(innerClasses).toContain('px-4')
+            expect(innerClasses).toContain('md:px-6')
+            expect(innerWrapper.contains(button)).toBe(true)
+        })
+
+        it('renders the footer content exactly once — sticky positioning needs no space-reserving duplicate', () => {
+            const {container} = renderPageLayout({stickyFooter: <button type="button">Save Changes</button>})
+
+            const saveButtons = [...container.querySelectorAll('button')].filter((b) => b.textContent === 'Save Changes')
+            expect(saveButtons).toHaveLength(1)
             expect(screen.getByRole('button', {name: 'Save Changes'})).toBeInTheDocument()
-
-            const spacer = saveButtons.find((b) => b.closest('.invisible'))!
-            expect(spacer).toBeTruthy()
         })
 
         it('coexists with a header action — the two are independent slots', () => {

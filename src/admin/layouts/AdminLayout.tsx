@@ -40,7 +40,7 @@ export function AdminLayout() {
         <BreadcrumbProvider>
             <PageBackActionProvider>
                 <div ref={layoutRef} data-surface="admin" data-density="compact"
-                     className="bg-admin-bg text-admin-text antialiased min-h-screen">
+                     className="bg-admin-bg text-admin-text antialiased h-screen overflow-hidden">
                     <ThemeApplier targetRef={layoutRef}/>
                     <AdminHeader
                         onMenuClick={() => setIsSidebarOpen(prev => !prev)}
@@ -53,9 +53,11 @@ export function AdminLayout() {
                         isCollapsed={isSidebarCollapsed}
                         onSetCollapsed={setSidebarCollapsed}
                     />
+                    {/* h-full + flex-col so `main` can be the sole flex-1/min-h-0 scroll region — the header/sidebar are fixed and take no flex space of their own. */}
                     <div
-                        className={cn('pt-15 flex-1 transition-all duration-450', isSidebarCollapsed ? 'md:ml-20' : 'md:ml-64')}>
-                        <main className="px-4 pb-4 pt-3 md:px-6 md:pb-6 md:pt-4">
+                        className={cn('pt-(--c-header-h) flex h-full flex-col transition-all duration-450', isSidebarCollapsed ? 'md:ml-20' : 'md:ml-64')}>
+                        {/* No bottom padding here — position:sticky insets its `bottom:0` by the SCROLLING ANCESTOR's own padding, so a pb-* on main would push any stickyFooter above the true bottom edge. Bottom spacing is each consumer's own concern: PageLayout owns it (conditionally, see PageLayout.tsx), and the few pages that bypass PageLayout own it directly. */}
+                        <main className="flex-1 min-h-0 overflow-y-auto px-4 pt-3 md:px-6 md:pt-4">
                             <Outlet/>
                         </main>
                     </div>

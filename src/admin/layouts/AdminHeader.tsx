@@ -61,7 +61,7 @@ export function AdminHeader({onMenuClick, isCollapsed, onToggleCollapsed}: Admin
 
     return (
         <header className={cn(
-            'fixed top-0 right-0 z-60 bg-admin-sidebar-bg border-b border-admin-sidebar-border transition-[left] duration-450',
+            'fixed top-0 right-0 z-60 h-(--c-header-h) bg-admin-sidebar-bg border-b border-admin-sidebar-border transition-[left] duration-450',
             isCollapsed ? 'md:left-20' : 'md:left-64', 'left-0',)}>
             <div className="flex px-4 py-3 justify-between items-center w-full">
                 <div className="flex items-center gap-4">
