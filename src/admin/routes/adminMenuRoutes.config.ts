@@ -458,7 +458,7 @@ export const adminMenuRoutes: AdminRouteList = [
                 key: 'admin.settings.countries',
                 path: '/admin/settings/countries',
                 component: lazy(() =>
-                    import('@/admin/pages/settings/CountrySettingsPage').then((m) => ({default: m.CountrySettingsPage}))
+                    import('@/admin/pages/settings/country-settings/CountrySettingsPage').then((m) => ({default: m.CountrySettingsPage}))
                 ),
                 authority: ['SUPER_ADMIN', 'CATALOG_MANAGER', 'ORDER_MANAGER', 'VIEWER'],
                 meta: {
