@@ -15,6 +15,7 @@ import {derivePriceChangeIndicator, getValidationStatusColor,} from '@/admin/hoo
 import type {BatchStatusResponse, ProductPriceComparisonDto} from '@/admin/hooks/imports/types'
 import {formatAmount} from '@/shared/utils/formatAmount'
 import {formatDateTime} from '@/shared/utils/formatDateTime'
+import {PRICE_IMPORT} from '@/admin/api/importEndpoints'
 
 interface BatchMetaItemProps {
     icon: React.ReactNode
@@ -82,7 +83,7 @@ export default function PriceImportReviewPage() {
     )
 
     useBatchStatusPolling({
-        endpoint: `/admin/products/price/batches/${batchId}/staged/status`,
+        endpoint: PRICE_IMPORT.status(batchId!),
         enabled: shouldPoll,
         onStatusChange: handleStatusChange,
     })
@@ -101,7 +102,7 @@ export default function PriceImportReviewPage() {
     const handleApprove = async () => {
         try {
             await approveBatch({
-                endpoint: `/admin/products/price/batches/${batchId}/staged/async`,
+                endpoint: PRICE_IMPORT.process(batchId!),
             })
             setIsApproved(true)
         } catch (err) {

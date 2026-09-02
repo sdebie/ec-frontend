@@ -17,6 +17,7 @@ import {
 } from '@/admin/hooks/imports/utils'
 import type { ProductComparisonDto, BatchStatusResponse } from '@/admin/hooks/imports/types'
 import { formatDateTime } from '@/shared/utils/formatDateTime'
+import { PRODUCT_IMPORT } from '@/admin/api/importEndpoints'
 
 interface BatchMetaItemProps {
   icon: React.ReactNode
@@ -81,7 +82,7 @@ export default function ProductImportReviewPage() {
     currentStatus === 'IMPORTING' || currentStatus === 'PROCESSING' || currentStatus === null
 
   useBatchStatusPolling({
-    endpoint: `/admin/products/batches/${batchId}/staged/status`,
+    endpoint: PRODUCT_IMPORT.status(batchId!),
     enabled: pollingEnabled,
     onStatusChange: handleStatusChange,
   })
@@ -100,7 +101,7 @@ export default function ProductImportReviewPage() {
   const handleApprove = async () => {
     try {
       await approveBatch({
-        endpoint: `/admin/products/batches/${batchId}/staged/async`,
+        endpoint: PRODUCT_IMPORT.process(batchId!),
       })
       setIsApproved(true)
       setBatchStatus((prev) => prev ? { ...prev, status: 'PROCESSING' } : null)

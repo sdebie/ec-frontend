@@ -1,7 +1,6 @@
 import { useState, useMemo } from 'react'
 import { useNavigate } from 'react-router-dom'
-import axios from 'axios'
-import { Eye, RefreshCw, Plug } from 'lucide-react'
+import { Eye, RefreshCw } from 'lucide-react'
 import { useBreadcrumb } from '@/admin/context/BreadcrumbContext'
 
 import {
@@ -23,23 +22,10 @@ import { formatDate } from '@/shared/utils/formatDateTime'
 import { useProductImportBatches } from '@/admin/hooks/imports/useProductImportBatches'
 import { useRefreshBatchStatus } from '@/admin/hooks/imports/useRefreshBatchStatus'
 import { useUploadCsv } from '@/admin/hooks/imports/useUploadCsv'
+import { useSageItemImport } from '@/admin/hooks/imports/useSageItemImport'
 import { getBatchStatusColor } from '@/admin/hooks/imports/utils'
 import type { ProductImportBatchDto } from '@/admin/hooks/imports/types'
-import { useTestSageConnection } from '@/admin/hooks/sage/useTestSageConnection'
-
-function extractSageErrorMessage(err: unknown): string {
-  // The backend proxy returns its own { errors: [{ message }] } shape for 400/503
-  // responses, but forwards Sage's upstream error body as-is for everything else
-  // (e.g. Sage's own `{ "Message": "..." }`) — check both before falling back.
-  if (axios.isAxiosError(err)) {
-    const data = err.response?.data as
-      | { errors?: { message?: string }[]; Message?: string; message?: string }
-      | undefined
-    const message = data?.errors?.[0]?.message ?? data?.Message ?? data?.message
-    if (message) return message
-  }
-  return err instanceof Error ? err.message : 'Failed to reach Sage API'
-}
+import { PRODUCT_IMPORT } from '@/admin/api/importEndpoints'
 
 function RefreshButton({ batchId, onSuccess }: { batchId: string; onSuccess: () => void }) {
   const { mutateAsync, isPending } = useRefreshBatchStatus()
@@ -47,7 +33,7 @@ function RefreshButton({ batchId, onSuccess }: { batchId: string; onSuccess: () 
   const handleRefresh = async () => {
     try {
       await mutateAsync({
-        endpoint: `/admin/products/batches/${batchId}/staged/status`,
+        endpoint: PRODUCT_IMPORT.status(batchId),
       })
       onSuccess()
     } catch (err) {
@@ -79,21 +65,30 @@ export default function ProductImportListPage() {
   const [uploadOpen, setUploadOpen] = useState(false)
   const [file, setFile] = useState<File | null>(null)
   const { mutateAsync: uploadCsv, isPending: isUploading } = useUploadCsv()
-  const { mutateAsync: testSageConnection, isPending: isTestingSage } = useTestSageConnection()
+  const { mutateAsync: importSageItems, isPending: isImportingSageItems } = useSageItemImport()
 
-  const handleTestSageConnection = async () => {
+  const handleImportSageItems = async () => {
     try {
-      await testSageConnection()
-      toast.success('Sage connection OK')
+      const response = await importSageItems()
+      if (!response?.batchId) {
+        toast.error('Sage import started but no batch ID was returned', { duration: 0 })
+        return
+      }
+      toast.success('Sage item import started - fetching items from Sage API')
+      refetch()
+      navigate(`/admin/imports/products/bulk-upload/review/${response.batchId}`)
     } catch (err) {
-      toast.error(extractSageErrorMessage(err), { duration: 0 })
+      toast.error(
+        err instanceof Error ? err.message : 'Failed to start Sage item import',
+        { duration: 0 },
+      )
     }
   }
 
   const handleUpload = async () => {
     if (!file) return
     try {
-      const response = await uploadCsv({ file, endpoint: '/admin/products/upload-csv' })
+      const response = await uploadCsv({ file, endpoint: '/admin/imports/product/upload' })
       if (!response?.batchId) {
         toast.error('Upload succeeded but no batch ID was returned', { duration: 0 })
         return
@@ -209,11 +204,10 @@ export default function ProductImportListPage() {
     <div className="flex items-center gap-2">
       <Button
         variant="outline"
-        onClick={handleTestSageConnection}
-        isLoading={isTestingSage}
-        leftIcon={<Plug className="h-4 w-4" />}
+        onClick={handleImportSageItems}
+        isLoading={isImportingSageItems}
       >
-        Test Sage Connection
+        Import from Sage
       </Button>
       <Button variant="solid" onClick={() => setUploadOpen(true)}>
         + Upload CSV

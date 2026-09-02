@@ -25,6 +25,7 @@ import { useRefreshBatchStatus } from '@/admin/hooks/imports/useRefreshBatchStat
 import { useUploadCsv } from '@/admin/hooks/imports/useUploadCsv'
 import { getBatchStatusColor } from '@/admin/hooks/imports/utils'
 import type { ProductImportBatchDto } from '@/admin/hooks/imports/types'
+import { PRICE_IMPORT } from '@/admin/api/importEndpoints'
 
 function RefreshButton({ batchId, onSuccess }: { batchId: string; onSuccess: () => void }) {
   const { mutateAsync, isPending } = useRefreshBatchStatus()
@@ -32,7 +33,7 @@ function RefreshButton({ batchId, onSuccess }: { batchId: string; onSuccess: () 
   const handleRefresh = async () => {
     try {
       await mutateAsync({
-        endpoint: `/admin/products/price/batches/${batchId}/staged/status`,
+        endpoint: PRICE_IMPORT.status(batchId),
       })
       onSuccess()
     } catch (err) {
@@ -68,7 +69,7 @@ export default function PriceImportListPage() {
   const handleUpload = async () => {
     if (!file) return
     try {
-      const response = await uploadCsv({ file, endpoint: '/admin/products/price/upload-csv' })
+      const response = await uploadCsv({ file, endpoint: '/admin/imports/price/upload' })
       if (!response?.batchId) {
         toast.error('Upload succeeded but no batch ID was returned', { duration: 0 })
         return
