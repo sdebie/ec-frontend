@@ -2,13 +2,14 @@ import {beforeEach, describe, expect, it, vi} from 'vitest'
 import {fireEvent, render, screen, waitFor} from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import {MemoryRouter} from 'react-router-dom'
-import {useAdminProductList} from '@/admin/hooks/products/useAdminProductList'
-import {useDeleteProductGql} from '@/admin/hooks/products/useDeleteProductGql'
-import {useUpdateProductStatusGql} from '@/admin/hooks/products/useUpdateProductStatusGql'
-import {useProductStats} from '@/admin/hooks/products/useProductStats'
-import {useCategories} from '@/admin/hooks/products/useCategories'
-import {useBrands} from '@/admin/hooks/products/useBrands'
+import {useAdminProductList} from '../hooks/useAdminProductList'
+import {useDeleteProductGql} from '../hooks/useDeleteProductGql'
+import {useUpdateProductStatusGql} from '../hooks/useUpdateProductStatusGql'
+import {useProductStats} from '../hooks/useProductStats'
+import {useCategories} from '../hooks/useCategories'
+import {useBrands} from '../hooks/useBrands'
 import {useAdminAuthStore} from '@/shared/auth/adminAuthStore'
+import {toast} from '@/shared/ui/components/toast'
 import {ProductListPage} from '../ProductListPage'
 
 const mockRefetch = vi.fn()
@@ -17,31 +18,34 @@ const mockStatusMutate = vi.fn()
 const mockStatusMutateAsync = vi.fn().mockResolvedValue({})
 const mockNavigate = vi.fn()
 
-vi.mock('@/admin/hooks/products/useAdminProductList', () => ({
+vi.mock('../hooks/useAdminProductList', () => ({
     useAdminProductList: vi.fn(),
 }))
-vi.mock('@/admin/hooks/products/useDeleteProductGql', () => ({
+vi.mock('../hooks/useDeleteProductGql', () => ({
     useDeleteProductGql: vi.fn(),
 }))
-vi.mock('@/admin/hooks/products/useUpdateProductStatusGql', () => ({
+vi.mock('../hooks/useUpdateProductStatusGql', () => ({
     useUpdateProductStatusGql: vi.fn(),
 }))
-vi.mock('@/admin/hooks/products/useZeroProductStock', () => ({
+vi.mock('../hooks/useZeroProductStock', () => ({
     useZeroProductStock: vi.fn(() => ({mutate: vi.fn(), isPending: false})),
 }))
-vi.mock('@/admin/hooks/products/useProductStats', () => ({
+vi.mock('../hooks/useProductStats', () => ({
     useProductStats: vi.fn(),
 }))
-vi.mock('@/admin/hooks/products/useCategories', () => ({
+vi.mock('../hooks/useCategories', () => ({
     useCategories: vi.fn(),
 }))
-vi.mock('@/admin/hooks/products/useBrands', () => ({
+vi.mock('../hooks/useBrands', () => ({
     useBrands: vi.fn(),
 }))
 vi.mock('react-router-dom', async () => {
     const actual = await vi.importActual('react-router-dom')
     return {...actual, useNavigate: () => mockNavigate}
 })
+vi.mock('@/shared/ui/components/toast', () => ({
+    toast: {success: vi.fn(), error: vi.fn()},
+}))
 
 const mockProducts = {
     content: [
@@ -183,6 +187,51 @@ describe('ProductListPage', () => {
             expect(
                 screen.getByText(/Delete "Test Product"\?/),
             ).toBeInTheDocument()
+        })
+    })
+
+    /**
+     * The dialog already tells staff, before they confirm, that a delete might
+     * archive instead (see the description assertion above). This covers what
+     * happens AFTER: the success toast must read the outcome the mutation
+     * resolves with, not announce "Product deleted successfully" unconditionally
+     * when the product may have been archived instead.
+     */
+    describe('delete outcome messaging', () => {
+        async function confirmDelete() {
+            const user = userEvent.setup()
+            renderPage()
+
+            await user.click(screen.getByTestId('action-delete'))
+            await user.click(screen.getByRole('button', {name: 'Delete'}))
+
+            expect(mockDeleteMutate).toHaveBeenCalledTimes(1)
+            const [, callbacks] = mockDeleteMutate.mock.calls[0] as [
+                unknown,
+                {onSuccess: (data: {deleteProduct: 'DELETED' | 'ARCHIVED'}) => void},
+            ]
+            return callbacks
+        }
+
+        it('reports a permanent deletion when the server hard-deletes', async () => {
+            setupDefaultMocks()
+
+            const {onSuccess} = await confirmDelete()
+            onSuccess({deleteProduct: 'DELETED'})
+
+            expect(toast.success).toHaveBeenCalledWith('Product deleted permanently')
+        })
+
+        it('reports an archive, not a deletion, when the server archives instead', async () => {
+            setupDefaultMocks()
+
+            const {onSuccess} = await confirmDelete()
+            onSuccess({deleteProduct: 'ARCHIVED'})
+
+            expect(toast.success).toHaveBeenCalledWith(
+                'Product archived instead of deleted, to preserve order history',
+            )
+            expect(toast.success).not.toHaveBeenCalledWith(expect.stringContaining('deleted permanently'))
         })
     })
 

@@ -9,8 +9,7 @@ import type { ColumnDef } from '@tanstack/react-table'
  *
  * For all DataTable layout scenarios, horizontal scroll (`overflow-x: auto`) on the
  * inner table wrapper and rounded corners (`rounded-xl`) on the outer container
- * remain intact. These tests run on UNFIXED code to establish the baseline.
- *
+ * remain intact.
  */
 
 // --- Test helpers ---

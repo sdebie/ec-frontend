@@ -23,7 +23,7 @@ export function StoreSettingsPage() {
   }
 
   return (
-    <div className="flex flex-col gap-6">
+    <div className="flex flex-col gap-6 pb-4 md:pb-6">
       <div className="flex items-center justify-between">
         <h1 className="text-2xl font-semibold text-(--c-text)">Store Settings</h1>
       </div>

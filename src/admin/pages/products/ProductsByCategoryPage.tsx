@@ -2,9 +2,9 @@ import { useState, useMemo, useEffect } from 'react'
 import { useBreadcrumb } from '@/admin/context/BreadcrumbContext'
 import { Search } from 'lucide-react'
 
-import { useAdminProductList } from '@/admin/hooks/products/useAdminProductList'
-import { useCategories } from '@/admin/hooks/products/useCategories'
-import type { AdminProductListItem } from '@/admin/hooks/products/types'
+import { useAdminProductList } from './hooks/useAdminProductList'
+import { useCategories } from './hooks/useCategories'
+import type { AdminProductListItem } from './types'
 import {
   DataTable,
   PageLayout,

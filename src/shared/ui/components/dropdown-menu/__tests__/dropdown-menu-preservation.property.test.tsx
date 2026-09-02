@@ -7,9 +7,7 @@ import { DropdownMenu, DropdownItem } from '../DropdownMenu'
  * Property 2: Preservation — Menu Interactions and DataTable Layout Unchanged
  *
  * For all menu interaction sequences (open, click-outside, Escape, item-click),
- * the menu state transitions are preserved. These tests run on UNFIXED code to
- * establish the baseline behavior that must remain intact after the portal fix.
- *
+ * the menu state transitions are preserved.
  */
 
 // --- Arbitraries ---
@@ -124,10 +122,8 @@ describe('DropdownMenu Preservation — Property 2: Menu Interactions', () => {
         fireEvent.click(items[0])
         expect(onClick).toHaveBeenCalledTimes(1)
 
-        // Note: In the current implementation, clicking a menu item does NOT
-        // automatically close the menu (it stays open). The menu only closes
-        // via click-outside or Escape. This is the observed baseline behavior.
-        // The menu panel is still present after item click.
+        // Clicking a menu item does NOT close the menu — it stays open until
+        // click-outside or Escape. The menu panel is still present after item click.
         expect(getMenuPanel()).not.toBeNull()
 
         unmount()

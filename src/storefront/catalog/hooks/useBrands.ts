@@ -9,7 +9,7 @@ interface Brand {
     logoUrl: string | null
 }
 
-interface GetBrandsResponse {
+interface StorefrontBrandsResponse {
     getBrands: {
         content: Brand[]
         totalElements: number
@@ -17,7 +17,7 @@ interface GetBrandsResponse {
 }
 
 const GET_BRANDS = gql`
-    query GetBrands($pageIndex: Int, $pageSize: Int) {
+    query StorefrontBrands($pageIndex: Int, $pageSize: Int) {
         getBrands(pageIndex: $pageIndex, pageSize: $pageSize) {
             content {
                 id
@@ -34,7 +34,7 @@ export function useBrands() {
     const {data, isLoading, isError} = useQuery({
         queryKey: ['catalog-brands'],
         queryFn: () =>
-            graphqlClient.request<GetBrandsResponse>(GET_BRANDS, {
+            graphqlClient.request<StorefrontBrandsResponse>(GET_BRANDS, {
                 pageSize: 500,
             }),
         staleTime: 10 * 60 * 1000, // 10 minutes — brands rarely change

@@ -35,6 +35,14 @@ export interface OrderStatusHistoryEntry {
     staffName?: string | null
 }
 
+export interface OrderPaymentInfo {
+    gateway: string | null
+    externalReference: string | null
+    amountGross: number
+    status: string | null
+    receivedAt: string
+}
+
 export interface AdminOrderDetail extends AdminOrderSummary {
     customerEmail: string | null
     /** Nullable in the schema (`shippingAddress: AdminOrderAddressDto`), so it is nullable here. */
@@ -48,6 +56,8 @@ export interface AdminOrderDetail extends AdminOrderSummary {
     vatAmount: number
     grandTotal: number
     statusHistory: OrderStatusHistoryEntry[]
+    /** Null until a gateway callback has been recorded for this order. */
+    latestPayment: OrderPaymentInfo | null
 }
 
 export interface OrdersPage {

@@ -95,4 +95,21 @@ describe('CatalogPagination', () => {
 
         expect(screen.getByText('Showing 41–50 of 50 products')).toBeInTheDocument()
     })
+
+    it('clamps the "Showing X" start figure when page is stale relative to a shrunk total', () => {
+        // page is caller-owned and can outlive totalElements shrinking under it (e.g. a
+        // filter change reduces the result set while page 2 stays selected). Unclamped,
+        // (2-1)*10+1 = 11 exceeds a totalElements of 10.
+        render(
+            <CatalogPagination
+                {...defaultProps}
+                page={2}
+                totalPages={1}
+                totalElements={10}
+                pageSize={10}
+            />
+        )
+
+        expect(screen.getByText('Showing 10–10 of 10 products')).toBeInTheDocument()
+    })
 })

@@ -317,7 +317,6 @@ describe('Carousel', () => {
   })
 
   // ── header-controls mode ──────────────────────────────────────────────────
-
   const mockOverflow = (scrollContainer: HTMLElement) => {
     Object.defineProperty(scrollContainer, 'scrollWidth', { value: 1200, configurable: true })
     Object.defineProperty(scrollContainer, 'clientWidth', { value: 400, configurable: true })
@@ -449,7 +448,6 @@ describe('Carousel', () => {
   })
 
   // ── mobileControls: the mobile treatment is independent of the header row ──
-
   it('mobileControls="dots" gives a header-less deck the dotted mobile treatment', () => {
     render(
       <Carousel ariaLabel="Test" mobileControls="dots">

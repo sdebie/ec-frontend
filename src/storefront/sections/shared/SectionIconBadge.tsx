@@ -11,19 +11,17 @@ interface SectionIconBadgeProps {
      * 'soft' (default): a faint accent wash carrying the icon in the accent
      * itself — the quiet treatment for a tile among many tiles, on a LIGHT band.
      * 'muted': the same quiet weight for a DARK band. `soft` cannot be used
-     * there — an accent icon on an accent wash over near-black measures ~1.6:1
-     * and vanishes — so the tile carries a little more accent and the icon flips
-     * to accent-text. At 55% it recedes into a dark band by almost exactly as
-     * much as `soft` recedes into a light one (~1.2:1 either way), which is what
-     * makes the two read as the same treatment across surfaces.
+     * there — an accent icon on an accent wash over near-black vanishes — so the
+     * tile carries a little more accent and the icon flips to accent-text, tuned
+     * to recede into a dark band by about as much as `soft` recedes into a light
+     * one, so the two read as the same treatment across surfaces.
      * 'solid': a strong accent tile, for a section that wants its icons to read
      * as a deliberate accent block rather than a quiet marker.
      *
      * Every tone is pure token arithmetic on --sf-accent, so each client gets its
      * own brand colour with no per-client code, and the accent-text tones are
      * safe for any accent because --sf-accent-text is by definition the readable
-     * foreground for --sf-accent. On UVH's #7a0019 the icon holds ~8:1 (`soft`),
-     * ~16:1 (`muted`) and ~13:1 (`solid`).
+     * foreground for --sf-accent.
      */
     tone?: 'soft' | 'muted' | 'solid'
     /** Layout-only adjustments from the consumer — never colours. */

@@ -9,11 +9,11 @@ import type {StorefrontConfig} from '@/shared/types/StorefrontConfig'
 
 interface MockSessionState {
     session: { orderId: string; orderToken: string } | null
-    clearSession: () => void
+    clearCheckoutIntent: () => void
 }
 
-const mockClearSession = vi.fn()
-let mockSessionState: MockSessionState = {session: null, clearSession: mockClearSession}
+const mockClearCheckoutIntent = vi.fn()
+let mockSessionState: MockSessionState = {session: null, clearCheckoutIntent: mockClearCheckoutIntent}
 
 vi.mock('../store/checkoutSessionStore', () => ({
     useCheckoutSessionStore: (selector: (state: MockSessionState) => unknown) => selector(mockSessionState),
@@ -21,8 +21,8 @@ vi.mock('../store/checkoutSessionStore', () => ({
 
 const mockClearCart = vi.fn()
 vi.mock('@/storefront/cart/store/cartStore', () => ({
-    useCartStore: (selector: (state: { clearCart: () => void }) => unknown) =>
-        selector({clearCart: mockClearCart}),
+    useCartStore: (selector: (state: { clear: () => void }) => unknown) =>
+        selector({clear: mockClearCart}),
 }))
 
 let mockPollResult: {
@@ -84,16 +84,16 @@ function renderCheckoutSuccessPage(Component: React.ComponentType) {
 // --- Tests ---
 
 /**
- * guest-order-authorization: this page now reads orderId/orderToken from
- * checkoutSessionStore, never a URL query string (Requirement 3.5) — the withdrawn
- * ?sessionId= was itself a bearer credential (Requirement 4).
+ * guest-order-authorization: this page reads orderId/orderToken from
+ * checkoutSessionStore, never a URL query string (Requirement 3.5) — a token in
+ * the URL is itself a bearer credential (Requirement 4).
  */
 describe('CheckoutSuccessPage', () => {
     let CheckoutSuccessPage: React.ComponentType
 
     beforeEach(async () => {
         vi.clearAllMocks()
-        mockSessionState = {session: null, clearSession: mockClearSession}
+        mockSessionState = {session: null, clearCheckoutIntent: mockClearCheckoutIntent}
         mockPollResult = {data: undefined, isTerminal: false, isTimedOut: false}
         CheckoutSuccessPage = await importCheckoutSuccessPage()
     })
@@ -104,7 +104,7 @@ describe('CheckoutSuccessPage', () => {
 
     describe('missing session', () => {
         it('renders invalid link fallback when there is no order in the store', () => {
-            mockSessionState = {session: null, clearSession: mockClearSession}
+            mockSessionState = {session: null, clearCheckoutIntent: mockClearCheckoutIntent}
             renderCheckoutSuccessPage(CheckoutSuccessPage)
 
             expect(screen.getByText(/this link isn't valid/i)).toBeInTheDocument()
@@ -116,10 +116,10 @@ describe('CheckoutSuccessPage', () => {
     })
 
     describe('PAID status', () => {
-        it('shows payment confirmed message with orderId and total, clearSession called', () => {
+        it('shows payment confirmed message with orderId and total, clearCheckoutIntent called', () => {
             mockSessionState = {
                 session: {orderId: 'order-456', orderToken: 'token-456'},
-                clearSession: mockClearSession,
+                clearCheckoutIntent: mockClearCheckoutIntent,
             }
             mockPollResult = {
                 data: {id: 'order-456', status: 'PAID', totalAmount: 319, createdAt: '2024-01-01'},
@@ -133,7 +133,7 @@ describe('CheckoutSuccessPage', () => {
             // Order id and total are stated in the confirmation sentence
             expect(screen.getByText(/order-456/)).toBeInTheDocument()
             expect(screen.getByText(/ZAR 319\.00/)).toBeInTheDocument()
-            expect(mockClearSession).toHaveBeenCalled()
+            expect(mockClearCheckoutIntent).toHaveBeenCalled()
         })
     })
 
@@ -141,7 +141,7 @@ describe('CheckoutSuccessPage', () => {
         it('shows collection message when status is IN_STORE_PAYMENT', () => {
             mockSessionState = {
                 session: {orderId: 'order-789', orderToken: 'token-789'},
-                clearSession: mockClearSession,
+                clearCheckoutIntent: mockClearCheckoutIntent,
             }
             mockPollResult = {
                 data: {id: 'order-789', status: 'IN_STORE_PAYMENT', totalAmount: 200, createdAt: '2024-01-01'},
@@ -152,7 +152,28 @@ describe('CheckoutSuccessPage', () => {
             renderCheckoutSuccessPage(CheckoutSuccessPage)
 
             expect(screen.getByText(/your order is confirmed\. please pay when you collect it\./i)).toBeInTheDocument()
-            expect(mockClearSession).toHaveBeenCalled()
+            expect(mockClearCheckoutIntent).toHaveBeenCalled()
+        })
+    })
+
+    describe('PAYMENT_FAILED status', () => {
+        it('shows a payment-failed message, distinct from cancelled, and stops on it rather than the confirming spinner', () => {
+            mockSessionState = {
+                session: {orderId: 'order-321', orderToken: 'token-321'},
+                clearCheckoutIntent: mockClearCheckoutIntent,
+            }
+            mockPollResult = {
+                data: {id: 'order-321', status: 'PAYMENT_FAILED', totalAmount: 150, createdAt: '2024-01-01'},
+                isTerminal: true,
+                isTimedOut: false,
+            }
+
+            renderCheckoutSuccessPage(CheckoutSuccessPage)
+
+            expect(screen.getByText('Payment failed')).toBeInTheDocument()
+            expect(screen.queryByText(/this order was cancelled/i)).not.toBeInTheDocument()
+            expect(screen.queryByText(/confirming your payment/i)).not.toBeInTheDocument()
+            expect(mockClearCheckoutIntent).toHaveBeenCalled()
         })
     })
 
@@ -162,7 +183,7 @@ describe('CheckoutSuccessPage', () => {
             (status) => {
                 mockSessionState = {
                     session: {orderId: 'order-999', orderToken: 'token-999'},
-                    clearSession: mockClearSession,
+                    clearCheckoutIntent: mockClearCheckoutIntent,
                 }
                 mockPollResult = {
                     data: {id: 'order-999', status, totalAmount: 100, createdAt: '2024-01-01'},
@@ -181,7 +202,7 @@ describe('CheckoutSuccessPage', () => {
         it('shows timeout message when isTimedOut is true', () => {
             mockSessionState = {
                 session: {orderId: 'order-abc', orderToken: 'token-abc'},
-                clearSession: mockClearSession,
+                clearCheckoutIntent: mockClearCheckoutIntent,
             }
             mockPollResult = {
                 data: undefined,

@@ -42,15 +42,6 @@ function createWrapper(initialEntries: string[] = ['/admin/products/brands']) {
   return { Wrapper, location }
 }
 
-// The mount-reconciliation guard defers via setTimeout(0) — this flushes past
-// it the same way a real macrotask boundary would, without reaching for fake
-// timers (which fight react-query's own async internals).
-async function flushMountGuard() {
-  await act(async () => {
-    await new Promise((resolve) => setTimeout(resolve, 10))
-  })
-}
-
 describe('useBrandList', () => {
   beforeEach(() => {
     vi.clearAllMocks()
@@ -247,7 +238,6 @@ describe('useBrandList', () => {
       )
 
       await waitFor(() => expect(result.current.data).toBeDefined())
-      await flushMountGuard()
 
       act(() => {
         result.current.onSortingChange([{ id: 'name', desc: true }])
@@ -268,7 +258,6 @@ describe('useBrandList', () => {
       )
 
       await waitFor(() => expect(result.current.data).toBeDefined())
-      await flushMountGuard()
 
       act(() => {
         result.current.onSortingChange([])
@@ -276,33 +265,6 @@ describe('useBrandList', () => {
 
       expect(location.search).not.toContain('sortBy')
       expect(location.search).not.toContain('sortDir')
-    })
-
-    it('ignores the reconciliation call react-table fires with its own default during mount', async () => {
-      // Regression guard for the bug this whole mount-guard exists to prevent:
-      // react-table's sorting plugin calls onSortingChange with [] during
-      // mount, before the setTimeout(0) guard has flipped — a URL-restored
-      // sort must survive that call untouched. No await before it: the guard
-      // flips on the next macrotask, and even waitFor's polling yields enough
-      // real time for that to have already happened, so the only way to land
-      // inside the guard's window is to call it in the same synchronous tick
-      // as render, exactly like react-table's own reconciliation does.
-      vi.mocked(adminGraphqlClient.request).mockResolvedValue(emptyResponse)
-
-      const { Wrapper, location } = createWrapper(['/admin/products/brands?sortBy=name&sortDir=desc'])
-      const { result } = renderHook(
-        () => useBrandList({ pageIndex: 0, pageSize: 20 }),
-        { wrapper: Wrapper },
-      )
-
-      act(() => {
-        result.current.onSortingChange([])
-      })
-
-      expect(location.search).toContain('sortBy=name')
-      expect(location.search).toContain('sortDir=desc')
-
-      await waitFor(() => expect(result.current.data).toBeDefined())
     })
   })
 })

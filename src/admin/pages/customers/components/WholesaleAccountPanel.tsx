@@ -1,13 +1,12 @@
 import {useState} from 'react'
 import {Building2, Calendar} from 'lucide-react'
-import {StatusBadge} from '@/shared/ui/components'
+import {StatusBadge, WholesaleApplicationStatusDisplay} from '@/shared/ui/components'
 import {Button, Card} from '@/shared/ui/primitives'
 import {useCan} from '@/shared/auth/adminPermissions'
 import {RejectApplicationDialog} from '@/admin/components/RejectApplicationDialog'
 import {useWholesaleApplicationAction} from '../hooks/useWholesaleApplicationAction'
 import type {WholesaleCustomerDetail} from '../types'
 import {InfoRow} from './InfoRow'
-import {resolveApplicationStatusConfig} from './applicationStatus.ts'
 import {WholesaleApplicationDetailHeader} from './WholesaleApplicationDetailHeader.tsx'
 import {formatDateTime} from '@/shared/utils/formatDateTime.ts'
 
@@ -32,7 +31,7 @@ export function WholesaleAccountPanel({customer}: WholesaleAccountPanelProps) {
 
     if (!application) {
         return (
-            <Card as="section" elevation="none" padded={false}>
+            <Card as="section" variant="bordered">
                 <WholesaleApplicationDetailHeader icon={Building2} title="Wholesale Account"/>
                 <Card.Body className="p-5">
                     <p className="text-sm text-(--c-text-muted)">
@@ -59,7 +58,7 @@ export function WholesaleAccountPanel({customer}: WholesaleAccountPanelProps) {
 
     return (
         <>
-            <Card as="section" elevation="none" padded={false}>
+            <Card as="section" variant="bordered">
                 <WholesaleApplicationDetailHeader
                     icon={Building2}
                     title="Wholesale Account"
@@ -85,10 +84,7 @@ export function WholesaleAccountPanel({customer}: WholesaleAccountPanelProps) {
                                 </Button>
                             </div>
                         ) : (
-                            <StatusBadge
-                                label={resolveApplicationStatusConfig(application.status).label}
-                                color={resolveApplicationStatusConfig(application.status).color}
-                            />
+                            <WholesaleApplicationStatusDisplay status={application.status}/>
                         )
                     }
                 />

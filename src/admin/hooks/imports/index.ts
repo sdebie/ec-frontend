@@ -1,6 +1,6 @@
 // Hooks
-export { useProductUploadBatches } from './useProductUploadBatches'
-export { usePriceUploadBatches } from './usePriceUploadBatches'
+export { useProductImportBatches } from './useProductImportBatches'
+export { usePriceImportBatches } from './usePriceImportBatches'
 export { useProductImportRows } from './useProductImportRows'
 export { usePriceImportRows } from './usePriceImportRows'
 export { useUploadCsv } from './useUploadCsv'

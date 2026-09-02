@@ -3,7 +3,6 @@ import { render, screen, fireEvent } from '@testing-library/react'
 import { MemoryRouter } from 'react-router-dom'
 
 import { useOrders } from '@/admin/pages/orders/hooks/useOrders'
-import { useUpdateOrderStatus } from '@/admin/pages/orders/hooks/useUpdateOrderStatus'
 import { useAdminAuthStore } from '@/shared/auth/adminAuthStore'
 import { OrderStatus } from '@/shared/types/enums/OrderStatus'
 import type { AdminOrderSummary, OrdersPage } from '@/admin/pages/orders/types'
@@ -13,9 +12,6 @@ const mockNavigate = vi.fn()
 
 vi.mock('@/admin/pages/orders/hooks/useOrders', () => ({
   useOrders: vi.fn(),
-}))
-vi.mock('@/admin/pages/orders/hooks/useUpdateOrderStatus', () => ({
-  useUpdateOrderStatus: vi.fn(),
 }))
 vi.mock('@/shared/auth/adminAuthStore', () => ({
   useAdminAuthStore: vi.fn(),
@@ -65,11 +61,6 @@ function setupDefaultMocks(overrides?: {
     refetch: vi.fn(),
     ...overrides?.useOrdersReturn,
   } as unknown as ReturnType<typeof useOrders>)
-
-  vi.mocked(useUpdateOrderStatus).mockReturnValue({
-    mutate: vi.fn(),
-    isPending: false,
-  } as unknown as ReturnType<typeof useUpdateOrderStatus>)
 
   vi.mocked(useAdminAuthStore).mockImplementation((selector: unknown) => {
     const state = { role: overrides?.role ?? 'SUPER_ADMIN' }
@@ -237,10 +228,9 @@ describe('OrderListPage', () => {
   })
 
   /**
-   * Viewing is not mutating, so the view action is gated differently from the rest of the
-   * row actions: a VIEWER can reach every order's detail but must still be offered no way
-   * to change one. Pinned in both directions, because collapsing the two gates would be
-   * invisible — the page would simply look slightly wrong to one role.
+   * The row offers view-only navigation now — status changes happen on the order detail
+   * page's Order Actions panel, not from a row-level menu. The view link is therefore
+   * unconditional: it doesn't vary by role or by the order's status/available transitions.
    */
   describe('view action', () => {
     it('links to the order detail page', () => {
@@ -252,19 +242,14 @@ describe('OrderListPage', () => {
       expect(view).toHaveAttribute('href', '/admin/orders/order-1')
     })
 
-    it('is offered to a VIEWER, who cannot mutate anything', () => {
+    it('is offered to a VIEWER, same as any other role', () => {
       setupDefaultMocks({ role: 'VIEWER' })
 
       renderPage()
 
       expect(screen.getByRole('link', { name: /view order ORD-00001/i })).toBeInTheDocument()
-      expect(screen.queryByTestId('order-actions-menu')).not.toBeInTheDocument()
     })
 
-    /**
-     * A terminal order has no transitions, so its kebab menu is gone — but it is exactly
-     * the kind of order somebody needs to open and read.
-     */
     it('survives on an order with no available transitions', () => {
       setupDefaultMocks({
         ordersData: createMockOrdersPage({
@@ -275,61 +260,6 @@ describe('OrderListPage', () => {
       renderPage()
 
       expect(screen.getByRole('link', { name: /view order ORD-00001/i })).toBeInTheDocument()
-      expect(screen.queryByTestId('order-actions-menu')).not.toBeInTheDocument()
-    })
-  })
-
-  describe('actions menu visibility', () => {
-    it('renders actions menu for SUPER_ADMIN with eligible orders (status PAID)', () => {
-      setupDefaultMocks({
-        role: 'SUPER_ADMIN',
-        ordersData: createMockOrdersPage({
-          data: [createMockOrder({ status: OrderStatus.PAID })],
-        }),
-      })
-
-      renderPage()
-
-      expect(screen.getByTestId('order-actions-menu')).toBeInTheDocument()
-    })
-
-    it('renders actions menu for ORDER_MANAGER (order:write mirrors updateOrderStatus)', () => {
-      setupDefaultMocks({
-        role: 'ORDER_MANAGER',
-        ordersData: createMockOrdersPage({
-          data: [createMockOrder({ status: OrderStatus.PAID })],
-        }),
-      })
-
-      renderPage()
-
-      expect(screen.getByTestId('order-actions-menu')).toBeInTheDocument()
-    })
-
-    it('does not render actions menu for VIEWER role', () => {
-      setupDefaultMocks({
-        role: 'VIEWER',
-        ordersData: createMockOrdersPage({
-          data: [createMockOrder({ status: OrderStatus.PAID })],
-        }),
-      })
-
-      renderPage()
-
-      expect(screen.queryByTestId('order-actions-menu')).not.toBeInTheDocument()
-    })
-
-    it('does not render actions menu for orders with no available transitions', () => {
-      setupDefaultMocks({
-        role: 'SUPER_ADMIN',
-        ordersData: createMockOrdersPage({
-          data: [createMockOrder({ status: OrderStatus.CANCELLED })],
-        }),
-      })
-
-      renderPage()
-
-      expect(screen.queryByTestId('order-actions-menu')).not.toBeInTheDocument()
     })
   })
 })

@@ -1,8 +1,10 @@
 import type {SortItem} from '@/admin/utils'
+import type {CustomerStatus, WholesaleApplicationStatus} from '@/shared/types/enums'
 
-export type CustomerStatus = 'ACTIVE' | 'PENDING' | 'DISABLED'
+export type {CustomerStatus} from '@/shared/types/enums'
 export type CustomerType = 'GUEST' | 'RETAILER' | 'WHOLESALER'
-export type WholesaleStatus = 'PENDING' | 'APPROVED' | 'REJECTED'
+/** Alias of the real shared enum — kept so existing call sites importing WholesaleStatus from here don't all need to move. */
+export type WholesaleStatus = WholesaleApplicationStatus
 
 export interface AdminCustomerSummary {
     id: string
@@ -33,7 +35,7 @@ export interface WholesaleApplication {
     companyName: string
     vatNumber: string | null
     regNumber: string | null
-    status: WholesaleStatus
+    status: WholesaleApplicationStatus
     submittedAt: string
     applicantEmail: string
     accountEmail: string | null
@@ -107,24 +109,3 @@ export function getAvailableActions(status: CustomerStatus): Array<'activate' | 
     }
 }
 
-export function getCustomerStatusColor(status: CustomerStatus): 'green' | 'yellow' | 'red' {
-    switch (status) {
-        case 'ACTIVE':
-            return 'green'
-        case 'PENDING':
-            return 'yellow'
-        case 'DISABLED':
-            return 'red'
-    }
-}
-
-export function getWholesaleStatusColor(status: WholesaleStatus): 'green' | 'yellow' | 'red' {
-    switch (status) {
-        case 'APPROVED':
-            return 'green'
-        case 'PENDING':
-            return 'yellow'
-        case 'REJECTED':
-            return 'red'
-    }
-}

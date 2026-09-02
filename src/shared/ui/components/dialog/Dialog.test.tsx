@@ -194,6 +194,136 @@ describe('DialogFooter', () => {
   })
 })
 
+describe('focus management', () => {
+  it('moves focus to the first focusable element when opened', () => {
+    render(
+      <Dialog open onClose={() => {}}>
+        <DialogContent>
+          <button>First</button>
+          <button>Second</button>
+        </DialogContent>
+      </Dialog>
+    )
+
+    expect(document.activeElement).toBe(screen.getByText('First'))
+  })
+
+  it('Tab wraps from the last focusable element to the first', () => {
+    render(
+      <Dialog open onClose={() => {}}>
+        <DialogContent>
+          <button>First</button>
+          <button>Second</button>
+        </DialogContent>
+      </Dialog>
+    )
+
+    const first = screen.getByText('First')
+    const last = screen.getByText('Second')
+    last.focus()
+
+    fireEvent.keyDown(document, { key: 'Tab' })
+    expect(document.activeElement).toBe(first)
+  })
+
+  it('Shift+Tab wraps from the first focusable element to the last', () => {
+    render(
+      <Dialog open onClose={() => {}}>
+        <DialogContent>
+          <button>First</button>
+          <button>Second</button>
+        </DialogContent>
+      </Dialog>
+    )
+
+    const first = screen.getByText('First')
+    const last = screen.getByText('Second')
+    first.focus()
+
+    fireEvent.keyDown(document, { key: 'Tab', shiftKey: true })
+    expect(document.activeElement).toBe(last)
+  })
+
+  it('restores focus to the previously focused element when closed', () => {
+    const trigger = document.createElement('button')
+    trigger.textContent = 'Open'
+    document.body.appendChild(trigger)
+    trigger.focus()
+
+    const { rerender } = render(
+      <Dialog open onClose={() => {}}>
+        <DialogContent>
+          <button>Inside</button>
+        </DialogContent>
+      </Dialog>
+    )
+    expect(document.activeElement).not.toBe(trigger)
+
+    rerender(
+      <Dialog open={false} onClose={() => {}}>
+        <DialogContent>
+          <button>Inside</button>
+        </DialogContent>
+      </Dialog>
+    )
+
+    expect(document.activeElement).toBe(trigger)
+    trigger.remove()
+  })
+
+  it('restores focus to restoreFocusRef when provided, instead of the previously focused element', () => {
+    const otherTrigger = document.createElement('button')
+    otherTrigger.textContent = 'Trigger'
+    document.body.appendChild(otherTrigger)
+    otherTrigger.focus()
+
+    const explicitTarget = document.createElement('button')
+    explicitTarget.textContent = 'Restore target'
+    document.body.appendChild(explicitTarget)
+    const restoreFocusRef = { current: explicitTarget }
+
+    const { rerender } = render(
+      <Dialog open onClose={() => {}} restoreFocusRef={restoreFocusRef}>
+        <DialogContent>
+          <button>Inside</button>
+        </DialogContent>
+      </Dialog>
+    )
+
+    rerender(
+      <Dialog open={false} onClose={() => {}} restoreFocusRef={restoreFocusRef}>
+        <DialogContent>
+          <button>Inside</button>
+        </DialogContent>
+      </Dialog>
+    )
+
+    expect(document.activeElement).toBe(explicitTarget)
+    otherTrigger.remove()
+    explicitTarget.remove()
+  })
+
+  it('sets aria-label on the dialog when provided', () => {
+    render(
+      <Dialog open onClose={() => {}} aria-label="Sign in">
+        <DialogContent>body</DialogContent>
+      </Dialog>
+    )
+    expect(screen.getByRole('dialog')).toHaveAttribute('aria-label', 'Sign in')
+  })
+
+  it('sets aria-labelledby on the dialog when provided', () => {
+    render(
+      <Dialog open onClose={() => {}} aria-labelledby="my-heading">
+        <DialogContent>
+          <h2 id="my-heading">Title</h2>
+        </DialogContent>
+      </Dialog>
+    )
+    expect(screen.getByRole('dialog')).toHaveAttribute('aria-labelledby', 'my-heading')
+  })
+})
+
 describe('portal rendering', () => {
   /** The overlay is the fixed element carrying the backdrop colour. */
   function overlayOf() {
@@ -233,8 +363,8 @@ describe('portal rendering', () => {
   })
 
   it('REGRESSION: the overlay is not a descendant of a space-y ancestor', () => {
-    // The original defect: `space-y-6` applied margin-block-end to the fixed
-    // overlay, shrinking it below the viewport and leaving an unblurred strip.
+    // A `space-y-*` ancestor would apply margin-block-end to the fixed overlay,
+    // shrinking it below the viewport and leaving an unblurred strip.
     // Structurally escaping that subtree is what makes it impossible.
     const { container } = render(
       <div className="space-y-6">

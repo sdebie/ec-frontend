@@ -19,7 +19,7 @@ export interface SectionProps {
  * Shared section frame — standardized rhythm, container width, and light/dark variant.
  *
  * Dark variant uses a near-black base with a radial accent glow derived from --sf-accent.
- * The #121212 base is a documented theme-law exception (same family as bg-black/50 overlays
+ * The #121212 base is a documented exception (same family as bg-black/50 overlays
  * and hero darkStyle). Dark text treatment is scoped to [data-variant="dark"] via the
  * component's own CSS — consumers never hand-pick dark classes.
  */

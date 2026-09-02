@@ -8,13 +8,8 @@ import { DropdownMenu, DropdownItem } from '../DropdownMenu'
  *
  * When a DropdownMenu is rendered inside a container with `overflow: hidden` and
  * a fixed height (simulating the DataTable's overflow-hidden outer wrapper), and
- * the menu is opened, the menu panel SHOULD be rendered into `document.body` via
- * a React portal with `position: fixed`, escaping the overflow boundary.
- *
- * This test is EXPECTED TO FAIL on unfixed code because the current DropdownMenu
- * renders the menu with `position: absolute` as a child of the trigger's relative
- * container — it does NOT use a portal.
- *
+ * the menu is opened, the menu panel must be rendered into `document.body` via a
+ * React portal with `position: fixed`, escaping the overflow boundary.
  */
 
 // Arbitrary for container dimensions that would cause clipping

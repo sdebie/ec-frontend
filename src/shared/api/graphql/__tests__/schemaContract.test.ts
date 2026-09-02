@@ -126,8 +126,6 @@ describe('GraphQL schema contract', () => {
   })
 
   it('catches the ID! regression it was built for', () => {
-    // The original incident: SetProductFeatured declared `$productId: ID!`, but the
-    // SmallRye schema has no ID type (the arg is String). Prove the guard flags it.
     schema ??= buildContractSchema(schemaSDL)
     const buggy = `
       mutation SetProductFeatured($productId: ID!, $featured: Boolean!) {

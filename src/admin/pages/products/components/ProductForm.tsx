@@ -11,8 +11,8 @@ import {resolveImageUrl} from '@/shared/utils/imageUrl'
 import {ProductStatus} from '@/shared/types/enums'
 import {toSlug} from '@/admin/utils/slug'
 import {VariantFields} from './VariantFields'
-import {serializeAttributes} from '@/admin/hooks/products/mappers'
-import type {ProductPayload} from '@/admin/hooks/products/types'
+import {serializeAttributes} from '../hooks/mappers'
+import type {ProductPayload} from '../types'
 
 // Matches the `product_variants.attributes` VARCHAR(254) column — validated
 // here (against the same serializer the mapper submits) so an overlong

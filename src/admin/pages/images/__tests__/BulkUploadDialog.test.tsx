@@ -1,18 +1,18 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest'
 import { render, screen, fireEvent } from '@testing-library/react'
 
-import { useBulkUpload, useImageDirectories } from '@/admin/hooks/images'
+import { useBulkUpload } from '@/admin/pages/images/hooks/useBulkUpload'
+import { useImageDirectories } from '@/admin/pages/images/hooks/useImageDirectories'
 
 import { BulkUploadDialog } from '../BulkUploadDialog'
 
 // --- Mocks ---
 
-vi.mock('@/admin/hooks/images', () => ({
+vi.mock('@/admin/pages/images/hooks/useBulkUpload', () => ({
   useBulkUpload: vi.fn(),
+}))
+vi.mock('@/admin/pages/images/hooks/useImageDirectories', () => ({
   useImageDirectories: vi.fn(),
-  useUploadImage: vi.fn(),
-  useImageList: vi.fn(),
-  useUploadImageAsset: vi.fn(),
 }))
 
 // --- Helpers ---
@@ -39,6 +39,12 @@ function renderDialog() {
 
 function getFileInput(): HTMLInputElement {
   const input = document.querySelector('input[type="file"][multiple]:not([webkitdirectory])')
+  expect(input).not.toBeNull()
+  return input as HTMLInputElement
+}
+
+function getFolderInput(): HTMLInputElement {
+  const input = document.querySelector('input[type="file"][webkitdirectory]')
   expect(input).not.toBeNull()
   return input as HTMLInputElement
 }
@@ -86,5 +92,21 @@ describe('BulkUploadDialog', () => {
     renderDialog()
 
     expect(screen.getByRole('button', { name: 'Upload' })).toBeDisabled()
+  })
+
+  it('folder mode rejects non-allowlisted image types the same way files mode does', () => {
+    setupMocks()
+    renderDialog()
+
+    fireEvent.click(screen.getByRole('button', { name: 'Select Folder' }))
+
+    const files = [
+      new File([''], 'sku-1.jpg', { type: 'image/jpeg' }),
+      new File([''], 'sku-2.gif', { type: 'image/gif' }),
+    ]
+    fireEvent.change(getFolderInput(), { target: { files } })
+
+    expect(screen.getByText('1 image found for Storage root.')).toBeInTheDocument()
+    expect(screen.queryByText(/sku-2\.gif/)).not.toBeInTheDocument()
   })
 })

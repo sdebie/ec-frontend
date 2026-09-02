@@ -2,10 +2,10 @@ import { useCallback, useMemo, useState } from 'react'
 import { Search, Star, Trash2 } from 'lucide-react'
 
 import { useBreadcrumb } from '@/admin/context/BreadcrumbContext'
-import type { AdminProductListItem } from '@/admin/hooks/products/types'
-import { useFeaturedProducts } from '@/admin/hooks/products/useFeaturedProducts'
-import { useSetProductFeatured } from '@/admin/hooks/products/useSetProductFeatured'
-import { useAdminProductList } from '@/admin/hooks/products/useAdminProductList'
+import type { AdminProductListItem } from '@/admin/pages/products/types'
+import { useFeaturedProducts } from '@/admin/pages/products/hooks/useFeaturedProducts'
+import { useSetProductFeatured } from '@/admin/pages/products/hooks/useSetProductFeatured'
+import { useAdminProductList } from '@/admin/pages/products/hooks/useAdminProductList'
 import type { ColumnDef } from '@/shared/ui/components'
 import {
   DataTable,

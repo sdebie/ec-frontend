@@ -1,8 +1,8 @@
 import { useNavigate } from 'react-router-dom'
 import { toast, PageLayout } from '@/shared/ui/components'
 import { useBreadcrumb } from '@/admin/context/BreadcrumbContext'
-import { useCreateProduct } from '@/admin/hooks/products/useCreateProduct'
-import { useCategories } from '@/admin/hooks/products/useCategories'
+import { useCreateProduct } from './hooks/useCreateProduct'
+import { useCategories } from './hooks/useCategories'
 import { useMediaUpload, useMediaDelete } from '@/admin/hooks/media'
 import { ProductForm, toProductPayload } from './components/ProductForm'
 import type { ProductFormValues } from './components/ProductForm'
@@ -27,7 +27,7 @@ export function ProductCreatePage() {
   }
 
   return (
-    <PageLayout title="Add Product">
+    <PageLayout title="Add Product" onBack={() => navigate(-1)}>
       <ProductForm
         onSubmit={handleSubmit}
         isSubmitting={isLoading}

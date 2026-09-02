@@ -5,15 +5,17 @@ import {graphqlClient} from '@/shared/api/graphql/graphqlClient'
 import type {OrderStatusResponse} from '../types'
 
 /**
- * S2′ (guest-order-authorization) — replaces orderBySessionId, keyed on the order id
- * and authorized by the same X-Order-Token every other order-scoped request carries.
- * Written as a tagged gql template deliberately (Requirement 4.6): the query it
- * replaces was an untagged backtick literal, which is the entire reason
- * schemaContract.test.ts never caught it selecting a field the backend schema does
- * not have — a poll that had never once succeeded against the real backend.
- * (Not written as gql-backtick-ellipsis-backtick in this comment on purpose — the
- * contract test's own extraction regex is a naive text scan with no notion of
- * comments, and matches that exact shape wherever it appears in the file.)
+ * S2′ (guest-order-authorization) — keyed on the order id and authorized by the
+ * same X-Order-Token every other order-scoped request carries.
+ *
+ * Must stay a TAGGED gql template (Requirement 4.6): schemaContract.test.ts's
+ * extraction is a naive text scan for the tagged form, so a plain backtick
+ * literal here would go unchecked against the backend schema and let a bad
+ * field sit undetected.
+ *
+ * (Not written as gql-backtick-ellipsis-backtick in THIS comment on purpose —
+ * the contract test's extraction regex has no notion of comments and matches
+ * that exact shape wherever it appears in the file.)
  */
 const ORDER_STATUS_QUERY = gql`
   query OrderStatus($orderId: String!) {
@@ -29,13 +31,19 @@ const ORDER_STATUS_QUERY = gql`
 const POLL_INTERVAL = 3000
 const TIMEOUT_MS = 120_000
 
-/** Statuses that stop the poll — a definite outcome, good or bad. */
+/**
+ * Statuses that stop the poll. Not all are permanent on the backend —
+ * PAYMENT_FAILED can still move on its own (a retried payment, or the
+ * abandoned-order sweep after its default 30-minute hold) — but neither happens
+ * inside this poll's 120s window, so there is nothing left here worth waiting for.
+ */
 const TERMINAL_STATUSES = new Set([
     'PAID',
     'IN_STORE_PAYMENT',
     'USER_CANCELED',
     'ADMIN_CANCELED',
     'SYSTEM_CANCELED',
+    'PAYMENT_FAILED',
     'FAILED',
     'REFUNDED',
 ])
@@ -63,10 +71,9 @@ export function usePollOrderStatus(orderId: string | null, token: string | null)
     const query = useQuery({
         queryKey: ['checkout', 'order-status', orderId],
         queryFn: async () => {
-            // Requirement 9.3: checked on the error path too, not only on success — the
-            // untagged query below used to select a field the backend rejects, so every
-            // poll errored and the timeout this guards was unreachable, leaving a guest
-            // who paid in store on "Confirming your payment…" forever.
+            // Requirement 9.3: checked on the error path too, not only on success — a
+            // query that errors on every poll must still hit this timeout check, or a
+            // guest who paid in store would sit on "Confirming your payment…" forever.
             try {
                 const data = await graphqlClient.request<{ orderStatus: OrderStatusResponse }>(
                     ORDER_STATUS_QUERY,

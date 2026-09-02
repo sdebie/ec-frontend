@@ -1,14 +1,8 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest'
-import { render, screen } from '@testing-library/react'
+import { render, screen, fireEvent } from '@testing-library/react'
 import { MemoryRouter } from 'react-router-dom'
 import { useAdminAuthStore } from '@/shared/auth/adminAuthStore'
-import type { StaffMember } from '@/admin/hooks/staff'
-
-const mockNavigate = vi.fn()
-vi.mock('react-router-dom', async () => {
-  const actual = await vi.importActual('react-router-dom')
-  return { ...actual, useNavigate: () => mockNavigate }
-})
+import type { StaffMember } from '../types'
 
 const mockStaffData: StaffMember[] = [
   {
@@ -31,14 +25,27 @@ const mockStaffData: StaffMember[] = [
   },
 ]
 
-vi.mock('@/admin/hooks/staff', () => ({
+vi.mock('../hooks/useStaff', () => ({
   useStaff: vi.fn(() => ({
     data: { data: mockStaffData, total: 2 },
     isLoading: false,
     isError: false,
     error: null,
   })),
+}))
+
+// StaffListPage renders StaffTable, which calls this hook itself for activate/deactivate.
+vi.mock('../hooks/useUpdateStaff', () => ({
   useUpdateStaff: vi.fn(() => ({
+    mutate: vi.fn(),
+    isPending: false,
+  })),
+}))
+
+// StaffFormDialog is only mounted once the Add/Edit dialog opens, but it calls this
+// hook unconditionally on every render (both modes), so it must always be mocked.
+vi.mock('../hooks/useCreateStaff', () => ({
+  useCreateStaff: vi.fn(() => ({
     mutate: vi.fn(),
     isPending: false,
   })),
@@ -87,9 +94,15 @@ describe('StaffListPage', () => {
       expect(screen.queryByText('Actions')).not.toBeInTheDocument()
     })
 
-    it('does not render staff actions menus', () => {
+    it('does not render any row action buttons', () => {
       renderStaffList()
-      expect(screen.queryByTestId('staff-actions-menu')).not.toBeInTheDocument()
+      expect(screen.queryByLabelText(/^Edit /)).not.toBeInTheDocument()
+    })
+
+    it('does not open a dialog when a row is double-clicked', () => {
+      renderStaffList()
+      fireEvent.doubleClick(screen.getByText('Admin User'))
+      expect(screen.queryByRole('dialog')).not.toBeInTheDocument()
     })
 
     it('still renders staff data rows', () => {
@@ -110,10 +123,10 @@ describe('StaffListPage', () => {
       expect(screen.getByText('Actions')).toBeInTheDocument()
     })
 
-    it('renders staff actions menus for each row', () => {
+    it('renders an Edit icon action for each row', () => {
       renderStaffList()
-      const menus = screen.getAllByTestId('staff-actions-menu')
-      expect(menus.length).toBe(2)
+      expect(screen.getByLabelText('Edit Admin User')).toBeInTheDocument()
+      expect(screen.getByLabelText('Edit Viewer User')).toBeInTheDocument()
     })
 
     it('renders staff data in the table', () => {
@@ -127,6 +140,33 @@ describe('StaffListPage', () => {
     it('renders the page heading', () => {
       renderStaffList()
       expect(screen.getByText('Staff')).toBeInTheDocument()
+    })
+
+    it('opens the create dialog when "Add staff member" is clicked', () => {
+      renderStaffList()
+      fireEvent.click(screen.getByText('Add staff member'))
+      expect(screen.getByText('Add Staff Member')).toBeInTheDocument()
+    })
+
+    it('opens the edit dialog, pre-filled, when the Edit action is clicked', () => {
+      renderStaffList()
+      fireEvent.click(screen.getByLabelText('Edit Admin User'))
+      expect(screen.getByText('Edit Staff Member')).toBeInTheDocument()
+      expect(screen.getByPlaceholderText('staff@example.com')).toHaveValue('admin@test.com')
+    })
+
+    it('opens the edit dialog, pre-filled, when a row is double-clicked', () => {
+      renderStaffList()
+      fireEvent.doubleClick(screen.getByText('Viewer User'))
+      expect(screen.getByText('Edit Staff Member')).toBeInTheDocument()
+      expect(screen.getByPlaceholderText('staff@example.com')).toHaveValue('viewer@test.com')
+    })
+
+    it('closing the dialog removes it from the document', () => {
+      renderStaffList()
+      fireEvent.click(screen.getByText('Add staff member'))
+      fireEvent.click(screen.getByRole('button', { name: 'Cancel' }))
+      expect(screen.queryByRole('dialog')).not.toBeInTheDocument()
     })
   })
 })

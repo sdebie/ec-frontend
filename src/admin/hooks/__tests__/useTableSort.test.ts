@@ -25,16 +25,6 @@ function createWrapper(initialEntries: string[] = ['/admin/products/brands']) {
     return {Wrapper, location}
 }
 
-/**
- * The mount-reconciliation guard defers via setTimeout(0) — this flushes past it the same
- * way a real macrotask boundary would, without reaching for fake timers.
- */
-async function flushMountGuard() {
-    await act(async () => {
-        await new Promise((resolve) => setTimeout(resolve, 10))
-    })
-}
-
 describe('useTableSort', () => {
     it('exposes an empty sorting array and no sort request when the URL carries no sort', () => {
         const {Wrapper} = createWrapper(['/admin/products/brands'])
@@ -85,11 +75,9 @@ describe('useTableSort', () => {
         expect(result.current.sorting).toEqual([{id: 'createdAt', desc: false}])
     })
 
-    it('sorting away from the default column writes an explicit URL state, superseding the default', async () => {
+    it('sorting away from the default column writes an explicit URL state, superseding the default', () => {
         const {Wrapper, location} = createWrapper(['/admin/wholesale'])
         const {result} = renderHook(() => useTableSort({field: 'createdAt', desc: true}), {wrapper: Wrapper})
-
-        await flushMountGuard()
 
         act(() => {
             result.current.onSortingChange([{id: 'firstName', desc: false}])
@@ -110,11 +98,9 @@ describe('useTableSort', () => {
         expect(result.current.sort).toEqual([{field: 'customerName', direction: 'ASC'}])
     })
 
-    it('onSortingChange writes sortBy/sortDir to the URL and resets page to 0', async () => {
+    it('onSortingChange writes sortBy/sortDir to the URL and resets page to 0', () => {
         const {Wrapper, location} = createWrapper(['/admin/products/brands?page=2'])
         const {result} = renderHook(() => useTableSort(), {wrapper: Wrapper})
-
-        await flushMountGuard()
 
         act(() => {
             result.current.onSortingChange([{id: 'name', desc: true}])
@@ -125,11 +111,9 @@ describe('useTableSort', () => {
         expect(location.search).toContain('page=0')
     })
 
-    it('onSortingChange with an empty array clears sortBy/sortDir from the URL', async () => {
+    it('onSortingChange with an empty array clears sortBy/sortDir from the URL', () => {
         const {Wrapper, location} = createWrapper(['/admin/products/brands?sortBy=name&sortDir=asc'])
         const {result} = renderHook(() => useTableSort(), {wrapper: Wrapper})
-
-        await flushMountGuard()
 
         act(() => {
             result.current.onSortingChange([])
@@ -139,29 +123,9 @@ describe('useTableSort', () => {
         expect(location.search).not.toContain('sortDir')
     })
 
-    it('ignores the reconciliation call react-table fires with its own default during mount', () => {
-        // Regression guard for the bug the mount-guard exists to prevent: react-table's
-        // sorting plugin calls onSortingChange with [] during mount, before the
-        // setTimeout(0) guard has flipped — a URL-restored sort must survive that call
-        // untouched. No await before it: the guard flips on the next macrotask, so the
-        // only way to land inside its window is to call synchronously, exactly like
-        // react-table's own reconciliation does.
-        const {Wrapper, location} = createWrapper(['/admin/products/brands?sortBy=name&sortDir=desc'])
-        const {result} = renderHook(() => useTableSort(), {wrapper: Wrapper})
-
-        act(() => {
-            result.current.onSortingChange([])
-        })
-
-        expect(location.search).toContain('sortBy=name')
-        expect(location.search).toContain('sortDir=desc')
-    })
-
-    it('a functional updater receives the current sorting state, matching TanStack\'s contract', async () => {
+    it('a functional updater receives the current sorting state, matching TanStack\'s contract', () => {
         const {Wrapper, location} = createWrapper(['/admin/products/brands?sortBy=name&sortDir=asc'])
         const {result} = renderHook(() => useTableSort(), {wrapper: Wrapper})
-
-        await flushMountGuard()
 
         act(() => {
             result.current.onSortingChange((current) => {

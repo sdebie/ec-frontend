@@ -17,9 +17,10 @@ const AccountLoginPage = lazyPage(() => import('@/storefront/pages/AccountLoginP
 const AccountRegisterPage = lazyPage(() => import('@/storefront/pages/AccountRegisterPage'), 'AccountRegisterPage')
 const AccountDashboardPage = lazyPage(() => import('@/storefront/customer/account/AccountDashboardPage'), 'AccountDashboardPage')
 const NotFoundPage = lazyPage(() => import('@/storefront/pages/NotFoundPage'), 'NotFoundPage')
-const AdminLoginPage = lazyPage(() => import('@/admin/pages/AdminLoginPage'), 'AdminLoginPage')
+const AdminLoginPage = lazyPage(() => import('@/admin/pages/auth/AdminLoginPage'), 'AdminLoginPage')
 const AdminNotFoundPage = lazyPage(() => import('@/admin/pages/AdminNotFoundPage'), 'AdminNotFoundPage')
-const AdminResetPasswordPage = lazyPage(() => import('@/admin/pages/AdminResetPasswordPage'), 'AdminResetPasswordPage')
+const AdminResetPasswordPage = lazyPage(() => import('@/admin/pages/auth/AdminResetPasswordPage'), 'AdminResetPasswordPage')
+const AdminForgotPasswordPage = lazyPage(() => import('@/admin/pages/auth/AdminForgotPasswordPage'), 'AdminForgotPasswordPage')
 const OrderHistoryPage = lazyPage(() => import('@/storefront/customer/account/orders/OrderHistoryPage'), 'OrderHistoryPage')
 const OrderDetailPage = lazyPage(() => import('@/storefront/customer/account/orders/OrderDetailPage'), 'OrderDetailPage')
 const ProfilePage = lazyPage(() => import('@/storefront/customer/account/profile/ProfilePage'), 'ProfilePage')
@@ -186,6 +187,17 @@ export const router = createBrowserRouter([
         element: (
             <Suspense fallback={null}>
                 <AdminResetPasswordPage/>
+            </Suspense>
+        ),
+    },
+    {
+        // Anonymous by design — reachable from the sign-in screen for a staff member
+        // who cannot log in at all, so it sits outside AdminGuard for the same reason
+        // /admin/reset-password does.
+        path: '/admin/forgot-password',
+        element: (
+            <Suspense fallback={null}>
+                <AdminForgotPasswordPage/>
             </Suspense>
         ),
     },

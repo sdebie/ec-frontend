@@ -69,8 +69,8 @@ function SectionBadge({badge}: { badge: SectionTabItem['badge'] }) {
  * logic — the consuming feature keeps those and drives this component via
  * `activeSectionId` / `onActiveSectionChange`.
  *
- * Every section panel stays mounted (inactive ones carry the `hidden`
- * attribute) so consumer state living in the DOM — registered form fields,
+ * Every section panel stays mounted (inactive ones go invisible, not
+ * unmounted) so consumer state living in the DOM — registered form fields,
  * scroll positions, uncontrolled inputs — survives section switches.
  *
  * Colours use --c-* tokens only, so it themes on any surface that scopes
@@ -236,7 +236,7 @@ export function SectionTabs({
                                 aria-labelledby={tabId(section.id)}
                                 aria-hidden={!isActive || undefined}
                                 inert={!isActive || undefined}
-                                className={cn('[grid-area:1/1] p-6 sm:p-8', !isActive && 'invisible')}
+                                className={cn('[grid-area:1/1] min-w-0 p-6 sm:p-8', !isActive && 'invisible')}
                             >
                                 <div className="mb-5">
                                     <h3 className="text-base font-semibold text-(--c-text)">{section.label}</h3>

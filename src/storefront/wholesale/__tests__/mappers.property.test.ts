@@ -82,12 +82,12 @@ describe('Feature: wholesale-application-enhancements, Property 4: Same as compa
       fc.property(formValuesArb(true), (values) => {
         const dto = toDto(values)
 
-        expect(dto.postalAddressLine1).toBe(values.physicalAddressLine1)
-        expect(dto.postalAddressLine2).toBe(values.physicalAddressLine2 ?? '')
-        expect(dto.postalSuburb).toBe(values.physicalSuburb ?? '')
-        expect(dto.postalCity).toBe(values.physicalCity)
-        expect(dto.postalProvince).toBe(values.physicalProvince)
-        expect(dto.postalPostalCode).toBe(values.physicalPostalCode)
+        expect(dto.postalAddress.line1).toBe(values.physicalAddressLine1)
+        expect(dto.postalAddress.line2).toBe(values.physicalAddressLine2 ?? '')
+        expect(dto.postalAddress.suburb).toBe(values.physicalSuburb ?? '')
+        expect(dto.postalAddress.city).toBe(values.physicalCity)
+        expect(dto.postalAddress.province).toBe(values.physicalProvince)
+        expect(dto.postalAddress.postalCode).toBe(values.physicalPostalCode)
       }),
       { numRuns: 100 },
     )
@@ -103,12 +103,12 @@ describe('Feature: wholesale-application-enhancements, Property 4: Same as compa
       fc.property(formValuesArb(false), (values) => {
         const dto = toDto(values)
 
-        expect(dto.postalAddressLine1).toBe(values.postalAddressLine1 ?? '')
-        expect(dto.postalAddressLine2).toBe(values.postalAddressLine2 ?? '')
-        expect(dto.postalSuburb).toBe(values.postalSuburb ?? '')
-        expect(dto.postalCity).toBe(values.postalCity ?? '')
-        expect(dto.postalProvince).toBe(values.postalProvince ?? '')
-        expect(dto.postalPostalCode).toBe(values.postalPostalCode ?? '')
+        expect(dto.postalAddress.line1).toBe(values.postalAddressLine1 ?? '')
+        expect(dto.postalAddress.line2).toBe(values.postalAddressLine2 ?? '')
+        expect(dto.postalAddress.suburb).toBe(values.postalSuburb ?? '')
+        expect(dto.postalAddress.city).toBe(values.postalCity ?? '')
+        expect(dto.postalAddress.province).toBe(values.postalProvince ?? '')
+        expect(dto.postalAddress.postalCode).toBe(values.postalPostalCode ?? '')
       }),
       { numRuns: 100 },
     )

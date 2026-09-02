@@ -14,7 +14,7 @@ interface UnavailableItemRowProps {
  * returns null for non-ACTIVE products), so no links are rendered — only a
  * muted presentation and an explicit "Remove" action.
  *
- * This is deliberately NOT a ProductCard variant (law 4): a disabled product
+ * This is deliberately NOT a ProductCard variant: a disabled product
  * has no purchase path, no trustworthy price, and no page to link to.
  */
 export function UnavailableItemRow({item, onRemove}: UnavailableItemRowProps) {

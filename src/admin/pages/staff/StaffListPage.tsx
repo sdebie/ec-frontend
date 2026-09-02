@@ -1,28 +1,16 @@
-import { useState, useEffect, useMemo } from 'react'
-import { useNavigate } from 'react-router-dom'
+import { useState, useEffect } from 'react'
 import type { PaginationState } from '@tanstack/react-table'
-import { Search } from 'lucide-react'
 
-import { DataTable, StatusBadge } from '@/shared/ui/components'
-import type { ColumnDef } from '@/shared/ui/components'
-import { Button, Input } from '@/shared/ui/primitives'
+import { PageLayout } from '@/shared/ui/components'
 import { useCan } from '@/shared/auth/adminPermissions'
-import { useStaff } from '@/admin/hooks/staff'
-import type { StaffMember } from '@/admin/hooks/staff'
 import { useTableSort } from '@/admin/hooks/useTableSort'
-import { StaffActionsMenu } from './StaffActionsMenu'
-import { StaffRoleLabels } from '@/shared/types/enums/StaffRoles'
-
-
-const ROLE_COLORS: Record<StaffMember['role'], string> = {
-  SUPER_ADMIN: 'blue',
-  CATALOG_MANAGER: 'purple',
-  ORDER_MANAGER: 'green',
-  VIEWER: 'gray',
-}
+import { useStaff } from './hooks/useStaff'
+import type { StaffMember } from './types'
+import { StaffTable } from './components/StaffTable'
+import { StaffFormDialog } from './components/StaffFormDialog'
+import { StaffToolbar } from './components/StaffToolbar'
 
 export function StaffListPage() {
-  const navigate = useNavigate()
   const canMutate = useCan('staff:manage')
 
   const [searchInput, setSearchInput] = useState('')
@@ -50,101 +38,61 @@ export function StaffListPage() {
     sort,
   })
 
-  const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setSearchInput(e.target.value)
+  const [dialogOpen, setDialogOpen] = useState(false)
+  const [dialogMode, setDialogMode] = useState<'create' | 'edit'>('create')
+  const [editingStaff, setEditingStaff] = useState<StaffMember | undefined>(undefined)
+
+  const handleAdd = () => {
+    setDialogMode('create')
+    setEditingStaff(undefined)
+    setDialogOpen(true)
   }
 
-  const columns = useMemo<ColumnDef<StaffMember, unknown>[]>(
-    () => [
-      {
-        accessorKey: 'fullName',
-        header: 'Name',
-        cell: ({ row }) => row.original.fullName ?? '—',
-      },
-      {
-        accessorKey: 'email',
-        header: 'Email',
-      },
-      {
-        accessorKey: 'role',
-        header: 'Role',
-        cell: ({ row }) => (
-          <StatusBadge
-            label={StaffRoleLabels[row.original.role]}
-            color={ROLE_COLORS[row.original.role]}
-          />
-        ),
-      },
-      {
-        // Not sortable: this column has no accessorKey (its id, 'active', is a display
-        // name only) and the underlying entity field is boolean isActive — whether that
-        // resolves in JPQL as `isActive` or `active` needs checking against the entity
-        // before this could be wired to a real sort key.
-        id: 'active',
-        header: 'Active',
-        enableSorting: false,
-        cell: ({ row }) => (
-          <StatusBadge
-            label={row.original.active ? 'Active' : 'Inactive'}
-            color={row.original.active ? 'green' : 'gray'}
-          />
-        ),
-      },
-      ...(canMutate
-        ? [
-            {
-              id: 'actions',
-              header: 'Actions',
-              enableSorting: false,
-              cell: ({ row }: { row: { original: StaffMember } }) => (
-                <StaffActionsMenu staff={row.original} />
-              ),
-            } as ColumnDef<StaffMember, unknown>,
-          ]
-        : []),
-    ],
-    [canMutate],
-  )
+  const handleEdit = (staff: StaffMember) => {
+    setDialogMode('edit')
+    setEditingStaff(staff)
+    setDialogOpen(true)
+  }
+
+  const handleCloseDialog = () => {
+    setDialogOpen(false)
+    setEditingStaff(undefined)
+  }
 
   const pageCount = data ? Math.ceil(data.total / pagination.pageSize) : 0
 
   return (
-    <div className="flex flex-col gap-6">
-      <div className="flex items-center justify-between">
-        <h1 className="text-2xl font-semibold text-(--c-text)">Staff</h1>
-        {canMutate && (
-          <Button onClick={() => navigate('/admin/staff/new')}>
-            Add staff member
-          </Button>
-        )}
-      </div>
+    <PageLayout title="Staff">
+      <div className="space-y-4">
+        <StaffToolbar
+          searchValue={searchInput}
+          onSearchChange={setSearchInput}
+          canMutate={canMutate}
+          onAddStaff={handleAdd}
+        />
 
-      {/* Search filter bar */}
-      <div className="relative max-w-sm">
-        <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-(--c-text-muted)" />
-        <Input
-          type="text"
-          placeholder="Search by name or email..."
-          value={searchInput}
-          onChange={handleSearchChange}
-          className="pl-9"
+        <StaffTable
+          data={data?.data ?? []}
+          isLoading={isLoading}
+          canMutate={canMutate}
+          pageCount={pageCount}
+          totalRowCount={data?.total ?? 0}
+          pagination={pagination}
+          onPaginationChange={setPagination}
+          sorting={sorting}
+          onSortingChange={onSortingChange}
+          onEdit={handleEdit}
         />
       </div>
 
-      <DataTable
-        columns={columns}
-        data={data?.data ?? []}
-        isLoading={isLoading}
-        showSearch={false}
-        manualPagination
-        pageCount={pageCount}
-        totalRowCount={data?.total ?? 0}
-        pagination={pagination}
-        onPaginationChange={setPagination}
-        manualSorting
-        sorting={sorting}
-        onSortingChange={onSortingChange}
-      />
-    </div>
+      {dialogOpen && (
+        <StaffFormDialog
+          open={dialogOpen}
+          mode={dialogMode}
+          staff={editingStaff}
+          onClose={handleCloseDialog}
+        />
+      )}
+    </PageLayout>
   )
 }

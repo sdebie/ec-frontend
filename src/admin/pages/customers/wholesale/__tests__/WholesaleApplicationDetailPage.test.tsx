@@ -48,18 +48,22 @@ function createPendingApplication(
     financeContactEmail: 'alice@smithcorp.co.za',
     financeContactPhone: '+27 82 999 9999',
     purchaseOrderRequired: true,
-    physicalAddressLine1: '10 Main St',
-    physicalAddressLine2: 'Unit 5',
-    physicalSuburb: 'Sandton',
-    physicalCity: 'Johannesburg',
-    physicalProvince: 'Gauteng',
-    physicalPostalCode: '2196',
-    postalAddressLine1: 'PO Box 100',
-    postalAddressLine2: null,
-    postalSuburb: 'Sandton',
-    postalCity: 'Johannesburg',
-    postalProvince: 'Gauteng',
-    postalPostalCode: '2196',
+    physicalAddress: {
+      line1: '10 Main St',
+      line2: 'Unit 5',
+      suburb: 'Sandton',
+      city: 'Johannesburg',
+      province: 'Gauteng',
+      postalCode: '2196',
+    },
+    postalAddress: {
+      line1: 'PO Box 100',
+      line2: null,
+      suburb: 'Sandton',
+      city: 'Johannesburg',
+      province: 'Gauteng',
+      postalCode: '2196',
+    },
     createdAt: '2025-06-15T10:32:00Z',
     processedAt: null,
     rejectionReason: null,
@@ -181,8 +185,8 @@ describe('WholesaleApplicationDetailPage', () => {
     ).toBeInTheDocument()
     // Physical address
     expect(screen.getByText('10 Main St')).toBeInTheDocument()
-    // Status renders as "Pending" (header badge + status panel), not the raw enum value
-    expect(screen.getAllByText('Pending').length).toBeGreaterThan(0)
+    // Status renders as "Pending Review" (header badge + status panel), not the raw enum value
+    expect(screen.getAllByText('Pending Review').length).toBeGreaterThan(0)
     expect(screen.queryByText('PENDING')).not.toBeInTheDocument()
   })
 

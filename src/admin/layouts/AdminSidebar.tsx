@@ -1,11 +1,11 @@
-import {useEffect, useMemo} from 'react'
+import {useEffect, useMemo, useState} from 'react'
 import {matchPath, useLocation} from 'react-router-dom'
-import {ChevronsLeft, ChevronsRight} from 'lucide-react'
 import {cn} from '@/shared/utils/cn'
 import {hasRequiredAuthority} from '@/shared/utils/authorizationHelper'
 import {adminMenuRoutes} from '@/admin/routes/adminMenuRoutes.config'
 import {useClientName} from '@/admin/hooks/useClientName'
-import {SidebarItem, SidebarSection} from '@/admin/components/sidebar'
+import {SidebarItem} from '@/admin/components/sidebar/SidebarItem'
+import {SidebarSection} from '@/admin/components/sidebar/SidebarSection'
 import type {AdminRouteConfig} from '@/admin/types/routes'
 
 // Generic admin-console chrome, not client data — safe as a constant.
@@ -15,11 +15,10 @@ interface AdminSidebarProps {
     isOpen: boolean
     onClose: () => void
     isCollapsed: boolean
-    onToggleCollapsed: () => void
     onSetCollapsed: (collapsed: boolean) => void
 }
 
-export function AdminSidebar({isOpen, onClose, isCollapsed, onToggleCollapsed, onSetCollapsed}: AdminSidebarProps) {
+export function AdminSidebar({isOpen, onClose, isCollapsed, onSetCollapsed}: AdminSidebarProps) {
     const clientName = useClientName()
 
     const authorizedRoutes = useMemo(() =>
@@ -39,11 +38,7 @@ export function AdminSidebar({isOpen, onClose, isCollapsed, onToggleCollapsed, o
 
     const location = useLocation()
 
-    // Several groups' children still share a URL prefix with a sibling (e.g. Categories
-    // & Brands' pages live under /admin/products/*, same as Products' own pages), so a
-    // plain prefix check against one group's path can also match another group's
-    // children. Resolve the ambiguity by picking whichever route (top-level path or any
-    // of its children) matches the current URL most specifically — longest match wins.
+    // Sibling groups can share a URL prefix (Categories & Brands live under /admin/products/*, same as Products) — ties resolve to whichever route or child matches the current URL most specifically.
     const activeGroupKey = useMemo(() => {
         let bestKey: string | null = null
         let bestLength = -1
@@ -67,6 +62,13 @@ export function AdminSidebar({isOpen, onClose, isCollapsed, onToggleCollapsed, o
 
         return bestKey
     }, [authorizedRoutes, location.pathname])
+
+    // Accordion: only one group is expanded at a time, seeded from and re-synced to activeGroupKey on navigation; a manual header click (no navigation) sets it directly instead.
+    const [expandedGroupKey, setExpandedGroupKey] = useState<string | null>(activeGroupKey)
+
+    useEffect(() => {
+        setExpandedGroupKey(activeGroupKey)
+    }, [activeGroupKey])
 
     // Handle escape key
     useEffect(() => {
@@ -102,6 +104,8 @@ export function AdminSidebar({isOpen, onClose, isCollapsed, onToggleCollapsed, o
             <aside
                 className={cn(
                     'fixed top-0 left-0 bottom-0 z-50 bg-admin-sidebar-bg border-r border-admin-sidebar-border overflow-hidden flex flex-col',
+                    // Width (desktop collapse) and transform (mobile drawer) both animate here, matching AdminHeader's `left` and AdminLayout's margin duration so all three move together.
+                    'transition-[width,transform] duration-450',
                     // Desktop: always visible, width changes based on collapsed state
                     'md:translate-x-0',
                     isCollapsed ? 'md:w-20' : 'md:w-64',
@@ -109,9 +113,9 @@ export function AdminSidebar({isOpen, onClose, isCollapsed, onToggleCollapsed, o
                     'w-64', isOpen ? 'translate-x-0' : '-translate-x-full md:translate-x-0',
                 )}
             >
-                {/* Brand block — h-[60px] matches the fixed header's height (py-3 +
-            36px content, header has no border) so the two rows line up. */}
-                <div className={cn('flex h-15 shrink-0 items-center', isCollapsed ? 'md:justify-center md:px-2' : '', 'px-4',)}>
+                {/* Brand block height shares --c-header-h with the fixed header, so the two rows always line up. */}
+                <div
+                    className={cn('flex h-(--c-header-h) shrink-0 items-center', isCollapsed ? 'md:justify-center md:px-2' : '', 'px-4',)}>
                     <div
                         className="flex h-9 w-9 shrink-0 items-center justify-center rounded-(--c-radius) bg-primary-subtle text-sm font-bold text-primary">
                         {clientName ? clientName.charAt(0).toUpperCase() : 'S'}
@@ -128,7 +132,11 @@ export function AdminSidebar({isOpen, onClose, isCollapsed, onToggleCollapsed, o
 
                 <div className="flex-1 px-3 pt-4 pb-2 overflow-y-auto overflow-x-hidden custom-scrollbar">
                     {Object.entries(routesBySection).map(([section, routes]) => (
-                        <SidebarSection key={section} title={section} isCollapsed={isCollapsed}>
+                        <SidebarSection
+                            key={section}
+                            title={section === 'MAIN' ? undefined : section}
+                            isCollapsed={isCollapsed}>
+
                             {routes.map(route => (
                                 <li key={route.key} className="w-full list-none">
                                     <SidebarItem
@@ -137,22 +145,13 @@ export function AdminSidebar({isOpen, onClose, isCollapsed, onToggleCollapsed, o
                                         setCollapsed={onSetCollapsed}
                                         onItemClick={handleItemClick}
                                         isActiveGroup={route.key === activeGroupKey}
+                                        expandedGroupKey={expandedGroupKey}
+                                        onExpandGroup={setExpandedGroupKey}
                                     />
                                 </li>
                             ))}
                         </SidebarSection>
                     ))}
-                </div>
-
-                {/* Desktop collapse toggle */}
-                <div className="hidden md:flex items-center justify-center border-t border-admin-sidebar-border p-2">
-                    <button
-                        type="button"
-                        onClick={onToggleCollapsed}
-                        className="p-2 rounded-(--c-radius) text-admin-text-muted hover:bg-admin-sidebar-hover hover:text-admin-text transition-colors"
-                        title={isCollapsed ? 'Expand sidebar' : 'Collapse sidebar'}>
-                        {isCollapsed ? <ChevronsRight size={18}/> : <ChevronsLeft size={18}/>}
-                    </button>
                 </div>
             </aside>
         </>

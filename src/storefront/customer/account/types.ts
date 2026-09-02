@@ -3,17 +3,10 @@
  *
  * Order types (e.g. OrderStatusEvent) are handwritten alongside their hooks
  * (see useOrderDetail.ts). There is no graphql-codegen step — mirror the inline
- * `gql` selection set in the hook when adding fields (see CLAUDE.md law #8).
+ * `gql` selection set in the hook when adding fields.
  */
 
-export interface AddressDto {
-    line1: string
-    line2: string | null
-    suburb: string | null
-    city: string
-    province: string
-    postalCode: string
-}
+import type { AddressDto, AddressInput } from '@/shared/types/AddressDto'
 
 export interface StorefrontMeResponse {
     email: string
@@ -40,18 +33,8 @@ export interface UpdateProfileRequest {
     firstName: string
     lastName: string
     phone?: string | null
-    physicalAddressLine1?: string | null
-    physicalAddressLine2?: string | null
-    physicalSuburb?: string | null
-    physicalCity?: string | null
-    physicalProvince?: string | null
-    physicalPostalCode?: string | null
-    postalAddressLine1?: string | null
-    postalAddressLine2?: string | null
-    postalSuburb?: string | null
-    postalCity?: string | null
-    postalProvince?: string | null
-    postalPostalCode?: string | null
+    physicalAddress?: AddressInput | null
+    postalAddress?: AddressInput | null
 }
 
 export interface UpdateProfileResponse {

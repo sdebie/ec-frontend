@@ -1,6 +1,6 @@
 import {useState} from 'react'
 import {Calendar, FileUser, FileX, Mail, Phone} from 'lucide-react'
-import {ConfirmationDialog} from '@/shared/ui/components'
+import {ConfirmationDialog, IconText} from '@/shared/ui/components'
 import {Button, Card} from '@/shared/ui/primitives'
 import {useCan} from '@/shared/auth/adminPermissions'
 import {RejectApplicationDialog} from '@/admin/components/RejectApplicationDialog'
@@ -48,7 +48,7 @@ export function ApplicantInformationPanel({application}: ApplicantInformationPan
 
     return (
         <>
-            <Card as="section" elevation="none" padded={false}>
+            <Card as="section" variant="bordered">
                 <WholesaleApplicationDetailHeader
                     icon={FileUser}
                     title="Applicant Information"
@@ -84,46 +84,41 @@ export function ApplicantInformationPanel({application}: ApplicantInformationPan
                                     {application.firstName} {application.lastName}
                                 </p>
                                 <div className="flex flex-col gap-1.5 text-sm text-(--c-text-muted)">
-                                    <span className="flex items-center gap-2">
-                                        <Mail className="h-4 w-4 shrink-0"/>
+                                    <IconText icon={<Mail className="h-4 w-4"/>}>
                                         <span>
                                             {application.applicantEmail}
                                         </span>
-                                    </span>
+                                    </IconText>
                                     {application.email && (
-                                        <span className="flex items-center gap-2">
-                                            <Mail className="h-4 w-4 shrink-0"/>
+                                        <IconText icon={<Mail className="h-4 w-4"/>}>
                                             <span>
                                                 {application.email}
                                             </span>
                                             <span className="text-xs">
                                                 (account)
                                             </span>
-                                        </span>
+                                        </IconText>
                                     )}
                                     {application.phone && (
-                                        <span className="flex items-center gap-2">
-                                            <Phone className="h-4 w-4 shrink-0"/>
+                                        <IconText icon={<Phone className="h-4 w-4"/>}>
                                             <span>
                                                 {application.phone}
                                             </span>
-                                        </span>
+                                        </IconText>
                                     )}
-                                    <span className="flex items-center gap-2">
-                                        <Calendar className="h-4 w-4 shrink-0"/>
+                                    <IconText icon={<Calendar className="h-4 w-4"/>}>
                                         <span>
                                             Submitted: {formatDateTime(application.createdAt)}
                                         </span>
-                                    </span>
+                                    </IconText>
                                 </div>
 
                                 {!isPending && (application.processedAt || application.rejectionReason) && (
                                     <div className="mt-1 flex flex-col gap-1 text-sm text-(--c-text-muted)">
                                         {application.processedAt && (
-                                            <span className={"flex items-center gap-2"}>
-                                                <FileX className="h-4 w-4 shrink-0"/>
+                                            <IconText icon={<FileX className="h-4 w-4"/>}>
                                                 Processed: {formatDateTime(application.processedAt)}
-                                            </span>
+                                            </IconText>
                                         )}
                                         {application.rejectionReason && (
                                             <p className="text-(--c-text)">
@@ -146,12 +141,11 @@ export function ApplicantInformationPanel({application}: ApplicantInformationPan
                                 <p className="text-xs font-bold uppercase tracking-wide text-(--c-text-muted)">
                                     Application Status
                                 </p>
-                                <div className="flex items-center gap-2">
-                                    <StatusIcon className={`h-5 w-5 ${statusAccentClass}`}/>
+                                <IconText icon={<StatusIcon className={`h-5 w-5 ${statusAccentClass}`}/>} as="div">
                                     <span className={`text-base font-semibold ${statusAccentClass}`}>
                                         {statusConfig.label}
                                     </span>
-                                </div>
+                                </IconText>
                                 <p className="text-sm text-(--c-text-muted)">
                                     {statusConfig.description}
                                 </p>

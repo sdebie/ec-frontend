@@ -59,8 +59,8 @@ describe('RichTextEditor', () => {
     )
 
     const wrapper = container.firstChild as HTMLElement
-    expect(wrapper.className).toContain('border-admin-border')
-    expect(wrapper.className).toContain('bg-admin-panel')
+    expect(wrapper.className).toContain('border-(--c-border)')
+    expect(wrapper.className).toContain('bg-(--c-panel)')
   })
 
   it('calls window.prompt when Add Link button is clicked', () => {

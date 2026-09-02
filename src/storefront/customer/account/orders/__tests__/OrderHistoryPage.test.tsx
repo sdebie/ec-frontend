@@ -4,6 +4,7 @@ import fc from 'fast-check'
 import {MemoryRouter} from 'react-router-dom'
 import {OrderHistoryPage} from '../OrderHistoryPage'
 import {formatAmount} from '@/shared/utils/formatAmount'
+import {formatDisplayDate} from '@/shared/utils/formatDateTime'
 import type {MyOrder} from '../../hooks/useMyOrders'
 import {orderStatusBadgeClasses} from '../../orderStatusBadge'
 import { OrderStatus } from '@/shared/types/enums/OrderStatus'
@@ -93,13 +94,8 @@ describe('OrderHistoryPage — property-based tests', () => {
 
                     const rowText = normalizeWs(row.textContent ?? '')
 
-                    // Formatted date should be present (en-ZA short format)
-                    const expectedDate = new Date(order.orderDate).toLocaleDateString('en-ZA', {
-                        year: 'numeric',
-                        month: 'short',
-                        day: 'numeric',
-                    })
-                    expect(rowText).toContain(expectedDate)
+                    // Formatted date should be present
+                    expect(rowText).toContain(formatDisplayDate(order.orderDate))
 
                     // Status badge should be present
                     expect(rowText).toContain(order.status)

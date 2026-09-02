@@ -44,12 +44,12 @@ describe('toDto — Property: sameAsPhysical copies address fields', () => {
             fc.property(formValuesWithSameAsPhysicalArb, (values) => {
                 const dto = toDto(values)
 
-                expect(dto.postalAddressLine1).toBe(values.physicalAddressLine1)
-                expect(dto.postalAddressLine2).toBe(values.physicalAddressLine2 ?? '')
-                expect(dto.postalSuburb).toBe(values.physicalSuburb)
-                expect(dto.postalCity).toBe(values.physicalCity)
-                expect(dto.postalProvince).toBe(values.physicalProvince)
-                expect(dto.postalPostalCode).toBe(values.physicalPostalCode)
+                expect(dto.postalAddress.line1).toBe(values.physicalAddressLine1)
+                expect(dto.postalAddress.line2).toBe(values.physicalAddressLine2 ?? '')
+                expect(dto.postalAddress.suburb).toBe(values.physicalSuburb)
+                expect(dto.postalAddress.city).toBe(values.physicalCity)
+                expect(dto.postalAddress.province).toBe(values.physicalProvince)
+                expect(dto.postalAddress.postalCode).toBe(values.physicalPostalCode)
             }),
             {numRuns: 100},
         )

@@ -19,11 +19,13 @@ import {
 import type { ColumnDef } from '@/shared/ui/components'
 import { Button } from '@/shared/ui/primitives'
 import { useCan } from '@/shared/auth/adminPermissions'
-import { usePriceUploadBatches } from '@/admin/hooks/imports/usePriceUploadBatches'
+import { formatDate } from '@/shared/utils/formatDateTime'
+import { usePriceImportBatches } from '@/admin/hooks/imports/usePriceImportBatches'
 import { useRefreshBatchStatus } from '@/admin/hooks/imports/useRefreshBatchStatus'
 import { useUploadCsv } from '@/admin/hooks/imports/useUploadCsv'
 import { getBatchStatusColor } from '@/admin/hooks/imports/utils'
-import type { ProductUploadBatchDto } from '@/admin/hooks/imports/types'
+import type { ProductImportBatchDto } from '@/admin/hooks/imports/types'
+import { PRICE_IMPORT } from '@/admin/api/importEndpoints'
 
 function RefreshButton({ batchId, onSuccess }: { batchId: string; onSuccess: () => void }) {
   const { mutateAsync, isPending } = useRefreshBatchStatus()
@@ -31,7 +33,7 @@ function RefreshButton({ batchId, onSuccess }: { batchId: string; onSuccess: () 
   const handleRefresh = async () => {
     try {
       await mutateAsync({
-        endpoint: `/admin/products/price/batches/${batchId}/staged/status`,
+        endpoint: PRICE_IMPORT.status(batchId),
       })
       onSuccess()
     } catch (err) {
@@ -52,7 +54,7 @@ function RefreshButton({ batchId, onSuccess }: { batchId: string; onSuccess: () 
 export default function PriceImportListPage() {
   const navigate = useNavigate()
   const canMutate = useCan('import:manage')
-  const { data, isLoading, refetch } = usePriceUploadBatches()
+  const { data, isLoading, refetch } = usePriceImportBatches()
 
   useBreadcrumb([
     { label: 'Home', href: '/admin' },
@@ -67,7 +69,7 @@ export default function PriceImportListPage() {
   const handleUpload = async () => {
     if (!file) return
     try {
-      const response = await uploadCsv({ file, endpoint: '/admin/products/price/upload-csv' })
+      const response = await uploadCsv({ file, endpoint: '/admin/imports/price/upload' })
       if (!response?.batchId) {
         toast.error('Upload succeeded but no batch ID was returned', { duration: 0 })
         return
@@ -89,14 +91,14 @@ export default function PriceImportListPage() {
     setFile(null)
   }
 
-  const columns: ColumnDef<ProductUploadBatchDto, unknown>[] = useMemo(
+  const columns: ColumnDef<ProductImportBatchDto, unknown>[] = useMemo(
     () => [
       {
         accessorKey: 'createdAt',
         header: 'Date',
         cell: ({ row }) => (
           <span className="text-sm text-(--c-text)">
-            {new Date(row.original.createdAt).toLocaleDateString()}
+            {formatDate(row.original.createdAt)}
           </span>
         ),
         enableSorting: false,
@@ -106,6 +108,14 @@ export default function PriceImportListPage() {
         header: 'Filename',
         cell: ({ row }) => (
           <span className="text-sm text-(--c-text)">{row.original.filename}</span>
+        ),
+        enableSorting: false,
+      },
+      {
+        accessorKey: 'importSourceType',
+        header: 'Source',
+        cell: ({ row }) => (
+          <span className="text-sm text-(--c-text)">{row.original.importSourceType}</span>
         ),
         enableSorting: false,
       },

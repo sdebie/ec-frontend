@@ -1,5 +1,5 @@
 import {Navigate, useNavigate} from 'react-router-dom'
-import {FormPageLayout, toast} from '@/shared/ui/components'
+import {PageLayout, toast} from '@/shared/ui/components'
 import {useBreadcrumb} from '@/admin/context/BreadcrumbContext'
 import {useCan} from '@/shared/auth/adminPermissions'
 import {useCreateBrand} from './hooks/useCreateBrand'
@@ -32,11 +32,11 @@ export function BrandCreatePage() {
     }
 
     return (
-        <FormPageLayout title="Create Brand">
+        <PageLayout title="Create Brand" onBack={() => navigate(-1)}>
             <BrandForm
                 onSubmit={handleSubmit}
                 isSubmitting={mutation.isPending}
             />
-        </FormPageLayout>
+        </PageLayout>
     )
 }

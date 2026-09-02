@@ -1,75 +1,21 @@
 import { useQuery } from '@tanstack/react-query'
-import { gql } from 'graphql-request'
 
 import { adminGraphqlClient } from '@/shared/api/graphql/adminGraphqlClient'
+import {
+  ADMIN_CUSTOMER_DETAIL_QUERY,
+  type AdminCustomerDetailRawApplication,
+} from '@/admin/pages/customers/hooks/adminCustomerDetailQuery'
 import type { AdminCustomerDetail, WholesaleApplication } from '../../types'
 
-const ADMIN_CUSTOMER = gql`
-  query AdminCustomer($id: String!) {
-    adminCustomer(id: $id) {
-      id
-      firstName
-      lastName
-      email
-      phone
-      status
-      shopperType
-      registeredAt
-      wholesaleApplication {
-        id
-        status
-        companyName
-        vatNumber
-        regNumber
-        email
-        createdAt
-        applicantEmail
-        tradingName
-        companyPhone
-        companyEmail
-        financeContactName
-        financeContactEmail
-        financeContactPhone
-        purchaseOrderRequired
-      }
-      recentOrders {
-        id
-        reference
-        placedAt
-        total
-        status
-      }
-    }
-  }
-`
-
-interface AdminCustomerRawApplication {
-  id: string
-  status: string
-  companyName: string
-  vatNumber: string | null
-  regNumber: string | null
-  email: string
-  createdAt: string
-  applicantEmail: string
-  tradingName: string | null
-  companyPhone: string | null
-  companyEmail: string | null
-  financeContactName: string | null
-  financeContactEmail: string | null
-  financeContactPhone: string | null
-  purchaseOrderRequired: boolean | null
-}
-
 interface AdminCustomerRawResponse extends Omit<AdminCustomerDetail, 'wholesaleApplication'> {
-  wholesaleApplication: AdminCustomerRawApplication | null
+  wholesaleApplication: AdminCustomerDetailRawApplication | null
 }
 
 interface AdminCustomerResponse {
   adminCustomer: AdminCustomerRawResponse | null
 }
 
-function mapWholesaleApplication(app: AdminCustomerRawApplication): WholesaleApplication {
+function mapWholesaleApplication(app: AdminCustomerDetailRawApplication): WholesaleApplication {
   return {
     id: app.id,
     companyName: app.companyName,
@@ -102,7 +48,7 @@ export function useCustomerDetail(customerId: string) {
   const { data, isLoading, error } = useQuery({
     queryKey: ['admin', 'customers', customerId],
     queryFn: () =>
-      adminGraphqlClient.request<AdminCustomerResponse>(ADMIN_CUSTOMER, { id: customerId }),
+      adminGraphqlClient.request<AdminCustomerResponse>(ADMIN_CUSTOMER_DETAIL_QUERY, { id: customerId }),
     enabled: !!customerId,
   })
 

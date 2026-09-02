@@ -1,6 +1,4 @@
 export * from './types'
-export { useShippingMethods } from './useShippingMethods'
-export { useSaveShippingMethod } from './useSaveShippingMethod'
 export { useStoreSettings } from './useStoreSettings'
 export { useUpdateSetting } from './useUpdateSetting'
-export { useCountrySettings } from './useCountrySettings'
+export { useSaveStoreSettings } from './useSaveStoreSettings'

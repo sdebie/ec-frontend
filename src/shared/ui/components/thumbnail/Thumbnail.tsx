@@ -20,7 +20,7 @@ const sizeClasses: Record<ThumbnailSize, string> = {
 export function Thumbnail({logoUrl, name, size = 'md', className}: ThumbnailProps) {
     const [imgError, setImgError] = useState(false)
     const initials = name?.slice(0, 2).toUpperCase() ?? '?'
-    // Law 7: storage-relative DB paths must resolve to /static/images/…; idempotent for absolute URLs.
+    // Storage-relative DB paths must resolve to /static/images/…; idempotent for absolute URLs.
     const resolvedUrl = resolveImageUrl(logoUrl)
 
     if (resolvedUrl && !imgError) {

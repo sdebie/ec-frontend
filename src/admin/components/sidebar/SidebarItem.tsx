@@ -11,6 +11,8 @@ interface SidebarItemProps {
     setCollapsed: (collapsed: boolean) => void
     onItemClick?: () => void
     isActiveGroup?: boolean
+    expandedGroupKey?: string | null
+    onExpandGroup?: (key: string | null) => void
 }
 
 export function SidebarItem({
@@ -20,6 +22,8 @@ export function SidebarItem({
                                 setCollapsed,
                                 onItemClick,
                                 isActiveGroup,
+                                expandedGroupKey,
+                                onExpandGroup,
                             }: SidebarItemProps) {
     if (route.subMenu && route.subMenu.length > 0) {
         return (
@@ -29,6 +33,9 @@ export function SidebarItem({
                 setCollapsed={setCollapsed}
                 onItemClick={onItemClick}
                 isActiveGroup={isActiveGroup}
+                expandedGroupKey={expandedGroupKey ?? null}
+                onExpandGroup={onExpandGroup ?? (() => {
+                })}
             />
         )
     }
@@ -46,9 +53,7 @@ export function SidebarItem({
                     isChild && !isCollapsed && 'pl-4 relative z-10',
                     isActive
                         ? isChild
-                            // Sub-items sit beside the connector line already marking the active
-                            // branch, so the active one only needs to read like a permanent
-                            // hover — accent text, no background — not a second highlighted box.
+                            // Sub-items sit beside the connector line already marking the active branch, so the active one just reads like a permanent hover — accent text, no background box.
                             ? 'text-primary font-semibold'
                             : 'bg-primary-subtle text-primary font-semibold ring-2 ring-primary'
                         : 'text-(--c-text-muted) hover:bg-(--c-surface-hover) hover:text-(--c-text)',

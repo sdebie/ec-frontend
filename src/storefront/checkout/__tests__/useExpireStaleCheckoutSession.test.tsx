@@ -37,23 +37,24 @@ function cartOf(items: Array<{ variantId: string; quantity: number }>) {
 }
 
 /**
- * guest-order-authorization narrowed what "expiring" a stale session means. The
- * store's own clearSession() split (checkoutSessionStore.ts) is what this hook
- * calls, and its new job is clearing the idempotency-replay hazard — not the order
- * id or token, which must survive a refresh of the success page. This hook keeps
- * calling clearSession() (not the new clearOrder()) so that CheckoutSuccessPage's
- * clearCart()-then-clearSession() sequence — which fires this exact subscription,
- * since an emptied cart no longer matches the just-placed order's lines — does not
- * wipe the confirmation it is about to show. See design.md §5.2a: "the split must
- * change the store's semantics, not one call site."
+ * This hook's job is clearing the idempotency-replay hazard, via the store's
+ * clearCheckoutIntent() (checkoutSessionStore.ts) — never the order id or token,
+ * which must survive a refresh of the success page.
+ *
+ * clearCheckoutIntent() specifically, not clearOrder(): CheckoutSuccessPage's
+ * clearCart()-then-clearCheckoutIntent() sequence fires this exact subscription
+ * (an emptied cart no longer matches the just-placed order's lines), and
+ * clearOrder() there would wipe the confirmation it is about to show. See
+ * design.md §5.2a: "the split must change the store's semantics, not one call
+ * site."
  * <p>
- * The accepted trade-off: a genuinely abandoned, diverged checkout (the shopper
- * goes back to the cart mid-flow and changes it, then somehow returns to /checkout
- * without going through useCheckout() again) no longer nulls session — its stale
- * total could be briefly redisplayed. It cannot be silently over-charged, because
- * ensureIdempotencyKey() re-keys off the current cart signature independently of
- * this hook, and useCheckout() always overwrites session with a fresh one on the
- * one real path back to /checkout (clicking checkout from the cart).
+ * This hook deliberately leaves `session` itself alone on divergence. The guard
+ * against showing or submitting a stale session lives in CheckoutPage instead,
+ * which runs the identical staleness check (isCheckoutSessionStale, shared via
+ * utils/cartSignature) against the live cart on every render and clears a
+ * diverged session outright rather than leaving it inert. This hook's narrow
+ * scope — idempotency key only — is correct as long as that render-time guard
+ * stays in place.
  */
 describe('useExpireStaleCheckoutSession', () => {
     beforeEach(() => {

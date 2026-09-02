@@ -36,8 +36,10 @@ const mockUseImageListPage = vi.fn(
   }),
 )
 
-vi.mock('@/admin/hooks/images', () => ({
+vi.mock('@/admin/hooks/images/useUploadImageAsset', () => ({
   useUploadImageAsset: vi.fn(() => ({ mutate: mockUploadLogo, isPending: false })),
+}))
+vi.mock('@/admin/hooks/images/useImageListPage', () => ({
   useImageListPage: (params: { page: number }) => mockUseImageListPage(params),
 }))
 

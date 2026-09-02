@@ -1,5 +1,5 @@
 import { useEffect } from 'react'
-import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
+import { useMutation, useQueryClient } from '@tanstack/react-query'
 import { useForm, useFieldArray, Controller } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { z } from 'zod'
@@ -7,21 +7,13 @@ import { ArrowUp, ArrowDown, Trash2, Plus } from 'lucide-react'
 import { gql } from 'graphql-request'
 
 import { adminGraphqlClient } from '@/shared/api/graphql/adminGraphqlClient'
+import { useStoreSettings } from '@/admin/hooks/settings/useStoreSettings'
+import type { StoreSetting } from '@/admin/hooks/settings/types'
 import { PageLayout, InputField, Checkbox, toast } from '@/shared/ui/components'
 import { Button } from '@/shared/ui/primitives'
 import { useBreadcrumb } from '@/admin/context/BreadcrumbContext'
 
 // --- GraphQL ---
-
-const GET_STORE_SETTINGS = gql`
-  query StoreSettings {
-    storeSettings {
-      key
-      value
-      description
-    }
-  }
-`
 
 const SAVE_STORE_SETTINGS = gql`
   mutation SaveStoreSettings($storeSettingsDto: [StoreSettingsDtoInput!]!) {
@@ -34,12 +26,6 @@ const SAVE_STORE_SETTINGS = gql`
 `
 
 // --- Types ---
-
-interface StoreSetting {
-  key: string
-  value: string
-  description?: string
-}
 
 interface NavItemData {
   id: string
@@ -88,15 +74,7 @@ export function NavigationEditorPage() {
     { label: 'Navigation' },
   ])
 
-  const { data: settings } = useQuery({
-    queryKey: ['admin', 'storeSettings'],
-    queryFn: async () => {
-      const result = await adminGraphqlClient.request<{ storeSettings: StoreSetting[] }>(
-        GET_STORE_SETTINGS,
-      )
-      return result.storeSettings ?? []
-    },
-  })
+  const { data: settings } = useStoreSettings()
 
   const saveMutation = useMutation({
     mutationFn: async (items: NavItemData[]) => {
@@ -107,7 +85,7 @@ export function NavigationEditorPage() {
     },
     onSuccess: () => {
       toast.success('Navigation saved successfully')
-      queryClient.invalidateQueries({ queryKey: ['admin', 'storeSettings'] })
+      queryClient.invalidateQueries({ queryKey: ['admin-store-settings'] })
     },
     onError: () => {
       toast.error('Failed to save navigation', { duration: 0 })
@@ -227,7 +205,7 @@ export function NavigationEditorPage() {
               render={({ field: externalField }) => (
                 <Checkbox
                   label="Open in new tab (external link)"
-                  checked={!!externalField.value}
+                  checked={externalField.value}
                   onChange={externalField.onChange}
                 />
               )}

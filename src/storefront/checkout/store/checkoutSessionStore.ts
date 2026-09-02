@@ -23,12 +23,12 @@ export interface CheckoutSessionState {
      * the success page, and the cart/form draft are cleared by their own stores at
      * the same call sites, not here.
      * <p>
-     * Narrowed rather than replaced so both existing callers — CheckoutSuccessPage's
-     * terminal-status effect and useExpireStaleCheckoutSession's cart-divergence
-     * watcher — inherit the fix without changing which method they call. See
-     * {@link clearOrder} for the full reset.
+     * Called by both CheckoutSuccessPage's terminal-status effect and
+     * useExpireStaleCheckoutSession's cart-divergence watcher — neither wants the
+     * order forgotten, only the replay window closed. See {@link clearOrder} for
+     * the full reset.
      */
-    clearSession: () => void
+    clearCheckoutIntent: () => void
     /** The full reset — for any caller that genuinely wants the order forgotten. */
     clearOrder: () => void
     /**
@@ -54,7 +54,7 @@ export const useCheckoutSessionStore = create<CheckoutSessionState>()(
             idempotencyKey: null,
             idempotencyKeyCartSignature: null,
             setSession: (session) => set({session}),
-            clearSession: () => set({idempotencyKey: null, idempotencyKeyCartSignature: null}),
+            clearCheckoutIntent: () => set({idempotencyKey: null, idempotencyKeyCartSignature: null}),
             clearOrder: () => set({session: null, idempotencyKey: null, idempotencyKeyCartSignature: null}),
             ensureIdempotencyKey: (cartSignature) => {
                 const state = get()

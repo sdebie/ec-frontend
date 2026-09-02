@@ -7,15 +7,13 @@ export interface PageBackButtonProps {
     label?: string
     /** Additional CSS classes to apply to the button */
     className?: string
-    /** Custom click handler. If not provided, navigates to previous page using navigate(-1) */
+    /** Custom click handler. If not provided, navigates to the previous page using navigate(-1) */
     onClick?: () => void
 }
 
 /**
- * A reusable back navigation button component.
- *
- * Displays a chevron icon with a "Back" label (customizable) that navigates
- * to the previous page. Designed to be placed at the top of edit/create pages,
+ * Chevron and label back-navigation control,
+ * meant to sit at the top of edit/create pages,
  * above the page title.
  */
 export function PageBackButton({label = 'Back', className, onClick}: PageBackButtonProps) {
@@ -43,7 +41,9 @@ export function PageBackButton({label = 'Back', className, onClick}: PageBackBut
             )}
         >
             <ChevronLeft className="h-4 w-4"/>
-            <span>{label}</span>
+            <span>
+                {label}
+            </span>
         </button>
     )
 }

@@ -24,7 +24,7 @@ export const ADMIN_CAPABILITIES = {
     'category:write': [SUPER_ADMIN, CATALOG_MANAGER],
     /** ProductUploadResource + ProductUploadGraphQLResource — batch reads included. */
     'import:manage': [SUPER_ADMIN, CATALOG_MANAGER],
-    /** ImageResource — uploads, cleanup, and the directory/image-list reads. */
+    /** ImageResource — uploads, the safe-delete/cleanup endpoint, and the directory/image-list reads. */
     'image:write': [SUPER_ADMIN, CATALOG_MANAGER],
     /** OrderResource updateOrderStatus. */
     'order:write': [SUPER_ADMIN, ORDER_MANAGER],

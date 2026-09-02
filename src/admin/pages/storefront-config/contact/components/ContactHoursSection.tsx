@@ -1,0 +1,27 @@
+import type {UseFormRegister} from 'react-hook-form'
+import {InputField} from '@/shared/ui/components'
+import type {ContactFormValues} from '../hooks/useContactForm'
+
+interface ContactHoursSectionProps {
+    register: UseFormRegister<ContactFormValues>
+    canEdit: boolean
+}
+
+export function ContactHoursSection({register, canEdit}: ContactHoursSectionProps) {
+    return (
+        <div className="space-y-4">
+            <InputField
+                label="Business Hours"
+                placeholder="e.g. Mon-Fri 08:00-17:00, Sat 09:00-13:00"
+                disabled={!canEdit}
+                {...register('businessHours')}
+            />
+            <InputField
+                label="Response Time"
+                placeholder="e.g. We respond within 24 hours"
+                disabled={!canEdit}
+                {...register('responseSla')}
+            />
+        </div>
+    )
+}

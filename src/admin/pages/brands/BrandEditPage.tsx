@@ -1,5 +1,5 @@
 import {Navigate, useNavigate, useParams} from 'react-router-dom'
-import {FormPageLayout, FormPageNotFound, PageLoadingSpinner, toast} from '@/shared/ui/components'
+import {FormPageNotFound, PageLayout, PageLoadingSpinner, toast} from '@/shared/ui/components'
 import {useBreadcrumb} from '@/admin/context/BreadcrumbContext'
 import {useCan} from '@/shared/auth/adminPermissions'
 import {useBrandDetail} from './hooks/useBrandDetail'
@@ -50,12 +50,12 @@ export function BrandEditPage() {
     }
 
     return (
-        <FormPageLayout title="Edit Brand">
+        <PageLayout title="Edit Brand" onBack={() => navigate(-1)}>
             <BrandForm
                 defaultValues={defaultValues}
                 onSubmit={handleSubmit}
                 isSubmitting={mutation.isPending}
             />
-        </FormPageLayout>
+        </PageLayout>
     )
 }

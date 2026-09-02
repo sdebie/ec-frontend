@@ -1,358 +1,584 @@
-import { describe, it, expect, vi, beforeEach } from 'vitest'
-import { render, screen, fireEvent } from '@testing-library/react'
-import { MemoryRouter, Route, Routes } from 'react-router-dom'
-import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
-
-import { QuoteRequestDetailPage } from '../QuoteRequestDetailPage'
-import type { QuoteRequestDetail } from '@/admin/hooks/quotes/useQuoteRequestDetail'
-
-// --- Mocks ---
+import {beforeEach, describe, expect, it, vi} from 'vitest'
+import {fireEvent, render, screen} from '@testing-library/react'
+import {MemoryRouter, Route, Routes} from 'react-router-dom'
+import {QueryClient, QueryClientProvider} from '@tanstack/react-query'
+import {QuoteRequestDetailPage} from '../QuoteRequestDetailPage'
+import type {QuoteRequestDetail} from '../hooks/useQuoteRequestDetail'
+import {useQuoteRequestDetail} from '../hooks/useQuoteRequestDetail'
+import {useAdminAuthStore} from '@/shared/auth/adminAuthStore'
 
 const mockMutate = vi.fn()
 
-vi.mock('@/admin/hooks/quotes', () => ({
-  useQuoteRequestDetail: vi.fn(),
-  useQuoteRequestStatusAction: vi.fn(() => ({
-    mutate: mockMutate,
-    isPending: false,
-  })),
+vi.mock('../hooks/useQuoteRequestDetail', () => ({
+    useQuoteRequestDetail: vi.fn(),
 }))
 
-// Import after vi.mock so the mock is in place
-import { useQuoteRequestDetail } from '@/admin/hooks/quotes'
-import { useAdminAuthStore } from '@/shared/auth/adminAuthStore'
-
-// --- Test Data ---
+vi.mock('../hooks/useQuoteRequestStatusAction', () => ({
+    useQuoteRequestStatusAction: vi.fn(() => ({
+        mutate: mockMutate,
+        isPending: false,
+    })),
+}))
 
 function createMockQuoteRequest(
-  overrides?: Partial<QuoteRequestDetail>,
+    overrides?: Partial<QuoteRequestDetail>,
 ): QuoteRequestDetail {
-  return {
-    id: 'qr-123',
-    name: 'John Smith',
-    email: 'john@example.com',
-    phone: '+27 82 123 4567',
-    company: 'Smith Corp',
-    message: 'We need bulk pricing for our office supplies order.',
-    status: 'NEW',
-    createdAt: '2025-07-10T08:30:00Z',
-    statusChangedAt: null,
-    items: [
-      {
-        variantId: 'var-1',
-        productNameSnapshot: 'Premium Widget',
-        variantSkuSnapshot: 'PW-001',
-        quantity: 10,
-      },
-      {
-        variantId: null,
-        productNameSnapshot: 'Deluxe Gadget',
-        variantSkuSnapshot: 'DG-002',
-        quantity: 5,
-      },
-    ],
-    ...overrides,
-  }
+    return {
+        id: 'qr-123',
+        name: 'John Smith',
+        email: 'john@example.com',
+        phone: '+27 82 123 4567',
+        company: 'Smith Corp',
+        message: 'We need bulk pricing for our office supplies order.',
+        status: 'NEW',
+        // Noon UTC so the formatted date doesn't shift across a timezone's midnight boundary.
+        createdAt: '2025-07-10T12:00:00Z',
+        statusChangedAt: null,
+        quotedAmount: null,
+        quotedNotes: null,
+        quotedByName: null,
+        items: [
+            {
+                id: 'item-1',
+                variantId: 'var-1',
+                productNameSnapshot: 'Premium Widget',
+                variantSkuSnapshot: 'PW-001',
+                quantity: 10,
+                unitPrice: null,
+                lineTotal: null,
+            },
+            {
+                id: 'item-2',
+                variantId: null,
+                productNameSnapshot: 'Deluxe Gadget',
+                variantSkuSnapshot: 'DG-002',
+                quantity: 5,
+                unitPrice: null,
+                lineTotal: null,
+            },
+        ],
+        ...overrides,
+    }
 }
 
-// --- Render Helpers ---
-
 function createQueryClient() {
-  return new QueryClient({
-    defaultOptions: { queries: { retry: false }, mutations: { retry: false } },
-  })
+    return new QueryClient({
+        defaultOptions: {queries: {retry: false}, mutations: {retry: false}},
+    })
 }
 
 function renderDetailPage(quoteRequestId = 'qr-123') {
-  const queryClient = createQueryClient()
-  return render(
-    <QueryClientProvider client={queryClient}>
-      <MemoryRouter initialEntries={[`/admin/quotes/${quoteRequestId}`]}>
-        <Routes>
-          <Route
-            path="/admin/quotes/:quoteRequestId"
-            element={<QuoteRequestDetailPage />}
-          />
-        </Routes>
-      </MemoryRouter>
-    </QueryClientProvider>,
-  )
+    const queryClient = createQueryClient()
+    return render(
+        <QueryClientProvider client={queryClient}>
+            <MemoryRouter initialEntries={[`/admin/quotes/${quoteRequestId}`]}>
+                <Routes>
+                    <Route
+                        path="/admin/quotes/:quoteRequestId"
+                        element={<QuoteRequestDetailPage/>}
+                    />
+                </Routes>
+            </MemoryRouter>
+        </QueryClientProvider>,
+    )
+}
+
+/** Finds an InfoRow's container by its label, so a numeric value can be asserted without
+ *  colliding with unrelated numbers elsewhere on the page (e.g. the items table's own
+ *  pagination footer). */
+function infoRowFor(label: string) {
+    return screen.getByText(label).closest('div')
 }
 
 // --- Tests ---
 
 describe('QuoteRequestDetailPage', () => {
-  beforeEach(() => {
-    vi.clearAllMocks()
-    // Default: mutating role (quote:write admits SUPER_ADMIN and ORDER_MANAGER)
-    useAdminAuthStore.setState({ role: 'SUPER_ADMIN' })
-  })
-
-  describe('contact fields rendering', () => {
-    it('renders contact name, email, phone, and company', () => {
-      const quoteRequest = createMockQuoteRequest()
-      vi.mocked(useQuoteRequestDetail).mockReturnValue({
-        data: quoteRequest,
-        isLoading: false,
-        isError: false,
-      } as unknown as ReturnType<typeof useQuoteRequestDetail>)
-
-      renderDetailPage()
-
-      expect(screen.getByText('John Smith')).toBeInTheDocument()
-      expect(screen.getByText('john@example.com')).toBeInTheDocument()
-      expect(screen.getByText('+27 82 123 4567')).toBeInTheDocument()
-      expect(screen.getByText('Smith Corp')).toBeInTheDocument()
-    })
-  })
-
-  describe('message rendering', () => {
-    it('renders the message section when message is present', () => {
-      const quoteRequest = createMockQuoteRequest()
-      vi.mocked(useQuoteRequestDetail).mockReturnValue({
-        data: quoteRequest,
-        isLoading: false,
-        isError: false,
-      } as unknown as ReturnType<typeof useQuoteRequestDetail>)
-
-      renderDetailPage()
-
-      expect(
-        screen.getByText('We need bulk pricing for our office supplies order.'),
-      ).toBeInTheDocument()
+    beforeEach(() => {
+        vi.clearAllMocks()
+        // Default: mutating role (quote:write admits SUPER_ADMIN and ORDER_MANAGER)
+        useAdminAuthStore.setState({role: 'SUPER_ADMIN'})
     })
 
-    it('does not render message section when message is null', () => {
-      const quoteRequest = createMockQuoteRequest({ message: null })
-      vi.mocked(useQuoteRequestDetail).mockReturnValue({
-        data: quoteRequest,
-        isLoading: false,
-        isError: false,
-      } as unknown as ReturnType<typeof useQuoteRequestDetail>)
+    describe('page header', () => {
+        it('renders the static "Quote Detail" heading, not the customer name', () => {
+            const quoteRequest = createMockQuoteRequest()
+            vi.mocked(useQuoteRequestDetail).mockReturnValue({
+                data: quoteRequest,
+                isLoading: false,
+                isError: false,
+            } as unknown as ReturnType<typeof useQuoteRequestDetail>)
 
-      renderDetailPage()
+            renderDetailPage()
 
-      expect(
-        screen.queryByText('We need bulk pricing for our office supplies order.'),
-      ).not.toBeInTheDocument()
-    })
-  })
+            expect(screen.getByRole('heading', {name: 'Quote Detail'})).toBeInTheDocument()
+            expect(screen.queryByRole('heading', {name: /John Smith/})).not.toBeInTheDocument()
+        })
 
-  describe('line-item table rendering', () => {
-    it('renders line-item table with product name snapshot, variant/SKU, and quantity', () => {
-      const quoteRequest = createMockQuoteRequest()
-      vi.mocked(useQuoteRequestDetail).mockReturnValue({
-        data: quoteRequest,
-        isLoading: false,
-        isError: false,
-      } as unknown as ReturnType<typeof useQuoteRequestDetail>)
+        it('renders the current status badge', () => {
+            const quoteRequest = createMockQuoteRequest({status: 'NEW'})
+            vi.mocked(useQuoteRequestDetail).mockReturnValue({
+                data: quoteRequest,
+                isLoading: false,
+                isError: false,
+            } as unknown as ReturnType<typeof useQuoteRequestDetail>)
 
-      renderDetailPage()
+            renderDetailPage()
 
-      // Column headers
-      expect(screen.getByText('Product Name')).toBeInTheDocument()
-      expect(screen.getByText('Variant / SKU')).toBeInTheDocument()
-      expect(screen.getByText('Quantity')).toBeInTheDocument()
-
-      // Row data
-      expect(screen.getByText('Premium Widget')).toBeInTheDocument()
-      expect(screen.getByText('PW-001')).toBeInTheDocument()
-      expect(screen.getByText('10')).toBeInTheDocument()
-
-      expect(screen.getByText('Deluxe Gadget')).toBeInTheDocument()
-      expect(screen.getByText('DG-002')).toBeInTheDocument()
-      expect(screen.getByText('5')).toBeInTheDocument()
+            // Renders in both the header and the Quote Details panel.
+            expect(screen.getAllByText('New').length).toBeGreaterThanOrEqual(2)
+        })
     })
 
-    it('renders deleted-variant indicator when variantId is null', () => {
-      const quoteRequest = createMockQuoteRequest()
-      vi.mocked(useQuoteRequestDetail).mockReturnValue({
-        data: quoteRequest,
-        isLoading: false,
-        isError: false,
-      } as unknown as ReturnType<typeof useQuoteRequestDetail>)
+    describe('Contact Information panel', () => {
+        it('renders name and email as read-only information, with no edit control', () => {
+            const quoteRequest = createMockQuoteRequest()
+            vi.mocked(useQuoteRequestDetail).mockReturnValue({
+                data: quoteRequest,
+                isLoading: false,
+                isError: false,
+            } as unknown as ReturnType<typeof useQuoteRequestDetail>)
 
-      renderDetailPage()
+            renderDetailPage()
 
-      expect(screen.getByText('(variant removed)')).toBeInTheDocument()
-    })
-  })
+            expect(screen.getByText('Contact Information')).toBeInTheDocument()
+            expect(screen.getByText('John Smith')).toBeInTheDocument()
+            expect(screen.getByText('john@example.com')).toBeInTheDocument()
+            expect(screen.queryByText(/edit contact/i)).not.toBeInTheDocument()
+        })
 
-  describe('role-gated action visibility', () => {
-    it('shows status actions for ORDER_MANAGER', () => {
-      useAdminAuthStore.setState({ role: 'ORDER_MANAGER' })
-      const quoteRequest = createMockQuoteRequest({ status: 'NEW' })
-      vi.mocked(useQuoteRequestDetail).mockReturnValue({
-        data: quoteRequest,
-        isLoading: false,
-        isError: false,
-      } as unknown as ReturnType<typeof useQuoteRequestDetail>)
+        it('does not render phone or company', () => {
+            const quoteRequest = createMockQuoteRequest()
+            vi.mocked(useQuoteRequestDetail).mockReturnValue({
+                data: quoteRequest,
+                isLoading: false,
+                isError: false,
+            } as unknown as ReturnType<typeof useQuoteRequestDetail>)
 
-      renderDetailPage()
+            renderDetailPage()
 
-      expect(screen.getByTestId('status-actions')).toBeInTheDocument()
-      expect(
-        screen.getByRole('button', { name: 'Start Processing' }),
-      ).toBeInTheDocument()
-      expect(
-        screen.getByRole('button', { name: 'Close' }),
-      ).toBeInTheDocument()
+            expect(screen.queryByText('+27 82 123 4567')).not.toBeInTheDocument()
+            expect(screen.queryByText('Smith Corp')).not.toBeInTheDocument()
+        })
     })
 
-    it('hides status actions for VIEWER', () => {
-      useAdminAuthStore.setState({ role: 'VIEWER' })
-      const quoteRequest = createMockQuoteRequest({ status: 'NEW' })
-      vi.mocked(useQuoteRequestDetail).mockReturnValue({
-        data: quoteRequest,
-        isLoading: false,
-        isError: false,
-      } as unknown as ReturnType<typeof useQuoteRequestDetail>)
+    describe('Quote Summary panel', () => {
+        it('renders submitted date, item count, quantity total, status, and quote id', () => {
+            const quoteRequest = createMockQuoteRequest()
+            vi.mocked(useQuoteRequestDetail).mockReturnValue({
+                data: quoteRequest,
+                isLoading: false,
+                isError: false,
+            } as unknown as ReturnType<typeof useQuoteRequestDetail>)
 
-      renderDetailPage()
+            renderDetailPage()
 
-      expect(screen.queryByTestId('status-actions')).not.toBeInTheDocument()
-      expect(
-        screen.queryByRole('button', { name: 'Start Processing' }),
-      ).not.toBeInTheDocument()
+            expect(screen.getByText('Quote Summary')).toBeInTheDocument()
+            expect(screen.getByText(/2025-07-10/)).toBeInTheDocument()
+            expect(infoRowFor('Total Items')).toHaveTextContent('2')
+            // 10 + 5
+            expect(infoRowFor('Total Quantity')).toHaveTextContent('15')
+            expect(infoRowFor('Quote ID')).toHaveTextContent('qr-123')
+        })
+
+        it('shows an em dash for Last Updated when the quote has never changed status', () => {
+            const quoteRequest = createMockQuoteRequest({statusChangedAt: null})
+            vi.mocked(useQuoteRequestDetail).mockReturnValue({
+                data: quoteRequest,
+                isLoading: false,
+                isError: false,
+            } as unknown as ReturnType<typeof useQuoteRequestDetail>)
+
+            renderDetailPage()
+
+            expect(infoRowFor('Last Updated')).toHaveTextContent('—')
+        })
+
+        it('renders the formatted date for Last Updated when present', () => {
+            const quoteRequest = createMockQuoteRequest({statusChangedAt: '2025-08-11T12:00:00Z'})
+            vi.mocked(useQuoteRequestDetail).mockReturnValue({
+                data: quoteRequest,
+                isLoading: false,
+                isError: false,
+            } as unknown as ReturnType<typeof useQuoteRequestDetail>)
+
+            renderDetailPage()
+
+            expect(infoRowFor('Last Updated')).toHaveTextContent('2025-08-11')
+        })
     })
 
-    it('does not show status actions when status is CLOSED', () => {
-      const quoteRequest = createMockQuoteRequest({ status: 'CLOSED' })
-      vi.mocked(useQuoteRequestDetail).mockReturnValue({
-        data: quoteRequest,
-        isLoading: false,
-        isError: false,
-      } as unknown as ReturnType<typeof useQuoteRequestDetail>)
+    describe('message rendering', () => {
+        it('renders the message section when message is present', () => {
+            const quoteRequest = createMockQuoteRequest()
+            vi.mocked(useQuoteRequestDetail).mockReturnValue({
+                data: quoteRequest,
+                isLoading: false,
+                isError: false,
+            } as unknown as ReturnType<typeof useQuoteRequestDetail>)
 
-      renderDetailPage()
+            renderDetailPage()
 
-      expect(screen.queryByTestId('status-actions')).not.toBeInTheDocument()
-    })
-  })
+            expect(
+                screen.getByText('We need bulk pricing for our office supplies order.'),
+            ).toBeInTheDocument()
+        })
 
-  describe('status action triggers mutation', () => {
-    it('clicking "Start Processing" triggers mutation with IN_PROGRESS', () => {
-      const quoteRequest = createMockQuoteRequest({ status: 'NEW' })
-      vi.mocked(useQuoteRequestDetail).mockReturnValue({
-        data: quoteRequest,
-        isLoading: false,
-        isError: false,
-      } as unknown as ReturnType<typeof useQuoteRequestDetail>)
+        it('does not render message section when message is null', () => {
+            const quoteRequest = createMockQuoteRequest({message: null})
+            vi.mocked(useQuoteRequestDetail).mockReturnValue({
+                data: quoteRequest,
+                isLoading: false,
+                isError: false,
+            } as unknown as ReturnType<typeof useQuoteRequestDetail>)
 
-      renderDetailPage()
+            renderDetailPage()
 
-      fireEvent.click(screen.getByRole('button', { name: 'Start Processing' }))
-
-      expect(mockMutate).toHaveBeenCalledWith({
-        id: 'qr-123',
-        status: 'IN_PROGRESS',
-      })
-    })
-
-    it('clicking "Close" triggers mutation with CLOSED', () => {
-      const quoteRequest = createMockQuoteRequest({ status: 'NEW' })
-      vi.mocked(useQuoteRequestDetail).mockReturnValue({
-        data: quoteRequest,
-        isLoading: false,
-        isError: false,
-      } as unknown as ReturnType<typeof useQuoteRequestDetail>)
-
-      renderDetailPage()
-
-      fireEvent.click(screen.getByRole('button', { name: 'Close' }))
-
-      expect(mockMutate).toHaveBeenCalledWith({
-        id: 'qr-123',
-        status: 'CLOSED',
-      })
+            expect(
+                screen.queryByText('We need bulk pricing for our office supplies order.'),
+            ).not.toBeInTheDocument()
+        })
     })
 
-    it('shows Close button for IN_PROGRESS status', () => {
-      const quoteRequest = createMockQuoteRequest({ status: 'IN_PROGRESS' })
-      vi.mocked(useQuoteRequestDetail).mockReturnValue({
-        data: quoteRequest,
-        isLoading: false,
-        isError: false,
-      } as unknown as ReturnType<typeof useQuoteRequestDetail>)
+    describe('Requested Items table', () => {
+        it('renders the heading with the item count', () => {
+            const quoteRequest = createMockQuoteRequest()
+            vi.mocked(useQuoteRequestDetail).mockReturnValue({
+                data: quoteRequest,
+                isLoading: false,
+                isError: false,
+            } as unknown as ReturnType<typeof useQuoteRequestDetail>)
 
-      renderDetailPage()
+            renderDetailPage()
 
-      expect(screen.getByTestId('status-actions')).toBeInTheDocument()
-      expect(
-        screen.getByRole('button', { name: 'Close' }),
-      ).toBeInTheDocument()
-      expect(
-        screen.queryByRole('button', { name: 'Start Processing' }),
-      ).not.toBeInTheDocument()
+            expect(screen.getByText('Requested Items')).toBeInTheDocument()
+            expect(screen.getByText('2 items')).toBeInTheDocument()
+        })
+
+        it('renders the search toolbar with the requested-items placeholder', () => {
+            const quoteRequest = createMockQuoteRequest()
+            vi.mocked(useQuoteRequestDetail).mockReturnValue({
+                data: quoteRequest,
+                isLoading: false,
+                isError: false,
+            } as unknown as ReturnType<typeof useQuoteRequestDetail>)
+
+            renderDetailPage()
+
+            expect(
+                screen.getByPlaceholderText('Search requested items...'),
+            ).toBeInTheDocument()
+        })
+
+        it('renders line-item table with product name snapshot, variant/SKU, and quantity', () => {
+            const quoteRequest = createMockQuoteRequest()
+            vi.mocked(useQuoteRequestDetail).mockReturnValue({
+                data: quoteRequest,
+                isLoading: false,
+                isError: false,
+            } as unknown as ReturnType<typeof useQuoteRequestDetail>)
+
+            renderDetailPage()
+
+            // Column headers
+            expect(screen.getByText('Product Name')).toBeInTheDocument()
+            expect(screen.getByText('Variant / SKU')).toBeInTheDocument()
+            expect(screen.getByText('Quantity')).toBeInTheDocument()
+
+            // Row data
+            expect(screen.getByText('Premium Widget')).toBeInTheDocument()
+            expect(screen.getByText('PW-001')).toBeInTheDocument()
+            expect(screen.getByText('10')).toBeInTheDocument()
+
+            expect(screen.getByText('Deluxe Gadget')).toBeInTheDocument()
+            expect(screen.getByText('DG-002')).toBeInTheDocument()
+            expect(screen.getByText('5')).toBeInTheDocument()
+        })
+
+        it('renders deleted-variant indicator when variantId is null', () => {
+            const quoteRequest = createMockQuoteRequest()
+            vi.mocked(useQuoteRequestDetail).mockReturnValue({
+                data: quoteRequest,
+                isLoading: false,
+                isError: false,
+            } as unknown as ReturnType<typeof useQuoteRequestDetail>)
+
+            renderDetailPage()
+
+            expect(screen.getByText('(variant removed)')).toBeInTheDocument()
+        })
     })
-  })
 
-  describe('error path: mutation failure logs console.error + shows toast', () => {
-    it('useQuoteRequestStatusAction hook implements onError with console.error and toast.error', async () => {
-      // Test the real hook's onError implementation directly
-      // (The page itself just calls mutate; the error handling is in the hook definition)
-      const actualModule = await vi.importActual<
-        typeof import('@/admin/hooks/quotes/useQuoteRequestStatusAction')
-      >('@/admin/hooks/quotes/useQuoteRequestStatusAction')
+    describe('Actions card — role and status gating', () => {
+        it('shows only Start Processing for a NEW quote — Generate Quote and Close Quote are not available yet', () => {
+            useAdminAuthStore.setState({role: 'ORDER_MANAGER'})
+            const quoteRequest = createMockQuoteRequest({status: 'NEW'})
+            vi.mocked(useQuoteRequestDetail).mockReturnValue({
+                data: quoteRequest,
+                isLoading: false,
+                isError: false,
+            } as unknown as ReturnType<typeof useQuoteRequestDetail>)
 
-      // The hook exists and is exported
-      expect(actualModule.useQuoteRequestStatusAction).toBeDefined()
+            renderDetailPage()
 
-      // Verify the hook source contains the error handling pattern
-      // by inspecting the function's string representation contains the error markers
-      const hookSource = actualModule.useQuoteRequestStatusAction.toString()
-      expect(hookSource).toContain('onError')
+            expect(screen.getByTestId('status-actions')).toBeInTheDocument()
+            expect(screen.getByRole('button', {name: /Start Processing/})).toBeInTheDocument()
+            expect(screen.getByRole('button', {name: /Cancel Quote/})).toBeInTheDocument()
+            expect(screen.queryByRole('button', {name: /Generate Quote/})).not.toBeInTheDocument()
+            expect(screen.queryByRole('button', {name: /Close Quote/})).not.toBeInTheDocument()
+        })
+
+        it('shows only Generate Quote (plus Cancel) for an IN_PROGRESS quote — processing must finish before it can be closed', () => {
+            const quoteRequest = createMockQuoteRequest({status: 'IN_PROGRESS'})
+            vi.mocked(useQuoteRequestDetail).mockReturnValue({
+                data: quoteRequest,
+                isLoading: false,
+                isError: false,
+            } as unknown as ReturnType<typeof useQuoteRequestDetail>)
+
+            renderDetailPage()
+
+            expect(screen.getByRole('button', {name: /Generate Quote/})).toBeInTheDocument()
+            expect(screen.getByRole('button', {name: /Cancel Quote/})).toBeInTheDocument()
+            expect(screen.queryByRole('button', {name: /Start Processing/})).not.toBeInTheDocument()
+            expect(screen.queryByRole('button', {name: /Close Quote/})).not.toBeInTheDocument()
+        })
+
+        it('shows Edit Quote (not Generate Quote) plus Cancel for a QUOTE_DRAFTED quote — and no Preview, since nothing has been sent yet', () => {
+            const quoteRequest = createMockQuoteRequest({
+                status: 'QUOTE_DRAFTED',
+                quotedAmount: 150,
+                quotedByName: 'Staff Member',
+                items: [
+                    {
+                        id: 'item-1',
+                        variantId: 'var-1',
+                        productNameSnapshot: 'Premium Widget',
+                        variantSkuSnapshot: 'PW-001',
+                        quantity: 10,
+                        unitPrice: 15,
+                        lineTotal: 150,
+                    },
+                ],
+            })
+            vi.mocked(useQuoteRequestDetail).mockReturnValue({
+                data: quoteRequest,
+                isLoading: false,
+                isError: false,
+            } as unknown as ReturnType<typeof useQuoteRequestDetail>)
+
+            renderDetailPage()
+
+            expect(screen.getByRole('button', {name: /Edit Quote/})).toBeInTheDocument()
+            expect(screen.getByRole('button', {name: /Cancel Quote/})).toBeInTheDocument()
+            expect(screen.queryByRole('button', {name: /^Generate Quote/})).not.toBeInTheDocument()
+            expect(screen.queryByRole('button', {name: /Start Processing/})).not.toBeInTheDocument()
+            expect(screen.queryByRole('button', {name: /Close Quote/})).not.toBeInTheDocument()
+            expect(screen.queryByRole('button', {name: /Preview Quote/})).not.toBeInTheDocument()
+        })
+
+        it('shows only Close Quote (plus Preview, no Cancel) for a QUOTE_SENT quote', () => {
+            const quoteRequest = createMockQuoteRequest({
+                status: 'QUOTE_SENT',
+                quotedAmount: 150,
+                quotedByName: 'Staff Member',
+                items: [
+                    {
+                        id: 'item-1',
+                        variantId: 'var-1',
+                        productNameSnapshot: 'Premium Widget',
+                        variantSkuSnapshot: 'PW-001',
+                        quantity: 10,
+                        unitPrice: 15,
+                        lineTotal: 150,
+                    },
+                ],
+            })
+            vi.mocked(useQuoteRequestDetail).mockReturnValue({
+                data: quoteRequest,
+                isLoading: false,
+                isError: false,
+            } as unknown as ReturnType<typeof useQuoteRequestDetail>)
+
+            renderDetailPage()
+
+            expect(screen.getByRole('button', {name: /Close Quote/})).toBeInTheDocument()
+            expect(screen.getByRole('button', {name: /Preview Quote/})).toBeInTheDocument()
+            expect(screen.queryByRole('button', {name: /Start Processing/})).not.toBeInTheDocument()
+            expect(screen.queryByRole('button', {name: /Generate Quote/})).not.toBeInTheDocument()
+            expect(screen.queryByRole('button', {name: /Cancel Quote/})).not.toBeInTheDocument()
+        })
+
+        it('shows the empty state, not a Reopen button, for a CLOSED quote', () => {
+            const quoteRequest = createMockQuoteRequest({status: 'CLOSED'})
+            vi.mocked(useQuoteRequestDetail).mockReturnValue({
+                data: quoteRequest,
+                isLoading: false,
+                isError: false,
+            } as unknown as ReturnType<typeof useQuoteRequestDetail>)
+
+            renderDetailPage()
+
+            expect(screen.queryByTestId('status-actions')).not.toBeInTheDocument()
+            expect(screen.getByText('No actions available for this quote.')).toBeInTheDocument()
+            expect(screen.queryByRole('button', {name: /Reopen/})).not.toBeInTheDocument()
+        })
+
+        it('shows the empty state for a CANCELED quote', () => {
+            const quoteRequest = createMockQuoteRequest({status: 'CANCELED'})
+            vi.mocked(useQuoteRequestDetail).mockReturnValue({
+                data: quoteRequest,
+                isLoading: false,
+                isError: false,
+            } as unknown as ReturnType<typeof useQuoteRequestDetail>)
+
+            renderDetailPage()
+
+            expect(screen.queryByTestId('status-actions')).not.toBeInTheDocument()
+            expect(screen.getByText('No actions available for this quote.')).toBeInTheDocument()
+        })
+
+        it('shows the empty state for a VIEWER, regardless of status', () => {
+            useAdminAuthStore.setState({role: 'VIEWER'})
+            const quoteRequest = createMockQuoteRequest({status: 'NEW'})
+            vi.mocked(useQuoteRequestDetail).mockReturnValue({
+                data: quoteRequest,
+                isLoading: false,
+                isError: false,
+            } as unknown as ReturnType<typeof useQuoteRequestDetail>)
+
+            renderDetailPage()
+
+            expect(screen.queryByTestId('status-actions')).not.toBeInTheDocument()
+            expect(
+                screen.queryByRole('button', {name: /Start Processing/}),
+            ).not.toBeInTheDocument()
+        })
     })
 
-    it('page triggers mutate on status action click', () => {
-      const quoteRequest = createMockQuoteRequest({ status: 'NEW' })
-      vi.mocked(useQuoteRequestDetail).mockReturnValue({
-        data: quoteRequest,
-        isLoading: false,
-        isError: false,
-      } as unknown as ReturnType<typeof useQuoteRequestDetail>)
+    describe('Actions card — mutation triggers', () => {
+        it('clicking "Start Processing" triggers mutation with IN_PROGRESS', () => {
+            const quoteRequest = createMockQuoteRequest({status: 'NEW'})
+            vi.mocked(useQuoteRequestDetail).mockReturnValue({
+                data: quoteRequest,
+                isLoading: false,
+                isError: false,
+            } as unknown as ReturnType<typeof useQuoteRequestDetail>)
 
-      renderDetailPage()
+            renderDetailPage()
 
-      fireEvent.click(screen.getByRole('button', { name: 'Start Processing' }))
+            fireEvent.click(screen.getByRole('button', {name: /Start Processing/}))
 
-      // Verifies that the page correctly calls the hook's mutate function,
-      // which internally has the onError handler with console.error + toast
-      expect(mockMutate).toHaveBeenCalledWith({
-        id: 'qr-123',
-        status: 'IN_PROGRESS',
-      })
+            expect(mockMutate).toHaveBeenCalledWith({
+                id: 'qr-123',
+                status: 'IN_PROGRESS',
+            })
+        })
+
+        it('clicking "Cancel Quote" opens a confirmation dialog, and confirming it triggers mutation with CANCELED', () => {
+            const quoteRequest = createMockQuoteRequest({status: 'NEW'})
+            vi.mocked(useQuoteRequestDetail).mockReturnValue({
+                data: quoteRequest,
+                isLoading: false,
+                isError: false,
+            } as unknown as ReturnType<typeof useQuoteRequestDetail>)
+
+            renderDetailPage()
+
+            fireEvent.click(screen.getByRole('button', {name: /Cancel Quote/}))
+
+            // The mutation must not fire on the first click alone — only after confirming.
+            expect(mockMutate).not.toHaveBeenCalled()
+            expect(screen.getByText('Cancel this quote request?')).toBeInTheDocument()
+
+            // Both the action button and the confirmation dialog's own confirm button are
+            // labelled "Cancel Quote" — the dialog's is the one rendered last.
+            const cancelButtons = screen.getAllByRole('button', {name: 'Cancel Quote'})
+            fireEvent.click(cancelButtons[cancelButtons.length - 1])
+
+            expect(mockMutate).toHaveBeenCalledWith({
+                id: 'qr-123',
+                status: 'CANCELED',
+            })
+        })
+
+        it('clicking "Close Quote" triggers mutation with CLOSED', () => {
+            const quoteRequest = createMockQuoteRequest({
+                status: 'QUOTE_SENT',
+                items: [
+                    {
+                        id: 'item-1',
+                        variantId: 'var-1',
+                        productNameSnapshot: 'Premium Widget',
+                        variantSkuSnapshot: 'PW-001',
+                        quantity: 10,
+                        unitPrice: 15,
+                        lineTotal: 150,
+                    },
+                ],
+            })
+            vi.mocked(useQuoteRequestDetail).mockReturnValue({
+                data: quoteRequest,
+                isLoading: false,
+                isError: false,
+            } as unknown as ReturnType<typeof useQuoteRequestDetail>)
+
+            renderDetailPage()
+
+            fireEvent.click(screen.getByRole('button', {name: /Close Quote/}))
+
+            expect(mockMutate).toHaveBeenCalledWith({
+                id: 'qr-123',
+                status: 'CLOSED',
+            })
+        })
     })
-  })
 
-  describe('loading state', () => {
-    it('renders loading spinner while data is loading', () => {
-      vi.mocked(useQuoteRequestDetail).mockReturnValue({
-        data: undefined,
-        isLoading: true,
-        isError: false,
-      } as unknown as ReturnType<typeof useQuoteRequestDetail>)
+    describe('error path: mutation failure logs console.error + shows toast', () => {
+        it('useQuoteRequestStatusAction hook implements onError with console.error and toast.error', async () => {
+            // Test the real hook's onError implementation directly
+            // (The page itself just calls mutate; the error handling is in the hook definition)
+            const actualModule = await vi.importActual<
+                typeof import('../hooks/useQuoteRequestStatusAction')
+            >('../hooks/useQuoteRequestStatusAction')
 
-      renderDetailPage()
+            // The hook exists and is exported
+            expect(actualModule.useQuoteRequestStatusAction).toBeDefined()
 
-      const spinner = document.querySelector('.animate-spin')
-      expect(spinner).toBeInTheDocument()
+            // Verify the hook source contains the error handling pattern
+            // by inspecting the function's string representation contains the error markers
+            const hookSource = actualModule.useQuoteRequestStatusAction.toString()
+            expect(hookSource).toContain('onError')
+        })
     })
-  })
 
-  describe('error state', () => {
-    it('renders error message when fetch fails', () => {
-      vi.mocked(useQuoteRequestDetail).mockReturnValue({
-        data: undefined,
-        isLoading: false,
-        isError: true,
-      } as unknown as ReturnType<typeof useQuoteRequestDetail>)
+    describe('loading state', () => {
+        it('renders loading spinner while data is loading', () => {
+            vi.mocked(useQuoteRequestDetail).mockReturnValue({
+                data: undefined,
+                isLoading: true,
+                isError: false,
+            } as unknown as ReturnType<typeof useQuoteRequestDetail>)
 
-      renderDetailPage()
+            renderDetailPage()
 
-      expect(
-        screen.getByText('Failed to load quote request details.'),
-      ).toBeInTheDocument()
+            const spinner = document.querySelector('.animate-spin')
+            expect(spinner).toBeInTheDocument()
+        })
     })
-  })
+
+    describe('error state', () => {
+        it('renders error message when fetch fails', () => {
+            vi.mocked(useQuoteRequestDetail).mockReturnValue({
+                data: undefined,
+                isLoading: false,
+                isError: true,
+            } as unknown as ReturnType<typeof useQuoteRequestDetail>)
+
+            renderDetailPage()
+
+            expect(
+                screen.getByText('Failed to load quote request details.'),
+            ).toBeInTheDocument()
+        })
+    })
 })

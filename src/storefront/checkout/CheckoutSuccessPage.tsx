@@ -16,17 +16,18 @@ import {CHECKOUT_DRAFT_KEY} from './draftKey'
  * <p>
  * Reads the order from checkoutSessionStore, not a URL query string (Requirement
  * 3.5) — a query string reaches browser history and any third-party Referer, and
- * the withdrawn sessionId was itself a bearer credential (Requirement 4). The
+ * a token in the URL is itself a bearer credential (Requirement 4). The
  * store survives the PayFast round trip in the same tab (owner decision 3), and
- * clearSession() (see the store) deliberately keeps orderId/orderToken through a
- * terminal status so this page still has something to render after a refresh.
+ * clearCheckoutIntent() (see the store) deliberately keeps orderId/orderToken
+ * through a terminal status so this page still has something to render after a
+ * refresh.
  */
 export function CheckoutSuccessPage() {
     const orderId = useCheckoutSessionStore((state) => state.session?.orderId ?? null)
     const token = useCheckoutSessionStore((state) => state.session?.orderToken ?? null)
 
-    const clearSession = useCheckoutSessionStore((state) => state.clearSession)
-    const clearCart = useCartStore((state) => state.clearCart)
+    const clearCheckoutIntent = useCheckoutSessionStore((state) => state.clearCheckoutIntent)
+    const clearCart = useCartStore((state) => state.clear)
     const config = useStorefrontConfig()
 
     const {data, isTerminal, isTimedOut} = usePollOrderStatus(orderId, token)
@@ -42,10 +43,10 @@ export function CheckoutSuccessPage() {
         if (isTerminal && !hasClearedSession.current) {
             hasClearedSession.current = true
             clearCart()
-            clearSession()
+            clearCheckoutIntent()
             clearFormDraft(CHECKOUT_DRAFT_KEY)
         }
-    }, [isTerminal, clearCart, clearSession])
+    }, [isTerminal, clearCart, clearCheckoutIntent])
 
     if (!orderId || !token) {
         return (
@@ -65,6 +66,22 @@ export function CheckoutSuccessPage() {
                 <CheckoutNotice
                     heading="This order was cancelled"
                     body="This order is no longer active and was not charged. If this is unexpected, please contact us."
+                    action={{label: 'Return to home', to: '/'}}
+                />
+            </CheckoutShell>
+        )
+    }
+
+    // Deliberately not folded into isCancelledStatus: a declined card is not a
+    // cancellation, and the account order-history badge already treats the two as
+    // distinct outcomes (orderStatusBadge.ts). This page has no path to retry the
+    // same order today, so the action returns home rather than promising one.
+    if (data?.status === 'PAYMENT_FAILED') {
+        return (
+            <CheckoutShell title="Order confirmation">
+                <CheckoutNotice
+                    heading="Payment failed"
+                    body="Your payment could not be processed and this order was not charged. Please return to the shop to try again."
                     action={{label: 'Return to home', to: '/'}}
                 />
             </CheckoutShell>

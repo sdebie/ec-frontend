@@ -5,8 +5,8 @@ import {InputField, type InputFieldProps} from './InputField'
 /**
  * PasswordField — an InputField that owns its own show/hide toggle.
  *
- * The toggle lives here rather than in each form because every consumer had
- * reimplemented the same block: a `useState`, a `type={show ? 'text' : 'password'}`
+ * The toggle lives here rather than in each form, so no consumer needs to
+ * reimplement the same block: a `useState`, a `type={show ? 'text' : 'password'}`
  * swap, and an absolutely-positioned Eye/EyeOff button.
  *
  * `type` is deliberately not accepted — this component owns it.

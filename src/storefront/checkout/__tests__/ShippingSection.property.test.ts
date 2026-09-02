@@ -5,13 +5,11 @@ import {requiresDeliveryAddress} from '../utils/requiresDeliveryAddress'
 import type {ShippingMethod} from '../types'
 
 /**
- * Fee and lead time are deliberately random and independent of `requiresAddress` here.
- *
- * This property previously asserted the opposite — that the decision was *derived* from
- * `baseFee > 0 || (estimatedDays !== null && estimatedDays !== '0')`. That derivation was
- * the bug: In-Store Pickup is free with a 'Same Day' lead time, which the rule classified
- * as a delivery, so checkout demanded an address the customer did not have and blocked
- * the order. The property now pins the inverse — those two fields must not influence it.
+ * Fee and lead time are deliberately random and independent of `requiresAddress`
+ * here — deriving the decision from them (e.g. `baseFee > 0 || estimatedDays !==
+ * '0'`) misclassifies a free, same-day In-Store Pickup as a delivery, demanding
+ * an address the customer does not have and blocking the order. This property
+ * pins the inverse: those two fields must not influence the decision.
  */
 const methodArb = (requiresAddress: boolean): fc.Arbitrary<ShippingMethod> =>
     fc.record({

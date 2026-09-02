@@ -4,6 +4,7 @@ import {AdminHeader} from './AdminHeader'
 import {AdminSidebar} from './AdminSidebar'
 import {ThemeApplier} from '@/admin/components/ThemeApplier'
 import {BreadcrumbProvider} from '@/admin/context/BreadcrumbContext'
+import {PageBackActionProvider} from '@/admin/context/PageBackActionContext'
 import {cn} from '@/shared/utils/cn'
 
 export function AdminLayout() {
@@ -21,10 +22,7 @@ export function AdminLayout() {
         }, 50)
     }, [])
 
-    // The collapsed icon-rail is desktop-only chrome (the toggle that sets it is
-    // md:-only), but the boolean itself has no notion of viewport — so if it's
-    // collapsed and the window narrows below md:, the mobile drawer would open
-    // at full width with icons but no labels. Force it back open below md:
+    // The collapsed rail is desktop-only chrome, but the boolean has no notion of viewport — force it back open below md: so a narrowed window doesn't open the mobile drawer icon-only.
     useEffect(() => {
         if (typeof window === 'undefined' || !window.matchMedia) return
 
@@ -40,27 +38,31 @@ export function AdminLayout() {
 
     return (
         <BreadcrumbProvider>
-            <div ref={layoutRef} data-surface="admin" data-density="compact"
-                 className="bg-admin-bg text-admin-text antialiased min-h-screen">
-                <ThemeApplier targetRef={layoutRef}/>
-                <AdminHeader
-                    onMenuClick={() => setIsSidebarOpen(prev => !prev)}
-                    isCollapsed={isSidebarCollapsed}
-                />
-                <AdminSidebar
-                    isOpen={isSidebarOpen}
-                    onClose={closeSidebar}
-                    isCollapsed={isSidebarCollapsed}
-                    onToggleCollapsed={() => setSidebarCollapsed(prev => !prev)}
-                    onSetCollapsed={setSidebarCollapsed}
-                />
-                <div
-                    className={cn('pt-15 flex-1 transition-all duration-300', isSidebarCollapsed ? 'md:ml-20' : 'md:ml-64')}>
-                    <main className="px-4 pb-4 pt-3 md:px-6 md:pb-6 md:pt-4">
-                        <Outlet/>
-                    </main>
+            <PageBackActionProvider>
+                <div ref={layoutRef} data-surface="admin" data-density="compact"
+                     className="bg-admin-bg text-admin-text antialiased h-screen overflow-hidden">
+                    <ThemeApplier targetRef={layoutRef}/>
+                    <AdminHeader
+                        onMenuClick={() => setIsSidebarOpen(prev => !prev)}
+                        isCollapsed={isSidebarCollapsed}
+                        onToggleCollapsed={() => setSidebarCollapsed(prev => !prev)}
+                    />
+                    <AdminSidebar
+                        isOpen={isSidebarOpen}
+                        onClose={closeSidebar}
+                        isCollapsed={isSidebarCollapsed}
+                        onSetCollapsed={setSidebarCollapsed}
+                    />
+                    {/* h-full + flex-col so `main` can be the sole flex-1/min-h-0 scroll region — the header/sidebar are fixed and take no flex space of their own. */}
+                    <div
+                        className={cn('pt-(--c-header-h) flex h-full flex-col transition-all duration-450', isSidebarCollapsed ? 'md:ml-20' : 'md:ml-64')}>
+                        {/* No bottom padding here — position:sticky insets its `bottom:0` by the SCROLLING ANCESTOR's own padding, so a pb-* on main would push any stickyFooter above the true bottom edge. Bottom spacing is each consumer's own concern: PageLayout owns it (conditionally, see PageLayout.tsx), and the few pages that bypass PageLayout own it directly. */}
+                        <main className="flex-1 min-h-0 overflow-y-auto px-4 pt-3 md:px-6 md:pt-4">
+                            <Outlet/>
+                        </main>
+                    </div>
                 </div>
-            </div>
+            </PageBackActionProvider>
         </BreadcrumbProvider>
     )
 }

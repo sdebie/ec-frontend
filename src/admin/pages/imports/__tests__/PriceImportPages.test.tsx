@@ -3,14 +3,14 @@ import { render, screen, waitFor } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { MemoryRouter } from 'react-router-dom'
 
-import { usePriceUploadBatches } from '@/admin/hooks/imports/usePriceUploadBatches'
+import { usePriceImportBatches } from '@/admin/hooks/imports/usePriceImportBatches'
 import { useRefreshBatchStatus } from '@/admin/hooks/imports/useRefreshBatchStatus'
 import { useUploadCsv } from '@/admin/hooks/imports/useUploadCsv'
 import { usePriceImportRows } from '@/admin/hooks/imports/usePriceImportRows'
 import { useBatchStatusPolling } from '@/admin/hooks/imports/useBatchStatusPolling'
 import { useApproveBatch } from '@/admin/hooks/imports/useApproveBatch'
 import { useAdminAuthStore } from '@/shared/auth/adminAuthStore'
-import type { ProductUploadBatchDto, ProductPriceComparisonDto } from '@/admin/hooks/imports/types'
+import type { ProductImportBatchDto, ProductPriceComparisonDto } from '@/admin/hooks/imports/types'
 
 import PriceImportListPage from '../PriceImportListPage'
 import PriceImportUploadPage from '../PriceImportUploadPage'
@@ -20,8 +20,8 @@ import PriceImportReviewPage from '../PriceImportReviewPage'
 
 const mockNavigate = vi.fn()
 
-vi.mock('@/admin/hooks/imports/usePriceUploadBatches', () => ({
-  usePriceUploadBatches: vi.fn(),
+vi.mock('@/admin/hooks/imports/usePriceImportBatches', () => ({
+  usePriceImportBatches: vi.fn(),
 }))
 vi.mock('@/admin/hooks/imports/useRefreshBatchStatus', () => ({
   useRefreshBatchStatus: vi.fn(),
@@ -52,11 +52,12 @@ vi.mock('react-router-dom', async () => {
 
 // --- Mock Data Helpers ---
 
-function createMockBatch(overrides?: Partial<ProductUploadBatchDto>): ProductUploadBatchDto {
+function createMockBatch(overrides?: Partial<ProductImportBatchDto>): ProductImportBatchDto {
   return {
     id: 'batch-1',
     filename: 'prices.csv',
     status: 'PENDING',
+    importSourceType: 'FILE',
     totalRows: 50,
     processedRows: 0,
     skippedRows: 0,
@@ -94,17 +95,17 @@ function setupAuthMock(role: string) {
 }
 
 function setupListPageMocks(overrides?: {
-  batches?: ProductUploadBatchDto[]
+  batches?: ProductImportBatchDto[]
   isLoading?: boolean
   role?: string
 }) {
   setupAuthMock(overrides?.role ?? 'SUPER_ADMIN')
 
-  vi.mocked(usePriceUploadBatches).mockReturnValue({
+  vi.mocked(usePriceImportBatches).mockReturnValue({
     data: overrides?.batches ?? [createMockBatch()],
     isLoading: overrides?.isLoading ?? false,
     refetch: vi.fn(),
-  } as unknown as ReturnType<typeof usePriceUploadBatches>)
+  } as unknown as ReturnType<typeof usePriceImportBatches>)
 
   vi.mocked(useRefreshBatchStatus).mockReturnValue({
     mutateAsync: vi.fn(),

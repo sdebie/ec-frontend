@@ -33,12 +33,12 @@ describe('useUploadCsv', () => {
     const { result } = renderHook(() => useUploadCsv(), { wrapper: createWrapper() })
 
     await act(async () => {
-      await result.current.mutateAsync({ file, endpoint: '/admin/products/upload-csv' })
+      await result.current.mutateAsync({ file, endpoint: '/admin/imports/product/upload' })
     })
 
     expect(mockPost).toHaveBeenCalledTimes(1)
     const [endpoint, body, config] = mockPost.mock.calls[0]
-    expect(endpoint).toBe('/admin/products/upload-csv')
+    expect(endpoint).toBe('/admin/imports/product/upload')
     expect(body).toBeInstanceOf(FormData)
     // The hook uploads an in-memory copy, decoupled from the file's on-disk
     // state (Safari/iCloud eviction fix) — same name/type/content, new File.
@@ -58,7 +58,7 @@ describe('useUploadCsv', () => {
 
     await expect(result.current.mutateAsync({
       file: new File([''], 'products.csv', { type: 'text/csv' }),
-      endpoint: '/admin/products/upload-csv',
+      endpoint: '/admin/imports/product/upload',
     })).rejects.toThrow(error)
   })
 })
