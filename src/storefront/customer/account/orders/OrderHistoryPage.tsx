@@ -1,6 +1,7 @@
 import { Link, useNavigate } from 'react-router-dom'
 import { useMyOrders } from '../hooks/useMyOrders'
 import { formatAmount } from '@/shared/utils/formatAmount'
+import { formatDisplayDate } from '@/shared/utils/formatDateTime'
 import { orderStatusBadgeClasses } from '../orderStatusBadge'
 
 export function OrderHistoryPage() {
@@ -66,11 +67,7 @@ export function OrderHistoryPage() {
             >
               <div className="flex items-center gap-4">
                 <span className="text-sm text-(--sf-muted-text)">
-                  {new Date(order.orderDate).toLocaleDateString('en-ZA', {
-                    year: 'numeric',
-                    month: 'short',
-                    day: 'numeric',
-                  })}
+                  {formatDisplayDate(order.orderDate)}
                 </span>
                 <span
                   className={`inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium ${orderStatusBadgeClasses(order.status)}`}

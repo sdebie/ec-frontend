@@ -6,6 +6,7 @@ import { useBreadcrumb } from '@/admin/context/BreadcrumbContext'
 import { Button } from '@/shared/ui/primitives'
 import { useCan } from '@/shared/auth/adminPermissions'
 import { useUploadCsv } from '@/admin/hooks/imports/useUploadCsv'
+import { PRICE_IMPORT } from '@/admin/api/importEndpoints'
 
 export default function PriceImportUploadPage() {
   const navigate = useNavigate()
@@ -28,7 +29,8 @@ export default function PriceImportUploadPage() {
     try {
       const response = await mutateAsync({
         file,
-        endpoint: '/admin/products/price/upload-csv',
+        endpoint: PRICE_IMPORT.upload,
+        importType: 'price',
       })
 
       if (!response?.batchId) {

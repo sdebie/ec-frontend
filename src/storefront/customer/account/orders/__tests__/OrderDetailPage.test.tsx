@@ -4,6 +4,7 @@ import fc from 'fast-check'
 import {MemoryRouter, Route, Routes} from 'react-router-dom'
 import {OrderDetailPage} from '../OrderDetailPage'
 import {formatAmount} from '@/shared/utils/formatAmount'
+import {formatDisplayDate} from '@/shared/utils/formatDateTime'
 import type {OrderDetail} from '../../hooks/useOrderDetail'
 
 const mockUseOrderDetail = vi.fn()
@@ -106,13 +107,8 @@ describe('OrderDetailPage — property-based tests', () => {
                     const {container} = renderOrderDetail(order.id)
                     const pageText = normalizeWs(container.textContent ?? '')
 
-                    // Order date should be rendered (en-ZA short format)
-                    const expectedDate = new Date(order.orderDate).toLocaleDateString('en-ZA', {
-                        year: 'numeric',
-                        month: 'short',
-                        day: 'numeric',
-                    })
-                    expect(pageText).toContain(expectedDate)
+                    // Order date should be rendered in the shared display format
+                    expect(pageText).toContain(formatDisplayDate(order.orderDate))
 
                     // Status should be rendered
                     expect(pageText).toContain(order.status)

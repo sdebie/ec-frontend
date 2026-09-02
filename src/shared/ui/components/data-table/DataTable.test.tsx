@@ -112,6 +112,70 @@ describe('DataTable', () => {
 
       expect(screen.getByText(/Showing/)).toHaveTextContent('Showing 10 to 10 of 10 results')
     })
+
+    it('does not echo react-table\'s own {pageIndex: 0} default back to onPaginationChange on mount, when a non-zero page is already controlled', () => {
+      // TanStack Table's pagination feature calls onPaginationChange exactly once per
+      // table-instance creation (i.e. on every mount) with its own internal default,
+      // regardless of the controlled `pagination` prop already in effect. A caller that
+      // restores its page number from the URL (BrandListPage, CategoryListPage) and
+      // applies this verbatim would see it silently snap back to page 1 the instant the
+      // table (re)mounts — exactly what navigate(-1) from an edit/create form does.
+      const onPaginationChange = vi.fn()
+      render(
+        <DataTable
+          columns={columns}
+          data={makeRows(2)}
+          manualPagination
+          pageCount={5}
+          pagination={{ pageIndex: 2, pageSize: 10 }}
+          onPaginationChange={onPaginationChange}
+        />
+      )
+
+      expect(onPaginationChange).not.toHaveBeenCalled()
+    })
+
+    it('does not echo the phantom default on a REMOUNT either (mount, unmount, mount again with the same controlled page)', () => {
+      // The scenario the guard actually exists for: navigate away to edit/create, then
+      // navigate(-1) back — a fresh DataTable instance mounts while the URL (and thus the
+      // controlled `pagination` prop) already carries the page the reader was on.
+      const onPaginationChange = vi.fn()
+      const props = {
+        columns,
+        data: makeRows(2),
+        manualPagination: true as const,
+        pageCount: 5,
+        pagination: { pageIndex: 2, pageSize: 10 },
+        onPaginationChange,
+      }
+
+      render(<DataTable {...props} />).unmount()
+      render(<DataTable {...props} />)
+
+      expect(onPaginationChange).not.toHaveBeenCalled()
+    })
+
+    it('still forwards a real, user-driven page change after the guarded first call', async () => {
+      const user = userEvent.setup()
+      const onPaginationChange = vi.fn()
+      render(
+        <DataTable
+          columns={columns}
+          data={makeRows(2)}
+          manualPagination
+          pageCount={5}
+          pagination={{ pageIndex: 2, pageSize: 10 }}
+          onPaginationChange={onPaginationChange}
+        />
+      )
+
+      await user.click(screen.getByTitle('Next Page'))
+
+      expect(onPaginationChange).toHaveBeenCalledTimes(1)
+      const updater = onPaginationChange.mock.calls[0][0]
+      const next = typeof updater === 'function' ? updater({ pageIndex: 2, pageSize: 10 }) : updater
+      expect(next).toEqual({ pageIndex: 3, pageSize: 10 })
+    })
   })
 
   describe('sorting (client-side, default)', () => {

@@ -8,13 +8,15 @@ import {
     getSortedRowModel,
     type OnChangeFn,
     type PaginationState,
+    type RowSelectionState,
     type SortingState,
     useReactTable,
 } from '@tanstack/react-table'
 import {ArrowDown, ArrowUp, ArrowUpDown, ChevronLeft, ChevronRight} from 'lucide-react'
 import * as React from 'react'
-import {Input} from '@/shared/ui/primitives'
+import {Input, Skeleton} from '@/shared/ui/primitives'
 import {cn} from '@/shared/utils/cn'
+import {clampItemRange} from '@/shared/utils/pagination'
 
 export type {ColumnDef} from '@tanstack/react-table'
 
@@ -44,6 +46,13 @@ export interface DataTableProps<TData> {
     globalSearchPlaceholder?: string
     /** Set to true to enable the built-in toolbar search input (only correct for fully client-side tables with no server pagination) */
     showSearch?: boolean
+    /**
+     * Controlled global filter value, for a caller that renders its own search input outside
+     * DataTable's toolbar (pass showSearch=false alongside these so DataTable doesn't also
+     * render its own box). Mirrors the sorting/onSortingChange controlled-mode pair below.
+     */
+    globalFilter?: string
+    onGlobalFilterChange?: OnChangeFn<string>
     /** Message shown when there are no rows */
     emptyMessage?: string
     /** Additional className for the root container */
@@ -56,9 +65,62 @@ export interface DataTableProps<TData> {
      * are ignored, so an in-row action can't also trigger this.
      */
     onRowDoubleClick?: (row: TData) => void
+    /** Enable built-in row selection with checkboxes. Default: false */
+    enableRowSelection?: boolean
+    /** Set of currently-selected row ids (controlled selection state) */
+    selectedRowIds?: Set<string>
+    /** Callback fired when selection changes, providing the updated set of selected ids */
+    onRowSelectionChange?: (selectedIds: Set<string>) => void
+    /**
+     * Accessor function to get the unique row id. Default: reads a string `row.id`,
+     * falling back to the row's index (with a dev warning) when TData has none.
+     */
+    getRowId?: (row: TData) => string
 }
 
 const DEFAULT_PAGE_SIZE = 10
+
+/** Checkbox that supports the native indeterminate state via a ref + useEffect. */
+function SelectionCheckbox({
+    checked,
+    indeterminate,
+    onChange,
+    'aria-label': ariaLabel,
+}: {
+    checked: boolean
+    indeterminate: boolean
+    onChange: (e: React.ChangeEvent<HTMLInputElement>) => void
+    'aria-label'?: string
+}) {
+    const ref = React.useRef<HTMLInputElement>(null)
+
+    React.useEffect(() => {
+        if (ref.current) {
+            ref.current.indeterminate = indeterminate
+        }
+    }, [indeterminate])
+
+    return (
+        <label className="group inline-flex items-center justify-center cursor-pointer">
+            <input
+                ref={ref}
+                type="checkbox"
+                className="sr-only"
+                checked={checked}
+                onChange={onChange}
+                aria-label={ariaLabel}
+            />
+            <span className="w-[18px] h-[18px] rounded-[4px] border-2 border-(--c-text-muted) bg-(--c-panel) group-has-[:checked]:bg-(--c-accent) group-has-[:checked]:border-(--c-accent) group-has-[:indeterminate]:bg-(--c-accent) group-has-[:indeterminate]:border-(--c-accent) flex items-center justify-center transition-colors duration-150">
+                <svg className="w-3 h-3 text-transparent group-has-[:checked]:text-(--c-accent-text) pointer-events-none group-has-[:indeterminate]:hidden" viewBox="0 0 10 8" fill="none">
+                    <path d="M1 4l2.5 2.5L9 1" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"/>
+                </svg>
+                <svg className="w-3 h-3 text-transparent group-has-[:indeterminate]:text-(--c-accent-text) pointer-events-none hidden group-has-[:indeterminate]:block" viewBox="0 0 10 2" fill="none">
+                    <path d="M1 1h8" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round"/>
+                </svg>
+            </span>
+        </label>
+    )
+}
 
 export function DataTable<TData>({
                                      columns,
@@ -69,23 +131,141 @@ export function DataTable<TData>({
                                      pageCount,
                                      totalRowCount,
                                      pagination: controlledPagination,
-                                     onPaginationChange,
+                                     onPaginationChange: onPaginationChangeProp,
                                      manualSorting = false,
                                      sorting: controlledSorting,
                                      onSortingChange: onSortingChangeProp,
                                      globalSearchPlaceholder = 'Search...',
                                      showSearch = false,
+                                     globalFilter: globalFilterProp,
+                                     onGlobalFilterChange: onGlobalFilterChangeProp,
                                      emptyMessage = 'No results found',
                                      className,
                                      initialPageSize = DEFAULT_PAGE_SIZE,
                                      onRowDoubleClick,
+                                     enableRowSelection = false,
+                                     selectedRowIds,
+                                     onRowSelectionChange,
+                                     getRowId: getRowIdProp,
                                  }: DataTableProps<TData>) {
     const [internalSorting, setInternalSorting] = React.useState<SortingState>([])
     const [columnFilters, setColumnFilters] = React.useState<ColumnFiltersState>([])
-    const [globalFilter, setGlobalFilter] = React.useState('')
+    const [internalGlobalFilter, setInternalGlobalFilter] = React.useState('')
 
     const sorting = manualSorting && controlledSorting ? controlledSorting : internalSorting
     const handleSortingChange = manualSorting && onSortingChangeProp ? onSortingChangeProp : setInternalSorting
+
+    /*
+      TanStack Table's pagination feature calls onPaginationChange exactly once per table
+      instance — i.e. on every mount — with its own internal default, regardless of the
+      controlled `pagination` already in effect that same render. A caller that restores its
+      page number from the URL (BrandListPage, CategoryListPage) and applies this verbatim
+      would see it silently snap back to page 1 the instant the table (re)mounts, which is
+      exactly what navigate(-1) from an edit/create form does. Sorting has no equivalent
+      quirk — proven by mount/remount/StrictMode tests against a real table instance, not
+      assumed — so this guard exists for pagination only.
+
+      Detected structurally rather than by waiting out a timer: the phantom call is always
+      the first one for a given table instance, and always disagrees with the pagination we
+      already told react-table to render. A real, user-driven change either matches on the
+      first call (harmless to forward) or arrives on a later call (mount has already settled
+      by then) — either way it passes through untouched.
+    */
+    const hasHandledFirstPaginationChangeRef = React.useRef(false)
+    const handlePaginationChange: OnChangeFn<PaginationState> = React.useCallback(
+        (updater) => {
+            if (!onPaginationChangeProp) return
+            if (!hasHandledFirstPaginationChangeRef.current) {
+                hasHandledFirstPaginationChangeRef.current = true
+                if (controlledPagination) {
+                    const next = typeof updater === 'function' ? updater(controlledPagination) : updater
+                    const isMountEcho = next.pageIndex !== controlledPagination.pageIndex
+                        || next.pageSize !== controlledPagination.pageSize
+                    if (isMountEcho) return
+                }
+            }
+            onPaginationChangeProp(updater)
+        },
+        [onPaginationChangeProp, controlledPagination],
+    )
+
+    const globalFilter = onGlobalFilterChangeProp && globalFilterProp !== undefined
+        ? globalFilterProp
+        : internalGlobalFilter
+    const handleGlobalFilterChange = onGlobalFilterChangeProp ?? setInternalGlobalFilter
+
+    // --- Row selection ---
+    const getRowId = React.useCallback(
+        (row: TData, index: number) => {
+            if (getRowIdProp) return getRowIdProp(row)
+            const id = (row as Record<string, unknown> | null)?.id
+            if (typeof id === 'string') return id
+            if (import.meta.env.DEV) {
+                console.warn(
+                    '[DataTable] enableRowSelection is set but a row has no string `id` field — ' +
+                    'pass getRowId to derive a stable id. Falling back to the row index, which is ' +
+                    'not stable across sorting, filtering, or pagination.',
+                )
+            }
+            return String(index)
+        },
+        [getRowIdProp],
+    )
+
+    // Convert external Set<string> → tanstack-table's Record<string, boolean>
+    const rowSelectionState: RowSelectionState = React.useMemo(() => {
+        if (!enableRowSelection || !selectedRowIds) return {}
+        const state: RowSelectionState = {}
+        selectedRowIds.forEach((id) => { state[id] = true })
+        return state
+    }, [enableRowSelection, selectedRowIds])
+
+    // Convert tanstack-table's internal format back to Set<string> on change
+    const handleRowSelectionChange: OnChangeFn<RowSelectionState> = React.useCallback(
+        (updaterOrValue) => {
+            if (!onRowSelectionChange) return
+            const next = typeof updaterOrValue === 'function'
+                ? updaterOrValue(rowSelectionState)
+                : updaterOrValue
+            const ids = new Set<string>(Object.keys(next).filter((k) => next[k]))
+            onRowSelectionChange(ids)
+        },
+        [onRowSelectionChange, rowSelectionState],
+    )
+
+    // Build the checkbox column injected as first column when selection is enabled
+    const selectionColumn: ColumnDef<TData, unknown> = React.useMemo(
+        () => ({
+            id: 'selection',
+            header: ({table: tbl}) => {
+                const allSelected = tbl.getIsAllPageRowsSelected()
+                const someSelected = tbl.getIsSomePageRowsSelected()
+                return (
+                    <SelectionCheckbox
+                        checked={allSelected}
+                        indeterminate={someSelected}
+                        onChange={tbl.getToggleAllPageRowsSelectedHandler()}
+                        aria-label="Select all rows"
+                    />
+                )
+            },
+            cell: ({row}) => (
+                <SelectionCheckbox
+                    checked={row.getIsSelected()}
+                    indeterminate={false}
+                    onChange={row.getToggleSelectedHandler()}
+                    aria-label={`Select row`}
+                />
+            ),
+            enableSorting: false,
+        }),
+        [],
+    )
+
+    const effectiveColumns = React.useMemo(
+        () => enableRowSelection ? [selectionColumn, ...columns] : columns,
+        [enableRowSelection, selectionColumn, columns],
+    )
 
     /*
       A server-paginated table holds one page of a larger result set, not the full thing.
@@ -113,16 +293,22 @@ export function DataTable<TData>({
 
     const table = useReactTable({
         data,
-        columns,
+        columns: effectiveColumns,
+        getRowId: enableRowSelection ? (row, index) => getRowId(row, index) : undefined,
         state: {
             sorting,
             columnFilters,
             globalFilter,
             ...(manualPagination && controlledPagination ? {pagination: controlledPagination} : {}),
+            ...(enableRowSelection ? {rowSelection: rowSelectionState} : {}),
         },
         onSortingChange: handleSortingChange,
         onColumnFiltersChange: setColumnFilters,
-        onGlobalFilterChange: setGlobalFilter,
+        onGlobalFilterChange: handleGlobalFilterChange,
+        ...(enableRowSelection ? {
+            enableRowSelection: true,
+            onRowSelectionChange: handleRowSelectionChange,
+        } : {}),
         getCoreRowModel: getCoreRowModel(),
         getSortedRowModel: getSortedRowModel(),
         getFilteredRowModel: getFilteredRowModel(),
@@ -133,7 +319,7 @@ export function DataTable<TData>({
             ? {
                 manualPagination: true,
                 pageCount: pageCount ?? -1,
-                onPaginationChange: onPaginationChange,
+                onPaginationChange: handlePaginationChange,
             }
             : {
                 initialState: {pagination: {pageSize: initialPageSize}},
@@ -159,8 +345,7 @@ export function DataTable<TData>({
         ? (totalRowCount ?? data.length)
         : table.getFilteredRowModel().rows.length
 
-    const startItem = totalRows === 0 ? 0 : Math.min((currentPage - 1) * currentPageSize + 1, totalRows)
-    const endItem = Math.min(currentPage * currentPageSize, totalRows)
+    const {start: startItem, end: endItem} = clampItemRange(currentPage, currentPageSize, totalRows)
 
     const getPageNumbers = () => {
         const maxPagesToShow = 5
@@ -209,7 +394,7 @@ export function DataTable<TData>({
                                 <div className="order-2 sm:order-1 flex-1 min-w-0">
                                     <Input
                                         value={globalFilter ?? ''}
-                                        onChange={(e) => setGlobalFilter(e.target.value)}
+                                        onChange={(e) => handleGlobalFilterChange(e.target.value)}
                                         placeholder={globalSearchPlaceholder}
                                     />
                                 </div>
@@ -229,7 +414,7 @@ export function DataTable<TData>({
                                     const canSort = header.column.getCanSort()
                                     const sorted = header.column.getIsSorted()
                                     const isActionsColumn = header.column.id === 'actions'
-                                    const isCheckboxColumn = header.column.id === 'checkbox'
+                                    const isCheckboxColumn = header.column.id === 'checkbox' || header.column.id === 'selection'
                                     const isThumbnailColumn = header.column.id === 'thumbnail'
 
                                     return (
@@ -273,9 +458,9 @@ export function DataTable<TData>({
                             Array.from({length: 6}).map((_, i) => (
                                 <tr key={i}
                                     className="border-b border-(--c-border) last:border-0 bg-(--c-table-row-bg)">
-                                    {columns.map((_, j) => (
+                                    {effectiveColumns.map((_, j) => (
                                         <td key={j} className="px-4 py-3">
-                                            <div className="h-4 rounded bg-(--c-border) animate-pulse"/>
+                                            <Skeleton.Bar />
                                         </td>
                                     ))}
                                 </tr>
@@ -283,7 +468,7 @@ export function DataTable<TData>({
                         ) : table.getRowModel().rows.length === 0 ? (
                             <tr>
                                 <td
-                                    colSpan={columns.length}
+                                    colSpan={effectiveColumns.length}
                                     className="h-36 text-center text-(--c-text-muted) bg-(--c-table-row-bg)"
                                 >
                                     {emptyMessage}
@@ -306,7 +491,7 @@ export function DataTable<TData>({
                                 >
                                     {row.getVisibleCells().map((cell) => (
                                         <td key={cell.id} className="px-4 py-3 whitespace-nowrap">
-                                            {cell.column.id === 'actions' || cell.column.id === 'checkbox' || cell.column.id === 'thumbnail' ? (
+                                            {cell.column.id === 'actions' || cell.column.id === 'checkbox' || cell.column.id === 'selection' || cell.column.id === 'thumbnail' ? (
                                                 <div className="flex items-center justify-center w-full">
                                                     {flexRender(cell.column.columnDef.cell, cell.getContext())}
                                                 </div>

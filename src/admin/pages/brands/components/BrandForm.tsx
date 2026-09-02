@@ -8,7 +8,8 @@ import {Form, FormItem, ImageGalleryPicker, ImageUpload, Label, Textarea, Toggle
 import {Button, Card, Input} from '@/shared/ui/primitives'
 import {toast} from '@/shared/ui/components/toast'
 import {toSlug} from '@/admin/utils/slug'
-import {useImageListPage, useUploadImageAsset} from '@/admin/hooks/images'
+import {useImageListPage} from '@/admin/hooks/images/useImageListPage'
+import {useUploadImageAsset} from '@/admin/hooks/images/useUploadImageAsset'
 import {thumbnailUrl} from '@/shared/utils/imageUrl'
 
 const brandSchema = z.object({
@@ -143,7 +144,7 @@ export function BrandForm({defaultValues, onSubmit, isSubmitting = false}: Brand
     return (
         <Form onSubmit={handleSubmit(onSubmit)}>
             <Card>
-                <Card.Body className="space-y-3 px-4 pb-4 pt-2">
+                <Card.Body className="space-y-3 p-5">
                     {/* Name */}
                     <FormItem
                         label="Name"
@@ -282,7 +283,7 @@ export function BrandForm({defaultValues, onSubmit, isSubmitting = false}: Brand
                 </Card.Body>
 
                 {/* Actions */}
-                <Card.Footer className="flex items-center justify-end gap-3 mt-2 pt-4">
+                <Card.Footer className="flex items-center justify-end gap-3 mt-2 p-5">
                     <Button
                         type="button"
                         variant="outline"

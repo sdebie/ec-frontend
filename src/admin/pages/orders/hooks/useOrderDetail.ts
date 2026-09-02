@@ -44,6 +44,13 @@ const ADMIN_ORDER = gql`
                 timestamp
                 staffName
             }
+            latestPayment {
+                gateway
+                externalReference
+                amountGross
+                status
+                receivedAt
+            }
         }
     }
 `

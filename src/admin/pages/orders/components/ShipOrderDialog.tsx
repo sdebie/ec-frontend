@@ -45,7 +45,9 @@ export function ShipOrderDialog({open, onClose, onConfirm, isLoading}: ShipOrder
         >
             <div className="flex flex-col gap-3">
                 <div>
-                    <Label htmlFor="tracking-number">Tracking number</Label>
+                    <Label htmlFor="tracking-number">
+                        Tracking number
+                    </Label>
                     <Input
                         id="tracking-number"
                         value={trackingNumber}
@@ -55,7 +57,9 @@ export function ShipOrderDialog({open, onClose, onConfirm, isLoading}: ShipOrder
                     />
                 </div>
                 <div>
-                    <Label htmlFor="tracking-carrier">Courier</Label>
+                    <Label htmlFor="tracking-carrier">
+                        Courier
+                    </Label>
                     <Input
                         id="tracking-carrier"
                         value={trackingCarrier}

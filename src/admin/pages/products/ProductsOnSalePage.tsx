@@ -1,8 +1,8 @@
 import { useState, useMemo } from 'react'
 import { useBreadcrumb } from '@/admin/context/BreadcrumbContext'
 
-import type { OnSaleProductItem, OnSaleProductImage } from '@/admin/hooks/products/useOnSaleProducts'
-import { useOnSaleProducts } from '@/admin/hooks/products/useOnSaleProducts'
+import type { OnSaleProductItem, OnSaleProductImage } from './hooks/useOnSaleProducts'
+import { useOnSaleProducts } from './hooks/useOnSaleProducts'
 import { DataTable, PageLayout, Thumbnail } from '@/shared/ui/components'
 import type { ColumnDef } from '@/shared/ui/components'
 import { formatAmount } from '@/shared/utils/formatAmount'

@@ -1,4 +1,4 @@
-import {useCallback, useEffect, useMemo, useRef} from 'react'
+import {useCallback, useMemo} from 'react'
 import {useSearchParams} from 'react-router-dom'
 import type {OnChangeFn, SortingState, Updater} from '@tanstack/react-table'
 import type {SortItem} from '@/admin/utils'
@@ -13,18 +13,18 @@ export interface UseTableSortResult {
 }
 
 /**
- * Server-side sorting for one admin list, shared by every table so the URL-persistence and
- * mount-reconciliation logic exists in one place instead of being copied per table.
+ * Server-side sorting for one admin list, shared by every table so the URL-persistence logic
+ * exists in one place instead of being copied per table.
  *
  * **The column id is the sort key, unmodified.** A `ColumnDef`'s `accessorKey` becomes its
  * `column.id`, and that id is exactly the string this hook writes to the URL and sends the
  * server as `sort[0].field` — there is no translation table between the two. This only
  * works because the convention elsewhere in this codebase is to name a column's
  * `accessorKey` after the DTO field it displays, matching the wire shape (see
- * `useBrands`/`useAdminProductList`'s selection sets, or law 8's "mirror the working hook's
- * selection set"). A column whose accessorKey does not match a real, sortable field on the
- * backend entity will send a `sort.field` the server cannot resolve — check the entity's
- * fields, not just the DTO's, before wiring a new column to this hook.
+ * `useBrands`/`useAdminProductList`'s selection sets). A column whose accessorKey does not
+ * match a real, sortable field on the backend entity will send a `sort.field` the server
+ * cannot resolve — check the entity's fields, not just the DTO's, before wiring a new
+ * column to this hook.
  *
  * Sort state lives in the URL (`sortBy`/`sortDir`), the same as page and search — a sorted
  * column survives `navigate(-1)` from a create/edit form the same way the page number does.
@@ -49,26 +49,8 @@ export function useTableSort(defaultSort?: { field: string; desc: boolean }): Us
         [sortField, sortDesc],
     )
 
-    /*
-      react-table's sorting plugin reconciles its own default ({[]}) back out via
-      onSortingChange during mount — including every remount navigate(-1) causes when
-      returning from edit/create — which would silently clear a sort restored from the URL
-      right after it was read. That reconciliation is synchronous within React's own
-      render/commit/effect cycle, so a plain useEffect flipping a mounted flag still runs
-      too early to help; this defers one macrotask via setTimeout(0), past the point where
-      any synchronous mount-time noise could still be pending.
-    */
-    const hasMountedRef = useRef(false)
-    useEffect(() => {
-        const id = setTimeout(() => {
-            hasMountedRef.current = true
-        }, 0)
-        return () => clearTimeout(id)
-    }, [])
-
     const onSortingChange: OnChangeFn<SortingState> = useCallback(
         (updater: Updater<SortingState>) => {
-            if (!hasMountedRef.current) return
             const next = typeof updater === 'function' ? updater(sorting) : updater
             setSearchParams((prev) => {
                 const nextParams = new URLSearchParams(prev)

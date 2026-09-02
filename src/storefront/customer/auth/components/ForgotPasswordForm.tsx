@@ -198,7 +198,7 @@ export function ForgotPasswordForm({ onBackToLogin }: ForgotPasswordFormProps) {
     return (
       <div key={step} className={STEP_CLASS}>
         <AuthHeading title="Enter verification code">
-          If the account exists, a 6-digit reset code has been sent. The code is valid for 10
+          If the account exists, a 6-digit reset code has been sent. The code is valid for 5
           minutes.
         </AuthHeading>
 

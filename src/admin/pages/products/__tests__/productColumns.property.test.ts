@@ -4,9 +4,9 @@
 import { describe, it, expect } from 'vitest'
 import * as fc from 'fast-check'
 
-import { getProductSubtitle, getFormattedPrice } from '../ProductListPage'
+import { getProductSubtitle, getFormattedPrice } from '../components/ProductTable'
 import { formatAmount } from '@/shared/utils/formatAmount'
-import type { AdminProductListItem } from '@/admin/hooks/products/types'
+import type { AdminProductListItem } from '../types'
 import { ProductStatus } from '@/shared/types/enums'
 
 /**

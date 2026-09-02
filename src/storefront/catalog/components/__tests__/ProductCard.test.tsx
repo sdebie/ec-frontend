@@ -307,10 +307,10 @@ describe('ProductCard', () => {
         })
 
         it('row layout keeps a compact image rail beside the identity on mobile', () => {
-            // The original design stacked the whole row to a column below `sm`,
-            // which rendered a viewport-wide square image per row on phones. The
-            // image must stay a small fixed square at every width, with the
-            // identity beside it — never above or below it.
+            // A column layout below `sm` would stack the image above the identity,
+            // rendering a viewport-wide square image per row on phones. The image
+            // must stay a small fixed square at every width, with the identity
+            // beside it — never above or below it.
             const {container} = renderCard({}, {layout: 'row'})
             const root = container.firstElementChild as HTMLElement
 

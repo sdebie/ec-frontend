@@ -14,7 +14,22 @@ import type { FooterSocialLink } from '@/shared/types/StorefrontConfig'
 const BANNER_FOCUS =
   'outline-none focus-visible:ring-2 focus-visible:ring-(--sf-ring) focus-visible:ring-offset-2 focus-visible:ring-offset-[var(--banner-bg)]'
 
-export function AnnouncementBanner() {
+export interface AnnouncementBannerProps {
+  /**
+   * Ignores every below-`md` hiding rule below (the whole-bar hide when there's
+   * no message, and each slot's own `hidden md:flex`). Those rules assume the
+   * viewer's own device IS the configured audience's device — true for a real
+   * shopper, false for an admin previewing the bar from whatever screen they
+   * happen to be using. CSS media queries can only ever read the true browser
+   * viewport (no container/width trick can fake one), so this is the deliberate
+   * escape hatch rather than a duplicated copy of this component's markup.
+   * Never set by the real storefront — `<AnnouncementBanner />` there takes no
+   * props, so this only ever activates from the admin settings preview.
+   */
+  previewMode?: boolean
+}
+
+export function AnnouncementBanner({ previewMode = false }: AnnouncementBannerProps = {}) {
   const config = useStorefrontConfig()
   const ann = config.header?.announcement
 
@@ -92,9 +107,10 @@ export function AnnouncementBanner() {
       // are `hidden md:flex`, so with no message every child is hidden and the
       // wrapper's own `py-2` would leave a bare coloured strip. Hide the wrapper
       // itself in that case (complete literal class strings — an interpolated
-      // fragment never reaches the Tailwind scanner).
+      // fragment never reaches the Tailwind scanner). previewMode skips this —
+      // see AnnouncementBannerProps.previewMode.
       className={
-        hasMessage
+        hasMessage || previewMode
           ? 'w-full py-2 px-4 text-sm'
           : 'hidden md:block w-full py-2 px-4 text-sm'
       }
@@ -105,7 +121,7 @@ export function AnnouncementBanner() {
             trailing, whichever entries the client actually has. It inherits the
             banner's own text colour at reduced opacity — no palette literal. */}
         {hasContactData ? (
-          <div className="hidden md:flex items-center gap-3 justify-start">
+          <div className={previewMode ? 'flex items-center gap-3 justify-start' : 'hidden md:flex items-center gap-3 justify-start'}>
             {contactEntries.map((entry, index) => (
               <span key={entry.key} className="inline-flex items-center gap-3">
                 {index > 0 && (
@@ -141,7 +157,7 @@ export function AnnouncementBanner() {
 
         {/* Social slot — right, md+ only */}
         {hasSocialData ? (
-          <div className="hidden md:flex items-center gap-2 justify-end">
+          <div className={previewMode ? 'flex items-center gap-2 justify-end' : 'hidden md:flex items-center gap-2 justify-end'}>
             {resolvedSocialLinks.map((link: FooterSocialLink) => {
               const IconComponent = socialIconMap[link.icon]
               return (

@@ -2,7 +2,6 @@ import {useCallback, useState} from 'react'
 import type {PaginationState} from '@tanstack/react-table'
 
 import {DateRangePreset, PageLayout, resolveDateRange} from '@/shared/ui/components'
-import {useCan} from '@/shared/auth/adminPermissions'
 import {useTableSort} from '@/admin/hooks/useTableSort'
 import {useOrders} from './hooks/useOrders'
 import type {OrderListFilters} from './components/OrderListToolbar'
@@ -19,8 +18,6 @@ const NO_FILTERS: OrderListFilters = {
 const asArgument = (value: string) => (value === 'ALL' ? undefined : value)
 
 export function OrderListPage() {
-    const canMutate = useCan('order:write')
-
     const [filters, setFilters] = useState<OrderListFilters>(NO_FILTERS)
     const [pagination, setPagination] = useState<PaginationState>({
         pageIndex: 0,
@@ -80,7 +77,6 @@ export function OrderListPage() {
                 <OrderTable
                     data={data?.data ?? []}
                     isLoading={isLoading}
-                    canMutate={canMutate}
                     pageCount={pageCount}
                     totalRowCount={data?.total ?? 0}
                     pagination={pagination}

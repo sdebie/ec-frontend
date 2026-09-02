@@ -9,7 +9,7 @@ interface Category {
   parent?: { id: string; name: string; slug: string } | null
 }
 
-interface GetCategoriesResponse {
+interface StorefrontCategoriesResponse {
   getCategories: {
     content: Category[]
     totalElements: number
@@ -17,7 +17,7 @@ interface GetCategoriesResponse {
 }
 
 const GET_CATEGORIES = gql`
-  query GetCategories($pageIndex: Int, $pageSize: Int) {
+  query StorefrontCategories($pageIndex: Int, $pageSize: Int) {
     getCategories(pageIndex: $pageIndex, pageSize: $pageSize) {
       content {
         id
@@ -34,7 +34,7 @@ export function useCategories() {
   const { data, isLoading, isError } = useQuery({
     queryKey: ['categories'],
     queryFn: () =>
-      graphqlClient.request<GetCategoriesResponse>(GET_CATEGORIES, {
+      graphqlClient.request<StorefrontCategoriesResponse>(GET_CATEGORIES, {
         pageIndex: 0,
         pageSize: 500,
       }),

@@ -11,9 +11,9 @@
   spacing and sizing utilities are all rem-based, so the whole storefront scales
   proportionally and every carefully-aligned deck keeps its alignment.
 
-  17px (+6.25%) deliberately, not more: it is the largest step that leaves the
-  two-up product grid and the 375px filter drawer laid out exactly as measured.
-  Bumping this further requires re-checking those at 375x667.
+  This is deliberately the largest step that keeps the two-up product grid and
+  the filter drawer laid out correctly on common phone widths — bumping it
+  further needs re-checking those layouts.
 */
 @media (max-width: 639px) {
     :root {
@@ -26,18 +26,18 @@
 
       page → panel → secondary surface → hover → selected
 
-  Two rules keep this coherent, and both were learned by breaking them:
+  Two rules keep this coherent:
 
   1. NEUTRAL MEANS "I am hovering". ACCENT MEANS "I selected something".
      Hover states are grey at every elevation. The accent is reserved for
-     genuine selection — active nav, selected row, checked filter. When
-     ordinary table hover was accent-tinted, an orange or red preset put the
-     accent on every row the pointer crossed and it stopped reading as an
-     accent at all.
+     genuine selection — active nav, selected row, checked filter. Tinting
+     ordinary table hover with the accent puts the accent on every row the
+     pointer crosses, so an orange or red preset stops reading as accented
+     at all.
 
   2. EVERY PRESET OWNS ITS OWN FOREGROUND IN EVERY THEME. A preset that sets a
-     background but not the text on it inherits the other theme's text — see
-     the dark preset block for what that produced.
+     background but not the text on it inherits the other theme's text — the
+     dark preset block below sets both explicitly for exactly this reason.
 
   Depth comes from borders and small elevation steps, not from strong
   background contrast: a light mode built on heavier greys reads as flat and
@@ -53,65 +53,64 @@
     --primary-subtle-hover: #dbeafe;
 
     /*
-      FOUR surface levels, not two. Light mode previously ran white panels on a
-      near-white page with the secondary surface and the row hover set to the
-      same value — so the whole workspace collapsed into "white or pale grey"
-      and read as washed out next to dark mode's four distinct steps.
+      FOUR surface levels, not two: collapsing the secondary surface and the row
+      hover onto the same value as the page reads as washed out next to dark
+      mode's four distinct steps ("white or pale grey" instead of a real
+      hierarchy).
 
-      The neutrals are also nudged a few degrees off pure slate. Cold slate on
-      every surface is what makes an admin look like an unstyled starter; the
-      shift is small enough to stay neutral under any accent preset, and only
-      shows as warmth against a large area.
-
-           PAGE #f4f7f6 → SIDEBAR #fbfcfc → PANEL/TABLE #ffffff
-                                          → TABLE HEADER #f2f5f4
-                                          → HOVER        #f5f9f7
+      The neutrals sit on a cool slate scale — the same hue family dark mode's
+      own text and border tokens already use — so every surface reads as
+      neutral grey rather than tinted, and the two themes share one identity.
+      The panel itself is pushed to true white so it clearly lifts off the page
+      background on contrast and border alone: elevation here is not
+      shadow-driven (--c-shadow-sm stays a 1px/5%-opacity whisper) precisely so
+      contrast and borders carry that job instead.
     */
 
     /* Page */
-    --admin-bg: #f4f7f6;
+    --admin-bg: #e8ecf0;
 
     /* Surfaces */
     --admin-panel: #ffffff;
-    --admin-panel-secondary: #f7f9f8;
-    --admin-panel-hover: #f0f4f2;
+    --admin-panel-secondary: #eef1f4;
+    --admin-panel-hover: #e1e6eb;
 
     /* Borders */
-    --admin-border: #dfe6e2;
-    --admin-border-strong: #cbd5cf;
+    --admin-border: #c5ccd4;
+    --admin-border-strong: #a3adb8;
 
     /* Typography */
-    --admin-text: #18231f;
-    --admin-text-secondary: #41534b;
-    --admin-text-muted: #6b7c74;
-    --admin-text-disabled: #9aa8a2;
+    --admin-text: #0f172a;
+    --admin-text-secondary: #334155;
+    --admin-text-muted: #64748b;
+    --admin-text-disabled: #94a3b8;
 
     /* Forms — the field reads as bordered rather than filled, so its own
        background matches the panel and the border carries the affordance. */
     --admin-input-bg: #ffffff;
-    --admin-input-border: #d4ddd8;
-    --admin-input-hover-border: #afbeb6;
+    --admin-input-border: #b8c2cf;
+    --admin-input-hover-border: #64748b;
     --admin-input-focus: var(--primary);
 
-    /* Chrome — sidebar and header sit just off pure white so they read as one
-       frame around the workspace, rather than as two white slabs with a grey
-       canvas between them. */
-    --admin-sidebar-bg: #fbfcfc;
-    --admin-sidebar-hover: #f1f5f3;
+    /* Chrome — sidebar and header sit between the canvas and the panel, so
+       they read as one frame around the workspace instead of blending into
+       either. */
+    --admin-sidebar-bg: #f2f4f7;
+    --admin-sidebar-hover: #e1e6eb;
     --admin-sidebar-active: #eff6ff;
     --admin-sidebar-active-text: #1d4ed8;
-    --admin-sidebar-border: #e2e8e5;
-    --admin-header-bg: #fbfcfc;
+    --admin-sidebar-border: #dbe1e7;
+    --admin-header-bg: #f2f4f7;
 
     /* Tables — the header is one step off the rows, enough to organise the
-       grid without announcing itself as a band. Rows stay plain white at rest
-       (no zebra striping: it makes a dense screen busier, not clearer) and
-       come to life only on hover. */
-    --admin-table-header-bg: #f2f5f4;
+       grid without announcing itself as a band. Rows stay a plain panel tone
+       at rest (no zebra striping: it makes a dense screen busier, not
+       clearer) and come to life only on hover. */
+    --admin-table-header-bg: #eef1f4;
     --admin-table-row-bg: #ffffff;
-    --admin-table-row-hover: #f5f9f7;
+    --admin-table-row-hover: #e1e6eb;
     --admin-table-row-selected: var(--primary-subtle);
-    --admin-table-border: #dfe6e2;
+    --admin-table-border: #c5ccd4;
 
     --admin-radius-sm: 0.25rem;
     --admin-radius: 0.5rem;
@@ -126,6 +125,19 @@
     --admin-status-yellow-bg: #fffbeb;
     --admin-status-yellow-text: #92400e;
     --admin-status-yellow-border: #fde68a;
+    /* A fifth, genuinely distinct tone: red/green/yellow are semantic (error/success/
+       attention) and already spoken for, so a status that means neither of those — "sent,
+       awaiting the customer" — needs its own hue rather than borrowing one whose meaning
+       would be wrong. */
+    --admin-status-purple-bg: #f5f3ff;
+    --admin-status-purple-text: #6d28d9;
+    --admin-status-purple-border: #ddd6fe;
+    /* A sixth tone, for "priced but not yet sent" — distinct from purple ("sent, awaiting
+       the customer") since a draft hasn't gone anywhere yet, and distinct from every admin
+       preset hue (blue/purple/green/orange/red) so it can never collide with an accent. */
+    --admin-status-pink-bg: #fdf2f8;
+    --admin-status-pink-text: #be185d;
+    --admin-status-pink-border: #fbcfe8;
 
     /*
       Storefront status tokens.
@@ -133,8 +145,7 @@
       Every other --sf-* token is written onto <html> at runtime by
       StorefrontConfigProvider from the seeded `storefront.theme` JSON. Status
       colours were never in that vocabulary, which is why the storefront had
-      hard-coded red and green scattered through it as a documented exception to
-      the theme law.
+      hard-coded red and green scattered through it as a documented exception.
 
       These are DEFAULTS, not overrides: an inline style on <html> beats a
       stylesheet rule, so the moment a client seeds `error`/`errorSurface`/
@@ -157,10 +168,9 @@
 
       The step is a fixed OKLCH lightness offset rather than a color-mix
       percentage because a percentage mix is MULTIPLICATIVE — its perceived step
-      shrinks as the accent darkens. Mixing 12% black moves a dark accent about
-      3.6 L*, which is at the threshold of perception, and a light accent about
-      9 L*, so a single percentage cannot read the same across clients. A fixed
-      OKLCH offset lands every accent within roughly 7.5-10.7 L*.
+      shrinks as the accent darkens, so a single percentage cannot read the same
+      across every client's accent colour. A fixed OKLCH lightness offset stays
+      visually consistent regardless of how light or dark the seeded accent is.
 
       The color-mix values here are the fallback for engines without relative
       colour syntax; the @supports rule below upgrades them. They must stay as a
@@ -188,10 +198,9 @@
   `--primary-subtle` further down cannot retroactively alter the value already
   computed at :root and inherited from it.
 
-  This hid because dark mode looked correct: its own block re-declares these on
-  this same element, where the preset IS in scope. Verified by probe — with these
-  on :root alone, the green and red presets rendered selected rows and focused
-  inputs in BLUE while every other accent surface was correctly green or red.
+  Dark mode re-declares these tokens on this same scoped element, so only a
+  light-mode preset exposes a regression here: its selected rows and focused
+  inputs render in the default blue instead of its own accent.
 
   Any future token defined as var(--primary…) belongs in this block.
 */
@@ -206,54 +215,52 @@
        black and vanish against the dark inputs. */
     color-scheme: dark;
 
-    /* Page — one step under the panel rather than near-black. The former
-       #030712 against a #111827 panel was a large enough jump that cards read
-       as separate floating rectangles instead of one surface. */
+    /* Page — one step under the panel rather than near-black: too large a jump
+       here makes cards read as separate floating rectangles instead of one
+       surface. */
     --admin-bg: #0b1120;
 
     /* Surfaces — each step is a deliberate elevation, not an arbitrary grey. */
-    --admin-panel: #111827;
-    --admin-panel-secondary: #172033;
-    --admin-panel-hover: #1e293b;
+    --admin-panel: #151e35;
+    --admin-panel-secondary: #1c2640;
+    --admin-panel-hover: #232f4d;
 
     /* Borders */
-    --admin-border: #1f2937;
-    --admin-border-strong: #374151;
+    --admin-border: #303a55;
+    --admin-border-strong: #404d6d;
 
     /* Typography */
     --admin-text: #f1f5f9;
-    --admin-text-secondary: #cbd5e1;
-    --admin-text-muted: #94a3b8;
-    --admin-text-disabled: #64748b;
+    --admin-text-secondary: #c6cfdc;
+    --admin-text-muted: #93a0b4;
+    --admin-text-disabled: #657386;
 
-    /* Forms — the field sits *below* the panel here. Inverting the light-mode
-       relationship is deliberate: a recessed well reads as an input on dark,
-       where a raised field would compete with the panel it sits on. */
-    --admin-input-bg: #0f172a;
-    --admin-input-border: #334155;
-    --admin-input-hover-border: #475569;
+    /* Forms */
+    --admin-input-bg: #1b253e;
+    --admin-input-border: #3c4867;
+    --admin-input-hover-border: #546183;
     --admin-input-focus: var(--primary);
 
-    /* Chrome sits just under the panel, mirroring light mode where it sits just
-       off white — so sidebar and header read as the frame and the panel as the
-       content, rather than the sidebar being indistinguishable from a table. */
-    --admin-header-bg: #0f1828;
-    --admin-sidebar-bg: #0f1828;
-    --admin-sidebar-hover: #1e293b;
-    --admin-sidebar-border: #1f2937;
+    /* Chrome */
+    --admin-header-bg: #0e1527;
+    --admin-sidebar-bg: #0e1527;
+    --admin-sidebar-hover: #1c2640;
+    --admin-sidebar-border: #242c42;
 
-    /* Tables */
-    --admin-table-header-bg: #172033;
-    --admin-table-row-bg: #111827;
-    --admin-table-row-hover: #1e293b;
+    /* Tables — row background matches --admin-panel and table border matches
+       --admin-border deliberately: a fainter or darker value here reads as a
+       separate, sunken plane rather than as part of the panel. */
+    --admin-table-header-bg: #1b243c;
+    --admin-table-row-bg: #151e35;
+    --admin-table-row-hover: #212b45;
     --admin-table-row-selected: var(--primary-subtle);
-    --admin-table-border: #1f2937;
+    --admin-table-border: #303a55;
 
     /* Status surfaces sit in the same elevation range as the panels rather than
        as saturated blocks, so a badge reads as tinted rather than as a hole cut
        in the page. The red surface is also deliberately distinct from the red
-       preset's --primary-subtle (#450a0a), which it used to collide with — an
-       error badge and a selected row must never be the same colour. */
+       preset's --primary-subtle (#450a0a) — an error badge and a selected row
+       must never be the same colour. */
     --admin-status-red-bg: #2a1518;
     --admin-status-red-text: #fda4af;
     --admin-status-red-border: #5f252d;
@@ -263,6 +270,12 @@
     --admin-status-yellow-bg: #2a1d08;
     --admin-status-yellow-text: #fde68a;
     --admin-status-yellow-border: #854d0e;
+    --admin-status-purple-bg: #241b3d;
+    --admin-status-purple-text: #c4b5fd;
+    --admin-status-purple-border: #5b21b6;
+    --admin-status-pink-bg: #2a0e1c;
+    --admin-status-pink-text: #f9a8d4;
+    --admin-status-pink-border: #9d174d;
 }
 
 [data-surface="admin"][data-preset="blue"] {
@@ -308,8 +321,8 @@
 /*
   The red preset's subtle sits in the rose family, not red-50 — red-50 (#fef2f2)
   is exactly --admin-status-red-bg, which would make a selected row and an error
-  badge the same colour under this preset. Same collision the dark status
-  surfaces were re-tuned to avoid.
+  badge the same colour under this preset. The dark status surfaces avoid the
+  same collision.
 */
 [data-surface="admin"][data-preset="red"] {
     --primary: #ef4444;
@@ -322,11 +335,10 @@
 }
 
 /*
-  Dark presets must set their OWN active foreground. Each light preset sets
-  --admin-sidebar-active-text, and the dark blocks previously set only --primary,
-  --primary-hover and --primary-subtle — so a dark preset inherited the LIGHT
-  text colour (blue's #1d4ed8) and painted it on a near-black active pill.
-  Every preset below owns the full set, background and foreground together.
+  Dark presets must set their OWN active foreground, not just background: a
+  preset that omits --admin-sidebar-active-text inherits the LIGHT text colour
+  (blue's #1d4ed8) painted on a near-black active pill. Every preset below
+  owns the full set, background and foreground together.
 */
 [data-surface="admin"][data-theme="dark"][data-preset="blue"] {
     --primary: #3b82f6;
@@ -382,7 +394,7 @@
   Every palette token gets a Tailwind colour so a component can name what it
   means (`bg-admin-panel`) instead of picking a raw shade. A component that
   reaches for `bg-white dark:bg-gray-900` is bypassing the hierarchy above and
-  will drift the moment a token moves — which is what law 2 forbids.
+  will drift the moment a token moves.
 */
 @theme inline {
     --color-admin-bg: var(--admin-bg);
@@ -600,11 +612,11 @@
     color: rgba(255, 255, 255, 0.82);
 }
 
-/* On a dark band the eyebrow's TEXT takes the heading's colour (owner directive
-   2026-08-03) — the accent measures ~1.6:1 on this base, which was legible in
-   theory and unappealing in practice. Its RULE stays the accent, so the brand
-   mark survives; that needs no entry here because a <span> is not matched by the
-   `p` selector above, so the component's own class wins.
+/* On a dark band the eyebrow's TEXT takes the heading's colour: the accent
+   measures ~1.6:1 on this base, technically legible but visually unappealing.
+   Its RULE stays the accent, so the brand mark survives; that needs no entry
+   here because a <span> is not matched by the `p` selector above, so the
+   component's own class wins.
 
    Matching the h1–h6 value exactly, not merely "some white": the eyebrow sits
    directly above its heading, and two near-but-not-equal whites read as a

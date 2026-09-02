@@ -1,4 +1,4 @@
-export { Button } from './button/Button'
+export { Button, buttonVariants } from './button/Button'
 export type { ButtonProps } from './button/Button'
 
 export { Input } from './input/Input'
@@ -17,7 +17,5 @@ export type { DividerProps } from './divider/Divider'
 export { IconBox } from './icon-box/IconBox'
 export type { IconBoxProps } from './icon-box/IconBox'
 
-export { Surface } from './surface/Surface'
-export type { SurfaceProps } from './surface/Surface'
-export { SurfaceProvider, useSurface } from './surface/SurfaceContext'
-export type { SurfaceElevation, Density } from './surface/SurfaceContext'
+export { Skeleton } from './skeleton/Skeleton'
+export type { SkeletonBarProps, SkeletonCircleProps, SkeletonRectProps } from './skeleton/Skeleton'

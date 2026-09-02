@@ -585,4 +585,115 @@ describe('AnnouncementBanner', () => {
     expect(bar.className).not.toContain('hidden')
     expect(bar).toHaveTextContent('Nationwide delivery')
   })
+
+  // --- previewMode: the admin settings preview's escape hatch from the
+  // below-md hiding rules above, which assume the viewer's own device is the
+  // configured audience's device (false for an admin on any device). ---
+
+  describe('previewMode', () => {
+    it('keeps the whole bar visible with no message, unlike the default (Req 4.6) behaviour', () => {
+      mockUseStorefrontConfig.mockReturnValue({
+        header: {
+          announcement: {
+            enabled: true,
+            text: '',
+            backgroundColor: '#7a0019',
+            textColor: '#ffffff',
+            showContact: true,
+          },
+        },
+        contact: { phones: ['+27 11 555 0000'] },
+      })
+
+      render(<AnnouncementBanner previewMode />)
+
+      const bar = screen.getByRole('banner')
+      expect(bar.className).not.toContain('hidden')
+    })
+
+    it('shows the contact slot without requiring md width', () => {
+      mockUseStorefrontConfig.mockReturnValue({
+        header: {
+          announcement: {
+            enabled: true,
+            text: '',
+            backgroundColor: '#1a1f35',
+            textColor: '#ffffff',
+            showContact: true,
+          },
+        },
+        contact: { phones: ['+27 11 123 4567'] },
+      })
+
+      render(<AnnouncementBanner previewMode />)
+
+      const phoneLink = screen.getByText('+27 11 123 4567').closest('a')!
+      const contactSlot = phoneLink.closest('div')!
+      expect(contactSlot.className).not.toContain('hidden')
+      expect(contactSlot.className).toContain('flex')
+    })
+
+    it('shows the social slot without requiring md width', () => {
+      mockUseStorefrontConfig.mockReturnValue({
+        header: {
+          announcement: {
+            enabled: true,
+            text: '',
+            backgroundColor: '#1a1f35',
+            textColor: '#ffffff',
+            showSocial: true,
+          },
+        },
+        footer: {
+          socialLinks: [
+            { id: '1', label: 'Facebook', to: 'https://facebook.com/test', icon: 'facebook' },
+          ],
+        },
+      })
+
+      render(<AnnouncementBanner previewMode />)
+
+      const socialLink = screen.getByLabelText('Facebook')
+      const socialSlot = socialLink.closest('div')!
+      expect(socialSlot.className).not.toContain('hidden')
+      expect(socialSlot.className).toContain('flex')
+    })
+
+    it('still renders nothing when there is genuinely nothing to show, even in previewMode', () => {
+      mockUseStorefrontConfig.mockReturnValue({
+        header: {
+          announcement: {
+            enabled: true,
+            text: '',
+            backgroundColor: '#1a1f35',
+            textColor: '#ffffff',
+          },
+        },
+      })
+
+      const { container } = render(<AnnouncementBanner previewMode />)
+      expect(container).toBeEmptyDOMElement()
+    })
+
+    it('defaults to false — omitting the prop entirely still behaves exactly as before', () => {
+      mockUseStorefrontConfig.mockReturnValue({
+        header: {
+          announcement: {
+            enabled: true,
+            text: '',
+            backgroundColor: '#7a0019',
+            textColor: '#ffffff',
+            showContact: true,
+          },
+        },
+        contact: { phones: ['+27 11 555 0000'] },
+      })
+
+      render(<AnnouncementBanner />)
+
+      const bar = screen.getByRole('banner')
+      expect(bar.className).toContain('hidden')
+      expect(bar.className).toContain('md:block')
+    })
+  })
 })

@@ -1,5 +1,4 @@
 import {useEffect, useState} from 'react'
-
 import {Dialog, DialogContent, DialogFooter, DialogHeader,} from '@/shared/ui/components/dialog/Dialog'
 import {Button} from '@/shared/ui/primitives'
 
@@ -64,11 +63,7 @@ export function RejectApplicationDialog({
                             aria-describedby={error ? 'reject-reason-error' : undefined}
                         />
                         {error && (
-                            <p
-                                id="reject-reason-error"
-                                className="text-xs text-(--c-danger,#ef4444)"
-                                role="alert"
-                            >
+                            <p id="reject-reason-error" className="text-xs text-(--c-danger,#ef4444)" role="alert">
                                 {error}
                             </p>
                         )}

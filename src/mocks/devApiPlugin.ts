@@ -250,10 +250,8 @@ export function devApiPlugin(): Plugin {
                 }
 
                 if (url === '/payments/checkout' && req.method === 'POST') {
-                    // guest-order-authorization: mocks require X-Order-Token so dev
-                    // exercises the real contract. The email form param no longer
-                    // exists on the real contract either (Requirement 8) — this mock
-                    // never read it, so there is nothing to remove here.
+                    // guest-order-authorization: requires X-Order-Token, same contract
+                    // as /orders/{id}/contact above.
                     if (!req.headers['x-order-token']) {
                         res.statusCode = 404
                         res.setHeader('Content-Type', 'application/json')
@@ -426,8 +424,8 @@ export function devApiPlugin(): Plugin {
                     }
 
                     if (query.includes('getOrderDetail')) {
-                        // guest-order-authorization: mocks require X-Order-Token so
-                        // dev exercises the real contract.
+                        // guest-order-authorization: requires X-Order-Token, same
+                        // contract as /orders/{id}/contact above.
                         if (!req.headers['x-order-token']) {
                             res.setHeader('Content-Type', 'application/json')
                             res.end(JSON.stringify({errors: [{message: 'Order not found'}], data: null}))
@@ -441,10 +439,9 @@ export function devApiPlugin(): Plugin {
                         return
                     }
 
-                    // orderStatus query (S2′, guest-order-authorization) — replaces
-                    // orderBySessionId, keyed on orderId and requiring X-Order-Token.
-                    // The call counter is preserved so the success-page poll still
-                    // flips PENDING -> PAID on the second call in dev.
+                    // orderStatus query (guest-order-authorization) — requires
+                    // X-Order-Token; see orderStatusCallCounts above for the
+                    // PENDING -> PAID behaviour.
                     if (query.includes('orderStatus')) {
                         if (!req.headers['x-order-token']) {
                             res.setHeader('Content-Type', 'application/json')

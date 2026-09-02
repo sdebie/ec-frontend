@@ -1,6 +1,0 @@
-export { useAdminTestimonials } from './useAdminTestimonials'
-export { useCreateTestimonial } from './useCreateTestimonial'
-export { useUpdateTestimonial } from './useUpdateTestimonial'
-export { useDeleteTestimonial } from './useDeleteTestimonial'
-export type { AdminTestimonial, CreateTestimonialPayload, UpdateTestimonialPayload } from './types'
-export { testimonialFormSchema, type TestimonialFormData } from './schema'

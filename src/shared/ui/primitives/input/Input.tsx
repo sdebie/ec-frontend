@@ -13,7 +13,8 @@ const inputVariants = cva(
     {
         variants: {
             variant: {
-                default: 'border-(--c-border) not-read-only:focus-visible:border-(--c-accent)',
+                default:
+                    'border-(--c-input-border) not-read-only:hover:border-(--c-input-hover-border) not-read-only:focus-visible:border-(--c-accent)',
                 error: 'border-(--c-error)',
             },
             size: CONTROL_SIZE_CLASSES,

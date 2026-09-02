@@ -18,11 +18,14 @@ import {
 import type { ColumnDef } from '@/shared/ui/components'
 import { Button } from '@/shared/ui/primitives'
 import { useCan } from '@/shared/auth/adminPermissions'
-import { useProductUploadBatches } from '@/admin/hooks/imports/useProductUploadBatches'
+import { formatDate } from '@/shared/utils/formatDateTime'
+import { useProductImportBatches } from '@/admin/hooks/imports/useProductImportBatches'
 import { useRefreshBatchStatus } from '@/admin/hooks/imports/useRefreshBatchStatus'
 import { useUploadCsv } from '@/admin/hooks/imports/useUploadCsv'
+import { useSageItemImport } from '@/admin/hooks/imports/useSageItemImport'
 import { getBatchStatusColor } from '@/admin/hooks/imports/utils'
-import type { ProductUploadBatchDto } from '@/admin/hooks/imports/types'
+import type { ProductImportBatchDto } from '@/admin/hooks/imports/types'
+import { PRODUCT_IMPORT } from '@/admin/api/importEndpoints'
 
 function RefreshButton({ batchId, onSuccess }: { batchId: string; onSuccess: () => void }) {
   const { mutateAsync, isPending } = useRefreshBatchStatus()
@@ -30,7 +33,7 @@ function RefreshButton({ batchId, onSuccess }: { batchId: string; onSuccess: () 
   const handleRefresh = async () => {
     try {
       await mutateAsync({
-        endpoint: `/admin/products/batches/${batchId}/staged/status`,
+        endpoint: PRODUCT_IMPORT.status(batchId),
       })
       onSuccess()
     } catch (err) {
@@ -51,7 +54,7 @@ function RefreshButton({ batchId, onSuccess }: { batchId: string; onSuccess: () 
 export default function ProductImportListPage() {
   const navigate = useNavigate()
   const canMutate = useCan('import:manage')
-  const { data, isLoading, refetch } = useProductUploadBatches()
+  const { data, isLoading, refetch } = useProductImportBatches()
 
   useBreadcrumb([
     { label: 'Home', href: '/admin' },
@@ -62,11 +65,30 @@ export default function ProductImportListPage() {
   const [uploadOpen, setUploadOpen] = useState(false)
   const [file, setFile] = useState<File | null>(null)
   const { mutateAsync: uploadCsv, isPending: isUploading } = useUploadCsv()
+  const { mutateAsync: importSageItems, isPending: isImportingSageItems } = useSageItemImport()
+
+  const handleImportSageItems = async () => {
+    try {
+      const response = await importSageItems()
+      if (!response?.batchId) {
+        toast.error('Sage import started but no batch ID was returned', { duration: 0 })
+        return
+      }
+      toast.success('Sage item import started - fetching items from Sage API')
+      refetch()
+      navigate(`/admin/imports/products/bulk-upload/review/${response.batchId}`)
+    } catch (err) {
+      toast.error(
+        err instanceof Error ? err.message : 'Failed to start Sage item import',
+        { duration: 0 },
+      )
+    }
+  }
 
   const handleUpload = async () => {
     if (!file) return
     try {
-      const response = await uploadCsv({ file, endpoint: '/admin/products/upload-csv' })
+      const response = await uploadCsv({ file, endpoint: '/admin/imports/product/upload' })
       if (!response?.batchId) {
         toast.error('Upload succeeded but no batch ID was returned', { duration: 0 })
         return
@@ -88,14 +110,14 @@ export default function ProductImportListPage() {
     setFile(null)
   }
 
-  const columns: ColumnDef<ProductUploadBatchDto, unknown>[] = useMemo(
+  const columns: ColumnDef<ProductImportBatchDto, unknown>[] = useMemo(
     () => [
       {
         accessorKey: 'createdAt',
         header: 'Date',
         cell: ({ row }) => (
           <span className="text-sm text-(--c-text)">
-            {new Date(row.original.createdAt).toLocaleDateString()}
+            {formatDate(row.original.createdAt)}
           </span>
         ),
         enableSorting: false,
@@ -105,6 +127,14 @@ export default function ProductImportListPage() {
         header: 'Filename',
         cell: ({ row }) => (
           <span className="text-sm text-(--c-text)">{row.original.filename}</span>
+        ),
+        enableSorting: false,
+      },
+      {
+        accessorKey: 'importSourceType',
+        header: 'Source',
+        cell: ({ row }) => (
+          <span className="text-sm text-(--c-text)">{row.original.importSourceType}</span>
         ),
         enableSorting: false,
       },
@@ -171,9 +201,18 @@ export default function ProductImportListPage() {
   )
 
   const headerAction = canMutate ? (
-    <Button variant="solid" onClick={() => setUploadOpen(true)}>
-      + Upload CSV
-    </Button>
+    <div className="flex items-center gap-2">
+      <Button
+        variant="outline"
+        onClick={handleImportSageItems}
+        isLoading={isImportingSageItems}
+      >
+        Import from Sage
+      </Button>
+      <Button variant="solid" onClick={() => setUploadOpen(true)}>
+        + Upload CSV
+      </Button>
+    </div>
   ) : undefined
 
   return (

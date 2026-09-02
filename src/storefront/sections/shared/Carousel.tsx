@@ -56,9 +56,8 @@ const CELL_BASIS: Record<2 | 3 | 4 | 5, string> = {
     2: 'md:w-[calc((100%-1rem)/2)]',
     3: 'md:w-[calc((100%-1rem)/2)] lg:w-[calc((100%-2rem)/3)]',
     4: 'md:w-[calc((100%-1rem)/2)] lg:w-[calc((100%-3rem)/4)]',
-    // 5 steps through 3-up at lg before going 5-up at xl: five cards in a
-    // 1152px container is ~211px each, which is about as narrow as a product
-    // card reads, and below xl there simply is not room for them.
+    // 5 steps through 3-up at lg before going 5-up at xl: below xl there isn't
+    // room for five cards to read as a comfortable product-card width.
     5: 'md:w-[calc((100%-1rem)/2)] lg:w-[calc((100%-2rem)/3)] xl:w-[calc((100%-4rem)/5)]',
 }
 
@@ -191,12 +190,12 @@ export function Carousel({ariaLabel, perView = 3, perViewMobile = 1, tone = 'def
                     onScroll={syncScrollState}
                     // p-2 / -m-2: `overflow-x-auto` computes `overflow-y` to `auto`,
                     // so without room the track clips whatever a card paints outside
-                    // its box — border, hover shadow and the `hover:scale-[1.02]`
-                    // lift were cut off top and bottom, and the FIRST card's left
-                    // edge was clipped at scrollLeft 0. The negative margin pulls the
-                    // scrollport back out so cards still line up with the section
-                    // gutter; scroll-pl-2 keeps `snap-start` landing on the card edge
-                    // rather than the padding edge.
+                    // its box — border, hover shadow, and the `hover:scale-[1.02]`
+                    // lift, including on the first card's left edge at scrollLeft 0.
+                    // The negative margin pulls the scrollport back out so cards
+                    // still line up with the section gutter; scroll-pl-2 keeps
+                    // `snap-start` landing on the card edge rather than the padding
+                    // edge.
                     // md:gap-4 is load-bearing — CELL_BASIS above subtracts it.
                     className="flex gap-3 md:gap-4 overflow-x-auto p-2 -m-2 scroll-pl-2 snap-x snap-mandatory scroll-smooth [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]"
                 >
@@ -219,9 +218,9 @@ export function Carousel({ariaLabel, perView = 3, perViewMobile = 1, tone = 'def
                         {/* At xl+ the arrows sit in the section gutter OUTSIDE the deck
                             where there is room for them; narrower viewports have too
                             little gutter, so they overlay the deck edges instead.
-                            ⚠️ The gutter shrank when the shared frame widened to
-                            max-w-6xl — 'gutter' now needs a wider viewport before the
-                            arrows clear the content, so re-measure before assuming it.
+                            ⚠️ At the frame's current max-w-6xl width, 'gutter' needs a
+                            wide viewport before the arrows actually clear the content —
+                            re-measure before assuming it fits.
                             `max-md:hidden` only when the deck carries dots: the two
                             mobile treatments are alternatives, never both at once. */}
                         <button

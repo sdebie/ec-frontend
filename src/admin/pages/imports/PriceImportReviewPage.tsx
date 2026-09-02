@@ -8,23 +8,14 @@ import {useBreadcrumb} from '@/admin/context/BreadcrumbContext'
 import {Button} from '@/shared/ui/primitives'
 import {useCan} from '@/shared/auth/adminPermissions'
 import {usePriceImportRows} from '@/admin/hooks/imports/usePriceImportRows'
-import {usePriceUploadBatches} from '@/admin/hooks/imports/usePriceUploadBatches'
+import {usePriceImportBatches} from '@/admin/hooks/imports/usePriceImportBatches'
 import {useBatchStatusPolling} from '@/admin/hooks/imports/useBatchStatusPolling'
 import {useApproveBatch} from '@/admin/hooks/imports/useApproveBatch'
 import {derivePriceChangeIndicator, getValidationStatusColor,} from '@/admin/hooks/imports/utils'
 import type {BatchStatusResponse, ProductPriceComparisonDto} from '@/admin/hooks/imports/types'
 import {formatAmount} from '@/shared/utils/formatAmount'
-
-function formatUploadDate(dateStr: string): string {
-    return new Date(dateStr).toLocaleString('en-GB', {
-        day: '2-digit',
-        month: 'short',
-        year: 'numeric',
-        hour: '2-digit',
-        minute: '2-digit',
-        hour12: false,
-    })
-}
+import {formatDateTime} from '@/shared/utils/formatDateTime'
+import {PRICE_IMPORT} from '@/admin/api/importEndpoints'
 
 interface BatchMetaItemProps {
     icon: React.ReactNode
@@ -57,7 +48,7 @@ export default function PriceImportReviewPage() {
         {label: 'Price Import Review'},
     ])
 
-    const {data: batches} = usePriceUploadBatches()
+    const {data: batches} = usePriceImportBatches()
     const batch = useMemo(
         () => batches?.find((b) => b.id === batchId) ?? null,
         [batches, batchId],
@@ -92,7 +83,7 @@ export default function PriceImportReviewPage() {
     )
 
     useBatchStatusPolling({
-        endpoint: `/admin/products/price/batches/${batchId}/staged/status`,
+        endpoint: PRICE_IMPORT.status(batchId!),
         enabled: shouldPoll,
         onStatusChange: handleStatusChange,
     })
@@ -111,7 +102,7 @@ export default function PriceImportReviewPage() {
     const handleApprove = async () => {
         try {
             await approveBatch({
-                endpoint: `/admin/products/price/batches/${batchId}/staged/async`,
+                endpoint: PRICE_IMPORT.process(batchId!),
             })
             setIsApproved(true)
         } catch (err) {
@@ -251,7 +242,7 @@ export default function PriceImportReviewPage() {
                 <BatchMetaItem
                     icon={<Calendar className="h-4 w-4"/>}
                     label="Uploaded On"
-                    value={batch?.createdAt ? formatUploadDate(batch.createdAt) : '—'}
+                    value={batch?.createdAt ? formatDateTime(batch.createdAt) : '—'}
                 />
                 <BatchMetaItem
                     icon={<Hash className="h-4 w-4"/>}

@@ -1,10 +1,12 @@
 import { useMutation, useQueryClient } from '@tanstack/react-query'
 
 import { adminHttpClient } from '@/shared/api/http/adminHttpClient'
+import type { ImportType } from '@/admin/api/importEndpoints'
 
 interface UploadCsvParams {
   file: File
   endpoint: string
+  importType?: ImportType
 }
 
 export function useUploadCsv() {
@@ -26,11 +28,17 @@ export function useUploadCsv() {
       })
       return response.data
     },
-    onSuccess: (_data, { endpoint }) => {
-      if (endpoint.includes('price/upload-csv')) {
-        queryClient.invalidateQueries({ queryKey: ['admin-price-upload-batches'] })
-      } else if (endpoint.includes('products/upload-csv')) {
-        queryClient.invalidateQueries({ queryKey: ['admin-product-upload-batches'] })
+    onSuccess: (_data, { endpoint, importType }) => {
+      // Invalidate both old and new endpoints for backwards compatibility
+      if (endpoint.includes('price')) {
+        queryClient.invalidateQueries({ queryKey: ['admin-price-import-batches'] })
+      } else if (endpoint.includes('product')) {
+        queryClient.invalidateQueries({ queryKey: ['admin-product-import-batches'] })
+      }
+
+      // Also invalidate by import type if provided
+      if (importType) {
+        queryClient.invalidateQueries({ queryKey: [`admin-${importType}-import-batches`] })
       }
     },
     onError: () => {

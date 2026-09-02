@@ -64,9 +64,8 @@ describe('FilterSidebar', () => {
     })
 
     it('renders an X close button in the drawer header that closes the drawer', async () => {
-      // The original design had "View results" as the drawer's only closer;
-      // the owner then asked for a clear header close button as well — both
-      // close, the sticky footer "View results" remains the primary action.
+      // Both the header X and the sticky footer "View results" close the
+      // drawer; "View results" remains the primary action.
       const user = userEvent.setup()
       const onDrawerClose = vi.fn()
       render(<FilterSidebar {...defaultProps} drawerOpen={true} onDrawerClose={onDrawerClose} />)
@@ -140,15 +139,12 @@ describe('FilterSidebar', () => {
     })
 
     /*
-      Adopting must be SILENT. This one only surfaced in the browser: a header
-      search set ?q=blanket, the sidebar adopted it, and then published a stale
-      empty string straight back — wiping the search a fraction of a second after
-      it was applied. The URL visibly went ?q=blanket → ?page=1 on its own.
-
-      The cause was an intermediate `debouncedValue` state that could hold the
-      PREVIOUS term while the input and the resync guard already held the new one.
-      Collapsing to a single draft state removed the value that could go stale;
-      this guards the behaviour rather than that particular mechanism.
+      Adopting an external term must be SILENT — publishing anything right after
+      adopting would immediately overwrite whatever set the term (a header
+      search, Clear all, the chip) with a stale value. A single draft state,
+      with no separate debounced mirror, is what removes the possibility of a
+      stale intermediate value; this guards the behaviour rather than any
+      particular mechanism.
     */
     it('publishes NOTHING when it adopts an external term — a header search must survive', async () => {
       const setFilter = vi.fn()

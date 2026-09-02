@@ -4,7 +4,7 @@ import {Check, ChevronLeft, ChevronRight, Pencil, Plus, Trash2, X} from 'lucide-
 import {Button, Input} from '@/shared/ui/primitives'
 import {FormItem, RowActionButton} from '@/shared/ui/components'
 import {formatAmount} from '@/shared/utils/formatAmount'
-import type {VariantAttribute} from '@/admin/hooks/products/types'
+import type {VariantAttribute} from '../types'
 // Operate on the parent product form's values — don't duplicate the shape.
 import type {ProductFormValues} from './ProductForm'
 

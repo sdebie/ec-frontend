@@ -4,7 +4,7 @@ import type {CheckoutFormValues} from '../checkoutFormSchema'
 import {CheckoutSection} from './CheckoutSection'
 
 /**
- * Capabilities only (law 14): `control` and the methods to offer. Auto-selecting
+ * Capabilities only: `control` and the methods to offer. Auto-selecting
  * a lone method belongs to the page, which owns the form — reaching for
  * `setValue` through `useFormContext` would be a write nothing in this signature
  * discloses.

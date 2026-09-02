@@ -126,6 +126,41 @@ describe('AdminLayout', () => {
         expect(screen.getByTestId('admin-sidebar')).toHaveAttribute('data-open', 'false')
     })
 
+    describe('scroll containment', () => {
+        // Regression coverage: the header/sidebar are `fixed`, and previously nothing
+        // bounded the content column's height, so the whole document scrolled and a
+        // page's stickyFooter visibly overlapped content instead of a bounded region
+        // scrolling under a pinned header/footer. See PageLayout's stickyFooter tests
+        // for the footer half of this fix.
+        it('bounds the root to the viewport instead of letting the document grow (h-screen + overflow-hidden, not min-h-screen)', () => {
+            const {container} = render(<AdminLayout/>)
+
+            const root = container.firstElementChild as HTMLElement
+            expect(root.className).toContain('h-screen')
+            expect(root.className).toContain('overflow-hidden')
+            expect(root.className).not.toContain('min-h-screen')
+        })
+
+        it('carries no bottom padding of its own — a sticky footer\'s bottom:0 insets by its scrolling ancestor\'s padding, so any pb-* here would leave a permanent gap under it', () => {
+            render(<AdminLayout/>)
+
+            const main = screen.getByTestId('outlet').closest('main')!
+            const classes = main.className.split(' ')
+            expect(classes).not.toContain('pb-4')
+            expect(classes).not.toContain('md:pb-6')
+            expect(classes).not.toContain('pb-6')
+        })
+
+        it('makes main the sole scrolling region between the fixed header and any page stickyFooter', () => {
+            render(<AdminLayout/>)
+
+            const main = screen.getByTestId('outlet').closest('main')!
+            expect(main.className).toContain('flex-1')
+            expect(main.className).toContain('min-h-0')
+            expect(main.className).toContain('overflow-y-auto')
+        })
+    })
+
     describe('collapsed state vs. viewport (responsive)', () => {
         it('forces the sidebar back out of collapsed mode when the viewport narrows below md:', () => {
             const mq = mockMatchMedia(true) // start at desktop width

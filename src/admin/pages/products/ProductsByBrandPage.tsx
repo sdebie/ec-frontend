@@ -2,11 +2,11 @@ import { useState, useMemo, useEffect } from 'react'
 import { Search } from 'lucide-react'
 import { useBreadcrumb } from '@/admin/context/BreadcrumbContext'
 
-import type { AdminProductListItem } from '@/admin/hooks/products/types'
-import { deriveStockLevel } from '@/admin/hooks/products/types'
-import type { StockLevel } from '@/admin/hooks/products/types'
-import { useAdminProductList } from '@/admin/hooks/products/useAdminProductList'
-import { useBrands } from '@/admin/hooks/products/useBrands'
+import type { AdminProductListItem } from './types'
+import { deriveStockLevel } from './types'
+import type { StockLevel } from './types'
+import { useAdminProductList } from './hooks/useAdminProductList'
+import { useBrands } from './hooks/useBrands'
 import {
   DataTable,
   PageLayout,

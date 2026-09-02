@@ -11,9 +11,9 @@ interface CheckoutNoticeProps {
 
 /**
  * The panel every non-form checkout state uses: expired session, invalid link,
- * payment pending, confirmation. They were four bespoke centred blocks, each
- * with its own `h1` competing with the page heading; this is one panel, styled
- * like the cart's empty state, rendered inside the shared shell.
+ * payment pending, confirmation. One panel, styled like the cart's empty state
+ * and rendered inside the shared shell, so no state gets its own `h1`
+ * competing with the page heading.
  */
 export function CheckoutNotice({heading, body, action, busy = false}: CheckoutNoticeProps) {
     return (

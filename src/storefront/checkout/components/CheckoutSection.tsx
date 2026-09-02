@@ -11,9 +11,9 @@ interface CheckoutSectionProps {
  * A step of the checkout form, in the same panel the order summary uses, so the
  * form reads as a set of cards rather than text on the page background.
  *
- * The three sections each hand-rolled this `<section aria-labelledby>` + `<h2>`
- * pairing; it lives here once so a heading can never drift out of step with the
- * label that points at it.
+ * Shared by all three sections so this `<section aria-labelledby>` + `<h2>`
+ * pairing lives once — a heading can never drift out of step with the label
+ * that points at it.
  */
 export function CheckoutSection({id, title, children}: CheckoutSectionProps) {
     return (
@@ -25,7 +25,7 @@ export function CheckoutSection({id, title, children}: CheckoutSectionProps) {
                 {title}
             </h2>
             {/* One place owns the gap under the heading, so the sections cannot
-                drift apart the way three hand-rolled `mb-4`s did. */}
+                drift apart the way separately hand-rolled `mb-4`s would. */}
             <div className="mt-4">
                 {children}
             </div>

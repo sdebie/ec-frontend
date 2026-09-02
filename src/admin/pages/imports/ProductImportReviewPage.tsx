@@ -8,7 +8,7 @@ import type { ColumnDef } from '@/shared/ui/components'
 import { Button } from '@/shared/ui/primitives'
 import { useCan } from '@/shared/auth/adminPermissions'
 import { useProductImportRows } from '@/admin/hooks/imports/useProductImportRows'
-import { useProductUploadBatches } from '@/admin/hooks/imports/useProductUploadBatches'
+import { useProductImportBatches } from '@/admin/hooks/imports/useProductImportBatches'
 import { useBatchStatusPolling } from '@/admin/hooks/imports/useBatchStatusPolling'
 import { useApproveBatch } from '@/admin/hooks/imports/useApproveBatch'
 import {
@@ -16,17 +16,8 @@ import {
   deriveChangeType,
 } from '@/admin/hooks/imports/utils'
 import type { ProductComparisonDto, BatchStatusResponse } from '@/admin/hooks/imports/types'
-
-function formatUploadDate(dateStr: string): string {
-  return new Date(dateStr).toLocaleString('en-GB', {
-    day: '2-digit',
-    month: 'short',
-    year: 'numeric',
-    hour: '2-digit',
-    minute: '2-digit',
-    hour12: false,
-  })
-}
+import { formatDateTime } from '@/shared/utils/formatDateTime'
+import { PRODUCT_IMPORT } from '@/admin/api/importEndpoints'
 
 interface BatchMetaItemProps {
   icon: React.ReactNode
@@ -59,7 +50,7 @@ export default function ProductImportReviewPage() {
     { label: 'Review Product Import' },
   ])
 
-  const { data: batches } = useProductUploadBatches()
+  const { data: batches } = useProductImportBatches()
   const batch = useMemo(
     () => batches?.find((b) => b.id === batchId) ?? null,
     [batches, batchId],
@@ -91,7 +82,7 @@ export default function ProductImportReviewPage() {
     currentStatus === 'IMPORTING' || currentStatus === 'PROCESSING' || currentStatus === null
 
   useBatchStatusPolling({
-    endpoint: `/admin/products/batches/${batchId}/staged/status`,
+    endpoint: PRODUCT_IMPORT.status(batchId!),
     enabled: pollingEnabled,
     onStatusChange: handleStatusChange,
   })
@@ -110,7 +101,7 @@ export default function ProductImportReviewPage() {
   const handleApprove = async () => {
     try {
       await approveBatch({
-        endpoint: `/admin/products/batches/${batchId}/staged/async`,
+        endpoint: PRODUCT_IMPORT.process(batchId!),
       })
       setIsApproved(true)
       setBatchStatus((prev) => prev ? { ...prev, status: 'PROCESSING' } : null)
@@ -202,7 +193,7 @@ export default function ProductImportReviewPage() {
         <BatchMetaItem
           icon={<Calendar className="h-4 w-4" />}
           label="Uploaded On"
-          value={batch?.createdAt ? formatUploadDate(batch.createdAt) : '—'}
+          value={batch?.createdAt ? formatDateTime(batch.createdAt) : '—'}
         />
         <BatchMetaItem
           icon={<Hash className="h-4 w-4" />}

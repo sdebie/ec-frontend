@@ -17,19 +17,13 @@ import {StatsSection} from './StatsSection'
 type AnySectionComponent = React.ComponentType<{ section: SectionConfig }>
 
 /*
-  Two deliberate categories of a section:
-
-  1. Config-embedded — all content lives in the section's `props` in the
-     storefront.home_sections JSON (hero, benefits, cta, testimonials,
-     accreditors, stats, content-split). Use for content with no DB entity of its own.
-
-  2. DB-entity-backed — the section's props carry only display hints
-     (heading, limit, categorySlug); the content is fetched live from its
-     own table via existing hooks (featured-products, brands,
-     category-showcase). Use whenever the data already has a table —
-     never duplicate DB entities into the config JSON.
-
-  When adding a section type, decide its category explicitly.
+  A section is either config-embedded — all content lives in its `props` in
+  the storefront.home_sections JSON (hero, benefits, cta, testimonials,
+  accreditors, stats, content-split) — or DB-entity-backed, where props carry
+  only display hints (heading, limit, categorySlug) and the content is
+  fetched live from its own table via existing hooks (featured-products,
+  brands, category-showcase). Never duplicate a DB entity into the config
+  JSON. When adding a section type, decide its category explicitly.
 */
 export const sectionRegistry: Partial<Record<SectionConfig['type'], AnySectionComponent>> = {
     'hero': HeroSection as AnySectionComponent,

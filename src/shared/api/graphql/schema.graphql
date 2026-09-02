@@ -1,3 +1,12 @@
+type AddressDto {
+  city: String
+  line1: String
+  line2: String
+  postalCode: String
+  province: String
+  suburb: String
+}
+
 type AdminCustomerDetailDto {
   email: String
   firstName: String
@@ -35,6 +44,7 @@ type AdminOrderDetailDto {
   grandTotal: BigDecimal
   id: String
   itemCount: Int!
+  latestPayment: AdminOrderPaymentDto
   lineItems: [AdminOrderLineItemDto]
   placedAt: String
   reference: String
@@ -67,6 +77,14 @@ type AdminOrderListItemDto {
   reference: String
   status: String
   total: BigDecimal
+}
+
+type AdminOrderPaymentDto {
+  amountGross: BigDecimal
+  externalReference: String
+  gateway: String
+  receivedAt: String
+  status: String
 }
 
 type AdminOrderRefDto {
@@ -147,8 +165,6 @@ type Mutation {
   "Creates a new staff user"
   addStaffUser(staffDto: StaffDtoInput): Void
   approveWholesaleApplication(id: String): WholesaleApplicationDetailsDto
-  "Completes a customer password reset using a valid token."
-  completeCustomerPasswordReset(newPassword: String, token: String): String
   createBrand(brandDto: BrandDtoInput): Void
   "Create a new category"
   createCategory(categoryDto: CategoryDtoInput): Void
@@ -156,11 +172,11 @@ type Mutation {
   deleteBrand(id: String): Void
   "Delete a category"
   deleteCategory(id: String): Void
-  "Delete a product and all its variants. SUPER_ADMIN only."
-  deleteProduct(id: String): Void
-  "Initiates a customer password reset. Always returns a generic message."
-  initiateCustomerPasswordReset(email: String): String
+  "Delete a product and all its variants. If any variant has order history, the product and its variants are archived (status DISABLED) instead, to preserve order records — check the returned outcome to tell which happened. SUPER_ADMIN only."
+  deleteProduct(id: String): ProductDeletionOutcome
+  generateAndSendQuote(id: String, items: [QuoteItemPriceInputInput], notes: String): QuoteRequestDetailsDto
   rejectWholesaleApplication(id: String, reason: String): WholesaleApplicationDetailsDto
+  saveQuoteDraft(id: String, items: [QuoteItemPriceInputInput], notes: String): QuoteRequestDetailsDto
   saveShippingMethod(methodDto: ShippingMethodDtoInput): ShippingMethodDto
   saveStoreSettings(storeSettingsDto: [StoreSettingsDtoInput]): [StoreSettingsDto]
   "Toggle the featured flag on a product. SUPER_ADMIN only."
@@ -404,7 +420,7 @@ type ProductShoppingListItemDto {
   wholesaleSalePrice: VariantPriceDto
 }
 
-type ProductUploadBatchDto {
+type ProductImportBatchDto {
   approvedByUsername: String
   "ISO-8601"
   completedAt: DateTime
@@ -412,6 +428,7 @@ type ProductUploadBatchDto {
   createdAt: DateTime
   filename: String
   id: String
+  importSourceType: String
   processedRows: Int
   skippedRows: Int
   status: String
@@ -449,7 +466,7 @@ type ProductVariantDto {
 "Query root"
 type Query {
   adminCustomer(id: String): AdminCustomerDetailDto
-  "Admin order detail: lines, address, money breakdown and status timeline. Staff JWT required."
+  "Admin order detail: lines, address, money breakdown, status timeline and latest payment. Staff JWT required."
   adminOrder(id: String): AdminOrderDetailDto
   "Admin paginated order list with customer, item count and total. Staff JWT required."
   adminOrderList(fromDate: String, fulfilmentState: String, pageIndex: Int = 0, pageSize: Int = 10, paymentState: String, sortBy: String, sortDir: String, toDate: String): PageResponse_AdminOrderListItemDto
@@ -491,10 +508,9 @@ type Query {
   importRows(batchId: String): [ProductComparisonDto]
   "Get authenticated customer's order history"
   myOrders: [OrderSummaryDto]
-  "Update an order and return"
-  orderById(id: String): OrderResponseDto
   "Poll one order's status by id — the guest checkout success page"
   orderStatus(orderId: String): OrderStatusRespDto
+  previewQuoteEmail(id: String, items: [QuoteItemPriceInputInput], notes: String): String
   "Returns the total number of products matching the given filter, optionally scoped to a category (including subcategories) and/or a brand."
   productCount(
     "Optional brand UUID. Restricts count to products linked to this brand."
@@ -503,10 +519,10 @@ type Query {
     categoryId: String,
     filterRequest: FilterRequestInput
   ): BigInteger!
-  "Returns the list of all product price upload batches"
-  productPriceUploadBatches: [ProductUploadBatchDto]
-  "Returns the list of all product upload batches"
-  productUploadBatches: [ProductUploadBatchDto]
+  "Returns the list of all product import batches"
+  productImportBatches: [ProductImportBatchDto]
+  "Returns the list of all product price import batches"
+  productPriceImportBatches: [ProductImportBatchDto]
   quoteRequest(id: String): QuoteRequestDetailsDto
   quoteRequestCount(filterRequest: FilterRequestInput): BigInteger!
   "Returns shopping product cards that currently have active RETAIL_SALE_PRICE or WHOLESALE_SALE_PRICE values only."
@@ -561,14 +577,20 @@ type QuoteRequestDetailsDto {
   message: String
   name: String
   phone: String
+  quotedAmount: BigDecimal
+  quotedByName: String
+  quotedNotes: String
   status: QuoteRequestStatusEn
   "ISO-8601"
   statusChangedAt: DateTime
 }
 
 type QuoteRequestItemDto {
+  id: String
+  lineTotal: BigDecimal
   productNameSnapshot: String
   quantity: Int!
+  unitPrice: BigDecimal
   variantId: String
   variantSkuSnapshot: String
 }
@@ -650,18 +672,8 @@ type WholesaleApplicationDetailsDto {
   lastName: String
   notes: String
   phone: String
-  physicalAddressLine1: String
-  physicalAddressLine2: String
-  physicalCity: String
-  physicalPostalCode: String
-  physicalProvince: String
-  physicalSuburb: String
-  postalAddressLine1: String
-  postalAddressLine2: String
-  postalCity: String
-  postalPostalCode: String
-  postalProvince: String
-  postalSuburb: String
+  physicalAddress: AddressDto
+  postalAddress: AddressDto
   "ISO-8601"
   processedAt: DateTime
   purchaseOrderRequired: Boolean
@@ -696,18 +708,8 @@ type WholesaleCustomerDto {
   lastName: String
   notes: String
   phone: String
-  physicalAddressLine1: String
-  physicalAddressLine2: String
-  physicalCity: String
-  physicalPostalCode: String
-  physicalProvince: String
-  physicalSuburb: String
-  postalAddressLine1: String
-  postalAddressLine2: String
-  postalCity: String
-  postalPostalCode: String
-  postalProvince: String
-  postalSuburb: String
+  physicalAddress: AddressDto
+  postalAddress: AddressDto
   purchaseOrderRequired: Boolean
   regNumber: String
   status: WholesaleCustomerStatusEn
@@ -773,15 +775,23 @@ enum PriceBasisEn {
   WHOLESALE
 }
 
+enum ProductDeletionOutcome {
+  ARCHIVED
+  DELETED
+}
+
 enum ProductImportValidationStatusEn {
   INVALID
   VALID
 }
 
 enum QuoteRequestStatusEn {
+  CANCELED
   CLOSED
   IN_PROGRESS
   NEW
+  QUOTE_DRAFTED
+  QUOTE_SENT
 }
 
 enum SortDirection {
@@ -810,6 +820,15 @@ enum WholesaleCustomerStatusEn {
   DISABLED
   PENDING
   REJECTED
+}
+
+input AddressDtoInput {
+  city: String
+  line1: String
+  line2: String
+  postalCode: String
+  province: String
+  suburb: String
 }
 
 input BrandDtoInput {
@@ -917,6 +936,11 @@ input ProductVariantDtoInput {
   weightKg: BigDecimal
 }
 
+input QuoteItemPriceInputInput {
+  itemId: String!
+  unitPrice: BigDecimal!
+}
+
 input ShippingMethodDtoInput {
   active: Boolean!
   baseFee: BigDecimal
@@ -980,18 +1004,8 @@ input WholesaleCustomerDtoInput {
   lastName: String
   notes: String
   phone: String
-  physicalAddressLine1: String
-  physicalAddressLine2: String
-  physicalCity: String
-  physicalPostalCode: String
-  physicalProvince: String
-  physicalSuburb: String
-  postalAddressLine1: String
-  postalAddressLine2: String
-  postalCity: String
-  postalPostalCode: String
-  postalProvince: String
-  postalSuburb: String
+  physicalAddress: AddressDtoInput
+  postalAddress: AddressDtoInput
   purchaseOrderRequired: Boolean
   regNumber: String
   status: WholesaleCustomerStatusEn

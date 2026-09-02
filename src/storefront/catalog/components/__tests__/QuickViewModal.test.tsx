@@ -150,22 +150,28 @@ describe('QuickViewModal', () => {
   })
 
   describe('portal attributes', () => {
+    // Dialog resolves these onto its own themed wrapper (the nearest
+    // [data-surface] ancestor of the dialog panel), not a QuickView-owned
+    // element — see Dialog.test.tsx's identical pattern.
+    function themedPortalRoot() {
+      return (document.body.querySelector('[role="dialog"]') as HTMLElement).closest(
+        '[data-surface]'
+      ) as HTMLElement
+    }
+
     it('carries data-surface on the portal container', () => {
       renderModal()
-      const portal = screen.getByTestId('quick-view-portal')
-      expect(portal).toHaveAttribute('data-surface', 'storefront')
+      expect(themedPortalRoot()).toHaveAttribute('data-surface', 'storefront')
     })
 
     it('carries data-theme on the portal container', () => {
       renderModal()
-      const portal = screen.getByTestId('quick-view-portal')
-      expect(portal).toHaveAttribute('data-theme', 'uvh')
+      expect(themedPortalRoot()).toHaveAttribute('data-theme', 'uvh')
     })
 
     it('carries data-density on the portal container', () => {
       renderModal()
-      const portal = screen.getByTestId('quick-view-portal')
-      expect(portal).toHaveAttribute('data-density', 'comfortable')
+      expect(themedPortalRoot()).toHaveAttribute('data-density', 'comfortable')
     })
   })
 
@@ -245,7 +251,7 @@ describe('QuickViewModal', () => {
   describe('backdrop close', () => {
     it('clicking the backdrop calls onClose', () => {
       const { onClose } = renderModal()
-      const backdrop = screen.getByTestId('quick-view-backdrop')
+      const backdrop = document.querySelector('[aria-hidden="true"]')!
       fireEvent.click(backdrop)
       expect(onClose).toHaveBeenCalledTimes(1)
     })

@@ -1,4 +1,4 @@
-import {useCallback, useEffect, useMemo, useRef, useState} from 'react'
+import {useCallback, useEffect, useMemo, useState} from 'react'
 import {useNavigate, useSearchParams} from 'react-router-dom'
 import {useBreadcrumb} from '@/admin/context/BreadcrumbContext'
 import type {PaginationState, Updater} from '@tanstack/react-table'
@@ -23,16 +23,7 @@ export function BrandListPage() {
     const [searchInput, setSearchInput] = useState(urlSearch)
     const [debouncedSearch, setDebouncedSearch] = useState(urlSearch)
 
-    const hasMountedRef = useRef(false)
-    useEffect(() => {
-        const id = setTimeout(() => {
-            hasMountedRef.current = true
-        }, 0)
-        return () => clearTimeout(id)
-    }, [])
-
     const handlePaginationChange = useCallback((updater: Updater<PaginationState>) => {
-        if (!hasMountedRef.current) return
         const next = typeof updater === 'function' ? updater(pagination) : updater
         setSearchParams((prev) => {
             const params = new URLSearchParams(prev)

@@ -1,29 +1,45 @@
 import * as React from 'react'
+import {cva} from 'class-variance-authority'
 import {cn} from '@/shared/utils/cn'
 
 type CardElement = 'div' | 'section' | 'article' | 'aside' | 'main' | 'header' | 'footer'
-type CardElevation = 'none' | 'sm'
 
-export interface CardProps extends React.HTMLAttributes<HTMLElement> {
+const cardVariants = cva('text-(--c-text) rounded-(--c-radius)', {
+    variants: {
+        variant: {
+            panel: 'bg-(--c-panel) shadow-(--c-shadow-sm)',
+            bordered: 'bg-(--c-panel) border border-(--c-border)',
+            plain: '',
+        },
+        clickable: {
+            true: 'cursor-pointer',
+            false: '',
+        },
+    },
+    defaultVariants: {
+        variant: 'panel',
+        clickable: false,
+    },
+})
+
+export interface CardProps extends Omit<React.HTMLAttributes<HTMLElement>, 'onClick'> {
     as?: CardElement
-    bordered?: boolean
-    padded?: boolean
-    elevation?: CardElevation
+    variant?: 'panel' | 'bordered' | 'plain'
+    clickable?: boolean
+    onClick?: (e: React.MouseEvent) => void
 }
 
 const CardRoot = React.forwardRef<HTMLElement, CardProps>(
-    ({as = 'div', bordered = true, padded = true, elevation = 'sm', className, ...props}, ref) => {
+    ({as = 'div', variant = 'panel', clickable = false, className, onClick, ...props}, ref) => {
         const Component = as as React.ElementType
         return (
             <Component
                 ref={ref as React.Ref<HTMLElement>}
                 className={cn(
-                    'bg-(--c-panel) text-(--c-text) rounded-(--c-radius)',
-                    bordered && 'border border-(--c-border)',
-                    padded && 'p-4',
-                    elevation === 'sm' && 'shadow-(--c-shadow-sm)',
+                    cardVariants({variant, clickable}),
                     className
                 )}
+                onClick={onClick}
                 {...(props as React.HTMLAttributes<HTMLElement>)}
             />
         )

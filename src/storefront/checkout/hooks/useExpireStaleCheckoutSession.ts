@@ -1,8 +1,7 @@
 import { useEffect } from 'react'
 import { useCartStore, type CartLineItem } from '@/storefront/cart/store/cartStore'
 import { useCheckoutSessionStore } from '../store/checkoutSessionStore'
-import { cartSignature } from '../utils/cartSignature'
-import type { CheckoutSession } from '../types'
+import { isCheckoutSessionStale } from '../utils/cartSignature'
 
 /**
  * A checkout session describes ONE priced order. If the cart no longer matches
@@ -29,16 +28,9 @@ export function useExpireStaleCheckoutSession() {
     }, [])
 }
 
-function sessionSignature(session: CheckoutSession): string {
-    return session.lines
-        .map((line) => `${line.variantId}:${line.quantity}`)
-        .sort()
-        .join('|')
-}
-
 function expireIfStale(items: CartLineItem[]): void {
-    const { session, clearSession } = useCheckoutSessionStore.getState()
+    const { session, clearCheckoutIntent } = useCheckoutSessionStore.getState()
     if (!session) return
-    if (cartSignature(items) === sessionSignature(session)) return
-    clearSession()
+    if (!isCheckoutSessionStale(session, items)) return
+    clearCheckoutIntent()
 }

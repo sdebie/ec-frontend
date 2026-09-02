@@ -53,7 +53,7 @@ export function RichTextEditor({value, onChange, disabled = false}: RichTextEdit
         }
     }, [editor, disabled])
 
-    // Sync content only when value changes externally (e.g. loading from API).
+    // Sync content only when the value changes externally (e.g. loading from API).
     // We track whether the editor itself triggered the change to avoid resetting
     // the editor on every keystroke — which would break heading/list toggling.
     const isInternalUpdate = useRef(false)
@@ -85,12 +85,10 @@ export function RichTextEditor({value, onChange, disabled = false}: RichTextEdit
     if (!editor) return null
 
     return (
-        <div className={cn(
-            'rounded-[var(--admin-radius)] border border-admin-border bg-admin-panel',
-            disabled && 'opacity-60 pointer-events-none'
-        )}>
+        <div
+            className={cn('rounded-(--c-radius) border border-(--c-border) bg-(--c-panel)', disabled && 'opacity-60 pointer-events-none')}>
             {/* Toolbar */}
-            <div className="flex flex-wrap items-center gap-0.5 border-b border-admin-border px-2 py-1.5">
+            <div className="flex flex-wrap items-center gap-0.5 border-b border-(--c-border) px-2 py-1.5">
                 <ToolbarButton
                     onClick={() => editor.chain().focus().toggleHeading({level: 1}).run()}
                     isActive={editor.isActive('heading', {level: 1})}
@@ -184,7 +182,7 @@ export function RichTextEditor({value, onChange, disabled = false}: RichTextEdit
 
             <EditorContent
                 editor={editor}
-                className="px-4 py-3 text-admin-text text-sm min-h-[200px] max-h-[70vh] overflow-y-auto focus-within:outline-none [&_.tiptap]:outline-none [&_.tiptap]:min-h-[200px]"
+                className="px-4 py-3 text-(--c-text) text-sm min-h-50 max-h-[70vh] overflow-y-auto focus-within:outline-none [&_.tiptap]:outline-none [&_.tiptap]:min-h-50"
             />
         </div>
     )
@@ -206,10 +204,10 @@ function ToolbarButton({onClick, isActive, title, disabled, children}: ToolbarBu
             disabled={disabled}
             title={title}
             className={cn(
-                'flex items-center justify-center rounded-[var(--admin-radius-sm)] p-1.5 transition-colors',
-                'text-admin-text-muted hover:bg-admin-sidebar-hover hover:text-admin-text',
+                'flex items-center justify-center rounded-(--c-radius-sm) p-1.5 transition-colors',
+                'text-(--c-text-muted) hover:bg-(--c-surface-hover) hover:text-(--c-text)',
                 'disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:bg-transparent',
-                isActive && 'bg-primary-subtle text-[var(--primary)]'
+                isActive && 'bg-primary-subtle text-primary'
             )}
         >
             {children}
@@ -218,5 +216,5 @@ function ToolbarButton({onClick, isActive, title, disabled, children}: ToolbarBu
 }
 
 function ToolbarDivider() {
-    return <div className="mx-1 h-5 w-px bg-admin-border"/>
+    return <div className="mx-1 h-5 w-px bg-(--c-border)"/>
 }

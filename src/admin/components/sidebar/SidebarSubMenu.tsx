@@ -1,4 +1,4 @@
-import {useMemo, useState} from 'react'
+import {useMemo} from 'react'
 import {matchPath, useLocation} from 'react-router-dom'
 import {hasRequiredAuthority} from '@/shared/utils/authorizationHelper'
 import {cn} from '@/shared/utils/cn'
@@ -11,9 +11,11 @@ interface SidebarSubMenuProps {
     isCollapsed: boolean
     setCollapsed: (collapsed: boolean) => void
     onItemClick?: () => void
-    // Longest-matching-path group for the current URL, computed once across all
-    // top-level routes in AdminSidebar — see AdminSidebar.tsx's activeGroupKey.
+    // Longest-matching-path group for the current URL — see AdminSidebar.tsx's activeGroupKey.
     isActiveGroup?: boolean
+    // Accordion state lifted to AdminSidebar — this submenu is open exactly when expandedGroupKey === route.key.
+    expandedGroupKey: string | null
+    onExpandGroup: (key: string | null) => void
 }
 
 export function SidebarSubMenu({
@@ -22,6 +24,8 @@ export function SidebarSubMenu({
                                    setCollapsed,
                                    onItemClick,
                                    isActiveGroup,
+                                   expandedGroupKey,
+                                   onExpandGroup,
                                }: SidebarSubMenuProps) {
     const location = useLocation()
 
@@ -39,15 +43,15 @@ export function SidebarSubMenu({
     }
 
     const hasActiveChild = authorizedChildren.some((child) => matchesRoute(child))
-    const [isExpanded, setIsExpanded] = useState(() => hasActiveChild)
+    const isExpanded = expandedGroupKey === route.key
 
     const toggleExpand = () => {
         if (isCollapsed) {
             setCollapsed(false)
-            setIsExpanded(true)
+            onExpandGroup(route.key)
             return
         }
-        setIsExpanded((prev) => !prev)
+        onExpandGroup(isExpanded ? null : route.key)
     }
 
     return (
@@ -81,6 +85,8 @@ export function SidebarSubMenu({
                                 isCollapsed={isCollapsed}
                                 setCollapsed={setCollapsed}
                                 onItemClick={onItemClick}
+                                expandedGroupKey={expandedGroupKey}
+                                onExpandGroup={onExpandGroup}
                             />
                         </li>
                     ))}

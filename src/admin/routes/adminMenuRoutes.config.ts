@@ -7,7 +7,7 @@ export const adminMenuRoutes: AdminRouteList = [
         key: 'admin.dashboard',
         path: '/admin/dashboard',
         component: lazy(() =>
-            import('@/admin/pages/AdminDashboardPage').then((m) => ({default: m.AdminDashboardPage}))
+            import('@/admin/pages/dashboard/AdminDashboardPage').then((m) => ({default: m.AdminDashboardPage}))
         ),
         authority: ['SUPER_ADMIN', 'CATALOG_MANAGER', 'ORDER_MANAGER', 'VIEWER'],
         meta: {
@@ -345,7 +345,7 @@ export const adminMenuRoutes: AdminRouteList = [
         key: 'admin.storefront.header',
         path: '/admin/storefront/header',
         component: lazy(() =>
-            import('@/admin/pages/storefront-config/AnnouncementEditorPage').then((m) => ({default: m.AnnouncementEditorPage}))
+            import('@/admin/pages/storefront-config/announcement/AnnouncementEditorPage').then((m) => ({default: m.AnnouncementEditorPage}))
         ),
         authority: ['SUPER_ADMIN'],
         meta: {
@@ -360,7 +360,7 @@ export const adminMenuRoutes: AdminRouteList = [
         key: 'admin.storefront.legal',
         path: '/admin/storefront/legal',
         component: lazy(() =>
-            import('@/admin/pages/storefront-config/LegalPagesListPage').then((m) => ({default: m.LegalPagesListPage}))
+            import('@/admin/pages/storefront-config/legal-pages/LegalPagesListPage').then((m) => ({default: m.LegalPagesListPage}))
         ),
         authority: ['SUPER_ADMIN', 'VIEWER'],
         meta: {
@@ -390,7 +390,7 @@ export const adminMenuRoutes: AdminRouteList = [
         key: 'admin.storefront.contact',
         path: '/admin/storefront/contact',
         component: lazy(() =>
-            import('@/admin/pages/storefront-config/ContactEditorPage').then((m) => ({default: m.ContactEditorPage}))
+            import('@/admin/pages/storefront-config/contact/ContactEditorPage').then((m) => ({default: m.ContactEditorPage}))
         ),
         authority: ['SUPER_ADMIN', 'VIEWER'],
         meta: {
@@ -405,7 +405,7 @@ export const adminMenuRoutes: AdminRouteList = [
         key: 'admin.storefront.testimonials',
         path: '/admin/storefront/testimonials',
         component: lazy(() =>
-            import('@/admin/pages/storefront-config/TestimonialsPage').then((m) => ({default: m.TestimonialsPage}))
+            import('@/admin/pages/storefront-config/testimonials/TestimonialsPage').then((m) => ({default: m.TestimonialsPage}))
         ),
         authority: ['SUPER_ADMIN', 'VIEWER'],
         meta: {
@@ -432,7 +432,7 @@ export const adminMenuRoutes: AdminRouteList = [
                 key: 'admin.settings.shipping',
                 path: '/admin/settings/shipping',
                 component: lazy(() =>
-                    import('@/admin/pages/settings/ShippingMethodsPage').then((m) => ({default: m.ShippingMethodsPage}))
+                    import('@/admin/pages/settings/shipping-methods/ShippingMethodsPage').then((m) => ({default: m.ShippingMethodsPage}))
                 ),
                 authority: ['SUPER_ADMIN', 'CATALOG_MANAGER', 'ORDER_MANAGER', 'VIEWER'],
                 meta: {
@@ -458,7 +458,7 @@ export const adminMenuRoutes: AdminRouteList = [
                 key: 'admin.settings.countries',
                 path: '/admin/settings/countries',
                 component: lazy(() =>
-                    import('@/admin/pages/settings/CountrySettingsPage').then((m) => ({default: m.CountrySettingsPage}))
+                    import('@/admin/pages/settings/country-settings/CountrySettingsPage').then((m) => ({default: m.CountrySettingsPage}))
                 ),
                 authority: ['SUPER_ADMIN', 'CATALOG_MANAGER', 'ORDER_MANAGER', 'VIEWER'],
                 meta: {

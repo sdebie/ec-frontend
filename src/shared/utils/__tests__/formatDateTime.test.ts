@@ -1,6 +1,6 @@
 import { describe, it, expect } from 'vitest'
 
-import { formatDate, formatTime, formatDateTime } from '../formatDateTime'
+import { formatDate, formatTime, formatDateTime, formatDisplayDate, formatDisplayDateTime } from '../formatDateTime'
 
 /**
  * The shape is the point. Staff scan these down a column, so it has to be identical on
@@ -49,5 +49,34 @@ describe('formatDateTime', () => {
     /** No dangling separator when there is nothing to join. */
     it('returns empty rather than a lone space for a bad value', () => {
         expect(formatDateTime('not a date')).toBe('')
+    })
+})
+
+describe('formatDisplayDate', () => {
+    it('renders day month(short) year', () => {
+        expect(formatDisplayDate('2026-08-15T14:30:00')).toBe('15 Aug 2026')
+    })
+
+    it('zero-pads a single-digit day, so cards in a grid do not jitter width', () => {
+        expect(formatDisplayDate('2026-08-05T14:30:00')).toBe('05 Aug 2026')
+    })
+
+    it('handles the year boundaries', () => {
+        expect(formatDisplayDate('2026-01-01T00:00:00')).toBe('01 Jan 2026')
+        expect(formatDisplayDate('2026-12-31T23:59:00')).toBe('31 Dec 2026')
+    })
+
+    it.each([null, undefined, '', 'not a date'])('returns empty for %s rather than throwing', (value) => {
+        expect(formatDisplayDate(value)).toBe('')
+    })
+})
+
+describe('formatDisplayDateTime', () => {
+    it('joins the date and time with a comma', () => {
+        expect(formatDisplayDateTime('2026-08-15T14:30:00')).toBe('15 Aug 2026, 14:30')
+    })
+
+    it('returns empty rather than a dangling comma for a bad value', () => {
+        expect(formatDisplayDateTime('not a date')).toBe('')
     })
 })

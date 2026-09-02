@@ -16,9 +16,11 @@ import {useShippingMethods} from './hooks/useShippingMethods'
 import {usePaymentMethods} from './hooks/usePaymentMethods'
 import {useCheckoutSessionStore} from './store/checkoutSessionStore'
 import {useCustomerAuthStore} from '@/shared/auth/customerAuthStore'
+import {useCartStore} from '@/storefront/cart/store/cartStore'
 import {checkoutFormSchema, type CheckoutFormValues} from './checkoutFormSchema'
 import {requiresDeliveryAddress} from './utils/requiresDeliveryAddress'
 import {availablePaymentMethods} from './utils/availablePaymentMethods'
+import {isCheckoutSessionStale} from './utils/cartSignature'
 import {ACCENT_BUTTON_HOVER, SF_FOCUS_RING_PAGE} from '@/storefront/sections/shared'
 
 /**
@@ -27,11 +29,19 @@ import {ACCENT_BUTTON_HOVER, SF_FOCUS_RING_PAGE} from '@/storefront/sections/sha
  * `PaymentSection`, `OrderSummary`, and `CheckoutNotice` for the states that are
  * not the form. Placing the order lives in `useCheckoutSubmit`.
  *
- * The sections receive capabilities, never the form object (law 14), so the page
+ * The sections receive capabilities, never the form object, so the page
  * is the single place form state is mutated.
  */
 export function CheckoutPage() {
     const session = useCheckoutSessionStore((state) => state.session)
+    const clearOrder = useCheckoutSessionStore((state) => state.clearOrder)
+    const cartItems = useCartStore((state) => state.items)
+    // A session the live cart has since diverged from (shopper went back to the
+    // cart mid-flow and changed it, then returned here without going through
+    // useCheckout() again — browser forward, a restored tab) is as unusable as no
+    // session at all: its lines/totals are what an EARLIER cart was priced for,
+    // not this one. Treated identically to `!session` below, never rendered.
+    const isStale = session !== null && isCheckoutSessionStale(session, cartItems)
     const {isSignedIn, email, firstName, lastName} = useCustomerAuthStore()
 
     const {data: shippingMethods} = useShippingMethods()
@@ -39,7 +49,8 @@ export function CheckoutPage() {
 
     // Requirement 3.5/3.6: the order under checkout comes only from the store now —
     // no ?orderId= query string to read, and so no second source that could disagree
-    // with it. Guarded by `if (!session)` below before either is dereferenced.
+    // with it. Guarded by `if (!session || isStale)` below before either is
+    // dereferenced.
     const {placeOrder, isSubmitting, error: submitError} = useCheckoutSubmit(
         session?.orderId ?? '',
         session?.orderToken ?? '',
@@ -72,6 +83,14 @@ export function CheckoutPage() {
         () => availablePaymentMethods(paymentMethods ?? [], requiresAddress),
         [paymentMethods, requiresAddress],
     )
+
+    // Forgets a diverged session outright rather than leaving it inert: without
+    // this, a shopper who edits their cart back to a coincidentally-matching state
+    // (e.g. removes then re-adds the same line) would find the stale order valid
+    // again, bypassing the guard below by accident.
+    useEffect(() => {
+        if (isStale) clearOrder()
+    }, [isStale, clearOrder])
 
     // Pre-fill from the signed-in profile
     useEffect(() => {
@@ -130,7 +149,7 @@ export function CheckoutPage() {
         reset: methods.reset,
     })
 
-    if (!session) {
+    if (!session || isStale) {
         return (
             <CheckoutShell>
                 <CheckoutNotice

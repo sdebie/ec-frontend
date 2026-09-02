@@ -2,14 +2,14 @@ import { describe, it, expect, vi, beforeEach } from 'vitest'
 import { render, screen, fireEvent } from '@testing-library/react'
 import { MemoryRouter } from 'react-router-dom'
 
-import { useAdminProductList } from '@/admin/hooks/products/useAdminProductList'
-import { useBrands } from '@/admin/hooks/products/useBrands'
+import { useAdminProductList } from '../hooks/useAdminProductList'
+import { useBrands } from '../hooks/useBrands'
 import { ProductsByBrandPage } from '../ProductsByBrandPage'
 
-vi.mock('@/admin/hooks/products/useAdminProductList', () => ({
+vi.mock('../hooks/useAdminProductList', () => ({
   useAdminProductList: vi.fn(),
 }))
-vi.mock('@/admin/hooks/products/useBrands', () => ({
+vi.mock('../hooks/useBrands', () => ({
   useBrands: vi.fn(),
 }))
 

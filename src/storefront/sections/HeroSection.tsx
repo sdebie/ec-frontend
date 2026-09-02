@@ -69,9 +69,9 @@ const SURFACE_BACKGROUND_STYLE: Partial<Record<HeroContentSurface, CSSProperties
 // full-viewport band. `dvh` tracks mobile chrome collapsing on scroll.
 //
 // Both keep a px floor so a short window still gets a usable band.
-// Panel skin. Both entries are `bg-black/*` — the documented theme-law overlay
-// exception. A token would be wrong: the panel darkens whatever is behind it
-// rather than carrying a client colour.
+// Panel skin. Both entries are `bg-black/*` — a documented overlay exception.
+// A token would be wrong: the panel darkens whatever is behind it rather than
+// carrying a client colour.
 //
 // Over a photo a bounded panel guarantees contrast but cuts a visible rectangle
 // out of the image; use `overlayStyle: 'gradient-left'` for the same contrast
@@ -88,9 +88,9 @@ const PANEL_CLASS = {
  * 'uniform' is the original flat wash: one opacity across the whole image.
  *
  * 'gradient-left' ramps from `opacity` at the leading edge to fully transparent
- * by 80%. The stops hold near-full strength through 35% — the copy column runs
- * to roughly 57% of the viewport — then fall away, so the ramp is doing real
- * work everywhere text sits and nothing where it doesn't. The intermediate stop
+ * by 80%. The stops hold near-full strength through 35%, where the copy column
+ * sits, then fall away, so the ramp is doing real work everywhere text sits and
+ * nothing where it doesn't. The intermediate stop
  * is what keeps the falloff smooth; a two-stop ramp puts a visible band across
  * the middle of the photograph, which is the seam this treatment exists to
  * avoid. `.toFixed(3)` keeps the derived alphas out of float-noise territory in
@@ -110,10 +110,9 @@ function scrimStyle(style: 'uniform' | 'gradient-left', opacity: number): CSSPro
  * Sub-`md` companion to the left-to-right ramp.
  *
  * A horizontal ramp is only correct while the copy occupies a COLUMN. On a phone
- * the copy is full-bleed, so every line runs straight through the fade and out
- * onto bare photograph — the right-hand half of the intro and footnote were
- * sitting on an unmasked warehouse trolley. The ramp therefore turns vertical
- * below `md`: it keeps the top of the image open, then holds full strength down
+ * the copy is full-bleed, so every line would run straight through the fade and
+ * out onto bare, unmasked photograph. The ramp therefore turns vertical below
+ * `md`: it keeps the top of the image open, then holds full strength down
  * through the band where the copy actually sits.
  */
 function mobileScrimStyle(opacity: number): CSSProperties {

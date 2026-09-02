@@ -81,6 +81,7 @@ const mockOrder: AdminOrderDetail = {
       staffName: 'Admin User',
     },
   ],
+  latestPayment: null,
 }
 
 // --- Setup Helpers ---
@@ -177,7 +178,7 @@ describe('OrderDetailPage', () => {
 
       renderPage()
 
-      expect(screen.getByTestId('order-action-buttons')).toBeInTheDocument()
+      expect(screen.getByTestId('order-actions-panel')).toBeInTheDocument()
     })
 
     it('renders the actions a PAID order allows, and none it does not', () => {
@@ -185,11 +186,10 @@ describe('OrderDetailPage', () => {
 
       renderPage()
 
-      // A paid order is processed next; the cancellations stay available because its
-      // goods have not left. Refunding needs the goods delivered or collected first.
+      // A paid order is processed next (primary button); cancellations are in
+      // the "More actions" dropdown. Refunding needs goods delivered first.
       expect(screen.getByRole('button', { name: 'Start Processing' })).toBeInTheDocument()
-      expect(screen.getByRole('button', { name: 'Cancel — Store' })).toBeInTheDocument()
-      expect(screen.getByRole('button', { name: 'Cancel — Customer' })).toBeInTheDocument()
+      expect(screen.getByText('More actions')).toBeInTheDocument()
       expect(screen.queryByRole('button', { name: 'Ship' })).toBeNull()
       expect(screen.queryByRole('button', { name: 'Refund' })).toBeNull()
     })
@@ -199,7 +199,7 @@ describe('OrderDetailPage', () => {
 
       renderPage()
 
-      expect(screen.getByTestId('order-action-buttons')).toBeInTheDocument()
+      expect(screen.getByTestId('order-actions-panel')).toBeInTheDocument()
     })
 
     it('does not render action buttons for VIEWER role', () => {
@@ -207,7 +207,7 @@ describe('OrderDetailPage', () => {
 
       renderPage()
 
-      expect(screen.queryByTestId('order-action-buttons')).not.toBeInTheDocument()
+      expect(screen.queryByTestId('order-actions-panel')).not.toBeInTheDocument()
     })
 
     it('does not render action buttons when order has no available transitions', () => {
@@ -218,7 +218,7 @@ describe('OrderDetailPage', () => {
 
       renderPage()
 
-      expect(screen.queryByTestId('order-action-buttons')).not.toBeInTheDocument()
+      expect(screen.queryByTestId('order-actions-panel')).not.toBeInTheDocument()
     })
   })
 
@@ -237,7 +237,8 @@ describe('OrderDetailPage', () => {
     })
 
     it('renders customer name', () => {
-      expect(screen.getByText('John Smith')).toBeInTheDocument()
+      // Once in the Customer panel, once as the recipient name atop the shipping address.
+      expect(screen.getAllByText('John Smith')).toHaveLength(2)
     })
 
     it('renders customer email', () => {
@@ -278,13 +279,12 @@ describe('OrderDetailPage', () => {
       expect(screen.getByText('No address captured')).toBeInTheDocument()
     })
 
+    it('renders the items panel header with the line item count', () => {
+      expect(screen.getByText('Items · 2')).toBeInTheDocument()
+    })
+
     it('renders order summary values using formatAmount', () => {
       // formatAmount with ZAR locale returns values like "R 25 000,00"
-      // We check that the formatted values appear in the document
-      const summarySection = screen.getByText('Order Summary').closest('section')!
-      expect(summarySection).toBeInTheDocument()
-
-      // Check labels are present
       expect(screen.getByText('Sub-Total')).toBeInTheDocument()
       expect(screen.getByText('Shipping')).toBeInTheDocument()
       expect(screen.getByText('VAT')).toBeInTheDocument()
@@ -296,8 +296,46 @@ describe('OrderDetailPage', () => {
       expect(screen.getByText('Basic Gadget')).toBeInTheDocument()
     })
 
-    it('renders status history section', () => {
-      expect(screen.getByText('Order Tracking')).toBeInTheDocument()
+    it('renders the order-placed date next to the reference', () => {
+      expect(screen.getByText('Placed 15 Jun 2025')).toBeInTheDocument()
+    })
+
+    it('renders the horizontal order tracking stepper at the top', () => {
+      expect(screen.getByRole('navigation', { name: 'Order progress' })).toBeInTheDocument()
+    })
+
+    it('renders the detailed status history section, retitled to not clash with the tracker', () => {
+      expect(screen.getByText('Status History')).toBeInTheDocument()
+    })
+  })
+
+  describe('latest payment', () => {
+    it('renders nothing when no payment has been recorded yet', () => {
+      setupMocks({ data: mockOrder })
+      renderPage()
+
+      expect(screen.queryByTestId('order-payment-panel')).not.toBeInTheDocument()
+    })
+
+    it('renders gateway, reference, amount and status when a payment is linked', () => {
+      setupMocks({
+        data: {
+          ...mockOrder,
+          latestPayment: {
+            gateway: 'PAYFAST',
+            externalReference: 'pf-77001',
+            amountGross: 30250,
+            status: 'COMPLETE',
+            receivedAt: '2025-06-15T10:32:00',
+          },
+        },
+      })
+      renderPage()
+
+      expect(screen.getByTestId('order-payment-panel')).toBeInTheDocument()
+      expect(screen.getByText('PAYFAST')).toBeInTheDocument()
+      expect(screen.getByText('pf-77001')).toBeInTheDocument()
+      expect(screen.getByText('COMPLETE')).toBeInTheDocument()
     })
   })
 })

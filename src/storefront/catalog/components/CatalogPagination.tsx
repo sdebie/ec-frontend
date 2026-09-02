@@ -1,3 +1,5 @@
+import { clampItemRange } from '@/shared/utils/pagination'
+
 interface CatalogPaginationProps {
   page: number
   totalPages: number
@@ -13,8 +15,7 @@ export function CatalogPagination({
   pageSize,
   onPageChange,
 }: CatalogPaginationProps) {
-  const start = (page - 1) * pageSize + 1
-  const end = Math.min(page * pageSize, totalElements)
+  const { start, end } = clampItemRange(page, pageSize, totalElements)
 
   const isFirstPage = page === 1
   const isLastPage = page >= totalPages

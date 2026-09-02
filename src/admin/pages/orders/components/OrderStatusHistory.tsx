@@ -19,28 +19,27 @@ export function OrderStatusHistory({history}: OrderStatusHistoryProps) {
                 {history.map((entry, index) => {
                     const isLast = index === history.length - 1
                     const isCurrent = index === 0
+                    // Every entry already happened — only the oldest
+                    // (isLast) reads as a distinct "origin" marker rather than a completed step.
+                    const isCompleted = isCurrent || !isLast
                     return (
                         <li key={index} className="relative flex gap-4">
                             {!isLast && (
                                 <div
-                                    className={`absolute left-3.5 top-7 bottom-0 w-0.5 ${
-                                        isCurrent ? 'bg-(--c-accent)' : 'bg-(--c-border)'
-                                    }`}
+                                    className="absolute left-3.5 top-7 bottom-0 w-0.5 bg-(--c-accent)"
                                     aria-hidden="true"
                                 />
                             )}
 
                             <div className="relative z-10 shrink-0">
-                                {isCurrent ? (
+                                {isCompleted ? (
                                     <div
                                         className="flex h-7 w-7 items-center justify-center rounded-full bg-(--c-accent)">
                                         <Check className="h-3.5 w-3.5 text-(--c-accent-text)" aria-hidden="true"/>
                                     </div>
                                 ) : (
                                     <div
-                                        className={`h-7 w-7 rounded-full border-[5px] bg-(--c-panel) 
-                                        ${isLast ? 'border-(--c-accent)' : 'border-(--c-surface-hover)'}`
-                                        }
+                                        className="h-7 w-7 rounded-full border-[5px] border-(--c-accent) bg-(--c-panel)"
                                     />
                                 )}
                             </div>
@@ -49,7 +48,7 @@ export function OrderStatusHistory({history}: OrderStatusHistoryProps) {
                                 <OrderStatusDisplay status={entry.status}/>
                                 {entry.staffName && (
                                     <span className="text-xs text-(--c-text-muted)">
-                                        by
+                                        by {' '}
                                         <span className="font-semibold text-(--c-text)">
                                             {entry.staffName}
                                         </span>

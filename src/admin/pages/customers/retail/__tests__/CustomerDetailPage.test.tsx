@@ -237,13 +237,13 @@ describe('CustomerDetailPage', () => {
       expect(screen.getByRole('button', { name: 'Reject' })).toBeInTheDocument()
     })
 
-    it('renders a Pending status badge instead of decision buttons for VIEWER role', () => {
+    it('renders a Pending Review status badge instead of decision buttons for VIEWER role', () => {
       setupMocks({ data: mockCustomer, role: 'VIEWER' })
 
       renderPage()
 
       expect(screen.getByText('Wholesale Account')).toBeInTheDocument()
-      expect(screen.getByText('Pending')).toBeInTheDocument()
+      expect(screen.getByText('Pending Review')).toBeInTheDocument()
       expect(screen.queryByRole('button', { name: 'Approve' })).not.toBeInTheDocument()
       expect(screen.queryByRole('button', { name: 'Reject' })).not.toBeInTheDocument()
     })

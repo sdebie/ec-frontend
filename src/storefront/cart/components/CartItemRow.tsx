@@ -22,7 +22,7 @@ function PriceSkeleton() {
  * name, SKU, variant and stock state on the left; unit price, quantity and line
  * total on the right.
  *
- * Deliberately NOT a `ProductCard` variant (law 4). A cart line's quantity is
+ * Deliberately NOT a `ProductCard` variant. A cart line's quantity is
  * persisted state being edited, not a pre-purchase choice, and it carries a
  * line total and a remove control the card has no concept of. Teaching the
  * shared card about carts is capability creep. It reuses the pieces that DO

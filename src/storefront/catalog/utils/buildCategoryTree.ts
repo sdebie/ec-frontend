@@ -13,15 +13,10 @@ export interface CategoryInput {
 }
 
 /**
- * Transforms a flat array of categories (each with an optional parent reference)
- * into a tree of CategoryNode[].
- *
- * Algorithm:
- * 1. Build a Map<id, CategoryNode> from the flat list (children initially empty).
- * 2. For each category with a non-null parent.id, look up the parent in the map.
- *    If found, push the node into parent.children. If not found (orphan), treat as root.
- * 3. Roots = categories where parent is null OR orphaned.
- * 4. Sort roots and children alphabetically by name.
+ * Transforms a flat array of categories (each with an optional parent
+ * reference) into a tree of CategoryNode[], sorted alphabetically by name at
+ * every level. A category whose parent.id does not resolve to another entry
+ * in the list is treated as a root rather than dropped.
  *
  * Invariant: total node count in output === input array length (no drops).
  */

@@ -6,7 +6,7 @@ import {cn} from '@/shared/utils/cn'
 /**
  * InputField — composite that wraps the Input primitive with a Label,
  * optional left/right icons, helper text, and error message.
- * Uses --c-* surface tokens, so it works in any SurfaceProvider context.
+ * Uses --c-* surface tokens, so it works in any [data-surface] context.
  *
  * For a raw styled <input>, use Input from @/shared/ui/primitives directly.
  */

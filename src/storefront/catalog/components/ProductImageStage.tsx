@@ -4,9 +4,9 @@ import {SF_FOCUS_RING} from '@/storefront/sections/shared'
 /**
  * The "no image" mark, and the single definition of it.
  *
- * It was written out by hand in four files; each copy was a chance for one
- * placeholder to drift into a different size or colour from the others while
- * still looking deliberate.
+ * A shared definition is what keeps the placeholder from drifting into a
+ * different size or colour across the stages that use it while still
+ * looking deliberate.
  *
  * The surface behind it belongs to the caller — every stage that uses this
  * already sets `bg-(--sf-surface-muted)` on the box it fills, so painting it
@@ -48,12 +48,12 @@ export interface ProductImageStageProps {
 }
 
 /**
- * The linked image inside a product card: picture or placeholder, wrapped in the
- * navigation target.
+ * The linked image inside a product card: picture or placeholder, wrapped in
+ * the navigation target.
  *
- * `ProductCard` rendered this twice, once per layout branch, and the copies were
- * identical apart from the padding — so a change to the hover transform, the focus
- * ring or the placeholder had to be made in both, correctly, or the layouts drifted.
+ * Shared between both `ProductCard` layout branches (which differ only in
+ * padding) so a change to the hover transform, the focus ring or the
+ * placeholder is made once rather than risking the two drifting apart.
  */
 export function ProductImageStage({imageUrl, alt, productUrl, padding}: ProductImageStageProps) {
     return (
